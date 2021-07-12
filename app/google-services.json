@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "601646266812",
+    "firebase_url": "https://moeuibit-default-rtdb.firebaseio.com",
+    "project_id": "moeuibit",
+    "storage_bucket": "moeuibit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601646266812:android:5ed7b8a6d539d831bcd3b9",
+        "android_client_info": {
+          "package_name": "org.jeonfeel.moeuibit2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601646266812-7v4sm1nikmrf1f68h0dpv5ev9s5uiqt2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.jeonfeel.moeuibit2",
+            "certificate_hash": "d78ccd2e2bf1899aafe57b6fe071e0c87247f243"
+          }
+        },
+        {
+          "client_id": "601646266812-jjnt1dc0o5dfhfdv98o540q2n3hac9c0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmHv_RVR9dW4bcVWc50l1fbtJEozLcC3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601646266812-jjnt1dc0o5dfhfdv98o540q2n3hac9c0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
