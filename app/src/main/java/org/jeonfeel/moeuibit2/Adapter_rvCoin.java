@@ -11,12 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import static java.lang.Math.round;
+
 public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomViewHolder> {
 
-    private ArrayList<item_rvCoin> item;
+    private ArrayList<CoinDTO> item;
     private Context context;
 
-    public Adapter_rvCoin(ArrayList<item_rvCoin> item, Context context) {
+    public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
         this.item = item;
         this.context = context;
     }
@@ -36,10 +38,15 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
 
-        holder.tv_coinName.setText(item.get(position).getCoinName());
-        holder.tv_currentPrice.setText(item.get(position).getCurrentPrice());
-        holder.tv_dayToDay.setText(item.get(position).getDayToDay());
-        holder.tv_transactionAmount.setText(item.get(position).getTransactionAmount());
+        holder.tv_coinName.setText(item.get(position).getKoreanName());
+        if(item.get(position).getCurrentPrice() > 100){
+            int currentPrice = (int) round(item.get(position).getCurrentPrice());
+            holder.tv_currentPrice.setText(currentPrice+"");
+        }else{
+            holder.tv_currentPrice.setText(String.valueOf(item.get(position).getCurrentPrice()));
+        }
+        holder.tv_dayToDay.setText(String.valueOf(item.get(position).getDayToDay() * 100 + " %"));
+        holder.tv_transactionAmount.setText((int) round(item.get(position).getTransactionAmount())+"");
 
     }
 

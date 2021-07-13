@@ -11,25 +11,33 @@
         android:id="@+id/tv_coinName"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:text="비트코인"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/tv_currentPrice"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:text="5000원"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/tv_dayToDay"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:text="-3.2%"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/tv_transactionAmount"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:text="52000백만"
+        android:gravity="center"/>
 
 </LinearLayout>
 
