@@ -32,14 +32,14 @@ public class Activity_Login extends AppCompatActivity {
 
 
     //카카오 로그인 매서드
-    private void setBtn_kakaoLogin(){
+    private void setBtn_kakaoLogin() {
         Button btn_kakaoLogin = findViewById(R.id.btn_kakaoLogin);
 
         btn_kakaoLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(UserApiClient.getInstance().isKakaoTalkLoginAvailable(Activity_Login.this)){
-                    UserApiClient.getInstance().loginWithKakaoTalk(Activity_Login.this,(oAuthToken, error) -> {
+                if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(Activity_Login.this)) {
+                    UserApiClient.getInstance().loginWithKakaoTalk(Activity_Login.this, (oAuthToken, error) -> {
                         if (error != null) {
                             Log.e(TAG, "로그인 실패", error);
                         } else if (oAuthToken != null) {
@@ -48,8 +48,8 @@ public class Activity_Login extends AppCompatActivity {
                         }
                         return null;
                     });
-                }else{
-                    UserApiClient.getInstance().loginWithKakaoAccount(Activity_Login.this,(oAuthToken, error) -> {
+                } else {
+                    UserApiClient.getInstance().loginWithKakaoAccount(Activity_Login.this, (oAuthToken, error) -> {
                         if (error != null) {
                             Log.e(TAG, "로그인 실패", error);
                         } else if (oAuthToken != null) {
@@ -64,17 +64,16 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     // 유저 정보 firebase에 저장
-    private void getUserInfo(){
-        UserApiClient.getInstance().me((user,meError) -> {
+    private void getUserInfo() {
+        UserApiClient.getInstance().me((user, meError) -> {
 
-            if(meError != null){
-                Log.e(TAG,"사용자 정보 요청 실패",meError);
-            }else{
-                Log.i(TAG,"사용자 정보 요청 성공");
+            if (meError != null) {
+                Log.e(TAG, "사용자 정보 요청 실패", meError);
+            } else {
+                Log.i(TAG, "사용자 정보 요청 성공");
                 long userId = user.getId();
                 String userEmail = user.getKakaoAccount().getEmail();
 
-                FirebaseApp.initializeApp(Activity_Login.this);
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference defaultRef = database.getReference();
 
@@ -82,7 +81,7 @@ public class Activity_Login extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) { // 정보저장 성공한다면
                         Toast.makeText(Activity_Login.this, "유저 정보 저장 성공!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(Activity_Login.this,MainActivity.class);
+                        Intent intent = new Intent(Activity_Login.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
@@ -93,6 +92,24 @@ public class Activity_Login extends AppCompatActivity {
                     }
                 });
             }
+            return null;
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        UserApiClient.getInstance().me((user, meError) -> {
+            if (meError != null) {
+                Log.e(TAG, "사용자 정보 요청 실패", meError);
+            } else {
+                Log.i(TAG, "사용자 정보 요청 성공");
+                Intent intent = new Intent(Activity_Login.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
             return null;
         });
     }

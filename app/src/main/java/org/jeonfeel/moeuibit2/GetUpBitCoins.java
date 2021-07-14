@@ -14,7 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class GetUpBitApi extends AsyncTask<String,Void, JSONArray> {
+public class GetUpBitCoins extends AsyncTask<String,Void, JSONArray> {
 
     JSONArray jsonCoinInfo;
 
@@ -64,4 +64,5 @@ public class GetUpBitApi extends AsyncTask<String,Void, JSONArray> {
     @Override
     protected void onCancelled() {
         super.onCancelled(); }
+
 }

@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2;
 
 public class CoinDTO {
 
+    private int id;
     private String market;
     private String koreanName;
     private String englishName;
@@ -64,5 +65,11 @@ public class CoinDTO {
 
     public void setTransactionAmount(Double transactionAmount) {
         TransactionAmount = transactionAmount;
+    }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
     }
 }
