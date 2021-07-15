@@ -26,10 +26,19 @@ public class Activity_Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        setBtn_kakaoLogin();
+        UserApiClient.getInstance().me((user, meError) -> {
+            if (meError != null) {
+                setBtn_kakaoLogin();
+            } else {
+                Log.i(TAG, "사용자 정보 요청 성공");
+                Intent intent = new Intent(Activity_Login.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+            return null;
+        });
 
     }
-
 
     //카카오 로그인 매서드
     private void setBtn_kakaoLogin() {
@@ -92,24 +101,6 @@ public class Activity_Login extends AppCompatActivity {
                     }
                 });
             }
-            return null;
-        });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        UserApiClient.getInstance().me((user, meError) -> {
-            if (meError != null) {
-                Log.e(TAG, "사용자 정보 요청 실패", meError);
-            } else {
-                Log.i(TAG, "사용자 정보 요청 성공");
-                Intent intent = new Intent(Activity_Login.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-
             return null;
         });
     }

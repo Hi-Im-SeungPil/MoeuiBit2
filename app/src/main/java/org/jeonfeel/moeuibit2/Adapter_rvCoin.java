@@ -1,10 +1,12 @@
 package org.jeonfeel.moeuibit2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -61,7 +63,9 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         }else{
             holder.tv_currentPrice.setText(String.valueOf(item.get(position).getCurrentPrice()));
         }
+
         //---------------------------------
+
         holder.tv_dayToDay.setText(String.format("%.2f",dayToDay) + " %"); //스트링 포맷으로 소수점 2자리 반올림
 
         if(dayToDay > 0 ){ //어제보다 높으면 주황 낮으면 파랑
@@ -77,6 +81,15 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
 
         holder.tv_transactionAmount.setText( transactionAmountResult+" 백만");
 //---------------------------------
+        holder.linear_coin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context,Activity_coinInfo.class);
+                intent.putExtra("market",item.get(position).getMarket());
+                intent.putExtra("koreanName",item.get(position).getKoreanName());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -86,6 +99,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
 
     public class CustomViewHolder extends RecyclerView.ViewHolder{
 
+        protected LinearLayout linear_coin;
         protected TextView tv_coinName;
         protected TextView tv_currentPrice;
         protected TextView tv_dayToDay;
@@ -94,6 +108,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            this.linear_coin = itemView.findViewById(R.id.linear_coin);
             this.tv_coinName = itemView.findViewById(R.id.tv_coinName);
             this.tv_currentPrice = itemView.findViewById(R.id.tv_currentPrice);
             this.tv_dayToDay = itemView.findViewById(R.id.tv_dayToDay);

@@ -43,6 +43,7 @@ public class Fragment_Exchange extends Fragment {
     String markets;
     TimerTask timerTask;
     Timer timer;
+    private boolean checkTimer = false;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -86,7 +87,6 @@ public class Fragment_Exchange extends Fragment {
 
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
         rv_coin.setAdapter(adapter_rvCoin);
-
         getUpBitCoinsInfo();
 
         return rootView;
@@ -190,14 +190,23 @@ public class Fragment_Exchange extends Fragment {
     @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
         super.onResume();
-        setTimerTask();
-        timer.schedule(timerTask,2000,2000);
+
+        if(!checkTimer){
+            setTimerTask();
+            checkTimer = true;
+        }
+
     }
 
     @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
+
+        if(checkTimer) {
             timerTask.cancel();
+            checkTimer = false;
+        }
+
     }
 
     private void setTimerTask(){
@@ -215,5 +224,6 @@ public class Fragment_Exchange extends Fragment {
             }
         };
         timer = new Timer();
+        timer.schedule(timerTask,0,2000);
     }
 }
