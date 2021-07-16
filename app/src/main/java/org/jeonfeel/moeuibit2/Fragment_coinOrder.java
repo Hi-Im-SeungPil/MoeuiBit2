@@ -3,62 +3,150 @@ package org.jeonfeel.moeuibit2;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.JsonArray;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link Fragment_coinOrder#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class Fragment_coinOrder extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private RecyclerView rv_coinArcade;
+    private String market;
+    private ArrayList<CoinArcadeDTO> coinArcadeDTOS;
+    private boolean checkTimer = false;
+    private TimerTask timerTask;
+    private Adapter_rvCoinArcade adapter_rvCoinArcade;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public Fragment_coinOrder() {
+    public Fragment_coinOrder(String market) {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BlankFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Fragment_coinOrder newInstance(String param1, String param2) {
-        Fragment_coinOrder fragment = new Fragment_coinOrder();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        this.market = market;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_coin_order, container, false);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_coin_order, container, false);
+        FindViewById(rootView);
+        setRv_coinArcade();
+        adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS,getActivity());
+        rv_coinArcade.setAdapter(adapter_rvCoinArcade);
+        getCoinArcadeInfo();
+
+        return rootView;
+    }
+
+    private void setRv_coinArcade(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        rv_coinArcade.setLayoutManager(linearLayoutManager);
+    }
+
+    private void FindViewById(View rootView){
+        rv_coinArcade = rootView.findViewById(R.id.rv_coinArcade);
+    }
+
+    private void getCoinArcadeInfo(){
+
+        String coinArcadeUrl = "https://api.upbit.com/v1/orderbook?markets="+market;
+
+        coinArcadeDTOS = new ArrayList<>();
+        GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
+        try {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray = getUpBitCoins.execute(coinArcadeUrl).get();
+            JSONObject jsonObject = (JSONObject) jsonArray.get(0);
+
+            if (jsonArray != null) {
+
+                JSONArray jsonUnits = (JSONArray) jsonObject.get("orderbook_units");
+                JSONObject jsonObjUnits = new JSONObject();
+
+                for ( int i = jsonUnits.length() - 1; i >= 0 ; i--) {
+                    jsonObjUnits = (JSONObject) jsonUnits.get(i);
+
+                    Double arcadePrice = jsonObjUnits.getDouble("ask_price");
+                    Double coinArcadeSize = jsonObjUnits.getDouble("ask_size");
+                    coinArcadeDTOS.add(new CoinArcadeDTO(arcadePrice,coinArcadeSize,"ask"));
+                }
+
+                for(int i = 0; i < jsonUnits.length(); i++){
+                    jsonObjUnits = (JSONObject) jsonUnits.get(i);
+
+                    Double arcadePrice = jsonObjUnits.getDouble("bid_price");
+                    Double coinArcadeSize = jsonObjUnits.getDouble("bid_size");
+
+                    coinArcadeDTOS.add(new CoinArcadeDTO(arcadePrice,coinArcadeSize,"bid"));
+                }
+                adapter_rvCoinArcade.setItem(coinArcadeDTOS);
+                adapter_rvCoinArcade.notifyDataSetChanged();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            getUpBitCoins = null;
+        }
+    }
+
+    @Override
+    public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
+        super.onResume();
+
+        if(!checkTimer){
+            setTimerTask();
+            checkTimer = true;
+        }
+
+    }
+
+    @Override
+    public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
+        super.onPause();
+
+        if(checkTimer) {
+            timerTask.cancel();
+            checkTimer = false;
+        }
+
+    }
+
+    private void setTimerTask(){
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCoinArcadeInfo();
+                        adapter_rvCoinArcade.setItem(coinArcadeDTOS);
+                        adapter_rvCoinArcade.notifyDataSetChanged();
+                    }
+                });
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(timerTask,0,1000);
     }
 }

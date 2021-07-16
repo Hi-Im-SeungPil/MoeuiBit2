@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -22,11 +23,13 @@ import static java.lang.Math.round;
 
 public class Activity_coinInfo extends FragmentActivity {
 
-    TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
-    DecimalFormat decimalFormat;
-    TimerTask timerTask;
-    Timer timer;
+    private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
+    private DecimalFormat decimalFormat;
+    private TimerTask timerTask;
+    private Timer timer;
     private boolean checkTimer;
+    private String market;
+    private Double openingPrice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,8 +38,8 @@ public class Activity_coinInfo extends FragmentActivity {
 
         decimalFormat = new DecimalFormat("###,###");
         FindViewById();
-        setTabLayout();
         setCoinInfo();
+        setTabLayout();
 
     }
 
@@ -50,8 +53,8 @@ public class Activity_coinInfo extends FragmentActivity {
     private void setCoinInfo(){
 
         Intent intent = getIntent();
-        String market = intent.getStringExtra("market");
         String koreanName = intent.getStringExtra("koreanName");
+
         String coinUrl = "https://api.upbit.com/v1/ticker?markets="+market;
 
         GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
@@ -64,9 +67,12 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 jsonObject = (JSONObject) jsonArray.get(0);
 
+                openingPrice = jsonObject.getDouble("opening_price");
+                Log.d("qqqqq",openingPrice+"");
                 Double currentPrice = jsonObject.getDouble("trade_price");
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
+
                 //--------------------------------------------------
                 tv_coinInfoCoinName.setText(koreanName + "( "+market+" )");
                 //--------------------------------------------------
@@ -106,12 +112,17 @@ public class Activity_coinInfo extends FragmentActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            getUpBitCoins = null;
         }
     }
 
     private void setTabLayout(){
 
-        Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder();
+        Intent intent = getIntent();
+        market = intent.getStringExtra("market");
+
+        Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder(market);
         TabLayout tab_coinInfo = findViewById(R.id.tab_coinInfo);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.coinInfo_fragment_container,fragment_coinOrder).commit();
@@ -169,7 +180,11 @@ public class Activity_coinInfo extends FragmentActivity {
             }
         };
         timer = new Timer();
-        timer.schedule(timerTask,1000,1000);
+        timer.schedule(timerTask,0,1000);
+    }
+
+    public String getMarket(){
+        return market;
     }
 
 }

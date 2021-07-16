@@ -112,7 +112,6 @@ public class Fragment_Exchange extends Fragment {
 
         String url = "https://api.upbit.com/v1/market/all"; // 업비트 모든 코인 종류
         GetUpBitCoins getUpBitApi = new GetUpBitCoins();
-
         try {
             JSONArray jsonArray = new JSONArray();
 
@@ -138,6 +137,8 @@ public class Fragment_Exchange extends Fragment {
             } // 인터넷 연결 확인 추가해야함
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            getUpBitApi = null;
         }
 
         StringBuilder builder = new StringBuilder(); //StringBuilder 를 사용해서 업비트 모든 코인 종류 받아옴
@@ -160,6 +161,7 @@ public class Fragment_Exchange extends Fragment {
             String allCoinsInfoUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
 
             GetUpBitCoins getUpBitApi = new GetUpBitCoins();
+
             try {
                 JSONArray jsonArray = new JSONArray();
                 jsonArray = getUpBitApi.execute(allCoinsInfoUrl).get();
@@ -184,8 +186,11 @@ public class Fragment_Exchange extends Fragment {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }finally {
+                getUpBitApi = null;
             }
-        }
+
+    }
 
     @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
@@ -206,7 +211,6 @@ public class Fragment_Exchange extends Fragment {
             timerTask.cancel();
             checkTimer = false;
         }
-
     }
 
     private void setTimerTask(){
