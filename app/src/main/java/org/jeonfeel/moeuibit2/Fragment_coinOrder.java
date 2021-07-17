@@ -32,6 +32,7 @@ public class Fragment_coinOrder extends Fragment {
     private boolean checkTimer = false;
     private TimerTask timerTask;
     private Adapter_rvCoinArcade adapter_rvCoinArcade;
+    private Double openingPrice;
 
     public Fragment_coinOrder(String market) {
         // Required empty public constructor
@@ -52,9 +53,11 @@ public class Fragment_coinOrder extends Fragment {
         // Inflate the layout for this fragment
         FindViewById(rootView);
         setRv_coinArcade();
-        adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS,getActivity());
+        getOpeningPriceFromApi();
+        adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS,getActivity(),openingPrice);
         rv_coinArcade.setAdapter(adapter_rvCoinArcade);
         getCoinArcadeInfo();
+        rv_coinArcade.scrollToPosition(8);
 
         return rootView;
     }
@@ -107,6 +110,28 @@ public class Fragment_coinOrder extends Fragment {
             e.printStackTrace();
         }finally {
             getUpBitCoins = null;
+        }
+    }
+
+    private void getOpeningPriceFromApi(){
+
+        String coinUrl = "https://api.upbit.com/v1/ticker?markets="+market;
+
+        GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
+        try {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray = getUpBitCoins.execute(coinUrl).get();
+
+            if (jsonArray != null) {
+                JSONObject jsonObject = new JSONObject();
+
+                jsonObject = (JSONObject) jsonArray.get(0);
+
+                openingPrice = jsonObject.getDouble("prev_closing_price");
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

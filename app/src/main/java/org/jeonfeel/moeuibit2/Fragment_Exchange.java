@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import java.util.TimerTask;
 
 import static java.lang.Math.round;
 
-public class Fragment_Exchange extends Fragment {
+public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     private final String TAG = "Fragment_Exchange";
 
@@ -84,10 +86,10 @@ public class Fragment_Exchange extends Fragment {
         FindViewById(rootView);
         setRv_coin();
         getAllUpBitCoins();
-
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
         rv_coin.setAdapter(adapter_rvCoin);
         getUpBitCoinsInfo();
+        setTextWatcher();
 
         return rootView;
     }
@@ -100,6 +102,7 @@ public class Fragment_Exchange extends Fragment {
     private void setRv_coin(){
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         rv_coin.setLayoutManager(linearLayoutManager);
+        rv_coin.setHasFixedSize(true);
     }
 
 
@@ -229,5 +232,25 @@ public class Fragment_Exchange extends Fragment {
         };
         timer = new Timer();
         timer.schedule(timerTask,0,2000);
+    }
+
+    private void setTextWatcher(){
+        et_searchCoin.setCursorVisible(false);
+        et_searchCoin.addTextChangedListener(this);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        adapter_rvCoin.getFilter().filter(charSequence.toString());
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
     }
 }

@@ -29,7 +29,7 @@ public class Activity_coinInfo extends FragmentActivity {
     private Timer timer;
     private boolean checkTimer;
     private String market;
-    private Double openingPrice;
+    public static Double openingPrice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,8 +67,6 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 jsonObject = (JSONObject) jsonArray.get(0);
 
-                openingPrice = jsonObject.getDouble("opening_price");
-                Log.d("qqqqq",openingPrice+"");
                 Double currentPrice = jsonObject.getDouble("trade_price");
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
@@ -149,6 +147,8 @@ public class Activity_coinInfo extends FragmentActivity {
         });
     }
 
+
+
     @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
         super.onResume();
@@ -181,10 +181,6 @@ public class Activity_coinInfo extends FragmentActivity {
         };
         timer = new Timer();
         timer.schedule(timerTask,0,1000);
-    }
-
-    public String getMarket(){
-        return market;
     }
 
 }

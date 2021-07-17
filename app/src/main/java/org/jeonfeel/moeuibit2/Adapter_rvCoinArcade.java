@@ -23,11 +23,12 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private Double openingPrice;
 
-    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context) {
+    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice) {
         this.item = item;
         this.context = context;
-
+        this.openingPrice = openingPrice;
     }
+
     public void setItem(ArrayList<CoinArcadeDTO> item){
         this.item = item;
     }
@@ -46,15 +47,32 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     @Override
     public void onBindViewHolder(@NonNull Adapter_rvCoinArcade.CustomViewHolder holder, int position) {
         int arcadePrice = (int) round(item.get(position).getCoinArcadePrice());
-//        int integerOpenPrice = (int) round(openingPrice);
+        int integerOpenPrice = (int) round(openingPrice);
+        Double dayToDay = 0.0;
+        if(arcadePrice > 1000000){
+            holder.tv_coinArcadeDayToDay.setVisibility(View.GONE);
+        }
         //-------------------------------------------------------------------------------------------------
         if(arcadePrice > 100){
             holder.tv_coinArcadePrice.setText(decimalFormat.format(arcadePrice));
-//            Double dayToDay = (Double) (((arcadePrice - integerOpenPrice) / openingPrice) * 100);
-//            holder.tv_coinArcadeDayToDay.setText(dayToDay+"%");
-        }else if(arcadePrice < 100){
+
+            dayToDay = (Double) (((arcadePrice - integerOpenPrice) / openingPrice) * 100);
+            holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
+
+        }else if(item.get(position).getCoinArcadePrice() < 100){
+
             holder.tv_coinArcadePrice.setText(String.format("%.2f",item.get(position).getCoinArcadePrice()));
+
+            dayToDay = (Double) (((item.get(position).getCoinArcadePrice() - integerOpenPrice) / openingPrice) * 100);
+            holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
+        }else if(item.get(position).getCoinArcadePrice() == 100.0){
+
+            holder.tv_coinArcadePrice.setText(arcadePrice+"");
+
+            dayToDay = (Double) (((arcadePrice - integerOpenPrice) / openingPrice) * 100);
+            holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
+        //-------------------------------------------------------------------------------------------------
         holder.tv_coinArcadeAmount.setText(String.format("%.3f",item.get(position).getCoinArcadeSize()));
         //-------------------------------------------------------------------------------------------------
         if(item.get(position).getArcadeStatus().equals("ask")){
@@ -63,7 +81,16 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.linear_wholeItem.setBackgroundColor(Color.parseColor("#33FF0000"));
         }
 
-
+        if(dayToDay > 0){
+            holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#B77300"));
+            holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#B77300"));
+        }else if(dayToDay < 0){
+            holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#0054FF"));
+            holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#0054FF"));
+        }else if(String.format("%.2f",dayToDay).equals("0.00")){
+            holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#000000"));
+            holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
+        }
     }
 
     @Override

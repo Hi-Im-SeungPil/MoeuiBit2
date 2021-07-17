@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,15 +19,18 @@ import java.util.ArrayList;
 
 import static java.lang.Math.round;
 
-public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomViewHolder> {
+public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomViewHolder> implements Filterable {
 
     private ArrayList<CoinDTO> item;
+    private ArrayList<CoinDTO> filteredItem;
     private Context context;
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
         this.item = item;
+        this.filteredItem = item;
         this.context = context;
     }
+
 
     public void setItem(ArrayList<CoinDTO> item) {
         this.item = item;
@@ -51,17 +56,17 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
 
-        Double dayToDay = item.get(position).getDayToDay()*100;
+        Double dayToDay = filteredItem.get(position).getDayToDay()*100;
         DecimalFormat decimalFormat = new DecimalFormat("###,###"); //데시말 포맷 설정 (천단위 콤마찍기)
 //---------------------------------
-        holder.tv_coinName.setText(item.get(position).getKoreanName());
+        holder.tv_coinName.setText(filteredItem.get(position).getKoreanName());
 //---------------------------------
-        if(item.get(position).getCurrentPrice() > 100){ //만약 100원보다 가격이 높으면 천단위 콤마
-            int currentPrice = (int) round(item.get(position).getCurrentPrice());
+        if(filteredItem.get(position).getCurrentPrice() > 100){ //만약 100원보다 가격이 높으면 천단위 콤마
+            int currentPrice = (int) round(filteredItem.get(position).getCurrentPrice());
             String currentPriceResult = decimalFormat.format(currentPrice);
             holder.tv_currentPrice.setText(currentPriceResult+"");
         }else{
-            holder.tv_currentPrice.setText(String.valueOf(item.get(position).getCurrentPrice()));
+            holder.tv_currentPrice.setText(String.format("%.2f",filteredItem.get(position).getCurrentPrice()));
         }
 
         //---------------------------------
@@ -71,12 +76,15 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         if(dayToDay > 0 ){ //어제보다 높으면 주황 낮으면 파랑
             holder.tv_dayToDay.setTextColor(Color.parseColor("#B77300"));
             holder.tv_currentPrice.setTextColor(Color.parseColor("#B77300"));
-        }else{
+        }else if(dayToDay < 0){
             holder.tv_dayToDay.setTextColor(Color.parseColor("#0054FF"));
             holder.tv_currentPrice.setTextColor(Color.parseColor("#0054FF"));
+        }else if(String.format("%.2f",dayToDay).equals("0.00")){ //같으면 검정
+            holder.tv_dayToDay.setTextColor(Color.parseColor("#000000"));
+            holder.tv_currentPrice.setTextColor(Color.parseColor("#000000"));
         }
 //---------------------------------
-        int transactionAmount = (int) round(item.get(position).getTransactionAmount()*0.000001); //백만단위로 끊기
+        int transactionAmount = (int) round(filteredItem.get(position).getTransactionAmount()*0.000001); //백만단위로 끊기
         String transactionAmountResult = decimalFormat.format(transactionAmount);
 
         holder.tv_transactionAmount.setText( transactionAmountResult+" 백만");
@@ -85,8 +93,8 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context,Activity_coinInfo.class);
-                intent.putExtra("market",item.get(position).getMarket());
-                intent.putExtra("koreanName",item.get(position).getKoreanName());
+                intent.putExtra("market",filteredItem.get(position).getMarket());
+                intent.putExtra("koreanName",filteredItem.get(position).getKoreanName());
                 context.startActivity(intent);
             }
         });
@@ -94,7 +102,39 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
 
     @Override
     public int getItemCount() {
-        return item.size();
+        return filteredItem.size();
+    }
+ //검색을 위한 필터.
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String str = charSequence.toString();
+                if(str.isEmpty()){
+                    filteredItem = item;
+                }else{
+                    ArrayList<CoinDTO> filteringItem = new ArrayList<>();
+
+                    for(CoinDTO i : item){
+                        if(i.getKoreanName().contains(str) || i.getEnglishName().toLowerCase().contains(str)){
+                            filteringItem.add(i);
+                        }
+                    }
+                    filteredItem = filteringItem;
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredItem;
+
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                filteredItem = (ArrayList<CoinDTO>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class CustomViewHolder extends RecyclerView.ViewHolder{
