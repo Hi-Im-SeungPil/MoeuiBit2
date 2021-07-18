@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -11,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +23,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -45,6 +58,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     String markets;
     TimerTask timerTask;
     Timer timer;
+    boolean isRunning = false;
     private boolean checkTimer = false;
 
 
@@ -100,11 +114,10 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     }
 
     private void setRv_coin(){
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        rv_coin.setLayoutManager(linearLayoutManager);
+        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(getActivity(),LinearLayoutManager.VERTICAL,false);
+        rv_coin.setLayoutManager(linearLayoutManagerWrapper);
         rv_coin.setHasFixedSize(true);
     }
-
 
     private void getAllUpBitCoins(){
 
@@ -195,6 +208,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     }
 
+
+
     @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
         super.onResume();
@@ -214,16 +229,19 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             timerTask.cancel();
             checkTimer = false;
         }
+
     }
 
     private void setTimerTask(){
         timerTask = new TimerTask() {
             @Override
             public void run() {
+                GetUpBitCoinsThread getUpBitCoinsThread = new GetUpBitCoinsThread();
+                getUpBitCoinsThread.start();
+
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        getUpBitCoinsInfo();
                         adapter_rvCoin.setItem(allCoinInfoArray);
                         adapter_rvCoin.notifyDataSetChanged();
                     }
@@ -231,7 +249,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }
         };
         timer = new Timer();
-        timer.schedule(timerTask,0,2000);
+        timer.schedule(timerTask,0,1000);
     }
 
     private void setTextWatcher(){
@@ -252,5 +270,81 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+
+    //스레드에서 처리하기 위해..
+    class GetUpBitCoinsThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+                try {
+
+                    URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                    StringBuffer builder = new StringBuffer();
+
+                    String inputString = null;
+                    while ((inputString = bufferedReader.readLine()) != null) {
+                        builder.append(inputString);
+                    }
+
+                    String s = builder.toString();
+                    JSONArray jsonCoinInfo = new JSONArray(s);
+
+                    conn.disconnect();
+                    bufferedReader.close();
+                    inputStream.close();
+
+                    if (jsonCoinInfo != null) {
+                        JSONObject jsonObject = new JSONObject();
+
+                        for (int i = 0; i < jsonCoinInfo.length(); i++) {
+                            jsonObject = (JSONObject) jsonCoinInfo.get(i);
+
+                            Double currentPrice = jsonObject.getDouble("trade_price");
+                            Double dayToDay = jsonObject.getDouble("signed_change_rate");
+                            Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
+
+                            CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
+                                    , currentPrice, dayToDay, transactionAmount);
+
+                            allCoinInfoArray.set(i,coinDTO);
+                        }
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+        }
+    }
+
+
+//리사이클러뷰 오류 때문에 정의한 클래스
+    class LinearLayoutManagerWrapper extends LinearLayoutManager{
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            super.onLayoutChildren(recycler, state);
+        }
+
+        public LinearLayoutManagerWrapper(Context context) {
+            super(context);
+        }
+
+        public LinearLayoutManagerWrapper(Context context, int orientation, boolean reverseLayout) {
+            super(context, orientation, reverseLayout);
+        }
+
+        public LinearLayoutManagerWrapper(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            super(context, attrs, defStyleAttr, defStyleRes);
+        }
     }
 }

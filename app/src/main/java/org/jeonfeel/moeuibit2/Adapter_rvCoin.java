@@ -48,13 +48,10 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         return customViewHolder;
     }
 
-    public long getItemId(int position){
-        item.get(position).setId(item.get(position).hashCode());
-        return Long.parseLong(item.get(position).getId()+"");
-    }
-
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
+
+//        int safePosition = holder.getAdapterPosition();
 
         Double dayToDay = filteredItem.get(position).getDayToDay()*100;
         DecimalFormat decimalFormat = new DecimalFormat("###,###"); //데시말 포맷 설정 (천단위 콤마찍기)
