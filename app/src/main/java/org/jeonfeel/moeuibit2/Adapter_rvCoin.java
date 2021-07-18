@@ -91,6 +91,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             public void onClick(View view) {
                 Intent intent = new Intent(context,Activity_coinInfo.class);
                 intent.putExtra("market",filteredItem.get(position).getMarket());
+                intent.putExtra("symbol",filteredItem.get(position).getSymbol());
                 intent.putExtra("koreanName",filteredItem.get(position).getKoreanName());
                 context.startActivity(intent);
             }
@@ -107,14 +108,14 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                String str = charSequence.toString();
+                String str = charSequence.toString().toLowerCase();
                 if(str.isEmpty()){
                     filteredItem = item;
                 }else{
                     ArrayList<CoinDTO> filteringItem = new ArrayList<>();
 
                     for(CoinDTO i : item){
-                        if(i.getKoreanName().contains(str) || i.getEnglishName().toLowerCase().contains(str)){
+                        if(i.getKoreanName().contains(str) || i.getEnglishName().toLowerCase().contains(str) || i.getSymbol().toLowerCase().contains(str)){
                             filteringItem.add(i);
                         }
                     }

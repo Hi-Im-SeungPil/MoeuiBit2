@@ -19,8 +19,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +39,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,8 +62,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     String markets;
     TimerTask timerTask;
     Timer timer;
-    boolean isRunning = false;
     private boolean checkTimer = false;
+    int orderByCurrentPrice = 0;
+    int orderByDayToDay = 0;
+    int orderByTransactionAmount = 0;
+    private Button btn_orderByCurrentPrice,btn_orderByDayToDay,btn_orderByTransactionAmount;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -104,6 +111,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         rv_coin.setAdapter(adapter_rvCoin);
         getUpBitCoinsInfo();
         setTextWatcher();
+        setOrderByTog();
 
         return rootView;
     }
@@ -111,11 +119,14 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private void FindViewById(View rootView){
         et_searchCoin =  rootView.findViewById(R.id.et_searchCoin);
         rv_coin = rootView.findViewById(R.id.rv_coin);
+        btn_orderByCurrentPrice = rootView.findViewById(R.id.btn_orderByCurrentPrice);
+        btn_orderByDayToDay = rootView.findViewById(R.id.btn_orderByDayToDay);
+        btn_orderByTransactionAmount = rootView.findViewById(R.id.btn_orderByTransactionAmount);
     }
 
     private void setRv_coin(){
-        LinearLayoutManagerWrapper linearLayoutManagerWrapper = new LinearLayoutManagerWrapper(getActivity(),LinearLayoutManager.VERTICAL,false);
-        rv_coin.setLayoutManager(linearLayoutManagerWrapper);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        rv_coin.setLayoutManager(linearLayoutManager);
         rv_coin.setHasFixedSize(true);
     }
 
@@ -124,6 +135,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         marketsArray = new ArrayList<>();
         koreanNamesArray = new ArrayList<>();
         englishNamesArray = new ArrayList<>();
+
         String koreanName, englishName;
 
         String url = "https://api.upbit.com/v1/market/all"; // 업비트 모든 코인 종류
@@ -191,9 +203,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         Double currentPrice = jsonObject.getDouble("trade_price");
                         Double dayToDay = jsonObject.getDouble("signed_change_rate");
                         Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
+                        String[] symbol = marketsArray.get(i).split("-");
 
                         CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                , currentPrice, dayToDay, transactionAmount);
+                                , currentPrice, dayToDay, transactionAmount,symbol[1]);
+
 
                         allCoinInfoArray.add(coinDTO);
                         adapter_rvCoin.setItem(allCoinInfoArray);
@@ -205,10 +219,96 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }finally {
                 getUpBitApi = null;
             }
+    }
+    // 정렬 토글버튼 세팅
+    private void setOrderByTog(){
 
+        btn_orderByCurrentPrice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                orderByCurrentPrice++;
+
+                if(orderByCurrentPrice > 2){
+                    orderByCurrentPrice = 0;
+                }
+
+                orderByDayToDay = 0;
+                orderByTransactionAmount = 0;
+                btn_orderByDayToDay.setText("전일대비X");
+                btn_orderByTransactionAmount.setText("거래대금X");
+            }
+        });
+
+        btn_orderByDayToDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                orderByDayToDay++;
+
+                if(orderByDayToDay > 2){
+                    orderByDayToDay = 0;
+                }
+
+                orderByCurrentPrice = 0;
+                orderByTransactionAmount = 0;
+                btn_orderByCurrentPrice.setText("현재가X");
+                btn_orderByTransactionAmount.setText("거래대금X");
+
+            }
+        });
+
+        btn_orderByTransactionAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                orderByTransactionAmount++;
+
+                if(orderByTransactionAmount > 2){
+                    orderByTransactionAmount = 0;
+                }
+
+                orderByCurrentPrice = 0;
+                orderByDayToDay = 0;
+
+                btn_orderByCurrentPrice.setText("현재가X");
+                btn_orderByDayToDay.setText("전일대비X");
+
+            }
+        });
     }
 
-
+    private void orderByCoins(){
+        if(orderByCurrentPrice == 0 && orderByDayToDay ==0 && orderByTransactionAmount == 0){
+            CoinDTO.orderStatus = "transactionAmount";
+            Collections.sort(allCoinInfoArray);
+            Collections.reverse(allCoinInfoArray);
+        }else if(orderByCurrentPrice == 1){
+            btn_orderByCurrentPrice.setText("현 내림");
+            CoinDTO.orderStatus = "currentPrice";
+            Collections.sort(allCoinInfoArray);
+            Collections.reverse(allCoinInfoArray);
+        }else if(orderByCurrentPrice == 2){
+            btn_orderByCurrentPrice.setText("현 오름");
+            CoinDTO.orderStatus = "currentPrice";
+            Collections.sort(allCoinInfoArray);
+        }else if(orderByDayToDay == 1){
+            btn_orderByDayToDay.setText("전일 내림");
+            CoinDTO.orderStatus = "dayToDay";
+            Collections.sort(allCoinInfoArray);
+            Collections.reverse(allCoinInfoArray);
+        }else if(orderByDayToDay == 2){
+            btn_orderByDayToDay.setText("전일 오름");
+            CoinDTO.orderStatus = "dayToDay";
+            Collections.sort(allCoinInfoArray);
+        }else if(orderByTransactionAmount == 1){
+            btn_orderByTransactionAmount.setText("대금 내림");
+            CoinDTO.orderStatus = "transactionAmount";
+            Collections.sort(allCoinInfoArray);
+            Collections.reverse(allCoinInfoArray);
+        }else if(orderByTransactionAmount == 2){
+            btn_orderByTransactionAmount.setText("대금 오름");
+            CoinDTO.orderStatus = "transactionAmount";
+            Collections.sort(allCoinInfoArray);
+        }
+    }
 
     @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
@@ -306,12 +406,14 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             Double currentPrice = jsonObject.getDouble("trade_price");
                             Double dayToDay = jsonObject.getDouble("signed_change_rate");
                             Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
+                            String[] symbol = marketsArray.get(i).split("-");
 
                             CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                    , currentPrice, dayToDay, transactionAmount);
+                                    , currentPrice, dayToDay, transactionAmount,symbol[1]);
 
                             allCoinInfoArray.set(i,coinDTO);
                         }
+                        orderByCoins();
                     }
 
                 } catch (UnsupportedEncodingException e) {
@@ -321,30 +423,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
         }
     }
 
-
-//리사이클러뷰 오류 때문에 정의한 클래스
-    class LinearLayoutManagerWrapper extends LinearLayoutManager{
-
-        @Override
-        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            super.onLayoutChildren(recycler, state);
-        }
-
-        public LinearLayoutManagerWrapper(Context context) {
-            super(context);
-        }
-
-        public LinearLayoutManagerWrapper(Context context, int orientation, boolean reverseLayout) {
-            super(context, orientation, reverseLayout);
-        }
-
-        public LinearLayoutManagerWrapper(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-            super(context, attrs, defStyleAttr, defStyleRes);
-        }
-    }
 }

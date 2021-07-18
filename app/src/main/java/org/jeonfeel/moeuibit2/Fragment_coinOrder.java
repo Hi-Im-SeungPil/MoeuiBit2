@@ -46,8 +46,8 @@ public class Fragment_coinOrder extends Fragment {
     private TimerTask timerTask;
     private Adapter_rvCoinArcade adapter_rvCoinArcade;
     private Double openingPrice;
-    private int index = 0;
-    private int index2 = 0;
+    private int index = 0; //ask coinArcade set을 위해!!
+    private int index2 = 0;//bid coinArcade set을 위해!!
 
     public Fragment_coinOrder(String market) {
         // Required empty public constructor
@@ -72,7 +72,6 @@ public class Fragment_coinOrder extends Fragment {
         adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice);
         rv_coinArcade.setAdapter(adapter_rvCoinArcade);
         getCoinArcadeInfo();
-        rv_coinArcade.scrollToPosition(8);
 
         return rootView;
     }
@@ -91,6 +90,7 @@ public class Fragment_coinOrder extends Fragment {
         String coinArcadeUrl = "https://api.upbit.com/v1/orderbook?markets=" + market;
 
         coinArcadeDTOS = new ArrayList<>();
+
         GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
         try {
             JSONArray jsonArray = new JSONArray();
@@ -120,6 +120,7 @@ public class Fragment_coinOrder extends Fragment {
                 }
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
+                rv_coinArcade.scrollToPosition(8);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,10 +142,8 @@ public class Fragment_coinOrder extends Fragment {
                 JSONObject jsonObject = new JSONObject();
 
                 jsonObject = (JSONObject) jsonArray.get(0);
-
                 openingPrice = jsonObject.getDouble("prev_closing_price");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -158,7 +157,6 @@ public class Fragment_coinOrder extends Fragment {
             setTimerTask();
             checkTimer = true;
         }
-
     }
 
     @Override
@@ -169,7 +167,6 @@ public class Fragment_coinOrder extends Fragment {
             timerTask.cancel();
             checkTimer = false;
         }
-
     }
 
     private void setTimerTask() {

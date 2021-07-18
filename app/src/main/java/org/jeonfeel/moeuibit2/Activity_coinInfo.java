@@ -38,6 +38,7 @@ public class Activity_coinInfo extends FragmentActivity {
     private Timer timer;
     private boolean checkTimer;
     private String market;
+    private String symbol;
     public static Double openingPrice;
     String koreanName;
 
@@ -50,7 +51,6 @@ public class Activity_coinInfo extends FragmentActivity {
         FindViewById();
         setCoinInfo();
         setTabLayout();
-
     }
 
     private void FindViewById(){
@@ -64,7 +64,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
         Intent intent = getIntent();
         koreanName = intent.getStringExtra("koreanName");
-
+        symbol = intent.getStringExtra("symbol");
         String coinUrl = "https://api.upbit.com/v1/ticker?markets="+market;
 
         GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
@@ -81,8 +81,9 @@ public class Activity_coinInfo extends FragmentActivity {
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
 
+
                 //--------------------------------------------------
-                tv_coinInfoCoinName.setText(koreanName + "( "+market+" )");
+                tv_coinInfoCoinName.setText(koreanName + "( KRW / "+symbol+" )");
                 //--------------------------------------------------
                 if(currentPrice >= 100){ //만약 100원보다 가격이 높으면 천단위 콤마
                     String currentPriceResult = decimalFormat.format(round(currentPrice));
@@ -225,7 +226,7 @@ public class Activity_coinInfo extends FragmentActivity {
                     Activity_coinInfo.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tv_coinInfoCoinName.setText(koreanName + "( "+market+" )");
+                            tv_coinInfoCoinName.setText(koreanName + "( KRW / "+symbol+" )");
                             if(currentPrice >= 100){ //만약 100원보다 가격이 높으면 천단위 콤마
                                 String currentPriceResult = decimalFormat.format(round(currentPrice));
                                 tv_coinInfoCoinPrice.setText(currentPriceResult);

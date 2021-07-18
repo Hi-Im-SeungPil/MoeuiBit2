@@ -16,6 +16,45 @@
         app:layout_constraintRight_toRightOf="parent"
         android:hint="코인 명 / 심볼 입력"/>
 
+    <LinearLayout
+        android:id="@+id/mm"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/et_searchCoin"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ToggleButton
+            android:id="@+id/tog_invisible"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:visibility="invisible"/>
+
+        <Button
+            android:id="@+id/btn_orderByCurrentPrice"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="현재가x"/>
+
+        <Button
+            android:id="@+id/btn_orderByDayToDay"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="전일대비x"/>
+
+        <Button
+            android:id="@+id/btn_orderByTransactionAmount"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="거래대금x"/>
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_coin"
         android:layout_width="match_parent"
@@ -23,6 +62,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_searchCoin"/>
+        app:layout_constraintTop_toBottomOf="@+id/mm"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

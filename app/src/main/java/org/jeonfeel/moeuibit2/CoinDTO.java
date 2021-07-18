@@ -1,6 +1,6 @@
 package org.jeonfeel.moeuibit2;
 
-public class CoinDTO {
+public class CoinDTO implements Comparable<CoinDTO>{
 
     private int id;
     private String market;
@@ -8,15 +8,18 @@ public class CoinDTO {
     private String englishName;
     private Double currentPrice;
     private Double dayToDay;
-    private Double TransactionAmount;
+    private Double transactionAmount;
+    private String symbol;
+    public static String orderStatus;
 
-    public CoinDTO(String market, String koreanName, String englishName, Double currentPrice, Double dayToDay, Double transactionAmount) {
+    public CoinDTO(String market, String koreanName, String englishName, Double currentPrice, Double dayToDay, Double transactionAmount,String symbol) {
         this.market = market;
         this.koreanName = koreanName;
         this.englishName = englishName;
         this.currentPrice = currentPrice;
         this.dayToDay = dayToDay;
-        TransactionAmount = transactionAmount;
+        this.transactionAmount = transactionAmount;
+        this.symbol = symbol;
     }
 
     public String getMarket() {
@@ -60,16 +63,38 @@ public class CoinDTO {
     }
 
     public Double getTransactionAmount() {
-        return TransactionAmount;
+        return transactionAmount;
     }
 
     public void setTransactionAmount(Double transactionAmount) {
-        TransactionAmount = transactionAmount;
+        this.transactionAmount = transactionAmount;
     }
     public int getId() {
         return id;
     }
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    @Override
+    public int compareTo(CoinDTO c) {
+
+        switch (orderStatus) {
+            case "currentPrice":
+                return this.currentPrice.compareTo(c.getCurrentPrice());
+            case "dayToDay":
+                return this.dayToDay.compareTo(c.getDayToDay());
+            case "transactionAmount":
+                return this.transactionAmount.compareTo(c.getTransactionAmount());
+        }
+        return -1;
     }
 }
