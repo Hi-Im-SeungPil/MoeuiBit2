@@ -132,6 +132,7 @@ public class Activity_coinInfo extends FragmentActivity {
         market = intent.getStringExtra("market");
 
         Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder(market);
+        Fragment_chart fragment_chart = new Fragment_chart(market);
         TabLayout tab_coinInfo = findViewById(R.id.tab_coinInfo);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.coinInfo_fragment_container,fragment_coinOrder).commit();
@@ -143,6 +144,8 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 if(position == 0){
                     selected = fragment_coinOrder;
+                }else if(position == 1){
+                    selected = fragment_chart;
                 }
 
                 getSupportFragmentManager().beginTransaction().replace(R.id.coinInfo_fragment_container,selected).commit();
