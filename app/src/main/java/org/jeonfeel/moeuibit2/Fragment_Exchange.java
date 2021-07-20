@@ -67,6 +67,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     int orderByDayToDay = 0;
     int orderByTransactionAmount = 0;
     private Button btn_orderByCurrentPrice,btn_orderByDayToDay,btn_orderByTransactionAmount;
+    private GetUpBitCoinsThread getUpBitCoinsThread;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -311,45 +312,25 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        getUpBitCoinsThread = new GetUpBitCoinsThread();
+        getUpBitCoinsThread.start();
+    }
+
+    @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
         super.onResume();
-
-        if(!checkTimer){
-            setTimerTask();
-            checkTimer = true;
-        }
 
     }
 
     @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
-
-        if(checkTimer) {
-            timerTask.cancel();
-            checkTimer = false;
+        if(getUpBitCoinsThread != null) {
+            getUpBitCoinsThread.stopThread();
         }
 
-    }
-
-    private void setTimerTask(){
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                GetUpBitCoinsThread getUpBitCoinsThread = new GetUpBitCoinsThread();
-                getUpBitCoinsThread.start();
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter_rvCoin.setItem(allCoinInfoArray);
-                        adapter_rvCoin.notifyDataSetChanged();
-                    }
-                });
-            }
-        };
-        timer = new Timer();
-        timer.schedule(timerTask,0,1000);
     }
 
     private void setTextWatcher(){
@@ -374,11 +355,14 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     //스레드에서 처리하기 위해..
     class GetUpBitCoinsThread extends Thread {
+
+        private boolean isRunning = true;
+
         @Override
         public void run() {
             super.run();
+            while (isRunning) {
                 try {
-
                     URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     InputStream inputStream = new BufferedInputStream(conn.getInputStream());
@@ -409,9 +393,17 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             String[] symbol = marketsArray.get(i).split("-");
 
                             CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                    , currentPrice, dayToDay, transactionAmount,symbol[1]);
+                                    , currentPrice, dayToDay, transactionAmount, symbol[1]);
 
-                            allCoinInfoArray.set(i,coinDTO);
+                            allCoinInfoArray.set(i, coinDTO);
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter_rvCoin.setItem(allCoinInfoArray);
+                                    adapter_rvCoin.notifyDataSetChanged();
+                                }
+                            });
                         }
                         orderByCoins();
                     }
@@ -423,7 +415,15 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        private void stopThread(){
+            isRunning = false;
         }
     }
-
 }

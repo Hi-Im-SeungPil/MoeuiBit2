@@ -48,6 +48,7 @@ public class Fragment_coinOrder extends Fragment {
     private Double openingPrice;
     private int index = 0; //ask coinArcade set을 위해!!
     private int index2 = 0;//bid coinArcade set을 위해!!
+    GetUpBitCoinArcade getUpBitCoinArcade;
 
     public Fragment_coinOrder(String market) {
         // Required empty public constructor
@@ -150,108 +151,113 @@ public class Fragment_coinOrder extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        getUpBitCoinArcade = new GetUpBitCoinArcade();
+        getUpBitCoinArcade.start();
+    }
+
+    @Override
     public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
         super.onResume();
-
-        if (!checkTimer) {
-            setTimerTask();
-            checkTimer = true;
-        }
     }
 
     @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
-
-        if (checkTimer) {
-            timerTask.cancel();
-            checkTimer = false;
+        if(getUpBitCoinArcade!=null) {
+            getUpBitCoinArcade.stopThread();
         }
     }
 
-    private void setTimerTask() {
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                GetUpBitCoinArcade getUpBitCoinArcade = new GetUpBitCoinArcade();
-                getUpBitCoinArcade.start();
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter_rvCoinArcade.setItem(coinArcadeDTOS);
-                        adapter_rvCoinArcade.notifyDataSetChanged();
-                    }
-                });
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(timerTask, 0, 1000);
-    }
+
 
     class GetUpBitCoinArcade extends Thread {
+
+        private boolean isRunning = true;
+
         @Override
         public void run() {
             super.run();
-            try {
-                URL url = new URL("https://api.upbit.com/v1/orderbook?markets=" + market);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = new BufferedInputStream(conn.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                StringBuffer builder = new StringBuffer();
-
-                String inputString = null;
-                while ((inputString = bufferedReader.readLine()) != null) {
-                    builder.append(inputString);
-                }
-
-                String s = builder.toString();
-                JSONArray jsonCoinInfo = new JSONArray(s);
-
-                conn.disconnect();
-                bufferedReader.close();
-                inputStream.close();
-
+            while (isRunning) {
                 try {
-                    JSONObject jsonObject = (JSONObject) jsonCoinInfo.get(0);
+                    URL url = new URL("https://api.upbit.com/v1/orderbook?markets=" + market);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                    StringBuffer builder = new StringBuffer();
 
-                    if (jsonCoinInfo != null) {
-
-                        JSONArray jsonUnits = (JSONArray) jsonObject.get("orderbook_units");
-                        JSONObject jsonObjUnits = new JSONObject();
-
-                        for (int i = jsonUnits.length() - 1; i >= 0; i--) {
-                            jsonObjUnits = (JSONObject) jsonUnits.get(i);
-
-                            Double arcadePrice = jsonObjUnits.getDouble("ask_price");
-                            Double coinArcadeSize = jsonObjUnits.getDouble("ask_size");
-                            coinArcadeDTOS.set(index++,new CoinArcadeDTO(arcadePrice, coinArcadeSize, "ask"));
-                            index2++;
-                        }
-
-                        for (int i = 0; i < jsonUnits.length(); i++) {
-                            jsonObjUnits = (JSONObject) jsonUnits.get(i);
-
-                            Double arcadePrice = jsonObjUnits.getDouble("bid_price");
-                            Double coinArcadeSize = jsonObjUnits.getDouble("bid_size");
-
-                            coinArcadeDTOS.set(index2++,new CoinArcadeDTO(arcadePrice, coinArcadeSize, "bid"));
-                        }
-
-                        index = 0;
-                        index2 = 0;
+                    String inputString = null;
+                    while ((inputString = bufferedReader.readLine()) != null) {
+                        builder.append(inputString);
                     }
+
+                    String s = builder.toString();
+                    JSONArray jsonCoinInfo = new JSONArray(s);
+
+                    conn.disconnect();
+                    bufferedReader.close();
+                    inputStream.close();
+
+                    try {
+                        JSONObject jsonObject = (JSONObject) jsonCoinInfo.get(0);
+
+                        if (jsonCoinInfo != null) {
+
+                            JSONArray jsonUnits = (JSONArray) jsonObject.get("orderbook_units");
+                            JSONObject jsonObjUnits = new JSONObject();
+
+                            for (int i = jsonUnits.length() - 1; i >= 0; i--) {
+                                jsonObjUnits = (JSONObject) jsonUnits.get(i);
+
+                                Double arcadePrice = jsonObjUnits.getDouble("ask_price");
+                                Double coinArcadeSize = jsonObjUnits.getDouble("ask_size");
+                                coinArcadeDTOS.set(index++, new CoinArcadeDTO(arcadePrice, coinArcadeSize, "ask"));
+                                index2++;
+                            }
+
+                            for (int i = 0; i < jsonUnits.length(); i++) {
+                                jsonObjUnits = (JSONObject) jsonUnits.get(i);
+
+                                Double arcadePrice = jsonObjUnits.getDouble("bid_price");
+                                Double coinArcadeSize = jsonObjUnits.getDouble("bid_size");
+
+                                coinArcadeDTOS.set(index2++, new CoinArcadeDTO(arcadePrice, coinArcadeSize, "bid"));
+                            }
+
+                            index = 0;
+                            index2 = 0;
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter_rvCoinArcade.setItem(coinArcadeDTOS);
+                                    adapter_rvCoinArcade.notifyDataSetChanged();
+                                }
+                            });
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+        }
+
+        private void stopThread(){
+            isRunning = false;
         }
     }
 }
