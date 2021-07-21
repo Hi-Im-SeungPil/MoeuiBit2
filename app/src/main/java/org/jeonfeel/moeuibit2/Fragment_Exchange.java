@@ -211,9 +211,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
 
                         allCoinInfoArray.add(coinDTO);
-                        adapter_rvCoin.setItem(allCoinInfoArray);
-                        adapter_rvCoin.notifyDataSetChanged();
                     }
+                    Collections.sort(allCoinInfoArray);
+                    Collections.reverse(allCoinInfoArray);
+                    adapter_rvCoin.setItem(allCoinInfoArray);
+                    adapter_rvCoin.notifyDataSetChanged();
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -2,18 +2,26 @@ package org.jeonfeel.moeuibit2;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -22,8 +30,13 @@ import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
+import com.github.mikephil.charting.utils.EntryXComparator;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import org.json.JSONArray;
@@ -51,8 +64,9 @@ public class Fragment_chart extends Fragment {
 
     private CombinedChart combinedChart;
     private BarChart barChart;
-    private ToggleButton tog_minuteChart,tog_dailyChart,tog_weeklyChart,tog_monthlyChart;
-    private ToggleButton tog_oneMinute,tog_threeMinute,tog_fiveMinute,tog_tenMinute,tog_fifteenMinute,tog_thirtyMinute,tog_hour,tog_fourHour;
+    private ToggleButton tog_minuteChart, tog_dailyChart, tog_weeklyChart, tog_monthlyChart;
+    private ToggleButton tog_fiveMinute, tog_tenMinute, tog_fifteenMinute, tog_thirtyMinute, tog_hour, tog_fourHour;
+    Button tog_oneMinute, tog_threeMinute;
     private String market;
     private ArrayList<CoinCandleDataDTO> coinCandleDataDTOS;
     private ArrayList<CandleEntry> candleEntries;
@@ -62,6 +76,7 @@ public class Fragment_chart extends Fragment {
     private TimerTask timerTask;
     private boolean checkTimer = false;
     private CombinedData data;
+    private int checkStart = 0, checkStart2 = 0;
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -85,14 +100,25 @@ public class Fragment_chart extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
 
         FindViewById(rootView);
-        initChart();
         getCoinMinuteCandleData(1);
+        tog_oneMinute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setTog_oneMinute();
+            }
+        });
+        tog_threeMinute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setTog_threeMinute();
+            }
+        });
 
         return rootView;
 
     }
 
-    private void FindViewById(View rootView){
+    private void FindViewById(View rootView) {
 
         combinedChart = rootView.findViewById(R.id.combinedChart);
         tog_minuteChart = rootView.findViewById(R.id.tog_minuteChart);
@@ -110,33 +136,89 @@ public class Fragment_chart extends Fragment {
 
     }
 
-    private void initChart(){
+    private void initChart() {
 
         combinedChart.getDescription().setEnabled(false);
-        combinedChart.setDragEnabled(true);
         combinedChart.setScaleYEnabled(false);
         combinedChart.setMaxVisibleValueCount(200);
         combinedChart.setPinchZoom(false);
         combinedChart.setDrawGridBackground(false);
-        combinedChart.setHighlightPerDragEnabled(true);
         combinedChart.setDrawBorders(true);
         combinedChart.setBorderColor(Color.BLACK);
         combinedChart.requestDisallowInterceptTouchEvent(true);
         combinedChart.setDoubleTapToZoomEnabled(false);
-        combinedChart.setDragYEnabled(false);
+
+        combinedChart.setDragYEnabled(true);
+        combinedChart.setDragEnabled(true);
+        combinedChart.setHighlightPerTapEnabled(true);
+        combinedChart.setHighlightPerDragEnabled(true);
+
+        combinedChart.setOnChartGestureListener(new OnChartGestureListener() {
+            @Override
+            public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+            }
+
+            @Override
+            public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+            }
+
+            @Override
+            public void onChartLongPressed(MotionEvent me) {
+
+                Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
+
+                if(highlight != null){
+                    combinedChart.highlightValue(highlight,true);
+                }
+                
+
+                if(me.getAction() == MotionEvent.ACTION_UP){
+                    combinedChart.setDragEnabled(true);
+                    combinedChart.setScaleEnabled(true);
+                }
+            }
+
+            @Override
+            public void onChartDoubleTapped(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartSingleTapped(MotionEvent me) {
+
+
+            }
+
+            @Override
+            public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+            }
+
+            @Override
+            public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+            }
+
+            @Override
+            public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+            }
+        });
 
         XAxis xAxis = combinedChart.getXAxis();
         xAxis.setTextColor(Color.BLACK);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setAxisLineColor(Color.parseColor("#323B4C"));
-        xAxis.setGridColor(Color.parseColor("#323B4C"));
         xAxis.setAvoidFirstLastClipping(true);
-
 
         YAxis leftAxis = combinedChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawLabels(false);
+        leftAxis.setMaxWidth(1f);
+        leftAxis.setMinWidth(0f);
 
         YAxis rightAxis = combinedChart.getAxisRight();
         rightAxis.setLabelCount(5, true);
@@ -144,7 +226,7 @@ public class Fragment_chart extends Fragment {
         rightAxis.setDrawAxisLine(true);
         rightAxis.setDrawGridLines(false);
         rightAxis.setAxisLineColor(Color.parseColor("#323B4C"));
-        rightAxis.setGridColor(Color.parseColor("#323B4C"));
+        rightAxis.setMinWidth(40f);
 
         Legend l = combinedChart.getLegend();
         l.setWordWrapEnabled(true);
@@ -154,91 +236,130 @@ public class Fragment_chart extends Fragment {
         l.setDrawInside(true);
     }
 
-    private void getCoinMinuteCandleData(int minute){
+    private void getCoinMinuteCandleData(int minute) {
 
-            String coinUrl = "https://api.upbit.com/v1/candles/minutes/"+minute+"?market="+market+"&count=200";
+        if (d != null) {
+            d.clearValues();
+            d = null;
+        }
+        if (data != null) {
+            data.clearValues();
+            data = null;
+        }
+        if (candleDataSet != null) {
+            candleDataSet.clear();
+            candleDataSet = null;
+        }
+        if (combinedChart != null) {
+            combinedChart.clear();
+        }
+        combinedChart.invalidate();
+        initChart();
 
-            GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
+        if (d != null) {
+            Log.d("entry1", d.getEntryCount() + "");
+            Log.d("entry2", data.getEntryCount() + "");
+            Log.d("entry3", candleDataSet.getEntryCount() + "");
+        }
+        candlePosition = 0;
 
-            try {
-                JSONArray jsonArray = new JSONArray();
-                jsonArray = getUpBitCoins.execute(coinUrl).get();
+        String coinUrl = "https://api.upbit.com/v1/candles/minutes/" + minute + "?market=" + market + "&count=200";
 
-                if (jsonArray != null) {
+        if (coinCandleDataDTOS == null)
+            coinCandleDataDTOS = new ArrayList<>();
 
-                    coinCandleDataDTOS = new ArrayList<>();
-                    candleEntries = new ArrayList<>();
+        if (candleEntries == null)
+            candleEntries = new ArrayList<>();
 
-                    JSONObject jsonObject = new JSONObject();
+        if (coinCandleDataDTOS.size() != 0)
+            coinCandleDataDTOS.clear();
 
-                    for(int i = jsonArray.length() - 1; i >= 0 ; i--) {
-                        jsonObject = (JSONObject) jsonArray.get(i);
+        if (candleEntries.size() != 0)
+            candleEntries.clear();
 
-                        String candleDateTimeKst = jsonObject.getString("candle_date_time_kst");
-                        Double openingPrice  = jsonObject.getDouble("opening_price");
-                        Double highPrice = jsonObject.getDouble("high_price");
-                        Double lowPrice = jsonObject.getDouble("low_price");
-                        Double tradePrice = jsonObject.getDouble("trade_price");
-                        Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
-                        Double candleTransactionVolume = jsonObject.getDouble("candle_acc_trade_volume");
 
-                        float openingPrice2 = 0;
+        GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
 
-                        if(openingPrice< 100) {
-                            openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
-                        }else{
-                            openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
-                        }
+        try {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray = getUpBitCoins.execute(coinUrl).get();
 
-                        float highPrice2 = Float.parseFloat(String.format("%.2f",highPrice));
-                        float lowPrice2 = Float.parseFloat(String.format("%.2f",lowPrice));
-                        float tradePrice2 = Float.parseFloat(String.format("%.2f",tradePrice));
+            if (jsonArray != null) {
 
-                        coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst,openingPrice,highPrice,lowPrice,tradePrice,candleTransactionAmount,candleTransactionVolume));
+                JSONObject jsonObject = new JSONObject();
 
-                        candleEntries.add(new CandleEntry(candlePosition+2f,highPrice2,lowPrice2,openingPrice2,tradePrice2));
-                        candlePosition++;
+                for (int i = jsonArray.length() - 1; i >= 0; i--) {
+                    jsonObject = (JSONObject) jsonArray.get(i);
+
+                    String candleDateTimeKst = jsonObject.getString("candle_date_time_kst");
+                    Double openingPrice = jsonObject.getDouble("opening_price");
+                    Double highPrice = jsonObject.getDouble("high_price");
+                    Double lowPrice = jsonObject.getDouble("low_price");
+                    Double tradePrice = jsonObject.getDouble("trade_price");
+                    Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
+                    Double candleTransactionVolume = jsonObject.getDouble("candle_acc_trade_volume");
+
+                    float openingPrice2 = 0;
+
+                    if (openingPrice < 100) {
+                        openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
+                    } else {
+                        openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
                     }
 
+                    float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
+                    float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
+                    float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
 
-                    d = new CandleData();
+                    coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
-                    candleDataSet = new CandleDataSet(candleEntries,"");
-                    candleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                    candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+                    candlePosition++;
+                }
 
-                    candleDataSet.setShadowColor(Color.DKGRAY);
-                    candleDataSet.setShadowWidth(1f);
+                Collections.sort(candleEntries, new EntryXComparator());
 
-                    candleDataSet.setDecreasingColor(Color.BLUE);
-                    candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
+                d = new CandleData();
 
-                    candleDataSet.setIncreasingColor(Color.RED);
-                    candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
+                candleDataSet = new CandleDataSet(candleEntries, "");
+                candleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
 
-                    candleDataSet.setNeutralColor(Color.DKGRAY);
-                    candleDataSet.setDrawValues(false);
+                candleDataSet.setShadowColor(Color.DKGRAY);
+                candleDataSet.setShadowWidth(1f);
 
-                    d.addDataSet(candleDataSet);
+                candleDataSet.setDecreasingColor(Color.BLUE);
+                candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
 
-                    data = new CombinedData();
-                    data.setData(d);
+                candleDataSet.setIncreasingColor(Color.RED);
+                candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
 
-                    combinedChart.setData(data);
-                    combinedChart.setVisibleXRangeMinimum(20);
-                    combinedChart.setVisibleXRangeMaximum(200);
+                candleDataSet.setNeutralColor(Color.DKGRAY);
+                candleDataSet.setDrawValues(false);
 
-                    combinedChart.fitScreen();
-                    combinedChart.setAutoScaleMinMaxEnabled(true);
-                    combinedChart.zoom(4f,1f,0,0);
-                    combinedChart.moveViewToX(combinedChart.getXChartMax());
+                d.addDataSet(candleDataSet);
+
+                data = new CombinedData();
+                data.setData(d);
+
+                combinedChart.setData(data);
+                combinedChart.setVisibleXRangeMinimum(20);
+                combinedChart.setVisibleXRangeMaximum(200);
+                combinedChart.fitScreen();
+                combinedChart.setAutoScaleMinMaxEnabled(true);
+
+                combinedChart.zoom(4f, 1f, 0, 0);
+                combinedChart.moveViewToX(combinedChart.getXChartMax());
+
+                if (checkStart == 0) {
                     combinedChart.getXAxis().setAxisMinimum(combinedChart.getXChartMin() - 0.5f);
                     combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 8f);
-
-                    combinedChart.invalidate();
+                    checkStart++;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                combinedChart.invalidate();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -257,7 +378,7 @@ public class Fragment_chart extends Fragment {
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
 
-        if(getRecentCoinChart != null) {
+        if (getRecentCoinChart != null) {
             getRecentCoinChart.stopThread();
         }
     }
@@ -267,7 +388,7 @@ public class Fragment_chart extends Fragment {
         private int minute;
         private boolean isRunning = true;
 
-        public GetRecentCoinChart(int minute){
+        public GetRecentCoinChart(int minute) {
             this.minute = minute;
         }
 
@@ -275,7 +396,7 @@ public class Fragment_chart extends Fragment {
         public void run() {
             super.run();
 
-            while(isRunning) {
+            while (isRunning) {
                 try {
                     String coinUrl = "https://api.upbit.com/v1/candles/minutes/" + minute + "?market=" + market + "&count=1";
                     URL url = new URL(coinUrl);
@@ -323,20 +444,19 @@ public class Fragment_chart extends Fragment {
                             float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
                             float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
 
-                                if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
-                                    candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1 + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-                                    coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
+                            if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
+                                candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1 + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+                                coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
-                                } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
-                                    candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-                                    coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
-                                    candlePosition++;
-                                    combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
-                                }
+                            } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
+                                candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+                                coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
+                                candlePosition++;
+                                combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
+                            }
 
                             combinedChart.notifyDataSetChanged();
                             combinedChart.invalidate();
-
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -357,8 +477,32 @@ public class Fragment_chart extends Fragment {
                 }
             }
         }
-        private void stopThread(){
+
+        private void stopThread() {
             isRunning = false;
+        }
+    }
+
+    public void setTog_oneMinute() {
+        getRecentCoinChart.stopThread();
+        getCoinMinuteCandleData(1);
+        getRecentCoinChart = new GetRecentCoinChart(1);
+        getRecentCoinChart.start();
+
+    }
+
+    public void setTog_threeMinute() {
+
+        getRecentCoinChart.stopThread();
+        getCoinMinuteCandleData(3);
+        getRecentCoinChart = new GetRecentCoinChart(3);
+        getRecentCoinChart.start();
+    }
+
+    private void performHighlightDrag(MotionEvent e) {
+        Highlight h = combinedChart.getHighlightByTouchPoint(e.getX(), e.getY());
+        if (h != null) {
+            combinedChart.highlightValue(h, true);
         }
     }
 }
