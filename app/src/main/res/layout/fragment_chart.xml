@@ -11,34 +11,30 @@
         android:layout_height="30dp"
         android:orientation="horizontal">
 
-        <ToggleButton
-            android:id="@+id/tog_minuteChart"
+        <Button
+            android:id="@+id/btn_minuteChart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOff="분"
-            android:textOn="분"/>
-        <ToggleButton
-            android:id="@+id/tog_dailyChart"
+            android:text="분"/>
+        <Button
+            android:id="@+id/btn_dailyChart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOff="일"
-            android:textOn="일"/>
-        <ToggleButton
-            android:id="@+id/tog_weeklyChart"
+            android:text="일"/>
+        <Button
+            android:id="@+id/btn_weeklyChart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOff="주"
-            android:textOn="주"/>
-        <ToggleButton
-            android:id="@+id/tog_monthlyChart"
+            android:text="주"/>
+        <Button
+            android:id="@+id/btn_monthlyChart"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOff="월"
-            android:textOn="월"/>
+            android:text="월"/>
 
     </LinearLayout>
 
@@ -46,72 +42,63 @@
         android:id="@+id/linear_minuteGroup"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:orientation="horizontal"
-        android:layout_marginTop="5dp">
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/tog_oneMinute"
+            android:id="@+id/btn_oneMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="1분 on"
-            android:textOff="1분 off"/>
+            android:text="1분"/>
 
         <Button
-            android:id="@+id/tog_threeMinute"
+            android:id="@+id/btn_threeMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="3분 on"
-            android:textOff="3분 off"/>
+            android:text="3분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_fiveMinute"
+        <Button
+            android:id="@+id/btn_fiveMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="5분 on"
-            android:textOff="5분 off"/>
+            android:text="5분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_tenMinute"
+        <Button
+            android:id="@+id/btn_tenMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="10분 on"
-            android:textOff="10분 off"/>
+            android:text="10분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_fifteenMinute"
+        <Button
+            android:id="@+id/btn_fifteenMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="15분 on"
-            android:textOff="15분 off"/>
+            android:text="15분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_thirtyMinute"
+        <Button
+            android:id="@+id/btn_thirtyMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="30분 on"
-            android:textOff="30분 off"/>
+            android:text="30분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_hour"
+        <Button
+            android:id="@+id/btn_hour"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="60분 on"
-            android:textOff="60분 off"/>
+            android:text="60분"/>
 
-        <ToggleButton
-            android:id="@+id/tog_fourHour"
+        <Button
+            android:id="@+id/btn_fourHour"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:textOn="240분 on"
-            android:textOff="240분 off"/>
+            android:text="240분"/>
 
     </LinearLayout>
 
