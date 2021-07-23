@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -24,6 +25,10 @@ import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.CombinedData;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
@@ -42,7 +47,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.TimerTask;
 
 import static java.lang.Math.round;
@@ -65,6 +72,8 @@ public class Fragment_chart extends Fragment {
     int tabCount = 0;
     int btn_minuteSelected = 1;
     private String period="";
+    private ArrayList<String> labels;
+//    myValueFormatter myValueFormatter;
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -127,26 +136,32 @@ public class Fragment_chart extends Fragment {
 
     private void initChart() {
 
+        MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker);
+
         combinedChart.getDescription().setEnabled(false);
         combinedChart.setScaleYEnabled(false);
-        combinedChart.setDrawValueAboveBar(true);
         combinedChart.setPinchZoom(false);
         combinedChart.setDrawGridBackground(false);
         combinedChart.setDrawBorders(true);
         combinedChart.setBorderColor(Color.BLACK);
-        combinedChart.requestDisallowInterceptTouchEvent(true);
         combinedChart.setDoubleTapToZoomEnabled(false);
         combinedChart.setHighlightFullBarEnabled(false);
+        combinedChart.setMarker(moEuiBitMarkerView);
 
         combinedChart.setDragDecelerationEnabled(false);
         combinedChart.setDragEnabled(true);
-        combinedChart.setHighlightPerDragEnabled(false);
+        combinedChart.setHighlightPerDragEnabled(true);
         combinedChart.setHighlightPerTapEnabled(false);
 
         combinedChart.setOnChartGestureListener(new OnChartGestureListener() {
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+                Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
+                if(highlight != null) {
 
+                    combinedChart.highlightValue(highlight, true);
+
+                }
             }
 
             @Override
@@ -158,17 +173,6 @@ public class Fragment_chart extends Fragment {
             public void onChartLongPressed(MotionEvent me) {
 
 
-//                Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
-//
-//
-//                if(highlight!= null){
-//                    combinedChart.highlightValue(highlight,true);
-//
-//                    combinedChart.setScaleEnabled(false);
-//                    combinedChart.setDragEnabled(false);
-//                    combinedChart.setHighlightPerDragEnabled(true);
-//                    combinedChart.setHighlightPerTapEnabled(false);
-//                }
             }
 
             @Override
@@ -178,23 +182,8 @@ public class Fragment_chart extends Fragment {
 
             @Override
             public void onChartSingleTapped(MotionEvent me) {
-                if(tabCount == 0) {
-                    combinedChart.setScaleXEnabled(false);
-//                    combinedChart.setDragXEnabled(false);
-                    combinedChart.setHighlightPerDragEnabled(true);
 
-                    Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
-                    combinedChart.highlightValue(highlight,true);
 
-                    highlight.setDraw(me.getX(),me.getY());
-
-                    tabCount++;
-                }else{
-                    tabCount = 0;
-                    combinedChart.setScaleXEnabled(true);
-//                    combinedChart.setDragXEnabled(true);
-
-                }
             }
 
             @Override
@@ -217,14 +206,12 @@ public class Fragment_chart extends Fragment {
         xAxis.setTextColor(Color.BLACK);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
-        xAxis.setAxisLineColor(Color.parseColor("#323B4C"));
         xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setLabelCount(3,true);
 
         YAxis leftAxis = combinedChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawLabels(false);
-        leftAxis.setMaxWidth(1f);
-        leftAxis.setMinWidth(0f);
 
         YAxis rightAxis = combinedChart.getAxisRight();
         rightAxis.setLabelCount(5, true);
@@ -243,6 +230,10 @@ public class Fragment_chart extends Fragment {
     }
 
     private void getCoinMinuteCandleData(int minute,String period) {
+
+//        if(myValueFormatter != null){
+//            myValueFormatter = null;
+//        }
 
         if (d != null) {
             d.clearValues();
@@ -353,15 +344,17 @@ public class Fragment_chart extends Fragment {
 
                 combinedChart.fitScreen();
                 combinedChart.setAutoScaleMinMaxEnabled(true);
-
                 int entryCount = combinedChart.getCandleData().getEntryCount();
 
-                combinedChart.getXAxis().setAxisMinimum(0f);
+                combinedChart.getXAxis().setAxisMinimum(combinedChart.getXChartMin()-0.7f);
                 combinedChart.getXAxis().setAxisMaximum(entryCount + 3f);
                 if(combinedChart.getVisibleXRange() > 20f){
                     combinedChart.zoom(4f,0f,0,0);
                 }
                 combinedChart.moveViewToX(entryCount);
+
+//                myValueFormatter = new myValueFormatter(coinCandleDataDTOS,candleEntries);
+//                combinedChart.getXAxis().setValueFormatter(myValueFormatter);
 
                 combinedChart.invalidate();
                 Log.d("qqqq",combinedChart.getCandleData().getEntryCount()+"");
@@ -379,7 +372,7 @@ public class Fragment_chart extends Fragment {
     }
 
     @Override
-    public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
+    public void onResume() {
         super.onResume();
     }
 
@@ -633,4 +626,33 @@ public class Fragment_chart extends Fragment {
             getRecentCoinChart.start();
         }
     }
+
+//    public class myValueFormatter extends ValueFormatter{
+//
+//        ArrayList<CoinCandleDataDTO> mValue;
+//        ArrayList<CandleEntry> entries;
+//        private int mValueCount = 0;
+//
+//        public myValueFormatter(ArrayList<CoinCandleDataDTO> mValue,ArrayList<CandleEntry> entries) {
+//            this.mValue = mValue;
+//            this.entries = entries;
+//            mValueCount = entries.size();
+//        }
+//
+//        @Override
+//        public String getFormattedValue(float value) {
+//            int index = round(value);
+//
+//            if(index < 0 || index >= mValueCount || index != (int)value) {
+//
+//                return "";
+//            }
+//            String[] fullyDate = mValue.get(index).getCandleDateTimeKst().split("T");
+//            String[] date = fullyDate[0].split("-");
+//            String[] time = fullyDate[1].split(":");
+//
+//            return date[1] + "-" + date[2] + " " + time[1] + ":" + time[2];
+//        }
+//    }
+
 }
