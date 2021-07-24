@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Fragment.Chart;
 
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,6 +29,8 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
+import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
+import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

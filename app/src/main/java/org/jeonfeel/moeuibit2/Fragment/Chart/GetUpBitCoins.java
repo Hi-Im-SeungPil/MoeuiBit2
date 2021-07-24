@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Fragment.Chart;
 
 import android.os.AsyncTask;
 

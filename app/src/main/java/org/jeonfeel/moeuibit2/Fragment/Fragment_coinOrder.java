@@ -1,19 +1,23 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
-import com.google.gson.JsonArray;
-
+import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
+import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
+import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
+import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,10 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import static java.lang.Math.round;
@@ -49,6 +51,9 @@ public class Fragment_coinOrder extends Fragment {
     private int index = 0; //ask coinArcade set을 위해!!
     private int index2 = 0;//bid coinArcade set을 위해!!
     GetUpBitCoinArcade getUpBitCoinArcade;
+    RadioGroup radioGroup_orderWays;
+    LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
+    ConstraintLayout const_priceOrder4,const_marketPriceOrder;
 
     public Fragment_coinOrder(String market) {
         // Required empty public constructor
@@ -73,6 +78,7 @@ public class Fragment_coinOrder extends Fragment {
         adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice);
         rv_coinArcade.setAdapter(adapter_rvCoinArcade);
         getCoinArcadeInfo();
+        setRadioGroup_orderWays(rootView);
 
         return rootView;
     }
@@ -84,6 +90,12 @@ public class Fragment_coinOrder extends Fragment {
 
     private void FindViewById(View rootView) {
         rv_coinArcade = rootView.findViewById(R.id.rv_coinArcade);
+        radioGroup_orderWays = rootView.findViewById(R.id.radioGroup_orderWays);
+        linear_PriceOrder1 = rootView.findViewById(R.id.linear_PriceOrder1);
+        linear_PriceOrder3 = rootView.findViewById(R.id.linear_PriceOrder3);
+        linear_PriceOrder2 = rootView.findViewById(R.id.linear_PriceOrder2);
+        const_priceOrder4 = rootView.findViewById(R.id.const_priceOrder4);
+        const_marketPriceOrder = rootView.findViewById(R.id.const_marketPriceOrder);
     }
 
     private void getCoinArcadeInfo() {
@@ -168,6 +180,38 @@ public class Fragment_coinOrder extends Fragment {
         if(getUpBitCoinArcade!=null) {
             getUpBitCoinArcade.stopThread();
         }
+    }
+
+    private void setRadioGroup_orderWays(View rootView){
+
+        RadioButton radio_setPrice = rootView.findViewById(R.id.radio_setPrice);
+        radio_setPrice.setChecked(true);
+        const_marketPriceOrder.setVisibility(View.GONE);
+
+
+        radioGroup_orderWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                switch (radioGroup.getCheckedRadioButtonId()){
+                    case R.id.radio_setPrice:
+                        linear_PriceOrder1.setVisibility(View.VISIBLE);
+                        linear_PriceOrder3.setVisibility(View.VISIBLE);
+                        linear_PriceOrder2.setVisibility(View.VISIBLE);
+                        const_priceOrder4.setVisibility(View.VISIBLE);
+                        const_marketPriceOrder.setVisibility(View.GONE);
+                        break;
+                    case R.id.radio_marketPrice:
+                        linear_PriceOrder1.setVisibility(View.GONE);
+                        linear_PriceOrder3.setVisibility(View.GONE);
+                        linear_PriceOrder2.setVisibility(View.GONE);
+                        const_priceOrder4.setVisibility(View.GONE);
+                        const_marketPriceOrder.setVisibility(View.VISIBLE);
+                        break;
+                }
+
+            }
+        });
     }
 
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment_coinOrder"
+    tools:context=".Fragment.Fragment_coinOrder"
     android:orientation="horizontal">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -24,56 +24,31 @@
             android:layout_height="50dp"
             android:orientation="horizontal">
 
-            <ToggleButton
+            <Button
                 android:id="@+id/tog_buy"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textOff="매수"
-                android:textOn="매수" />
-            <ToggleButton
+                android:text="매수" />
+            <Button
                 android:id="@+id/tog_sell"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textOff="매도"
-                android:textOn="매도"/>
-            <ToggleButton
+                android:text="매도"/>
+            <Button
                 android:id="@+id/tog_transactionInfo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textOff="거래 내역"
-                android:textOn="거래 내역"/>
-
-
+                android:text="거래내역"/>
         </LinearLayout>
 
-        <RadioGroup
+        <include
+            android:id="@+id/include_coin_order"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="지정"
-                android:layout_marginLeft="40dp"/>
-            <RadioButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="시장"
-                android:layout_marginRight="40dp"/>
-
-
-        </RadioGroup>
+            android:layout_height="wrap_content"
+            layout="@layout/include_coin_order"/>
+        </LinearLayout>
 
     </LinearLayout>
-
-
-
-
-
-</LinearLayout>

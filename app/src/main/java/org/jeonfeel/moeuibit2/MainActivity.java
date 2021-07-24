@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
+
 public class MainActivity extends FragmentActivity {
 
     @Override

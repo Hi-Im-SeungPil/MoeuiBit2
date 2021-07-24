@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Fragment.Chart;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,6 +9,8 @@ import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
+
+import org.jeonfeel.moeuibit2.R;
 
 public class MoEuiBitMarkerView extends MarkerView {
 

@@ -1,9 +1,8 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Activitys;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -12,6 +11,10 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
+import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
+import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
+import org.jeonfeel.moeuibit2.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -89,7 +93,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         holder.linear_coin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context,Activity_coinInfo.class);
+                Intent intent = new Intent(context, Activity_coinInfo.class);
                 intent.putExtra("market",filteredItem.get(position).getMarket());
                 intent.putExtra("symbol",filteredItem.get(position).getSymbol());
                 intent.putExtra("koreanName",filteredItem.get(position).getKoreanName());

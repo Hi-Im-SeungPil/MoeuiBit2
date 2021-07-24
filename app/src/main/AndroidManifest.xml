@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activity_Login">
+        <activity android:name=".Activitys.Activity_Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activity_coinInfo">
+        <activity android:name=".Activitys.Activity_coinInfo">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

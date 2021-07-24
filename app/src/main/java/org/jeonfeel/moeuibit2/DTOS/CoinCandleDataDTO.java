@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.DTOS;
 
 public class CoinCandleDataDTO {
 

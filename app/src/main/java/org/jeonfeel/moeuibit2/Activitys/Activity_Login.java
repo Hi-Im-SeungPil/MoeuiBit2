@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Activitys;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,10 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kakao.sdk.user.UserApiClient;
+
+import org.jeonfeel.moeuibit2.MainActivity;
+import org.jeonfeel.moeuibit2.R;
 
 public class Activity_Login extends AppCompatActivity {
     private final String TAG = "Activity_Login";
