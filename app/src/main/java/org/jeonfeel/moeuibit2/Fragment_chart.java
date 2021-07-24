@@ -15,9 +15,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.CombinedChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -25,9 +23,6 @@ import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.CombinedData;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
@@ -47,10 +42,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.TimerTask;
 
 import static java.lang.Math.round;
 
@@ -73,7 +65,7 @@ public class Fragment_chart extends Fragment {
     int btn_minuteSelected = 1;
     private String period="";
     private ArrayList<String> labels;
-//    myValueFormatter myValueFormatter;
+    myValueFormatter myValueFormatter;
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -97,7 +89,7 @@ public class Fragment_chart extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
 
         FindViewById(rootView);
-        getCoinMinuteCandleData(1,"minutes");
+        getCoinCandleData(1,"minutes");
         btn_minuteChart.setOnClickListener(new SetBtn_minutes());
         btn_oneMinute.setOnClickListener(new SetBtn_minutes());
         btn_threeMinute.setOnClickListener(new SetBtn_minutes());
@@ -134,6 +126,8 @@ public class Fragment_chart extends Fragment {
 
     }
 
+    // 차트 초기화
+
     private void initChart() {
 
         MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker);
@@ -142,8 +136,7 @@ public class Fragment_chart extends Fragment {
         combinedChart.setScaleYEnabled(false);
         combinedChart.setPinchZoom(false);
         combinedChart.setDrawGridBackground(false);
-        combinedChart.setDrawBorders(true);
-        combinedChart.setBorderColor(Color.BLACK);
+        combinedChart.setDrawBorders(false);
         combinedChart.setDoubleTapToZoomEnabled(false);
         combinedChart.setHighlightFullBarEnabled(false);
         combinedChart.setMarker(moEuiBitMarkerView);
@@ -154,13 +147,13 @@ public class Fragment_chart extends Fragment {
         combinedChart.setHighlightPerTapEnabled(false);
 
         combinedChart.setOnChartGestureListener(new OnChartGestureListener() {
+
+            //터치 하면 하이라이트 생성
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
                 Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
                 if(highlight != null) {
-
                     combinedChart.highlightValue(highlight, true);
-
                 }
             }
 
@@ -208,6 +201,8 @@ public class Fragment_chart extends Fragment {
         xAxis.setDrawGridLines(false);
         xAxis.setAvoidFirstLastClipping(true);
         xAxis.setLabelCount(3,true);
+        xAxis.setGranularity(3f);
+        xAxis.setGranularityEnabled(true);
 
         YAxis leftAxis = combinedChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
@@ -229,11 +224,13 @@ public class Fragment_chart extends Fragment {
         l.setDrawInside(true);
     }
 
-    private void getCoinMinuteCandleData(int minute,String period) {
+    //코인 정보 200개 받아오는 메소드
 
-//        if(myValueFormatter != null){
-//            myValueFormatter = null;
-//        }
+    private void getCoinCandleData(int minute, String period) {
+
+        if(myValueFormatter != null){
+            myValueFormatter = null;
+        }
 
         if (d != null) {
             d.clearValues();
@@ -353,8 +350,8 @@ public class Fragment_chart extends Fragment {
                 }
                 combinedChart.moveViewToX(entryCount);
 
-//                myValueFormatter = new myValueFormatter(coinCandleDataDTOS,candleEntries);
-//                combinedChart.getXAxis().setValueFormatter(myValueFormatter);
+                myValueFormatter = new myValueFormatter(coinCandleDataDTOS,candleEntries);
+                combinedChart.getXAxis().setValueFormatter(myValueFormatter);
 
                 combinedChart.invalidate();
                 Log.d("qqqq",combinedChart.getCandleData().getEntryCount()+"");
@@ -363,6 +360,8 @@ public class Fragment_chart extends Fragment {
             e.printStackTrace();
         }
     }
+
+    // 시작할 때 코인 정보 받아오기
 
     @Override
     public void onStart() {
@@ -385,6 +384,8 @@ public class Fragment_chart extends Fragment {
             getRecentCoinChart = null;
         }
     }
+
+    //코인 차트 0.5초마다 계속해서 갱신
 
     class GetRecentCoinChart extends Thread {
 
@@ -493,6 +494,8 @@ public class Fragment_chart extends Fragment {
             isRunning = false;
         }
     }
+
+    //차트 버튼 클릭 리스터
 
     public class SetBtn_minutes implements View.OnClickListener {
 
@@ -621,38 +624,43 @@ public class Fragment_chart extends Fragment {
         private void setBtn(int btn_minuteSelected,String period){
             getRecentCoinChart.stopThread();
             getRecentCoinChart = null;
-            getCoinMinuteCandleData(btn_minuteSelected,period);
+            getCoinCandleData(btn_minuteSelected,period);
             getRecentCoinChart = new GetRecentCoinChart(btn_minuteSelected,period);
             getRecentCoinChart.start();
         }
     }
 
-//    public class myValueFormatter extends ValueFormatter{
-//
-//        ArrayList<CoinCandleDataDTO> mValue;
-//        ArrayList<CandleEntry> entries;
-//        private int mValueCount = 0;
-//
-//        public myValueFormatter(ArrayList<CoinCandleDataDTO> mValue,ArrayList<CandleEntry> entries) {
-//            this.mValue = mValue;
-//            this.entries = entries;
-//            mValueCount = entries.size();
-//        }
-//
-//        @Override
-//        public String getFormattedValue(float value) {
-//            int index = round(value);
-//
-//            if(index < 0 || index >= mValueCount || index != (int)value) {
-//
-//                return "";
-//            }
-//            String[] fullyDate = mValue.get(index).getCandleDateTimeKst().split("T");
-//            String[] date = fullyDate[0].split("-");
-//            String[] time = fullyDate[1].split(":");
-//
-//            return date[1] + "-" + date[2] + " " + time[1] + ":" + time[2];
-//        }
-//    }
+    //차트 XAxis value formatter
+
+    public class myValueFormatter extends ValueFormatter{
+
+        ArrayList<CoinCandleDataDTO> mValue;
+        ArrayList<CandleEntry> entries;
+        private int mValueCount = 0;
+
+        public myValueFormatter(ArrayList<CoinCandleDataDTO> mValue,ArrayList<CandleEntry> entries) {
+            this.mValue = mValue;
+            this.entries = entries;
+            mValueCount = entries.size();
+        }
+
+        @Override
+        public String getFormattedValue(float value) {
+
+            if((int)value <= 0 || (int)value >= entries.size()) {
+                return "";
+            }
+
+            else if((int)value < entries.size()) {
+
+                String[] fullyDate = mValue.get((int) value - 1).getCandleDateTimeKst().split("T");
+                String[] date = fullyDate[0].split("-");
+                String[] time = fullyDate[1].split(":");
+
+                return date[1] + "-" + date[2] + " " + time[0] + ":" + time[1];
+            }
+            return "";
+        }
+    }
 
 }

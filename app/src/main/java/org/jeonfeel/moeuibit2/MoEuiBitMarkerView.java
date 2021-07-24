@@ -57,7 +57,7 @@ public class MoEuiBitMarkerView extends MarkerView {
         }else {
             //Otherwise draw the marker on the top right corner.
             //Check if the user is in the right half of the canvas
-            super.draw(canvas,460f,-500f);
+            super.draw(canvas, (float) (canvas.getWidth() / 1.9), (float) (canvas.getHeight()/12.0));
         }
     }
 //    @Override
