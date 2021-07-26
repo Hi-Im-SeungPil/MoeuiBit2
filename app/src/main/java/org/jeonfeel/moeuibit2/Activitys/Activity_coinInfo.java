@@ -66,11 +66,6 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 MoEuiBitDatabase db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
                 db.userDAO().update(40000000);
-
-                List<User> users = db.userDAO().getAll();
-
-                Log.d("hello",users.size()+"");
-                Toast.makeText(Activity_coinInfo.this, users.get(0).krw+"", Toast.LENGTH_SHORT).show();
             }
         });
     }

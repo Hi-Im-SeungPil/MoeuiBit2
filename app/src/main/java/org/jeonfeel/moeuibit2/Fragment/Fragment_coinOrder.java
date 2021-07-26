@@ -10,14 +10,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
+import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
+import org.jeonfeel.moeuibit2.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
 
 import static java.lang.Math.round;
@@ -44,16 +51,19 @@ public class Fragment_coinOrder extends Fragment {
     private RecyclerView rv_coinArcade;
     private String market;
     private ArrayList<CoinArcadeDTO> coinArcadeDTOS;
-    private boolean checkTimer = false;
-    private TimerTask timerTask;
     private Adapter_rvCoinArcade adapter_rvCoinArcade;
     private Double openingPrice;
     private int index = 0; //ask coinArcade set을 위해!!
     private int index2 = 0;//bid coinArcade set을 위해!!
-    GetUpBitCoinArcade getUpBitCoinArcade;
-    RadioGroup radioGroup_orderWays;
-    LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
-    ConstraintLayout const_priceOrder4,const_marketPriceOrder;
+    private GetUpBitCoinArcade getUpBitCoinArcade;
+    private RadioGroup radioGroup_orderWays;
+    private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
+    private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
+    private TextView tv_orderableAmount;
+    private Button btn_coinOrder;
+    private MoEuiBitDatabase db = MoEuiBitDatabase.getInstance(getActivity());
+    private int leftMoney;
+    private EditText et_orderCoinPrice,et_orderCoinQuantity,et_orderCoinTotalAmount;
 
     public Fragment_coinOrder(String market) {
         // Required empty public constructor
@@ -80,6 +90,11 @@ public class Fragment_coinOrder extends Fragment {
         getCoinArcadeInfo();
         setRadioGroup_orderWays(rootView);
 
+        List<User> users = db.userDAO().getAll();
+        leftMoney = users.get(0).krw;
+
+        tv_orderableAmount.setText(leftMoney+"");
+
         return rootView;
     }
 
@@ -96,6 +111,11 @@ public class Fragment_coinOrder extends Fragment {
         linear_PriceOrder2 = rootView.findViewById(R.id.linear_PriceOrder2);
         const_priceOrder4 = rootView.findViewById(R.id.const_priceOrder4);
         const_marketPriceOrder = rootView.findViewById(R.id.const_marketPriceOrder);
+        tv_orderableAmount = rootView.findViewById(R.id.tv_orderableAmount);
+        btn_coinOrder = rootView.findViewById(R.id.btn_coinOrder);
+        et_orderCoinPrice = rootView.findViewById(R.id.et_orderCoinPrice);
+        et_orderCoinQuantity = rootView.findViewById(R.id.et_orderCoinQuantity);
+        et_orderCoinTotalAmount = rootView.findViewById(R.id.et_orderCoinTotalAmount);
     }
 
     private void getCoinArcadeInfo() {
@@ -188,7 +208,6 @@ public class Fragment_coinOrder extends Fragment {
         radio_setPrice.setChecked(true);
         const_marketPriceOrder.setVisibility(View.GONE);
 
-
         radioGroup_orderWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -214,7 +233,17 @@ public class Fragment_coinOrder extends Fragment {
         });
     }
 
+    private void setBtn_coinOrder(){
+        btn_coinOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
+                String orderPrice = et_orderCoinPrice.getText().toString();
+                String orderQuantity = et_orderCoinQuantity.getText().toString();
 
+            }
+        });
+    }
 
     class GetUpBitCoinArcade extends Thread {
 
@@ -299,7 +328,6 @@ public class Fragment_coinOrder extends Fragment {
                 }
             }
         }
-
         private void stopThread(){
             isRunning = false;
         }
