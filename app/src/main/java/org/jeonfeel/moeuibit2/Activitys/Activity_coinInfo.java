@@ -3,7 +3,11 @@ package org.jeonfeel.moeuibit2.Activitys;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -14,7 +18,9 @@ import com.google.android.material.tabs.TabLayout;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
+import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
+import org.jeonfeel.moeuibit2.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +34,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,14 +45,11 @@ public class Activity_coinInfo extends FragmentActivity {
 
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
     private DecimalFormat decimalFormat;
-    private TimerTask timerTask;
-    private Timer timer;
-    private boolean checkTimer;
     private String market;
     private String symbol;
-    public static Double openingPrice;
     String koreanName;
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
+    private Button btn_coinInfoBackSpace;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +60,19 @@ public class Activity_coinInfo extends FragmentActivity {
         FindViewById();
         setCoinInfo();
         setTabLayout();
+        btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                MoEuiBitDatabase db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
+                db.userDAO().update(40000000);
+
+                List<User> users = db.userDAO().getAll();
+
+                Log.d("hello",users.size()+"");
+                Toast.makeText(Activity_coinInfo.this, users.get(0).krw+"", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void FindViewById(){
@@ -62,6 +80,7 @@ public class Activity_coinInfo extends FragmentActivity {
         tv_coinInfoCoinPrice = findViewById(R.id.tv_coinInfoCoinPrice);
         tv_coinInfoCoinDayToDay = findViewById(R.id.tv_coinInfoCoinDayToDay);
         tv_coinInfoChangePrice = findViewById(R.id.tv_coinInfoChangePrice);
+        btn_coinInfoBackSpace = findViewById(R.id.btn_coinInfoBackSpace);
     }
 
     private void setCoinInfo(){

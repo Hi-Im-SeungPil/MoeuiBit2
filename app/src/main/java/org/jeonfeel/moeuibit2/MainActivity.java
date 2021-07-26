@@ -20,6 +20,9 @@ public class MainActivity extends FragmentActivity {
 
         setMenuBottom();
 
+
+
+
     }
     private void setMenuBottom(){
 
@@ -40,4 +43,7 @@ public class MainActivity extends FragmentActivity {
             }
         });
     }
+
+
+
 }
