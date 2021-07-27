@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -24,12 +25,14 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     ArrayList<CoinArcadeDTO> item;
     Context context;
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    EditText et_orderCoinPrice;
     private Double openingPrice;
 
-    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice) {
+    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,EditText et_orderCoinPrice) {
         this.item = item;
         this.context = context;
         this.openingPrice = openingPrice;
+        this.et_orderCoinPrice = et_orderCoinPrice;
     }
 
     public void setItem(ArrayList<CoinArcadeDTO> item){
@@ -94,6 +97,13 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#000000"));
             holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
         }
+        holder.linear_wholeItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
+                et_orderCoinPrice.setText(arcadePrice);
+            }
+        });
     }
 
     @Override

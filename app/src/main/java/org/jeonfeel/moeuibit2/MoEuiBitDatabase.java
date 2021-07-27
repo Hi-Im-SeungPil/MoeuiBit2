@@ -16,6 +16,7 @@ import kotlin.jvm.Synchronized;
 public abstract class MoEuiBitDatabase extends RoomDatabase{
 
     public abstract UserDAO userDAO();
+    public abstract MyCoinDAO myCoinDAO();
 
     private static MoEuiBitDatabase instance;
 
@@ -26,7 +27,7 @@ public abstract class MoEuiBitDatabase extends RoomDatabase{
         synchronized (sLock) {
             if (instance == null) {
 
-                instance = Room.databaseBuilder(context
+                instance = Room.databaseBuilder(context.getApplicationContext()
                         , MoEuiBitDatabase.class
                         , "MoeuiBitDatabase")
                         .fallbackToDestructiveMigration()

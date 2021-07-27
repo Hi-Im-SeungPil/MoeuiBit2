@@ -43,6 +43,8 @@ import static java.lang.Math.round;
 
 public class Activity_coinInfo extends FragmentActivity {
 
+
+    private String TAG = "Activity_coinInfo";
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
     private DecimalFormat decimalFormat;
     private String market;
@@ -50,6 +52,7 @@ public class Activity_coinInfo extends FragmentActivity {
     String koreanName;
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
+    public static Double currentPrice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,7 +98,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 jsonObject = (JSONObject) jsonArray.get(0);
 
-                Double currentPrice = jsonObject.getDouble("trade_price");
+                currentPrice = jsonObject.getDouble("trade_price");
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
 
@@ -149,7 +152,7 @@ public class Activity_coinInfo extends FragmentActivity {
         Intent intent = getIntent();
         market = intent.getStringExtra("market");
 
-        Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder(market);
+        Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder(market,koreanName,symbol);
         Fragment_chart fragment_chart = new Fragment_chart(market);
         TabLayout tab_coinInfo = findViewById(R.id.tab_coinInfo);
 
@@ -233,7 +236,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
                         jsonObject = (JSONObject) jsonCoinInfo.get(0);
 
-                        Double currentPrice = jsonObject.getDouble("trade_price");
+                        currentPrice = jsonObject.getDouble("trade_price");
                         Double dayToDay = jsonObject.getDouble("signed_change_rate");
                         Double changePrice = jsonObject.getDouble("signed_change_price");
 
@@ -294,5 +297,9 @@ public class Activity_coinInfo extends FragmentActivity {
         private void stopRunning(){
             isRunning = false;
         }
+    }
+
+    public Double getCurrentPrice(){
+        return currentPrice;
     }
 }
