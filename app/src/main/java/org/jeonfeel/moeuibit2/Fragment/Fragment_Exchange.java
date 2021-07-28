@@ -41,22 +41,19 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     private final String TAG = "Fragment_Exchange";
 
-    EditText et_searchCoin;
-    RecyclerView rv_coin;
-    Adapter_rvCoin adapter_rvCoin;
+    private EditText et_searchCoin;
+    private RecyclerView rv_coin;
+    private Adapter_rvCoin adapter_rvCoin;
 
-    ArrayList<CoinDTO> allCoinInfoArray = new ArrayList<>();
-    ArrayList<String> marketsArray;
-    ArrayList<String> koreanNamesArray;
-    ArrayList<String> englishNamesArray;
+    private ArrayList<CoinDTO> allCoinInfoArray = new ArrayList<>();
+    private ArrayList<String> marketsArray;
+    private ArrayList<String> koreanNamesArray;
+    private ArrayList<String> englishNamesArray;
 
-    String markets;
-    TimerTask timerTask;
-    Timer timer;
-    private boolean checkTimer = false;
-    int orderByCurrentPrice = 0;
-    int orderByDayToDay = 0;
-    int orderByTransactionAmount = 0;
+    private String markets;
+    private int orderByCurrentPrice = 0;
+    private int orderByDayToDay = 0;
+    private int orderByTransactionAmount = 0;
     private Button btn_orderByCurrentPrice,btn_orderByDayToDay,btn_orderByTransactionAmount;
     private GetUpBitCoinsThread getUpBitCoinsThread;
 

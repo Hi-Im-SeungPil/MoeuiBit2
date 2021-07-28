@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.Fragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -19,11 +18,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
@@ -46,10 +48,10 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static androidx.core.content.ContextCompat.getSystemService;
 import static java.lang.Math.round;
 
 /**
@@ -73,8 +75,10 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
     private TextView tv_orderableAmount;
     private Button btn_coinOrder;
     private MoEuiBitDatabase db;
-    private int leftMoney;
-    private EditText et_orderCoinPrice,et_orderCoinQuantity,et_orderCoinTotalAmount;
+    private int leftMoney,startCheck = 0;
+    private EditText et_orderCoinPrice,et_orderCoinQuantity, et_orderCoinTotalAmount;
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private Spinner spinner_orderCoinQuantity;
 
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
         // Required empty public constructor
@@ -101,6 +105,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         getCoinArcadeInfo();
         setRadioGroup_orderWays(rootView);
         setBtn_coinOrder();
+        setSpinner_orderCoinQuantity();
 
         initFragment_coinOrder();
 
@@ -155,10 +160,6 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
 
                 EditText editText = new EditText(getActivity());
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                editText.requestFocus();
-
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("총액을 입력하세요");
@@ -166,15 +167,26 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                 builder.setPositiveButton("입력", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (!et_orderCoinPrice.getText().toString().equals("0") && et_orderCoinPrice.length() != 0){
+                        if (!et_orderCoinPrice.getText().toString().equals("0") && et_orderCoinPrice.length() != 0 && editText.length() != 0){
                             int amount = Integer.parseInt(editText.getText().toString());
-                            Double orderPrice = Double.valueOf(et_orderCoinPrice.getText().toString());
+                            Double orderPrice = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
                             Double quantity =  amount / orderPrice;
                             et_orderCoinQuantity.setText(String.format("%.8f",quantity));
                         }
                     }
-                }).setNegativeButton("취소",null);
-                builder.show();
+                }).setNegativeButton("취소", null);
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        imm.showSoftInput(editText,0);
+                    }
+                },100);
             }
         });
     }
@@ -188,9 +200,9 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0){
             Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-            Double price = Double.valueOf(et_orderCoinPrice.getText().toString());
+            Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
 
-            et_orderCoinTotalAmount.setText(round(quantity*price)+"");
+            et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price))+"");
         }
     }
 
@@ -215,6 +227,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         et_orderCoinQuantity = rootView.findViewById(R.id.et_orderCoinQuantity);
         et_orderCoinTotalAmount = rootView.findViewById(R.id.et_orderCoinTotalAmount);
         include_coin_orderParent = rootView.findViewById(R.id.include_coin_orderParent);
+        spinner_orderCoinQuantity = rootView.findViewById(R.id.spinner_orderCoinQuantity);
     }
 
     private void getCoinArcadeInfo() {
@@ -253,7 +266,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
 
                 Double initPrice = coinArcadeDTOS.get(14).getCoinArcadePrice();
                 if(initPrice >= 100){
-                    et_orderCoinPrice.setText(round(initPrice)+"");
+                    et_orderCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
                 }else {
                     et_orderCoinPrice.setText(String.format("%.2f", initPrice));
                 }
@@ -281,7 +294,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                 jsonObject = (JSONObject) jsonArray.get(0);
                 openingPrice = jsonObject.getDouble("prev_closing_price");
 
-                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,et_orderCoinPrice);
+                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,et_orderCoinPrice,et_orderCoinQuantity);
                 rv_coinArcade.setAdapter(adapter_rvCoinArcade);
             }
         } catch (Exception e) {
@@ -295,11 +308,6 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         super.onStart();
         getUpBitCoinArcade = new GetUpBitCoinArcade();
         getUpBitCoinArcade.start();
-    }
-
-    @Override
-    public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
-        super.onResume();
     }
 
     @Override
@@ -348,19 +356,20 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
 
                 Double currentPrice = Activity_coinInfo.currentPrice;
 
-                Double orderPrice = Double.parseDouble(et_orderCoinPrice.getText().toString());
+                Double orderPrice = Double.parseDouble(et_orderCoinPrice.getText().toString().replace(",",""));
                 Double orderQuantity = Double.parseDouble(et_orderCoinQuantity.getText().toString());
                 Double orderAmount = currentPrice * orderQuantity;
+
                 MyCoin myCoin = null;
                 myCoin = db.myCoinDAO().isInsert(market);
 
-                if(myCoin == null && orderPrice >= currentPrice && orderAmount <= leftMoney){
+                if(myCoin == null && orderPrice >= currentPrice && orderAmount <= leftMoney && orderAmount >= 5000){
 
                     MyCoin myCoin1 = new MyCoin(market,currentPrice,koreanName,symbol,orderQuantity);
                     db.myCoinDAO().insert(myCoin1);
                     db.userDAO().update((int) (leftMoney - orderAmount));
 
-                }else if(myCoin != null && orderPrice >= currentPrice && orderAmount <= leftMoney){
+                }else if(myCoin != null && orderPrice >= currentPrice && orderAmount <= leftMoney && orderAmount >= 5000){
                     Double myCoinQuantity = myCoin.quantity;
                     Double myCoinPrice = myCoin.purchasePrice;
 
@@ -372,6 +381,48 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
             }
         });
     }
+
+    private void setSpinner_orderCoinQuantity(){
+
+        String[] items = {"최대","50%","25%","10%"};
+
+        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
+
+        spinner_orderCoinQuantity.setAdapter(adapter);
+
+            spinner_orderCoinQuantity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+
+                        Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",", ""));
+                        int orderablePrice = 0;
+
+                        if(startCheck != 0) {
+                            switch (spinner_orderCoinQuantity.getSelectedItemPosition()) {
+                                case 0:
+                                    orderablePrice = Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", ""));
+                                    break;
+                                case 1:
+                                    orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 2);
+                                    break;
+                                case 2:
+                                    orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 4);
+                                    break;
+                                case 3:
+                                    orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 10);
+                                    break;
+                            }
+                            et_orderCoinQuantity.setText(String.format("%.8f", orderablePrice / price));
+                        }
+                        if (startCheck == 0)
+                        startCheck++;
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }
 
     private Double averageOrderPriceCalculate(Double myCoinQuantity,Double myCoinPrice,Double newCoinQuantity,Double newCoinPrice){
 

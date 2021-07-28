@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -25,14 +26,15 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     ArrayList<CoinArcadeDTO> item;
     Context context;
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    EditText et_orderCoinPrice;
+    EditText et_orderCoinPrice,et_orderCoinQuantity;
     private Double openingPrice;
 
-    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,EditText et_orderCoinPrice) {
+    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,EditText et_orderCoinPrice,EditText et_orderCoinQuantity) {
         this.item = item;
         this.context = context;
         this.openingPrice = openingPrice;
         this.et_orderCoinPrice = et_orderCoinPrice;
+        this.et_orderCoinQuantity = et_orderCoinQuantity;
     }
 
     public void setItem(ArrayList<CoinArcadeDTO> item){
@@ -102,6 +104,16 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             public void onClick(View view) {
                 String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
                 et_orderCoinPrice.setText(arcadePrice);
+
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+                if(et_orderCoinPrice.isFocused()) {
+                    et_orderCoinPrice.clearFocus();
+                    imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(),0);
+                }else if(et_orderCoinQuantity.isFocused()) {
+                    et_orderCoinQuantity.clearFocus();
+                    imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(),0);
+                }
+
             }
         });
     }
