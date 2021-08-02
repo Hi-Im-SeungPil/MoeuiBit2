@@ -74,7 +74,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
     private RadioGroup radioGroup_orderWays,radioGroup_sellWays;
     private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
     private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
-    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount;
+    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;
     private Button btn_coinOrder,btn_order,btn_sell,btn_transactionInfo;
     private MoEuiBitDatabase db;
     private int leftMoney,startCheck = 0;
@@ -124,12 +124,20 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         setSpinner_orderCoinQuantity();
         setSpinner_orderCoinQuantityMarketPriceVer();
         linear_coinSell.setVisibility(View.GONE);
+        tv_sellAbleCoinSymbol.setText(symbol);
 
         db = MoEuiBitDatabase.getInstance(getActivity());
 
         List<User> users = db.userDAO().getAll();
         leftMoney = users.get(0).krw;
         tv_orderableAmount.setText(leftMoney+"");
+
+        MyCoin myCoin = db.myCoinDAO().isInsert(market);
+        if(myCoin != null){
+            tv_sellAbleCoinQuantity.setText(String.format("%.8f",myCoin.getQuantity()));
+        }else{
+            tv_sellAbleCoinQuantity.setText("0");
+        }
 
         et_orderCoinTotalAmount.setCursorVisible(false);
 
@@ -195,11 +203,14 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
     }
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0){
+        if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
             Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
             Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-
-            et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price))+"");
+            et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+        }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+            Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+            Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+            et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
         }
     }
     @Override
@@ -241,6 +252,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         et_sellCoinTotalAmountMarketPriceVer = rootView.findViewById(R.id.et_sellCoinTotalAmountMarketPriceVer);
         btn_coinSell = rootView.findViewById(R.id.btn_coinSell);
         btn_coinSellReset = rootView.findViewById(R.id.btn_coinSellReset);
+        tv_sellAbleCoinSymbol = rootView.findViewById(R.id.tv_sellAbleCoinSymbol);
     }
     private void getCoinArcadeInfo() {
 
@@ -391,7 +403,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                 int radioId = radioGroup_orderWays.getCheckedRadioButtonId();
 
                 if (radioId == R.id.radio_setPrice) {
-                    Double totalPrice = Double.valueOf(et_orderCoinTotalAmount.getText().toString());
+                    Double totalPrice = Double.valueOf(et_orderCoinTotalAmount.getText().toString().replace(",",""));
 
                     Double orderPrice = Double.parseDouble(et_orderCoinPrice.getText().toString().replace(",", ""));
                     Double orderQuantity = Double.valueOf(String.format("%.8f",totalPrice/currentPrice));
