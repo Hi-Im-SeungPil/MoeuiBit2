@@ -15,7 +15,7 @@
         android:layout_weight="2"/>
 
     <LinearLayout
-        android:id="@+id/include_coin_orderParent"
+        android:id="@+id/include_coin_parent"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="4"
@@ -27,19 +27,19 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/tog_buy"
+                android:id="@+id/btn_order"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="매수" />
             <Button
-                android:id="@+id/tog_sell"
+                android:id="@+id/btn_sell"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="매도"/>
             <Button
-                android:id="@+id/tog_transactionInfo"
+                android:id="@+id/btn_transactionInfo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -51,6 +51,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/include_coin_order"/>
+
+        <include
+            android:id="@+id/include_coin_sell"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/include_coin_sell"/>
+
         </LinearLayout>
 
     </LinearLayout>

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -8,59 +7,77 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/linear_coinOrder"
+        android:id="@+id/linear_coinSell"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <RadioGroup
-            android:id="@+id/radioGroup_orderWays"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal">
+    <RadioGroup
+        android:id="@+id/radioGroup_sellWays"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/radio_setPrice"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:text="지정"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"/>
+        <RadioButton
+            android:id="@+id/radio_setPriceVerSell"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="지정"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"/>
 
-            <RadioButton
-                android:id="@+id/radio_marketPrice"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:text="시장"
-                android:layout_weight="1"/>
+        <RadioButton
+            android:id="@+id/radio_marketPriceVerSell"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="시장"
+            android:layout_weight="1"/>
 
-        </RadioGroup>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="주문가능"
-                android:gravity="center_vertical"
-                android:textSize="17sp"/>
-
-            <TextView
-                android:id="@+id/tv_orderableAmount"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="100 KRW"
-                android:gravity="center_vertical|right"
-                android:textSize="15sp"/>
-        </LinearLayout>
+    </RadioGroup>
 
     <LinearLayout
-        android:id="@+id/linear_PriceOrder1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="주문가능"
+            android:gravity="center_vertical"
+            android:textSize="17sp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_sellAbleCoinQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="3.00000089 XRP"
+            android:gravity="center_vertical|right"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_sellAbleAmount"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="= 2400 KRW"
+            android:gravity="center_vertical|right"
+            android:textSize="15sp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear_PriceSell1"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal">
@@ -81,7 +98,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
-                android:id="@+id/et_orderCoinQuantity"
+                android:id="@+id/et_sellCoinQuantity"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
@@ -94,7 +111,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Spinner
-            android:id="@+id/spinner_orderCoinQuantity"
+            android:id="@+id/spinner_sellCoinQuantity"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
@@ -102,7 +119,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linear_PriceOrder2"
+        android:id="@+id/linear_PriceSell2"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal">
@@ -123,7 +140,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
             <EditText
-                android:id="@+id/et_orderCoinPrice"
+                android:id="@+id/et_sellCoinPrice"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
@@ -152,7 +169,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linear_PriceOrder3"
+        android:id="@+id/linear_PriceSell3"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal">
@@ -171,7 +188,7 @@
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/const_priceOrder4"
+        android:id="@+id/const_priceSell4"
         android:layout_width="match_parent"
         android:layout_height="40dp">
 
@@ -186,7 +203,7 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <EditText
-            android:id="@+id/et_orderCoinTotalAmount"
+            android:id="@+id/et_sellCoinTotalAmount"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
@@ -200,7 +217,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/const_marketPriceOrder"
+        android:id="@+id/const_marketPriceSell"
         android:layout_width="match_parent"
         android:layout_height="40dp">
 
@@ -223,7 +240,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/et_orderCoinTotalAmountMarketPriceVer"
+                android:id="@+id/et_sellCoinTotalAmountMarketPriceVer"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="7"
@@ -231,15 +248,13 @@
                 android:focusable="true"/>
 
             <Spinner
-                android:id="@+id/spinner_orderCoinQuantityMarketPriceVer"
+                android:id="@+id/spinner_sellCinQuantityMarketPriceVer"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
                 app:layout_constraintHorizontal_weight="3"/>
 
         </LinearLayout>
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -249,18 +264,21 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btn_coinOrderReset"
+            android:id="@+id/btn_coinSellReset"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="초기화"/>
 
         <Button
-            android:id="@+id/btn_coinOrder"
+            android:id="@+id/btn_coinSell"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="매수"/>
+            android:text="매도"/>
+
         </LinearLayout>
+
     </LinearLayout>
+
 </LinearLayout>
