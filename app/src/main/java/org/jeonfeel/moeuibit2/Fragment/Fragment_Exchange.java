@@ -1,18 +1,22 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
@@ -32,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,6 +61,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private int orderByTransactionAmount = 0;
     private Button btn_orderByCurrentPrice,btn_orderByDayToDay,btn_orderByTransactionAmount;
     private GetUpBitCoinsThread getUpBitCoinsThread;
+
+    private HashMap<String,Integer> orderPosition;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -171,6 +178,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         //업비트 api를 받아온다.
         public void getUpBitCoinsInfo() {
 
+            orderPosition = new HashMap<>();
+
             if(allCoinInfoArray.size() != 0){
                 allCoinInfoArray.clear();
             }
@@ -197,11 +206,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
                                 , currentPrice, dayToDay, transactionAmount,symbol[1]);
 
-
                         allCoinInfoArray.add(coinDTO);
                     }
-                    Collections.sort(allCoinInfoArray);
-                    Collections.reverse(allCoinInfoArray);
+                    orderByCoins();
                     adapter_rvCoin.setItem(allCoinInfoArray);
                     adapter_rvCoin.notifyDataSetChanged();
                 }
@@ -222,7 +229,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 if(orderByCurrentPrice > 2){
                     orderByCurrentPrice = 0;
                 }
-
+                orderByCoins();
                 orderByDayToDay = 0;
                 orderByTransactionAmount = 0;
                 btn_orderByDayToDay.setText("전일대비X");
@@ -238,7 +245,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 if(orderByDayToDay > 2){
                     orderByDayToDay = 0;
                 }
-
+                orderByCoins();
                 orderByCurrentPrice = 0;
                 orderByTransactionAmount = 0;
                 btn_orderByCurrentPrice.setText("현재가X");
@@ -251,14 +258,12 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             @Override
             public void onClick(View view) {
                 orderByTransactionAmount++;
-
                 if(orderByTransactionAmount > 2){
                     orderByTransactionAmount = 0;
                 }
-
+                orderByCoins();
                 orderByCurrentPrice = 0;
                 orderByDayToDay = 0;
-
                 btn_orderByCurrentPrice.setText("현재가X");
                 btn_orderByDayToDay.setText("전일대비X");
 
@@ -299,6 +304,14 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             CoinDTO.orderStatus = "transactionAmount";
             Collections.sort(allCoinInfoArray);
         }
+        if(orderPosition.size() != 0){
+            orderPosition.clear();
+        }
+
+        for(int i =0; i < allCoinInfoArray.size(); i++){
+            orderPosition.put(allCoinInfoArray.get(i).getMarket(),i);
+            Log.d("qqqq","qqqq");
+        }
     }
 
     @Override
@@ -309,18 +322,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     }
 
     @Override
-    public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
-        super.onResume();
-
-    }
-
-    @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
         if(getUpBitCoinsThread != null) {
             getUpBitCoinsThread.stopThread();
         }
-
     }
 
     private void setTextWatcher(){
@@ -351,6 +357,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         @Override
         public void run() {
             super.run();
+
+//            for(int i = 0; i < allCoinInfoArray.size(); i++){
+//                orderPosition.put(allCoinInfoArray.get(i).getMarket(),i);
+//            }
+
             while (isRunning) {
                 try {
                     URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
@@ -385,17 +396,16 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
                                     , currentPrice, dayToDay, transactionAmount, symbol[1]);
 
-                            allCoinInfoArray.set(i, coinDTO);
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    adapter_rvCoin.setItem(allCoinInfoArray);
-                                    adapter_rvCoin.notifyDataSetChanged();
-                                }
-                            });
+                            int position = orderPosition.get(marketsArray.get(i));
+                            allCoinInfoArray.set(position, coinDTO);
                         }
-                        orderByCoins();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter_rvCoin.setItem(allCoinInfoArray);
+                                adapter_rvCoin.notifyDataSetChanged();
+                            }
+                        });
                     }
 
                 } catch (UnsupportedEncodingException e) {

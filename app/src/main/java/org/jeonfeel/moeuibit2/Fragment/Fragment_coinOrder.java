@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Selection;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -58,7 +60,7 @@ import static java.lang.Math.round;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class Fragment_coinOrder extends Fragment implements TextWatcher {
+public class Fragment_coinOrder extends Fragment {
 
     private LinearLayout include_coin_parent,linear_coinSell,linear_coinOrder;
     private LinearLayout linear_PriceSell1,linear_PriceSell2,linear_PriceSell3;
@@ -81,9 +83,10 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
     private EditText et_orderCoinPrice,et_orderCoinQuantity, et_orderCoinTotalAmount;
     private EditText et_orderCoinTotalAmountMarketPriceVer;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    private Spinner spinner_orderCoinQuantity,spinner_orderCoinQuantityMarketPriceVer;
+    private Spinner spinner_orderCoinQuantity,spinner_orderCoinQuantityMarketPriceVer,spinner_sellCoinQuantity,spinner_sellCinQuantityMarketPriceVer;
     private EditText et_sellCoinQuantity,et_sellCoinPrice,et_sellCoinTotalAmount,et_sellCoinTotalAmountMarketPriceVer;
     private Button btn_coinSell,btn_coinSellReset;
+    private String commaResult;
 
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
         // Required empty public constructor
@@ -140,24 +143,39 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
         }
 
         et_orderCoinTotalAmount.setCursorVisible(false);
+        et_sellCoinTotalAmount.setCursorVisible(false);
+        TextWatcher tw1 = tw1();
+        et_orderCoinPrice.addTextChangedListener(tw1);
+        et_orderCoinQuantity.addTextChangedListener(tw1);
+        et_sellCoinPrice.addTextChangedListener(tw1);
+        et_sellCoinQuantity.addTextChangedListener(tw1);
 
-        et_orderCoinPrice.addTextChangedListener(this);
-        et_orderCoinQuantity.addTextChangedListener(this);
-
+// 레이아웃 터치하면 키보드 내림.
         include_coin_parent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                if(et_orderCoinPrice.isFocused()) {
-                    et_orderCoinPrice.clearFocus();
-                    imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(),0);
-                }else if(et_orderCoinQuantity.isFocused()) {
-                    et_orderCoinQuantity.clearFocus();
-                    imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(),0);
+                if(linear_coinOrder.getVisibility() == View.VISIBLE) {
+                    if (et_orderCoinPrice.isFocused()) {
+                        et_orderCoinPrice.clearFocus();
+                        imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(), 0);
+                    } else if (et_orderCoinQuantity.isFocused()) {
+                        et_orderCoinQuantity.clearFocus();
+                        imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(), 0);
+                    }
+                }else if(linear_coinSell.getVisibility() == View.VISIBLE){
+                    if (et_sellCoinPrice.isFocused()) {
+                        et_sellCoinPrice.clearFocus();
+                        imm.hideSoftInputFromWindow(et_sellCoinPrice.getWindowToken(), 0);
+                    } else if (et_sellCoinQuantity.isFocused()) {
+                        et_sellCoinQuantity.clearFocus();
+                        imm.hideSoftInputFromWindow(et_sellCoinQuantity.getWindowToken(), 0);
+                    }
                 }
                 return false;
             }
         });
+        // 총액 설정.
         et_orderCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -197,24 +215,82 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                 },100);
             }
         });
+ // 총액 설정.
+        et_sellCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(et_sellCoinPrice.isFocused()) {
+                    et_sellCoinPrice.clearFocus();
+                }else if(et_sellCoinQuantity.isFocused()) {
+                    et_sellCoinQuantity.clearFocus();
+                }
+                EditText editText = new EditText(getActivity());
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("총액을 입력하세요");
+                builder.setView(editText);
+                builder.setPositiveButton("입력", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (!et_sellCoinPrice.getText().toString().equals("0") && et_sellCoinPrice.length() != 0 && editText.length() != 0){
+                            int amount = Integer.parseInt(editText.getText().toString());
+                            Double orderPrice = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
+                            Double quantity =  amount / orderPrice;
+                            et_sellCoinQuantity.setText(String.format("%.8f",quantity));
+                        }
+                    }
+                }).setNegativeButton("취소", null);
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        imm.showSoftInput(editText,0);
+                    }
+                },100);
+            }
+        });
     }
-    @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-    }
-    @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
-            Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-            Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-            et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-        }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
-            Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-            Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-            et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-        }
-    }
-    @Override
-    public void afterTextChanged(Editable editable) {
+    private TextWatcher tw1(){
+        TextWatcher textWatcher1 = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)) {
+                    commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
+                    et_orderCoinPrice.setText(commaResult);
+                    et_sellCoinPrice.setText(commaResult);
+                    et_orderCoinPrice.setSelection(commaResult.length());
+                    et_sellCoinPrice.setSelection(commaResult.length());
+                }
+
+                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
+
+                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+
+                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
+                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+        return textWatcher1;
     }
     private void FindViewById(View rootView) {
         rv_coinArcade = rootView.findViewById(R.id.rv_coinArcade);
@@ -287,12 +363,15 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
 
                     coinArcadeDTOS.add(new CoinArcadeDTO(arcadePrice, coinArcadeSize, "bid"));
                 }
-
+                //매수 , 매도 잔량 중간.
                 Double initPrice = coinArcadeDTOS.get(14).getCoinArcadePrice();
+                //초기 코인 가격 설정
                 if(initPrice >= 100){
                     et_orderCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
+                    et_sellCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
                 }else {
                     et_orderCoinPrice.setText(String.format("%.2f", initPrice));
+                    et_sellCoinPrice.setText(String.format("%.2f", initPrice));
                 }
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
@@ -317,7 +396,8 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                 jsonObject = (JSONObject) jsonArray.get(0);
                 openingPrice = jsonObject.getDouble("prev_closing_price");
 
-                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,et_orderCoinPrice,et_orderCoinQuantity);
+                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,et_orderCoinPrice,et_orderCoinQuantity
+                ,et_sellCoinPrice,et_sellCoinQuantity,linear_coinOrder,linear_coinSell);
                 rv_coinArcade.setAdapter(adapter_rvCoinArcade);
             }
         } catch (Exception e) {
@@ -469,6 +549,14 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
             }
         });
     }
+    private void setBtn_coinSell(){
+        btn_coinSell.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
     private void setSpinner_orderCoinQuantity(){
 
         String[] items = {"최대","50%","25%","10%"};
@@ -614,6 +702,7 @@ public class Fragment_coinOrder extends Fragment implements TextWatcher {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    tv_sellAbleAmount.setText("= "+decimalFormat.format(round(Activity_coinInfo.currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
                                     adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                                     adapter_rvCoinArcade.notifyDataSetChanged();
                                 }

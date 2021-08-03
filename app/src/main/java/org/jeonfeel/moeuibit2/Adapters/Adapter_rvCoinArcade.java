@@ -23,18 +23,26 @@ import static java.lang.Math.round;
 
 public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArcade.CustomViewHolder> {
 
-    ArrayList<CoinArcadeDTO> item;
-    Context context;
+    private ArrayList<CoinArcadeDTO> item;
+    private Context context;
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    EditText et_orderCoinPrice,et_orderCoinQuantity;
+    private EditText et_orderCoinPrice,et_orderCoinQuantity,et_sellCoinQuantity,et_sellCoinPrice;
     private Double openingPrice;
+    private LinearLayout linear_coinOrder,linear_coinSell;
 
-    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,EditText et_orderCoinPrice,EditText et_orderCoinQuantity) {
+
+    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice
+            ,EditText et_orderCoinPrice,EditText et_orderCoinQuantity,EditText et_sellCoinPrice,EditText et_sellCoinQuantity
+    ,LinearLayout linear_coinOrder,LinearLayout linear_coinSell) {
         this.item = item;
         this.context = context;
         this.openingPrice = openingPrice;
         this.et_orderCoinPrice = et_orderCoinPrice;
         this.et_orderCoinQuantity = et_orderCoinQuantity;
+        this.et_sellCoinPrice = et_sellCoinPrice;
+        this.et_sellCoinQuantity = et_sellCoinQuantity;
+        this.linear_coinOrder = linear_coinOrder;
+        this.linear_coinSell = linear_coinSell;
     }
 
     public void setItem(ArrayList<CoinArcadeDTO> item){
@@ -99,19 +107,35 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#000000"));
             holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
         }
+
         holder.linear_wholeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
-                et_orderCoinPrice.setText(arcadePrice);
 
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
-                if(et_orderCoinPrice.isFocused()) {
-                    et_orderCoinPrice.clearFocus();
-                    imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(),0);
-                }else if(et_orderCoinQuantity.isFocused()) {
-                    et_orderCoinQuantity.clearFocus();
-                    imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(),0);
+                if(linear_coinOrder.getVisibility() == View.VISIBLE) {
+
+                    et_orderCoinPrice.setText(arcadePrice);
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+                    if (et_orderCoinPrice.isFocused()) {
+                        et_orderCoinPrice.clearFocus();
+                        imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(), 0);
+                    } else if (et_orderCoinQuantity.isFocused()) {
+                        et_orderCoinQuantity.clearFocus();
+                        imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(), 0);
+                    }
+                }else if(linear_coinSell.getVisibility() == View.VISIBLE){
+
+                    et_sellCoinPrice.setText(arcadePrice);
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+
+                    if (et_sellCoinPrice.isFocused()) {
+                        et_sellCoinPrice.clearFocus();
+                        imm.hideSoftInputFromWindow(et_sellCoinPrice.getWindowToken(), 0);
+                    } else if (et_sellCoinQuantity.isFocused()) {
+                        et_sellCoinQuantity.clearFocus();
+                        imm.hideSoftInputFromWindow(et_sellCoinQuantity.getWindowToken(), 0);
+                    }
                 }
 
             }
