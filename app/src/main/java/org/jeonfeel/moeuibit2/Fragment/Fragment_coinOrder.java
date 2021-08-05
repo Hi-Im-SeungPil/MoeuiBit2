@@ -145,9 +145,10 @@ public class Fragment_coinOrder extends Fragment {
         et_orderCoinTotalAmount.setCursorVisible(false);
         et_sellCoinTotalAmount.setCursorVisible(false);
         TextWatcher tw1 = tw1();
-        et_orderCoinPrice.addTextChangedListener(tw1);
+        TextWatcher tw2 = tw2();
+        et_orderCoinPrice.addTextChangedListener(tw2);
         et_orderCoinQuantity.addTextChangedListener(tw1);
-        et_sellCoinPrice.addTextChangedListener(tw1);
+        et_sellCoinPrice.addTextChangedListener(tw2);
         et_sellCoinQuantity.addTextChangedListener(tw1);
 
 // 레이아웃 터치하면 키보드 내림.
@@ -257,6 +258,34 @@ public class Fragment_coinOrder extends Fragment {
         });
     }
     private TextWatcher tw1(){
+        TextWatcher textWatcher1 = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
+
+                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+
+                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
+                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+        return textWatcher1;
+    }
+    private TextWatcher tw2(){
         TextWatcher textWatcher1 = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
