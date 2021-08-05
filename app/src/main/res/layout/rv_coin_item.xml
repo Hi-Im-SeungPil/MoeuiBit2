@@ -39,6 +39,9 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="52000백만"
+        android:maxLines="1"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="15sp"
         android:gravity="center"/>
 
 </LinearLayout>

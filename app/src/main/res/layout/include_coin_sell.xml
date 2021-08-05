@@ -67,7 +67,8 @@
                     android:layout_weight="2"
                     android:text="11000000.89899980"
                     android:gravity="center_vertical|right"
-                    android:textSize="15sp"
+                    android:autoSizeMaxTextSize="15sp"
+                    android:autoSizeTextType="uniform"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -94,7 +95,8 @@
                     android:layout_weight="2"
                     android:text="= 2400"
                     android:gravity="center_vertical|right"
-                    android:textSize="15sp"/>
+                    android:autoSizeMaxTextSize="15sp"
+                    android:autoSizeTextType="uniform"/>
 
                 <TextView
                     android:layout_width="0dp"

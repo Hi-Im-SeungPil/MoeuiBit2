@@ -298,7 +298,8 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)) {
+                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)
+                        && Double.valueOf(charSequence.toString().replaceAll(",","")) >= 1000) {
                     commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
                     et_orderCoinPrice.setText(commaResult);
                     et_sellCoinPrice.setText(commaResult);
@@ -712,7 +713,6 @@ public class Fragment_coinOrder extends Fragment {
             }
         });
     }
-
     private void setSpinner_sellCinQuantityMarketPriceVer(){
         String[] items = {"최대", "50%", "25%", "10%"};
 
@@ -894,7 +894,10 @@ public class Fragment_coinOrder extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+
+                                    if(Activity_coinInfo.currentPrice != null)
                                     tv_sellAbleAmount.setText("= "+decimalFormat.format(round(Activity_coinInfo.currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
+
                                     adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                                     adapter_rvCoinArcade.notifyDataSetChanged();
                                 }

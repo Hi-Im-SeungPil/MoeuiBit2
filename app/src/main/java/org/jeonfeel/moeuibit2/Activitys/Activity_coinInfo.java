@@ -1,11 +1,14 @@
 package org.jeonfeel.moeuibit2.Activitys;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
@@ -47,9 +51,10 @@ public class Activity_coinInfo extends FragmentActivity {
     private String TAG = "Activity_coinInfo";
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
     private DecimalFormat decimalFormat;
+    private ImageView iv_coinLogo;
     private String market;
     private String symbol;
-    String koreanName;
+    private String koreanName;
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
     public static Double currentPrice;
@@ -63,6 +68,10 @@ public class Activity_coinInfo extends FragmentActivity {
         FindViewById();
         setCoinInfo();
         setTabLayout();
+
+        String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo/"+symbol+".png";
+        Glide.with(Activity_coinInfo.this).load(imgUrl).into(iv_coinLogo);
+
         btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,6 +88,7 @@ public class Activity_coinInfo extends FragmentActivity {
         tv_coinInfoCoinDayToDay = findViewById(R.id.tv_coinInfoCoinDayToDay);
         tv_coinInfoChangePrice = findViewById(R.id.tv_coinInfoChangePrice);
         btn_coinInfoBackSpace = findViewById(R.id.btn_coinInfoBackSpace);
+        iv_coinLogo = findViewById(R.id.iv_coinLogo);
     }
 
     private void setCoinInfo(){
@@ -190,12 +200,6 @@ public class Activity_coinInfo extends FragmentActivity {
     }
 
     @Override
-    public void onResume() { //사용자와 상호작용 하고 있을 때  1초마다 api 받아옴
-        super.onResume();
-
-    }
-
-    @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
         if(getUpBitCoinInfoThread != null){
@@ -299,7 +303,4 @@ public class Activity_coinInfo extends FragmentActivity {
         }
     }
 
-    public Double getCurrentPrice(){
-        return currentPrice;
-    }
 }

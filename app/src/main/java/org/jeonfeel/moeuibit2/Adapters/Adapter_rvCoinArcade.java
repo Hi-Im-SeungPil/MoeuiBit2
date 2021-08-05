@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,9 +67,13 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
         int arcadePrice = (int) round(item.get(position).getCoinArcadePrice());
         int integerOpenPrice = (int) round(openingPrice);
         Double dayToDay = 0.0;
+
         if(arcadePrice > 1000000){
             holder.tv_coinArcadeDayToDay.setVisibility(View.GONE);
+            holder.tv_coinArcadePrice.setGravity(Gravity.RIGHT);
+            holder.tv_coinArcadePrice.setPadding(0,0,10,0);
         }
+
         //-------------------------------------------------------------------------------------------------
         if(arcadePrice > 100){
             holder.tv_coinArcadePrice.setText(decimalFormat.format(arcadePrice));
@@ -112,6 +118,7 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             @Override
             public void onClick(View view) {
                 String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
+                Log.d("qqq",arcadePrice);
 
                 if(linear_coinOrder.getVisibility() == View.VISIBLE) {
 
