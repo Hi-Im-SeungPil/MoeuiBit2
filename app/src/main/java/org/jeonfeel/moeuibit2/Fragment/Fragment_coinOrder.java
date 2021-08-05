@@ -29,6 +29,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
@@ -122,18 +123,22 @@ public class Fragment_coinOrder extends Fragment {
     @SuppressLint("ClickableViewAccessibility")
     private void initFragment_coinOrder(){
         setBtn_coinOrder();
+        setBtn_coinSell();
         setBtn_order();
         setBtn_sell();
         setSpinner_orderCoinQuantity();
         setSpinner_orderCoinQuantityMarketPriceVer();
+        setSpinner_sellCoinQuantity();
+        setSpinner_sellCinQuantityMarketPriceVer();
+
         linear_coinSell.setVisibility(View.GONE);
         tv_sellAbleCoinSymbol.setText(symbol);
 
         db = MoEuiBitDatabase.getInstance(getActivity());
 
-        List<User> users = db.userDAO().getAll();
-        leftMoney = users.get(0).krw;
-        tv_orderableAmount.setText(leftMoney+"");
+        User user = db.userDAO().getAll();
+        leftMoney = user.krw;
+        tv_orderableAmount.setText(decimalFormat.format(leftMoney));
 
         MyCoin myCoin = db.myCoinDAO().isInsert(market);
         if(myCoin != null){
@@ -358,6 +363,8 @@ public class Fragment_coinOrder extends Fragment {
         btn_coinSell = rootView.findViewById(R.id.btn_coinSell);
         btn_coinSellReset = rootView.findViewById(R.id.btn_coinSellReset);
         tv_sellAbleCoinSymbol = rootView.findViewById(R.id.tv_sellAbleCoinSymbol);
+        spinner_sellCoinQuantity = rootView.findViewById(R.id.spinner_sellCoinQuantity);
+        spinner_sellCinQuantityMarketPriceVer = rootView.findViewById(R.id.spinner_sellCinQuantityMarketPriceVer);
     }
     private void getCoinArcadeInfo() {
 
@@ -525,16 +532,38 @@ public class Fragment_coinOrder extends Fragment {
 
                         MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
                         db.myCoinDAO().insert(myCoin1);
-                        db.userDAO().update((int) (leftMoney - orderAmount));
+                        db.userDAO().updateMinusMoney((int) round(orderAmount));
+
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                        myCoin = db.myCoinDAO().isInsert(market);
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f",myCoin.getQuantity()));
+
+                        et_orderCoinPrice.setText("");
+                        et_orderCoinQuantity.setText("");
+                        et_orderCoinTotalAmount.setText("");
+                        et_orderCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                     } else if (myCoin != null && orderPrice >= currentPrice && orderAmount <= leftMoney && orderAmount >= 5000) {
-                        Double myCoinQuantity = myCoin.quantity;
-                        Double myCoinPrice = myCoin.purchasePrice;
+                        Double myCoinQuantity = myCoin.getQuantity();
+                        Double myCoinPrice = myCoin.getPurchasePrice();
 
                         Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
                         db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
                         db.myCoinDAO().updatePlusQuantity(market, orderQuantity);
-                        db.userDAO().update((int) (leftMoney - orderAmount));
+                        db.userDAO().updateMinusMoney((int) round(orderAmount));
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                        myCoin = db.myCoinDAO().isInsert(market);
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f",myCoin.getQuantity()));
+                        et_orderCoinPrice.setText("");
+                        et_orderCoinQuantity.setText("");
+                        et_orderCoinTotalAmount.setText("");
+                        et_orderCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }else if(radioId == R.id.radio_marketPrice){
                     int totalPrice = Integer.parseInt(et_orderCoinTotalAmountMarketPriceVer.getText().toString().replace(",",""));
@@ -547,6 +576,15 @@ public class Fragment_coinOrder extends Fragment {
                         MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
                         db.myCoinDAO().insert(myCoin1);
                         db.userDAO().update((int) (leftMoney - totalPrice));
+
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+                        et_orderCoinPrice.setText("");
+                        et_orderCoinQuantity.setText("");
+                        et_orderCoinTotalAmount.setText("");
+                        et_orderCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+
                     }else if(myCoin != null && totalPrice <= leftMoney && totalPrice >= 5000){
                         Double myCoinQuantity = myCoin.quantity;
                         Double myCoinPrice = myCoin.purchasePrice;
@@ -555,6 +593,13 @@ public class Fragment_coinOrder extends Fragment {
                         db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
                         db.myCoinDAO().updatePlusQuantity(market, orderQuantity);
                         db.userDAO().update((int) (leftMoney - totalPrice));
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+                        et_orderCoinPrice.setText("");
+                        et_orderCoinQuantity.setText("");
+                        et_orderCoinTotalAmount.setText("");
+                        et_orderCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -583,6 +628,124 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onClick(View view) {
 
+                int radioId = radioGroup_sellWays.getCheckedRadioButtonId();
+                Double sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
+
+                if(radioId == R.id.radio_setPriceVerSell && sellAbleCoinQuantity > 0){
+                    Double sellCoinQuantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+                    Double sellCoinPrice = Double.valueOf(et_sellCoinPrice.getText().toString().replaceAll(",",""));
+                    if(sellCoinQuantity <= sellAbleCoinQuantity && sellCoinPrice <= Activity_coinInfo.currentPrice && round(sellCoinQuantity*sellCoinPrice) >= 5000){
+                        db.myCoinDAO().updateMinusQuantity(market,sellCoinQuantity);
+                        db.userDAO().updatePlusMoney((int) round(Activity_coinInfo.currentPrice * sellCoinQuantity));
+
+                        Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f",quantity));
+
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                        et_sellCoinQuantity.setText("");
+                        et_sellCoinPrice.setText("");
+                        et_sellCoinTotalAmount.setText("");
+                        et_sellCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }else if(radioId == R.id.radio_marketPriceVerSell && sellAbleCoinQuantity > 0){
+                    Double sellCoinQuantity = Double.valueOf(et_sellCoinTotalAmountMarketPriceVer.getText().toString());
+
+                    if(sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * Activity_coinInfo.currentPrice) >= 5000){
+
+                        db.myCoinDAO().updateMinusQuantity(market,sellCoinQuantity);
+                        db.userDAO().updatePlusMoney((int) round(Activity_coinInfo.currentPrice*sellCoinQuantity));
+
+                        Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f",quantity));
+
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                        et_sellCoinQuantity.setText("");
+                        et_sellCoinPrice.setText("");
+                        et_sellCoinTotalAmount.setText("");
+                        et_sellCoinTotalAmountMarketPriceVer.setText("");
+                        Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+    }
+    private void setSpinner_sellCoinQuantity(){
+        String[] items = {"최대","50%","25%","10%"};
+
+        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
+
+        spinner_sellCoinQuantity.setAdapter(adapter);
+
+        spinner_sellCoinQuantity.setSelection(3,false);
+
+        spinner_sellCoinQuantity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+
+                Double sellAbleCoinQuantity = 0.0;
+
+                switch (spinner_sellCoinQuantity.getSelectedItemPosition()) {
+                    case 0:
+                        sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
+                        break;
+                    case 1:
+                        sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 2;
+                        break;
+                    case 2:
+                        sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 4;
+                        break;
+                    case 3:
+                        sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 10;
+                        break;
+                }
+                et_sellCoinQuantity.setText(String.format("%.8f", sellAbleCoinQuantity));
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void setSpinner_sellCinQuantityMarketPriceVer(){
+        String[] items = {"최대", "50%", "25%", "10%"};
+
+        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+
+        spinner_sellCinQuantityMarketPriceVer.setAdapter(adapter);
+
+        spinner_sellCinQuantityMarketPriceVer.setSelection(3,false);
+
+        spinner_sellCinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Double sellAbleCoinAmount = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
+
+                switch (spinner_sellCinQuantityMarketPriceVer.getSelectedItemPosition()){
+                    case 0:
+                        et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f",sellAbleCoinAmount));
+                        break;
+                    case 1:
+                        et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f",sellAbleCoinAmount / 2));
+                        break;
+                    case 2:
+                        et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f",sellAbleCoinAmount / 4));
+                        break;
+                    case 3:
+                        et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f",sellAbleCoinAmount / 10));
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
     }
@@ -641,20 +804,20 @@ public class Fragment_coinOrder extends Fragment {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                 int orderableAmount = Integer.parseInt(tv_orderableAmount.getText().toString());
+                 int orderAbleAmount = Integer.parseInt(tv_orderableAmount.getText().toString().replaceAll(",",""));
 
                     switch (spinner_orderCoinQuantityMarketPriceVer.getSelectedItemPosition()){
                         case 0:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(orderableAmount));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(orderAbleAmount));
                             break;
                         case 1:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderableAmount/2)));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount/2)));
                             break;
                         case 2:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderableAmount/4)));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount/4)));
                             break;
                         case 3:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderableAmount/10)));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount/10)));
                             break;
                     }
             }

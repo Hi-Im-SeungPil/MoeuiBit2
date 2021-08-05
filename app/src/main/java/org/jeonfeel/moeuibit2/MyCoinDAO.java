@@ -21,7 +21,7 @@ public interface MyCoinDAO {
     @Query("UPDATE MYCOIN SET quantity = quantity + :afterQuantity  WHERE market = :market")
     void updatePlusQuantity(String market,Double afterQuantity);
 
-    @Query("UPDATE MYCOIN SET quantity = quantity + :afterQuantity  WHERE market = :market")
+    @Query("UPDATE MYCOIN SET quantity = quantity - :afterQuantity  WHERE market = :market")
     void updateMinusQuantity(String market,Double afterQuantity);
 
     @Query("SELECT * FROM MyCoin where market = :checkMarket")

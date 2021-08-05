@@ -13,7 +13,7 @@ import java.util.List;
 public interface UserDAO {
 
     @Query("SELECT * FROM User")
-    List<User> getAll();
+    User getAll();
 
     @Insert
     void insertAll(User... users);
@@ -23,4 +23,10 @@ public interface UserDAO {
 
     @Query("UPDATE User SET krw = :money")
     void  update(int money);
+
+    @Query("UPDATE User SET krw = krw + :money")
+    void  updatePlusMoney(int money);
+
+    @Query("UPDATE User SET krw = krw - :money")
+    void  updateMinusMoney(int money);
 }
