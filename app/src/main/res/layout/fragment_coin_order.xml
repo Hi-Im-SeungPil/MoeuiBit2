@@ -3,6 +3,7 @@
     android:id="@+id/fragment_oin_orderParent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragment.Fragment_coinOrder"
@@ -21,36 +22,38 @@
         android:layout_weight="4"
         android:orientation="vertical">
 
-        <LinearLayout
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_orderSellTransaction"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/b"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:tabTextColor="#D6D6D6"
+            app:tabSelectedTextColor="#F10A0A"
+            app:tabIndicatorColor="#FAFAFA"
+            android:background="@drawable/tab_border">
 
-            <Button
-                android:id="@+id/btn_order"
-                android:layout_width="0dp"
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:text="매수" />
-            <Button
-                android:id="@+id/btn_sell"
-                android:layout_width="0dp"
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="매도"/>
-            <Button
-                android:id="@+id/btn_transactionInfo"
-                android:layout_width="0dp"
+                android:text="매도" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="거래내역"/>
-        </LinearLayout>
+                android:text="거래내역" />
+
+        </com.google.android.material.tabs.TabLayout>
 
         <include
             android:id="@+id/include_coin_order"
+            layout="@layout/include_coin_order"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/include_coin_order"/>
+            android:layout_height="wrap_content" />
 
         <include
             android:id="@+id/include_coin_sell"

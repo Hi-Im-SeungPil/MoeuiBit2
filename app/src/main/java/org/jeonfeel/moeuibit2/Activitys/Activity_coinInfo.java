@@ -68,9 +68,7 @@ public class Activity_coinInfo extends FragmentActivity {
         FindViewById();
         setCoinInfo();
         setTabLayout();
-
-        String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo/"+symbol+".png";
-        Glide.with(Activity_coinInfo.this).load(imgUrl).into(iv_coinLogo);
+        setCoinSymbol();
 
         btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,6 +188,11 @@ public class Activity_coinInfo extends FragmentActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+    }
+
+    private void setCoinSymbol(){
+        String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"+symbol+".png";
+        Glide.with(Activity_coinInfo.this).load(imgUrl).into(iv_coinLogo);
     }
 
     @Override

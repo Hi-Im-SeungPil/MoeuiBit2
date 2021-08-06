@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.Fragment;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -31,9 +32,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.tabs.TabLayout;
+
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
+import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.MyCoin;
@@ -78,7 +82,7 @@ public class Fragment_coinOrder extends Fragment {
     private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
     private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
     private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;
-    private Button btn_coinOrder,btn_order,btn_sell,btn_transactionInfo;
+    private Button btn_coinOrder;
     private MoEuiBitDatabase db;
     private int leftMoney,startCheck = 0;
     private EditText et_orderCoinPrice,et_orderCoinQuantity, et_orderCoinTotalAmount;
@@ -113,6 +117,7 @@ public class Fragment_coinOrder extends Fragment {
         setRadioGroup_orderWays(rootView);
         setRadioGroup_sellWays(rootView);
         initFragment_coinOrder();
+        setTabLayout(rootView);
 
         return rootView;
     }
@@ -124,8 +129,6 @@ public class Fragment_coinOrder extends Fragment {
     private void initFragment_coinOrder(){
         setBtn_coinOrder();
         setBtn_coinSell();
-        setBtn_order();
-        setBtn_sell();
         setSpinner_orderCoinQuantity();
         setSpinner_orderCoinQuantityMarketPriceVer();
         setSpinner_sellCoinQuantity();
@@ -354,9 +357,6 @@ public class Fragment_coinOrder extends Fragment {
         radioGroup_sellWays = rootView.findViewById(R.id.radioGroup_sellWays);
         tv_sellAbleCoinQuantity = rootView.findViewById(R.id.tv_sellAbleCoinQuantity);
         tv_sellAbleAmount = rootView.findViewById(R.id.tv_sellAbleAmount);
-        btn_order = rootView.findViewById(R.id.btn_order);
-        btn_sell = rootView.findViewById(R.id.btn_sell);
-        btn_transactionInfo = rootView.findViewById(R.id.btn_transactionInfo);
         et_sellCoinQuantity = rootView.findViewById(R.id.et_sellCoinQuantity);
         et_sellCoinPrice = rootView.findViewById(R.id.et_sellCoinPrice);
         et_sellCoinTotalAmount = rootView.findViewById(R.id.et_sellCoinTotalAmount);
@@ -606,24 +606,6 @@ public class Fragment_coinOrder extends Fragment {
             }
         });
     }
-    private void setBtn_order(){
-        btn_order.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                linear_coinOrder.setVisibility(View.VISIBLE);
-                linear_coinSell.setVisibility(View.GONE);
-            }
-        });
-    }
-    private void setBtn_sell(){
-        btn_sell.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                linear_coinOrder.setVisibility(View.GONE);
-                linear_coinSell.setVisibility(View.VISIBLE);
-            }
-        });
-    }
     private void setBtn_coinSell(){
         btn_coinSell.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -825,6 +807,36 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
+    }
+
+    private void setTabLayout(View rootView){
+
+
+        TabLayout tab_orderSellTransaction = rootView.findViewById(R.id.tab_orderSellTransaction);
+
+        tab_orderSellTransaction.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+
+                if(position == 0){
+                    linear_coinOrder.setVisibility(View.VISIBLE);
+                    linear_coinSell.setVisibility(View.GONE);
+                }else if(position == 1){
+                    linear_coinOrder.setVisibility(View.GONE);
+                    linear_coinSell.setVisibility(View.VISIBLE);
+                }
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
             }
         });
     }

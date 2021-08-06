@@ -46,7 +46,9 @@
             android:layout_weight="1"
             android:text="주문가능"
             android:gravity="center_vertical"
-            android:textSize="13sp"/>
+            android:textSize="13sp"
+            android:textColor="#000000"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -65,21 +67,21 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:text="11000000.89899980"
                     android:gravity="center_vertical|right"
                     android:autoSizeMaxTextSize="15sp"
                     android:autoSizeTextType="uniform"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
 
                 <TextView
                     android:id="@+id/tv_sellAbleCoinSymbol"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="XRP"
                     android:gravity="center"
                     android:textSize="15sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
             </LinearLayout>
 
             <LinearLayout
@@ -93,7 +95,6 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:text="= 2400"
                     android:gravity="center_vertical|right"
                     android:autoSizeMaxTextSize="15sp"
                     android:autoSizeTextType="uniform"/>
@@ -102,9 +103,10 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="KRW"
                     android:gravity="center"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:text="KRW"
+                    android:fontFamily="@font/nanum_square_round_l"/>
 
             </LinearLayout>
 
@@ -114,7 +116,7 @@
     <LinearLayout
         android:id="@+id/linear_PriceSell1"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="30dp"
         android:orientation="horizontal">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -126,8 +128,10 @@
                 android:id="@+id/ccc"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
+                android:fontFamily="@font/nanum_square_round_b"
                 android:gravity="center"
                 android:text="수량"
+                android:textColor="#000000"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -141,7 +145,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@+id/ccc"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@drawable/et_bolder"
+                android:paddingLeft="4dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -156,8 +162,9 @@
     <LinearLayout
         android:id="@+id/linear_PriceSell2"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="horizontal">
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="7dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
@@ -172,7 +179,9 @@
                 android:gravity="center"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:textColor="#000000"
+                android:fontFamily="@font/nanum_square_round_b"/>
 
             <EditText
                 android:id="@+id/et_sellCoinPrice"
@@ -183,23 +192,26 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:inputType="numberDecimal"/>
+                android:inputType="numberDecimal"
+                android:background="@drawable/et_bolder"
+                android:paddingLeft="4dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-            android:id="@+id/btn_orderCoinPricePlus"
-            android:layout_width="0dp"
+            android:id="@+id/btn_orderCoinPriceMinus"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="+"/>
+            android:background="@drawable/minus"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="3dp"/>
 
         <Button
-            android:id="@+id/btn_orderCoinPriceMinus"
-            android:layout_width="0dp"
+            android:id="@+id/btn_orderCoinPricePlus"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="-"/>
+            android:layout_marginRight="4dp"
+            android:background="@drawable/plus"/>
 
     </LinearLayout>
 
@@ -225,17 +237,20 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/const_priceSell4"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="30dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:id="@+id/zc"
-            android:layout_width="40dp"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:text="총액"
+            android:fontFamily="@font/nanum_square_round_b"
             android:gravity="center"
+            android:text="총액"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/et_sellCoinTotalAmount"
@@ -247,24 +262,30 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:focusable="false"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:background="@drawable/et_bolder"
+            android:paddingLeft="4dp"
+            android:layout_marginRight="10dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/const_marketPriceSell"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="30dp"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:id="@+id/zcc"
-            android:layout_width="40dp"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
             android:text="총액"
             android:gravity="center"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="#000000"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -280,7 +301,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="7"
                 android:inputType="number"
-                android:focusable="true"/>
+                android:focusable="true"
+                android:background="@drawable/et_bolder"
+                android:paddingLeft="4dp"/>
 
             <Spinner
                 android:id="@+id/spinner_sellCinQuantityMarketPriceVer"
@@ -295,7 +318,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:orientation="horizontal">
 
         <Button
@@ -303,14 +326,26 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="초기화"/>
+            android:text="초기화"
+            android:background="#D6D6D6"
+            android:textColor="#ffffffff"
+            android:layout_marginRight="2dp"
+            android:textSize="20sp"
+            android:layout_marginLeft="4dp"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
         <Button
             android:id="@+id/btn_coinSell"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="매도"/>
+            android:text="매도"
+            android:textColor="#FFFFFFFF"
+            android:background="#3048EA"
+            android:layout_marginLeft="2dp"
+            android:textSize="20sp"
+            android:layout_marginRight="4dp"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
         </LinearLayout>
 
