@@ -310,7 +310,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
         for(int i =0; i < allCoinInfoArray.size(); i++){
             orderPosition.put(allCoinInfoArray.get(i).getMarket(),i);
-            Log.d("qqqq","qqqq");
         }
     }
 
@@ -357,10 +356,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         @Override
         public void run() {
             super.run();
-
-//            for(int i = 0; i < allCoinInfoArray.size(); i++){
-//                orderPosition.put(allCoinInfoArray.get(i).getMarket(),i);
-//            }
 
             while (isRunning) {
                 try {

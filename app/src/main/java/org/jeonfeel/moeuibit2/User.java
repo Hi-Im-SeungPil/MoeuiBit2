@@ -8,9 +8,16 @@ import androidx.room.PrimaryKey;
 public class User {
 
     @PrimaryKey
-    public int krw;
+    public long krw;
 
-    public User(int krw) {
+    public User(long krw) {
+        this.krw = krw;
+    }
+
+    public long getKrw() {
+        return krw;
+    }
+    public void setKrw(long krw) {
         this.krw = krw;
     }
 }

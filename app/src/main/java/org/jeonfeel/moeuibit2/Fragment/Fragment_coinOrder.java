@@ -84,7 +84,7 @@ public class Fragment_coinOrder extends Fragment {
     private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;
     private Button btn_coinOrder;
     private MoEuiBitDatabase db;
-    private int leftMoney,startCheck = 0;
+    private long leftMoney;
     private EditText et_orderCoinPrice,et_orderCoinQuantity, et_orderCoinTotalAmount;
     private EditText et_orderCoinTotalAmountMarketPriceVer;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
@@ -203,7 +203,7 @@ public class Fragment_coinOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (!et_orderCoinPrice.getText().toString().equals("0") && et_orderCoinPrice.length() != 0 && editText.length() != 0){
-                            int amount = Integer.parseInt(editText.getText().toString());
+                            long amount = Long.parseLong(editText.getText().toString());
                             Double orderPrice = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
                             Double quantity =  amount / orderPrice;
                             et_orderCoinQuantity.setText(String.format("%.8f",quantity));
@@ -533,7 +533,7 @@ public class Fragment_coinOrder extends Fragment {
 
                         MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
                         db.myCoinDAO().insert(myCoin1);
-                        db.userDAO().updateMinusMoney((int) round(orderAmount));
+                        db.userDAO().updateMinusMoney(round(orderAmount));
 
                         User user = db.userDAO().getAll();
                         tv_orderableAmount.setText(decimalFormat.format(user.krw));
@@ -548,13 +548,23 @@ public class Fragment_coinOrder extends Fragment {
                         Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                     } else if (myCoin != null && orderPrice >= currentPrice && orderAmount <= leftMoney && orderAmount >= 5000) {
+
                         Double myCoinQuantity = myCoin.getQuantity();
                         Double myCoinPrice = myCoin.getPurchasePrice();
 
                         Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
-                        db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
-                        db.myCoinDAO().updatePlusQuantity(market, orderQuantity);
-                        db.userDAO().updateMinusMoney((int) round(orderAmount));
+                        if(averageOrderPrice >= 100){
+                            int purchasePrice = (int) round(averageOrderPrice);
+                            db.myCoinDAO().updatePurchasePriceInt(market,purchasePrice);
+                        }else {
+                            averageOrderPrice = Double.valueOf(String.format("%.2f",averageOrderPrice));
+                            db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                        }
+
+                        Double quantityResult = Double.valueOf(String.format("%.8f",myCoinQuantity + orderQuantity));
+
+                        db.myCoinDAO().updateQuantity(market, quantityResult);
+                        db.userDAO().updateMinusMoney(round(orderAmount));
                         User user = db.userDAO().getAll();
                         tv_orderableAmount.setText(decimalFormat.format(user.krw));
 
@@ -576,7 +586,7 @@ public class Fragment_coinOrder extends Fragment {
                     if(myCoin == null && totalPrice <= leftMoney && totalPrice >= 5000){
                         MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
                         db.myCoinDAO().insert(myCoin1);
-                        db.userDAO().update((int) (leftMoney - totalPrice));
+                        db.userDAO().update((long) leftMoney - totalPrice);
 
                         User user = db.userDAO().getAll();
                         tv_orderableAmount.setText(decimalFormat.format(user.krw));
@@ -587,13 +597,23 @@ public class Fragment_coinOrder extends Fragment {
                         Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                     }else if(myCoin != null && totalPrice <= leftMoney && totalPrice >= 5000){
-                        Double myCoinQuantity = myCoin.quantity;
-                        Double myCoinPrice = myCoin.purchasePrice;
+                        Double myCoinQuantity = myCoin.getQuantity();
+                        Double myCoinPrice = myCoin.getPurchasePrice();
 
                         Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
-                        db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
-                        db.myCoinDAO().updatePlusQuantity(market, orderQuantity);
-                        db.userDAO().update((int) (leftMoney - totalPrice));
+
+                        if(averageOrderPrice >= 100){
+                            int purchasePrice = (int) round(averageOrderPrice);
+                            db.myCoinDAO().updatePurchasePriceInt(market,purchasePrice);
+                        }else {
+                            averageOrderPrice = Double.valueOf(String.format("%.2f",averageOrderPrice));
+                            db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                        }
+                        Double quantityResult = Double.valueOf(String.format("%.8f",myCoinQuantity + orderQuantity));
+
+                        db.myCoinDAO().updatePlusQuantity(market, quantityResult);
+                        db.userDAO().update((long) leftMoney - totalPrice);
+
                         User user = db.userDAO().getAll();
                         tv_orderableAmount.setText(decimalFormat.format(user.krw));
                         et_orderCoinPrice.setText("");
@@ -615,11 +635,19 @@ public class Fragment_coinOrder extends Fragment {
                 Double sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
 
                 if(radioId == R.id.radio_setPriceVerSell && sellAbleCoinQuantity > 0){
+
                     Double sellCoinQuantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
                     Double sellCoinPrice = Double.valueOf(et_sellCoinPrice.getText().toString().replaceAll(",",""));
+
+                    //지정 시장가 매도
                     if(sellCoinQuantity <= sellAbleCoinQuantity && sellCoinPrice <= Activity_coinInfo.currentPrice && round(sellCoinQuantity*sellCoinPrice) >= 5000){
-                        db.myCoinDAO().updateMinusQuantity(market,sellCoinQuantity);
-                        db.userDAO().updatePlusMoney((int) round(Activity_coinInfo.currentPrice * sellCoinQuantity));
+
+                        Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
+                        Double quantityResult = Double.valueOf(String.format("%.8f",initQuantity - sellCoinQuantity));
+
+                        db.myCoinDAO().updateQuantity(market,quantityResult);
+
+                        db.userDAO().updatePlusMoney(round(Activity_coinInfo.currentPrice * sellCoinQuantity));
 
                         Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
                         tv_sellAbleCoinQuantity.setText(String.format("%.8f",quantity));
@@ -634,17 +662,23 @@ public class Fragment_coinOrder extends Fragment {
                         Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }else if(radioId == R.id.radio_marketPriceVerSell && sellAbleCoinQuantity > 0){
+
                     Double sellCoinQuantity = Double.valueOf(et_sellCoinTotalAmountMarketPriceVer.getText().toString());
 
                     if(sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * Activity_coinInfo.currentPrice) >= 5000){
 
-                        db.myCoinDAO().updateMinusQuantity(market,sellCoinQuantity);
-                        db.userDAO().updatePlusMoney((int) round(Activity_coinInfo.currentPrice*sellCoinQuantity));
+                        Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
+                        Double quantityResult = Double.valueOf(String.format("%.8f",initQuantity - sellCoinQuantity));
+
+                        db.myCoinDAO().updateQuantity(market,quantityResult);
+
+                        db.userDAO().updatePlusMoney(round(Activity_coinInfo.currentPrice*sellCoinQuantity));
 
                         Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
                         tv_sellAbleCoinQuantity.setText(String.format("%.8f",quantity));
 
                         User user = db.userDAO().getAll();
+
                         tv_orderableAmount.setText(decimalFormat.format(user.krw));
 
                         et_sellCoinQuantity.setText("");

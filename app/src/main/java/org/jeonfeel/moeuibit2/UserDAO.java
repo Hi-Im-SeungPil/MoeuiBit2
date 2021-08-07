@@ -22,11 +22,11 @@ public interface UserDAO {
     void delete(User user);
 
     @Query("UPDATE User SET krw = :money")
-    void  update(int money);
+    void  update(long money);
 
     @Query("UPDATE User SET krw = krw + :money")
-    void  updatePlusMoney(int money);
+    void  updatePlusMoney(long money);
 
     @Query("UPDATE User SET krw = krw - :money")
-    void  updateMinusMoney(int money);
+    void  updateMinusMoney(long money);
 }
