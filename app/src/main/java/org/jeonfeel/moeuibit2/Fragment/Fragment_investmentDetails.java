@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.Fragment;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
+import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.MyCoin;
 import org.jeonfeel.moeuibit2.R;
@@ -25,17 +29,20 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.round;
 
 public class Fragment_investmentDetails extends Fragment {
 
-    TextView tv_myKoreanWon, tv_myTotalProperty, tv_totalBuyOut, tv_totalEvaluation, tv_evaluationGainLoss, tv_yield;
-    MoEuiBitDatabase db;
-    boolean isRunning = true;
-    Thread thread;
-    DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private TextView tv_myKoreanWon, tv_myTotalProperty, tv_totalBuyOut, tv_totalEvaluation, tv_evaluationGainLoss, tv_yield;
+    private MoEuiBitDatabase db;
+    private boolean isRunning = true;
+    private Thread thread;
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private ArrayList<MyCoinsDTO> myCoinsDTOS;
+    private RecyclerView rv_myCoins;
 
     public Fragment_investmentDetails() {
     }
@@ -52,6 +59,7 @@ public class Fragment_investmentDetails extends Fragment {
 
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getActivity());
+        setRv_myCoins();
         init();
 
         return rootView;
@@ -64,6 +72,12 @@ public class Fragment_investmentDetails extends Fragment {
         tv_totalEvaluation = rootView.findViewById(R.id.tv_totalEvaluation);
         tv_evaluationGainLoss = rootView.findViewById(R.id.tv_evaluationGainLoss);
         tv_yield = rootView.findViewById(R.id.tv_yield);
+        rv_myCoins = rootView.findViewById(R.id.rv_myCoins);
+    }
+
+    private void setRv_myCoins(){
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        rv_myCoins.setLayoutManager(linearLayoutManager);
     }
 
     private void init() { //초기설정
@@ -71,6 +85,7 @@ public class Fragment_investmentDetails extends Fragment {
         User user = db.userDAO().getAll();
         long myKoreanWon = user.getKrw();
         tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
+        myCoinsDTOS = new ArrayList<>();
 
         // 총 매수 설정
         List<MyCoin> myCoins = db.myCoinDAO().getAll();
@@ -84,6 +99,9 @@ public class Fragment_investmentDetails extends Fragment {
             Double quantity = myCoins.get(i).getQuantity();
             stringBuilder.append(myCoins.get(i).getMarket()).append(",");
 
+            MyCoinsDTO myCoinsDTO = new MyCoinsDTO(myCoins.get(i).getKoreanCoinName(),myCoins.get(i).getSymbol(),quantity,purchasePrice);
+            myCoinsDTOS.add(myCoinsDTO);
+
             totalBuyOut += round(purchasePrice * quantity);
         }
 
@@ -94,6 +112,11 @@ public class Fragment_investmentDetails extends Fragment {
         stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
         markets = stringBuilder.toString();
         String finalMarkets = markets; //final
+
+        //리사이클러뷰
+        Adapter_rvMyCoins adapter_rvMyCoins = new Adapter_rvMyCoins(myCoinsDTOS,getActivity());
+        rv_myCoins.setAdapter(adapter_rvMyCoins);
+        adapter_rvMyCoins.notifyDataSetChanged();
 
         thread = new Thread(new Runnable() {
             @Override
@@ -140,8 +163,8 @@ public class Fragment_investmentDetails extends Fragment {
                                 public void run() {
                                     tv_totalEvaluation.setText(decimalFormat.format(finalTotalEvaluation));
                                     tv_myTotalProperty.setText(decimalFormat.format(myKoreanWon + finalTotalEvaluation));
-                                    tv_evaluationGainLoss.setText(decimalFormat.format(finalTotalEvaluation-finalTotalBuyOut));
-                                    tv_yield.setText(String.format("%.2f",yield)+"%");
+                                    tv_evaluationGainLoss.setText(decimalFormat.format(finalTotalEvaluation - finalTotalBuyOut));
+                                    tv_yield.setText(String.format("%.2f", yield) + "%");
                                 }
                             });
                         }
@@ -150,7 +173,7 @@ public class Fragment_investmentDetails extends Fragment {
                     }
                     try {
                         Thread.sleep(1000);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -161,13 +184,18 @@ public class Fragment_investmentDetails extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        thread.start();
+        if(!isRunning) {
+            isRunning = true;
+        }
+        if(!thread.isAlive()) {
+            thread.start();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if(thread != null){
+        if (thread != null) {
             isRunning = false;
         }
     }
