@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
@@ -250,7 +251,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 orderByTransactionAmount = 0;
                 btn_orderByCurrentPrice.setText("현재가X");
                 btn_orderByTransactionAmount.setText("거래대금X");
-
             }
         });
 
@@ -325,6 +325,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         super.onPause();
         if(getUpBitCoinsThread != null) {
             getUpBitCoinsThread.stopThread();
+            getUpBitCoinsThread = null;
         }
     }
 
@@ -386,21 +387,55 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             Double currentPrice = jsonObject.getDouble("trade_price");
                             Double dayToDay = jsonObject.getDouble("signed_change_rate");
                             Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
-                            String[] symbol = marketsArray.get(i).split("-");
-
-                            CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                    , currentPrice, dayToDay, transactionAmount, symbol[1]);
-
-                            int position = orderPosition.get(marketsArray.get(i));
-                            allCoinInfoArray.set(position, coinDTO);
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                adapter_rvCoin.setItem(allCoinInfoArray);
-                                adapter_rvCoin.notifyDataSetChanged();
+                            String[] symbol = {};
+                            if (marketsArray.size() != 0) {
+                                symbol = marketsArray.get(i).split("-");
+                            } else {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        });
+                            CoinDTO coinDTO = null;
+                            if(marketsArray != null && koreanNamesArray != null && englishNamesArray != null && symbol.length != 0) {
+                                coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
+                                        , currentPrice, dayToDay, transactionAmount, symbol[1]);
+                            }else{
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            if (orderPosition.get(marketsArray.get(i)) != null && orderPosition.size() != 0) {
+                                int position = orderPosition.get(marketsArray.get(i));
+                                allCoinInfoArray.set(position, coinDTO);
+                            } else {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    adapter_rvCoin.setItem(allCoinInfoArray);
+                                    adapter_rvCoin.notifyDataSetChanged();
+                                }
+                            });
+                        }else{
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
 
                 } catch (UnsupportedEncodingException e) {

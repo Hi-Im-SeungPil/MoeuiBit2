@@ -3,12 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginTop="5dp">
+    android:padding="10dp"
+    android:layout_marginTop="5dp"
+    android:background="@drawable/rv_my_coins_item_border">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingBottom="5dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -22,7 +25,9 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="리플"
-                android:paddingLeft="5dp"/>
+                android:paddingLeft="5dp"
+                android:textColor="#111E65"
+                android:textSize="15sp"/>
 
             <TextView
                 android:id="@+id/tv_myCoinsSymbol"
@@ -30,7 +35,9 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="(XRP)"
-                android:paddingLeft="5dp"/>
+                android:paddingLeft="5dp"
+                android:textColor="#111E65"
+                android:textSize="15sp"/>
 
         </LinearLayout>
 
@@ -50,14 +57,15 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="평가손익"/>
+                    android:text="평가손익"
+                    android:textColor="#000000"
+                    android:gravity="center_vertical"/>
 
                 <TextView
                     android:id="@+id/tv_myCoinsEvaluation"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:text="30000000"
                     android:gravity="right|center_vertical"
                     android:paddingRight="5dp"/>
 
@@ -73,14 +81,15 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="수익률"/>
+                    android:text="수익률"
+                    android:textColor="#000000"
+                    android:gravity="center_vertical"/>
 
                 <TextView
                     android:id="@+id/tv_myCoinsEarningsRate"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:text="15.33%"
                     android:gravity="right|center_vertical"
                     android:paddingRight="5dp"/>
 
@@ -95,34 +104,56 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp"
+        android:paddingTop="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rv_my_coins_item_border2">
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1">
         <TextView
             android:id="@+id/tv_myCoinsQuantity"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="0.00000025"
             android:gravity="right|center_vertical"
-            android:paddingRight="5dp"/>
+            android:paddingRight="5dp"
+            android:textColor="#000000"
+            android:layout_weight="1"/>
         <TextView
             android:id="@+id/tv_myCoinsSymbol2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="XRP"/>
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_gravity="right"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="1">
 
         <TextView
             android:id="@+id/tv_myCoinsBuyingAverage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="1,085"
             android:paddingRight="5dp"
-            android:gravity="right|center_vertical"/>
+            android:gravity="right|center_vertical"
+            android:textColor="#000000"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="KRW"/>
+            android:text="KRW"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -152,34 +183,40 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/tv_myCoinsEvaluationAmount"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="30000000"
             android:gravity="right|center_vertical"
-            android:paddingRight="5dp"/>
+            android:paddingRight="5dp"
+            android:textColor="#000000"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="KRW"/>
+            android:text="KRW"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
 
         <TextView
             android:id="@+id/tv_myCoinsPurchaseAmount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="50,000"
             android:paddingRight="5dp"
-            android:gravity="right|center_vertical"/>
+            android:gravity="right|center_vertical"
+            android:textColor="#000000"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="KRW"/>
+            android:text="KRW"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
 
     </LinearLayout>
 

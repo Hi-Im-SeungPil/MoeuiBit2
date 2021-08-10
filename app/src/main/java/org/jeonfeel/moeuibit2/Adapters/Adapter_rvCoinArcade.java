@@ -118,7 +118,6 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             @Override
             public void onClick(View view) {
                 String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
-                Log.d("qqq",arcadePrice);
 
                 if(linear_coinOrder.getVisibility() == View.VISIBLE) {
 
@@ -144,7 +143,6 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                         imm.hideSoftInputFromWindow(et_sellCoinQuantity.getWindowToken(), 0);
                     }
                 }
-
             }
         });
     }

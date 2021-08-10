@@ -6,12 +6,14 @@ public class MyCoinsDTO {
     private String myCoinsSymbol;
     private Double myCoinsQuantity;
     private Double myCoinsBuyingAverage;
+    private Double currentPrice;
 
-    public MyCoinsDTO(String myCoinsKoreanName, String myCoinsSymbol, Double myCoinsQuantity, Double myCoinsBuyingAverage) {
+    public MyCoinsDTO(String myCoinsKoreanName, String myCoinsSymbol, Double myCoinsQuantity, Double myCoinsBuyingAverage, Double currentPrice) {
         this.myCoinsKoreanName = myCoinsKoreanName;
         this.myCoinsSymbol = myCoinsSymbol;
         this.myCoinsQuantity = myCoinsQuantity;
         this.myCoinsBuyingAverage = myCoinsBuyingAverage;
+        this.currentPrice = currentPrice;
     }
 
     public String getMyCoinsKoreanName() {
@@ -44,5 +46,13 @@ public class MyCoinsDTO {
 
     public void setMyCoinsBuyingAverage(Double myCoinsBuyingAverage) {
         this.myCoinsBuyingAverage = myCoinsBuyingAverage;
+    }
+
+    public Double getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(Double currentPrice) {
+        this.currentPrice = currentPrice;
     }
 }
