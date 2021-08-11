@@ -65,14 +65,27 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             if(round(evaluationAmount - purchaseAmount) > 0){
                 holder.tv_myCoinsEvaluation.setTextColor(Color.parseColor("#B77300"));
                 holder.tv_myCoinsEarningsRate.setTextColor(Color.parseColor("#B77300"));
+                holder.tv_myCoinsDifference.setTextColor(Color.parseColor("#B77300"));
             }else if(round(evaluationAmount - purchaseAmount) < 0 ){
                 holder.tv_myCoinsEvaluation.setTextColor(Color.parseColor("#0054FF"));
                 holder.tv_myCoinsEarningsRate.setTextColor(Color.parseColor("#0054FF"));
+                holder.tv_myCoinsDifference.setTextColor(Color.parseColor("#0054FF"));
             }else{
                 holder.tv_myCoinsEvaluation.setTextColor(Color.parseColor("#000000"));
                 holder.tv_myCoinsEarningsRate.setTextColor(Color.parseColor("#000000"));
+                holder.tv_myCoinsDifference.setTextColor(Color.parseColor("#000000"));
+            }
+            if(currentPrice >= 100) {
+                holder.tv_myCoinsCurrentPrice.setText(decimalFormat.format(round(currentPrice)));
+            }else{
+                holder.tv_myCoinsCurrentPrice.setText(String.format("%.2f",currentPrice));
             }
 
+            if(currentPrice - item.get(position).getMyCoinsBuyingAverage() >= 100 || currentPrice - item.get(position).getMyCoinsBuyingAverage() <= -100){
+                holder.tv_myCoinsDifference.setText(decimalFormat.format(round(currentPrice - item.get(position).getMyCoinsBuyingAverage())));
+            }else{
+                holder.tv_myCoinsDifference.setText(String.format("%.2f",currentPrice - item.get(position).getMyCoinsBuyingAverage()));
+            }
             holder.tv_myCoinsEvaluationAmount.setText(decimalFormat.format(round(quantity * currentPrice)));
             holder.tv_myCoinsEvaluation.setText(decimalFormat.format(round(evaluationAmount - purchaseAmount)));
             holder.tv_myCoinsEarningsRate.setText(String.format("%.2f",(evaluationAmount - purchaseAmount) / purchaseAmount * 100) + "%");
@@ -94,7 +107,7 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
     public class CustomViewHolder extends RecyclerView.ViewHolder{
 
         private TextView tv_myCoinsKoreanName,tv_myCoinsSymbol,tv_myCoinsEvaluation,tv_myCoinsEarningsRate,tv_myCoinsQuantity,tv_myCoinsSymbol2
-                ,tv_myCoinsBuyingAverage,tv_myCoinsEvaluationAmount,tv_myCoinsPurchaseAmount;
+                ,tv_myCoinsBuyingAverage,tv_myCoinsEvaluationAmount,tv_myCoinsPurchaseAmount,tv_myCoinsCurrentPrice,tv_myCoinsDifference;
 
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,6 +121,8 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             this.tv_myCoinsBuyingAverage = itemView.findViewById(R.id.tv_myCoinsBuyingAverage);
             this.tv_myCoinsEvaluationAmount = itemView.findViewById(R.id.tv_myCoinsEvaluationAmount);
             this.tv_myCoinsPurchaseAmount = itemView.findViewById(R.id.tv_myCoinsPurchaseAmount);
+            this.tv_myCoinsCurrentPrice = itemView.findViewById(R.id.tv_myCoinsCurrentPrice);
+            this.tv_myCoinsDifference = itemView.findViewById(R.id.tv_myCoinsDifference);
 
         }
     }

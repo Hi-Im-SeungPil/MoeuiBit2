@@ -47,7 +47,6 @@ import static java.lang.Math.round;
 
 public class Activity_coinInfo extends FragmentActivity {
 
-
     private String TAG = "Activity_coinInfo";
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
     private DecimalFormat decimalFormat;
@@ -73,9 +72,7 @@ public class Activity_coinInfo extends FragmentActivity {
         btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                MoEuiBitDatabase db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
-                db.userDAO().update(40000000);
+                finish();
             }
         });
     }

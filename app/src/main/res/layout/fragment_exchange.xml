@@ -7,51 +7,111 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragment.Fragment_Exchange">
 
-    <EditText
-        android:id="@+id/et_searchCoin"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/a"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:hint="코인 명 / 심볼 입력"/>
+        android:background="@color/statusBar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="거래소"
+            android:textSize="27sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:textColor="#FFFFFFFF"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/a"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/search"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginLeft="5dp"/>
+
+        <EditText
+            android:id="@+id/et_searchCoin"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:hint="코인 이름 / 심볼 입력"
+            android:paddingLeft="55dp"
+            android:background="@drawable/rv_my_coins_item_border"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/mm"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/et_searchCoin"
+        app:layout_constraintTop_toBottomOf="@+id/b"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <ToggleButton
+        <TextView
             android:id="@+id/tog_invisible"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            android:layout_margin="5dp"/>
 
         <Button
             android:id="@+id/btn_orderByCurrentPrice"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="현재가x"/>
+            android:text="현재가"
+            android:background="#FAFAFA"
+            android:textColor="#C8C8C8"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textSize="13sp"
+            android:layout_margin="5dp"/>
 
         <Button
             android:id="@+id/btn_orderByDayToDay"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="전일대비x"/>
+            android:text="전일대비"
+            android:background="#FAFAFA"
+            android:textColor="#C8C8C8"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textSize="13sp"
+            android:layout_margin="5dp"/>
 
         <Button
             android:id="@+id/btn_orderByTransactionAmount"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="거래대금x"/>
+            android:text="거래대금"
+            android:background="#FAFAFA"
+            android:textColor="#C8C8C8"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textSize="13sp"
+            android:layout_margin="5dp"/>
 
     </LinearLayout>
 

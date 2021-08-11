@@ -188,6 +188,69 @@
         android:layout_marginTop="5dp">
 
         <TextView
+            android:id="@+id/tv_myCoinsPurchaseAmount"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical"
+            android:paddingRight="5dp"
+            android:textColor="#000000"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KRW"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/tv_myCoinsCurrentPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingRight="5dp"
+            android:gravity="right|center_vertical"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KRW"
+            android:textStyle="bold"
+            android:textColor="#000000"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="매수금액"
+            android:gravity="right"
+            android:layout_weight="1"
+            android:textColor="#A6A6A6"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="현재가격"
+            android:gravity="right"
+            android:layout_weight="1"
+            android:textColor="#A6A6A6"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="5dp">
+
+        <TextView
             android:id="@+id/tv_myCoinsEvaluationAmount"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -203,7 +266,7 @@
             android:textColor="#000000"/>
 
         <TextView
-            android:id="@+id/tv_myCoinsPurchaseAmount"
+            android:id="@+id/tv_myCoinsDifference"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -236,7 +299,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="매수금액"
+            android:text="현재가격 - 매수평균가"
             android:gravity="right"
             android:layout_weight="1"
             android:textColor="#A6A6A6"/>

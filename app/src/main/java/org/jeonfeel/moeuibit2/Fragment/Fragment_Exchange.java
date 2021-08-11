@@ -1,23 +1,19 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
 
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
@@ -38,8 +34,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static java.lang.Math.round;
 
@@ -108,7 +102,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         rv_coin.setAdapter(adapter_rvCoin);
         getUpBitCoinsInfo();
         setTextWatcher();
-        setOrderByTog();
+        setOrderByBtn();
 
         return rootView;
     }
@@ -220,90 +214,64 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }
     }
     // 정렬 토글버튼 세팅
-    private void setOrderByTog(){
-
-        btn_orderByCurrentPrice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                orderByCurrentPrice++;
-
-                if(orderByCurrentPrice > 2){
-                    orderByCurrentPrice = 0;
-                }
-                orderByCoins();
-                orderByDayToDay = 0;
-                orderByTransactionAmount = 0;
-                btn_orderByDayToDay.setText("전일대비X");
-                btn_orderByTransactionAmount.setText("거래대금X");
-            }
-        });
-
-        btn_orderByDayToDay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                orderByDayToDay++;
-
-                if(orderByDayToDay > 2){
-                    orderByDayToDay = 0;
-                }
-                orderByCoins();
-                orderByCurrentPrice = 0;
-                orderByTransactionAmount = 0;
-                btn_orderByCurrentPrice.setText("현재가X");
-                btn_orderByTransactionAmount.setText("거래대금X");
-            }
-        });
-
-        btn_orderByTransactionAmount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                orderByTransactionAmount++;
-                if(orderByTransactionAmount > 2){
-                    orderByTransactionAmount = 0;
-                }
-                orderByCoins();
-                orderByCurrentPrice = 0;
-                orderByDayToDay = 0;
-                btn_orderByCurrentPrice.setText("현재가X");
-                btn_orderByDayToDay.setText("전일대비X");
-
-            }
-        });
+    private void setOrderByBtn(){
+        OrderWays orderWays = new OrderWays();
+        btn_orderByTransactionAmount.setOnClickListener(orderWays);
+        btn_orderByDayToDay.setOnClickListener(orderWays);
+        btn_orderByCurrentPrice.setOnClickListener(orderWays);
     }
 
     private void orderByCoins(){
+
         if(orderByCurrentPrice == 0 && orderByDayToDay ==0 && orderByTransactionAmount == 0){
+            btn_orderByCurrentPrice.setText("현재가");
+            btn_orderByDayToDay.setText("전일대비");
+            btn_orderByTransactionAmount.setText("거래대금");
             CoinDTO.orderStatus = "transactionAmount";
             Collections.sort(allCoinInfoArray);
             Collections.reverse(allCoinInfoArray);
-        }else if(orderByCurrentPrice == 1){
-            btn_orderByCurrentPrice.setText("현 내림");
-            CoinDTO.orderStatus = "currentPrice";
-            Collections.sort(allCoinInfoArray);
-            Collections.reverse(allCoinInfoArray);
-        }else if(orderByCurrentPrice == 2){
-            btn_orderByCurrentPrice.setText("현 오름");
-            CoinDTO.orderStatus = "currentPrice";
-            Collections.sort(allCoinInfoArray);
-        }else if(orderByDayToDay == 1){
-            btn_orderByDayToDay.setText("전일 내림");
-            CoinDTO.orderStatus = "dayToDay";
-            Collections.sort(allCoinInfoArray);
-            Collections.reverse(allCoinInfoArray);
-        }else if(orderByDayToDay == 2){
-            btn_orderByDayToDay.setText("전일 오름");
-            CoinDTO.orderStatus = "dayToDay";
-            Collections.sort(allCoinInfoArray);
-        }else if(orderByTransactionAmount == 1){
-            btn_orderByTransactionAmount.setText("대금 내림");
-            CoinDTO.orderStatus = "transactionAmount";
-            Collections.sort(allCoinInfoArray);
-            Collections.reverse(allCoinInfoArray);
-        }else if(orderByTransactionAmount == 2){
-            btn_orderByTransactionAmount.setText("대금 오름");
-            CoinDTO.orderStatus = "transactionAmount";
-            Collections.sort(allCoinInfoArray);
+        }else {
+
+            if (orderByCurrentPrice == 0) {
+                btn_orderByCurrentPrice.setText("현재가");
+            } else if (orderByCurrentPrice == 1) {
+                btn_orderByCurrentPrice.setText("현재가↓");
+                CoinDTO.orderStatus = "currentPrice";
+                Collections.sort(allCoinInfoArray);
+                Collections.reverse(allCoinInfoArray);
+            } else if (orderByCurrentPrice == 2) {
+                btn_orderByCurrentPrice.setText("현재가↑");
+                CoinDTO.orderStatus = "currentPrice";
+                Collections.sort(allCoinInfoArray);
+            }
+
+            if (orderByDayToDay == 0) {
+                btn_orderByDayToDay.setText("전일대비");
+            } else if (orderByDayToDay == 1) {
+                btn_orderByDayToDay.setText("전일대비↓");
+                CoinDTO.orderStatus = "dayToDay";
+                Collections.sort(allCoinInfoArray);
+                Collections.reverse(allCoinInfoArray);
+            } else if (orderByDayToDay == 2) {
+                btn_orderByDayToDay.setText("전일대비↑");
+                CoinDTO.orderStatus = "dayToDay";
+                Collections.sort(allCoinInfoArray);
+            }
+
+            if (orderByTransactionAmount == 0) {
+                btn_orderByTransactionAmount.setText("거래대금");
+            } else if (orderByTransactionAmount == 1) {
+                btn_orderByTransactionAmount.setText("거래대금↓");
+                CoinDTO.orderStatus = "transactionAmount";
+                Collections.sort(allCoinInfoArray);
+                Collections.reverse(allCoinInfoArray);
+            } else if (orderByTransactionAmount == 2) {
+                btn_orderByTransactionAmount.setText("거래대금↑");
+                CoinDTO.orderStatus = "transactionAmount";
+                Collections.sort(allCoinInfoArray);
+            }
         }
+
         if(orderPosition.size() != 0){
             orderPosition.clear();
         }
@@ -311,6 +279,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         for(int i =0; i < allCoinInfoArray.size(); i++){
             orderPosition.put(allCoinInfoArray.get(i).getMarket(),i);
         }
+
     }
 
     @Override
@@ -347,6 +316,68 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+
+
+    //정렬방식 class
+    class OrderWays implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+           Button[] btns = {btn_orderByCurrentPrice,btn_orderByDayToDay,btn_orderByTransactionAmount};
+
+           int selected = view.getId();
+
+           for(int i = 0; i < 3; i++){
+               if(btns[i].getId() != selected) {
+                   if (btns[i].getId() == R.id.btn_orderByCurrentPrice) {
+                       btn_orderByCurrentPrice.setText("현재가");
+                       orderByCurrentPrice = 0;
+                   }else if (btns[i].getId() == R.id.btn_orderByTransactionAmount) {
+                       btn_orderByTransactionAmount.setText("거래대금");
+                       orderByTransactionAmount = 0;
+                   }else if (btns[i].getId() == R.id.btn_orderByDayToDay) {
+                       btn_orderByDayToDay.setText("전일대비");
+                       orderByDayToDay = 0;
+                   }
+                   btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                   btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
+                }else{
+                       if(R.id.btn_orderByCurrentPrice == selected){
+                               if(orderByCurrentPrice != 2) {
+                                   orderByCurrentPrice++;
+                                   btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
+                                   btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
+                               }else{
+                                   orderByCurrentPrice = 0;
+                                   btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                                   btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
+                               }
+                            }else if(R.id.btn_orderByTransactionAmount == selected){
+                           if(orderByTransactionAmount != 2) {
+                               orderByTransactionAmount++;
+                               btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
+                               btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
+                           }else{
+                               orderByTransactionAmount = 0;
+                               btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                               btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
+                           }
+                       }else if(R.id.btn_orderByDayToDay == selected){
+                           if(orderByDayToDay != 2) {
+                               orderByDayToDay++;
+                               btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
+                               btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
+                           }else{
+                               orderByDayToDay = 0;
+                               btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                               btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
+                           }
+                       }
+                   }
+           }
+            orderByCoins();
+        }
     }
 
     //스레드에서 처리하기 위해..
