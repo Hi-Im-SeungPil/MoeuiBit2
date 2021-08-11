@@ -1,12 +1,15 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -34,6 +37,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static java.lang.Math.round;
 
@@ -58,6 +63,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private GetUpBitCoinsThread getUpBitCoinsThread;
 
     private HashMap<String,Integer> orderPosition;
+
+    private String onText;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -310,14 +317,25 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        onText = charSequence.toString();
         adapter_rvCoin.getFilter().filter(charSequence.toString());
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
 
-    }
+        final Handler handler = new Handler(Looper.getMainLooper());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            handler.postDelayed(new Runnable() {
+                @Override public void run() {
 
+                    adapter_rvCoin.getFilter().filter(onText);
+
+                     handler.postDelayed(this,1000);
+
+                     }}, 0, 1000);
+        }
+    }
 
     //정렬방식 class
     class OrderWays implements View.OnClickListener {
@@ -340,7 +358,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                        btn_orderByDayToDay.setText("전일대비");
                        orderByDayToDay = 0;
                    }
-                   btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                   btns[i].setTextColor(Color.parseColor("#ACABAB"));
                    btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
                 }else{
                        if(R.id.btn_orderByCurrentPrice == selected){
@@ -350,7 +368,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                    btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                                }else{
                                    orderByCurrentPrice = 0;
-                                   btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                                   btns[i].setTextColor(Color.parseColor("#ACABAB"));
                                    btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
                                }
                             }else if(R.id.btn_orderByTransactionAmount == selected){
@@ -360,7 +378,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                            }else{
                                orderByTransactionAmount = 0;
-                               btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                               btns[i].setTextColor(Color.parseColor("#ACABAB"));
                                btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
                            }
                        }else if(R.id.btn_orderByDayToDay == selected){
@@ -370,7 +388,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                            }else{
                                orderByDayToDay = 0;
-                               btns[i].setTextColor(Color.parseColor("#C8C8C8"));
+                               btns[i].setTextColor(Color.parseColor("#ACABAB"));
                                btns[i].setBackgroundColor(Color.parseColor("#FAFAFA"));
                            }
                        }

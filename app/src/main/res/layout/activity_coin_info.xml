@@ -18,14 +18,14 @@
             android:id="@+id/btn_coinInfoBackSpace"
             android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             android:gravity="center"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@drawable/back_space"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
 
         <TextView
             android:id="@+id/tv_coinInfoCoinName"
@@ -39,7 +39,9 @@
             android:textSize="20sp"
             android:gravity="center"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:ellipsize="end"
+            android:fontFamily="@font/nanum_square_round_r"
+            android:layout_marginLeft="10dp"/>
 
         <Button
             android:id="@+id/btn_bookMark"
@@ -51,7 +53,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:background="@drawable/favorite_off"
-            android:layout_marginRight="5dp"/>
+            android:layout_marginRight="10dp"/>
 
         <Button
             android:id="@+id/btn_coinNotification"

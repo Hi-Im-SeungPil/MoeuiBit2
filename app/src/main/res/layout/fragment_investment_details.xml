@@ -27,7 +27,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginLeft="10dp"
             android:gravity="center_vertical"
-            android:textColor="#FFFFFFFF"/>
+            android:textColor="#FFFFFFFF"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,7 +80,7 @@
             android:textSize="20sp"
             android:padding="10dp"
             android:textColor="#000000"
-            android:textStyle="bold" />
+            android:fontFamily="@font/nanum_square_round_b"/>
 
         <Button
             android:id="@+id/btn_earningKrw"
@@ -116,7 +117,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginRight="5dp">
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -124,7 +126,8 @@
                 android:text="보유KRW (가상)"
                 android:layout_marginBottom="5dp"
                 android:textColor="#000000"
-                android:textSize="17sp"/>
+                android:textSize="17sp"
+                android:fontFamily="@font/nanum_square_round_r"/>
             <TextView
                 android:id="@+id/tv_myKoreanWon"
                 android:layout_width="match_parent"
@@ -133,12 +136,13 @@
                 android:layout_marginBottom="10dp"
                 android:textSize="17sp"
                 android:textColor="#000000"
-                android:textStyle="bold"/>
+                android:fontFamily="@font/nanum_square_round_b"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -146,7 +150,8 @@
                     android:layout_weight="2"
                     android:text="총매수"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
                 <TextView
                     android:id="@+id/tv_totalBuyOut"
                     android:layout_width="0dp"
@@ -155,14 +160,16 @@
                     android:text="0"
                     android:gravity="right"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -170,7 +177,8 @@
                     android:layout_weight="2"
                     android:text="총평가"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
                 <TextView
                     android:id="@+id/tv_totalEvaluation"
                     android:layout_width="0dp"
@@ -179,7 +187,8 @@
                     android:text="0"
                     android:gravity="right"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
 
             </LinearLayout>
 
@@ -190,7 +199,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="10dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -199,7 +209,8 @@
                 android:textColor="#000000"
                 android:textSize="17sp"
                 android:paddingLeft="10dp"
-                android:background="@drawable/fragment_investment_details_border"/>
+                android:background="@drawable/fragment_investment_details_border"
+                android:fontFamily="@font/nanum_square_round_r"/>
             <TextView
                 android:id="@+id/tv_myTotalProperty"
                 android:layout_width="match_parent"
@@ -208,16 +219,17 @@
                 android:layout_marginBottom="10dp"
                 android:textSize="17sp"
                 android:textColor="#000000"
-                android:textStyle="bold"
                 android:paddingLeft="10dp"
-                android:background="@drawable/fragment_investment_details_border"/>
+                android:background="@drawable/fragment_investment_details_border"
+                android:fontFamily="@font/nanum_square_round_b"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="5dp"
-                android:paddingLeft="5dp">
+                android:paddingLeft="5dp"
+                android:layout_marginTop="10dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -225,16 +237,18 @@
                     android:layout_weight="2"
                     android:text="평가손익"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
                 <TextView
                     android:id="@+id/tv_evaluationGainLoss"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
+                    android:layout_weight="3"
                     android:text="0"
                     android:gravity="right"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
 
             </LinearLayout>
 
@@ -242,7 +256,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingLeft="5dp">
+                android:paddingLeft="5dp"
+                android:layout_marginTop="5dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -250,7 +265,8 @@
                     android:layout_weight="2"
                     android:text="수익률"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
                 <TextView
                     android:id="@+id/tv_yield"
                     android:layout_width="0dp"
@@ -259,7 +275,8 @@
                     android:text="0"
                     android:gravity="right"
                     android:textColor="#000000"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:fontFamily="@font/nanum_square_round_r"/>
 
             </LinearLayout>
 

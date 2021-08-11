@@ -28,13 +28,13 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     private ArrayList<CoinDTO> item;
     private ArrayList<CoinDTO> filteredItem;
     private Context context;
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
         this.item = item;
         this.filteredItem = item;
         this.context = context;
     }
-
 
     public void setItem(ArrayList<CoinDTO> item) {
         this.item = item;
@@ -56,11 +56,10 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
 
 //        int safePosition = holder.getAdapterPosition();
-
         Double dayToDay = filteredItem.get(position).getDayToDay()*100;
-        DecimalFormat decimalFormat = new DecimalFormat("###,###"); //데시말 포맷 설정 (천단위 콤마찍기)
 //---------------------------------
-        holder.tv_coinName.setText(filteredItem.get(position).getKoreanName());
+            holder.tv_coinName.setText(filteredItem.get(position).getKoreanName());
+            holder.tv_coinMarket.setText(filteredItem.get(position).getSymbol() + " / KRW");
 //---------------------------------
         if(filteredItem.get(position).getCurrentPrice() > 100){ //만약 100원보다 가격이 높으면 천단위 콤마
             int currentPrice = (int) round(filteredItem.get(position).getCurrentPrice());
@@ -69,9 +68,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         }else{
             holder.tv_currentPrice.setText(String.format("%.2f",filteredItem.get(position).getCurrentPrice()));
         }
-
         //---------------------------------
-
         holder.tv_dayToDay.setText(String.format("%.2f",dayToDay) + " %"); //스트링 포맷으로 소수점 2자리 반올림
 
         if(dayToDay > 0 ){ //어제보다 높으면 주황 낮으면 파랑
@@ -146,6 +143,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         protected TextView tv_currentPrice;
         protected TextView tv_dayToDay;
         protected TextView tv_transactionAmount;
+        protected TextView tv_coinMarket;
 
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -155,6 +153,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             this.tv_currentPrice = itemView.findViewById(R.id.tv_currentPrice);
             this.tv_dayToDay = itemView.findViewById(R.id.tv_dayToDay);
             this.tv_transactionAmount = itemView.findViewById(R.id.tv_transactionAmount);
+            this.tv_coinMarket = itemView.findViewById(R.id.tv_coinMarket);
 
         }
     }

@@ -26,7 +26,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginLeft="10dp"
             android:gravity="center_vertical"
-            android:textColor="#FFFFFFFF"/>
+            android:textColor="#FFFFFFFF"
+            android:fontFamily="@font/nanum_square_round_b"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -63,11 +64,12 @@
     <LinearLayout
         android:id="@+id/mm"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="30dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/b"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/rv_coin_border">
 
         <TextView
             android:id="@+id/tog_invisible"
@@ -84,8 +86,8 @@
             android:layout_weight="1"
             android:text="현재가"
             android:background="#FAFAFA"
-            android:textColor="#C8C8C8"
-            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#ACABAB"
+            android:fontFamily="@font/nanum_square_round_b"
             android:textSize="13sp"
             android:layout_margin="5dp"/>
 
@@ -96,8 +98,8 @@
             android:layout_weight="1"
             android:text="전일대비"
             android:background="#FAFAFA"
-            android:textColor="#C8C8C8"
-            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#ACABAB"
+            android:fontFamily="@font/nanum_square_round_b"
             android:textSize="13sp"
             android:layout_margin="5dp"/>
 
@@ -108,8 +110,8 @@
             android:layout_weight="1"
             android:text="거래대금"
             android:background="#FAFAFA"
-            android:textColor="#C8C8C8"
-            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#ACABAB"
+            android:fontFamily="@font/nanum_square_round_b"
             android:textSize="13sp"
             android:layout_margin="5dp"/>
 

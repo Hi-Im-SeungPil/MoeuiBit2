@@ -7,15 +7,41 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:orientation="horizontal"
-    android:clickable="true">
+    android:clickable="true"
+    android:background="@drawable/rv_coin_border">
 
-    <TextView
-        android:id="@+id/tv_coinName"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="비트코인"
-        android:gravity="center"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_coinName"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center|bottom"
+            android:textColor="#000000"
+            android:maxLines="1"
+            android:autoSizeMaxTextSize="15sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:ellipsize="end"
+            android:fontFamily="@font/nanum_square_round_r"/>
+
+        <TextView
+            android:id="@+id/tv_coinMarket"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center|top"
+            android:textSize="11sp"
+            android:textColor="#8C8C8C"/>
+
+    </LinearLayout>
+
+
 
     <TextView
         android:id="@+id/tv_currentPrice"
@@ -23,7 +49,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="5000원"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:fontFamily="@font/nanum_square_round_r"/>
 
     <TextView
         android:id="@+id/tv_dayToDay"
@@ -31,7 +58,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="-3.2%"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:fontFamily="@font/nanum_square_round_r"/>
 
     <TextView
         android:id="@+id/tv_transactionAmount"
@@ -42,7 +70,10 @@
         android:maxLines="1"
         android:autoSizeTextType="uniform"
         android:autoSizeMaxTextSize="15sp"
-        android:gravity="center"/>
+        android:autoSizeMinTextSize="11sp"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:fontFamily="@font/nanum_square_round_r"/>
 
 </LinearLayout>
 
