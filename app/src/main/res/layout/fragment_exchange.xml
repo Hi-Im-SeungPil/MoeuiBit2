@@ -57,7 +57,8 @@
             app:layout_constraintRight_toRightOf="parent"
             android:hint="코인 이름 / 심볼 입력"
             android:paddingLeft="55dp"
-            android:background="@drawable/rv_my_coins_item_border"/>
+            android:background="@drawable/rv_my_coins_item_border"
+            android:maxLines="1"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -84,7 +85,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="현재가"
+            android:text="현재가↓↑"
             android:background="#FAFAFA"
             android:textColor="#ACABAB"
             android:fontFamily="@font/nanum_square_round_b"
@@ -96,7 +97,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="전일대비"
+            android:text="전일대비↓↑"
             android:background="#FAFAFA"
             android:textColor="#ACABAB"
             android:fontFamily="@font/nanum_square_round_b"
@@ -108,7 +109,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="거래대금"
+            android:text="거래대금↓↑"
             android:background="#FAFAFA"
             android:textColor="#ACABAB"
             android:fontFamily="@font/nanum_square_round_b"

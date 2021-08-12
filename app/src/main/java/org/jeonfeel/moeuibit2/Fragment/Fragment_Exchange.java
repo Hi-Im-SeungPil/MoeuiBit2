@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +64,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private GetUpBitCoinsThread getUpBitCoinsThread;
 
     private HashMap<String,Integer> orderPosition;
-
+    private Handler handler = null;
+    private Timer timer = null;
     private String onText;
 
 
@@ -94,7 +96,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -231,16 +232,16 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private void orderByCoins(){
 
         if(orderByCurrentPrice == 0 && orderByDayToDay ==0 && orderByTransactionAmount == 0){
-            btn_orderByCurrentPrice.setText("현재가");
-            btn_orderByDayToDay.setText("전일대비");
-            btn_orderByTransactionAmount.setText("거래대금");
+            btn_orderByCurrentPrice.setText("현재가↓↑");
+            btn_orderByDayToDay.setText("전일대비↓↑");
+            btn_orderByTransactionAmount.setText("거래대금↓↑");
             CoinDTO.orderStatus = "transactionAmount";
             Collections.sort(allCoinInfoArray);
             Collections.reverse(allCoinInfoArray);
         }else {
 
             if (orderByCurrentPrice == 0) {
-                btn_orderByCurrentPrice.setText("현재가");
+                btn_orderByCurrentPrice.setText("현재가↓↑");
             } else if (orderByCurrentPrice == 1) {
                 btn_orderByCurrentPrice.setText("현재가↓");
                 CoinDTO.orderStatus = "currentPrice";
@@ -253,7 +254,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }
 
             if (orderByDayToDay == 0) {
-                btn_orderByDayToDay.setText("전일대비");
+                btn_orderByDayToDay.setText("전일대비↓↑");
             } else if (orderByDayToDay == 1) {
                 btn_orderByDayToDay.setText("전일대비↓");
                 CoinDTO.orderStatus = "dayToDay";
@@ -266,7 +267,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }
 
             if (orderByTransactionAmount == 0) {
-                btn_orderByTransactionAmount.setText("거래대금");
+                btn_orderByTransactionAmount.setText("거래대금↓↑");
             } else if (orderByTransactionAmount == 1) {
                 btn_orderByTransactionAmount.setText("거래대금↓");
                 CoinDTO.orderStatus = "transactionAmount";
@@ -306,7 +307,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     }
 
     private void setTextWatcher(){
-        et_searchCoin.setCursorVisible(false);
         et_searchCoin.addTextChangedListener(this);
     }
 
@@ -318,23 +318,36 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         onText = charSequence.toString();
-        adapter_rvCoin.getFilter().filter(charSequence.toString());
+        adapter_rvCoin.getFilter().filter(onText);
+        adapter_rvCoin.notifyDataSetChanged();
     }
 
     @Override
     public void afterTextChanged(Editable editable) {
 
-        final Handler handler = new Handler(Looper.getMainLooper());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            handler.postDelayed(new Runnable() {
-                @Override public void run() {
-
-                    adapter_rvCoin.getFilter().filter(onText);
-
-                     handler.postDelayed(this,1000);
-
-                     }}, 0, 1000);
+        if(timer == null && handler == null) {
+            timer = new Timer(true); //인자가 Daemon 설정인데 true 여야 죽지 않음.
+            handler = new Handler();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable(){
+                        public void run(){
+                            if(!onText.equals("")) {
+                                adapter_rvCoin.getFilter().filter(onText);
+                                adapter_rvCoin.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }, 500, 1000);
         }
+
+        Log.d("qqqq","after");
+    }
+
+    private void getSearchingCoinInfo(){
+
     }
 
     //정렬방식 class
@@ -349,13 +362,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
            for(int i = 0; i < 3; i++){
                if(btns[i].getId() != selected) {
                    if (btns[i].getId() == R.id.btn_orderByCurrentPrice) {
-                       btn_orderByCurrentPrice.setText("현재가");
+                       btn_orderByCurrentPrice.setText("현재가↓↑");
                        orderByCurrentPrice = 0;
                    }else if (btns[i].getId() == R.id.btn_orderByTransactionAmount) {
-                       btn_orderByTransactionAmount.setText("거래대금");
+                       btn_orderByTransactionAmount.setText("거래대금↓↑");
                        orderByTransactionAmount = 0;
                    }else if (btns[i].getId() == R.id.btn_orderByDayToDay) {
-                       btn_orderByDayToDay.setText("전일대비");
+                       btn_orderByDayToDay.setText("전일대비↓↑");
                        orderByDayToDay = 0;
                    }
                    btns[i].setTextColor(Color.parseColor("#ACABAB"));
@@ -475,7 +488,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                 @Override
                                 public void run() {
                                     adapter_rvCoin.setItem(allCoinInfoArray);
-                                    adapter_rvCoin.notifyDataSetChanged();
+                                    if(et_searchCoin.length() == 0) {
+                                        adapter_rvCoin.notifyDataSetChanged();
+                                    }
                                 }
                             });
                         }else{

@@ -131,7 +131,6 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 filteredItem = (ArrayList<CoinDTO>) filterResults.values;
-                notifyDataSetChanged();
             }
         };
     }
