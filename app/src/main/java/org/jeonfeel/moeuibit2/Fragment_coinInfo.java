@@ -1,5 +1,8 @@
 package org.jeonfeel.moeuibit2;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,58 +10,168 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Fragment_coinInfo#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class Fragment_coinInfo extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    ImageView iv_upBit, iv_bithumb, iv_coinOne;
+    LinearLayout linear_ddangle, linear_coinPan, linear_moneyNet, linear_cobak, linear_blockChanHub,
+            linear_dcInside, linear_bitMan, linear_FMkorea, linear_coinMarketCap, linear_coinGeko,
+            linear_kimpga, linear_cryPrice, linear_coDal, linear_coinNess, linear_coinMarketCal,linear_xangle;
+    Context context;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public Fragment_coinInfo(Context context) {
 
-    public Fragment_coinInfo() {
+        this.context = context;
+
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Fragment_coinInfo.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Fragment_coinInfo newInstance(String param1, String param2) {
-        Fragment_coinInfo fragment = new Fragment_coinInfo();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_coin_info, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_coin_info, container, false);
+
+        FindViewById(rootView);
+        setIv_exchanges();
+        setLinear();
+
+        return rootView;
+    }
+
+    private void FindViewById(View rootView) {
+
+        iv_upBit = rootView.findViewById(R.id.iv_upBit);
+        iv_bithumb = rootView.findViewById(R.id.iv_bithumb);
+        iv_coinOne = rootView.findViewById(R.id.iv_coinOne);
+        linear_ddangle = rootView.findViewById(R.id.linear_ddangle);
+        linear_coinPan = rootView.findViewById(R.id.linear_coinPan);
+        linear_moneyNet = rootView.findViewById(R.id.linear_moneyNet);
+        linear_cobak = rootView.findViewById(R.id.linear_cobak);
+        linear_blockChanHub = rootView.findViewById(R.id.linear_blockChanHub);
+        linear_dcInside = rootView.findViewById(R.id.linear_dcInside);
+        linear_bitMan = rootView.findViewById(R.id.linear_bitMan);
+        linear_FMkorea = rootView.findViewById(R.id.linear_FMkorea);
+        linear_coinMarketCap = rootView.findViewById(R.id.linear_coinMarketCap);
+        linear_coinGeko = rootView.findViewById(R.id.linear_coinGeko);
+        linear_xangle = rootView.findViewById(R.id.linear_xangle);
+        linear_kimpga = rootView.findViewById(R.id.linear_kimpga);
+        linear_cryPrice = rootView.findViewById(R.id.linear_cryPrice);
+        linear_coDal = rootView.findViewById(R.id.linear_coDal);
+        linear_coinNess = rootView.findViewById(R.id.linear_coinNess);
+        linear_coinMarketCal = rootView.findViewById(R.id.linear_coinMarketCal);
+    }
+
+    private void setIv_exchanges(){
+        iv_upBit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("com.dunamu.exchange","https://www.upbit.com");
+            }
+        });
+
+        iv_bithumb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("com.btckorea.bithumb","https://www.bithumb.com/");
+            }
+        });
+        iv_coinOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("coinone.co.kr.official","https://coinone.co.kr/");
+            }
+        });
+    }
+    private void exchangesIsInstall(String pakageName, String uri){
+
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(pakageName);
+
+        if(intent == null) {
+            //미설치
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            startActivity(intent);
+        } else {
+            //설치
+            startActivity(intent);
+        }
+    }
+
+    private void setLinear(){
+        LinearLayout[] linearLayouts = {linear_ddangle,linear_coinPan,linear_moneyNet,linear_cobak,linear_blockChanHub,
+                linear_dcInside,linear_bitMan,linear_FMkorea,linear_FMkorea,linear_coinMarketCap,linear_coinGeko,
+                linear_xangle,linear_kimpga,linear_cryPrice,linear_coDal,linear_coinNess,linear_coinMarketCal};
+
+        SetLinears setLinears = new SetLinears();
+
+        for(int i = 0; i < linearLayouts.length; i++){
+            linearLayouts[i].setOnClickListener(setLinears);
+        }
+    }
+
+    class SetLinears implements View.OnClickListener{
+        @Override
+        public void onClick(View view) {
+            String uri = "";
+            switch (view.getId()){
+                case R.id.linear_ddangle:
+                    uri = "https://www.ddengle.com/";
+                    break;
+                case R.id.linear_coinPan:
+                    uri = "https://coinpan.com/";
+                    break;
+                case R.id.linear_moneyNet:
+                    uri = "https://www.moneynet.co.kr/";
+                    break;
+                case R.id.linear_cobak:
+                    uri = "https://cobak.co.kr/";
+                    break;
+                case R.id.linear_blockChanHub:
+                    uri = "https://blockchainhub.kr/";
+                    break;
+                case R.id.linear_dcInside:
+                    uri = "https://gall.dcinside.com/board/lists/?id=bitcoins";
+                    break;
+                case R.id.linear_bitMan:
+                    uri = "https://cafe.naver.com/nexontv";
+                    break;
+                case R.id.linear_FMkorea:
+                    uri = "https://www.fmkorea.com/coin";
+                    break;
+                case R.id.linear_coinMarketCap:
+                    uri = "https://coinmarketcap.com/ko/";
+                    break;
+                case R.id.linear_coinGeko:
+                    uri = "https://www.coingecko.com/ko";
+                    break;
+                case R.id.linear_xangle:
+                    uri = "https://xangle.io/";
+                    break;
+                case R.id.linear_kimpga:
+                    uri = "https://kimpga.com/";
+                    break;
+                case R.id.linear_cryPrice:
+                    uri = "https://scolkg.com/";
+                    break;
+                case R.id.linear_coDal:
+                    uri = "https://www.coindalin.com/";
+                    break;
+                case R.id.linear_coinNess:
+                    uri = "https://kr.coinness.com/";
+                    break;
+                case R.id.linear_coinMarketCal:
+                    uri = "https://coinmarketcal.com/en/";
+                    break;
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            startActivity(intent);
+        }
     }
 }

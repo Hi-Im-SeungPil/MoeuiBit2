@@ -21,13 +21,12 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         setMenuBottom();
-
     }
     private void setMenuBottom(){
 
         Fragment_Exchange fragment_exchange = new Fragment_Exchange();
         Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails();
-        Fragment_coinInfo fragment_coinInfo = new Fragment_coinInfo();
+        Fragment_coinInfo fragment_coinInfo = new Fragment_coinInfo(MainActivity.this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fragment_exchange).commit();
 

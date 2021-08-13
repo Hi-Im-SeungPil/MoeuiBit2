@@ -6,21 +6,25 @@
         android:id="@+id/tab_exchange"
         app:showAsAction="always"
         android:enabled="true"
-        android:title="거래소"/>
+        android:title="거래소"
+        android:icon="@drawable/img_exchange"/>
     <item
         android:id="@+id/tab_coinInfo"
         app:showAsAction="always"
         android:enabled="true"
-        android:title="코인 정보"/>
+        android:title="코인 사이트"
+        android:icon="@drawable/img_internet"/>
     <item
         android:id="@+id/tab_myPortfolio"
         app:showAsAction="always"
         android:enabled="true"
-        android:title="투자 내역"/>
+        android:title="투자 내역"
+        android:icon="@drawable/img_report"/>
     <item
         android:id="@+id/tab_freeBoard"
         app:showAsAction="always"
         android:enabled="true"
-        android:title="자유 게시판"/>
+        android:title="자유 게시판"
+        android:icon="@drawable/img_pencil"/>
 
 </menu>

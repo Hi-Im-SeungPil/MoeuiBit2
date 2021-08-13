@@ -261,6 +261,7 @@
                         android:layout_height="0dp"
                         android:text="비트코인 갤러리"
                         android:layout_weight="1"
+                        android:textSize="13sp"
                         android:gravity="center"
                         android:fontFamily="@font/nanum_square_round_b"
                         android:textColor="#000000"/>
@@ -427,6 +428,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linear_xangle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
@@ -436,12 +438,14 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
+                        android:background="@drawable/img_xangle"
                         android:layout_weight="2" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
+                        android:text="쟁글"
                         android:gravity="center"
                         android:fontFamily="@font/nanum_square_round_b"
                         android:textColor="#000000"/>
@@ -513,6 +517,7 @@
                         android:layout_height="0dp"
                         android:text="크라이 프라이스"
                         android:layout_weight="1"
+                        android:textSize="13sp"
                         android:gravity="center"
                         android:fontFamily="@font/nanum_square_round_b"
                         android:textColor="#000000"/>
@@ -542,6 +547,106 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="코인 호재 / 뉴스"
+                android:textSize="20sp"
+                android:padding="15dp"
+                android:textColor="@color/statusBar"
+                android:fontFamily="@font/nanum_square_round_b"
+                android:background="@drawable/rv_coin_border"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/linear_coDal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:clickable="true">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:text="코 인 달 인"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#000000"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="코인달인"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_coinNess"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:background="@drawable/img_coinness"
+                        android:layout_weight="2"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="코인 니스"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_coinMarketCal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:background="@drawable/img_coinmarket_cal"
+                        android:layout_height="0dp"
+                        android:layout_weight="2" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="코인 마켓 캘린더"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
 
         </LinearLayout><!--        스크롤뷰 끝-->
 
