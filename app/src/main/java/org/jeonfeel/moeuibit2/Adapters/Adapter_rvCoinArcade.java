@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -64,36 +65,74 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
 
     @Override
     public void onBindViewHolder(@NonNull Adapter_rvCoinArcade.CustomViewHolder holder, int position) {
-        int arcadePrice = (int) round(item.get(position).getCoinArcadePrice());
+        int integerArcadePrice = (int) round(item.get(position).getCoinArcadePrice());
         int integerOpenPrice = (int) round(openingPrice);
+        Double arcadePrice = item.get(position).getCoinArcadePrice();
         Double dayToDay = 0.0;
 
-        if(arcadePrice > 1000000){
+        if(integerArcadePrice > 1000000){
             holder.tv_coinArcadeDayToDay.setVisibility(View.GONE);
             holder.tv_coinArcadePrice.setGravity(Gravity.RIGHT);
             holder.tv_coinArcadePrice.setPadding(0,0,10,0);
         }
 
         //-------------------------------------------------------------------------------------------------
-        if(arcadePrice > 100){
-            holder.tv_coinArcadePrice.setText(decimalFormat.format(arcadePrice));
+        if(integerArcadePrice > 100){
+            holder.tv_coinArcadePrice.setText(decimalFormat.format(integerArcadePrice));
 
-            dayToDay = (Double) (((arcadePrice - integerOpenPrice) / openingPrice) * 100);
+            dayToDay = (Double) (((integerArcadePrice - integerOpenPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
 
-        }else if(item.get(position).getCoinArcadePrice() < 100){
+        }else if(arcadePrice < 100){
 
-            holder.tv_coinArcadePrice.setText(String.format("%.2f",item.get(position).getCoinArcadePrice()));
+            holder.tv_coinArcadePrice.setText(String.format("%.2f",arcadePrice));
 
-            dayToDay = (Double) (((item.get(position).getCoinArcadePrice() - integerOpenPrice) / openingPrice) * 100);
+            dayToDay = (Double) (((item.get(position).getCoinArcadePrice() - openingPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
-        }else if(item.get(position).getCoinArcadePrice() == 100.0){
 
-            holder.tv_coinArcadePrice.setText(arcadePrice+"");
+        }else if(arcadePrice == 100.0){
 
-            dayToDay = (Double) (((arcadePrice - integerOpenPrice) / openingPrice) * 100);
+            holder.tv_coinArcadePrice.setText(integerArcadePrice+"");
+
+            dayToDay = (Double) (((integerArcadePrice - integerOpenPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
+
+        if(Activity_coinInfo.currentPrice != null){
+
+            Double currentPrice = Activity_coinInfo.currentPrice;
+            int intCurrentPrice = 0;
+
+            if(currentPrice >= 100){
+                intCurrentPrice = (int) round(currentPrice);
+
+                if(intCurrentPrice == integerArcadePrice){
+                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_border2);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                }else{
+                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                }
+
+            }else {
+                String price = String.format("%.2f", arcadePrice);
+                String Price2 = String.format("%.2f", currentPrice);
+
+                if (Price2.equals(price)) {
+                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_border2);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                }else{
+                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                }
+
+            }
+        }
+
         //-------------------------------------------------------------------------------------------------
         holder.tv_coinArcadeAmount.setText(String.format("%.3f",item.get(position).getCoinArcadeSize()));
         //-------------------------------------------------------------------------------------------------
@@ -152,17 +191,24 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
         return item.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public class CustomViewHolder extends RecyclerView.ViewHolder{
         protected TextView tv_coinArcadePrice,tv_coinArcadeAmount,tv_coinArcadeDayToDay;
-        protected LinearLayout linear_wholeItem;
+        protected LinearLayout linear_wholeItem,linear_arcade1,linear_wholeItem2;
 
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            this.linear_arcade1 = itemView.findViewById(R.id.linear_arcade1);
             this.tv_coinArcadePrice = itemView.findViewById(R.id.tv_coinArcadePrice);
             this.tv_coinArcadeAmount = itemView.findViewById(R.id.tv_coinArcadeAmount);
             this.tv_coinArcadeDayToDay = itemView.findViewById(R.id.tv_coinArcadeDayToDay);
             this.linear_wholeItem = itemView.findViewById(R.id.linear_wholeItem);
+            this.linear_wholeItem2 = itemView.findViewById(R.id.linear_wholeItem2);
         }
     }
 

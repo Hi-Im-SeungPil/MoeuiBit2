@@ -3,15 +3,21 @@
     android:id="@+id/linear_wholeItem"
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="37dp"
-    android:orientation="horizontal"
-    >
+    android:orientation="horizontal">
+
 
     <LinearLayout
+        android:id="@+id/linear_wholeItem2"
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/linear_arcade1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:background="@drawable/rv_arcade_item_border">
+        android:orientation="vertical">
         <TextView
             android:id="@+id/tv_coinArcadePrice"
             android:layout_width="match_parent"
@@ -39,7 +45,8 @@
         android:layout_gravity="center"
         android:textColor="#FFFFFFFF"
         android:textSize="11sp"
-        android:paddingLeft="2dp"
-        android:background="@drawable/rv_arcade_item_border"/>
+        android:paddingLeft="2dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>

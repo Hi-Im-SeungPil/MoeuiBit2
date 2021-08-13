@@ -11,6 +11,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_coinInfo;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_investmentDetails;
 
 public class MainActivity extends FragmentActivity {

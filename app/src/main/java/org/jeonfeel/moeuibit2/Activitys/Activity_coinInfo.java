@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
+import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -57,6 +58,8 @@ public class Activity_coinInfo extends FragmentActivity {
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
     public static Double currentPrice;
+    Adapter_rvCoinArcade adapter_rvCoinArcade;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -283,7 +286,6 @@ public class Activity_coinInfo extends FragmentActivity {
                             }
                         });
                     }
-
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

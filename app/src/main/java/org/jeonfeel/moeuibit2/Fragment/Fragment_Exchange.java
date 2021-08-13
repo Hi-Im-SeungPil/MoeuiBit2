@@ -280,6 +280,17 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             }
         }
 
+        if(orderByTransactionAmount != 0){
+            btn_orderByTransactionAmount.setTextColor(Color.parseColor("#FFFFFFFF"));
+            btn_orderByTransactionAmount.setBackgroundColor(Color.parseColor("#0F0F5C"));
+        }else if(orderByDayToDay != 0){
+            btn_orderByDayToDay.setTextColor(Color.parseColor("#FFFFFFFF"));
+            btn_orderByDayToDay.setBackgroundColor(Color.parseColor("#0F0F5C"));
+        }else if(orderByCurrentPrice != 0){
+            btn_orderByCurrentPrice.setTextColor(Color.parseColor("#FFFFFFFF"));
+            btn_orderByCurrentPrice.setBackgroundColor(Color.parseColor("#0F0F5C"));
+        }
+
         if(orderPosition.size() != 0){
             orderPosition.clear();
         }
@@ -377,8 +388,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                        if(R.id.btn_orderByCurrentPrice == selected){
                                if(orderByCurrentPrice != 2) {
                                    orderByCurrentPrice++;
-                                   btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
-                                   btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                                }else{
                                    orderByCurrentPrice = 0;
                                    btns[i].setTextColor(Color.parseColor("#ACABAB"));
@@ -387,8 +396,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             }else if(R.id.btn_orderByTransactionAmount == selected){
                            if(orderByTransactionAmount != 2) {
                                orderByTransactionAmount++;
-                               btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
-                               btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                            }else{
                                orderByTransactionAmount = 0;
                                btns[i].setTextColor(Color.parseColor("#ACABAB"));
@@ -397,8 +404,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                        }else if(R.id.btn_orderByDayToDay == selected){
                            if(orderByDayToDay != 2) {
                                orderByDayToDay++;
-                               btns[i].setTextColor(Color.parseColor("#FFFFFFFF"));
-                               btns[i].setBackgroundColor(Color.parseColor("#0F0F5C"));
                            }else{
                                orderByDayToDay = 0;
                                btns[i].setTextColor(Color.parseColor("#ACABAB"));
@@ -501,7 +506,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             }
                         }
                     }
-
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
