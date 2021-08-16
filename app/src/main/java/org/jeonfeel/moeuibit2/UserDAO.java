@@ -21,6 +21,9 @@ public interface UserDAO {
     @Delete
     void delete(User user);
 
+    @Query("Insert into User values(5000000)")
+    void insert();
+
     @Query("UPDATE User SET krw = :money")
     void  update(long money);
 

@@ -139,9 +139,19 @@ public class Fragment_coinOrder extends Fragment {
 
         db = MoEuiBitDatabase.getInstance(getActivity());
 
+        // 주문가능 설정 ---------------
+
         User user = db.userDAO().getAll();
-        leftMoney = user.krw;
+        if(user != null) {
+            leftMoney = user.krw;
+        }else{
+            leftMoney = 0;
+        }
         tv_orderableAmount.setText(decimalFormat.format(leftMoney));
+
+        // 주문가능 설정 ---------------
+
+        // 판매가능 코인 설정 ---------------
 
         MyCoin myCoin = db.myCoinDAO().isInsert(market);
         if(myCoin != null){
@@ -149,6 +159,8 @@ public class Fragment_coinOrder extends Fragment {
         }else{
             tv_sellAbleCoinQuantity.setText("0");
         }
+
+        // 판매가능 코인 설정 ---------------
 
         et_orderCoinTotalAmount.setCursorVisible(false);
         et_sellCoinTotalAmount.setCursorVisible(false);
@@ -627,6 +639,7 @@ public class Fragment_coinOrder extends Fragment {
         });
     }
     private void setBtn_coinSell(){
+
         btn_coinSell.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -650,6 +663,11 @@ public class Fragment_coinOrder extends Fragment {
                         db.userDAO().updatePlusMoney(round(Activity_coinInfo.currentPrice * sellCoinQuantity));
 
                         Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
+
+                        if(quantity == 0.00000000){
+                            db.myCoinDAO().delete(market);
+                        }
+
                         tv_sellAbleCoinQuantity.setText(String.format("%.8f",quantity));
 
                         User user = db.userDAO().getAll();
@@ -661,6 +679,7 @@ public class Fragment_coinOrder extends Fragment {
                         et_sellCoinTotalAmountMarketPriceVer.setText("");
                         Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
                     }
+
                 }else if(radioId == R.id.radio_marketPriceVerSell && sellAbleCoinQuantity > 0){
 
                     Double sellCoinQuantity = Double.valueOf(et_sellCoinTotalAmountMarketPriceVer.getText().toString());

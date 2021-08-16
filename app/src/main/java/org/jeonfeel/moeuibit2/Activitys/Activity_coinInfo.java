@@ -1,16 +1,12 @@
 package org.jeonfeel.moeuibit2.Activitys;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,13 +15,12 @@ import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
-import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
+import org.jeonfeel.moeuibit2.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
-import org.jeonfeel.moeuibit2.User;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,38 +34,36 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static java.lang.Math.round;
 
 public class Activity_coinInfo extends FragmentActivity {
 
-    private String TAG = "Activity_coinInfo";
+    private final String TAG = "Activity_coinInfo";
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
-    private DecimalFormat decimalFormat;
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private MoEuiBitDatabase db;
     private ImageView iv_coinLogo;
     private String market;
     private String symbol;
     private String koreanName;
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
+    private Button btn_bookMark;
     public static Double currentPrice;
-    Adapter_rvCoinArcade adapter_rvCoinArcade;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coin_info);
 
-        decimalFormat = new DecimalFormat("###,###");
+        db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
         FindViewById();
         setCoinInfo();
         setTabLayout();
         setCoinSymbol();
+        init();
+        setBtn_bookMark();
 
         btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +73,8 @@ public class Activity_coinInfo extends FragmentActivity {
         });
     }
 
+
+
     private void FindViewById(){
         tv_coinInfoCoinName = findViewById(R.id.tv_coinInfoCoinName);
         tv_coinInfoCoinPrice = findViewById(R.id.tv_coinInfoCoinPrice);
@@ -87,6 +82,7 @@ public class Activity_coinInfo extends FragmentActivity {
         tv_coinInfoChangePrice = findViewById(R.id.tv_coinInfoChangePrice);
         btn_coinInfoBackSpace = findViewById(R.id.btn_coinInfoBackSpace);
         iv_coinLogo = findViewById(R.id.iv_coinLogo);
+        btn_bookMark = findViewById(R.id.btn_bookMark);
     }
 
     private void setCoinInfo(){
@@ -155,6 +151,34 @@ public class Activity_coinInfo extends FragmentActivity {
         }
     }
 
+    private void setBtn_bookMark(){
+        btn_bookMark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Favorite favorite = db.favoriteDAO().select(market);
+
+                if(favorite != null){
+                    db.favoriteDAO().delete(market);
+                    btn_bookMark.setBackgroundResource(R.drawable.favorite_off);
+                }else{
+                    db.favoriteDAO().insert(market);
+                    btn_bookMark.setBackgroundResource(R.drawable.favorite_on);
+                }
+            }
+        });
+    }
+
+    private void init(){
+        Favorite favorite = db.favoriteDAO().select(market);
+
+        if(favorite != null){
+            btn_bookMark.setBackgroundResource(R.drawable.favorite_on);
+        }else{
+            btn_bookMark.setBackgroundResource(R.drawable.favorite_off);
+        }
+    }
+
     private void setTabLayout(){
 
         Intent intent = getIntent();
@@ -219,7 +243,6 @@ public class Activity_coinInfo extends FragmentActivity {
             super.run();
             while (isRunning) {
                 try {
-
                     URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + market);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     InputStream inputStream = new BufferedInputStream(conn.getInputStream());

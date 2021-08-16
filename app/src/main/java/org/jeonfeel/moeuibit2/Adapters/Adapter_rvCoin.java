@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,8 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     private ArrayList<CoinDTO> filteredItem;
     private Context context;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private ArrayList<String> markets;
+    private boolean favoriteStatus = false;
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
         this.item = item;
@@ -99,6 +102,14 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         });
     }
 
+    public void setMarkets(ArrayList<String> markets){
+        this.markets = markets;
+    }
+
+    public void setFavoriteStatus(boolean favoriteStatus){
+        this.favoriteStatus = favoriteStatus;
+    }
+
     @Override
     public int getItemCount() {
         return filteredItem.size();
@@ -110,8 +121,38 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
                 String str = charSequence.toString().toLowerCase();
-                if(str.isEmpty()){
+
+                if(str.isEmpty() && !favoriteStatus){
                     filteredItem = item;
+                }else if(favoriteStatus){
+
+                    ArrayList<CoinDTO> filteringItem = new ArrayList<>();
+                    ArrayList<CoinDTO> sampleItem = new ArrayList<>();
+
+                    for(int i = 0; i < markets.size(); i++){
+                        item.
+                    }
+
+                    for(int i = 0; i < markets.size(); i++){
+                        for(int j = 0; j < item.size(); j++){
+                            if(markets.get(i).equals(item.get(j).getMarket())){
+                                filteringItem.add(item.get(j));
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!str.isEmpty()){
+                        for(CoinDTO i : filteringItem){
+                            if(i.getKoreanName().contains(str) || i.getEnglishName().toLowerCase().contains(str) || i.getSymbol().toLowerCase().contains(str)){
+                                sampleItem.add(i);
+                            }
+                        }
+                        filteredItem = sampleItem;
+                    }else{
+                        filteredItem = filteringItem;
+                    }
+
                 }else{
                     ArrayList<CoinDTO> filteringItem = new ArrayList<>();
 
@@ -122,6 +163,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
                     }
                     filteredItem = filteringItem;
                 }
+
                 FilterResults filterResults = new FilterResults();
                 filterResults.values = filteredItem;
 

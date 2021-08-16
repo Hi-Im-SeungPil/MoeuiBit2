@@ -17,11 +17,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
+import org.jeonfeel.moeuibit2.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
+import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -55,6 +60,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private ArrayList<String> marketsArray;
     private ArrayList<String> koreanNamesArray;
     private ArrayList<String> englishNamesArray;
+    private ArrayList<String> favoriteMarkets;
+    private ArrayList<Integer> favoritePosition;
+    private MoEuiBitDatabase db;
+    private Switch sch_favorite;
+    private boolean switchIsChecked = false;
 
     private String markets;
     private int orderByCurrentPrice = 0;
@@ -66,8 +76,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private HashMap<String,Integer> orderPosition;
     private Handler handler = null;
     private Timer timer = null;
-    private String onText;
-
+    private String onText="";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -104,6 +113,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_exchange, container, false);
         FindViewById(rootView);
+        db = MoEuiBitDatabase.getInstance(getActivity());
         setRv_coin();
         getAllUpBitCoins();
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
@@ -111,6 +121,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         getUpBitCoinsInfo();
         setTextWatcher();
         setOrderByBtn();
+        setSch_favorite();
 
         return rootView;
     }
@@ -121,12 +132,69 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         btn_orderByCurrentPrice = rootView.findViewById(R.id.btn_orderByCurrentPrice);
         btn_orderByDayToDay = rootView.findViewById(R.id.btn_orderByDayToDay);
         btn_orderByTransactionAmount = rootView.findViewById(R.id.btn_orderByTransactionAmount);
+        sch_favorite = rootView.findViewById(R.id.sch_favorite);
     }
 
     private void setRv_coin(){
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
         rv_coin.setLayoutManager(linearLayoutManager);
         rv_coin.setHasFixedSize(true);
+    }
+
+    private void setSch_favorite(){
+        sch_favorite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+
+                if(isChecked){
+                    switchIsChecked = true;
+                    favoriteMarkets = new ArrayList<>();
+                    favoritePosition = new ArrayList<>();
+                    List<Favorite> favorites = new ArrayList<>();
+
+                    favorites = db.favoriteDAO().getAll();
+
+                    for(int i = 0; i < favorites.size(); i++){
+                        favoritePosition.add(orderPosition.get(favorites.get(i).getMarket()));
+                    }
+
+                    adapter_rvCoin.setFavoriteStatus(true);
+                    adapter_rvCoin.setMarkets(favoriteMarkets);
+                    adapter_rvCoin.getFilter().filter("");
+                    adapter_rvCoin.notifyDataSetChanged();
+
+                    if(timer == null && handler == null) {
+                        timer = new Timer(true); //인자가 Daemon 설정인데 true 여야 죽지 않음.
+                        handler = new Handler();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                handler.post(new Runnable(){
+                                    public void run(){
+                                        if(!onText.equals("")) {
+                                            adapter_rvCoin.getFilter().filter(onText);
+                                            adapter_rvCoin.notifyDataSetChanged();
+                                        }else if(switchIsChecked){
+                                            adapter_rvCoin.setMarkets(favoriteMarkets);
+                                            adapter_rvCoin.getFilter().filter("");
+                                            adapter_rvCoin.notifyDataSetChanged();
+                                        }
+                                    }
+                                });
+                            }
+                        }, 500, 1000);
+                    }
+
+                    Log.d("qqqq","성공");
+                }else{
+                    switchIsChecked = false;
+                    adapter_rvCoin.setFavoriteStatus(false);
+                    adapter_rvCoin.setMarkets(null);
+                    adapter_rvCoin.getFilter().filter("");
+                    adapter_rvCoin.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     private void getAllUpBitCoins(){
@@ -347,14 +415,16 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             if(!onText.equals("")) {
                                 adapter_rvCoin.getFilter().filter(onText);
                                 adapter_rvCoin.notifyDataSetChanged();
+                            }else if(switchIsChecked){
+                                adapter_rvCoin.setMarkets(favoriteMarkets);
+                                adapter_rvCoin.getFilter().filter("");
+                                adapter_rvCoin.notifyDataSetChanged();
                             }
                         }
                     });
                 }
             }, 500, 1000);
         }
-
-        Log.d("qqqq","after");
     }
 
     private void getSearchingCoinInfo(){

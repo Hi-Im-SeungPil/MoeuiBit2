@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
@@ -49,7 +50,6 @@ public class Fragment_investmentDetails extends Fragment {
     private ArrayList<Double> currentPrices;
     private Adapter_rvMyCoins adapter_rvMyCoins;
 
-
     public Fragment_investmentDetails() {
     }
 
@@ -67,6 +67,7 @@ public class Fragment_investmentDetails extends Fragment {
         db = MoEuiBitDatabase.getInstance(getActivity());
         setRv_myCoins();
         init();
+        setBtn_earningKrw(rootView);
 
         return rootView;
     }
@@ -100,27 +101,32 @@ public class Fragment_investmentDetails extends Fragment {
 
         //보유 krw 설정
         User user = db.userDAO().getAll();
-        myKoreanWon = user.getKrw();
-
+        if (user != null) {
+            myKoreanWon = user.getKrw();
+            tv_myTotalProperty.setText(decimalFormat.format(myKoreanWon));
+        }
         // 총 매수 설정
         myCoins = db.myCoinDAO().getAll();
+
         //보유 코인 정보 get
-        for (int i = 0; i < myCoins.size(); i++) {
-            Double purchasePrice = myCoins.get(i).getPurchasePrice();
-            Double quantity = myCoins.get(i).getQuantity();
+        if(myCoins.size() != 0) {
+            for (int i = 0; i < myCoins.size(); i++) {
+                Double purchasePrice = myCoins.get(i).getPurchasePrice();
+                Double quantity = myCoins.get(i).getQuantity();
 
-            stringBuilder.append(myCoins.get(i).getMarket()).append(",");
-            // 객체 만들어서
-            MyCoinsDTO myCoinsDTO = new MyCoinsDTO(myCoins.get(i).getKoreanCoinName(),myCoins.get(i).getSymbol(),quantity,purchasePrice,0.0);
-            myCoinsDTOS.add(myCoinsDTO);
+                stringBuilder.append(myCoins.get(i).getMarket()).append(",");
+                // 객체 만들어서
+                MyCoinsDTO myCoinsDTO = new MyCoinsDTO(myCoins.get(i).getKoreanCoinName(), myCoins.get(i).getSymbol(), quantity, purchasePrice, 0.0);
+                myCoinsDTOS.add(myCoinsDTO);
 
-            totalBuyOut += round(purchasePrice * quantity);
-            currentPrices.add(0.0);
+                totalBuyOut += round(purchasePrice * quantity);
+                currentPrices.add(0.0);
+            }
+            //markets 설정
+            stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
+            markets = stringBuilder.toString();
+            //리사이클러뷰
         }
-        //markets 설정
-        stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
-        markets = stringBuilder.toString();
-        //리사이클러뷰
 
         tv_totalBuyOut.setText(decimalFormat.format(totalBuyOut));
         tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
@@ -132,8 +138,10 @@ public class Fragment_investmentDetails extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        getMyCoins = new GetMyCoins();
-        getMyCoins.start();
+        if(myCoins.size() != 0) {
+            getMyCoins = new GetMyCoins();
+            getMyCoins.start();
+        }
     }
 
     @Override
@@ -144,6 +152,25 @@ public class Fragment_investmentDetails extends Fragment {
             getMyCoins = null;
         }
     }
+
+    private void setBtn_earningKrw(View rootView){
+        Button btn_earningKrw = rootView.findViewById(R.id.btn_earningKrw);
+        btn_earningKrw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                User user = db.userDAO().getAll();
+
+                if(user == null){
+                    db.userDAO().insert();
+                }else{
+                    db.userDAO().updatePlusMoney(5000000);
+                }
+                user = null;
+            }
+        });
+    }
+
     public class GetMyCoins extends Thread{
 
         private boolean isRunning = true;

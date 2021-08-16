@@ -33,4 +33,7 @@ public interface MyCoinDAO {
     @Query("SELECT * FROM MyCoin where market = :checkMarket")
     MyCoin isInsert(String checkMarket);
 
+    @Query("DELETE FROM MyCoin where market = :market")
+    void delete(String market);
+
 }
