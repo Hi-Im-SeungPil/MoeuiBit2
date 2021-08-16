@@ -11,6 +11,7 @@ public class CoinDTO implements Comparable<CoinDTO>{
     private Double transactionAmount;
     private String symbol;
     public static String orderStatus;
+    public static boolean favorite;
 
     public CoinDTO(String market, String koreanName, String englishName, Double currentPrice, Double dayToDay, Double transactionAmount,String symbol) {
         this.market = market;

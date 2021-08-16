@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.lang.Math.round;
 
@@ -30,7 +31,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     private ArrayList<CoinDTO> filteredItem;
     private Context context;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    private ArrayList<String> markets;
+    private ArrayList<Integer> marketPosition;
     private boolean favoriteStatus = false;
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
@@ -102,8 +103,8 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
         });
     }
 
-    public void setMarkets(ArrayList<String> markets){
-        this.markets = markets;
+    public void setMarkets(ArrayList<Integer> marketPosition){
+        this.marketPosition = marketPosition;
     }
 
     public void setFavoriteStatus(boolean favoriteStatus){
@@ -129,17 +130,8 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
                     ArrayList<CoinDTO> filteringItem = new ArrayList<>();
                     ArrayList<CoinDTO> sampleItem = new ArrayList<>();
 
-                    for(int i = 0; i < markets.size(); i++){
-                        item.
-                    }
-
-                    for(int i = 0; i < markets.size(); i++){
-                        for(int j = 0; j < item.size(); j++){
-                            if(markets.get(i).equals(item.get(j).getMarket())){
-                                filteringItem.add(item.get(j));
-                                break;
-                            }
-                        }
+                    for(int i = 0; i < marketPosition.size(); i++){
+                        filteringItem.add(item.get(marketPosition.get(i)));
                     }
 
                     if(!str.isEmpty()){

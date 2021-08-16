@@ -60,8 +60,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private ArrayList<String> marketsArray;
     private ArrayList<String> koreanNamesArray;
     private ArrayList<String> englishNamesArray;
-    private ArrayList<String> favoriteMarkets;
     private ArrayList<Integer> favoritePosition;
+    private List<Favorite> favorites;
     private MoEuiBitDatabase db;
     private Switch sch_favorite;
     private boolean switchIsChecked = false;
@@ -148,9 +148,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
                 if(isChecked){
                     switchIsChecked = true;
-                    favoriteMarkets = new ArrayList<>();
                     favoritePosition = new ArrayList<>();
-                    List<Favorite> favorites = new ArrayList<>();
+                    favorites = new ArrayList<>();
 
                     favorites = db.favoriteDAO().getAll();
 
@@ -158,9 +157,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         favoritePosition.add(orderPosition.get(favorites.get(i).getMarket()));
                     }
 
+                    Collections.sort(favoritePosition);
+
                     adapter_rvCoin.setFavoriteStatus(true);
-                    adapter_rvCoin.setMarkets(favoriteMarkets);
-                    adapter_rvCoin.getFilter().filter("");
+                    adapter_rvCoin.setMarkets(favoritePosition);
+                    adapter_rvCoin.getFilter().filter(onText);
                     adapter_rvCoin.notifyDataSetChanged();
 
                     if(timer == null && handler == null) {
@@ -175,8 +176,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                             adapter_rvCoin.getFilter().filter(onText);
                                             adapter_rvCoin.notifyDataSetChanged();
                                         }else if(switchIsChecked){
-                                            adapter_rvCoin.setMarkets(favoriteMarkets);
-                                            adapter_rvCoin.getFilter().filter("");
+                                            adapter_rvCoin.setMarkets(favoritePosition);
+                                            adapter_rvCoin.getFilter().filter(onText);
                                             adapter_rvCoin.notifyDataSetChanged();
                                         }
                                     }
@@ -190,7 +191,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                     switchIsChecked = false;
                     adapter_rvCoin.setFavoriteStatus(false);
                     adapter_rvCoin.setMarkets(null);
-                    adapter_rvCoin.getFilter().filter("");
+                    adapter_rvCoin.getFilter().filter(onText);
                     adapter_rvCoin.notifyDataSetChanged();
                 }
             }
@@ -297,6 +298,18 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         btn_orderByCurrentPrice.setOnClickListener(orderWays);
     }
 
+    private void orderByFavoriteCoins(){
+
+        if(switchIsChecked) {
+            for (int i = 0; i < favorites.size(); i++) {
+                favoritePosition.set(i, orderPosition.get(favorites.get(i).getMarket()));
+            }
+
+            Collections.sort(favoritePosition);
+        }
+
+    }
+
     private void orderByCoins(){
 
         if(orderByCurrentPrice == 0 && orderByDayToDay ==0 && orderByTransactionAmount == 0){
@@ -315,10 +328,27 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 CoinDTO.orderStatus = "currentPrice";
                 Collections.sort(allCoinInfoArray);
                 Collections.reverse(allCoinInfoArray);
+                if(switchIsChecked){
+
+                    for(int i = 0; i < favorites.size(); i++){
+                        favoritePosition.set(i,orderPosition.get(favorites.get(i).getMarket()));
+                    }
+
+                    Collections.sort(favoritePosition);
+                    Collections.reverse(favoritePosition);
+                }
             } else if (orderByCurrentPrice == 2) {
                 btn_orderByCurrentPrice.setText("현재가↑");
                 CoinDTO.orderStatus = "currentPrice";
                 Collections.sort(allCoinInfoArray);
+                if(switchIsChecked){
+
+                    for(int i = 0; i < favorites.size(); i++){
+                        favoritePosition.set(i,orderPosition.get(favorites.get(i).getMarket()));
+                    }
+
+                    Collections.sort(favoritePosition);
+                }
             }
 
             if (orderByDayToDay == 0) {
@@ -328,10 +358,17 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 CoinDTO.orderStatus = "dayToDay";
                 Collections.sort(allCoinInfoArray);
                 Collections.reverse(allCoinInfoArray);
+                if(switchIsChecked){
+                    Collections.sort(favoritePosition);
+                    Collections.reverse(favoritePosition);
+                }
             } else if (orderByDayToDay == 2) {
                 btn_orderByDayToDay.setText("전일대비↑");
                 CoinDTO.orderStatus = "dayToDay";
                 Collections.sort(allCoinInfoArray);
+                if(switchIsChecked){
+                    Collections.sort(favoritePosition);
+                }
             }
 
             if (orderByTransactionAmount == 0) {
@@ -341,10 +378,17 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 CoinDTO.orderStatus = "transactionAmount";
                 Collections.sort(allCoinInfoArray);
                 Collections.reverse(allCoinInfoArray);
+                if(switchIsChecked){
+                    Collections.sort(favoritePosition);
+                    Collections.reverse(favoritePosition);
+                }
             } else if (orderByTransactionAmount == 2) {
                 btn_orderByTransactionAmount.setText("거래대금↑");
                 CoinDTO.orderStatus = "transactionAmount";
                 Collections.sort(allCoinInfoArray);
+                if(switchIsChecked){
+                    Collections.sort(favoritePosition);
+                }
             }
         }
 
@@ -416,8 +460,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                 adapter_rvCoin.getFilter().filter(onText);
                                 adapter_rvCoin.notifyDataSetChanged();
                             }else if(switchIsChecked){
-                                adapter_rvCoin.setMarkets(favoriteMarkets);
-                                adapter_rvCoin.getFilter().filter("");
+                                adapter_rvCoin.setMarkets(favoritePosition);
+                                adapter_rvCoin.getFilter().filter(onText);
                                 adapter_rvCoin.notifyDataSetChanged();
                             }
                         }
@@ -483,6 +527,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                    }
            }
             orderByCoins();
+            orderByFavoriteCoins();
         }
     }
 
