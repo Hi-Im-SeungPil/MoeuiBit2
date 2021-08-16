@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -149,44 +151,45 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 if(isChecked){
                     switchIsChecked = true;
                     favoritePosition = new ArrayList<>();
-                    favorites = new ArrayList<>();
 
                     favorites = db.favoriteDAO().getAll();
 
-                    for(int i = 0; i < favorites.size(); i++){
-                        favoritePosition.add(orderPosition.get(favorites.get(i).getMarket()));
-                    }
+                    if(favorites.size() != 0) {
 
-                    Collections.sort(favoritePosition);
+                        for (int i = 0; i < favorites.size(); i++) {
+                            favoritePosition.add(orderPosition.get(favorites.get(i).getMarket()));
+                        }
 
-                    adapter_rvCoin.setFavoriteStatus(true);
-                    adapter_rvCoin.setMarkets(favoritePosition);
-                    adapter_rvCoin.getFilter().filter(onText);
-                    adapter_rvCoin.notifyDataSetChanged();
+                        Collections.sort(favoritePosition);
 
-                    if(timer == null && handler == null) {
-                        timer = new Timer(true); //인자가 Daemon 설정인데 true 여야 죽지 않음.
-                        handler = new Handler();
-                        timer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                handler.post(new Runnable(){
-                                    public void run(){
-                                        if(!onText.equals("")) {
-                                            adapter_rvCoin.getFilter().filter(onText);
-                                            adapter_rvCoin.notifyDataSetChanged();
-                                        }else if(switchIsChecked){
-                                            adapter_rvCoin.setMarkets(favoritePosition);
-                                            adapter_rvCoin.getFilter().filter(onText);
-                                            adapter_rvCoin.notifyDataSetChanged();
+                        adapter_rvCoin.setFavoriteStatus(true);
+                        adapter_rvCoin.setMarkets(favoritePosition);
+                        adapter_rvCoin.getFilter().filter(onText);
+                        adapter_rvCoin.notifyDataSetChanged();
+
+                        if (timer == null && handler == null) {
+                            timer = new Timer(true); //인자가 Daemon 설정인데 true 여야 죽지 않음.
+                            handler = new Handler();
+                            timer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            if (!onText.equals("")) {
+                                                adapter_rvCoin.getFilter().filter(onText);
+                                                adapter_rvCoin.notifyDataSetChanged();
+                                            } else if (switchIsChecked) {
+                                                adapter_rvCoin.setMarkets(favoritePosition);
+                                                adapter_rvCoin.getFilter().filter(onText);
+                                                adapter_rvCoin.notifyDataSetChanged();
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        }, 500, 1000);
+                                    });
+                                }
+                            }, 500, 1000);
+                        }
                     }
 
-                    Log.d("qqqq","성공");
                 }else{
                     switchIsChecked = false;
                     adapter_rvCoin.setFavoriteStatus(false);
@@ -304,10 +307,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             for (int i = 0; i < favorites.size(); i++) {
                 favoritePosition.set(i, orderPosition.get(favorites.get(i).getMarket()));
             }
-
             Collections.sort(favoritePosition);
         }
-
     }
 
     private void orderByCoins(){
@@ -342,11 +343,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 CoinDTO.orderStatus = "currentPrice";
                 Collections.sort(allCoinInfoArray);
                 if(switchIsChecked){
-
                     for(int i = 0; i < favorites.size(); i++){
                         favoritePosition.set(i,orderPosition.get(favorites.get(i).getMarket()));
                     }
-
                     Collections.sort(favoritePosition);
                 }
             }
@@ -416,6 +415,12 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void onStart() {
         super.onStart();
+
+        if(switchIsChecked && favorites.size() != 0){
+            favorites.clear();
+            favorites = db.favoriteDAO().getAll();
+        }
+
         getUpBitCoinsThread = new GetUpBitCoinsThread();
         getUpBitCoinsThread.start();
     }
@@ -469,10 +474,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 }
             }, 500, 1000);
         }
-    }
-
-    private void getSearchingCoinInfo(){
-
     }
 
     //정렬방식 class

@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.jeonfeel.moeuibit2.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
