@@ -866,7 +866,6 @@ public class Fragment_coinOrder extends Fragment {
 
     private void setTabLayout(View rootView){
 
-
         TabLayout tab_orderSellTransaction = rootView.findViewById(R.id.tab_orderSellTransaction);
 
         tab_orderSellTransaction.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -881,9 +880,7 @@ public class Fragment_coinOrder extends Fragment {
                     linear_coinOrder.setVisibility(View.GONE);
                     linear_coinSell.setVisibility(View.VISIBLE);
                 }
-
             }
-
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
             }
@@ -959,11 +956,9 @@ public class Fragment_coinOrder extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     if(Activity_coinInfo.currentPrice != null)
                                     tv_sellAbleAmount.setText("= "+decimalFormat.format(round(Activity_coinInfo.currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
 
-                                    adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                                     adapter_rvCoinArcade.notifyDataSetChanged();
                                 }
                             });

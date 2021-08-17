@@ -132,6 +132,7 @@ public class Fragment_investmentDetails extends Fragment {
         tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
         adapter_rvMyCoins = new Adapter_rvMyCoins(myCoinsDTOS,getActivity());
         rv_myCoins.setAdapter(adapter_rvMyCoins);
+        adapter_rvMyCoins.setCurrentPrices(currentPrices);
         adapter_rvMyCoins.notifyDataSetChanged();
     }
 
@@ -215,7 +216,6 @@ public class Fragment_investmentDetails extends Fragment {
                             currentPrices.set(i,currentPrice);
                         }
 
-                        adapter_rvMyCoins.setCurrentPrices(currentPrices);
                         Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
 
                         getActivity().runOnUiThread(new Runnable() {

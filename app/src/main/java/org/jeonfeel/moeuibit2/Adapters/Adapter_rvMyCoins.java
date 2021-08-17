@@ -91,9 +91,9 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             holder.tv_myCoinsEarningsRate.setText(String.format("%.2f",(evaluationAmount - purchaseAmount) / purchaseAmount * 100) + "%");
         }
     }
-    public void setItem(ArrayList<MyCoinsDTO> myCoinsDTOS){
-        this.item = myCoinsDTOS;
-    }
+//    public void setItem(ArrayList<MyCoinsDTO> myCoinsDTOS){
+//        this.item = myCoinsDTOS;
+//    }
 
     public void setCurrentPrices(ArrayList<Double> currentPrices){
         this.currentPrices = currentPrices;

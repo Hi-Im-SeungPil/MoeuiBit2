@@ -41,6 +41,7 @@ import static java.lang.Math.round;
 public class Activity_coinInfo extends FragmentActivity {
 
     private final String TAG = "Activity_coinInfo";
+
     private TextView tv_coinInfoCoinName,tv_coinInfoCoinPrice,tv_coinInfoCoinDayToDay,tv_coinInfoChangePrice;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private MoEuiBitDatabase db;
@@ -63,7 +64,7 @@ public class Activity_coinInfo extends FragmentActivity {
         setCoinInfo();
         setTabLayout();
         setCoinSymbol();
-        init();
+        favoriteInit();
         setBtn_bookMark();
 
         btn_coinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
@@ -157,6 +158,7 @@ public class Activity_coinInfo extends FragmentActivity {
             @Override
             public void onClick(View view) {
 
+                Fragment_Exchange fragment_exchange = new Fragment_Exchange();
                 Favorite favorite = db.favoriteDAO().select(market);
 
                 if(favorite != null){
@@ -170,7 +172,7 @@ public class Activity_coinInfo extends FragmentActivity {
         });
     }
 
-    private void init(){
+    private void favoriteInit(){
         Favorite favorite = db.favoriteDAO().select(market);
 
         if(favorite != null){
