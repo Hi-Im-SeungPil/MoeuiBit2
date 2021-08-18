@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CombinedChart;
@@ -55,7 +56,7 @@ public class Fragment_chart extends Fragment {
     private Button btn_oneMinute, btn_threeMinute,btn_fiveMinute, btn_tenMinute, btn_fifteenMinute, btn_thirtyMinute, btn_hour, btn_fourHour;
     private LinearLayout linear_minuteGroup;
     private String market;
-    private ArrayList<CoinCandleDataDTO> coinCandleDataDTOS;
+    private static ArrayList<CoinCandleDataDTO> coinCandleDataDTOS;
     private ArrayList<CandleEntry> candleEntries;
     private int candlePosition = 0;
     private CandleData d;
@@ -63,14 +64,13 @@ public class Fragment_chart extends Fragment {
     private boolean checkTimer = false;
     private CombinedData data;
     private int checkStart = 0, checkStart2 = 0;
-    int tabCount = 0;
-    int btn_minuteSelected = 1;
+    private int btn_minuteSelected = 1;
     private String period="";
-    private ArrayList<String> labels;
-    myValueFormatter myValueFormatter;
+    private myValueFormatter myValueFormatter;
 
     private GetRecentCoinChart getRecentCoinChart;
 
+    private RadioGroup rg_chart;
 
     // TODO: Rename and change types of parameters
 
@@ -92,6 +92,7 @@ public class Fragment_chart extends Fragment {
 
         FindViewById(rootView);
         getCoinCandleData(1,"minutes");
+        setRg_chart();
         btn_minuteChart.setOnClickListener(new SetBtn_minutes());
         btn_oneMinute.setOnClickListener(new SetBtn_minutes());
         btn_threeMinute.setOnClickListener(new SetBtn_minutes());
@@ -125,6 +126,7 @@ public class Fragment_chart extends Fragment {
         btn_hour = rootView.findViewById(R.id.btn_hour);
         btn_fourHour = rootView.findViewById(R.id.btn_fourHour);
         linear_minuteGroup = rootView.findViewById(R.id.linear_minuteGroup);
+        rg_chart = rootView.findViewById(R.id.rg_chart);
 
     }
 
@@ -389,6 +391,12 @@ public class Fragment_chart extends Fragment {
 
     //코인 차트 0.5초마다 계속해서 갱신
 
+    public static String getCoinCandle(int position){
+
+        return coinCandleDataDTOS.get(position).getCandleDateTimeKst();
+
+    }
+
     class GetRecentCoinChart extends Thread {
 
         private int minute;
@@ -495,6 +503,71 @@ public class Fragment_chart extends Fragment {
         private void stopThread() {
             isRunning = false;
         }
+    }
+
+
+    private void setRg_chart(){
+
+        rg_chart.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                switch (radioGroup.getId()){
+                    case R.id.radio_minuteChart :
+                        if(btn_minuteSelected != 1){
+                            btn_minuteSelected = 1;
+                            period = "minutes";
+                            setBtn(btn_minuteSelected,period);
+                            linear_minuteGroup.setVisibility(View.VISIBLE);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_dailyChart :
+                        if(!period.equals("days")) {
+                            btn_minuteSelected = 2;
+                            period = "days";
+                            setBtn(0, period);
+                            linear_minuteGroup.setVisibility(View.INVISIBLE);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_weeklyChart :
+                        if(!period.equals("weeks")) {
+                            btn_minuteSelected = 2;
+                            period = "weeks";
+                            setBtn(0, period);
+                            linear_minuteGroup.setVisibility(View.INVISIBLE);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_monthlyChart :
+                        if(!period.equals("months")) {
+                            btn_minuteSelected = 2;
+                            period = "months";
+                            setBtn(0, period);
+                            linear_minuteGroup.setVisibility(View.INVISIBLE);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                }
+            }
+        });
+    }
+
+    private void setBtn(int btn_minuteSelected,String period){
+        getRecentCoinChart.stopThread();
+        getRecentCoinChart = null;
+        getCoinCandleData(btn_minuteSelected,period);
+        getRecentCoinChart = new GetRecentCoinChart(btn_minuteSelected,period);
+        getRecentCoinChart.start();
     }
 
     //차트 버튼 클릭 리스터
@@ -621,14 +694,6 @@ public class Fragment_chart extends Fragment {
                         return;
                     }
             }
-        }
-
-        private void setBtn(int btn_minuteSelected,String period){
-            getRecentCoinChart.stopThread();
-            getRecentCoinChart = null;
-            getCoinCandleData(btn_minuteSelected,period);
-            getRecentCoinChart = new GetRecentCoinChart(btn_minuteSelected,period);
-            getRecentCoinChart.start();
         }
     }
 

@@ -38,6 +38,58 @@
 
     </LinearLayout>
 
+    <RadioGroup
+        android:id="@+id/rg_chart"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_minuteChart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:text="분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#B5B5B5"/>
+
+        <RadioButton
+            android:id="@+id/radio_dailyChart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:text="일"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#B5B5B5"/>
+
+        <RadioButton
+            android:id="@+id/radio_weeklyChart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:text="주"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#B5B5B5"/>
+
+        <RadioButton
+            android:id="@+id/radio_monthlyChart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:button="@null"
+            android:text="월"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#B5B5B5"/>
+
+    </RadioGroup>
+
     <LinearLayout
         android:id="@+id/linear_minuteGroup"
         android:layout_width="match_parent"

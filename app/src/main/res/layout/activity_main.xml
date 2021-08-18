@@ -25,7 +25,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/menu_bottom"
-        app:itemTextColor="#FFFFFFFF"
-        app:itemIconTint="#FFFFFFFF"/>
+        app:itemTextColor="@color/bottom_selected"
+        app:itemIconTint="@color/bottom_selected"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

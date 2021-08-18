@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.Fragment.Chart;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.components.MarkerView;
@@ -12,16 +14,18 @@ import com.github.mikephil.charting.utils.MPPointF;
 
 import org.jeonfeel.moeuibit2.R;
 
+import java.text.DecimalFormat;
+
+import static java.lang.Math.round;
+
 public class MoEuiBitMarkerView extends MarkerView {
 
-    TextView tv_candleTime,tv_startPrice,tv_highPrice,tv_lowPrice,tv_endPrice,tv_coefficientOfPrice,tv_coefficientOfFluctuation,tv_markerTransactionAmount;
+    TextView tv_candleTime,tv_startPrice,tv_highPrice,
+            tv_lowPrice,tv_endPrice,tv_coefficientOfPrice,
+            tv_coefficientOfFluctuation,tv_markerTransactionAmount;
 
-    /**
-     * Constructor. Sets up the MarkerView with a custom layout resource.
-     *
-     * @param context
-     * @param layoutResource the layout resource to use for the MarkerView
-     */
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+
     public MoEuiBitMarkerView(Context context, int layoutResource) {
         super(context, layoutResource);
         tv_candleTime = findViewById(R.id.tv_candleTime);
@@ -33,16 +37,71 @@ public class MoEuiBitMarkerView extends MarkerView {
         tv_coefficientOfFluctuation = findViewById(R.id.tv_coefficientOfFluctuation);
         tv_markerTransactionAmount = findViewById(R.id.tv_markerTransactionAmount);
     }
+
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
 
         if(e instanceof CandleEntry){
             CandleEntry ce = (CandleEntry) e;
-            tv_startPrice.setText(((CandleEntry) ce).getOpen()+"");
-            tv_highPrice.setText(((CandleEntry) ce).getHigh()+"");
-            tv_lowPrice.setText(((CandleEntry) ce).getLow()+"");
-            tv_endPrice.setText(((CandleEntry) ce).getClose()+"");
-            tv_coefficientOfPrice.setText(((CandleEntry) ce).getClose() - ((CandleEntry) ce).getOpen() +"");
+
+            String kst = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
+
+            String[] fullyDate = kst.split("T");
+            String[] date = fullyDate[0].split("-");
+            String[] time = fullyDate[1].split(":");
+
+
+            float openPrice = ce.getOpen();
+            float highPrice = ce.getHigh();
+            float lowPrice = ce.getLow();
+            float closePrice = ce.getClose();
+            float coefficientOfPrice = closePrice - openPrice;
+            float coefficientOfFluctuation = (coefficientOfPrice / openPrice) * 100;
+
+            if(coefficientOfPrice > 0){
+                tv_coefficientOfPrice.setTextColor(Color.parseColor("#B77300"));
+                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#B77300"));
+            }else if(coefficientOfPrice < 0){
+                tv_coefficientOfPrice.setTextColor(Color.parseColor("#0054FF"));
+                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#0054FF"));
+            }else{
+                tv_coefficientOfPrice.setTextColor(Color.parseColor("#000000"));
+                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#000000"));
+            }
+
+            tv_candleTime.setText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1]);
+
+            if(openPrice >= 100|| openPrice <= -100){
+                tv_startPrice.setText(decimalFormat.format(round(openPrice)));
+            }else{
+                tv_startPrice.setText(String.format(String.format("%.2f",openPrice)));
+            }
+
+            if(highPrice >= 100|| highPrice <= -100){
+                tv_highPrice.setText(decimalFormat.format(round(highPrice)));
+            }else{
+                tv_highPrice.setText(String.format(String.format("%.2f",highPrice)));
+            }
+
+            if(lowPrice >= 100|| lowPrice <= -100){
+                tv_lowPrice.setText(decimalFormat.format(round(lowPrice)));
+            }else{
+                tv_lowPrice.setText(String.format(String.format("%.2f",lowPrice)));
+            }
+
+            if(closePrice >= 100 || closePrice <= -100){
+                tv_endPrice.setText(decimalFormat.format(round(closePrice)));
+            }else{
+                tv_endPrice.setText(String.format(String.format("%.2f",closePrice)));
+            }
+
+            if(coefficientOfPrice >= 100 || coefficientOfPrice <= -100){
+                tv_coefficientOfPrice.setText(decimalFormat.format(round(coefficientOfPrice)));
+            }else{
+                tv_coefficientOfPrice.setText(String.format(String.format("%.2f",coefficientOfPrice)));
+            }
+
+            tv_coefficientOfFluctuation.setText(String.format("%.2f",coefficientOfFluctuation)+"%");
         }
 
         super.refreshContent(e,highlight);
@@ -54,32 +113,14 @@ public class MoEuiBitMarkerView extends MarkerView {
 
         if (posX > (canvas.getWidth() / 2.0)) {
             getOffsetForDrawingAtPoint(posX, posY);
+            Log.d("qqqq","posx : "+posX+"  /  "+"posy : "+posY+"");
             super.draw(canvas);
             //Draw marker on the left top corner
         }else {
-            //Otherwise draw the marker on the top right corner.
-            //Check if the user is in the right half of the canvas
-            super.draw(canvas, (float) (canvas.getWidth() / 1.9), (float) (canvas.getHeight()/12.0));
+
+            Log.d("qqqq","posx : "+canvas.getWidth()+"  /  "+"posy : "+posY+"");
+            super.draw(canvas,canvas.getWidth() / 5 * 3,-(int) posY);
         }
     }
-//    @Override
-//    public void setOffset(float offsetX, float offsetY) {
-//
-//
-//
-//        super.setOffset(offsetX, offsetY);
-//    }
-//
-//    @Override
-//    public MPPointF getOffsetForDrawingAtPoint(float posX, float posY) {
-//
-//        if(mOffset == null) {
-//            // center the marker horizontally and fixed Y position at the top
-//
-//            mOffset = new MPPointF(-(getWidth() / 2f), -posY);
-//
-//        }
-//
-//        return super.getOffsetForDrawingAtPoint(posX, posY);
-//    }
+
 }

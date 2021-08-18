@@ -107,11 +107,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                 intCurrentPrice = (int) round(currentPrice);
 
                 if(intCurrentPrice == integerArcadePrice){
-                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_border2);
-                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
-                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_border3);
                 }else{
-                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_item_border);
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
                 }
@@ -121,11 +119,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                 String Price2 = String.format("%.2f", currentPrice);
 
                 if (Price2.equals(price)) {
-                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_border2);
-                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
-                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_border3);
                 }else{
-                    holder.linear_wholeItem2.setBackgroundResource(R.drawable.rv_arcade_item_border);
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
                 }
