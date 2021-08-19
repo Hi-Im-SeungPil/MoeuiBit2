@@ -255,6 +255,7 @@
         app:layout_constraintTop_toBottomOf="@+id/u"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"

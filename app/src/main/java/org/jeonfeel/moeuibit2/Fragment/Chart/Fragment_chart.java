@@ -11,8 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -52,25 +51,21 @@ import static java.lang.Math.round;
 public class Fragment_chart extends Fragment {
 
     private CombinedChart combinedChart;
-    private Button btn_minuteChart, btn_dailyChart, btn_weeklyChart, btn_monthlyChart;
-    private Button btn_oneMinute, btn_threeMinute,btn_fiveMinute, btn_tenMinute, btn_fifteenMinute, btn_thirtyMinute, btn_hour, btn_fourHour;
-    private LinearLayout linear_minuteGroup;
     private String market;
     private static ArrayList<CoinCandleDataDTO> coinCandleDataDTOS;
     private ArrayList<CandleEntry> candleEntries;
     private int candlePosition = 0;
     private CandleData d;
     private CandleDataSet candleDataSet;
-    private boolean checkTimer = false;
     private CombinedData data;
-    private int checkStart = 0, checkStart2 = 0;
-    private int btn_minuteSelected = 1;
+    int minute = 1;
     private String period="";
     private myValueFormatter myValueFormatter;
 
     private GetRecentCoinChart getRecentCoinChart;
 
-    private RadioGroup rg_chart;
+    private RadioGroup rg_chart,rg_minuteGroup;
+    private RadioButton radio_minuteChart,radio_oneMinute;
 
     // TODO: Rename and change types of parameters
 
@@ -91,20 +86,11 @@ public class Fragment_chart extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
 
         FindViewById(rootView);
+        radio_minuteChart.setChecked(true);
+        radio_oneMinute.setChecked(true);
         getCoinCandleData(1,"minutes");
         setRg_chart();
-        btn_minuteChart.setOnClickListener(new SetBtn_minutes());
-        btn_oneMinute.setOnClickListener(new SetBtn_minutes());
-        btn_threeMinute.setOnClickListener(new SetBtn_minutes());
-        btn_fiveMinute.setOnClickListener(new SetBtn_minutes());
-        btn_tenMinute.setOnClickListener(new SetBtn_minutes());
-        btn_fifteenMinute.setOnClickListener(new SetBtn_minutes());
-        btn_thirtyMinute.setOnClickListener(new SetBtn_minutes());
-        btn_hour.setOnClickListener(new SetBtn_minutes());
-        btn_fourHour.setOnClickListener(new SetBtn_minutes());
-        btn_dailyChart.setOnClickListener(new SetBtn_minutes());
-        btn_weeklyChart.setOnClickListener(new SetBtn_minutes());
-        btn_monthlyChart.setOnClickListener(new SetBtn_minutes());
+        setRg_minuteGroup();
 
         return rootView;
 
@@ -113,20 +99,10 @@ public class Fragment_chart extends Fragment {
     private void FindViewById(View rootView) {
 
         combinedChart = rootView.findViewById(R.id.combinedChart);
-        btn_minuteChart = rootView.findViewById(R.id.btn_minuteChart);
-        btn_dailyChart = rootView.findViewById(R.id.btn_dailyChart);
-        btn_weeklyChart = rootView.findViewById(R.id.btn_weeklyChart);
-        btn_monthlyChart = rootView.findViewById(R.id.btn_monthlyChart);
-        btn_oneMinute = rootView.findViewById(R.id.btn_oneMinute);
-        btn_threeMinute = rootView.findViewById(R.id.btn_threeMinute);
-        btn_fiveMinute = rootView.findViewById(R.id.btn_fiveMinute);
-        btn_tenMinute = rootView.findViewById(R.id.btn_tenMinute);
-        btn_fifteenMinute = rootView.findViewById(R.id.btn_fifteenMinute);
-        btn_thirtyMinute = rootView.findViewById(R.id.btn_thirtyMinute);
-        btn_hour = rootView.findViewById(R.id.btn_hour);
-        btn_fourHour = rootView.findViewById(R.id.btn_fourHour);
-        linear_minuteGroup = rootView.findViewById(R.id.linear_minuteGroup);
+        rg_minuteGroup = rootView.findViewById(R.id.rg_minuteGroup);
         rg_chart = rootView.findViewById(R.id.rg_chart);
+        radio_oneMinute = rootView.findViewById(R.id.radio_oneMinute);
+        radio_minuteChart = rootView.findViewById(R.id.radio_minuteChart);
 
     }
 
@@ -142,10 +118,10 @@ public class Fragment_chart extends Fragment {
         combinedChart.setDrawGridBackground(false);
         combinedChart.setDrawBorders(false);
         combinedChart.setDoubleTapToZoomEnabled(false);
-        combinedChart.setHighlightFullBarEnabled(false);
         combinedChart.setMarker(moEuiBitMarkerView);
 
         combinedChart.setDragDecelerationEnabled(false);
+
         combinedChart.setDragEnabled(true);
         combinedChart.setHighlightPerDragEnabled(true);
         combinedChart.setHighlightPerTapEnabled(false);
@@ -156,8 +132,9 @@ public class Fragment_chart extends Fragment {
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
                 Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
+
                 if(highlight != null) {
-                    combinedChart.highlightValue(highlight, true);
+                    combinedChart.highlightValue(highlight,false);
                 }
             }
 
@@ -200,11 +177,12 @@ public class Fragment_chart extends Fragment {
         });
 
         XAxis xAxis = combinedChart.getXAxis();
-        xAxis.setTextColor(Color.BLACK);
+        xAxis.setTextColor(Color.parseColor("#D6D6D6"));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setAvoidFirstLastClipping(true);
         xAxis.setLabelCount(3,true);
+        xAxis.setDrawLabels(true);
         xAxis.setGranularity(3f);
         xAxis.setGranularityEnabled(true);
 
@@ -330,9 +308,10 @@ public class Fragment_chart extends Fragment {
 
                 candleDataSet.setNeutralColor(Color.DKGRAY);
                 candleDataSet.setDrawValues(false);
-                candleDataSet.disableDashedHighlightLine();
+                candleDataSet.setHighlightEnabled(true);
 
                 d.addDataSet(candleDataSet);
+                d.setHighlightEnabled(true);
 
                 data = new CombinedData();
                 data.setData(d);
@@ -356,6 +335,7 @@ public class Fragment_chart extends Fragment {
 
                 myValueFormatter = new myValueFormatter(coinCandleDataDTOS,candleEntries);
                 combinedChart.getXAxis().setValueFormatter(myValueFormatter);
+                combinedChart.getData().setHighlightEnabled(true);
 
                 combinedChart.invalidate();
                 Log.d("qqqq",combinedChart.getCandleData().getEntryCount()+"");
@@ -375,11 +355,6 @@ public class Fragment_chart extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onPause() { //사용자와 상호작용 하고 있지 않을 때 api 받아오는거 멈춤
         super.onPause();
 
@@ -396,6 +371,167 @@ public class Fragment_chart extends Fragment {
         return coinCandleDataDTOS.get(position).getCandleDateTimeKst();
 
     }
+
+    private void setRg_chart(){
+
+        rg_chart.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+
+                switch (radioGroup.getCheckedRadioButtonId()){
+                    case R.id.radio_minuteChart :
+                        if(minute != 1){
+                            minute = 1;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            rg_minuteGroup.setVisibility(View.VISIBLE);
+                            radio_oneMinute.setChecked(true);
+                            Log.d("qqqq","1111");
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_dailyChart :
+                        if(!period.equals("days")) {
+                            minute = 2;
+                            period = "days";
+                            setBtn(0, period);
+                            rg_minuteGroup.setVisibility(View.INVISIBLE);
+                            Log.d("qqqq","2222");
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_weeklyChart :
+                        if(!period.equals("weeks")) {
+                            minute = 2;
+                            period = "weeks";
+                            setBtn(0, period);
+                            rg_minuteGroup.setVisibility(View.INVISIBLE);
+                            Log.d("qqqq","3333");
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_monthlyChart :
+                        if(!period.equals("months")) {
+                            minute = 2;
+                            period = "months";
+                            setBtn(0, period);
+                            rg_minuteGroup.setVisibility(View.INVISIBLE);
+                            Log.d("qqqq","4444");
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                }
+            }
+        });
+    }
+
+    public void setRg_minuteGroup() {
+        rg_minuteGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (radioGroup.getCheckedRadioButtonId()){
+                    case R.id.radio_oneMinute:
+                        if(minute != 1){
+                            minute = 1;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            Log.d("qqqq","zz1111");
+                            break;
+                        }else{
+                            return;
+                        }
+                    case R.id.radio_threeMinute:
+                        if(minute != 3){
+                            minute = 3;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            Log.d("qqqq","zz2222");
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 3분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_fiveMinute:
+                        if(minute != 5){
+                            minute = 5;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 5분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_tenMinute:
+                        if(minute != 10){
+                            minute = 10;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 10분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_fifteenMinute:
+                        if(minute != 15){
+                            minute = 15;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 15분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_thirtyMinute:
+                        if(minute != 30){
+                            minute = 30;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 30분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_hour:
+                        if(minute != 60){
+                            minute = 60;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 60분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    case R.id.radio_fourHour:
+                        if(minute != 240){
+                            minute = 240;
+                            period = "minutes";
+                            setBtn(minute,period);
+                            break;
+                        }else{
+                            Toast.makeText(getActivity(), "현재 240분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                }
+            }
+        });
+    }
+
+    private void setBtn(int minute, String period){
+        getRecentCoinChart.stopThread();
+        getRecentCoinChart = null;
+        getCoinCandleData(minute,period);
+        getRecentCoinChart = new GetRecentCoinChart(minute,period);
+        getRecentCoinChart.start();
+    }
+
 
     class GetRecentCoinChart extends Thread {
 
@@ -420,6 +556,7 @@ public class Fragment_chart extends Fragment {
                     }else{
                         coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=1";
                     }
+
                     URL url = new URL(coinUrl);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     InputStream inputStream = new BufferedInputStream(conn.getInputStream());
@@ -502,198 +639,6 @@ public class Fragment_chart extends Fragment {
 
         private void stopThread() {
             isRunning = false;
-        }
-    }
-
-
-    private void setRg_chart(){
-
-        rg_chart.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-
-                switch (radioGroup.getId()){
-                    case R.id.radio_minuteChart :
-                        if(btn_minuteSelected != 1){
-                            btn_minuteSelected = 1;
-                            period = "minutes";
-                            setBtn(btn_minuteSelected,period);
-                            linear_minuteGroup.setVisibility(View.VISIBLE);
-                            break;
-                        }else{
-                            Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    case R.id.radio_dailyChart :
-                        if(!period.equals("days")) {
-                            btn_minuteSelected = 2;
-                            period = "days";
-                            setBtn(0, period);
-                            linear_minuteGroup.setVisibility(View.INVISIBLE);
-                            break;
-                        }else{
-                            Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    case R.id.radio_weeklyChart :
-                        if(!period.equals("weeks")) {
-                            btn_minuteSelected = 2;
-                            period = "weeks";
-                            setBtn(0, period);
-                            linear_minuteGroup.setVisibility(View.INVISIBLE);
-                            break;
-                        }else{
-                            Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    case R.id.radio_monthlyChart :
-                        if(!period.equals("months")) {
-                            btn_minuteSelected = 2;
-                            period = "months";
-                            setBtn(0, period);
-                            linear_minuteGroup.setVisibility(View.INVISIBLE);
-                            break;
-                        }else{
-                            Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                }
-            }
-        });
-    }
-
-    private void setBtn(int btn_minuteSelected,String period){
-        getRecentCoinChart.stopThread();
-        getRecentCoinChart = null;
-        getCoinCandleData(btn_minuteSelected,period);
-        getRecentCoinChart = new GetRecentCoinChart(btn_minuteSelected,period);
-        getRecentCoinChart.start();
-    }
-
-    //차트 버튼 클릭 리스터
-
-    public class SetBtn_minutes implements View.OnClickListener {
-
-        @Override
-        public void onClick(View view) {
-
-            switch (view.getId()){
-                case R.id.btn_minuteChart :
-                case R.id.btn_oneMinute :
-                    if(btn_minuteSelected != 1){
-                        btn_minuteSelected = 1;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        linear_minuteGroup.setVisibility(View.VISIBLE);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_threeMinute :
-                    if(btn_minuteSelected != 3){
-                        btn_minuteSelected = 3;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 3분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_fiveMinute :
-                    if(btn_minuteSelected != 5){
-                        btn_minuteSelected = 5;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 5분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_tenMinute :
-                    if(btn_minuteSelected != 10){
-                        btn_minuteSelected = 10;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 10분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_fifteenMinute :
-                    if(btn_minuteSelected != 15){
-                        btn_minuteSelected = 15;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 15분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_thirtyMinute :
-                    if(btn_minuteSelected != 30){
-                        btn_minuteSelected = 30;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 30분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_hour :
-                    if(btn_minuteSelected != 60){
-                        btn_minuteSelected = 60;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 60분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_fourHour :
-                    if(btn_minuteSelected != 240){
-                        btn_minuteSelected = 240;
-                        period = "minutes";
-                        setBtn(btn_minuteSelected,period);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 240분봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_dailyChart :
-                    if(!period.equals("days")) {
-                        btn_minuteSelected = 2;
-                        period = "days";
-                        setBtn(0, period);
-                        linear_minuteGroup.setVisibility(View.INVISIBLE);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_weeklyChart :
-                    if(!period.equals("weeks")) {
-                        btn_minuteSelected = 2;
-                        period = "weeks";
-                        setBtn(0, period);
-                        linear_minuteGroup.setVisibility(View.INVISIBLE);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                case R.id.btn_monthlyChart :
-                    if(!period.equals("months")) {
-                        btn_minuteSelected = 2;
-                        period = "months";
-                        setBtn(0, period);
-                        linear_minuteGroup.setVisibility(View.INVISIBLE);
-                        break;
-                    }else{
-                        Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-            }
         }
     }
 

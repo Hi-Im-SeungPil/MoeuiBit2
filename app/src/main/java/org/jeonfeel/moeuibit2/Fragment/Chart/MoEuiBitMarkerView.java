@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.Fragment.Chart;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -24,6 +25,11 @@ public class MoEuiBitMarkerView extends MarkerView {
             tv_lowPrice,tv_endPrice,tv_coefficientOfPrice,
             tv_coefficientOfFluctuation,tv_markerTransactionAmount;
 
+    int xPosition,yPosition;
+
+    String kst;
+    String[] fullyDate,date,time;
+
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
     public MoEuiBitMarkerView(Context context, int layoutResource) {
@@ -44,12 +50,11 @@ public class MoEuiBitMarkerView extends MarkerView {
         if(e instanceof CandleEntry){
             CandleEntry ce = (CandleEntry) e;
 
-            String kst = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
+            kst = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
 
-            String[] fullyDate = kst.split("T");
-            String[] date = fullyDate[0].split("-");
-            String[] time = fullyDate[1].split(":");
-
+            fullyDate = kst.split("T");
+            date = fullyDate[0].split("-");
+            time = fullyDate[1].split(":");
 
             float openPrice = ce.getOpen();
             float highPrice = ce.getHigh();
@@ -105,22 +110,30 @@ public class MoEuiBitMarkerView extends MarkerView {
         }
 
         super.refreshContent(e,highlight);
-
     }
 
     @Override
     public void draw(Canvas canvas, float posX, float posY) {
 
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(35f);
+
+        Paint paint2 = new Paint();
+        paint2.setColor(Color.RED);
+
+        float textSize = paint.getTextSize();
+
+        Canvas canvas2 = canvas;
+
+        canvas2.drawRect(posX-10f,canvas.getHeight() - textSize-5f,posX+200f,canvas.getHeight()+40f,paint2);
+        canvas2.drawText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1],posX,canvas.getHeight(),paint);
+
         if (posX > (canvas.getWidth() / 2.0)) {
             getOffsetForDrawingAtPoint(posX, posY);
-            Log.d("qqqq","posx : "+posX+"  /  "+"posy : "+posY+"");
             super.draw(canvas);
-            //Draw marker on the left top corner
         }else {
-
-            Log.d("qqqq","posx : "+canvas.getWidth()+"  /  "+"posy : "+posY+"");
             super.draw(canvas,canvas.getWidth() / 5 * 3,-(int) posY);
         }
     }
-
 }

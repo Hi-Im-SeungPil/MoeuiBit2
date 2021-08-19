@@ -6,38 +6,6 @@
     tools:context=".Fragment.Chart.Fragment_chart"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_minuteChart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="분"/>
-        <Button
-            android:id="@+id/btn_dailyChart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="일"/>
-        <Button
-            android:id="@+id/btn_weeklyChart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="주"/>
-        <Button
-            android:id="@+id/btn_monthlyChart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="월"/>
-
-    </LinearLayout>
-
     <RadioGroup
         android:id="@+id/rg_chart"
         android:layout_width="match_parent"
@@ -53,7 +21,7 @@
             android:text="분"
             android:gravity="center"
             android:background="@drawable/radio_selector"
-            android:textColor="#B5B5B5"/>
+            android:textColor="#FFFFFFFF"/>
 
         <RadioButton
             android:id="@+id/radio_dailyChart"
@@ -64,7 +32,7 @@
             android:text="일"
             android:gravity="center"
             android:background="@drawable/radio_selector"
-            android:textColor="#B5B5B5"/>
+            android:textColor="#FFFFFFFF"/>
 
         <RadioButton
             android:id="@+id/radio_weeklyChart"
@@ -75,7 +43,7 @@
             android:text="주"
             android:gravity="center"
             android:background="@drawable/radio_selector"
-            android:textColor="#B5B5B5"/>
+            android:textColor="#FFFFFFFF"/>
 
         <RadioButton
             android:id="@+id/radio_monthlyChart"
@@ -86,73 +54,105 @@
             android:text="월"
             android:gravity="center"
             android:background="@drawable/radio_selector"
-            android:textColor="#B5B5B5"/>
+            android:textColor="#FFFFFFFF"/>
 
     </RadioGroup>
 
-    <LinearLayout
-        android:id="@+id/linear_minuteGroup"
+    <RadioGroup
+        android:id="@+id/rg_minuteGroup"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_oneMinute"
+        <RadioButton
+            android:id="@+id/radio_oneMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="1분"/>
+            android:button="@null"
+            android:text="1분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_threeMinute"
+        <RadioButton
+            android:id="@+id/radio_threeMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="3분"/>
+            android:button="@null"
+            android:text="3분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_fiveMinute"
+        <RadioButton
+            android:id="@+id/radio_fiveMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="5분"/>
+            android:button="@null"
+            android:text="5분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_tenMinute"
+        <RadioButton
+            android:id="@+id/radio_tenMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="10분"/>
+            android:button="@null"
+            android:text="10분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_fifteenMinute"
+        <RadioButton
+            android:id="@+id/radio_fifteenMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="15분"/>
+            android:button="@null"
+            android:text="15분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_thirtyMinute"
+        <RadioButton
+            android:id="@+id/radio_thirtyMinute"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="30분"/>
+            android:button="@null"
+            android:text="30분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_hour"
+        <RadioButton
+            android:id="@+id/radio_hour"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="60분"/>
+            android:button="@null"
+            android:text="60분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-        <Button
-            android:id="@+id/btn_fourHour"
+        <RadioButton
+            android:id="@+id/radio_fourHour"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="240분"/>
+            android:button="@null"
+            android:text="240분"
+            android:gravity="center"
+            android:background="@drawable/radio_selector"
+            android:textColor="#FFFFFFFF"/>
 
-    </LinearLayout>
+    </RadioGroup>
 
     <com.github.mikephil.charting.charts.CombinedChart
         android:id="@+id/combinedChart"
