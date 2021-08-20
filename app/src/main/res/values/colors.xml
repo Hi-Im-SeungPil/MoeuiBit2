@@ -10,4 +10,54 @@
     <color name="statusBar">#0F0F5C</color>
     <color name="plusColor">#B77300</color>
     <color name="minusColor">#0054FF</color>
+
+    <array name="pieChart_color">
+        <item>#FF0000</item>
+        <item>#FF5E00</item>
+        <item>#FFBB00 </item>
+        <item>#FFE400 </item>
+        <item>#ABF200 </item>
+        <item>#1DDB16 </item>
+        <item>#00D8FF </item>
+        <item>#0054FF </item>
+        <item>#0100FF </item>
+        <item>#5F00FF </item>
+        <item>#FF00DD </item>
+        <item>#FF007F </item>
+        <item>#000000</item>
+        <item>#FFD8D8 </item>
+        <item>#FAE0D4 </item>
+        <item>#FAECC5 </item>
+        <item>#FAF4C0 </item>
+        <item>#E4F7BA </item>
+        <item>#CEFBC9  </item>
+        <item>#D4F4FA  </item>
+        <item>#D9E5FF  </item>
+        <item>#DAD9FF  </item>
+        <item>#E8D9FF  </item>
+        <item>#FFD9FA </item>
+        <item>#FFD9EC  </item>
+        <item>#FFA7A7  </item>
+        <item>#FFC19E  </item>
+        <item>#FFE08C  </item>
+        <item>#FAED7D  </item>
+        <item>#CEF279  </item>
+        <item>#B7F0B1  </item>
+        <item>#B2EBF4  </item>
+        <item>#B2CCFF  </item>
+        <item>#B5B2FF  </item>
+        <item>#D1B2FF  </item>
+        <item>#FFB2F5  </item>
+        <item>#FFB2D9   </item>
+        <item>#D5D5D5   </item>
+        <item>#BDBDBD   </item>
+        <item>#F15F5F   </item>
+        <item>#F29661   </item>
+        <item>#F2CB61   </item>
+        <item>#E5D85C   </item>
+        <item>#BCE55C   </item>
+        <item>#86E57F   </item>
+        <item>#5CD1E5  </item>
+    </array>
+
 </resources>

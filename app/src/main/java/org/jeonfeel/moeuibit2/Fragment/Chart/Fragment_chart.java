@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.CandleData;
@@ -30,6 +31,8 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
+import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.MyCoin;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +64,7 @@ public class Fragment_chart extends Fragment {
     int minute = 1;
     private String period="";
     private myValueFormatter myValueFormatter;
+    private MoEuiBitDatabase db;
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -86,6 +90,7 @@ public class Fragment_chart extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
 
         FindViewById(rootView);
+        db = MoEuiBitDatabase.getInstance(getContext());
         radio_minuteChart.setChecked(true);
         radio_oneMinute.setChecked(true);
         getCoinCandleData(1,"minutes");
@@ -110,7 +115,7 @@ public class Fragment_chart extends Fragment {
 
     private void initChart() {
 
-        MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker);
+        MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker,combinedChart);
 
         combinedChart.getDescription().setEnabled(false);
         combinedChart.setScaleYEnabled(false);
@@ -177,7 +182,7 @@ public class Fragment_chart extends Fragment {
         });
 
         XAxis xAxis = combinedChart.getXAxis();
-        xAxis.setTextColor(Color.parseColor("#D6D6D6"));
+        xAxis.setTextColor(Color.parseColor("#BDBDBD"));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setAvoidFirstLastClipping(true);
@@ -197,6 +202,21 @@ public class Fragment_chart extends Fragment {
         rightAxis.setDrawGridLines(false);
         rightAxis.setAxisLineColor(Color.parseColor("#323B4C"));
         rightAxis.setMinWidth(40f);
+
+        MyCoin myCoin = db.myCoinDAO().isInsert(market);
+
+        if(myCoin != null){
+            String average = String.valueOf(myCoin.getPurchasePrice());
+            float averageResult = Float.parseFloat(average);
+            LimitLine ll1 = new LimitLine(averageResult,"매수평균(" + round(averageResult)+")");
+            ll1.setLineWidth(1f);
+            ll1.enableDashedLine(10f, 1f, 0f);
+            ll1.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_BOTTOM);
+            ll1.setTextSize(10f);
+
+            rightAxis.removeAllLimitLines();
+            rightAxis.addLimitLine(ll1);
+        }
 
         Legend l = combinedChart.getLegend();
         l.setWordWrapEnabled(true);
@@ -386,7 +406,6 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             rg_minuteGroup.setVisibility(View.VISIBLE);
                             radio_oneMinute.setChecked(true);
-                            Log.d("qqqq","1111");
                             break;
                         }else{
                             Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
@@ -398,7 +417,6 @@ public class Fragment_chart extends Fragment {
                             period = "days";
                             setBtn(0, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
-                            Log.d("qqqq","2222");
                             break;
                         }else{
                             Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
@@ -410,7 +428,6 @@ public class Fragment_chart extends Fragment {
                             period = "weeks";
                             setBtn(0, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
-                            Log.d("qqqq","3333");
                             break;
                         }else{
                             Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
@@ -422,7 +439,6 @@ public class Fragment_chart extends Fragment {
                             period = "months";
                             setBtn(0, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
-                            Log.d("qqqq","4444");
                             break;
                         }else{
                             Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
@@ -443,7 +459,6 @@ public class Fragment_chart extends Fragment {
                             minute = 1;
                             period = "minutes";
                             setBtn(minute,period);
-                            Log.d("qqqq","zz1111");
                             break;
                         }else{
                             return;
@@ -453,7 +468,6 @@ public class Fragment_chart extends Fragment {
                             minute = 3;
                             period = "minutes";
                             setBtn(minute,period);
-                            Log.d("qqqq","zz2222");
                             break;
                         }else{
                             Toast.makeText(getActivity(), "현재 3분봉 입니다.", Toast.LENGTH_SHORT).show();
@@ -648,12 +662,10 @@ public class Fragment_chart extends Fragment {
 
         ArrayList<CoinCandleDataDTO> mValue;
         ArrayList<CandleEntry> entries;
-        private int mValueCount = 0;
 
         public myValueFormatter(ArrayList<CoinCandleDataDTO> mValue,ArrayList<CandleEntry> entries) {
             this.mValue = mValue;
             this.entries = entries;
-            mValueCount = entries.size();
         }
 
         @Override

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
@@ -68,6 +70,7 @@ public class Fragment_investmentDetails extends Fragment {
         setRv_myCoins();
         init();
         setBtn_earningKrw(rootView);
+        setBtn_portfolio(rootView);
 
         return rootView;
     }
@@ -154,6 +157,21 @@ public class Fragment_investmentDetails extends Fragment {
         }
     }
 
+    private void setBtn_portfolio(View rootView){
+
+        Button btn_portfolio = rootView.findViewById(R.id.btn_portfolio);
+        btn_portfolio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(getActivity(), Activity_portfolio.class);
+                startActivity(intent);
+
+            }
+        });
+
+    }
+
     private void setBtn_earningKrw(View rootView){
         Button btn_earningKrw = rootView.findViewById(R.id.btn_earningKrw);
         btn_earningKrw.setOnClickListener(new View.OnClickListener() {
@@ -211,36 +229,48 @@ public class Fragment_investmentDetails extends Fragment {
 
                             Double currentPrice = jsonObject.getDouble("trade_price");
                             Double quantity = myCoins.get(i).getQuantity();
+                            String coinName = myCoins.get(i).getKoreanCoinName();
 
                             totalEvaluation += round(currentPrice * quantity);
-                            currentPrices.set(i,currentPrice);
+                            currentPrices.set(i, currentPrice);
+
+                            Log.d("coinInfoqqqq", coinName + " : " + currentPrice);
                         }
 
                         Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
+                        int evaluationGainLoss = (int) (totalEvaluation - totalBuyOut);
+                        int myTotalProperty = (int) (myKoreanWon + totalEvaluation);
+                        String yieldResult = String.format("%.2f", yield);
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                        Log.d("totalEvaluation", totalEvaluation + "");
+                        Log.d("totalBuyOut", totalBuyOut + "");
+                        Log.d("evaluationGainLoss", evaluationGainLoss + "");
 
-                                if(totalEvaluation - totalBuyOut > 0){
-                                    tv_yield.setTextColor(Color.parseColor("#B77300"));
-                                    tv_evaluationGainLoss.setTextColor(Color.parseColor("#B77300"));
-                                }else if(totalEvaluation - totalBuyOut < 0){
-                                    tv_yield.setTextColor(Color.parseColor("#0054FF"));
-                                    tv_evaluationGainLoss.setTextColor(Color.parseColor("#0054FF"));
-                                }else{
-                                    tv_yield.setTextColor(Color.parseColor("#000000"));
-                                    tv_evaluationGainLoss.setTextColor(Color.parseColor("#000000"));
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    if (totalEvaluation - totalBuyOut > 0) {
+                                        tv_yield.setTextColor(Color.parseColor("#B77300"));
+                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#B77300"));
+                                    } else if (totalEvaluation - totalBuyOut < 0) {
+                                        tv_yield.setTextColor(Color.parseColor("#0054FF"));
+                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#0054FF"));
+                                    } else {
+                                        tv_yield.setTextColor(Color.parseColor("#000000"));
+                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#000000"));
+                                    }
+
+                                    tv_totalEvaluation.setText(decimalFormat.format(totalEvaluation));
+                                    tv_myTotalProperty.setText(decimalFormat.format(myTotalProperty));
+                                    tv_evaluationGainLoss.setText(decimalFormat.format(evaluationGainLoss));
+                                    tv_yield.setText(yieldResult + "%");
+
+                                    adapter_rvMyCoins.notifyDataSetChanged();
                                 }
-
-                                tv_totalEvaluation.setText(decimalFormat.format(totalEvaluation));
-                                tv_myTotalProperty.setText(decimalFormat.format(myKoreanWon + totalEvaluation));
-                                tv_evaluationGainLoss.setText(decimalFormat.format(totalEvaluation - totalBuyOut));
-                                tv_yield.setText(String.format("%.2f", yield) + "%");
-
-                                adapter_rvMyCoins.notifyDataSetChanged();
-                            }
-                        });
+                            });
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

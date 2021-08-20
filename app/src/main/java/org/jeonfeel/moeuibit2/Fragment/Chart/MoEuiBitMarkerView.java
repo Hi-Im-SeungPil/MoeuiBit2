@@ -7,12 +7,15 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 
+import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.MyCoin;
 import org.jeonfeel.moeuibit2.R;
 
 import java.text.DecimalFormat;
@@ -25,15 +28,16 @@ public class MoEuiBitMarkerView extends MarkerView {
             tv_lowPrice,tv_endPrice,tv_coefficientOfPrice,
             tv_coefficientOfFluctuation,tv_markerTransactionAmount;
 
-    int xPosition,yPosition;
-
     String kst;
     String[] fullyDate,date,time;
 
+    CombinedChart combinedChart;
+
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
-    public MoEuiBitMarkerView(Context context, int layoutResource) {
+    public MoEuiBitMarkerView(Context context, int layoutResource,CombinedChart combinedChart) {
         super(context, layoutResource);
+        this.combinedChart = combinedChart;
         tv_candleTime = findViewById(R.id.tv_candleTime);
         tv_startPrice = findViewById(R.id.tv_startPrice);
         tv_highPrice = findViewById(R.id.tv_highPrice);
@@ -120,14 +124,19 @@ public class MoEuiBitMarkerView extends MarkerView {
         paint.setTextSize(35f);
 
         Paint paint2 = new Paint();
-        paint2.setColor(Color.RED);
+        paint2.setColor(Color.parseColor("#F361A6"));
+
+        Paint paint3 = new Paint();
+        paint3.setColor(Color.BLACK);
+        paint3.setTextSize(35f);
 
         float textSize = paint.getTextSize();
+        float length = paint.measureText("08-20 13:18") + 10f;
 
         Canvas canvas2 = canvas;
 
-        canvas2.drawRect(posX-10f,canvas.getHeight() - textSize-5f,posX+200f,canvas.getHeight()+40f,paint2);
-        canvas2.drawText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1],posX,canvas.getHeight(),paint);
+        canvas2.drawRect(posX-10f,canvas.getHeight() - textSize-5f,posX+length,canvas.getHeight()+textSize+5f,paint2);
+        canvas2.drawText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1],posX,canvas.getHeight()-5f,paint);
 
         if (posX > (canvas.getWidth() / 2.0)) {
             getOffsetForDrawingAtPoint(posX, posY);
