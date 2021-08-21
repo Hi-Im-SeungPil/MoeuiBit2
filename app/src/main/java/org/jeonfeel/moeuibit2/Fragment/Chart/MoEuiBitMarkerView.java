@@ -14,6 +14,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 
+import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.MyCoin;
 import org.jeonfeel.moeuibit2.R;
@@ -32,6 +33,8 @@ public class MoEuiBitMarkerView extends MarkerView {
     String[] fullyDate,date,time;
 
     CombinedChart combinedChart;
+
+    CoinCandleDataDTO coinCandleDataDTO;
 
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
@@ -54,11 +57,15 @@ public class MoEuiBitMarkerView extends MarkerView {
         if(e instanceof CandleEntry){
             CandleEntry ce = (CandleEntry) e;
 
-            kst = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
+            coinCandleDataDTO = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
 
-            fullyDate = kst.split("T");
-            date = fullyDate[0].split("-");
-            time = fullyDate[1].split(":");
+            if(coinCandleDataDTO != null) {
+                kst = coinCandleDataDTO.getCandleDateTimeKst();
+
+                fullyDate = kst.split("T");
+                date = fullyDate[0].split("-");
+                time = fullyDate[1].split(":");
+            }
 
             float openPrice = ce.getOpen();
             float highPrice = ce.getHigh();
@@ -111,6 +118,14 @@ public class MoEuiBitMarkerView extends MarkerView {
             }
 
             tv_coefficientOfFluctuation.setText(String.format("%.2f",coefficientOfFluctuation)+"%");
+            if(coinCandleDataDTO != null) {
+                Double transactionAmount = coinCandleDataDTO.getCandleTransactionAmount() * 0.000001;
+                if(transactionAmount >= 1)
+                tv_markerTransactionAmount.setText(decimalFormat.format(round(transactionAmount)));
+                else if(transactionAmount < 1){
+                    tv_markerTransactionAmount.setText(String.format("%.2f",transactionAmount));
+                }
+            }
         }
 
         super.refreshContent(e,highlight);
@@ -136,6 +151,7 @@ public class MoEuiBitMarkerView extends MarkerView {
         Canvas canvas2 = canvas;
 
         canvas2.drawRect(posX-10f,canvas.getHeight() - textSize-5f,posX+length,canvas.getHeight()+textSize+5f,paint2);
+        if(date != null && time != null)
         canvas2.drawText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1],posX,canvas.getHeight()-5f,paint);
 
         if (posX > (canvas.getWidth() / 2.0)) {

@@ -15,11 +15,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
@@ -57,10 +61,14 @@ public class Fragment_chart extends Fragment {
     private String market;
     private static ArrayList<CoinCandleDataDTO> coinCandleDataDTOS;
     private ArrayList<CandleEntry> candleEntries;
+    private ArrayList<BarEntry> barEntries;
     private int candlePosition = 0;
-    private CandleData d;
+    private CandleData candleData;
     private CandleDataSet candleDataSet;
-    private CombinedData data;
+    private BarData barData;
+    private BarDataSet barDataSet;
+    private CombinedData finalBarData;
+    private CombinedData finalCandleData;
     int minute = 1;
     private String period="";
     private myValueFormatter myValueFormatter;
@@ -112,8 +120,7 @@ public class Fragment_chart extends Fragment {
     }
 
     // 차트 초기화
-
-    private void initChart() {
+    private void initCombinedChart() {
 
         MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker,combinedChart);
 
@@ -136,11 +143,12 @@ public class Fragment_chart extends Fragment {
             //터치 하면 하이라이트 생성
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-                Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(),me.getY());
 
-                if(highlight != null) {
-                    combinedChart.highlightValue(highlight,false);
-                }
+                    Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(), me.getY());
+
+                    if (highlight != null) {
+                        combinedChart.highlightValue(highlight, true);
+                    }
             }
 
             @Override
@@ -201,7 +209,7 @@ public class Fragment_chart extends Fragment {
         rightAxis.setDrawAxisLine(true);
         rightAxis.setDrawGridLines(false);
         rightAxis.setAxisLineColor(Color.parseColor("#323B4C"));
-        rightAxis.setMinWidth(40f);
+        rightAxis.setMinWidth(50f);
 
         MyCoin myCoin = db.myCoinDAO().isInsert(market);
 
@@ -234,22 +242,26 @@ public class Fragment_chart extends Fragment {
             myValueFormatter = null;
         }
 
-        if (d != null) {
-            d.clearValues();
-            d = null;
+        if (candleData != null) {
+            candleData.clearValues();
+            barData.clearValues();
+            candleData = null;
+            barData = null;
         }
-        if (data != null) {
-            data.clearValues();
-            data = null;
+        if (finalCandleData != null) {
+            finalCandleData.clearValues();
+            finalCandleData = null;
         }
         if (candleDataSet != null) {
             candleDataSet.clear();
+            barDataSet.clear();
             candleDataSet = null;
+            barDataSet=null;
         }
         if (combinedChart != null) {
             combinedChart.clear();
         }
-        initChart();
+        initCombinedChart();
 
         candlePosition = 0;
         String coinUrl = "";
@@ -261,15 +273,17 @@ public class Fragment_chart extends Fragment {
         if (coinCandleDataDTOS == null)
             coinCandleDataDTOS = new ArrayList<>();
 
-        if (candleEntries == null)
+        if (candleEntries == null) {
             candleEntries = new ArrayList<>();
-
+            barEntries = new ArrayList<>();
+        }
         if (coinCandleDataDTOS.size() != 0)
             coinCandleDataDTOS.clear();
 
-        if (candleEntries.size() != 0)
+        if (candleEntries.size() != 0) {
             candleEntries.clear();
-
+            barEntries.clear();
+        }
 
         GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
 
@@ -303,19 +317,21 @@ public class Fragment_chart extends Fragment {
                     float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
                     float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
                     float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
+                    float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
 
                     coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
                     candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+                    barEntries.add(new BarEntry(candlePosition + 2f,candleTransactionAmount2));
                     candlePosition++;
                 }
 
                 Collections.sort(candleEntries, new EntryXComparator());
 
-                d = new CandleData();
+                candleData = new CandleData();
 
                 candleDataSet = new CandleDataSet(candleEntries, "");
-                candleDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                candleDataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
                 candleDataSet.setShadowColor(Color.DKGRAY);
                 candleDataSet.setShadowWidth(1f);
@@ -328,37 +344,49 @@ public class Fragment_chart extends Fragment {
 
                 candleDataSet.setNeutralColor(Color.DKGRAY);
                 candleDataSet.setDrawValues(false);
-                candleDataSet.setHighlightEnabled(true);
 
-                d.addDataSet(candleDataSet);
-                d.setHighlightEnabled(true);
+                candleData.addDataSet(candleDataSet);
+//----------------------------------------------------------
 
-                data = new CombinedData();
-                data.setData(d);
+                barData = new BarData();
 
-                if(candleEntries.isEmpty()){
+                barDataSet = new BarDataSet(barEntries,"");
+                barDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                barDataSet.setColor(Color.parseColor("#1A000000"));
+                barDataSet.setDrawValues(false);
+
+                barData.addDataSet(barDataSet);
+                float maxValue = barData.getYMax(YAxis.AxisDependency.LEFT);
+
+//----------------------------------------------------------
+                finalCandleData = new CombinedData();
+                finalCandleData.setData(barData);
+                finalCandleData.setData(candleData);
+
+                if(candleEntries.isEmpty() || barEntries.isEmpty()){
                     combinedChart.clear();
                 }else {
-                    combinedChart.setData(data);
+                    combinedChart.setData(finalCandleData);
                 }
-
                 combinedChart.fitScreen();
                 combinedChart.setAutoScaleMinMaxEnabled(true);
                 int entryCount = combinedChart.getCandleData().getEntryCount();
 
                 combinedChart.getXAxis().setAxisMinimum(combinedChart.getXChartMin()-0.7f);
                 combinedChart.getXAxis().setAxisMaximum(entryCount + 3f);
+
                 if(combinedChart.getVisibleXRange() > 20f){
                     combinedChart.zoom(4f,0f,0,0);
                 }
+
+                combinedChart.getAxisLeft().setAxisMaximum(maxValue * 2);
                 combinedChart.moveViewToX(entryCount);
 
                 myValueFormatter = new myValueFormatter(coinCandleDataDTOS,candleEntries);
                 combinedChart.getXAxis().setValueFormatter(myValueFormatter);
-                combinedChart.getData().setHighlightEnabled(true);
+                combinedChart.getBarData().setHighlightEnabled(false);
 
                 combinedChart.invalidate();
-                Log.d("qqqq",combinedChart.getCandleData().getEntryCount()+"");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -385,10 +413,9 @@ public class Fragment_chart extends Fragment {
     }
 
     //코인 차트 0.5초마다 계속해서 갱신
+    public static CoinCandleDataDTO getCoinCandle(int position){
 
-    public static String getCoinCandle(int position){
-
-        return coinCandleDataDTOS.get(position).getCandleDateTimeKst();
+        return coinCandleDataDTOS.get(position);
 
     }
 
@@ -539,13 +566,14 @@ public class Fragment_chart extends Fragment {
     }
 
     private void setBtn(int minute, String period){
-        getRecentCoinChart.stopThread();
-        getRecentCoinChart = null;
-        getCoinCandleData(minute,period);
-        getRecentCoinChart = new GetRecentCoinChart(minute,period);
-        getRecentCoinChart.start();
+        if(getRecentCoinChart != null) {
+            getRecentCoinChart.stopThread();
+            getRecentCoinChart = null;
+            getCoinCandleData(minute,period);
+            getRecentCoinChart = new GetRecentCoinChart(minute,period);
+            getRecentCoinChart.start();
+        }
     }
-
 
     class GetRecentCoinChart extends Thread {
 
@@ -615,15 +643,18 @@ public class Fragment_chart extends Fragment {
                             float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
                             float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
                             float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
+                            float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
 
                             if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
                                 candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1 + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-                                Collections.sort(candleEntries, new EntryXComparator());
+                                barEntries.set(barEntries.size() -1,new BarEntry(candlePosition -1 + 2f,candleTransactionAmount2));
                                 coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
                             } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
                                 candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+                                barEntries.add(new BarEntry(candlePosition + 2f,candleTransactionAmount2));
                                 coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
+
                                 Collections.sort(candleEntries, new EntryXComparator());
                                 candlePosition++;
                                 combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
