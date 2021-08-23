@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.MarkerView;
+import com.github.mikephil.charting.data.CandleData;
+import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -127,7 +129,6 @@ public class MoEuiBitMarkerView extends MarkerView {
                 }
             }
         }
-
         super.refreshContent(e,highlight);
     }
 
@@ -151,6 +152,7 @@ public class MoEuiBitMarkerView extends MarkerView {
         Canvas canvas2 = canvas;
 
         canvas2.drawRect(posX-10f,canvas.getHeight() - textSize-5f,posX+length,canvas.getHeight()+textSize+5f,paint2);
+
         if(date != null && time != null)
         canvas2.drawText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1],posX,canvas.getHeight()-5f,paint);
 

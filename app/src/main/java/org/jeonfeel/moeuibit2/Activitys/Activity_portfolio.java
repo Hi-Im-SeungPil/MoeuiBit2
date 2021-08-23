@@ -90,13 +90,18 @@ public class Activity_portfolio extends AppCompatActivity {
 
     private void setPieChart(){
 
+        int position = 0;
         Resources pieChart_color = getResources();
         TypedArray color_Array = pieChart_color.obtainTypedArray(R.array.pieChart_color);
 
         colors = new int[coinTotalPrice.size()];
 
         for(int i = 0; i < coinTotalPrice.size(); i++){
-            colors[i] = color_Array.getColor(i,0);
+            colors[i] = color_Array.getColor(position,0);
+            position++;
+            if(position >= 42){
+                position = 0;
+            }
         }
 
         ArrayList<PieEntry> data = new ArrayList<>();
@@ -111,8 +116,9 @@ public class Activity_portfolio extends AppCompatActivity {
         PieData pieData = new PieData(pieDataSet);
         pieChart.setDrawEntryLabels(true);
         pieChart.setUsePercentValues(true);
+        pieChart.setHighlightPerTapEnabled(false);
 
-        pieData.setValueTextSize(15);
+        pieData.setValueTextSize(12);
         pieChart.setCenterText("보유 현황 %");
         pieChart.setCenterTextSize(15);
         pieChart.getLegend().setEnabled(false);

@@ -1,12 +1,12 @@
 package org.jeonfeel.moeuibit2.Fragment.Chart;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,7 +15,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -50,6 +49,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -67,12 +68,13 @@ public class Fragment_chart extends Fragment {
     private CandleDataSet candleDataSet;
     private BarData barData;
     private BarDataSet barDataSet;
-    private CombinedData finalBarData;
-    private CombinedData finalCandleData;
+    private CombinedData finalCombinedData;
     int minute = 1;
     private String period="";
     private myValueFormatter myValueFormatter;
     private MoEuiBitDatabase db;
+    LimitLine ll2;
+    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -116,7 +118,6 @@ public class Fragment_chart extends Fragment {
         rg_chart = rootView.findViewById(R.id.rg_chart);
         radio_oneMinute = rootView.findViewById(R.id.radio_oneMinute);
         radio_minuteChart = rootView.findViewById(R.id.radio_minuteChart);
-
     }
 
     // 차트 초기화
@@ -216,7 +217,13 @@ public class Fragment_chart extends Fragment {
         if(myCoin != null){
             String average = String.valueOf(myCoin.getPurchasePrice());
             float averageResult = Float.parseFloat(average);
-            LimitLine ll1 = new LimitLine(averageResult,"매수평균(" + round(averageResult)+")");
+            String averageResultText = "";
+            if(averageResult >= 100){
+                averageResultText = decimalFormat.format(round(averageResult));
+            }else{
+                averageResultText = String.format("%.2f",averageResult);
+            }
+            LimitLine ll1 = new LimitLine(averageResult,"매수평균(" + averageResultText+")");
             ll1.setLineWidth(1f);
             ll1.enableDashedLine(10f, 1f, 0f);
             ll1.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_BOTTOM);
@@ -235,7 +242,6 @@ public class Fragment_chart extends Fragment {
     }
 
     //코인 정보 200개 받아오는 메소드
-
     private void getCoinCandleData(int minute, String period) {
 
         if(myValueFormatter != null){
@@ -248,15 +254,15 @@ public class Fragment_chart extends Fragment {
             candleData = null;
             barData = null;
         }
-        if (finalCandleData != null) {
-            finalCandleData.clearValues();
-            finalCandleData = null;
+        if (finalCombinedData != null) {
+            finalCombinedData.clearValues();
+            finalCombinedData = null;
         }
         if (candleDataSet != null) {
             candleDataSet.clear();
             barDataSet.clear();
             candleDataSet = null;
-            barDataSet=null;
+            barDataSet =null;
         }
         if (combinedChart != null) {
             combinedChart.clear();
@@ -322,7 +328,9 @@ public class Fragment_chart extends Fragment {
                     coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
                     candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+
                     barEntries.add(new BarEntry(candlePosition + 2f,candleTransactionAmount2));
+
                     candlePosition++;
                 }
 
@@ -352,21 +360,26 @@ public class Fragment_chart extends Fragment {
 
                 barDataSet = new BarDataSet(barEntries,"");
                 barDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                barDataSet.setColor(Color.parseColor("#1A000000"));
                 barDataSet.setDrawValues(false);
+//                int[] candleColors = new int[candleDataSet.getValueColors().size()];
+//                for(int i = 0; i < candleDataSet.getValueColors().size(); i++){
+//                    candleColors[i] = candleDataSet.getValueColors().get(i);
+//                }
+                barDataSet.setColor(Color.parseColor("#1A000000"));
 
                 barData.addDataSet(barDataSet);
+
                 float maxValue = barData.getYMax(YAxis.AxisDependency.LEFT);
 
 //----------------------------------------------------------
-                finalCandleData = new CombinedData();
-                finalCandleData.setData(barData);
-                finalCandleData.setData(candleData);
+                finalCombinedData = new CombinedData();
+                finalCombinedData.setData(barData);
+                finalCombinedData.setData(candleData);
 
                 if(candleEntries.isEmpty() || barEntries.isEmpty()){
                     combinedChart.clear();
                 }else {
-                    combinedChart.setData(finalCandleData);
+                    combinedChart.setData(finalCombinedData);
                 }
                 combinedChart.fitScreen();
                 combinedChart.setAutoScaleMinMaxEnabled(true);
@@ -646,19 +659,34 @@ public class Fragment_chart extends Fragment {
                             float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
 
                             if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
+
                                 candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1 + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-                                barEntries.set(barEntries.size() -1,new BarEntry(candlePosition -1 + 2f,candleTransactionAmount2));
+
+                                barEntries.set(barEntries.size() - 1, new BarEntry(candlePosition - 1 + 2f, candleTransactionAmount2));
+
                                 coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
                             } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
                                 candleEntries.add(new CandleEntry(candlePosition + 2f, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+
                                 barEntries.add(new BarEntry(candlePosition + 2f,candleTransactionAmount2));
+
                                 coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, openingPrice, highPrice, lowPrice, tradePrice, candleTransactionAmount, candleTransactionVolume));
 
                                 Collections.sort(candleEntries, new EntryXComparator());
                                 candlePosition++;
                                 combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
                             }
+                            combinedChart.getAxisRight().removeLimitLine(ll2);
+                            ll2 = new LimitLine(tradePrice2,tradePrice2+"");
+                            ll2.setLineWidth(0f);
+                            ll2.enableDashedLine(1f, 1f, 0f);
+                            ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                            ll2.setTextSize(10f);
+                            ll2.setTextColor(Color.parseColor("#D6D6D6"));
+//                            ll2.
+                            combinedChart.getAxisRight().addLimitLine(ll2);
+
                             combinedChart.notifyDataSetChanged();
                             combinedChart.invalidate();
                         }
