@@ -67,7 +67,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             holder.tv_coinName.setText(filteredItem.get(position).getKoreanName());
             holder.tv_coinMarket.setText(filteredItem.get(position).getSymbol() + " / KRW");
 //---------------------------------
-            if (filteredItem.get(position).getCurrentPrice() > 100) { //만약 100원보다 가격이 높으면 천단위 콤마
+            if (filteredItem.get(position).getCurrentPrice() >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
                 int currentPrice = (int) round(filteredItem.get(position).getCurrentPrice());
                 String currentPriceResult = decimalFormat.format(currentPrice);
                 holder.tv_currentPrice.setText(currentPriceResult + "");

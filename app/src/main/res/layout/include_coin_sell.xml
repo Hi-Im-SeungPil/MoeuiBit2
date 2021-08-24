@@ -153,9 +153,11 @@
 
         <Spinner
             android:id="@+id/spinner_sellCoinQuantity"
-            android:layout_width="0dp"
+            android:layout_width="63dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:background="@drawable/spinner_item"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"/>
 
     </LinearLayout>
 
@@ -199,7 +201,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-            android:id="@+id/btn_orderCoinPriceMinus"
+            android:id="@+id/btn_sellCoinPriceMinus"
             android:layout_width="30dp"
             android:layout_height="match_parent"
             android:background="@drawable/minus"
@@ -207,7 +209,7 @@
             android:layout_marginRight="3dp"/>
 
         <Button
-            android:id="@+id/btn_orderCoinPricePlus"
+            android:id="@+id/btn_sellCoinPricePlus"
             android:layout_width="30dp"
             android:layout_height="match_parent"
             android:layout_marginRight="4dp"
@@ -218,18 +220,25 @@
     <LinearLayout
         android:id="@+id/linear_PriceSell3"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="horizontal">
+        android:layout_height="30dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="7dp">
+
+        <TextView
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:text="ㅇㅇ"
+            android:visibility="invisible"/>
 
         <Spinner
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:background="@drawable/spinner_item"/>
 
         <Button
-            android:layout_width="0dp"
+            android:layout_width="71dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:visibility="invisible"/>
 
     </LinearLayout>
@@ -238,7 +247,8 @@
         android:id="@+id/const_priceSell4"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="7dp">
 
         <TextView
             android:id="@+id/zc"
@@ -279,7 +289,7 @@
             android:id="@+id/zcc"
             android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:text="총액"
+            android:text="수량"
             android:gravity="center"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -293,7 +303,8 @@
             app:layout_constraintLeft_toRightOf="@+id/zcc"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            >
 
             <EditText
                 android:id="@+id/et_sellCoinTotalAmountMarketPriceVer"
@@ -310,7 +321,10 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
-                app:layout_constraintHorizontal_weight="3"/>
+                app:layout_constraintHorizontal_weight="3"
+                android:background="@drawable/spinner_item"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"/>
 
         </LinearLayout>
 

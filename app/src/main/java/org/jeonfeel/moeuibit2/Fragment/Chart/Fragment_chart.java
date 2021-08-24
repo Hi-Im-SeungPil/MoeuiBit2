@@ -341,13 +341,13 @@ public class Fragment_chart extends Fragment {
                 candleDataSet = new CandleDataSet(candleEntries, "");
                 candleDataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
-                candleDataSet.setShadowColor(Color.DKGRAY);
+                candleDataSet.setShadowColor(Color.parseColor("#808C8C8C"));
                 candleDataSet.setShadowWidth(1f);
 
-                candleDataSet.setDecreasingColor(Color.BLUE);
+                candleDataSet.setDecreasingColor(Color.parseColor("#800000FF"));
                 candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
 
-                candleDataSet.setIncreasingColor(Color.RED);
+                candleDataSet.setIncreasingColor(Color.parseColor("#80FF0000"));
                 candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
 
                 candleDataSet.setNeutralColor(Color.DKGRAY);
@@ -678,13 +678,17 @@ public class Fragment_chart extends Fragment {
                                 combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
                             }
                             combinedChart.getAxisRight().removeLimitLine(ll2);
-                            ll2 = new LimitLine(tradePrice2,tradePrice2+"");
+                            if(tradePrice2 >= 100) {
+                                ll2 = new LimitLine(tradePrice2, decimalFormat.format(tradePrice2));
+                            }else{
+                                ll2 = new LimitLine(tradePrice2, String.format("%.2f",tradePrice2));
+                            }
                             ll2.setLineWidth(0f);
                             ll2.enableDashedLine(1f, 1f, 0f);
+                            ll2.setLineColor(Color.parseColor("#000000"));
                             ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
                             ll2.setTextSize(10f);
-                            ll2.setTextColor(Color.parseColor("#D6D6D6"));
-//                            ll2.
+                            ll2.setTextColor(Color.parseColor("#000000"));
                             combinedChart.getAxisRight().addLimitLine(ll2);
 
                             combinedChart.notifyDataSetChanged();
@@ -703,7 +707,7 @@ public class Fragment_chart extends Fragment {
                     e.printStackTrace();
                 }
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

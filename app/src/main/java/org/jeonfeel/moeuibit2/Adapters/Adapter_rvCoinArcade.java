@@ -103,7 +103,7 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             Double currentPrice = Activity_coinInfo.currentPrice;
             int intCurrentPrice = 0;
 
-            if(currentPrice >= 100){
+            if(currentPrice > 100){
                 intCurrentPrice = (int) round(currentPrice);
 
                 if(intCurrentPrice == integerArcadePrice){
@@ -117,6 +117,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             }else {
                 String price = String.format("%.2f", arcadePrice);
                 String Price2 = String.format("%.2f", currentPrice);
+
+                Log.d("qqqq",price);
+                Log.d("qqqq2",Price2);
 
                 if (Price2.equals(price)) {
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);
