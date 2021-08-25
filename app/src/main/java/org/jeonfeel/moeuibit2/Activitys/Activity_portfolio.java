@@ -4,7 +4,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -19,8 +18,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
-import org.jeonfeel.moeuibit2.MyCoin;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.Database.MyCoin;
 import org.jeonfeel.moeuibit2.R;
 
 import java.util.ArrayList;

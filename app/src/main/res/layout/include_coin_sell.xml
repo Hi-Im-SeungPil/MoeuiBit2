@@ -231,6 +231,7 @@
             android:visibility="invisible"/>
 
         <Spinner
+            android:id="@+id/spinner_sellCoinPercent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"

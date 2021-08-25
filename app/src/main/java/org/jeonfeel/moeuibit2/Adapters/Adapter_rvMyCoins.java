@@ -1,15 +1,20 @@
 package org.jeonfeel.moeuibit2.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -54,8 +59,9 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
         if(item.get(position).getMyCoinsBuyingAverage() >= 100) {
             holder.tv_myCoinsBuyingAverage.setText(decimalFormat.format(round(item.get(position).getMyCoinsBuyingAverage())));
         }else{
-            holder.tv_myCoinsBuyingAverage.setText(String.valueOf(item.get(position).getMyCoinsBuyingAverage()));
+            holder.tv_myCoinsBuyingAverage.setText(String.format("%.2f",item.get(position).getMyCoinsBuyingAverage()));
         }
+
         holder.tv_myCoinsPurchaseAmount.setText(decimalFormat.format(round(item.get(position).getMyCoinsQuantity() * item.get(position).getMyCoinsBuyingAverage())));
 
         if(currentPrices != null) {
@@ -86,14 +92,40 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             }else{
                 holder.tv_myCoinsDifference.setText(String.format("%.2f",currentPrice - item.get(position).getMyCoinsBuyingAverage()));
             }
+
             holder.tv_myCoinsEvaluationAmount.setText(decimalFormat.format(round(quantity * currentPrice)));
             holder.tv_myCoinsEvaluation.setText(decimalFormat.format(round(evaluationAmount - purchaseAmount)));
             holder.tv_myCoinsEarningsRate.setText(String.format("%.2f",(evaluationAmount - purchaseAmount) / purchaseAmount * 100) + "%");
         }
+
+        holder.linear_myCoinsWholeItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("거래").setMessage(item.get(position).getMyCoinsKoreanName() +" 거래하기")
+                        .setPositiveButton("이동", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent = new Intent(context, Activity_coinInfo.class);
+                                intent.putExtra("koreanName",item.get(position).getMyCoinsKoreanName());
+                                intent.putExtra("symbol",item.get(position).getMyCoinsSymbol());
+                                intent.putExtra("market","KRW-" + item.get(position).getMyCoinsSymbol());
+                                context.startActivity(intent);
+                            }
+                        }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+            }
+        });
+
     }
-//    public void setItem(ArrayList<MyCoinsDTO> myCoinsDTOS){
-//        this.item = myCoinsDTOS;
-//    }
 
     public void setCurrentPrices(ArrayList<Double> currentPrices){
         this.currentPrices = currentPrices;
@@ -109,6 +141,8 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
         private TextView tv_myCoinsKoreanName,tv_myCoinsSymbol,tv_myCoinsEvaluation,tv_myCoinsEarningsRate,tv_myCoinsQuantity,tv_myCoinsSymbol2
                 ,tv_myCoinsBuyingAverage,tv_myCoinsEvaluationAmount,tv_myCoinsPurchaseAmount,tv_myCoinsCurrentPrice,tv_myCoinsDifference;
 
+        private LinearLayout linear_myCoinsWholeItem;
+
         public CustomViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -123,6 +157,7 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             this.tv_myCoinsPurchaseAmount = itemView.findViewById(R.id.tv_myCoinsPurchaseAmount);
             this.tv_myCoinsCurrentPrice = itemView.findViewById(R.id.tv_myCoinsCurrentPrice);
             this.tv_myCoinsDifference = itemView.findViewById(R.id.tv_myCoinsDifference);
+            this.linear_myCoinsWholeItem = itemView.findViewById(R.id.linear_myCoinsWholeItem);
 
         }
     }

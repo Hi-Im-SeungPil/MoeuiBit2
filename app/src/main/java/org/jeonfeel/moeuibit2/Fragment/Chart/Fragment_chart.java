@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.Fragment.Chart;
 
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -34,8 +33,8 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
-import org.jeonfeel.moeuibit2.MyCoin;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.Database.MyCoin;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,7 +49,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 

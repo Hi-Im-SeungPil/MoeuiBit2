@@ -4,21 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.MarkerView;
-import com.github.mikephil.charting.data.CandleData;
-import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.utils.MPPointF;
 
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
-import org.jeonfeel.moeuibit2.MyCoin;
 import org.jeonfeel.moeuibit2.R;
 
 import java.text.DecimalFormat;

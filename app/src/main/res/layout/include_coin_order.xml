@@ -154,7 +154,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:background="@drawable/et_bolder"
                 android:paddingLeft="4dp"/>
 
@@ -190,6 +190,7 @@
             android:visibility="invisible"/>
 
         <Spinner
+            android:id="@+id/spinner_orderCoinPercent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

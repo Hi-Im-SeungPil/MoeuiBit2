@@ -1,22 +1,19 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Database;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
-import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import kotlin.jvm.Synchronized;
 
-@androidx.room.Database(entities = {User.class, MyCoin.class,NotSigned.class,Favorite.class},version = 2)
+@androidx.room.Database(entities = {User.class, MyCoin.class,NotSigned.class,Favorite.class,TransactionInfo.class},version = 1)
 public abstract class MoEuiBitDatabase extends RoomDatabase{
 
     public abstract UserDAO userDAO();
     public abstract MyCoinDAO myCoinDAO();
     public abstract FavoriteDAO favoriteDAO();
+    public abstract TransactionInfoDAO transactionInfoDAO();
 
     private static MoEuiBitDatabase instance;
 

@@ -1,17 +1,13 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,9 +21,9 @@ import android.widget.Switch;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
-import org.jeonfeel.moeuibit2.Favorite;
+import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;

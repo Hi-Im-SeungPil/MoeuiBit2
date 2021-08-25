@@ -17,12 +17,11 @@ import android.widget.TextView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
-import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
-import org.jeonfeel.moeuibit2.MyCoin;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.Database.MyCoin;
 import org.jeonfeel.moeuibit2.R;
-import org.jeonfeel.moeuibit2.User;
+import org.jeonfeel.moeuibit2.Database.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

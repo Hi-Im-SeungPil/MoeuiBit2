@@ -61,6 +61,11 @@
             android:layout_height="wrap_content"
             layout="@layout/include_coin_sell"/>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_transactionInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
     </LinearLayout>

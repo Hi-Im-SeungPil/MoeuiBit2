@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2;
+package org.jeonfeel.moeuibit2.Database;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

@@ -16,12 +16,12 @@ import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
-import org.jeonfeel.moeuibit2.Favorite;
+import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
-import org.jeonfeel.moeuibit2.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -278,47 +278,49 @@ public class Activity_coinInfo extends FragmentActivity {
                         Double dayToDay = jsonObject.getDouble("signed_change_rate");
                         Double changePrice = jsonObject.getDouble("signed_change_price");
 
-                        Log.d("qqqq",currentPrice+"");
-                        Log.d("qqqq",changePrice+"");
+                        Log.d("qqqq", currentPrice + "");
+                        Log.d("qqqq", changePrice + "");
 
-                        Activity_coinInfo.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_coinInfoCoinName.setText(koreanName + "( KRW / " + symbol + " )");
-                                if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
-                                    String currentPriceResult = decimalFormat.format(round(currentPrice));
-                                    tv_coinInfoCoinPrice.setText(currentPriceResult);
-                                } else {
-                                    tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
-                                }
-                                //--------------------------------------------------
-                                tv_coinInfoCoinDayToDay.setText(String.format("%.2f", dayToDay * 100) + "%");
-                                //--------------------------------------------------
-                                if (changePrice >= 100) {
-                                    tv_coinInfoChangePrice.setText("+" + decimalFormat.format(round(changePrice)));
-                                } else if (changePrice <= -100) {
-                                    tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)) + "");
-                                } else if (changePrice < 100 && changePrice > 0) {
-                                    tv_coinInfoChangePrice.setText("+" + String.format("%.2f", changePrice));
-                                } else {
-                                    tv_coinInfoChangePrice.setText(String.format("%.2f", changePrice));
-                                }
+                        if (currentPrice != null) {
+                            Activity_coinInfo.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tv_coinInfoCoinName.setText(koreanName + "( KRW / " + symbol + " )");
+                                    if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
+                                        String currentPriceResult = decimalFormat.format(round(currentPrice));
+                                        tv_coinInfoCoinPrice.setText(currentPriceResult);
+                                    } else {
+                                        tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
+                                    }
+                                    //--------------------------------------------------
+                                    tv_coinInfoCoinDayToDay.setText(String.format("%.2f", dayToDay * 100) + "%");
+                                    //--------------------------------------------------
+                                    if (changePrice >= 100) {
+                                        tv_coinInfoChangePrice.setText("+" + decimalFormat.format(round(changePrice)));
+                                    } else if (changePrice <= -100) {
+                                        tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)) + "");
+                                    } else if (changePrice < 100 && changePrice > 0) {
+                                        tv_coinInfoChangePrice.setText("+" + String.format("%.2f", changePrice));
+                                    } else {
+                                        tv_coinInfoChangePrice.setText(String.format("%.2f", changePrice));
+                                    }
 
-                                if (changePrice > 0) {
-                                    tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#B77300"));
-                                    tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#B77300"));
-                                    tv_coinInfoChangePrice.setTextColor(Color.parseColor("#B77300"));
-                                } else if (changePrice < 0) {
-                                    tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#0054FF"));
-                                    tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#0054FF"));
-                                    tv_coinInfoChangePrice.setTextColor(Color.parseColor("#0054FF"));
-                                } else if (changePrice == 0) {
-                                    tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#000000"));
-                                    tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#000000"));
-                                    tv_coinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
+                                    if (changePrice > 0) {
+                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#B77300"));
+                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#B77300"));
+                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#B77300"));
+                                    } else if (changePrice < 0) {
+                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#0054FF"));
+                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#0054FF"));
+                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#0054FF"));
+                                    } else if (changePrice == 0) {
+                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#000000"));
+                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#000000"));
+                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
