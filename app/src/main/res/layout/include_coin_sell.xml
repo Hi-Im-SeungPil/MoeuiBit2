@@ -217,12 +217,34 @@
 
     </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:text="ㅇㅇ"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="현재 가격에서"
+                android:textColor="#000000"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:fontFamily="@font/nanum_square_round_b"/>
+
+        </LinearLayout>
+
     <LinearLayout
         android:id="@+id/linear_PriceSell3"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:orientation="horizontal"
-        android:layout_marginTop="7dp">
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="30dp"
@@ -230,17 +252,38 @@
             android:text="ㅇㅇ"
             android:visibility="invisible"/>
 
-        <Spinner
-            android:id="@+id/spinner_sellCoinPercent"
+        <Button
+            android:id="@+id/btn_sellCurrentPriceMinus"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:background="@drawable/spinner_item"/>
+            android:layout_weight="1"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:background="#0027FF"
+            android:textColor="#FFFFFFFF"
+            android:fontFamily="@font/nanum_square_round_r"/>
 
         <Button
-            android:layout_width="71dp"
+            android:id="@+id/btn_sellCurrentPricePlus"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:layout_weight="1"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="4dp"
+            android:background="#FB0000"
+            android:textColor="#FFFFFFFF"
+            android:fontFamily="@font/nanum_square_round_r"/>
+        <Button
+            android:id="@+id/btn_sellCurrentPrice"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:text="초기화"
+            android:background="#d6d6d6"
+            android:textColor="#FFFFFFFF"
+            android:fontFamily="@font/nanum_square_round_r"/>
 
     </LinearLayout>
 

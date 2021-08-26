@@ -260,7 +260,6 @@ public class Activity_coinInfo extends FragmentActivity {
                     }
 
 
-                    Log.d("qqqq",market);
 
                     String s = builder.toString();
                     JSONArray jsonCoinInfo = new JSONArray(s);
@@ -277,9 +276,6 @@ public class Activity_coinInfo extends FragmentActivity {
                         currentPrice = jsonObject.getDouble("trade_price");
                         Double dayToDay = jsonObject.getDouble("signed_change_rate");
                         Double changePrice = jsonObject.getDouble("signed_change_price");
-
-                        Log.d("qqqq", currentPrice + "");
-                        Log.d("qqqq", changePrice + "");
 
                         if (currentPrice != null) {
                             Activity_coinInfo.this.runOnUiThread(new Runnable() {

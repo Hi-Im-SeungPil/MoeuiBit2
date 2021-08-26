@@ -177,29 +177,72 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linear_PriceOrder3"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:orientation="horizontal"
-        android:layout_marginTop="7dp">
+        android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:text="ㅇㅇ"
-            android:visibility="invisible"/>
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:text="ㅇㅇ"
+                android:visibility="invisible"/>
 
-        <Spinner
-            android:id="@+id/spinner_orderCoinPercent"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/spinner_item"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="현재 가격에서"
+                android:textColor="#000000"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:fontFamily="@font/nanum_square_round_b"/>
 
-        <Button
-            android:layout_width="71dp"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linear_PriceOrder3"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:text="ㅇㅇ"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/btn_orderCurrentPriceMinus"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:background="#0027FF"
+                android:textColor="#FFFFFFFF"
+                android:fontFamily="@font/nanum_square_round_r"/>
+
+            <Button
+                android:id="@+id/btn_orderCurrentPricePlus"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="4dp"
+                android:background="#FB0000"
+                android:textColor="#FFFFFFFF"
+                android:fontFamily="@font/nanum_square_round_r"/>
+            <Button
+                android:id="@+id/btn_orderCurrentPrice"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:text="초기화"
+                android:background="#D6D6D6"
+                android:textColor="#FFFFFFFF"
+                android:fontFamily="@font/nanum_square_round_r"/>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

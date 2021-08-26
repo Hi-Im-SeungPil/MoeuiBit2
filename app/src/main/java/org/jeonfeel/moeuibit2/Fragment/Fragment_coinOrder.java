@@ -82,7 +82,7 @@ public class Fragment_coinOrder extends Fragment {
     private RadioGroup radioGroup_orderWays,radioGroup_sellWays;
     private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
     private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
-    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;
+    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;;
 
     private Button btn_coinOrder,btn_coinSell,btn_coinSellReset,btn_coinOrderReset
             ,btn_orderCoinPriceMinus,btn_orderCoinPricePlus,btn_sellCoinPriceMinus,btn_sellCoinPricePlus;
@@ -92,11 +92,9 @@ public class Fragment_coinOrder extends Fragment {
     private EditText et_orderCoinPrice, et_orderCoinQuantity, et_orderCoinTotalAmount;
     private EditText et_orderCoinTotalAmountMarketPriceVer;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    private Spinner spinner_orderCoinQuantity,spinner_orderCoinQuantityMarketPriceVer,spinner_sellCoinQuantity,spinner_sellCinQuantityMarketPriceVer;
+    private Spinner spinner_orderCoinQuantity,spinner_orderCoinQuantityMarketPriceVer,spinner_sellCoinQuantity, spinner_sellCoinQuantityMarketPriceVer;
     private EditText et_sellCoinQuantity,et_sellCoinPrice,et_sellCoinTotalAmount,et_sellCoinTotalAmountMarketPriceVer;
     private String commaResult;
-
-    private boolean spinnerIsInit = false;
 
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
         // Required empty public constructor
@@ -104,10 +102,12 @@ public class Fragment_coinOrder extends Fragment {
         this.koreanName = koreanName;
         this.symbol = symbol;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -120,6 +120,7 @@ public class Fragment_coinOrder extends Fragment {
         setRadioGroup_orderWays(rootView);
         setRadioGroup_sellWays(rootView);
         initFragment_coinOrder();
+        setCPMbtn(rootView);
         setBtn_coinSellReset();
         setBtn_coinOrderReset();
         setBtn_orderCoinPriceMinus();
@@ -141,6 +142,7 @@ public class Fragment_coinOrder extends Fragment {
         transactionInfos = new ArrayList<>();
         adapter_rvTransactionInfo = new Adapter_rvTransactionInfo(transactionInfos,getActivity());
         rv_transactionInfo.setAdapter(adapter_rvTransactionInfo);
+
     }
     @SuppressLint("ClickableViewAccessibility")
     private void initFragment_coinOrder(){
@@ -149,8 +151,9 @@ public class Fragment_coinOrder extends Fragment {
         setSpinner_orderCoinQuantity();
         setSpinner_orderCoinQuantityMarketPriceVer();
         setSpinner_sellCoinQuantity();
-        setSpinner_sellCinQuantityMarketPriceVer();
+        setSpinner_sellCoinQuantityMarketPriceVer();
         setRv_transactionInfo();
+
 
         linear_coinSell.setVisibility(View.GONE);
         rv_transactionInfo.setVisibility(View.GONE);
@@ -398,7 +401,7 @@ public class Fragment_coinOrder extends Fragment {
         btn_coinOrderReset = rootView.findViewById(R.id.btn_coinOrderReset);
         tv_sellAbleCoinSymbol = rootView.findViewById(R.id.tv_sellAbleCoinSymbol);
         spinner_sellCoinQuantity = rootView.findViewById(R.id.spinner_sellCoinQuantity);
-        spinner_sellCinQuantityMarketPriceVer = rootView.findViewById(R.id.spinner_sellCinQuantityMarketPriceVer);
+        spinner_sellCoinQuantityMarketPriceVer = rootView.findViewById(R.id.spinner_sellCinQuantityMarketPriceVer);
         btn_orderCoinPriceMinus = rootView.findViewById(R.id.btn_orderCoinPriceMinus);
         btn_orderCoinPricePlus = rootView.findViewById(R.id.btn_orderCoinPricePlus);
         btn_sellCoinPriceMinus = rootView.findViewById(R.id.btn_sellCoinPriceMinus);
@@ -825,7 +828,7 @@ public class Fragment_coinOrder extends Fragment {
         });
     }
     private void setSpinner_sellCoinQuantity(){
-        String[] items = {"최대","50%","25%","10%"};
+        String[] items = {"%선택","최대","50%","25%","10%"};
 
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
 
@@ -835,27 +838,29 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
-                if (spinnerIsInit == true) {
-
                     Double sellAbleCoinQuantity = 0.0;
 
                     switch (spinner_sellCoinQuantity.getSelectedItemPosition()) {
                         case 0:
-                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
+                            sellAbleCoinQuantity = 0.0;
                             break;
                         case 1:
-                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 2;
+                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
                             break;
                         case 2:
-                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 4;
+                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 2;
                             break;
                         case 3:
+                            sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 4;
+                            break;
+                        case 4:
                             sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()) / 10;
                             break;
                     }
+                    if(sellAbleCoinQuantity != 0)
                     et_sellCoinQuantity.setText(String.format("%.8f", sellAbleCoinQuantity));
-
-                }
+                    else
+                        et_sellCoinQuantity.setText(String.format("0"));
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -863,38 +868,38 @@ public class Fragment_coinOrder extends Fragment {
             }
         });
     }
-    private void setSpinner_sellCinQuantityMarketPriceVer(){
-        String[] items = {"최대", "50%", "25%", "10%"};
+    private void setSpinner_sellCoinQuantityMarketPriceVer(){
+        String[] items = {"%선택","최대", "50%", "25%", "10%"};
 
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
 
-        spinner_sellCinQuantityMarketPriceVer.setAdapter(adapter);
+        spinner_sellCoinQuantityMarketPriceVer.setAdapter(adapter);
 
-        spinner_sellCinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinner_sellCoinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                if (spinnerIsInit == true) {
 
                     Double sellAbleCoinAmount = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
 
-                    switch (spinner_sellCinQuantityMarketPriceVer.getSelectedItemPosition()) {
+                    switch (spinner_sellCoinQuantityMarketPriceVer.getSelectedItemPosition()) {
                         case 0:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount));
+                            et_sellCoinTotalAmountMarketPriceVer.setText("0");
                             break;
                         case 1:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 2));
+                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount));
                             break;
                         case 2:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 4));
+                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 2));
                             break;
                         case 3:
+                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 4));
+                            break;
+                        case 4:
                             et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 10));
                             break;
                     }
-                }
-
             }
 
             @Override
@@ -904,7 +909,7 @@ public class Fragment_coinOrder extends Fragment {
     }
     private void setSpinner_orderCoinQuantity(){
 
-        String[] items = {"최대","50%","25%","10%"};
+        String[] items = {"%선택","최대","50%","25%","10%"};
 
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
 
@@ -914,29 +919,31 @@ public class Fragment_coinOrder extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
-                    if(spinnerIsInit) {
-
                         Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",", ""));
 
                         int orderablePrice = 0;
 
                         switch (spinner_orderCoinQuantity.getSelectedItemPosition()) {
                             case 0:
-                                orderablePrice = Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", ""));
+                                orderablePrice = 0;
                                 break;
                             case 1:
-                                orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 2);
+                                orderablePrice = Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", ""));
                                 break;
                             case 2:
-                                orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 4);
+                                orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 2);
                                 break;
                             case 3:
+                                orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 4);
+                                break;
+                            case 4:
                                 orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 10);
                                 break;
                         }
+                        if(orderablePrice!=0)
                         et_orderCoinQuantity.setText(String.format("%.8f", orderablePrice / price));
-                    }
-                    spinnerIsInit = true;
+                        else
+                            et_orderCoinQuantity.setText("0");
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
@@ -946,37 +953,37 @@ public class Fragment_coinOrder extends Fragment {
         }
     private void setSpinner_orderCoinQuantityMarketPriceVer() {
 
-        String[] items = {"최대", "50%", "25%", "10%"};
+        String[] items = {"%선택", "최대", "50%", "25%", "10%"};
 
         ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
 
         spinner_orderCoinQuantityMarketPriceVer.setAdapter(adapter);
-
-        spinner_orderCoinQuantityMarketPriceVer.setSelection(3,false);
 
         spinner_orderCoinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                if (spinnerIsInit == true) {
                     int orderAbleAmount = Integer.parseInt(tv_orderableAmount.getText().toString().replaceAll(",", ""));
 
                     switch (spinner_orderCoinQuantityMarketPriceVer.getSelectedItemPosition()) {
+
                         case 0:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(orderAbleAmount));
+                            et_orderCoinTotalAmountMarketPriceVer.setText("0");
                             break;
                         case 1:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 2)));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(orderAbleAmount));
                             break;
                         case 2:
-                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 4)));
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 2)));
                             break;
                         case 3:
+                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 4)));
+                            break;
+                        case 4:
                             et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 10)));
                             break;
                     }
-                }
             }
 
             @Override
@@ -1089,6 +1096,33 @@ public class Fragment_coinOrder extends Fragment {
                 }
             }
         });
+    }
+    //현재가격 5+-% 버튼 설정.
+    private void setCPMbtn(View rootView){
+        Button btn_orderCurrentPrice,btn_orderCurrentPriceMinus,btn_orderCurrentPricePlus;
+        btn_orderCurrentPrice = rootView.findViewById(R.id.btn_orderCurrentPrice);
+        btn_orderCurrentPriceMinus = rootView.findViewById(R.id.btn_orderCurrentPriceMinus);
+        btn_orderCurrentPricePlus = rootView.findViewById(R.id.btn_orderCurrentPricePlus);
+
+        Fragment_coinOrder_CPMbtn fragment_coinOrder_cpMbtn =
+                new Fragment_coinOrder_CPMbtn(btn_orderCurrentPricePlus,btn_orderCurrentPriceMinus,btn_orderCurrentPrice,et_orderCoinPrice,getActivity());
+
+        fragment_coinOrder_cpMbtn.setBtn_currentPrice();
+        fragment_coinOrder_cpMbtn.setBtn_currentPriceMinus();
+        fragment_coinOrder_cpMbtn.setBtn_currentPricePlus();
+        //-----------------------------------------------------------------
+        Button btn_sellCurrentPriceMinus,btn_sellCurrentPricePlus,btn_sellCurrentPrice;
+        btn_sellCurrentPriceMinus = rootView.findViewById(R.id.btn_sellCurrentPriceMinus);
+        btn_sellCurrentPricePlus = rootView.findViewById(R.id.btn_sellCurrentPricePlus);
+        btn_sellCurrentPrice = rootView.findViewById(R.id.btn_sellCurrentPrice);
+
+        Fragment_coinOrder_CPMbtn fragment_coinOrder_cpMbtn2 = new Fragment_coinOrder_CPMbtn(btn_sellCurrentPricePlus,btn_sellCurrentPriceMinus,
+                btn_sellCurrentPrice,et_sellCoinPrice,getActivity());
+
+        fragment_coinOrder_cpMbtn2.setBtn_currentPriceMinus();
+        fragment_coinOrder_cpMbtn2.setBtn_currentPrice();
+        fragment_coinOrder_cpMbtn2.setBtn_currentPricePlus();
+
     }
     private void setBtn_orderCoinPricePlus(){
         btn_orderCoinPricePlus.setOnClickListener(new View.OnClickListener() {
