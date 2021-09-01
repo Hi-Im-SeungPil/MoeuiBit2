@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
@@ -171,8 +173,16 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                 }
                             }, 500, 1000);
                         }
+                    }else{
+                        rv_coin.setVisibility(View.INVISIBLE);
+                        Toast.makeText(getActivity(), "관심목록에 추가된 코인이 없습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }else{
+
+                    if(rv_coin.getVisibility() == View.INVISIBLE){
+                        rv_coin.setVisibility(View.VISIBLE);
+                    }
+
                     switchIsChecked = false;
                     adapter_rvCoin.setFavoriteStatus(false);
                     adapter_rvCoin.getFilter().filter(onText);

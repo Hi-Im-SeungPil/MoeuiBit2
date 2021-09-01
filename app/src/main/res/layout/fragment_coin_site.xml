@@ -544,7 +544,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="김프정보"
+                    android:text="김프 정보"
                     android:textSize="20sp"
                     android:padding="15dp"
                     app:layout_constraintLeft_toLeftOf="parent"

@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.Activitys;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -19,7 +18,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
-import org.jeonfeel.moeuibit2.Fragment.Fragment_coinOrder;
+import org.jeonfeel.moeuibit2.Fragment.coinOrder.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
@@ -53,7 +52,8 @@ public class Activity_coinInfo extends FragmentActivity {
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
     private Button btn_bookMark;
-    public static Double currentPrice = 0.0;
+    public static Double globalCurrentPrice;
+    private Double currentPrice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,8 +75,6 @@ public class Activity_coinInfo extends FragmentActivity {
             }
         });
     }
-
-
 
     private void FindViewById(){
         tv_coinInfoCoinName = findViewById(R.id.tv_coinInfoCoinName);
@@ -109,16 +107,20 @@ public class Activity_coinInfo extends FragmentActivity {
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
 
+                globalCurrentPrice = 0.0;
+                globalCurrentPrice = currentPrice;
 
                 //--------------------------------------------------
                 tv_coinInfoCoinName.setText(koreanName + "( KRW / "+symbol+" )");
                 //--------------------------------------------------
+
                 if(currentPrice >= 100){ //만약 100원보다 가격이 높으면 천단위 콤마
                     String currentPriceResult = decimalFormat.format(round(currentPrice));
                     tv_coinInfoCoinPrice.setText(currentPriceResult);
                 }else{
-                    tv_coinInfoCoinPrice.setText(String.format("%.2f",currentPrice));
+                    tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
                 }
+
                 //--------------------------------------------------
                 tv_coinInfoCoinDayToDay.setText(String.format("%.2f",dayToDay*100) + "%");
                 //--------------------------------------------------
@@ -235,7 +237,7 @@ public class Activity_coinInfo extends FragmentActivity {
         super.onPause();
         if(getUpBitCoinInfoThread != null){
             getUpBitCoinInfoThread.stopRunning();
-            currentPrice = null;
+            globalCurrentPrice = null;
         }
     }
 
@@ -276,6 +278,9 @@ public class Activity_coinInfo extends FragmentActivity {
                         currentPrice = jsonObject.getDouble("trade_price");
                         Double dayToDay = jsonObject.getDouble("signed_change_rate");
                         Double changePrice = jsonObject.getDouble("signed_change_price");
+
+                        globalCurrentPrice = 0.0;
+                        globalCurrentPrice = currentPrice;
 
                         if (currentPrice != null) {
                             Activity_coinInfo.this.runOnUiThread(new Runnable() {

@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,8 +56,10 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
 
         if(item.get(position).getTransactionStatus().equals("bid")){
             transactionStatus = "매수";
+            holder.tv_transactionStatus.setTextColor(Color.parseColor("#B77300"));
         }else{
             transactionStatus = "매도";
+            holder.tv_transactionStatus.setTextColor(Color.parseColor("#0054FF"));
         }
 
         holder.tv_transactionStatus.setText(transactionStatus);
@@ -69,7 +72,7 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
             holder.tv_transactionPrice.setText(String.format("%.2f",price));
         }
         holder.tv_transactionQuantity.setText(String.format("%.8f",quantity));
-        holder.tv_transactionAmount.setText(String.valueOf(round(price * quantity)));
+        holder.tv_transactionAmount.setText(decimalFormat.format(round(price * quantity)));
 
     }
 

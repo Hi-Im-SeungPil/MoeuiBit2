@@ -98,9 +98,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
 
-        if(Activity_coinInfo.currentPrice != null){
+        if(Activity_coinInfo.globalCurrentPrice != null){
 
-            Double currentPrice = Activity_coinInfo.currentPrice;
+            Double currentPrice = Activity_coinInfo.globalCurrentPrice;
             int intCurrentPrice = 0;
 
             if(currentPrice > 100){

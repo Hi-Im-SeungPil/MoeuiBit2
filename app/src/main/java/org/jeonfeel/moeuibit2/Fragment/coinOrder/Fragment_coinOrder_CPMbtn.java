@@ -1,7 +1,6 @@
-package org.jeonfeel.moeuibit2.Fragment;
+package org.jeonfeel.moeuibit2.Fragment.coinOrder;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,9 +38,9 @@ public class Fragment_coinOrder_CPMbtn {
             @Override
             public void onClick(View view) {
 
-                Double currentPrice = Activity_coinInfo.currentPrice;
+                Double currentPrice = Activity_coinInfo.globalCurrentPrice;
 
-                if (Activity_coinInfo.currentPrice != null) {
+                if (Activity_coinInfo.globalCurrentPrice != null) {
 
                     Double price = plusPercent * 0.01 * currentPrice + currentPrice;
 
@@ -76,9 +75,9 @@ public class Fragment_coinOrder_CPMbtn {
             @Override
             public void onClick(View view) {
 
-                Double currentPrice = Activity_coinInfo.currentPrice;
+                Double currentPrice = Activity_coinInfo.globalCurrentPrice;
 
-                if (Activity_coinInfo.currentPrice != null) {
+                if (Activity_coinInfo.globalCurrentPrice != null) {
 
                     Double price = minusPercent * 0.01 * currentPrice + currentPrice;
 
@@ -113,9 +112,9 @@ public class Fragment_coinOrder_CPMbtn {
             @Override
             public void onClick(View view) {
 
-                Double currentPrice = Activity_coinInfo.currentPrice;
+                Double currentPrice = Activity_coinInfo.globalCurrentPrice;
 
-                if (Activity_coinInfo.currentPrice != null) {
+                if (Activity_coinInfo.globalCurrentPrice != null) {
 
                     plusPercent = 5;
                     minusPercent = -5;
@@ -132,6 +131,16 @@ public class Fragment_coinOrder_CPMbtn {
                 }
             }
         });
+    }
+
+    public void reset(){
+
+        this.plusPercent = 5;
+        this.minusPercent = -5;
+
+        btn_currentPricePlus.setText(plusPercent + "%");
+        btn_currentPriceMinus.setText(minusPercent + "%");
+
     }
 
 }

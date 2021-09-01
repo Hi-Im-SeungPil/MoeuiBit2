@@ -6,12 +6,16 @@
     android:orientation="vertical"
     android:layout_marginRight="5dp"
     android:layout_marginLeft="5dp"
-    android:layout_marginTop="10dp">
+    android:layout_marginTop="10dp"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:background="@drawable/rv_transaction_info_item_border">
 
         <TextView
             android:id="@+id/tv_transactionStatus"
@@ -20,15 +24,44 @@
             android:layout_weight="1"
             android:text="매도"
             android:gravity="center"
-            android:textSize="15sp"
-            android:fontFamily="@font/nanum_square_round_r"/>
+            android:textSize="20sp"
+            android:fontFamily="@font/nanum_square_round_eb"/>
 
         <TextView
             android:id="@+id/tv_transactionMarket"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="KRW-BTC"
+            android:gravity="center_vertical|right"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:fontFamily="@font/nanum_square_round_eb"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="시간"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:fontFamily="@font/nanum_square_round_r"/>
+
+        <TextView
+            android:id="@+id/tv_transactionTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="09 / 21 08:21"
+            android:textColor="#000000"
             android:gravity="center_vertical|right"
             android:fontFamily="@font/nanum_square_round_r"/>
 
@@ -38,39 +71,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        >
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="시간"
-            android:gravity="center"
-            android:textSize="15sp"
-            android:fontFamily="@font/nanum_square_round_r"/>
-
-        <TextView
-            android:id="@+id/tv_transactionTime"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="09 / 21 08:21"
-            android:gravity="center_vertical|right"
-            android:fontFamily="@font/nanum_square_round_r"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginTop="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="가격"
-            android:gravity="center"
+            android:textColor="#000000"
             android:textSize="15sp"
             android:fontFamily="@font/nanum_square_round_r"/>
 
@@ -78,8 +86,9 @@
             android:id="@+id/tv_transactionPrice"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:text="18.40"
+            android:textColor="#000000"
             android:gravity="center_vertical|right"
             android:fontFamily="@font/nanum_square_round_r"/>
 
@@ -88,14 +97,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="수량"
-            android:gravity="center"
+            android:textColor="#000000"
             android:textSize="15sp"
             android:fontFamily="@font/nanum_square_round_r"/>
 
@@ -103,8 +113,9 @@
             android:id="@+id/tv_transactionQuantity"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:text="18.9994300"
+            android:textColor="#000000"
             android:gravity="center_vertical|right"
             android:fontFamily="@font/nanum_square_round_r"/>
 
@@ -113,23 +124,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="총 가격"
-            android:gravity="center"
             android:textSize="15sp"
+            android:textColor="#000000"
             android:fontFamily="@font/nanum_square_round_r"/>
 
         <TextView
             android:id="@+id/tv_transactionAmount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:text="5,000"
+            android:textColor="#000000"
             android:gravity="center_vertical|right"
             android:fontFamily="@font/nanum_square_round_r"/>
 

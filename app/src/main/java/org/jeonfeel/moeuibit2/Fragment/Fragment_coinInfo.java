@@ -42,7 +42,7 @@ public class Fragment_coinInfo extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_coin_info, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_coin_site, container, false);
 
         FindViewById(rootView);
         setIv_exchanges();
