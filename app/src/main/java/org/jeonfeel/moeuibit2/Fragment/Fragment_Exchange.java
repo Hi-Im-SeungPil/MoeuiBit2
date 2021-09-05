@@ -65,6 +65,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private MoEuiBitDatabase db;
     private Switch sch_favorite;
     private boolean switchIsChecked = false;
+    TextView tv_nonFavorite;
+
 
     private String markets;
     private int orderByCurrentPrice = 0;
@@ -113,6 +115,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         btn_orderByDayToDay = rootView.findViewById(R.id.btn_orderByDayToDay);
         btn_orderByTransactionAmount = rootView.findViewById(R.id.btn_orderByTransactionAmount);
         sch_favorite = rootView.findViewById(R.id.sch_favorite);
+        tv_nonFavorite = rootView.findViewById(R.id.tv_nonFavorite);
     }
 
     private void setRv_coin(){
@@ -174,12 +177,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             }, 500, 1000);
                         }
                     }else{
-                        rv_coin.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getActivity(), "관심목록에 추가된 코인이 없습니다.", Toast.LENGTH_SHORT).show();
+                        rv_coin.setVisibility(View.GONE);
+                        tv_nonFavorite.setVisibility(View.VISIBLE);
                     }
                 }else{
 
-                    if(rv_coin.getVisibility() == View.INVISIBLE){
+                    if(rv_coin.getVisibility() == View.GONE){
+                        tv_nonFavorite.setVisibility(View.GONE);
                         rv_coin.setVisibility(View.VISIBLE);
                     }
 

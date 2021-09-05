@@ -11,7 +11,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
-import org.jeonfeel.moeuibit2.Fragment.Fragment_coinInfo;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_coinSite;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_investmentDetails;
 
 public class MainActivity extends FragmentActivity {
@@ -27,7 +27,7 @@ public class MainActivity extends FragmentActivity {
 
         Fragment_Exchange fragment_exchange = new Fragment_Exchange();
         Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails();
-        Fragment_coinInfo fragment_coinInfo = new Fragment_coinInfo(MainActivity.this);
+        Fragment_coinSite fragment_coinInfo = new Fragment_coinSite(MainActivity.this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fragment_exchange).commit();
 

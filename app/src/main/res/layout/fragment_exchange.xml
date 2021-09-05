@@ -161,4 +161,19 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mm"/>
 
+    <TextView
+        android:id="@+id/tv_nonFavorite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="관심목록에 추가된 코인이 없습니다."
+        app:layout_constraintTop_toBottomOf="@+id/mm"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:fontFamily="@font/nanum_square_round_eb"
+        android:visibility="gone"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

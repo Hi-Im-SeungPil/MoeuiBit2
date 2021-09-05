@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.Fragment_coinInfo"
+    android:orientation="vertical">
+        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+        <LinearLayout
+            android:id="@+id/linear_coinInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/img_info"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="코인 정보"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:layout_marginLeft="10dp"
+                android:fontFamily="@font/nanum_square_round_eb"
+                android:textColor="#000000"/>
+
+        </LinearLayout>
+        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+
+        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+
+    <LinearLayout
+        android:id="@+id/linear_homepage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true">
+
+        <ImageView
+            android:background="@drawable/img_homepage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="홈페이지"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_marginLeft="10dp"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#000000"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linear_twitter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true">
+
+        <ImageView
+            android:background="@drawable/twitter"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="트위터"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#000000"
+            android:textSize="20sp"/>
+
+
+    </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/linear_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clickable="true">
+
+            <ImageView
+                android:background="@drawable/img_amount"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="시가총액"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:fontFamily="@font/nanum_square_round_eb"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+        <LinearLayout
+            android:id="@+id/linear_block"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clickable="true">
+
+            <ImageView
+                android:background="@drawable/img_block"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="블럭 조회"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:fontFamily="@font/nanum_square_round_eb"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+</LinearLayout>
