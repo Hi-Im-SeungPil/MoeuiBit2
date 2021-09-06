@@ -50,13 +50,15 @@ public class MoEuiBitMarkerView extends MarkerView {
         tv_endPricePercent = findViewById(R.id.tv_endPricePercent);
     }
 
+    //마커뷰 세팅
+
     @Override
     public void refreshContent(Entry e, Highlight highlight) {
 
         if(e instanceof CandleEntry){
             CandleEntry ce = (CandleEntry) e;
 
-            coinCandleDataDTO = Fragment_chart.getCoinCandle((int) ce.getX() - 2);
+            coinCandleDataDTO = Fragment_chart.getCoinCandle((int) ce.getX());
 
             if(coinCandleDataDTO != null) {
                 kst = coinCandleDataDTO.getCandleDateTimeKst();
@@ -101,7 +103,7 @@ public class MoEuiBitMarkerView extends MarkerView {
             if(highPricePercent > 0){
                 tv_highPrice.setTextColor(Color.parseColor("#B77300"));
                 tv_highPricePercent.setTextColor(Color.parseColor("#B77300"));
-            }else if(lowPricePercent < 0){
+            }else if(highPricePercent < 0){
                 tv_highPrice.setTextColor(Color.parseColor("#0054FF"));
                 tv_highPricePercent.setTextColor(Color.parseColor("#0054FF"));
             }else{
@@ -152,6 +154,8 @@ public class MoEuiBitMarkerView extends MarkerView {
         super.refreshContent(e,highlight);
     }
 
+
+    //마커뷰 그림.
     @Override
     public void draw(Canvas canvas, float posX, float posY) {
 
