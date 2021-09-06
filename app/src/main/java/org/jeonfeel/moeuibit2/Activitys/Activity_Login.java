@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.Activitys;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.se.omapi.Session;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -9,24 +10,47 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kakao.sdk.user.UserApiClient;
 
 import org.jeonfeel.moeuibit2.MainActivity;
 import org.jeonfeel.moeuibit2.R;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Activity_Login extends AppCompatActivity {
     private final String TAG = "Activity_Login";
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
+
+        mAuth = FirebaseAuth.getInstance();
 
         UserApiClient.getInstance().me((user, meError) -> {
             if (meError != null) {
@@ -55,7 +79,7 @@ public class Activity_Login extends AppCompatActivity {
                             Log.e(TAG, "로그인 실패", error);
                         } else if (oAuthToken != null) {
                             Log.i(TAG, "로그인 성공(토큰) : " + oAuthToken.getAccessToken());
-                            getUserInfo();
+                            setUserInfo();
                         }
                         return null;
                     });
@@ -65,7 +89,7 @@ public class Activity_Login extends AppCompatActivity {
                             Log.e(TAG, "로그인 실패", error);
                         } else if (oAuthToken != null) {
                             Log.i(TAG, "로그인 성공(토큰) : " + oAuthToken.getAccessToken());
-                            getUserInfo();
+                            setUserInfo();
                         }
                         return null;
                     });
@@ -75,7 +99,7 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     // 유저 정보 firebase에 저장
-    private void getUserInfo() {
+    private void setUserInfo() {
         UserApiClient.getInstance().me((user, meError) -> {
 
             if (meError != null) {
@@ -106,4 +130,5 @@ public class Activity_Login extends AppCompatActivity {
             return null;
         });
     }
+
 }

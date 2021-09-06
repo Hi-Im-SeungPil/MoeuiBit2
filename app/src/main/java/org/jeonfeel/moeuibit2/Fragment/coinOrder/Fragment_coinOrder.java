@@ -82,7 +82,7 @@ public class Fragment_coinOrder extends Fragment {
     private RadioGroup radioGroup_orderWays,radioGroup_sellWays;
     private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
     private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
-    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol;
+    private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol,tv_transactionInfoIsNull;
 
     private Fragment_coinOrder_CPMbtn fragment_coinOrder_cpMbtn,fragment_coinOrder_cpMbtn2;
 
@@ -413,6 +413,7 @@ public class Fragment_coinOrder extends Fragment {
         btn_sellCoinPriceMinus = rootView.findViewById(R.id.btn_sellCoinPriceMinus);
         btn_sellCoinPricePlus = rootView.findViewById(R.id.btn_sellCoinPricePlus);
         rv_transactionInfo = rootView.findViewById(R.id.rv_transactionInfo);
+        tv_transactionInfoIsNull = rootView.findViewById(R.id.tv_transactionInfoIsNull);
     }
     private void getCoinArcadeInfo() {
 
@@ -1017,14 +1018,15 @@ public class Fragment_coinOrder extends Fragment {
                     linear_coinOrder.setVisibility(View.VISIBLE);
                     linear_coinSell.setVisibility(View.GONE);
                     rv_transactionInfo.setVisibility(View.GONE);
+                    tv_transactionInfoIsNull.setVisibility(View.GONE);
                 }else if(position == 1){
                     linear_coinOrder.setVisibility(View.GONE);
                     linear_coinSell.setVisibility(View.VISIBLE);
                     rv_transactionInfo.setVisibility(View.GONE);
+                    tv_transactionInfoIsNull.setVisibility(View.GONE);
                 }else if(position == 2){
                     linear_coinOrder.setVisibility(View.GONE);
                     linear_coinSell.setVisibility(View.GONE);
-                    rv_transactionInfo.setVisibility(View.VISIBLE);
                     setRv_transactionInfoData();
                 }
             }
@@ -1253,6 +1255,14 @@ public class Fragment_coinOrder extends Fragment {
 
         adapter_rvTransactionInfo.setItem(transactionInfos);
         adapter_rvTransactionInfo.notifyDataSetChanged();
+
+        if (adapter_rvTransactionInfo.getItemCount() == 0){
+            rv_transactionInfo.setVisibility(View.GONE);
+            tv_transactionInfoIsNull.setVisibility(View.VISIBLE);
+        }else{
+            rv_transactionInfo.setVisibility(View.VISIBLE);
+            tv_transactionInfoIsNull.setVisibility(View.GONE);
+        }
 
     }
     private Double averageOrderPriceCalculate(Double myCoinQuantity,Double myCoinPrice,Double newCoinQuantity,Double newCoinPrice){

@@ -124,7 +124,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         rv_coin.setHasFixedSize(true);
     }
 
-
     //관심목록 초기설정
     private void initFavorite(){
 
@@ -591,12 +590,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             }
                         }
                     }
-                } catch (UnsupportedEncodingException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    getAllUpBitCoins();
                 }
                 try {
                     Thread.sleep(1000);

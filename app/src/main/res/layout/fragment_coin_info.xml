@@ -6,7 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".Fragment.Fragment_coinInfo"
     android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rv_coin_border"
+        android:paddingBottom="10dp"
+        android:text="바로가기"
+        android:fontFamily="@font/nanum_square_round_eb"
+        android:textSize="25sp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:textColor="#000000"/>
+
+
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+
         <LinearLayout
             android:id="@+id/linear_coinInfo"
             android:layout_width="match_parent"
@@ -34,7 +50,6 @@
                 android:textColor="#000000"/>
 
         </LinearLayout>
-        <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
@@ -65,6 +80,7 @@
 
     </LinearLayout>
 
+    <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
     <LinearLayout
         android:id="@+id/linear_twitter"
@@ -78,7 +94,8 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
-            android:layout_margin="10dp"/>
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="15dp"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -90,9 +107,9 @@
             android:textColor="#000000"
             android:textSize="20sp"/>
 
-
     </LinearLayout>
 
+    <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
         <LinearLayout
             android:id="@+id/linear_amount"
@@ -122,6 +139,7 @@
         </LinearLayout>
 
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+
         <LinearLayout
             android:id="@+id/linear_block"
             android:layout_width="match_parent"
@@ -150,4 +168,5 @@
         </LinearLayout>
 
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
+
 </LinearLayout>

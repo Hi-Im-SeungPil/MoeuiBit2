@@ -18,6 +18,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_coinInfo;
 import org.jeonfeel.moeuibit2.Fragment.coinOrder.Fragment_coinOrder;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
@@ -192,6 +193,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
         Fragment_coinOrder fragment_coinOrder = new Fragment_coinOrder(market,koreanName,symbol);
         Fragment_chart fragment_chart = new Fragment_chart(market);
+        Fragment_coinInfo fragment_coinInfo = new Fragment_coinInfo(market);
         TabLayout tab_coinInfo = findViewById(R.id.tab_coinInfo);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.coinInfo_fragment_container,fragment_coinOrder).commit();
@@ -205,6 +207,8 @@ public class Activity_coinInfo extends FragmentActivity {
                     selected = fragment_coinOrder;
                 }else if(position == 1){
                     selected = fragment_chart;
+                }else if(position == 2){
+                    selected = fragment_coinInfo;
                 }
 
                 getSupportFragmentManager().beginTransaction().replace(R.id.coinInfo_fragment_container,selected).commit();
@@ -330,6 +334,7 @@ public class Activity_coinInfo extends FragmentActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

@@ -22,8 +22,9 @@ import static java.lang.Math.round;
 public class MoEuiBitMarkerView extends MarkerView {
 
     TextView tv_candleTime,tv_startPrice,tv_highPrice,
-            tv_lowPrice,tv_endPrice,tv_coefficientOfPrice,
-            tv_coefficientOfFluctuation,tv_markerTransactionAmount;
+            tv_lowPrice,tv_endPrice,tv_markerTransactionAmount
+            ,tv_startPricePercent,tv_highPricePercent,
+            tv_lowPricePercent,tv_endPricePercent;
 
     String kst;
     String[] fullyDate,date,time;
@@ -42,9 +43,11 @@ public class MoEuiBitMarkerView extends MarkerView {
         tv_highPrice = findViewById(R.id.tv_highPrice);
         tv_lowPrice = findViewById(R.id.tv_lowPrice);
         tv_endPrice = findViewById(R.id.tv_endPrice);
-        tv_coefficientOfPrice = findViewById(R.id.tv_coefficientOfPrice);
-        tv_coefficientOfFluctuation = findViewById(R.id.tv_coefficientOfFluctuation);
         tv_markerTransactionAmount = findViewById(R.id.tv_markerTransactionAmount);
+        tv_startPricePercent = findViewById(R.id.tv_startPricePercent);
+        tv_highPricePercent = findViewById(R.id.tv_highPricePercent);
+        tv_lowPricePercent = findViewById(R.id.tv_lowPricePercent);
+        tv_endPricePercent = findViewById(R.id.tv_endPricePercent);
     }
 
     @Override
@@ -67,18 +70,43 @@ public class MoEuiBitMarkerView extends MarkerView {
             float highPrice = ce.getHigh();
             float lowPrice = ce.getLow();
             float closePrice = ce.getClose();
-            float coefficientOfPrice = closePrice - openPrice;
-            float coefficientOfFluctuation = (coefficientOfPrice / openPrice) * 100;
 
-            if(coefficientOfPrice > 0){
-                tv_coefficientOfPrice.setTextColor(Color.parseColor("#B77300"));
-                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#B77300"));
-            }else if(coefficientOfPrice < 0){
-                tv_coefficientOfPrice.setTextColor(Color.parseColor("#0054FF"));
-                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#0054FF"));
+            float openPricePercent = 0;
+            float highPricePercent = (highPrice - openPrice) / openPrice * 100;
+            float lowPricePercent = (lowPrice - openPrice) / openPrice * 100;
+            float endPricePercent = (closePrice - openPrice) / openPrice * 100;
+
+            if(endPricePercent > 0){
+                tv_endPrice.setTextColor(Color.parseColor("#B77300"));
+                tv_endPricePercent.setTextColor(Color.parseColor("#B77300"));
+            }else if(endPricePercent < 0){
+                tv_endPrice.setTextColor(Color.parseColor("#0054FF"));
+                tv_endPricePercent.setTextColor(Color.parseColor("#0054FF"));
             }else{
-                tv_coefficientOfPrice.setTextColor(Color.parseColor("#000000"));
-                tv_coefficientOfFluctuation.setTextColor(Color.parseColor("#000000"));
+                tv_endPrice.setTextColor(Color.parseColor("#000000"));
+                tv_endPricePercent.setTextColor(Color.parseColor("#000000"));
+            }
+
+            if(lowPricePercent > 0){
+                tv_lowPrice.setTextColor(Color.parseColor("#B77300"));
+                tv_lowPricePercent.setTextColor(Color.parseColor("#B77300"));
+            }else if(lowPricePercent < 0){
+                tv_lowPrice.setTextColor(Color.parseColor("#0054FF"));
+                tv_lowPricePercent.setTextColor(Color.parseColor("#0054FF"));
+            }else{
+                tv_lowPrice.setTextColor(Color.parseColor("#000000"));
+                tv_lowPricePercent.setTextColor(Color.parseColor("#000000"));
+            }
+
+            if(highPricePercent > 0){
+                tv_highPrice.setTextColor(Color.parseColor("#B77300"));
+                tv_highPricePercent.setTextColor(Color.parseColor("#B77300"));
+            }else if(lowPricePercent < 0){
+                tv_highPrice.setTextColor(Color.parseColor("#0054FF"));
+                tv_highPricePercent.setTextColor(Color.parseColor("#0054FF"));
+            }else{
+                tv_highPrice.setTextColor(Color.parseColor("#000000"));
+                tv_highPricePercent.setTextColor(Color.parseColor("#000000"));
             }
 
             tv_candleTime.setText(date[1] + "-" + date[2] + " " + time[0] + ":" + time[1]);
@@ -107,13 +135,11 @@ public class MoEuiBitMarkerView extends MarkerView {
                 tv_endPrice.setText(String.format(String.format("%.2f",closePrice)));
             }
 
-            if(coefficientOfPrice >= 100 || coefficientOfPrice <= -100){
-                tv_coefficientOfPrice.setText(decimalFormat.format(round(coefficientOfPrice)));
-            }else{
-                tv_coefficientOfPrice.setText(String.format(String.format("%.2f",coefficientOfPrice)));
-            }
+            tv_highPricePercent.setText(String.format("%.2f",highPricePercent)+"%");
+            tv_startPricePercent.setText(String.format("%.2f",openPricePercent)+"%");
+            tv_lowPricePercent.setText(String.format("%.2f",lowPricePercent)+"%");
+            tv_endPricePercent.setText(String.format("%.2f",endPricePercent)+"%");
 
-            tv_coefficientOfFluctuation.setText(String.format("%.2f",coefficientOfFluctuation)+"%");
             if(coinCandleDataDTO != null) {
                 Double transactionAmount = coinCandleDataDTO.getCandleTransactionAmount() * 0.000001;
                 if(transactionAmount >= 1)

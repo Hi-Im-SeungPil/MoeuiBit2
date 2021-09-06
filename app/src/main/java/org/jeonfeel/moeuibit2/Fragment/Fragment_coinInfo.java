@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,6 @@ public class Fragment_coinInfo extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -45,7 +45,6 @@ public class Fragment_coinInfo extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         FindViewById(rootView);
         getCoinData();
-        setLinears();
 
         return rootView;
     }
@@ -60,7 +59,9 @@ public class Fragment_coinInfo extends Fragment {
 
     private void getCoinData(){
 
-        mDatabase.child(market).addListenerForSingleValueEvent(new ValueEventListener() {
+        Log.d("qqqq",market);
+
+        mDatabase.child("coinInfo").child(market).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 homepage = snapshot.child("homepage").getValue(String.class);
@@ -68,30 +69,28 @@ public class Fragment_coinInfo extends Fragment {
                 twitter = snapshot.child("twitter").getValue(String.class);
                 block = snapshot.child("block").getValue(String.class);
                 info = snapshot.child("content").getValue(String.class);
+
+                LinearLayout[] linearLayouts = {linear_amount,linear_block,linear_coinInfo,linear_homepage,linear_twitter};
+                String[] url = {amount,block,info,homepage,twitter};
+
+                for(int i = 0; i < 5; i++){
+                    int a = i;
+
+                    linearLayouts[i].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url[a]));
+                            startActivity(intent);
+                        }
+                    });
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
-    private void setLinears(){
-        LinearLayout[] linearLayouts = {linear_amount,linear_block,linear_coinInfo,linear_homepage,linear_twitter};
-        String[] url = {amount,block,info,homepage,twitter};
-
-        for(int i = 0; i < 5; i++){
-
-            int finalI = i;
-
-            linearLayouts[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url[finalI]));
-                    startActivity(intent);
-                }
-            });
-
-        }
-    }
 }

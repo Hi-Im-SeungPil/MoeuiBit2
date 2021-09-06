@@ -27,9 +27,7 @@ public class Fragment_coinSite extends Fragment {
     Context context;
 
     public Fragment_coinSite(Context context) {
-
         this.context = context;
-
         // Required empty public constructor
     }
 
