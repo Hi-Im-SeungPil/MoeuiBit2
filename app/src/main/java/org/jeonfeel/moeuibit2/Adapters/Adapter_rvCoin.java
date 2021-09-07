@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +13,13 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -35,6 +39,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private ArrayList<Integer> marketPosition;
     private boolean favoriteStatus = false;
+
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
         this.item = item;
@@ -96,11 +101,20 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
             holder.linear_coin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, Activity_coinInfo.class);
-                    intent.putExtra("market", filteredItem.get(position).getMarket());
-                    intent.putExtra("symbol", filteredItem.get(position).getSymbol());
-                    intent.putExtra("koreanName", filteredItem.get(position).getKoreanName());
-                    context.startActivity(intent);
+
+                    int networkStatus = CheckNetwork.CheckNetwork(context);
+                    if(networkStatus != 0) {
+
+                        Intent intent = new Intent(context, Activity_coinInfo.class);
+                        intent.putExtra("market", filteredItem.get(position).getMarket());
+                        intent.putExtra("symbol", filteredItem.get(position).getSymbol());
+                        intent.putExtra("koreanName", filteredItem.get(position).getKoreanName());
+                        context.startActivity(intent);
+
+                    }else{
+                        Toast.makeText(context, "네트워크 상태를 확인해주세요.", Toast.LENGTH_SHORT).show();
+                    }
+
                 }
             });
         }

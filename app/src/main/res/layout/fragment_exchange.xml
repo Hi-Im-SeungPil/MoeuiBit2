@@ -176,4 +176,24 @@
         android:fontFamily="@font/nanum_square_round_eb"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/tv_networkIsNotConn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="네트워크 상태를 확인해 주세요."
+        app:layout_constraintTop_toBottomOf="@+id/mm"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btn_networkIsNotConn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tv_networkIsNotConn"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="재시도"
+        android:visibility="gone"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

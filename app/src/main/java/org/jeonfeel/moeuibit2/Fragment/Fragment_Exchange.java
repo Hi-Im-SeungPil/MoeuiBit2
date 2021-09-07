@@ -1,6 +1,9 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
+import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -66,7 +70,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private Switch sch_favorite;
     private boolean switchIsChecked = false;
     TextView tv_nonFavorite;
-
+    ConnectivityManager cm;
 
     private String markets;
     private int orderByCurrentPrice = 0;
@@ -79,6 +83,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private Handler handler = null;
     private Timer timer = null;
     private String onText="";
+
+    private TextView tv_networkIsNotConn;
+    private Button btn_networkIsNotConn;
 
     public Fragment_Exchange() {
         // Required empty public constructor
@@ -96,7 +103,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         View rootView = inflater.inflate(R.layout.fragment_exchange, container, false);
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getActivity());
+        cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         setRv_coin();
+        setBtn_networkIsNotConn();
         getAllUpBitCoins();
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
         rv_coin.setAdapter(adapter_rvCoin);
@@ -109,6 +118,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     }
 
     private void FindViewById(View rootView){
+
         et_searchCoin =  rootView.findViewById(R.id.et_searchCoin);
         rv_coin = rootView.findViewById(R.id.rv_coin);
         btn_orderByCurrentPrice = rootView.findViewById(R.id.btn_orderByCurrentPrice);
@@ -116,6 +126,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         btn_orderByTransactionAmount = rootView.findViewById(R.id.btn_orderByTransactionAmount);
         sch_favorite = rootView.findViewById(R.id.sch_favorite);
         tv_nonFavorite = rootView.findViewById(R.id.tv_nonFavorite);
+        tv_networkIsNotConn = rootView.findViewById(R.id.tv_networkIsNotConn);
+        btn_networkIsNotConn = rootView.findViewById(R.id.btn_networkIsNotConn);
+
     }
 
     private void setRv_coin(){
@@ -139,6 +152,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
         Collections.sort(favoritePosition);
         adapter_rvCoin.setMarkets(favoritePosition);
+
     }
 
     //관심목록 설정
@@ -194,104 +208,139 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         });
     }
 
-    private void getAllUpBitCoins(){
+    private void getAllUpBitCoins() {
 
-        marketsArray = new ArrayList<>();
-        koreanNamesArray = new ArrayList<>();
-        englishNamesArray = new ArrayList<>();
+        int networkStatus = CheckNetwork.CheckNetwork(getActivity());
 
-        String koreanName, englishName;
+        if (networkStatus != 0) {
 
-        String url = "https://api.upbit.com/v1/market/all"; // 업비트 모든 코인 종류
-        GetUpBitCoins getUpBitApi = new GetUpBitCoins();
-        try {
-            JSONArray jsonArray = new JSONArray();
+            marketsArray = new ArrayList<>();
+            koreanNamesArray = new ArrayList<>();
+            englishNamesArray = new ArrayList<>();
 
-            jsonArray = getUpBitApi.execute(url).get();
+            String koreanName, englishName;
 
-            if (jsonArray != null) {
-
-                JSONObject jsonObject = new JSONObject();
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = (JSONObject) jsonArray.get(i);
-
-                    if (jsonObject.getString("market").contains("KRW")) { //KRW 마켓만 골라옴
-                        String market = jsonObject.getString("market");
-                        koreanName = jsonObject.getString("korean_name");
-                        englishName = jsonObject.getString("english_name");
-
-                        marketsArray.add(market);
-                        koreanNamesArray.add(koreanName);
-                        englishNamesArray.add(englishName);
-                    }
-                }
-            } // 인터넷 연결 확인 추가해야함
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            getUpBitApi = null;
-        }
-
-        StringBuilder builder = new StringBuilder(); //StringBuilder 를 사용해서 업비트 모든 코인 종류 받아옴
-
-        for (int i = 0; i < marketsArray.size(); i++) {
-            builder.append(marketsArray.get(i)).append(",");
-        }
-
-        builder.deleteCharAt(builder.lastIndexOf(","));
-        markets = builder.toString();
-    }
-
-        //업비트 api를 받아온다.
-        public void getUpBitCoinsInfo() {
-
-            orderPosition = new HashMap<>();
-
-            if(allCoinInfoArray.size() != 0){
-                allCoinInfoArray.clear();
-            }
-
-            String allCoinsInfoUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
-
+            String url = "https://api.upbit.com/v1/market/all"; // 업비트 모든 코인 종류
             GetUpBitCoins getUpBitApi = new GetUpBitCoins();
-
             try {
                 JSONArray jsonArray = new JSONArray();
-                jsonArray = getUpBitApi.execute(allCoinsInfoUrl).get();
+
+                jsonArray = getUpBitApi.execute(url).get();
 
                 if (jsonArray != null) {
+
                     JSONObject jsonObject = new JSONObject();
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         jsonObject = (JSONObject) jsonArray.get(i);
 
-                        Double currentPrice = jsonObject.getDouble("trade_price");
-                        Double dayToDay = jsonObject.getDouble("signed_change_rate");
-                        Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
-                        String[] symbol = marketsArray.get(i).split("-");
+                        if (jsonObject.getString("market").contains("KRW")) { //KRW 마켓만 골라옴
+                            String market = jsonObject.getString("market");
+                            koreanName = jsonObject.getString("korean_name");
+                            englishName = jsonObject.getString("english_name");
 
-                        CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                , currentPrice, dayToDay, transactionAmount,symbol[1]);
-
-                        allCoinInfoArray.add(coinDTO);
+                            marketsArray.add(market);
+                            koreanNamesArray.add(koreanName);
+                            englishNamesArray.add(englishName);
+                        }
                     }
-                    orderByCoins();
-                    adapter_rvCoin.setItem(allCoinInfoArray);
-                    adapter_rvCoin.notifyDataSetChanged();
-                }
+                } // 인터넷 연결 확인 추가해야함
             } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 getUpBitApi = null;
             }
+
+            StringBuilder builder = new StringBuilder(); //StringBuilder 를 사용해서 업비트 모든 코인 종류 받아옴
+
+            for (int i = 0; i < marketsArray.size(); i++) {
+                builder.append(marketsArray.get(i)).append(",");
+            }
+
+            if (builder.length() != 0) {
+                builder.deleteCharAt(builder.lastIndexOf(","));
+                markets = builder.toString();
+            }
+        }else{
+            rv_coin.setVisibility(View.GONE);
+            btn_networkIsNotConn.setVisibility(View.VISIBLE);
+            tv_networkIsNotConn.setVisibility(View.VISIBLE);
+        }
     }
+
+        //업비트 api를 받아온다.
+        public void getUpBitCoinsInfo() {
+
+            int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+
+            if (networkStatus != 0) {
+
+                orderPosition = new HashMap<>();
+
+                if (allCoinInfoArray.size() != 0) {
+                    allCoinInfoArray.clear();
+                }
+
+                String allCoinsInfoUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
+
+                GetUpBitCoins getUpBitApi = new GetUpBitCoins();
+
+                try {
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray = getUpBitApi.execute(allCoinsInfoUrl).get();
+
+                    if (jsonArray != null) {
+                        JSONObject jsonObject = new JSONObject();
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            jsonObject = (JSONObject) jsonArray.get(i);
+
+                            Double currentPrice = jsonObject.getDouble("trade_price");
+                            Double dayToDay = jsonObject.getDouble("signed_change_rate");
+                            Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
+                            String[] symbol = marketsArray.get(i).split("-");
+
+                            CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
+                                    , currentPrice, dayToDay, transactionAmount, symbol[1]);
+
+                            allCoinInfoArray.add(coinDTO);
+                        }
+                        orderByCoins();
+                        adapter_rvCoin.setItem(allCoinInfoArray);
+                        adapter_rvCoin.notifyDataSetChanged();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    getUpBitApi = null;
+                }
+            }
+        }
     // 정렬 토글버튼 세팅
     private void setOrderByBtn(){
         OrderWays orderWays = new OrderWays();
         btn_orderByTransactionAmount.setOnClickListener(orderWays);
         btn_orderByDayToDay.setOnClickListener(orderWays);
         btn_orderByCurrentPrice.setOnClickListener(orderWays);
+    }
+
+    private void setBtn_networkIsNotConn(){
+        btn_networkIsNotConn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+                if(networkStatus != 0){
+                    getAllUpBitCoins();
+                    getUpBitCoinsInfo();
+                    getUpBitCoinsThread = new GetUpBitCoinsThread();
+                    getUpBitCoinsThread.start();
+
+                    rv_coin.setVisibility(View.VISIBLE);
+                    tv_networkIsNotConn.setVisibility(View.GONE);
+                    btn_networkIsNotConn.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     private void orderByFavoriteCoins(){
@@ -393,8 +442,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void onStart() {
         super.onStart();
-        getUpBitCoinsThread = new GetUpBitCoinsThread();
-        getUpBitCoinsThread.start();
+
+        int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+
+        if(networkStatus != 0) {
+            getUpBitCoinsThread = new GetUpBitCoinsThread();
+            getUpBitCoinsThread.start();
+        }
     }
 
     @Override
@@ -508,85 +562,92 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             super.run();
 
             while (isRunning) {
+
                 try {
-                    URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                    StringBuffer builder = new StringBuffer();
 
-                    String inputString = null;
-                    while ((inputString = bufferedReader.readLine()) != null) {
-                        builder.append(inputString);
-                    }
+                    int networkStatus = CheckNetwork.CheckNetwork(getActivity());
 
-                    String s = builder.toString();
-                    JSONArray jsonCoinInfo = new JSONArray(s);
+                    if(networkStatus != 0) {
 
-                    conn.disconnect();
-                    bufferedReader.close();
-                    inputStream.close();
+                        URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                        StringBuffer builder = new StringBuffer();
 
-                    if (jsonCoinInfo != null) {
-                        JSONObject jsonObject = new JSONObject();
-
-                        for (int i = 0; i < jsonCoinInfo.length(); i++) {
-                            jsonObject = (JSONObject) jsonCoinInfo.get(i);
-
-                            Double currentPrice = jsonObject.getDouble("trade_price");
-                            Double dayToDay = jsonObject.getDouble("signed_change_rate");
-                            Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
-                            String[] symbol = {};
-                            if (marketsArray.size() != 0) {
-                                symbol = marketsArray.get(i).split("-");
-                            } else {
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            CoinDTO coinDTO = null;
-
-                            if(marketsArray != null && koreanNamesArray != null && englishNamesArray != null && symbol.length != 0) {
-                                coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
-                                        , currentPrice, dayToDay, transactionAmount, symbol[1]);
-                            }else{
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            if (orderPosition.get(marketsArray.get(i)) != null && allCoinInfoArray.size() != 0) {
-
-                                int position = orderPosition.get(marketsArray.get(i));
-                                allCoinInfoArray.set(position, coinDTO);
-
-                            } else {
-                                try {
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
+                        String inputString = null;
+                        while ((inputString = bufferedReader.readLine()) != null) {
+                            builder.append(inputString);
                         }
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if(et_searchCoin.length() == 0) {
-                                        adapter_rvCoin.notifyDataSetChanged();
+
+                        String s = builder.toString();
+                        JSONArray jsonCoinInfo = new JSONArray(s);
+
+                        conn.disconnect();
+                        bufferedReader.close();
+                        inputStream.close();
+
+                        if (jsonCoinInfo != null) {
+                            JSONObject jsonObject = new JSONObject();
+
+                            for (int i = 0; i < jsonCoinInfo.length(); i++) {
+                                jsonObject = (JSONObject) jsonCoinInfo.get(i);
+
+                                Double currentPrice = jsonObject.getDouble("trade_price");
+                                Double dayToDay = jsonObject.getDouble("signed_change_rate");
+                                Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
+                                String[] symbol = {};
+                                if (marketsArray.size() != 0) {
+                                    symbol = marketsArray.get(i).split("-");
+                                } else {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
                                 }
-                            });
-                        }else{
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                CoinDTO coinDTO = null;
+
+                                if (marketsArray != null && koreanNamesArray != null && englishNamesArray != null && symbol.length != 0) {
+                                    coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
+                                            , currentPrice, dayToDay, transactionAmount, symbol[1]);
+                                } else {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                if (orderPosition.get(marketsArray.get(i)) != null && allCoinInfoArray.size() != 0) {
+
+                                    int position = orderPosition.get(marketsArray.get(i));
+                                    allCoinInfoArray.set(position, coinDTO);
+
+                                } else {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                            }
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (et_searchCoin.length() == 0) {
+                                            adapter_rvCoin.notifyDataSetChanged();
+                                        }
+                                    }
+                                });
+                            } else {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     }

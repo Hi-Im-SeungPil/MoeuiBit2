@@ -2,7 +2,10 @@ package org.jeonfeel.moeuibit2.Fragment.coinOrder;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -695,7 +698,6 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
             }
-
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
             }
@@ -755,6 +757,7 @@ public class Fragment_coinOrder extends Fragment {
         public void run() {
             super.run();
             while (isRunning) {
+
                 try {
                     URL url = new URL("https://api.upbit.com/v1/orderbook?markets=" + market);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();

@@ -23,18 +23,18 @@
         app:layout_constraintTop_toBottomOf="@+id/aaaa"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btn_kakaoLogin"
+        app:layout_constraintBottom_toTopOf="@+id/btn_googleLogin"
         android:background="@drawable/img_login_icon"
         android:layout_margin="20dp"/>
 
     <Button
-        android:id="@+id/btn_kakaoLogin"
+        android:id="@+id/btn_googleLogin"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="@drawable/img_kakao_login"
+        android:background="@drawable/common_google_signin_btn_icon_light"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="90dp"/>
