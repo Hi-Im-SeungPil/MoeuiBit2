@@ -53,7 +53,7 @@ public class Activity_coinInfo extends FragmentActivity {
     private GetUpBitCoinInfoThread getUpBitCoinInfoThread;
     private Button btn_coinInfoBackSpace;
     private Button btn_bookMark;
-    public static Double globalCurrentPrice;
+    private Double globalCurrentPrice;
     private Double currentPrice;
 
     @Override
@@ -345,6 +345,10 @@ public class Activity_coinInfo extends FragmentActivity {
         private void stopRunning(){
             isRunning = false;
         }
+    }
+
+    public Double getGlobalCurrentPrice(){
+        return this.globalCurrentPrice;
     }
 
 }

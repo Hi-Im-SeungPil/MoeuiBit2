@@ -32,6 +32,7 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     private EditText et_orderCoinPrice,et_orderCoinQuantity,et_sellCoinQuantity,et_sellCoinPrice;
     private Double openingPrice;
     private LinearLayout linear_coinOrder,linear_coinSell;
+    private Activity_coinInfo activity_coinInfo = new Activity_coinInfo();
 
 
     public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice
@@ -98,9 +99,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
 
-        if(Activity_coinInfo.globalCurrentPrice != null){
+        if(((Activity_coinInfo)context).getGlobalCurrentPrice() != null){
 
-            Double currentPrice = Activity_coinInfo.globalCurrentPrice;
+            Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
             int intCurrentPrice = 0;
 
             if(currentPrice > 100){

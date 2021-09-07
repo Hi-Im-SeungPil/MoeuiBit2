@@ -67,8 +67,6 @@ import static java.lang.Math.round;
 public class Fragment_coinOrder extends Fragment {
 
     private LinearLayout include_coin_parent,linear_coinSell,linear_coinOrder;
-    private LinearLayout linear_PriceSell1,linear_PriceSell2,linear_PriceSell3;
-    private ConstraintLayout const_priceSell4,const_marketPriceSell;
     private RecyclerView rv_coinArcade,rv_transactionInfo;
     private String market,koreanName,symbol;
     private ArrayList<CoinArcadeDTO> coinArcadeDTOS;
@@ -79,23 +77,16 @@ public class Fragment_coinOrder extends Fragment {
     private int index = 0; //ask coinArcade set을 위해!!
     private int index2 = 0;//bid coinArcade set을 위해!!
     private GetUpBitCoinArcade getUpBitCoinArcade;
-    private RadioGroup radioGroup_sellWays;
-    private LinearLayout linear_PriceOrder1,linear_PriceOrder3,linear_PriceOrder2;
-    private ConstraintLayout const_priceOrder4,const_marketPriceOrder;
     private TextView tv_orderableAmount,tv_sellAbleCoinQuantity,tv_sellAbleAmount,tv_sellAbleCoinSymbol,tv_transactionInfoIsNull;
 
-    private Fragment_coinOrder_CPMbtn fragment_coinOrder_cpMbtn,fragment_coinOrder_cpMbtn2;
-
-    private Button btn_coinOrder,btn_coinSell,btn_coinSellReset,btn_coinOrderReset
-            ,btn_orderCoinPriceMinus,btn_orderCoinPricePlus,btn_sellCoinPriceMinus,btn_sellCoinPricePlus;
+    private Button btn_coinOrder,btn_coinSell,btn_coinSellReset,btn_coinOrderReset;
 
     private MoEuiBitDatabase db;
     private long leftMoney;
     private EditText et_orderCoinPrice, et_orderCoinQuantity, et_orderCoinTotalAmount;
-//    private EditText et_orderCoinTotalAmountMarketPriceVer;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    private Spinner spinner_orderCoinQuantity,spinner_orderCoinQuantityMarketPriceVer,spinner_sellCoinQuantity, spinner_sellCoinQuantityMarketPriceVer;
-    private EditText et_sellCoinQuantity,et_sellCoinPrice,et_sellCoinTotalAmount,et_sellCoinTotalAmountMarketPriceVer;
+    private Spinner spinner_orderCoinQuantity,spinner_sellCoinQuantity;
+    private EditText et_sellCoinQuantity,et_sellCoinPrice,et_sellCoinTotalAmount;
     private String commaResult;
 
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
@@ -119,16 +110,9 @@ public class Fragment_coinOrder extends Fragment {
         setRv_coinArcade();
         getOpeningPriceFromApi();
         getCoinArcadeInfo();
-//        setRadioGroup_orderWays(rootView);
-        setRadioGroup_sellWays(rootView);
         initFragment_coinOrder();
-//        setCPMbtn(rootView);
         setBtn_coinSellReset();
-//        setBtn_coinOrderReset();
-//        setBtn_orderCoinPriceMinus();
-//        setBtn_orderCoinPricePlus();
-        setBtn_sellCoinPriceMinus();
-        setBtn_sellCoinPricePlus();
+        setBtn_coinOrderReset();
         setTabLayout(rootView);
 
         return rootView;
@@ -155,11 +139,8 @@ public class Fragment_coinOrder extends Fragment {
         setBtn_coinOrder();
         setBtn_coinSell();
         setSpinner_orderCoinQuantity();
-//        setSpinner_orderCoinQuantityMarketPriceVer();
         setSpinner_sellCoinQuantity();
-        setSpinner_sellCoinQuantityMarketPriceVer();
         setRv_transactionInfo();
-
 
         linear_coinSell.setVisibility(View.GONE);
         rv_transactionInfo.setVisibility(View.GONE);
@@ -193,10 +174,7 @@ public class Fragment_coinOrder extends Fragment {
         et_orderCoinTotalAmount.setCursorVisible(false);
         et_sellCoinTotalAmount.setCursorVisible(false);
         TextWatcher tw1 = tw1();
-        TextWatcher tw2 = tw2();
-        et_orderCoinPrice.addTextChangedListener(tw2);
         et_orderCoinQuantity.addTextChangedListener(tw1);
-        et_sellCoinPrice.addTextChangedListener(tw2);
         et_sellCoinQuantity.addTextChangedListener(tw1);
 
 // 레이아웃 터치하면 키보드 내림.
@@ -224,47 +202,7 @@ public class Fragment_coinOrder extends Fragment {
                 return false;
             }
         });
-        // 총액 설정.
-//        et_orderCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if(et_orderCoinPrice.isFocused()) {
-//                    et_orderCoinPrice.clearFocus();
-//                }else if(et_orderCoinQuantity.isFocused()) {
-//                    et_orderCoinQuantity.clearFocus();
-//                }
-//                EditText editText = new EditText(getActivity());
-//                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-//
-//                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//                builder.setTitle("총액을 입력하세요");
-//                builder.setView(editText);
-//                builder.setPositiveButton("입력", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        if (!et_orderCoinPrice.getText().toString().equals("0") && et_orderCoinPrice.length() != 0 && editText.length() != 0){
-//                            long amount = Long.parseLong(editText.getText().toString());
-//                            Double orderPrice = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-//                            Double quantity =  amount / orderPrice;
-//                            et_orderCoinQuantity.setText(String.format("%.8f",quantity));
-//                        }
-//                    }
-//                }).setNegativeButton("취소", null);
-//
-//                AlertDialog alertDialog = builder.create();
-//                alertDialog.show();
-//
-//                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-//                editText.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        editText.requestFocus();
-//                        imm.showSoftInput(editText,0);
-//                    }
-//                },100);
-//            }
-//        });
- // 총액 설정.
+
         et_sellCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -320,64 +258,65 @@ public class Fragment_coinOrder extends Fragment {
                     et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
 
                 }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+
                     Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
                     Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
                     et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+
+                }else if(et_orderCoinQuantity.length() == 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
+
+                    et_orderCoinTotalAmount.setText("0");
+
+                }else if(et_sellCoinQuantity.length() == 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+
+                    et_sellCoinTotalAmount.setText("0");
+
                 }
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         };
         return textWatcher1;
     }
-    private TextWatcher tw2(){
-        TextWatcher textWatcher1 = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)
-                        && Double.valueOf(charSequence.toString().replaceAll(",","")) >= 1000) {
-                    commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
-                    et_orderCoinPrice.setText(commaResult);
-                    et_sellCoinPrice.setText(commaResult);
-                    et_orderCoinPrice.setSelection(commaResult.length());
-                    et_sellCoinPrice.setSelection(commaResult.length());
-                }
-
-                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
-
-                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-
-                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
-                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
-                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
-                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        };
-        return textWatcher1;
-    }
+//    private TextWatcher tw2(){
+//        TextWatcher textWatcher1 = new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            }
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)
+//                        && Double.valueOf(charSequence.toString().replaceAll(",","")) >= 1000) {
+//                    commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
+//                    et_orderCoinPrice.setText(commaResult);
+//                    et_sellCoinPrice.setText(commaResult);
+//                    et_orderCoinPrice.setSelection(commaResult.length());
+//                    et_sellCoinPrice.setSelection(commaResult.length());
+//                }
+//
+//                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
+//
+//                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+//                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+//                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+//
+//                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+//                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+//                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
+//                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+//                }
+//            }
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//            }
+//        };
+//        return textWatcher1;
+//    }
     private void FindViewById(View rootView) {
+
         rv_coinArcade = rootView.findViewById(R.id.rv_coinArcade);
-//        radioGroup_orderWays = rootView.findViewById(R.id.radioGroup_orderWays);
-        linear_PriceOrder1 = rootView.findViewById(R.id.linear_PriceOrder1);
-//        linear_PriceOrder3 = rootView.findViewById(R.id.linear_PriceOrder3);
-        linear_PriceOrder2 = rootView.findViewById(R.id.linear_PriceOrder2);
-        const_priceOrder4 = rootView.findViewById(R.id.const_priceOrder4);
-//        const_marketPriceOrder = rootView.findViewById(R.id.const_marketPriceOrder);
         tv_orderableAmount = rootView.findViewById(R.id.tv_orderableAmount);
         btn_coinOrder = rootView.findViewById(R.id.btn_coinOrder);
         et_orderCoinPrice = rootView.findViewById(R.id.et_orderCoinPrice);
@@ -385,35 +324,22 @@ public class Fragment_coinOrder extends Fragment {
         et_orderCoinTotalAmount = rootView.findViewById(R.id.et_orderCoinTotalAmount);
         include_coin_parent = rootView.findViewById(R.id.include_coin_parent);
         spinner_orderCoinQuantity = rootView.findViewById(R.id.spinner_orderCoinQuantity);
-//        et_orderCoinTotalAmountMarketPriceVer = rootView.findViewById(R.id.et_orderCoinTotalAmountMarketPriceVer);
-//        spinner_orderCoinQuantityMarketPriceVer = rootView.findViewById(R.id.spinner_orderCoinQuantityMarketPriceVer);
         linear_coinSell = rootView.findViewById(R.id.linear_coinSell);
         linear_coinOrder = rootView.findViewById(R.id.linear_coinOrder);
-        linear_PriceSell1 = rootView.findViewById(R.id.linear_PriceSell1);
-        linear_PriceSell2 = rootView.findViewById(R.id.linear_PriceSell2);
-        linear_PriceSell3 = rootView.findViewById(R.id.linear_PriceSell3);
-        const_priceSell4 = rootView.findViewById(R.id.const_priceSell4);
-        const_marketPriceSell = rootView.findViewById(R.id.const_marketPriceSell);
-        radioGroup_sellWays = rootView.findViewById(R.id.radioGroup_sellWays);
         tv_sellAbleCoinQuantity = rootView.findViewById(R.id.tv_sellAbleCoinQuantity);
         tv_sellAbleAmount = rootView.findViewById(R.id.tv_sellAbleAmount);
         et_sellCoinQuantity = rootView.findViewById(R.id.et_sellCoinQuantity);
         et_sellCoinPrice = rootView.findViewById(R.id.et_sellCoinPrice);
         et_sellCoinTotalAmount = rootView.findViewById(R.id.et_sellCoinTotalAmount);
-        et_sellCoinTotalAmountMarketPriceVer = rootView.findViewById(R.id.et_sellCoinTotalAmountMarketPriceVer);
         btn_coinSell = rootView.findViewById(R.id.btn_coinSell);
         btn_coinSellReset = rootView.findViewById(R.id.btn_coinSellReset);
         btn_coinOrder = rootView.findViewById(R.id.btn_coinOrder);
         btn_coinOrderReset = rootView.findViewById(R.id.btn_coinOrderReset);
         tv_sellAbleCoinSymbol = rootView.findViewById(R.id.tv_sellAbleCoinSymbol);
         spinner_sellCoinQuantity = rootView.findViewById(R.id.spinner_sellCoinQuantity);
-        spinner_sellCoinQuantityMarketPriceVer = rootView.findViewById(R.id.spinner_sellCinQuantityMarketPriceVer);
-//        btn_orderCoinPriceMinus = rootView.findViewById(R.id.btn_orderCoinPriceMinus);
-//        btn_orderCoinPricePlus = rootView.findViewById(R.id.btn_orderCoinPricePlus);
-        btn_sellCoinPriceMinus = rootView.findViewById(R.id.btn_sellCoinPriceMinus);
-        btn_sellCoinPricePlus = rootView.findViewById(R.id.btn_sellCoinPricePlus);
         rv_transactionInfo = rootView.findViewById(R.id.rv_transactionInfo);
         tv_transactionInfoIsNull = rootView.findViewById(R.id.tv_transactionInfoIsNull);
+
     }
     private void getCoinArcadeInfo() {
 
@@ -450,24 +376,26 @@ public class Fragment_coinOrder extends Fragment {
                 }
                 //매수 , 매도 잔량 중간.
                 Double initPrice = coinArcadeDTOS.get(14).getCoinArcadePrice();
+
                 //초기 코인 가격 설정
+
                 if(initPrice >= 100){
+
                     et_orderCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
                     et_sellCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
 
-                    et_sellCoinPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    et_orderCoinPrice.setInputType(InputType.TYPE_CLASS_NUMBER);
                 }else {
+
                     et_orderCoinPrice.setText(String.format("%.2f", initPrice));
                     et_sellCoinPrice.setText(String.format("%.2f", initPrice));
 
-                    et_sellCoinPrice.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                    et_orderCoinPrice.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
                 }
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
                 rv_coinArcade.scrollToPosition(8);
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -508,80 +436,19 @@ public class Fragment_coinOrder extends Fragment {
             getUpBitCoinArcade.stopThread();
         }
     }
-//    private void setRadioGroup_orderWays(View rootView) {
-//
-//        RadioButton radio_setPrice = rootView.findViewById(R.id.radio_setPrice);
-//        radio_setPrice.setChecked(true);
-//        const_marketPriceOrder.setVisibility(View.GONE);
-//
-//        radioGroup_orderWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-//
-//                switch (radioGroup.getCheckedRadioButtonId()){
-//                    case R.id.radio_setPrice:
-//                        linear_PriceOrder1.setVisibility(View.VISIBLE);
-//                        linear_PriceOrder3.setVisibility(View.VISIBLE);
-//                        linear_PriceOrder2.setVisibility(View.VISIBLE);
-//                        const_priceOrder4.setVisibility(View.VISIBLE);
-//                        const_marketPriceOrder.setVisibility(View.GONE);
-//                        break;
-//                    case R.id.radio_marketPrice:
-//                        linear_PriceOrder1.setVisibility(View.GONE);
-//                        linear_PriceOrder3.setVisibility(View.GONE);
-//                        linear_PriceOrder2.setVisibility(View.GONE);
-//                        const_priceOrder4.setVisibility(View.GONE);
-//                        const_marketPriceOrder.setVisibility(View.VISIBLE);
-//                        break;
-//                }
-//
-//            }
-//        });
-//    }
-    private void setRadioGroup_sellWays(View rootView){
-        RadioButton radio_setPriceVerSell = rootView.findViewById(R.id.radio_setPriceVerSell);
-        radio_setPriceVerSell.setChecked(true);
-        const_marketPriceSell.setVisibility(View.GONE);
-        radioGroup_sellWays.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (radioGroup.getCheckedRadioButtonId()){
-                    case R.id.radio_setPriceVerSell :
-                        linear_PriceSell1.setVisibility(View.VISIBLE);
-                        linear_PriceSell2.setVisibility(View.VISIBLE);
-                        linear_PriceSell3.setVisibility(View.VISIBLE);
-                        const_priceSell4.setVisibility(View.VISIBLE);
-                        const_marketPriceSell.setVisibility(View.GONE);
-                        break;
-                    case R.id.radio_marketPriceVerSell :
-                        linear_PriceSell1.setVisibility(View.GONE);
-                        linear_PriceSell2.setVisibility(View.GONE);
-                        linear_PriceSell3.setVisibility(View.GONE);
-                        const_priceSell4.setVisibility(View.GONE);
-                        const_marketPriceSell.setVisibility(View.VISIBLE);
-                        break;
-                }
-            }
-        });
-    }
+
     private void setBtn_coinOrder(){
         btn_coinOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                    Double currentPrice = Activity_coinInfo.globalCurrentPrice;
-
-//                    int radioId = radioGroup_orderWays.getCheckedRadioButtonId();
-//
-//                    if (radioId == R.id.radio_setPrice) {
+                    Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
 
                         if(et_orderCoinQuantity.length() == 0 || et_orderCoinPrice.length() == 0 || et_orderCoinTotalAmount.length() == 0){
                             Toast.makeText(getActivity(), "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Double totalPrice = Double.valueOf(et_orderCoinTotalAmount.getText().toString().replace(",", ""));
-                        Double orderPrice = Double.parseDouble(et_orderCoinPrice.getText().toString().replace(",", ""));
                         Double orderQuantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
                         Double orderAmount = currentPrice * orderQuantity;
 
@@ -593,7 +460,7 @@ public class Fragment_coinOrder extends Fragment {
                             return;
                         }
 
-                        if (myCoin == null && orderPrice >= currentPrice && orderAmount <= leftMoney) {
+                        if (myCoin == null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
                                 Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
@@ -610,16 +477,14 @@ public class Fragment_coinOrder extends Fragment {
                             myCoin = db.myCoinDAO().isInsert(market);
                             tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
 
-//                            et_orderCoinPrice.setText("");
                             et_orderCoinQuantity.setText("");
                             et_orderCoinTotalAmount.setText("");
-//                            et_orderCoinTotalAmountMarketPriceVer.setText("");
-//                            fragment_coinOrder_cpMbtn.reset();
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid","2021년");
 
-                        } else if (myCoin != null && orderPrice >= currentPrice && orderAmount <= leftMoney) {
+                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                        } else if (myCoin != null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
                                 Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
@@ -647,85 +512,13 @@ public class Fragment_coinOrder extends Fragment {
 
                             myCoin = db.myCoinDAO().isInsert(market);
                             tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
-//                            et_orderCoinPrice.setText("");
                             et_orderCoinQuantity.setText("");
                             et_orderCoinTotalAmount.setText("");
-//                            et_orderCoinTotalAmountMarketPriceVer.setText("");
-//                            fragment_coinOrder_cpMbtn.reset();
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid","2021년");
+
+                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                         }
-//                    } else if (radioId == R.id.radio_marketPrice) {
-//
-//                        if(et_orderCoinTotalAmountMarketPriceVer.length() == 0){
-//                            Toast.makeText(getActivity(), "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
-//                            return;
-//                        }
-//
-//                        long totalPrice = Long.parseLong(et_orderCoinTotalAmountMarketPriceVer.getText().toString().replace(",", ""));
-//
-//                        Double orderQuantity = Double.valueOf(String.format("%.8f", totalPrice / currentPrice));
-//
-//                        MyCoin myCoin = null;
-//                        myCoin = db.myCoinDAO().isInsert(market);
-//
-//                        if (totalPrice < 5000) {
-//                            Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
-//                            return;
-//                        }
-//                        if (totalPrice > leftMoney) {
-//                            Toast.makeText(getActivity(), "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
-//                            return;
-//                        }
-//
-//                        if (myCoin == null && totalPrice <= leftMoney && totalPrice >= 5000) {
-//                            MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
-//                            db.myCoinDAO().insert(myCoin1);
-//                            db.userDAO().update((long) leftMoney - totalPrice);
-//
-//                            User user = db.userDAO().getAll();
-//                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-//                            et_orderCoinPrice.setText("");
-//                            et_orderCoinQuantity.setText("");
-//                            et_orderCoinTotalAmount.setText("");
-//                            et_orderCoinTotalAmountMarketPriceVer.setText("");
-//                            fragment_coinOrder_cpMbtn.reset();
-//                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
-//
-//                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,totalPrice,"bid","2021년");
-//
-//                        } else if (myCoin != null && totalPrice <= leftMoney && totalPrice >= 5000) {
-//                            Double myCoinQuantity = myCoin.getQuantity();
-//                            Double myCoinPrice = myCoin.getPurchasePrice();
-//
-//                            Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
-//
-//                            if (averageOrderPrice >= 100) {
-//                                int purchasePrice = (int) round(averageOrderPrice);
-//                                db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
-//                            } else {
-//                                averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
-//                                db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
-//                            }
-//                            Double quantityResult = Double.valueOf(String.format("%.8f", myCoinQuantity + orderQuantity));
-//
-//                            db.myCoinDAO().updatePlusQuantity(market, quantityResult);
-//                            db.userDAO().update((long) leftMoney - totalPrice);
-//
-//                            User user = db.userDAO().getAll();
-//
-//                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-//                            et_orderCoinPrice.setText("");
-//                            et_orderCoinQuantity.setText("");
-//                            et_orderCoinTotalAmount.setText("");
-//                            et_orderCoinTotalAmountMarketPriceVer.setText("");
-//                            fragment_coinOrder_cpMbtn.reset();
-//                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
-//
-//                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,totalPrice,"bid","2021년");
-//                        }
-//                    }
             }
         });
     }
@@ -735,11 +528,8 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onClick(View view) {
 
-                    int radioId = radioGroup_sellWays.getCheckedRadioButtonId();
                     Double sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
-                    Double currentPrice = Activity_coinInfo.globalCurrentPrice;
-
-                    if (radioId == R.id.radio_setPriceVerSell) {
+                    Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
 
                         if (et_sellCoinQuantity.length() == 0 || et_sellCoinTotalAmount.length() == 0 || et_sellCoinPrice.length() == 0 ) {
                             Toast.makeText(getActivity(), "빈곳없이 매도요청 해주세요!", Toast.LENGTH_SHORT).show();
@@ -759,8 +549,7 @@ public class Fragment_coinOrder extends Fragment {
                             return;
                         }
 
-                        //지정 시장가 매도
-                        if (sellCoinQuantity <= sellAbleCoinQuantity && sellCoinPrice <= currentPrice && round(sellCoinQuantity * sellCoinPrice) >= 5000) {
+                        if (sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * sellCoinPrice) >= 5000) {
 
                             Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
                             Double quantityResult = Double.valueOf(String.format("%.8f", initQuantity - sellCoinQuantity));
@@ -782,64 +571,15 @@ public class Fragment_coinOrder extends Fragment {
                             tv_orderableAmount.setText(decimalFormat.format(user.krw));
 
                             et_sellCoinQuantity.setText("");
-                            et_sellCoinPrice.setText("");
                             et_sellCoinTotalAmount.setText("");
-                            et_sellCoinTotalAmountMarketPriceVer.setText("");
-                            fragment_coinOrder_cpMbtn2.reset();
                             Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
 
                             db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask","2021년");
                         }
-
-                    } else if (radioId == R.id.radio_marketPriceVerSell && sellAbleCoinQuantity > 0 && et_sellCoinTotalAmountMarketPriceVer.length() != 0) {
-
-                        Double sellCoinQuantity = Double.valueOf(et_sellCoinTotalAmountMarketPriceVer.getText().toString());
-
-                        if(sellAbleCoinQuantity < sellCoinQuantity){
-                            Toast.makeText(getActivity(), "판매가능한 수량이 부족합니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if(round(sellCoinQuantity * Activity_coinInfo.globalCurrentPrice) < 5000){
-                            Toast.makeText(getActivity(), "5000이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * currentPrice) >= 5000) {
-
-                            Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
-                            Double quantityResult = Double.valueOf(String.format("%.8f", initQuantity - sellCoinQuantity));
-
-                            db.myCoinDAO().updateQuantity(market, quantityResult);
-
-                            db.userDAO().updatePlusMoney(round(currentPrice * sellCoinQuantity));
-
-                            Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
-
-                            if (quantity == 0.00000000) {
-                                db.myCoinDAO().delete(market);
-                                tv_sellAbleCoinQuantity.setText("0");
-                            } else {
-                                tv_sellAbleCoinQuantity.setText(String.format("%.8f", quantity));
-                            }
-
-                            User user = db.userDAO().getAll();
-
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
-                            et_sellCoinQuantity.setText("");
-                            et_sellCoinPrice.setText("");
-                            et_sellCoinTotalAmount.setText("");
-                            et_sellCoinTotalAmountMarketPriceVer.setText("");
-                            fragment_coinOrder_cpMbtn2.reset();
-                            Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask","2021년");
-                        }
-                    }
-                }
+            }
         });
     }
+
     private void setSpinner_sellCoinQuantity(){
         String[] items = {"%선택","최대","50%","25%","10%"};
 
@@ -881,45 +621,7 @@ public class Fragment_coinOrder extends Fragment {
             }
         });
     }
-    private void setSpinner_sellCoinQuantityMarketPriceVer(){
-        String[] items = {"%선택","최대", "50%", "25%", "10%"};
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
-
-        spinner_sellCoinQuantityMarketPriceVer.setAdapter(adapter);
-
-        spinner_sellCoinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-
-                    Double sellAbleCoinAmount = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
-
-                    switch (spinner_sellCoinQuantityMarketPriceVer.getSelectedItemPosition()) {
-                        case 0:
-                            et_sellCoinTotalAmountMarketPriceVer.setText("0");
-                            break;
-                        case 1:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount));
-                            break;
-                        case 2:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 2));
-                            break;
-                        case 3:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 4));
-                            break;
-                        case 4:
-                            et_sellCoinTotalAmountMarketPriceVer.setText(String.format("%.8f", sellAbleCoinAmount / 10));
-                            break;
-                    }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
-        });
-    }
     private void setSpinner_orderCoinQuantity(){
 
         String[] items = {"%선택","최대","50%","25%","10%"};
@@ -964,47 +666,7 @@ public class Fragment_coinOrder extends Fragment {
                 }
             });
         }
-//    private void setSpinner_orderCoinQuantityMarketPriceVer() {
-//
-//        String[] items = {"%선택", "최대", "50%", "25%", "10%"};
-//
-//        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
-//
-//        spinner_orderCoinQuantityMarketPriceVer.setAdapter(adapter);
-//
-//        spinner_orderCoinQuantityMarketPriceVer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//
-//                    int orderAbleAmount = Integer.parseInt(tv_orderableAmount.getText().toString().replaceAll(",", ""));
-//
-//                    switch (spinner_orderCoinQuantityMarketPriceVer.getSelectedItemPosition()) {
-//
-//                        case 0:
-//                            et_orderCoinTotalAmountMarketPriceVer.setText("0");
-//                            break;
-//                        case 1:
-//                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(orderAbleAmount));
-//                            break;
-//                        case 2:
-//                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 2)));
-//                            break;
-//                        case 3:
-//                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 4)));
-//                            break;
-//                        case 4:
-//                            et_orderCoinTotalAmountMarketPriceVer.setText(decimalFormat.format(round(orderAbleAmount / 10)));
-//                            break;
-//                    }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//    }
+
     private void setTabLayout(View rootView){
 
         TabLayout tab_orderSellTransaction = rootView.findViewById(R.id.tab_orderSellTransaction);
@@ -1043,213 +705,24 @@ public class Fragment_coinOrder extends Fragment {
         btn_coinSellReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int radioId = radioGroup_sellWays.getCheckedRadioButtonId();
 
-                if(radioId == R.id.radio_setPriceVerSell){
-                    et_sellCoinQuantity.setText("");
-                    et_sellCoinPrice.setText("");
-                    et_sellCoinTotalAmount.setText("");
-                }else if (radioId == R.id.radio_marketPriceVerSell){
-                    et_sellCoinTotalAmountMarketPriceVer.setText("");
-                }
-
+                et_sellCoinQuantity.setText("0");
+                et_sellCoinTotalAmount.setText("0");
             }
         });
     }
-//    private void setBtn_coinOrderReset(){
-//        btn_coinOrderReset.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
 
-//                int radioId = radioGroup_orderWays.getCheckedRadioButtonId();
-
-//                if(radioId == R.id.radio_setPrice) {
-//                    et_orderCoinQuantity.setText("");
-//                    et_orderCoinPrice.setText("");
-//                    et_orderCoinTotalAmount.setText("");
-//                }
-//                }else if(radioId == R.id.radio_marketPrice){
-//                    et_orderCoinTotalAmountMarketPriceVer.setText("");
-//                }
-
-//            }
-//        });
-//    }
-//    private void setBtn_orderCoinPriceMinus(){
-//        btn_orderCoinPriceMinus.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (et_orderCoinPrice.length() != 0) {
-//                    String price = et_orderCoinPrice.getText().toString().replace(",", "");
-//                    Double prices = Double.parseDouble(price);
-//
-//                    if (prices < 10) {
-//                        prices -= 0.01;
-//                        et_orderCoinPrice.setText(String.format("%.2f", prices));
-//                    } else if (prices >= 10 && prices < 100) {
-//                        prices -= 0.1;
-//                        et_orderCoinPrice.setText(String.format("%.2f", prices));
-//                    } else if (prices >= 100 && prices < 1000) {
-//                        prices -= 1;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 1000 && prices < 10000) {
-//                        prices -= 5;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 10000 && prices < 100000) {
-//                        prices -= 10;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 100000 && prices < 500000) {
-//                        prices -= 50;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 500000 && prices < 1000000) {
-//                        prices -= 100;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else {
-//                        prices -= 1000;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    }
-//                }
-//            }
-//        });
-//    }
-    //현재가격 5+-% 버튼 설정.
-//    private void setCPMbtn(View rootView){
-//        Button btn_orderCurrentPrice,btn_orderCurrentPriceMinus,btn_orderCurrentPricePlus;
-//        btn_orderCurrentPrice = rootView.findViewById(R.id.btn_orderCurrentPrice);
-//        btn_orderCurrentPriceMinus = rootView.findViewById(R.id.btn_orderCurrentPriceMinus);
-//        btn_orderCurrentPricePlus = rootView.findViewById(R.id.btn_orderCurrentPricePlus);
-//
-//        fragment_coinOrder_cpMbtn =
-//                new Fragment_coinOrder_CPMbtn(btn_orderCurrentPricePlus,btn_orderCurrentPriceMinus,btn_orderCurrentPrice,et_orderCoinPrice,getActivity());
-//
-//        fragment_coinOrder_cpMbtn.setBtn_currentPrice();
-//        fragment_coinOrder_cpMbtn.setBtn_currentPriceMinus();
-//        fragment_coinOrder_cpMbtn.setBtn_currentPricePlus();
-//        //-----------------------------------------------------------------
-//        Button btn_sellCurrentPriceMinus,btn_sellCurrentPricePlus,btn_sellCurrentPrice;
-//        btn_sellCurrentPriceMinus = rootView.findViewById(R.id.btn_sellCurrentPriceMinus);
-//        btn_sellCurrentPricePlus = rootView.findViewById(R.id.btn_sellCurrentPricePlus);
-//        btn_sellCurrentPrice = rootView.findViewById(R.id.btn_sellCurrentPrice);
-//
-//        fragment_coinOrder_cpMbtn2 = new Fragment_coinOrder_CPMbtn(btn_sellCurrentPricePlus,btn_sellCurrentPriceMinus,
-//                btn_sellCurrentPrice,et_sellCoinPrice,getActivity());
-//
-//        fragment_coinOrder_cpMbtn2.setBtn_currentPriceMinus();
-//        fragment_coinOrder_cpMbtn2.setBtn_currentPrice();
-//        fragment_coinOrder_cpMbtn2.setBtn_currentPricePlus();
-//    }
-//    private void setBtn_orderCoinPricePlus(){
-//        btn_orderCoinPricePlus.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                if (et_orderCoinPrice.length() != 0) {
-//                    String price = et_orderCoinPrice.getText().toString().replace(",", "");
-//                    Double prices = Double.parseDouble(price);
-//
-//                    if (prices < 10) {
-//                        prices += 0.01;
-//                        et_orderCoinPrice.setText(String.format("%.2f", prices));
-//                    } else if (prices >= 10 && prices < 100) {
-//                        prices += 0.1;
-//                        et_orderCoinPrice.setText(String.format("%.2f", prices));
-//                    } else if (prices >= 100 && prices < 1000) {
-//                        prices += 1;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 1000 && prices < 10000) {
-//                        prices += 5;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 10000 && prices < 100000) {
-//                        prices += 10;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 100000 && prices < 500000) {
-//                        prices += 50;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else if (prices >= 500000 && prices < 1000000) {
-//                        prices += 100;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    } else {
-//                        prices += 1000;
-//                        et_orderCoinPrice.setText(decimalFormat.format(round(prices)));
-//                    }
-//                }
-//            }
-//        });
-//    }
-    private void setBtn_sellCoinPriceMinus(){
-        btn_sellCoinPriceMinus.setOnClickListener(new View.OnClickListener() {
+    private void setBtn_coinOrderReset(){
+        btn_coinOrderReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (et_sellCoinPrice.length() != 0) {
-                    String price = et_sellCoinPrice.getText().toString().replace(",", "");
-                    Double prices = Double.parseDouble(price);
 
-                    if (prices < 10) {
-                        prices -= 0.01;
-                        et_sellCoinPrice.setText(String.format("%.2f", prices));
-                    } else if (prices >= 10 && prices < 100) {
-                        prices -= 0.1;
-                        et_sellCoinPrice.setText(String.format("%.2f", prices));
-                    } else if (prices >= 100 && prices < 1000) {
-                        prices -= 1;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 1000 && prices < 10000) {
-                        prices -= 5;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 10000 && prices < 100000) {
-                        prices -= 10;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 100000 && prices < 500000) {
-                        prices -= 50;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 500000 && prices < 1000000) {
-                        prices -= 100;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else {
-                        prices -= 1000;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    }
-                }
+                et_orderCoinQuantity.setText("0");
+                et_orderCoinTotalAmount.setText("0");
             }
         });
     }
-    private void setBtn_sellCoinPricePlus(){
-        btn_sellCoinPricePlus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (et_sellCoinPrice.length() != 0) {
-                    String price = et_sellCoinPrice.getText().toString().replace(",", "");
-                    Double prices = Double.parseDouble(price);
 
-                    if (prices < 10) {
-                        prices += 0.01;
-                        et_sellCoinPrice.setText(String.format("%.2f", prices));
-                    } else if (prices >= 10 && prices < 100) {
-                        prices += 0.1;
-                        et_sellCoinPrice.setText(String.format("%.2f", prices));
-                    } else if (prices >= 100 && prices < 1000) {
-                        prices += 1;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 1000 && prices < 10000) {
-                        prices += 5;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 10000 && prices < 100000) {
-                        prices += 10;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 100000 && prices < 500000) {
-                        prices += 50;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else if (prices >= 500000 && prices < 1000000) {
-                        prices += 100;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    } else {
-                        prices += 1000;
-                        et_sellCoinPrice.setText(decimalFormat.format(round(prices)));
-                    }
-                }
-            }
-        });
-    }
     private void setRv_transactionInfoData(){
 
         List<TransactionInfo> transactionInfos = db.transactionInfoDAO().select(market);
@@ -1264,8 +737,8 @@ public class Fragment_coinOrder extends Fragment {
             rv_transactionInfo.setVisibility(View.VISIBLE);
             tv_transactionInfoIsNull.setVisibility(View.GONE);
         }
-
     }
+
     private Double averageOrderPriceCalculate(Double myCoinQuantity,Double myCoinPrice,Double newCoinQuantity,Double newCoinPrice){
 
         Double averageOrderPrice = ((myCoinQuantity * myCoinPrice) + (newCoinQuantity * newCoinPrice))
@@ -1273,6 +746,7 @@ public class Fragment_coinOrder extends Fragment {
 
         return averageOrderPrice;
     }
+
     class GetUpBitCoinArcade extends Thread {
 
         private boolean isRunning = true;
@@ -1333,16 +807,21 @@ public class Fragment_coinOrder extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (Activity_coinInfo.globalCurrentPrice != null)
-                                            tv_sellAbleAmount.setText("= " + decimalFormat.format(round(Activity_coinInfo.globalCurrentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
+
+                                        Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+
+                                        if (currentPrice != null) {
+                                            tv_sellAbleAmount.setText("= " + decimalFormat.format(round(currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
 
                                             adapter_rvCoinArcade.notifyDataSetChanged();
-                                            if(Activity_coinInfo.globalCurrentPrice >= 100){
-                                                et_orderCoinPrice.setText(decimalFormat.format(Activity_coinInfo.globalCurrentPrice));
-                                            }else{
-                                                et_orderCoinPrice.setText(String.format("%.2f",Activity_coinInfo.globalCurrentPrice));
+                                            if (currentPrice >= 100) {
+                                                et_orderCoinPrice.setText(decimalFormat.format(currentPrice));
+                                                et_sellCoinPrice.setText(decimalFormat.format(currentPrice));
+                                            } else {
+                                                et_orderCoinPrice.setText(String.format("%.2f", currentPrice));
+                                                et_sellCoinPrice.setText(String.format("%.2f",currentPrice));
                                             }
-
+                                        }
                                     }
                                 });
                             }
