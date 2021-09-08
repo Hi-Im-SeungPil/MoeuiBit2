@@ -24,8 +24,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -106,10 +108,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         setRv_coin();
         setBtn_networkIsNotConn();
+        CustomLodingDialog customLodingDialog = new CustomLodingDialog(getActivity());
+        customLodingDialog.show();
         getAllUpBitCoins();
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
         rv_coin.setAdapter(adapter_rvCoin);
         getUpBitCoinsInfo();
+        customLodingDialog.dismiss();
         setTextWatcher();
         setOrderByBtn();
         setSch_favorite();
@@ -244,7 +249,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             englishNamesArray.add(englishName);
                         }
                     }
-                } // 인터넷 연결 확인 추가해야함
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -330,6 +335,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             public void onClick(View view) {
                 int networkStatus = CheckNetwork.CheckNetwork(getActivity());
                 if(networkStatus != 0){
+                    CustomLodingDialog customLodingDialog = new CustomLodingDialog(getActivity());
+                    customLodingDialog.show();
+
                     getAllUpBitCoins();
                     getUpBitCoinsInfo();
                     getUpBitCoinsThread = new GetUpBitCoinsThread();
@@ -338,6 +346,9 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                     rv_coin.setVisibility(View.VISIBLE);
                     tv_networkIsNotConn.setVisibility(View.GONE);
                     btn_networkIsNotConn.setVisibility(View.GONE);
+                    customLodingDialog.dismiss();
+                }else{
+                    Toast.makeText(getActivity(), "네트워크 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

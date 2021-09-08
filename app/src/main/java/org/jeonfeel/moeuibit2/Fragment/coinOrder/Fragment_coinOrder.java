@@ -810,8 +810,13 @@ public class Fragment_coinOrder extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                                        Double currentPrice;
+                                        try {
+                                            currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                            currentPrice = null;
+                                        }
 
                                         if (currentPrice != null) {
                                             tv_sellAbleAmount.setText("= " + decimalFormat.format(round(currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));

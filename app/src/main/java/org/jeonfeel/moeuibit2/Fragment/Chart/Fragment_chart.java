@@ -32,6 +32,7 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
+import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
@@ -603,101 +604,105 @@ public class Fragment_chart extends Fragment {
 
             while (isRunning) {
                 try {
-                    String coinUrl = "";
-                    if(minute != 0) {
-                        coinUrl = "https://api.upbit.com/v1/candles/" + period + "/" + minute + "?market=" + market + "&count=1";
-                    }else{
-                        coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=1";
-                    }
 
-                    URL url = new URL(coinUrl);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                    StringBuffer builder = new StringBuffer();
+                    if (CheckNetwork.CheckNetwork(getActivity()) != 0) {
 
-                    String inputString = null;
-                    while ((inputString = bufferedReader.readLine()) != null) {
-                        builder.append(inputString);
-                    }
-
-                    String s = builder.toString();
-                    JSONArray jsonRecentCoinInfo = new JSONArray(s);
-
-                    conn.disconnect();
-                    bufferedReader.close();
-                    inputStream.close();
-
-                    try {
-
-                        String candleDateTimeKst = "";
-                        if (jsonRecentCoinInfo != null) {
-
-                            JSONObject jsonObject = (JSONObject) jsonRecentCoinInfo.get(0);
-
-                            candleDateTimeKst = jsonObject.getString("candle_date_time_kst");
-                            Double openingPrice = jsonObject.getDouble("opening_price");
-                            Double highPrice = jsonObject.getDouble("high_price");
-                            Double lowPrice = jsonObject.getDouble("low_price");
-                            Double tradePrice = jsonObject.getDouble("trade_price");
-                            Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
-
-                            float openingPrice2 = 0;
-
-                            if (openingPrice < 100) {
-                                openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
-                            } else {
-                                openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
-                            }
-
-                            float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
-                            float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
-                            float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
-                            float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
-
-                            if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
-
-                                candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-
-                                barEntries.set(barEntries.size() - 1, new BarEntry(candlePosition - 1, candleTransactionAmount2));
-
-                                coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
-
-                            } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
-                                candleEntries.add(new CandleEntry(candlePosition, highPrice2, lowPrice2, openingPrice2, tradePrice2));
-
-                                barEntries.add(new BarEntry(candlePosition,candleTransactionAmount2));
-
-                                coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
-
-                                Collections.sort(candleEntries, new EntryXComparator());
-
-                                candlePosition++;
-
-                                combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
-                            }
-
-                            combinedChart.getAxisRight().removeLimitLine(ll2);
-                            if(tradePrice2 >= 100) {
-                                ll2 = new LimitLine(tradePrice2, decimalFormat.format(tradePrice2));
-                            }else{
-                                ll2 = new LimitLine(tradePrice2, String.format("%.2f",tradePrice2));
-                            }
-                            ll2.setLineWidth(0f);
-                            ll2.enableDashedLine(1f, 1f, 0f);
-                            ll2.setLineColor(Color.parseColor("#000000"));
-                            ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-                            ll2.setTextSize(10f);
-                            ll2.setTextColor(Color.parseColor("#000000"));
-                            combinedChart.getAxisRight().addLimitLine(ll2);
-
-                            combinedChart.notifyDataSetChanged();
-                            combinedChart.invalidate();
+                        String coinUrl = "";
+                        if (minute != 0) {
+                            coinUrl = "https://api.upbit.com/v1/candles/" + period + "/" + minute + "?market=" + market + "&count=1";
+                        } else {
+                            coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=1";
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+
+                        URL url = new URL(coinUrl);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                        StringBuffer builder = new StringBuffer();
+
+                        String inputString = null;
+                        while ((inputString = bufferedReader.readLine()) != null) {
+                            builder.append(inputString);
+                        }
+
+                        String s = builder.toString();
+                        JSONArray jsonRecentCoinInfo = new JSONArray(s);
+
+                        conn.disconnect();
+                        bufferedReader.close();
+                        inputStream.close();
+
+                        try {
+
+                            String candleDateTimeKst = "";
+                            if (jsonRecentCoinInfo != null) {
+
+                                JSONObject jsonObject = (JSONObject) jsonRecentCoinInfo.get(0);
+
+                                candleDateTimeKst = jsonObject.getString("candle_date_time_kst");
+                                Double openingPrice = jsonObject.getDouble("opening_price");
+                                Double highPrice = jsonObject.getDouble("high_price");
+                                Double lowPrice = jsonObject.getDouble("low_price");
+                                Double tradePrice = jsonObject.getDouble("trade_price");
+                                Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
+
+                                float openingPrice2 = 0;
+
+                                if (openingPrice < 100) {
+                                    openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
+                                } else {
+                                    openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
+                                }
+
+                                float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
+                                float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
+                                float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
+                                float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
+
+                                if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
+
+                                    candleEntries.set(candleEntries.size() - 1, new CandleEntry(candlePosition - 1, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+
+                                    barEntries.set(barEntries.size() - 1, new BarEntry(candlePosition - 1, candleTransactionAmount2));
+
+                                    coinCandleDataDTOS.set(candleEntries.size() - 1, new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
+
+                                } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleEntries.size() - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
+                                    candleEntries.add(new CandleEntry(candlePosition, highPrice2, lowPrice2, openingPrice2, tradePrice2));
+
+                                    barEntries.add(new BarEntry(candlePosition, candleTransactionAmount2));
+
+                                    coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
+
+                                    Collections.sort(candleEntries, new EntryXComparator());
+
+                                    candlePosition++;
+
+                                    combinedChart.getXAxis().setAxisMaximum(combinedChart.getXChartMax() + 1f);
+                                }
+
+                                combinedChart.getAxisRight().removeLimitLine(ll2);
+                                if (tradePrice2 >= 100) {
+                                    ll2 = new LimitLine(tradePrice2, decimalFormat.format(tradePrice2));
+                                } else {
+                                    ll2 = new LimitLine(tradePrice2, String.format("%.2f", tradePrice2));
+                                }
+                                ll2.setLineWidth(0f);
+                                ll2.enableDashedLine(1f, 1f, 0f);
+                                ll2.setLineColor(Color.parseColor("#000000"));
+                                ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                                ll2.setTextSize(10f);
+                                ll2.setTextColor(Color.parseColor("#000000"));
+                                combinedChart.getAxisRight().addLimitLine(ll2);
+
+                                combinedChart.notifyDataSetChanged();
+                                combinedChart.invalidate();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (UnsupportedEncodingException e) {
+                }catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();

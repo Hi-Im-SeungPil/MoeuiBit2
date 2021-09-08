@@ -14,9 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
+import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
@@ -92,6 +95,11 @@ public class Fragment_investmentDetails extends Fragment {
 
     //초기설정
     private void init() {
+
+        if(CheckNetwork.CheckNetwork(getActivity()) == 0){
+            Toast.makeText(getActivity(), "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+        }
+
         StringBuilder stringBuilder = null;
         myCoinsDTOS = null;
         currentPrices = null;
@@ -199,79 +207,82 @@ public class Fragment_investmentDetails extends Fragment {
 
             while (isRunning) {
                 try {
-                    totalEvaluation = 0;
 
-                    URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                    StringBuffer builder = new StringBuffer();
+                    if (CheckNetwork.CheckNetwork(getActivity()) != 0) {
+                        totalEvaluation = 0;
 
-                    String inputString = null;
+                        URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                        StringBuffer builder = new StringBuffer();
 
-                    while ((inputString = bufferedReader.readLine()) != null) {
-                        builder.append(inputString);
-                    }
+                        String inputString = null;
 
-                    String s = builder.toString();
-                    JSONArray jsonCoinInfo = new JSONArray(s);
-
-                    conn.disconnect();
-                    bufferedReader.close();
-                    inputStream.close();
-
-                    if (jsonCoinInfo != null && myCoins.size() == jsonCoinInfo.length()) {
-                        JSONObject jsonObject = new JSONObject();
-
-                        for (int i = 0; i < jsonCoinInfo.length(); i++) {
-                            jsonObject = (JSONObject) jsonCoinInfo.get(i);
-
-                            Double currentPrice = jsonObject.getDouble("trade_price");
-                            Double quantity = myCoins.get(i).getQuantity();
-                            String coinName = myCoins.get(i).getKoreanCoinName();
-
-                            totalEvaluation += round(currentPrice * quantity);
-                            currentPrices.set(i, currentPrice);
-
-                            Log.d("coinInfoqqqq", coinName + " : " + currentPrice);
+                        while ((inputString = bufferedReader.readLine()) != null) {
+                            builder.append(inputString);
                         }
 
-                        Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
-                        int evaluationGainLoss = (int) (totalEvaluation - totalBuyOut);
-                        int myTotalProperty = (int) (myKoreanWon + totalEvaluation);
-                        String yieldResult = String.format("%.2f", yield);
+                        String s = builder.toString();
+                        JSONArray jsonCoinInfo = new JSONArray(s);
 
-                        Log.d("totalEvaluation", totalEvaluation + "");
-                        Log.d("totalBuyOut", totalBuyOut + "");
-                        Log.d("evaluationGainLoss", evaluationGainLoss + "");
+                        conn.disconnect();
+                        bufferedReader.close();
+                        inputStream.close();
 
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+                        if (jsonCoinInfo != null && myCoins.size() == jsonCoinInfo.length()) {
+                            JSONObject jsonObject = new JSONObject();
 
-                                    if (totalEvaluation - totalBuyOut > 0) {
-                                        tv_yield.setTextColor(Color.parseColor("#B77300"));
-                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#B77300"));
-                                    } else if (totalEvaluation - totalBuyOut < 0) {
-                                        tv_yield.setTextColor(Color.parseColor("#0054FF"));
-                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#0054FF"));
-                                    } else {
-                                        tv_yield.setTextColor(Color.parseColor("#000000"));
-                                        tv_evaluationGainLoss.setTextColor(Color.parseColor("#000000"));
+                            for (int i = 0; i < jsonCoinInfo.length(); i++) {
+                                jsonObject = (JSONObject) jsonCoinInfo.get(i);
+
+                                Double currentPrice = jsonObject.getDouble("trade_price");
+                                Double quantity = myCoins.get(i).getQuantity();
+                                String coinName = myCoins.get(i).getKoreanCoinName();
+
+                                totalEvaluation += round(currentPrice * quantity);
+                                currentPrices.set(i, currentPrice);
+
+                                Log.d("coinInfoqqqq", coinName + " : " + currentPrice);
+                            }
+
+                            Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
+                            int evaluationGainLoss = (int) (totalEvaluation - totalBuyOut);
+                            int myTotalProperty = (int) (myKoreanWon + totalEvaluation);
+                            String yieldResult = String.format("%.2f", yield);
+
+                            Log.d("totalEvaluation", totalEvaluation + "");
+                            Log.d("totalBuyOut", totalBuyOut + "");
+                            Log.d("evaluationGainLoss", evaluationGainLoss + "");
+
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        if (totalEvaluation - totalBuyOut > 0) {
+                                            tv_yield.setTextColor(Color.parseColor("#B77300"));
+                                            tv_evaluationGainLoss.setTextColor(Color.parseColor("#B77300"));
+                                        } else if (totalEvaluation - totalBuyOut < 0) {
+                                            tv_yield.setTextColor(Color.parseColor("#0054FF"));
+                                            tv_evaluationGainLoss.setTextColor(Color.parseColor("#0054FF"));
+                                        } else {
+                                            tv_yield.setTextColor(Color.parseColor("#000000"));
+                                            tv_evaluationGainLoss.setTextColor(Color.parseColor("#000000"));
+                                        }
+
+                                        tv_totalEvaluation.setText(decimalFormat.format(totalEvaluation));
+                                        tv_myTotalProperty.setText(decimalFormat.format(myTotalProperty));
+                                        tv_evaluationGainLoss.setText(decimalFormat.format(evaluationGainLoss));
+                                        tv_yield.setText(yieldResult + "%");
+
+                                        adapter_rvMyCoins.notifyDataSetChanged();
                                     }
-
-                                    tv_totalEvaluation.setText(decimalFormat.format(totalEvaluation));
-                                    tv_myTotalProperty.setText(decimalFormat.format(myTotalProperty));
-                                    tv_evaluationGainLoss.setText(decimalFormat.format(evaluationGainLoss));
-                                    tv_yield.setText(yieldResult + "%");
-
-                                    adapter_rvMyCoins.notifyDataSetChanged();
-                                }
-                            });
+                                });
+                            }
                         }
                     }
-                } catch (Exception e) {
+                }catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {

@@ -26,13 +26,17 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
 
     public Adapter_rvTransactionInfo(List<TransactionInfo> item, Context context) {
+
         this.item = item;
         this.context = context;
+
     }
 
     public void setItem(List<TransactionInfo> item){
+
         this.item = new ArrayList<>();
         this.item.addAll(item);
+
     }
 
     @NonNull
@@ -45,6 +49,7 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
         CustomViewHolder customViewHolder = new CustomViewHolder(view);
 
         return customViewHolder;
+
     }
 
     @Override
@@ -73,7 +78,6 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
         }
         holder.tv_transactionQuantity.setText(String.format("%.8f",quantity));
         holder.tv_transactionAmount.setText(decimalFormat.format(round(price * quantity)));
-
     }
 
     @Override
@@ -98,5 +102,4 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
 
         }
     }
-
 }

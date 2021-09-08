@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,6 +16,8 @@ import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 
+import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
@@ -63,6 +66,8 @@ public class Activity_coinInfo extends FragmentActivity {
 
         db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
         FindViewById();
+        CustomLodingDialog customLodingDialog = new CustomLodingDialog(Activity_coinInfo.this);
+        customLodingDialog.show();
         setCoinInfo();
         setTabLayout();
         setCoinSymbol();
@@ -75,6 +80,7 @@ public class Activity_coinInfo extends FragmentActivity {
                 finish();
             }
         });
+        customLodingDialog.dismiss();
     }
 
     private void FindViewById(){
@@ -88,6 +94,10 @@ public class Activity_coinInfo extends FragmentActivity {
     }
 
     private void setCoinInfo(){
+
+        if(CheckNetwork.CheckNetwork(Activity_coinInfo.this) == 0){
+            Toast.makeText(this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+        }
 
         Intent intent = getIntent();
         koreanName = intent.getStringExtra("koreanName");
@@ -206,7 +216,12 @@ public class Activity_coinInfo extends FragmentActivity {
                 if(position == 0){
                     selected = fragment_coinOrder;
                 }else if(position == 1){
-                    selected = fragment_chart;
+                    if(CheckNetwork.CheckNetwork(Activity_coinInfo.this) != 0) {
+                        selected = fragment_chart;
+                    }else{
+                        Toast.makeText(Activity_coinInfo.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }else if(position == 2){
                     selected = fragment_coinInfo;
                 }
@@ -254,80 +269,85 @@ public class Activity_coinInfo extends FragmentActivity {
             super.run();
             while (isRunning) {
                 try {
-                    URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + market);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    InputStream inputStream = new BufferedInputStream(conn.getInputStream());
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-                    StringBuffer builder = new StringBuffer();
 
-                    String inputString = null;
-                    while ((inputString = bufferedReader.readLine()) != null) {
-                        builder.append(inputString);
-                    }
+                    int networkStatus = CheckNetwork.CheckNetwork(Activity_coinInfo.this);
+
+                    if (networkStatus != 0) {
+
+                        URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + market);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                        StringBuffer builder = new StringBuffer();
+
+                        String inputString = null;
+                        while ((inputString = bufferedReader.readLine()) != null) {
+                            builder.append(inputString);
+                        }
 
 
+                        String s = builder.toString();
+                        JSONArray jsonCoinInfo = new JSONArray(s);
 
-                    String s = builder.toString();
-                    JSONArray jsonCoinInfo = new JSONArray(s);
+                        conn.disconnect();
+                        bufferedReader.close();
+                        inputStream.close();
 
-                    conn.disconnect();
-                    bufferedReader.close();
-                    inputStream.close();
+                        if (jsonCoinInfo != null) {
+                            JSONObject jsonObject = new JSONObject();
 
-                    if (jsonCoinInfo != null) {
-                        JSONObject jsonObject = new JSONObject();
+                            jsonObject = (JSONObject) jsonCoinInfo.get(0);
 
-                        jsonObject = (JSONObject) jsonCoinInfo.get(0);
+                            currentPrice = jsonObject.getDouble("trade_price");
+                            Double dayToDay = jsonObject.getDouble("signed_change_rate");
+                            Double changePrice = jsonObject.getDouble("signed_change_price");
 
-                        currentPrice = jsonObject.getDouble("trade_price");
-                        Double dayToDay = jsonObject.getDouble("signed_change_rate");
-                        Double changePrice = jsonObject.getDouble("signed_change_price");
+                            globalCurrentPrice = 0.0;
+                            globalCurrentPrice = currentPrice;
 
-                        globalCurrentPrice = 0.0;
-                        globalCurrentPrice = currentPrice;
+                            if (currentPrice != null) {
+                                Activity_coinInfo.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tv_coinInfoCoinName.setText(koreanName + "( KRW / " + symbol + " )");
+                                        if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
+                                            String currentPriceResult = decimalFormat.format(round(currentPrice));
+                                            tv_coinInfoCoinPrice.setText(currentPriceResult);
+                                        } else {
+                                            tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
+                                        }
+                                        //--------------------------------------------------
+                                        tv_coinInfoCoinDayToDay.setText(String.format("%.2f", dayToDay * 100) + "%");
+                                        //--------------------------------------------------
+                                        if (changePrice >= 100) {
+                                            tv_coinInfoChangePrice.setText("+" + decimalFormat.format(round(changePrice)));
+                                        } else if (changePrice <= -100) {
+                                            tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)) + "");
+                                        } else if (changePrice < 100 && changePrice > 0) {
+                                            tv_coinInfoChangePrice.setText("+" + String.format("%.2f", changePrice));
+                                        } else {
+                                            tv_coinInfoChangePrice.setText(String.format("%.2f", changePrice));
+                                        }
 
-                        if (currentPrice != null) {
-                            Activity_coinInfo.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    tv_coinInfoCoinName.setText(koreanName + "( KRW / " + symbol + " )");
-                                    if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
-                                        String currentPriceResult = decimalFormat.format(round(currentPrice));
-                                        tv_coinInfoCoinPrice.setText(currentPriceResult);
-                                    } else {
-                                        tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
+                                        if (changePrice > 0) {
+                                            tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#B77300"));
+                                            tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#B77300"));
+                                            tv_coinInfoChangePrice.setTextColor(Color.parseColor("#B77300"));
+                                        } else if (changePrice < 0) {
+                                            tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#0054FF"));
+                                            tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#0054FF"));
+                                            tv_coinInfoChangePrice.setTextColor(Color.parseColor("#0054FF"));
+                                        } else if (changePrice == 0) {
+                                            tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#000000"));
+                                            tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#000000"));
+                                            tv_coinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
+                                        }
                                     }
-                                    //--------------------------------------------------
-                                    tv_coinInfoCoinDayToDay.setText(String.format("%.2f", dayToDay * 100) + "%");
-                                    //--------------------------------------------------
-                                    if (changePrice >= 100) {
-                                        tv_coinInfoChangePrice.setText("+" + decimalFormat.format(round(changePrice)));
-                                    } else if (changePrice <= -100) {
-                                        tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)) + "");
-                                    } else if (changePrice < 100 && changePrice > 0) {
-                                        tv_coinInfoChangePrice.setText("+" + String.format("%.2f", changePrice));
-                                    } else {
-                                        tv_coinInfoChangePrice.setText(String.format("%.2f", changePrice));
-                                    }
-
-                                    if (changePrice > 0) {
-                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#B77300"));
-                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#B77300"));
-                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#B77300"));
-                                    } else if (changePrice < 0) {
-                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#0054FF"));
-                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#0054FF"));
-                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#0054FF"));
-                                    } else if (changePrice == 0) {
-                                        tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#000000"));
-                                        tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#000000"));
-                                        tv_coinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
-                                    }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
-                } catch (UnsupportedEncodingException e) {
+                }catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();

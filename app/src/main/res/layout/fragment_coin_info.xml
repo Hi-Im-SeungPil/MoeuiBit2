@@ -20,7 +20,6 @@
         android:paddingRight="20dp"
         android:textColor="#000000"/>
 
-
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
         <LinearLayout
@@ -29,7 +28,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="20dp"
-            android:clickable="true">
+            android:clickable="true"
+            android:background="@drawable/button_click_coin_info">
 
             <ImageView
                 android:layout_width="40dp"
@@ -58,7 +58,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:clickable="true">
+        android:clickable="true"
+        android:background="@drawable/button_click_coin_info">
 
         <ImageView
             android:background="@drawable/img_homepage"
@@ -87,7 +88,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:clickable="true">
+        android:clickable="true"
+        android:background="@drawable/button_click_coin_info">
 
         <ImageView
             android:background="@drawable/twitter"
@@ -116,7 +118,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:clickable="true">
+            android:clickable="true"
+            android:background="@drawable/button_click_coin_info">
 
             <ImageView
                 android:background="@drawable/img_amount"
@@ -145,7 +148,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:clickable="true">
+            android:clickable="true"
+            android:background="@drawable/button_click_coin_info">
 
             <ImageView
                 android:background="@drawable/img_block"

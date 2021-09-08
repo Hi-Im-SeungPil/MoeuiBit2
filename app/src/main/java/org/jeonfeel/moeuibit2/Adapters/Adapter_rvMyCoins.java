@@ -10,11 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -107,11 +109,18 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
                         .setPositiveButton("이동", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent = new Intent(context, Activity_coinInfo.class);
-                                intent.putExtra("koreanName",item.get(position).getMyCoinsKoreanName());
-                                intent.putExtra("symbol",item.get(position).getMyCoinsSymbol());
-                                intent.putExtra("market","KRW-" + item.get(position).getMyCoinsSymbol());
-                                context.startActivity(intent);
+
+                                if(CheckNetwork.CheckNetwork(context) != 0) {
+
+                                    Intent intent = new Intent(context, Activity_coinInfo.class);
+                                    intent.putExtra("koreanName", item.get(position).getMyCoinsKoreanName());
+                                    intent.putExtra("symbol", item.get(position).getMyCoinsSymbol());
+                                    intent.putExtra("market", "KRW-" + item.get(position).getMyCoinsSymbol());
+                                    context.startActivity(intent);
+
+                                }else{
+                                    Toast.makeText(context, "네트워크 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
                     @Override

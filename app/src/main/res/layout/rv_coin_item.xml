@@ -8,7 +8,9 @@
     android:layout_height="50dp"
     android:orientation="horizontal"
     android:clickable="true"
-    android:background="@drawable/rv_coin_border">
+    android:background="@drawable/button_click"
+
+    >
 
     <LinearLayout
         android:layout_width="0dp"
