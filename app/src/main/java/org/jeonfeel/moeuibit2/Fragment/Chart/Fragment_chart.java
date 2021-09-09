@@ -33,6 +33,7 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
 import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
@@ -69,11 +70,12 @@ public class Fragment_chart extends Fragment {
     private BarDataSet barDataSet;
     private CombinedData finalCombinedData;
     int minute = 1;
-    private String period="";
+    private String period="minutes";
     private myValueFormatter myValueFormatter;
     private MoEuiBitDatabase db;
     LimitLine ll2;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private CustomLodingDialog customLodingDialog;
 
     private GetRecentCoinChart getRecentCoinChart;
 
@@ -98,11 +100,13 @@ public class Fragment_chart extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
 
+        customLodingDialog = new CustomLodingDialog(getActivity());
+        customLodingDialog.show();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getContext());
         radio_minuteChart.setChecked(true);
         radio_oneMinute.setChecked(true);
-        getCoinCandleData(1,"minutes");
+        getCoinCandleData(minute,period);
         setRg_chart();
         setRg_minuteGroup();
 
@@ -146,9 +150,9 @@ public class Fragment_chart extends Fragment {
 
                     Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(), me.getY());
 
-                    if (highlight != null) {
-                        combinedChart.highlightValue(highlight, true);
-                    }
+                        if (highlight != null) {
+                            combinedChart.highlightValue(highlight, true);
+                        }
             }
 
             @Override
@@ -338,6 +342,7 @@ public class Fragment_chart extends Fragment {
                 }
 
                 Collections.sort(candleEntries, new EntryXComparator());
+                Collections.sort(barEntries, new EntryXComparator());
 
                 candleData = new CandleData();
 
@@ -399,7 +404,12 @@ public class Fragment_chart extends Fragment {
                 combinedChart.getBarData().setHighlightEnabled(false);
 
                 combinedChart.invalidate();
+                if(customLodingDialog.isShowing() && customLodingDialog != null)
+                    customLodingDialog.dismiss();
             }
+        } catch (NegativeArraySizeException ex){
+            ex.printStackTrace();
+            getCoinCandleData(minute,period);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -675,6 +685,7 @@ public class Fragment_chart extends Fragment {
                                     coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
 
                                     Collections.sort(candleEntries, new EntryXComparator());
+                                    Collections.sort(barEntries, new EntryXComparator());
 
                                     candlePosition++;
 
@@ -700,6 +711,11 @@ public class Fragment_chart extends Fragment {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        }catch (NegativeArraySizeException ex){
+                            ex.printStackTrace();
+                            if (getRecentCoinChart != null) {
+                                setBtn(minute,period);
+                            }
                         }
                     }
                 }catch (UnsupportedEncodingException e) {

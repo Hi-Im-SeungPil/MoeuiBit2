@@ -27,6 +27,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.MainActivity;
 import org.jeonfeel.moeuibit2.R;
 
@@ -167,8 +168,12 @@ public class Activity_Login extends AppCompatActivity {
 
     private void alreadyLogin(FirebaseUser user){
         if(user != null) {
+            CustomLodingDialog customLodingDialog = new CustomLodingDialog(this);
+            customLodingDialog.show();
             Intent intent = new Intent(Activity_Login.this, MainActivity.class);
             startActivity(intent);
+            if(customLodingDialog!= null && customLodingDialog.isShowing())
+            customLodingDialog.dismiss();
 
             finish();
         }

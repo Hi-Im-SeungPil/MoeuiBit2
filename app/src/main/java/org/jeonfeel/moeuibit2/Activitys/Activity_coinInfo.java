@@ -35,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -66,8 +67,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
         db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
         FindViewById();
-        CustomLodingDialog customLodingDialog = new CustomLodingDialog(Activity_coinInfo.this);
-        customLodingDialog.show();
+
         setCoinInfo();
         setTabLayout();
         setCoinSymbol();
@@ -80,7 +80,8 @@ public class Activity_coinInfo extends FragmentActivity {
                 finish();
             }
         });
-        customLodingDialog.dismiss();
+
+
     }
 
     private void FindViewById(){
@@ -172,15 +173,16 @@ public class Activity_coinInfo extends FragmentActivity {
             @Override
             public void onClick(View view) {
 
-                Fragment_Exchange fragment_exchange = new Fragment_Exchange();
                 Favorite favorite = db.favoriteDAO().select(market);
 
                 if(favorite != null){
                     db.favoriteDAO().delete(market);
                     btn_bookMark.setBackgroundResource(R.drawable.favorite_off);
+                    Toast.makeText(Activity_coinInfo.this, "관심코인에서 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                 }else{
                     db.favoriteDAO().insert(market);
                     btn_bookMark.setBackgroundResource(R.drawable.favorite_on);
+                    Toast.makeText(Activity_coinInfo.this, "관심코인에 등록되었습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

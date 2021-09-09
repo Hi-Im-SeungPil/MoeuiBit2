@@ -153,37 +153,37 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
         }
 
-        holder.linear_wholeItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
-
-                if(linear_coinOrder.getVisibility() == View.VISIBLE) {
-
-                    et_orderCoinPrice.setText(arcadePrice);
-                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
-                    if (et_orderCoinPrice.isFocused()) {
-                        et_orderCoinPrice.clearFocus();
-                        imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(), 0);
-                    } else if (et_orderCoinQuantity.isFocused()) {
-                        et_orderCoinQuantity.clearFocus();
-                        imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(), 0);
-                    }
-                }else if(linear_coinSell.getVisibility() == View.VISIBLE){
-
-                    et_sellCoinPrice.setText(arcadePrice);
-                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
-
-                    if (et_sellCoinPrice.isFocused()) {
-                        et_sellCoinPrice.clearFocus();
-                        imm.hideSoftInputFromWindow(et_sellCoinPrice.getWindowToken(), 0);
-                    } else if (et_sellCoinQuantity.isFocused()) {
-                        et_sellCoinQuantity.clearFocus();
-                        imm.hideSoftInputFromWindow(et_sellCoinQuantity.getWindowToken(), 0);
-                    }
-                }
-            }
-        });
+//        holder.linear_wholeItem.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String arcadePrice = holder.tv_coinArcadePrice.getText().toString();
+//
+//                if(linear_coinOrder.getVisibility() == View.VISIBLE) {
+//
+//                    et_orderCoinPrice.setText(arcadePrice);
+//                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+//                    if (et_orderCoinPrice.isFocused()) {
+//                        et_orderCoinPrice.clearFocus();
+//                        imm.hideSoftInputFromWindow(et_orderCoinPrice.getWindowToken(), 0);
+//                    } else if (et_orderCoinQuantity.isFocused()) {
+//                        et_orderCoinQuantity.clearFocus();
+//                        imm.hideSoftInputFromWindow(et_orderCoinQuantity.getWindowToken(), 0);
+//                    }
+//                }else if(linear_coinSell.getVisibility() == View.VISIBLE){
+//
+//                    et_sellCoinPrice.setText(arcadePrice);
+//                    InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
+//
+//                    if (et_sellCoinPrice.isFocused()) {
+//                        et_sellCoinPrice.clearFocus();
+//                        imm.hideSoftInputFromWindow(et_sellCoinPrice.getWindowToken(), 0);
+//                    } else if (et_sellCoinQuantity.isFocused()) {
+//                        et_sellCoinQuantity.clearFocus();
+//                        imm.hideSoftInputFromWindow(et_sellCoinQuantity.getWindowToken(), 0);
+//                    }
+//                }
+//            }
+//        });
     }
 
     @Override

@@ -20,9 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.R;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +41,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private ArrayList<Integer> marketPosition;
     private boolean favoriteStatus = false;
+    private CustomLodingDialog customLodingDialog;
 
 
     public Adapter_rvCoin(ArrayList<CoinDTO> item, Context context) {
@@ -103,13 +106,21 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
                 public void onClick(View view) {
 
                     int networkStatus = CheckNetwork.CheckNetwork(context);
+
                     if(networkStatus != 0) {
+
+                        customLodingDialog = new CustomLodingDialog(context);
+                        customLodingDialog.show();
 
                         Intent intent = new Intent(context, Activity_coinInfo.class);
                         intent.putExtra("market", filteredItem.get(position).getMarket());
                         intent.putExtra("symbol", filteredItem.get(position).getSymbol());
                         intent.putExtra("koreanName", filteredItem.get(position).getKoreanName());
                         context.startActivity(intent);
+
+                        if(customLodingDialog != null && customLodingDialog.isShowing()){
+                            customLodingDialog.dismiss();
+                        }
 
                     }else{
                         Toast.makeText(context, "네트워크 상태를 확인해주세요.", Toast.LENGTH_SHORT).show();

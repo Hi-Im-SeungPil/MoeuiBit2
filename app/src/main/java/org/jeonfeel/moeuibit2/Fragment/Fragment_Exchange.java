@@ -27,7 +27,6 @@ import android.widget.Toast;
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.CheckNetwork;
-import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -72,7 +71,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private Switch sch_favorite;
     private boolean switchIsChecked = false;
     TextView tv_nonFavorite;
-    ConnectivityManager cm;
 
     private String markets;
     private int orderByCurrentPrice = 0;
@@ -102,23 +100,24 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        //--------------------------------------------
+
         View rootView = inflater.inflate(R.layout.fragment_exchange, container, false);
         FindViewById(rootView);
-        db = MoEuiBitDatabase.getInstance(getActivity());
-        cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        setRv_coin();
         setBtn_networkIsNotConn();
-        CustomLodingDialog customLodingDialog = new CustomLodingDialog(getActivity());
-        customLodingDialog.show();
+        networkIsNotConn();
+        db = MoEuiBitDatabase.getInstance(getActivity());
+        setRv_coin();
         getAllUpBitCoins();
         adapter_rvCoin = new Adapter_rvCoin(allCoinInfoArray, getActivity());
         rv_coin.setAdapter(adapter_rvCoin);
         getUpBitCoinsInfo();
-        customLodingDialog.dismiss();
         setTextWatcher();
         setOrderByBtn();
         setSch_favorite();
 
+        //--------------------------------------------
         return rootView;
     }
 
@@ -133,6 +132,17 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         tv_nonFavorite = rootView.findViewById(R.id.tv_nonFavorite);
         tv_networkIsNotConn = rootView.findViewById(R.id.tv_networkIsNotConn);
         btn_networkIsNotConn = rootView.findViewById(R.id.btn_networkIsNotConn);
+
+    }
+
+    private void networkIsNotConn(){
+
+        if(CheckNetwork.CheckNetwork(getActivity()) == 0) {
+            rv_coin.setVisibility(View.GONE);
+            btn_networkIsNotConn.setVisibility(View.VISIBLE);
+            tv_networkIsNotConn.setVisibility(View.VISIBLE);
+
+        }
 
     }
 
@@ -266,10 +276,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 builder.deleteCharAt(builder.lastIndexOf(","));
                 markets = builder.toString();
             }
-        }else{
-            rv_coin.setVisibility(View.GONE);
-            btn_networkIsNotConn.setVisibility(View.VISIBLE);
-            tv_networkIsNotConn.setVisibility(View.VISIBLE);
         }
     }
 
@@ -335,8 +341,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             public void onClick(View view) {
                 int networkStatus = CheckNetwork.CheckNetwork(getActivity());
                 if(networkStatus != 0){
-                    CustomLodingDialog customLodingDialog = new CustomLodingDialog(getActivity());
-                    customLodingDialog.show();
 
                     getAllUpBitCoins();
                     getUpBitCoinsInfo();
@@ -346,9 +350,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                     rv_coin.setVisibility(View.VISIBLE);
                     tv_networkIsNotConn.setVisibility(View.GONE);
                     btn_networkIsNotConn.setVisibility(View.GONE);
-                    customLodingDialog.dismiss();
+
                 }else{
+
                     Toast.makeText(getActivity(), "네트워크 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show();
+
                 }
             }
         });
@@ -459,6 +465,10 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         if(networkStatus != 0) {
             getUpBitCoinsThread = new GetUpBitCoinsThread();
             getUpBitCoinsThread.start();
+        }
+
+        if(switchIsChecked){
+            initFavorite();
         }
     }
 

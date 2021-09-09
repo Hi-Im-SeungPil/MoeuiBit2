@@ -171,6 +171,27 @@
 
         </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/linear_sorry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="false"
+        android:layout_marginTop="30dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="준비중.... 죄송합니다 ㅠㅠ"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:fontFamily="@font/nanum_square_round_eb"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
         <!--  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      -->
 
 </LinearLayout>

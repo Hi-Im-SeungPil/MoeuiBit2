@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,14 +20,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.R;
 
 public class Fragment_coinInfo extends Fragment {
 
-    private LinearLayout linear_coinInfo,linear_homepage,linear_twitter,linear_amount,linear_block;
+    private LinearLayout linear_coinInfo,linear_homepage,linear_twitter,linear_amount,linear_block,linear_sorry;
     private DatabaseReference mDatabase;
     private final String market;
     private String homepage,amount,twitter,block,info;
+    CustomLodingDialog customLodingDialog;
+    int networkStatus;
 
     public Fragment_coinInfo(String market) {
         this.market = market;
@@ -42,9 +47,24 @@ public class Fragment_coinInfo extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_coin_info, container, false);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        customLodingDialog = new CustomLodingDialog(getActivity());
+        customLodingDialog.show();
+        networkStatus = CheckNetwork.CheckNetwork(getActivity());
         FindViewById(rootView);
-        getCoinData();
+        if(networkStatus != 0) {
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+
+            getCoinData();
+        }else{
+            linear_coinInfo.setVisibility(View.GONE);
+            linear_homepage.setVisibility(View.GONE);
+            linear_twitter.setVisibility(View.GONE);
+            linear_amount.setVisibility(View.GONE);
+            linear_block.setVisibility(View.GONE);
+            linear_sorry.setVisibility(View.GONE);
+            Toast.makeText(getActivity(), "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+            customLodingDialog.dismiss();
+        }
 
         return rootView;
     }
@@ -55,6 +75,16 @@ public class Fragment_coinInfo extends Fragment {
         linear_twitter = rootView.findViewById(R.id.linear_twitter);
         linear_amount = rootView.findViewById(R.id.linear_amount);
         linear_block = rootView.findViewById(R.id.linear_block);
+        linear_sorry = rootView.findViewById(R.id.linear_sorry);
+    }
+
+    private void coinInfoIsNull(){
+        linear_coinInfo.setVisibility(View.GONE);
+        linear_homepage.setVisibility(View.GONE);
+        linear_twitter.setVisibility(View.GONE);
+        linear_amount.setVisibility(View.GONE);
+        linear_block.setVisibility(View.GONE);
+        linear_sorry.setVisibility(View.VISIBLE);
     }
 
     private void getCoinData(){
@@ -84,6 +114,12 @@ public class Fragment_coinInfo extends Fragment {
                         }
                     });
                 }
+
+                if(homepage == null){
+                    coinInfoIsNull();
+                }
+                customLodingDialog.dismiss();
+
             }
 
             @Override
