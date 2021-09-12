@@ -243,7 +243,7 @@ public class Activity_coinInfo extends FragmentActivity {
 
     private void setCoinSymbol(){
         String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"+symbol+".png";
-        Glide.with(Activity_coinInfo.this).load(imgUrl).into(iv_coinLogo);
+        Glide.with(Activity_coinInfo.this).load(imgUrl).error(R.drawable.img_not_yet).into(iv_coinLogo);
     }
 
     @Override

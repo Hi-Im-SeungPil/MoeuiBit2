@@ -277,7 +277,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:focusable="false"
-            android:clickable="false"
             android:inputType="number"
             android:background="@drawable/et_bolder"
             android:paddingLeft="4dp"

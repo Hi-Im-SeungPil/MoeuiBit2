@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -69,8 +70,8 @@ public class Fragment_chart extends Fragment {
     private BarData barData;
     private BarDataSet barDataSet;
     private CombinedData finalCombinedData;
-    int minute = 1;
-    private String period="minutes";
+    private int minute = 1;
+    private String period= "minutes";
     private myValueFormatter myValueFormatter;
     private MoEuiBitDatabase db;
     LimitLine ll2;
@@ -279,7 +280,7 @@ public class Fragment_chart extends Fragment {
 
         String coinUrl = "";
 
-        if(minute == 0) {
+        if(minute == 2) {
             coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=200";
         }else{
             coinUrl = "https://api.upbit.com/v1/candles/" + period + "/" + minute + "?market=" + market + "&count=200";
@@ -389,7 +390,7 @@ public class Fragment_chart extends Fragment {
                 combinedChart.setAutoScaleMinMaxEnabled(true);
                 int entryCount = combinedChart.getCandleData().getEntryCount();
 
-                combinedChart.getXAxis().setAxisMinimum(combinedChart.getXChartMin()-0.7f);
+                combinedChart.getXAxis().setAxisMinimum(0f - 0.7f);
                 combinedChart.getXAxis().setAxisMaximum(entryCount + 3f);
 
                 if(combinedChart.getVisibleXRange() > 20f){
@@ -404,9 +405,11 @@ public class Fragment_chart extends Fragment {
                 combinedChart.getBarData().setHighlightEnabled(false);
 
                 combinedChart.invalidate();
+
                 if(customLodingDialog.isShowing() && customLodingDialog != null)
                     customLodingDialog.dismiss();
             }
+
         } catch (NegativeArraySizeException ex){
             ex.printStackTrace();
             getCoinCandleData(minute,period);
@@ -434,7 +437,7 @@ public class Fragment_chart extends Fragment {
         }
     }
 
-    //코인 차트 0.5초마다 계속해서 갱신
+    //코인 차트 1초마다 계속해서 갱신
     public static CoinCandleDataDTO getCoinCandle(int position){
 
         return coinCandleDataDTOS.get(position);
@@ -464,7 +467,7 @@ public class Fragment_chart extends Fragment {
                         if(!period.equals("days")) {
                             minute = 2;
                             period = "days";
-                            setBtn(0, period);
+                            setBtn(minute, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
@@ -475,7 +478,7 @@ public class Fragment_chart extends Fragment {
                         if(!period.equals("weeks")) {
                             minute = 2;
                             period = "weeks";
-                            setBtn(0, period);
+                            setBtn(minute, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
@@ -486,7 +489,7 @@ public class Fragment_chart extends Fragment {
                         if(!period.equals("months")) {
                             minute = 2;
                             period = "months";
-                            setBtn(0, period);
+                            setBtn(minute, period);
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
@@ -618,9 +621,9 @@ public class Fragment_chart extends Fragment {
                     if (CheckNetwork.CheckNetwork(getActivity()) != 0) {
 
                         String coinUrl = "";
-                        if (minute != 0) {
+                        if (minute != 0 && minute != 2) {
                             coinUrl = "https://api.upbit.com/v1/candles/" + period + "/" + minute + "?market=" + market + "&count=1";
-                        } else {
+                        } else if(minute == 2){
                             coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=1";
                         }
 

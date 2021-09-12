@@ -15,9 +15,9 @@ public class TransactionInfo {
     public Double quantity;
     public long transactionAmount;
     public String transactionStatus;
-    public String transactionTime;
+    public long transactionTime;
 
-    public TransactionInfo(String market, Double price, Double quantity, long transactionAmount, String transactionStatus,String transactionTime) {
+    public TransactionInfo(String market, Double price, Double quantity, long transactionAmount, String transactionStatus,long transactionTime) {
         this.market = market;
         this.price = price;
         this.quantity = quantity;
@@ -74,11 +74,11 @@ public class TransactionInfo {
         this.transactionStatus = transactionStatus;
     }
 
-    public String getTransactionTime() {
+    public long getTransactionTime() {
         return transactionTime;
     }
 
-    public void setTransactionTime(String transactionTime) {
+    public void setTransactionTime(long transactionTime) {
         this.transactionTime = transactionTime;
     }
 }

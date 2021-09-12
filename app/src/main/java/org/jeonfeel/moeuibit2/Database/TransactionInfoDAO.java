@@ -11,7 +11,7 @@ import java.util.List;
 public interface TransactionInfoDAO {
 
     @Query("INSERT INTO TransactionInfo values(null,:market,:price,:quantity,:transactionAmount,:transactionStatus,:transactionTime)")
-    void insert(String market, Double price, Double quantity, long transactionAmount,String transactionStatus,String transactionTime);
+    void insert(String market, Double price, Double quantity, long transactionAmount,String transactionStatus,long transactionTime);
 
     @Query("SELECT * FROM TransactionInfo where market=:market")
     List<TransactionInfo> select(String market);

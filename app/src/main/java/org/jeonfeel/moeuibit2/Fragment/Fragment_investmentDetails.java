@@ -192,6 +192,10 @@ public class Fragment_investmentDetails extends Fragment {
                 }else{
                     db.userDAO().updatePlusMoney(5000000);
                 }
+                User user1 = db.userDAO().getAll();
+                myKoreanWon = user1.getKrw();
+                tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
+
                 user = null;
             }
         });

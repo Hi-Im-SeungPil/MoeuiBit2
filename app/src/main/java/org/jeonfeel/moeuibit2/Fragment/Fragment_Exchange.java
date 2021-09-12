@@ -141,7 +141,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             rv_coin.setVisibility(View.GONE);
             btn_networkIsNotConn.setVisibility(View.VISIBLE);
             tv_networkIsNotConn.setVisibility(View.VISIBLE);
-
         }
 
     }
@@ -214,7 +213,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         tv_nonFavorite.setVisibility(View.GONE);
                         rv_coin.setVisibility(View.VISIBLE);
                     }
-
                     switchIsChecked = false;
                     adapter_rvCoin.setFavoriteStatus(false);
                     adapter_rvCoin.getFilter().filter(onText);
@@ -469,6 +467,10 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
         if(switchIsChecked){
             initFavorite();
+            if(favorites.size() == 0) {
+                rv_coin.setVisibility(View.GONE);
+                tv_nonFavorite.setVisibility(View.VISIBLE);
+            }
         }
     }
 

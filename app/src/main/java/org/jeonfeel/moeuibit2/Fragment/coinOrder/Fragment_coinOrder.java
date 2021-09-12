@@ -59,6 +59,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static java.lang.Math.round;
@@ -206,6 +207,47 @@ public class Fragment_coinOrder extends Fragment {
             }
         });
 
+
+        et_orderCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(et_orderCoinPrice.isFocused()) {
+                    et_orderCoinPrice.clearFocus();
+                }else if(et_orderCoinQuantity.isFocused()) {
+                    et_orderCoinQuantity.clearFocus();
+                }
+                EditText editText = new EditText(getActivity());
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("총액을 입력하세요");
+                builder.setView(editText);
+                builder.setPositiveButton("입력", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (!et_orderCoinPrice.getText().toString().equals("0") && et_orderCoinPrice.length() != 0 && editText.length() != 0){
+                            long amount = Long.parseLong(editText.getText().toString());
+                            Double orderPrice = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+                            Double quantity =  amount / orderPrice;
+                            et_orderCoinQuantity.setText(String.format("%.8f",quantity));
+                        }
+                    }
+                }).setNegativeButton("취소", null);
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                editText.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.requestFocus();
+                        imm.showSoftInput(editText,0);
+                    }
+                },100);
+            }
+        });
+
         et_sellCoinTotalAmount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -224,7 +266,7 @@ public class Fragment_coinOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (!et_sellCoinPrice.getText().toString().equals("0") && et_sellCoinPrice.length() != 0 && editText.length() != 0){
-                            int amount = Integer.parseInt(editText.getText().toString());
+                            long amount = Long.parseLong(editText.getText().toString());
                             Double orderPrice = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
                             Double quantity =  amount / orderPrice;
                             et_sellCoinQuantity.setText(String.format("%.8f",quantity));
@@ -282,41 +324,41 @@ public class Fragment_coinOrder extends Fragment {
         };
         return textWatcher1;
     }
-//    private TextWatcher tw2(){
-//        TextWatcher textWatcher1 = new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//            }
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)
-//                        && Double.valueOf(charSequence.toString().replaceAll(",","")) >= 1000) {
-//                    commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
-//                    et_orderCoinPrice.setText(commaResult);
-//                    et_sellCoinPrice.setText(commaResult);
-//                    et_orderCoinPrice.setSelection(commaResult.length());
-//                    et_sellCoinPrice.setSelection(commaResult.length());
-//                }
-//
-//                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
-//
-//                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-//                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
-//                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-//
-//                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
-//                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
-//                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
-//                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
-//                }
-//            }
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//            }
-//        };
-//        return textWatcher1;
-//    }
+    private TextWatcher tw2(){
+        TextWatcher textWatcher1 = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if(!TextUtils.isEmpty(charSequence.toString()) && !charSequence.toString().equals(commaResult)
+                        && Double.valueOf(charSequence.toString().replaceAll(",","")) >= 1000) {
+                    commaResult = decimalFormat.format(Double.parseDouble(charSequence.toString().replaceAll(",","")));
+                    et_orderCoinPrice.setText(commaResult);
+                    et_sellCoinPrice.setText(commaResult);
+                    et_orderCoinPrice.setSelection(commaResult.length());
+                    et_sellCoinPrice.setSelection(commaResult.length());
+                }
+
+                if(et_orderCoinQuantity.length() != 0 && et_orderCoinPrice.length() != 0 && linear_coinOrder.getVisibility() == View.VISIBLE){
+
+                    Double quantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_orderCoinPrice.getText().toString().replace(",",""));
+                    et_orderCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+
+                }else if(et_sellCoinQuantity.length() != 0 && et_sellCoinPrice.length() != 0 && linear_coinSell.getVisibility() == View.VISIBLE){
+                    Double quantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+                    Double price = Double.valueOf(et_sellCoinPrice.getText().toString().replace(",",""));
+                    et_sellCoinTotalAmount.setText(decimalFormat.format(round(quantity*price)));
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        };
+        return textWatcher1;
+    }
     private void FindViewById(View rootView) {
 
         rv_coinArcade = rootView.findViewById(R.id.rv_coinArcade);
@@ -483,7 +525,7 @@ public class Fragment_coinOrder extends Fragment {
                             et_orderCoinQuantity.setText("");
                             et_orderCoinTotalAmount.setText("");
 
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid","2021년");
+                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid", System.currentTimeMillis());
 
                             Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
@@ -518,7 +560,7 @@ public class Fragment_coinOrder extends Fragment {
                             et_orderCoinQuantity.setText("");
                             et_orderCoinTotalAmount.setText("");
 
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid","2021년");
+                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid",System.currentTimeMillis());
 
                             Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                         }
@@ -577,7 +619,7 @@ public class Fragment_coinOrder extends Fragment {
                             et_sellCoinTotalAmount.setText("");
                             Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
 
-                            db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask","2021년");
+                            db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask",System.currentTimeMillis());
                         }
             }
         });
@@ -829,6 +871,17 @@ public class Fragment_coinOrder extends Fragment {
                                                 et_orderCoinPrice.setText(String.format("%.2f", currentPrice));
                                                 et_sellCoinPrice.setText(String.format("%.2f",currentPrice));
                                             }
+
+                                            if(linear_coinOrder.getVisibility() == View.VISIBLE && et_orderCoinTotalAmount.length() != 0 && !et_orderCoinTotalAmount.equals("0")){
+                                                String total = et_orderCoinTotalAmount.getText().toString().replace(",","");
+                                                Double total1 = Double.parseDouble(total);
+                                                et_orderCoinQuantity.setText(String.format("%.8f",total1/currentPrice));
+                                            }else if(linear_coinSell.getVisibility() == View.VISIBLE && et_sellCoinTotalAmount.length() != 0 && !et_sellCoinTotalAmount.equals("0")){
+                                                String total = et_sellCoinTotalAmount.getText().toString().replace(",","");
+                                                Double total1 = Double.parseDouble(total);
+                                                et_sellCoinQuantity.setText(String.format("%.8f",total1/currentPrice));
+                                            }
+
                                         }
                                     }
                                 });

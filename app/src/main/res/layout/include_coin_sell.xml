@@ -213,8 +213,7 @@
             android:inputType="number"
             android:background="@drawable/et_bolder"
             android:paddingLeft="4dp"
-            android:layout_marginRight="10dp"
-            android:clickable="false "/>
+            android:layout_marginRight="10dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -13,9 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jeonfeel.moeuibit2.Database.TransactionInfo;
 import org.jeonfeel.moeuibit2.R;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static java.lang.Math.round;
 
@@ -69,7 +73,10 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
 
         holder.tv_transactionStatus.setText(transactionStatus);
         holder.tv_transactionMarket.setText(item.get(position).getMarket());
-        holder.tv_transactionTime.setText(item.get(position).getTransactionTime());
+        Date date = new Date(item.get(position).getTransactionTime());
+        SimpleDateFormat datef = new SimpleDateFormat("MM-dd hh:mm", Locale.getDefault());
+        String date22 =  datef.format(date) ;
+        holder.tv_transactionTime.setText(date22);
 
         if(price >= 100)
         holder.tv_transactionPrice.setText(decimalFormat.format(round(price)));
