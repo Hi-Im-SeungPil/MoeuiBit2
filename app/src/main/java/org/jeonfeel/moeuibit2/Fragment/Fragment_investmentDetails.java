@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ public class Fragment_investmentDetails extends Fragment {
     private GetMyCoins getMyCoins;
     private ArrayList<Double> currentPrices;
     private Adapter_rvMyCoins adapter_rvMyCoins;
+    private Context context;
 
     public Fragment_investmentDetails() {
     }
@@ -67,6 +69,7 @@ public class Fragment_investmentDetails extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_investment_details, container, false);
 
+        context = getActivity();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getActivity());
         setRv_myCoins();
@@ -96,7 +99,7 @@ public class Fragment_investmentDetails extends Fragment {
     //초기설정
     private void init() {
 
-        if(CheckNetwork.CheckNetwork(getActivity()) == 0){
+        if(CheckNetwork.CheckNetwork(context) == 0){
             Toast.makeText(getActivity(), "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
         }
 
@@ -211,8 +214,6 @@ public class Fragment_investmentDetails extends Fragment {
 
             while (isRunning) {
                 try {
-
-                    if (CheckNetwork.CheckNetwork(getActivity()) != 0) {
                         totalEvaluation = 0;
 
                         URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
@@ -285,7 +286,7 @@ public class Fragment_investmentDetails extends Fragment {
                                 });
                             }
                         }
-                    }
+
                 }catch (Exception e) {
                     e.printStackTrace();
                 }

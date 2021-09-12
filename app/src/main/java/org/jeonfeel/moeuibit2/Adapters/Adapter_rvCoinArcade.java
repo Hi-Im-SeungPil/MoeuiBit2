@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -29,24 +30,15 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     private ArrayList<CoinArcadeDTO> item;
     private Context context;
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
-    private EditText et_orderCoinPrice,et_orderCoinQuantity,et_sellCoinQuantity,et_sellCoinPrice;
     private Double openingPrice;
-    private LinearLayout linear_coinOrder,linear_coinSell;
-    private Activity_coinInfo activity_coinInfo = new Activity_coinInfo();
+    private CustomLodingDialog customLodingDialog;
 
 
-    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice
-            ,EditText et_orderCoinPrice,EditText et_orderCoinQuantity,EditText et_sellCoinPrice,EditText et_sellCoinQuantity
-    ,LinearLayout linear_coinOrder,LinearLayout linear_coinSell) {
+    public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,CustomLodingDialog customLodingDialog) {
         this.item = item;
         this.context = context;
         this.openingPrice = openingPrice;
-        this.et_orderCoinPrice = et_orderCoinPrice;
-        this.et_orderCoinQuantity = et_orderCoinQuantity;
-        this.et_sellCoinPrice = et_sellCoinPrice;
-        this.et_sellCoinQuantity = et_sellCoinQuantity;
-        this.linear_coinOrder = linear_coinOrder;
-        this.linear_coinSell = linear_coinSell;
+        this.customLodingDialog = customLodingDialog;
     }
 
     public void setItem(ArrayList<CoinArcadeDTO> item){
@@ -119,9 +111,6 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                 String price = String.format("%.2f", arcadePrice);
                 String Price2 = String.format("%.2f", currentPrice);
 
-                Log.d("qqqq",price);
-                Log.d("qqqq2",Price2);
-
                 if (Price2.equals(price)) {
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_border3);
@@ -129,7 +118,6 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
                 }
-
             }
         }
 
@@ -151,6 +139,10 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
         }else if(String.format("%.2f",dayToDay).equals("0.00")){
             holder.tv_coinArcadePrice.setTextColor(Color.parseColor("#000000"));
             holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
+        }
+
+        if(customLodingDialog != null && customLodingDialog.isShowing() && ((Activity_coinInfo)context).getGlobalCurrentPrice() != null){
+            customLodingDialog.dismiss();
         }
 
 //        holder.linear_wholeItem.setOnClickListener(new View.OnClickListener() {

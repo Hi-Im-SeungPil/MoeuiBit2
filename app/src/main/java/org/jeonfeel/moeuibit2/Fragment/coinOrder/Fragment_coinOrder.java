@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.Fragment.coinOrder;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -32,6 +33,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvTransactionInfo;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
 import org.jeonfeel.moeuibit2.Database.TransactionInfo;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -86,6 +88,8 @@ public class Fragment_coinOrder extends Fragment {
     private Spinner spinner_orderCoinQuantity,spinner_sellCoinQuantity;
     private EditText et_sellCoinQuantity,et_sellCoinPrice,et_sellCoinTotalAmount;
     private String commaResult;
+    private Context context;
+    private CustomLodingDialog customLodingDialog;
 
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
         // Required empty public constructor
@@ -104,6 +108,10 @@ public class Fragment_coinOrder extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_coin_order, container, false);
         // Inflate the layout for this fragment
+
+        context = getActivity();
+        customLodingDialog = new CustomLodingDialog(context);
+        customLodingDialog.show();
         FindViewById(rootView);
         setRv_coinArcade();
         getOpeningPriceFromApi();
@@ -516,12 +524,13 @@ public class Fragment_coinOrder extends Fragment {
                 jsonObject = (JSONObject) jsonArray.get(0);
                 openingPrice = jsonObject.getDouble("prev_closing_price");
 
-                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,et_orderCoinPrice,et_orderCoinQuantity
-                ,et_sellCoinPrice,et_sellCoinQuantity,linear_coinOrder,linear_coinSell);
+                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,customLodingDialog);
                 rv_coinArcade.setAdapter(adapter_rvCoinArcade);
             }
         } catch (Exception e) {
+
             e.printStackTrace();
+
         }
     }
     @Override
@@ -908,6 +917,12 @@ public class Fragment_coinOrder extends Fragment {
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+
+                                        if(adapter_rvCoinArcade == null){
+                                            getOpeningPriceFromApi();
+                                            getCoinArcadeInfo();
+                                        }
+
                                         Double currentPrice;
                                         try {
                                             currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
@@ -919,7 +934,9 @@ public class Fragment_coinOrder extends Fragment {
                                         if (currentPrice != null) {
                                             tv_sellAbleAmount.setText("= " + decimalFormat.format(round(currentPrice * Double.valueOf(tv_sellAbleCoinQuantity.getText().toString()))));
 
+                                            if(adapter_rvCoinArcade != null)
                                             adapter_rvCoinArcade.notifyDataSetChanged();
+
                                             if (currentPrice >= 100) {
                                                 et_orderCoinPrice.setText(decimalFormat.format(currentPrice));
                                                 et_sellCoinPrice.setText(decimalFormat.format(currentPrice));

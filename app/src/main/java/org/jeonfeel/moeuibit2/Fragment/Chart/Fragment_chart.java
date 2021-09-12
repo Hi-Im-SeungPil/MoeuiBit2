@@ -33,7 +33,6 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
-import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
@@ -618,8 +617,6 @@ public class Fragment_chart extends Fragment {
             while (isRunning) {
                 try {
 
-                    if (CheckNetwork.CheckNetwork(getActivity()) != 0) {
-
                         String coinUrl = "";
                         if (minute != 0 && minute != 2) {
                             coinUrl = "https://api.upbit.com/v1/candles/" + period + "/" + minute + "?market=" + market + "&count=1";
@@ -720,7 +717,6 @@ public class Fragment_chart extends Fragment {
                                 setBtn(minute,period);
                             }
                         }
-                    }
                 }catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

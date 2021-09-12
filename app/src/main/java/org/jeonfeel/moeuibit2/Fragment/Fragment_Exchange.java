@@ -86,6 +86,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     private TextView tv_networkIsNotConn;
     private Button btn_networkIsNotConn;
+    private Context context;
 
     public Fragment_Exchange() {
         // Required empty public constructor
@@ -104,6 +105,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         //--------------------------------------------
 
         View rootView = inflater.inflate(R.layout.fragment_exchange, container, false);
+        context = getActivity();
         FindViewById(rootView);
         setBtn_networkIsNotConn();
         networkIsNotConn();
@@ -137,7 +139,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     private void networkIsNotConn(){
 
-        if(CheckNetwork.CheckNetwork(getActivity()) == 0) {
+        if(CheckNetwork.CheckNetwork(context) == 0) {
             rv_coin.setVisibility(View.GONE);
             btn_networkIsNotConn.setVisibility(View.VISIBLE);
             tv_networkIsNotConn.setVisibility(View.VISIBLE);
@@ -223,7 +225,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
 
     private void getAllUpBitCoins() {
 
-        int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+        int networkStatus = CheckNetwork.CheckNetwork(context);
 
         if (networkStatus != 0) {
 
@@ -280,7 +282,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         //업비트 api를 받아온다.
         public void getUpBitCoinsInfo() {
 
-            int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+            int networkStatus = CheckNetwork.CheckNetwork(context);
 
             if (networkStatus != 0) {
 
@@ -337,7 +339,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         btn_networkIsNotConn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+                int networkStatus = CheckNetwork.CheckNetwork(context);
                 if(networkStatus != 0){
 
                     getAllUpBitCoins();
@@ -458,7 +460,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     public void onStart() {
         super.onStart();
 
-        int networkStatus = CheckNetwork.CheckNetwork(getActivity());
+        int networkStatus = CheckNetwork.CheckNetwork(context);
 
         if(networkStatus != 0) {
             getUpBitCoinsThread = new GetUpBitCoinsThread();
@@ -587,11 +589,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             while (isRunning) {
 
                 try {
-
-                    int networkStatus = CheckNetwork.CheckNetwork(getActivity());
-
-                    if(networkStatus != 0) {
-
                         URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         InputStream inputStream = new BufferedInputStream(conn.getInputStream());
@@ -673,7 +670,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                 }
                             }
                         }
-                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     getAllUpBitCoins();

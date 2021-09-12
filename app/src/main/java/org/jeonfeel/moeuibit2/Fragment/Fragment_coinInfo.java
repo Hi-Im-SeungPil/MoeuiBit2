@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ public class Fragment_coinInfo extends Fragment {
     private String homepage,amount,twitter,block,info;
     CustomLodingDialog customLodingDialog;
     int networkStatus;
+    private Context context;
 
     public Fragment_coinInfo(String market) {
         this.market = market;
@@ -49,7 +51,9 @@ public class Fragment_coinInfo extends Fragment {
 
         customLodingDialog = new CustomLodingDialog(getActivity());
         customLodingDialog.show();
-        networkStatus = CheckNetwork.CheckNetwork(getActivity());
+        context = getActivity();
+
+        networkStatus = CheckNetwork.CheckNetwork(context);
         FindViewById(rootView);
         if(networkStatus != 0) {
             mDatabase = FirebaseDatabase.getInstance().getReference();

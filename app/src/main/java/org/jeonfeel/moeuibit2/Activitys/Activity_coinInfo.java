@@ -115,7 +115,14 @@ public class Activity_coinInfo extends FragmentActivity {
 
                 jsonObject = (JSONObject) jsonArray.get(0);
 
-                currentPrice = jsonObject.getDouble("trade_price");
+                try {
+                    currentPrice = jsonObject.getDouble("trade_price");
+                }catch (NullPointerException e){
+                    e.printStackTrace();
+                    Toast.makeText(this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
                 Double dayToDay = jsonObject.getDouble("signed_change_rate");
                 Double changePrice = jsonObject.getDouble("signed_change_price");
 

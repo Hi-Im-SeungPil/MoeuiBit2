@@ -11,6 +11,7 @@ public class CheckNetwork {
     public static int TYPE_MOBILE = 2;
 
     public static int CheckNetwork(Context context){ //해당 context의 서비스를 사용하기위해서 context객체를 받는다.
+
         ConnectivityManager manager = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
 
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
