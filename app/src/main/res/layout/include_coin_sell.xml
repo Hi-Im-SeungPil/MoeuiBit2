@@ -175,7 +175,8 @@
                 android:inputType="numberDecimal"
                 android:background="@drawable/et_bolder"
                 android:paddingLeft="4dp"
-                android:clickable="false"/>
+                android:clickable="false"
+                android:focusable="false"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -250,22 +251,23 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="※ 최소 주문금액 = 5000KRW"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/nanum_square_round_r"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="※ 현재 금액으로만 매도 가능."
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/nanum_square_round_r"/>
+
     </LinearLayout>
 
-<!--    <TextView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="※ 최소 주문금액은 5000KRW 입니다."-->
-<!--        android:layout_marginLeft="20dp"-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:fontFamily="@font/nanum_square_round_r"/>-->
-
-<!--    <TextView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginLeft="20dp"-->
-<!--        android:text="※ 현재가격보다 낮은가격으로 매도할 시 시장가로 매도됩니다."-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:fontFamily="@font/nanum_square_round_r"/>-->
 
 </LinearLayout>
