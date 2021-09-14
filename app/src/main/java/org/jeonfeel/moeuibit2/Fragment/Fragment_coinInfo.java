@@ -56,9 +56,10 @@ public class Fragment_coinInfo extends Fragment {
         networkStatus = CheckNetwork.CheckNetwork(context);
         FindViewById(rootView);
         if(networkStatus != 0) {
-            mDatabase = FirebaseDatabase.getInstance().getReference();
 
+            mDatabase = FirebaseDatabase.getInstance().getReference();
             getCoinData();
+
         }else{
             linear_coinInfo.setVisibility(View.GONE);
             linear_homepage.setVisibility(View.GONE);

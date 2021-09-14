@@ -13,6 +13,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinSite;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_investmentDetails;
+import org.jeonfeel.moeuibit2.Fragment.Fragment_setting;
 
 public class MainActivity extends FragmentActivity {
 
@@ -24,10 +25,12 @@ public class MainActivity extends FragmentActivity {
         setMenuBottom();
     }
     private void setMenuBottom(){
-
-        Fragment_Exchange fragment_exchange = new Fragment_Exchange();
-        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails();
+        CustomLodingDialog customLodingDialog = new CustomLodingDialog(this);
+        Fragment_Exchange fragment_exchange = new Fragment_Exchange(customLodingDialog);
+        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog);
         Fragment_coinSite fragment_coinInfo = new Fragment_coinSite(MainActivity.this);
+        Fragment_setting fragment_setting = new Fragment_setting();
+
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fragment_exchange).commit();
 
@@ -37,11 +40,13 @@ public class MainActivity extends FragmentActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if(item.getItemId() == R.id.tab_exchange){
+                    customLodingDialog.show();
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.main_fragment_container, fragment_exchange).commit();
 
                     return true;
                 }else if(item.getItemId() == R.id.tab_myPortfolio){
+                    customLodingDialog.show();
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.main_fragment_container, fragment_investmentDetails).commit();
 
@@ -50,6 +55,10 @@ public class MainActivity extends FragmentActivity {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.main_fragment_container, fragment_coinInfo).commit();
 
+                    return true;
+                }else if(item.getItemId() == R.id.tab_setting){
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_fragment_container, fragment_setting).commit();
                     return true;
                 }
                 return false;

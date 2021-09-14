@@ -221,11 +221,17 @@ public class Activity_coinInfo extends FragmentActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
                 Fragment selected = null;
+                int networkStatus = CheckNetwork.CheckNetwork(Activity_coinInfo.this);
 
                 if(position == 0){
-                    selected = fragment_coinOrder;
+                    if(networkStatus != 0) {
+                        selected = fragment_coinOrder;
+                    }else{
+                        Toast.makeText(Activity_coinInfo.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }else if(position == 1){
-                    if(CheckNetwork.CheckNetwork(Activity_coinInfo.this) != 0) {
+                    if(networkStatus != 0) {
                         selected = fragment_chart;
                     }else{
                         Toast.makeText(Activity_coinInfo.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
@@ -85,11 +88,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private String onText="";
 
     private TextView tv_networkIsNotConn;
-    private Button btn_networkIsNotConn;
+    private Button btn_networkIsNotConn,btn_searchCoinReset;
     private Context context;
+    private CustomLodingDialog customLodingDialog;
 
-    public Fragment_Exchange() {
+    public Fragment_Exchange(CustomLodingDialog customLodingDialog) {
         // Required empty public constructor
+        this.customLodingDialog = customLodingDialog;
     }
 
     @Override
@@ -108,7 +113,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         context = getActivity();
         FindViewById(rootView);
         setBtn_networkIsNotConn();
-        networkIsNotConn();
         db = MoEuiBitDatabase.getInstance(getActivity());
         setRv_coin();
         getAllUpBitCoins();
@@ -118,6 +122,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         setTextWatcher();
         setOrderByBtn();
         setSch_favorite();
+        setBtn_searchCoinReset();
 
         //--------------------------------------------
         return rootView;
@@ -134,17 +139,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         tv_nonFavorite = rootView.findViewById(R.id.tv_nonFavorite);
         tv_networkIsNotConn = rootView.findViewById(R.id.tv_networkIsNotConn);
         btn_networkIsNotConn = rootView.findViewById(R.id.btn_networkIsNotConn);
-
-    }
-
-    private void networkIsNotConn(){
-
-        if(CheckNetwork.CheckNetwork(context) == 0) {
-            rv_coin.setVisibility(View.GONE);
-            btn_networkIsNotConn.setVisibility(View.VISIBLE);
-            tv_networkIsNotConn.setVisibility(View.VISIBLE);
-        }
-
+        btn_searchCoinReset = rootView.findViewById(R.id.btn_searchCoinReset);
     }
 
     private void setRv_coin(){
@@ -319,6 +314,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         orderByCoins();
                         adapter_rvCoin.setItem(allCoinInfoArray);
                         adapter_rvCoin.notifyDataSetChanged();
+
+                        if(customLodingDialog.isShowing() && customLodingDialog != null){
+                            customLodingDialog.dismiss();
+                        }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -340,6 +340,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             @Override
             public void onClick(View view) {
                 int networkStatus = CheckNetwork.CheckNetwork(context);
+
                 if(networkStatus != 0){
 
                     getAllUpBitCoins();
@@ -373,6 +374,22 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             adapter_rvCoin.setMarkets(favoritePosition);
             adapter_rvCoin.getFilter().filter(onText);
         }
+    }
+
+    private void setBtn_searchCoinReset(){
+        btn_searchCoinReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    onText = "";
+                    et_searchCoin.setText("");
+
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                    if(et_searchCoin.isFocused()) {
+                        et_searchCoin.clearFocus();
+                        imm.hideSoftInputFromWindow(et_searchCoin.getWindowToken(), 0);
+                    }
+            }
+        });
     }
 
     private void orderByCoins(){
@@ -465,6 +482,14 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         if(networkStatus != 0) {
             getUpBitCoinsThread = new GetUpBitCoinsThread();
             getUpBitCoinsThread.start();
+        }else{
+
+            if(customLodingDialog != null && customLodingDialog.isShowing())
+                customLodingDialog.dismiss();
+
+            rv_coin.setVisibility(View.GONE);
+            btn_networkIsNotConn.setVisibility(View.VISIBLE);
+            tv_networkIsNotConn.setVisibility(View.VISIBLE);
         }
 
         if(switchIsChecked){
@@ -485,6 +510,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         }
     }
 
+
     private void setTextWatcher(){
         et_searchCoin.addTextChangedListener(this);
     }
@@ -497,6 +523,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
         onText = charSequence.toString();
+
+        if(!onText.equals("") && btn_searchCoinReset.getVisibility() == View.INVISIBLE){
+            btn_searchCoinReset.setVisibility(View.VISIBLE);
+        } else if(onText.equals("") && btn_searchCoinReset.getVisibility() == View.VISIBLE){
+            btn_searchCoinReset.setVisibility(View.INVISIBLE);
+        }
+
         adapter_rvCoin.getFilter().filter(onText);
     }
 

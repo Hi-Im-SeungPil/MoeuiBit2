@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
 import org.jeonfeel.moeuibit2.CheckNetwork;
+import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
@@ -55,8 +56,10 @@ public class Fragment_investmentDetails extends Fragment {
     private ArrayList<Double> currentPrices;
     private Adapter_rvMyCoins adapter_rvMyCoins;
     private Context context;
+    private CustomLodingDialog customLodingDialog;
 
-    public Fragment_investmentDetails() {
+    public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
+        this.customLodingDialog = customLodingDialog;
     }
 
     @Override
@@ -98,10 +101,6 @@ public class Fragment_investmentDetails extends Fragment {
 
     //초기설정
     private void init() {
-
-        if(CheckNetwork.CheckNetwork(context) == 0){
-            Toast.makeText(getActivity(), "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
-        }
 
         StringBuilder stringBuilder = null;
         myCoinsDTOS = null;
@@ -152,7 +151,18 @@ public class Fragment_investmentDetails extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        int networkStatus = CheckNetwork.CheckNetwork(context);
+
+        if(networkStatus == 0){
+            Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+            if(customLodingDialog!=null && customLodingDialog.isShowing())
+                customLodingDialog.dismiss();
+        }
+
         if(myCoins.size() != 0) {
+            if(customLodingDialog!=null && customLodingDialog.isShowing())
+                customLodingDialog.dismiss();
             getMyCoins = new GetMyCoins();
             getMyCoins.start();
         }
@@ -286,7 +296,6 @@ public class Fragment_investmentDetails extends Fragment {
                                 });
                             }
                         }
-
                 }catch (Exception e) {
                     e.printStackTrace();
                 }

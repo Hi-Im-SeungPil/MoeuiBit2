@@ -92,29 +92,168 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/iv_upBit"
+                <LinearLayout
+                    android:id="@+id/linear_upBit"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:layout_margin="10dp"
-                    android:background="@drawable/img_upbit"/>
+                    android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/iv_bithumb"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/img_bithumb"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_upbit"/>
 
-                <ImageView
-                    android:id="@+id/iv_coinOne"
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="업비트"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_bithumb"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:layout_margin="10dp"
-                    android:background="@drawable/img_coinone"/>
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_bithumb"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="빗썸"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_coinOne"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_coinOne"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_coinone"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="코인원"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linears_group8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/linear_binance"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_binance"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="바이낸스"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_gopax"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_gopax"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="고팍스"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linear_bybit"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:orientation="vertical"
+                    android:clickable="true">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:background="@drawable/img_bybit"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:text="바이비트"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:fontFamily="@font/nanum_square_round_b"
+                        android:textColor="#000000"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
 <!--            거래소-->
@@ -390,16 +529,19 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/linear_musk"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:layout_weight="1"
-                    android:layout_margin="10dp">
+                    android:layout_margin="10dp"
+                    android:clickable="true">
 
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="2" />
+                        android:layout_weight="2"
+                        android:background="@drawable/img_musk"/>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -407,7 +549,8 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:fontFamily="@font/nanum_square_round_b"
-                        android:textColor="#000000"/>
+                        android:textColor="#000000"
+                        android:text="머스크 트위터"/>
 
                 </LinearLayout>
 

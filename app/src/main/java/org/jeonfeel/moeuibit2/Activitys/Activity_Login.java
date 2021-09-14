@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -12,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -35,7 +36,7 @@ import org.jeonfeel.moeuibit2.R;
 public class Activity_Login extends AppCompatActivity {
     private final String TAG = "Activity_Login";
     private FirebaseAuth mAuth;
-    private Button btn_googleLogin;
+    private ConstraintLayout const_googleLogin;
     private GoogleSignInClient mGoogleSignInClient;
 
     @Override
@@ -57,7 +58,7 @@ public class Activity_Login extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        btn_googleLogin.setOnClickListener(new View.OnClickListener() {
+        const_googleLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signIn();
@@ -78,7 +79,7 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     private void FindViewById(){
-        btn_googleLogin = findViewById(R.id.btn_googleLogin);
+        const_googleLogin = findViewById(R.id.const_googleLogin);
     }
 
     @Override

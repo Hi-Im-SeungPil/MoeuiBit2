@@ -34,11 +34,11 @@ public class Activity_portfolio extends AppCompatActivity {
     private Button btn_portfolioBackSpace;
     private MoEuiBitDatabase db;
     private List<MyCoin> myCoinList;
-    private ArrayList<Integer> coinTotalPrice;
+    private ArrayList<Long> coinTotalPrice;
     private ArrayList<String> coinSymbol;
     private ArrayList<String> coinKoreanName;
     private int[] colors;
-    int coinAmount = 0;
+    long coinAmount = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,10 +74,15 @@ public class Activity_portfolio extends AppCompatActivity {
         coinKoreanName = new ArrayList<>();
 
         myCoinList = db.myCoinDAO().getAll();
+        long krw = db.userDAO().getAll().getKrw();
+        coinTotalPrice.add(krw);
+        coinSymbol.add("KRW");
+        coinKoreanName.add("원화");
+        coinAmount += krw;
 
         for(int i = 0; i < myCoinList.size(); i++){
 
-            int coinPrice = (int) round(myCoinList.get(i).getQuantity() * myCoinList.get(i).getPurchasePrice());
+            long coinPrice = (long) round(myCoinList.get(i).getQuantity() * myCoinList.get(i).getPurchasePrice());
 
             coinTotalPrice.add(coinPrice);
             coinSymbol.add(myCoinList.get(i).getSymbol());

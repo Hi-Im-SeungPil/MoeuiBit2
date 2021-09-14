@@ -21,10 +21,10 @@
         android:title="투자 내역"
         android:icon="@drawable/img_report"/>
     <item
-        android:id="@+id/tab_freeBoard"
+        android:id="@+id/tab_setting"
         app:showAsAction="always"
         android:enabled="true"
-        android:title="자유 게시판"
-        android:icon="@drawable/img_pencil"/>
+        android:title="설정"
+        android:icon="@drawable/img_setting"/>
 
 </menu>

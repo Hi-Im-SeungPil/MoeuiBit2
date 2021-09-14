@@ -18,11 +18,11 @@ import org.jeonfeel.moeuibit2.R;
 
 public class Fragment_coinSite extends Fragment {
 
-    ImageView iv_upBit, iv_bithumb, iv_coinOne;
     LinearLayout linear_ddangle, linear_coinPan, linear_moneyNet, linear_cobak, linear_blockChanHub,
             linear_dcInside, linear_bitMan, linear_FMkorea, linear_coinMarketCap, linear_coinGeko,
-            linear_kimpga, linear_cryPrice, linear_coDal, linear_coinNess, linear_coinMarketCal,linear_xangle;
-    LinearLayout linears_group1,linears_group2,linears_group3,linears_group4,linears_group5,linears_group6,linears_group7;
+            linear_kimpga, linear_cryPrice, linear_coDal, linear_coinNess, linear_coinMarketCal,linear_xangle,
+            linear_binance,linear_gopax,linear_bybit,linear_upBit,linear_bithumb,linear_coinOne,linear_musk;
+    LinearLayout linears_group1,linears_group2,linears_group3,linears_group4,linears_group5,linears_group6,linears_group7,linears_group8;
     Button btn_hide1,btn_hide2,btn_hide3,btn_hide4,btn_hide5;
     Context context;
 
@@ -52,9 +52,12 @@ public class Fragment_coinSite extends Fragment {
 
     private void FindViewById(View rootView) {
 
-        iv_upBit = rootView.findViewById(R.id.iv_upBit);
-        iv_bithumb = rootView.findViewById(R.id.iv_bithumb);
-        iv_coinOne = rootView.findViewById(R.id.iv_coinOne);
+        linear_upBit = rootView.findViewById(R.id.linear_upBit);
+        linear_bithumb = rootView.findViewById(R.id.linear_bithumb);
+        linear_coinOne = rootView.findViewById(R.id.linear_coinOne);
+        linear_binance = rootView.findViewById(R.id.linear_binance);
+        linear_gopax = rootView.findViewById(R.id.linear_gopax);
+        linear_bybit = rootView.findViewById(R.id.linear_bybit);
         linear_ddangle = rootView.findViewById(R.id.linear_ddangle);
         linear_coinPan = rootView.findViewById(R.id.linear_coinPan);
         linear_moneyNet = rootView.findViewById(R.id.linear_moneyNet);
@@ -71,6 +74,7 @@ public class Fragment_coinSite extends Fragment {
         linear_coDal = rootView.findViewById(R.id.linear_coDal);
         linear_coinNess = rootView.findViewById(R.id.linear_coinNess);
         linear_coinMarketCal = rootView.findViewById(R.id.linear_coinMarketCal);
+        linear_musk = rootView.findViewById(R.id.linear_musk);
         linears_group1 = rootView.findViewById(R.id.linears_group1);
         linears_group2 = rootView.findViewById(R.id.linears_group2);
         linears_group3 = rootView.findViewById(R.id.linears_group3);
@@ -78,6 +82,7 @@ public class Fragment_coinSite extends Fragment {
         linears_group5 = rootView.findViewById(R.id.linears_group5);
         linears_group6 = rootView.findViewById(R.id.linears_group6);
         linears_group7 = rootView.findViewById(R.id.linears_group7);
+        linears_group8 = rootView.findViewById(R.id.linears_group8);
         btn_hide1 = rootView.findViewById(R.id.btn_hide1);
         btn_hide2 = rootView.findViewById(R.id.btn_hide2);
         btn_hide3 = rootView.findViewById(R.id.btn_hide3);
@@ -86,23 +91,41 @@ public class Fragment_coinSite extends Fragment {
     }
 
     private void setIv_exchanges(){
-        iv_upBit.setOnClickListener(new View.OnClickListener() {
+        linear_upBit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 exchangesIsInstall("com.dunamu.exchange","https://www.upbit.com");
             }
         });
 
-        iv_bithumb.setOnClickListener(new View.OnClickListener() {
+        linear_bithumb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 exchangesIsInstall("com.btckorea.bithumb","https://www.bithumb.com/");
             }
         });
-        iv_coinOne.setOnClickListener(new View.OnClickListener() {
+        linear_coinOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 exchangesIsInstall("coinone.co.kr.official","https://coinone.co.kr/");
+            }
+        });
+        linear_binance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("com.binance.dev","https://www.binance.com/en/");
+            }
+        });
+        linear_gopax.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("kr.co.gopax","https://www.gopax.co.kr/");
+            }
+        });
+        linear_bybit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                exchangesIsInstall("com.bybit.app","https://www.bybit.com/en-US/");
             }
         });
     }
@@ -123,7 +146,7 @@ public class Fragment_coinSite extends Fragment {
     private void setLinear(){
         LinearLayout[] linearLayouts = {linear_ddangle,linear_coinPan,linear_moneyNet,linear_cobak,linear_blockChanHub,
                 linear_dcInside,linear_bitMan,linear_FMkorea,linear_FMkorea,linear_coinMarketCap,linear_coinGeko,
-                linear_xangle,linear_kimpga,linear_cryPrice,linear_coDal,linear_coinNess,linear_coinMarketCal};
+                linear_xangle,linear_kimpga,linear_cryPrice,linear_coDal,linear_coinNess,linear_coinMarketCal,linear_musk};
 
         SetLinears setLinears = new SetLinears();
 
@@ -138,9 +161,11 @@ public class Fragment_coinSite extends Fragment {
                 if(linears_group1.getVisibility() == View.VISIBLE){
                     btn_hide1.setText("▼");
                     linears_group1.setVisibility(View.GONE);
+                    linears_group8.setVisibility(View.GONE);
                 }else{
                     btn_hide1.setText("▲");
                     linears_group1.setVisibility(View.VISIBLE);
+                    linears_group8.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -226,6 +251,9 @@ public class Fragment_coinSite extends Fragment {
                     break;
                 case R.id.linear_FMkorea:
                     uri = "https://www.fmkorea.com/coin";
+                    break;
+                case R.id.linear_musk:
+                    uri = "https://twitter.com/elonmusk";
                     break;
                 case R.id.linear_coinMarketCap:
                     uri = "https://coinmarketcap.com/ko/";

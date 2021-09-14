@@ -163,8 +163,8 @@
                 android:textColor="#000000"
                 android:fontFamily="@font/nanum_square_round_b"/>
 
-            <EditText
-                android:id="@+id/et_sellCoinPrice"
+            <TextView
+                android:id="@+id/tv_sellCoinPrice"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="2"
@@ -172,51 +172,67 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:inputType="numberDecimal"
                 android:background="@drawable/et_bolder"
                 android:paddingLeft="4dp"
-                android:clickable="false"
-                android:focusable="false"/>
+                android:gravity="center_vertical"
+                android:textSize="18sp"
+                android:textColor="#000000"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/const_priceSell4"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="7dp">
+        <LinearLayout
+            android:id="@+id/const_priceOrder4"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="7dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/zc"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:fontFamily="@font/nanum_square_round_b"
-            android:gravity="center"
-            android:text="총액"
-            android:textColor="#000000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/zc"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/nanum_square_round_b"
+                android:layout_weight="1"
+                android:gravity="center|left"
+                android:text="총액"
+                android:textColor="#000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:paddingLeft="3dp"/>
 
-        <EditText
-            android:id="@+id/et_sellCoinTotalAmount"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            app:layout_constraintLeft_toRightOf="@+id/zc"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:focusable="false"
-            android:inputType="number"
-            android:background="@drawable/et_bolder"
-            android:paddingLeft="4dp"
-            android:layout_marginRight="10dp"/>
+            <TextView
+                android:id="@+id/tv_sellCoinTotalAmount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                app:layout_constraintLeft_toRightOf="@+id/zc"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/zzkrw"
+                app:layout_constraintTop_toTopOf="parent"
+                android:focusable="false"
+                android:textSize="15sp"
+                android:paddingLeft="4dp"
+                android:gravity="center|right"
+                android:textColor="#000000"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/zzkrw"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="KRW"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
