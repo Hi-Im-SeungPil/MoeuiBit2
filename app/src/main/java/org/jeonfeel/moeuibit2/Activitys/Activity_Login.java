@@ -41,7 +41,7 @@ public class Activity_Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ConstraintLayout const_googleLogin;
     private GoogleSignInClient mGoogleSignInClient;
-
+    static final int PERMISSIONS_REQUEST = 0x0000001;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +51,7 @@ public class Activity_Login extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        OnCheckPermission();
         FindViewById();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -181,6 +182,61 @@ public class Activity_Login extends AppCompatActivity {
             customLodingDialog.dismiss();
 
             finish();
+        }
+    }
+
+    public void OnCheckPermission() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                Toast.makeText(this, "앱 실행을 위해서 반드시 설정해야 합니다", Toast.LENGTH_SHORT).show();
+
+                ActivityCompat.requestPermissions(this,
+
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+
+                        PERMISSIONS_REQUEST);
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+
+                        PERMISSIONS_REQUEST);
+
+            }
+        }
+    }
+
+
+    @Override
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+
+            case PERMISSIONS_REQUEST:
+
+                if (grantResults.length > 0
+
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    Toast.makeText(this, "앱 실행을 위한 권한이 설정 되었습니다", Toast.LENGTH_SHORT).show();
+
+
+                } else {
+
+                    Toast.makeText(this, "권한이 없습니다. 앱 설정에서 변경 해 주세요.", Toast.LENGTH_SHORT).show();
+
+                }
+
+                break;
+
         }
     }
 

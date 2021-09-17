@@ -222,6 +222,11 @@ public class Fragment_investmentDetails extends Fragment {
             @Override
             public void onClick(View view) {
 
+                    if(CheckNetwork.CheckNetwork(context) == 0){
+                        Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     if (checkSecond == 1) {
                         Toast.makeText(context, "충전 후 5초뒤에 충전 가능합니다.", Toast.LENGTH_SHORT).show();
                         return;
