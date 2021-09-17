@@ -1,6 +1,8 @@
 package org.jeonfeel.moeuibit2.Activitys;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -38,6 +41,7 @@ public class Activity_Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private ConstraintLayout const_googleLogin;
     private GoogleSignInClient mGoogleSignInClient;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -244,5 +248,4 @@ public class Activity_Login extends AppCompatActivity {
 //            return null;
 //        });
 //    }
-
 }

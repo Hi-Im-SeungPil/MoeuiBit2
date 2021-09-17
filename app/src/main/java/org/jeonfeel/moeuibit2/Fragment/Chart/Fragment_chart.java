@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.Fragment.Chart;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -148,11 +149,17 @@ public class Fragment_chart extends Fragment {
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
 
+                try {
                     Highlight highlight = combinedChart.getHighlightByTouchPoint(me.getX(), me.getY());
 
-                        if (highlight != null) {
-                            combinedChart.highlightValue(highlight, true);
-                        }
+                    if (highlight != null) {
+                        combinedChart.highlightValue(highlight, true);
+                    }
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    ((Activity) getActivity()).finish();
+                    Toast.makeText(getActivity(), "오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

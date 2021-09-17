@@ -218,7 +218,11 @@ public class Fragment_coinOrder extends Fragment {
                 }
                 EditText editText = new EditText(getActivity());
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                long myKrw = db.userDAO().getAll().getKrw();
+                User user = db.userDAO().getAll();
+                long myKrw = 0;
+                if(user != null) {
+                    myKrw = user.getKrw();
+                }
                 TextWatcher textWatcher = tw2(editText);
                 editText.addTextChangedListener(textWatcher);
 
@@ -500,7 +504,7 @@ public class Fragment_coinOrder extends Fragment {
                 }
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
-                rv_coinArcade.scrollToPosition(8);
+                rv_coinArcade.scrollToPosition(9);
 
             }
 
@@ -559,7 +563,7 @@ public class Fragment_coinOrder extends Fragment {
                         }
 
                         Double orderQuantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-                        Double orderAmount = currentPrice * orderQuantity;
+                        long orderAmount = round(currentPrice * orderQuantity);
 
                         MyCoin myCoin = null;
                         myCoin = db.myCoinDAO().isInsert(market);

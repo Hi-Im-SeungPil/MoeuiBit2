@@ -12,17 +12,25 @@
         <package android:name="com.dunamu.exchange" />
         <package android:name="com.btckorea.bithumb" />
         <package android:name="coinone.co.kr.official" />
+        <package android:name="com.binance.dev" />
+        <package android:name="com.bybit.app" />
+        <package android:name="kr.co.gopax" />
     </queries>
 
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="모의비트"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
         android:name=".GlobalApplication"
         android:usesCleartextTraffic="true" >
+
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8481465476603755~9217250246"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -67,6 +75,8 @@
                     android:scheme="kakao8c226fed49d9e2e4b2b3ea88a3b4cb52" />
             </intent-filter>
         </activity>
+
+
 
     </application>
 

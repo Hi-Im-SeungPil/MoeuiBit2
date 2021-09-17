@@ -26,6 +26,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.CheckNetwork;
@@ -91,10 +94,12 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private Button btn_networkIsNotConn,btn_searchCoinReset;
     private Context context;
     private CustomLodingDialog customLodingDialog;
+    private AdView mAdView;
 
-    public Fragment_Exchange(CustomLodingDialog customLodingDialog) {
+    public Fragment_Exchange(CustomLodingDialog customLodingDialog,AdView mAdView) {
         // Required empty public constructor
         this.customLodingDialog = customLodingDialog;
+        this.mAdView = mAdView;
     }
 
     @Override
@@ -342,6 +347,11 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                 int networkStatus = CheckNetwork.CheckNetwork(context);
 
                 if(networkStatus != 0){
+
+                    AdRequest adRequest = new AdRequest.Builder().build();
+                    if(mAdView != null && adRequest != null){
+                        mAdView.loadAd(adRequest);
+                    }
 
                     getAllUpBitCoins();
                     getUpBitCoinsInfo();

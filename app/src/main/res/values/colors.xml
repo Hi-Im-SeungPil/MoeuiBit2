@@ -12,10 +12,10 @@
     <color name="minusColor">#0054FF</color>
 
     <array name="pieChart_color">
-        <item>#FF0000</item>
+        <item>#FFE400</item>
         <item>#FF5E00</item>
         <item>#FFBB00 </item>
-        <item>#FFE400 </item>
+        <item>#FF0000 </item>
         <item>#ABF200 </item>
         <item>#1DDB16 </item>
         <item>#00D8FF </item>

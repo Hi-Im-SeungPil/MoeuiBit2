@@ -20,4 +20,7 @@ public interface FavoriteDAO {
     @Query("SELECT * FROM Favorite WHERE market = :market")
     Favorite select(String market);
 
+    @Query("DELETE FROM Favorite ")
+    void deleteAll();
+
 }

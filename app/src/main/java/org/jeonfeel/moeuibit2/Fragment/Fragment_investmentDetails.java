@@ -1,14 +1,17 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +19,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
@@ -25,6 +39,7 @@ import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
+import org.jeonfeel.moeuibit2.MainActivity;
 import org.jeonfeel.moeuibit2.R;
 import org.jeonfeel.moeuibit2.Database.User;
 import org.json.JSONArray;
@@ -43,7 +58,7 @@ import java.util.List;
 import static java.lang.Math.round;
 
 public class Fragment_investmentDetails extends Fragment {
-
+    final String TAG ="investmentDetails";
     private TextView tv_myKoreanWon, tv_myTotalProperty, tv_totalBuyOut, tv_totalEvaluation, tv_evaluationGainLoss, tv_yield;
     private MoEuiBitDatabase db;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
@@ -57,6 +72,9 @@ public class Fragment_investmentDetails extends Fragment {
     private Adapter_rvMyCoins adapter_rvMyCoins;
     private Context context;
     private CustomLodingDialog customLodingDialog;
+    private RewardedInterstitialAd rewardedInterstitialAd;
+    private EarnKrw earnKrw;
+    private int checkSecond = 0;
 
     public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
         this.customLodingDialog = customLodingDialog;
@@ -73,6 +91,7 @@ public class Fragment_investmentDetails extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_investment_details, container, false);
 
         context = getActivity();
+        earnKrw = new EarnKrw();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getActivity());
         setRv_myCoins();
@@ -116,6 +135,8 @@ public class Fragment_investmentDetails extends Fragment {
         if (user != null) {
             myKoreanWon = user.getKrw();
             tv_myTotalProperty.setText(decimalFormat.format(myKoreanWon));
+        }else{
+            myKoreanWon = 0;
         }
         // 총 매수 설정
         myCoins = db.myCoinDAO().getAll();
@@ -165,6 +186,9 @@ public class Fragment_investmentDetails extends Fragment {
                 customLodingDialog.dismiss();
             getMyCoins = new GetMyCoins();
             getMyCoins.start();
+        }else{
+            if(customLodingDialog!=null && customLodingDialog.isShowing())
+                customLodingDialog.dismiss();
         }
     }
 
@@ -198,19 +222,23 @@ public class Fragment_investmentDetails extends Fragment {
             @Override
             public void onClick(View view) {
 
-                User user = db.userDAO().getAll();
+                    if (checkSecond == 1) {
+                        Toast.makeText(context, "충전 후 5초뒤에 충전 가능합니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                if(user == null){
-                    db.userDAO().insert();
-                }else{
-                    db.userDAO().updatePlusMoney(5000000);
+                    MobileAds.initialize(context, new OnInitializationCompleteListener() {
+                        @Override
+                        public void onInitializationComplete(InitializationStatus initializationStatus) {
+                            loadAd();
+                        }
+                    });
+
+                    if (rewardedInterstitialAd != null)
+                        rewardedInterstitialAd.show((Activity) context, earnKrw);
+                    else
+                        Toast.makeText(context, "잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
                 }
-                User user1 = db.userDAO().getAll();
-                myKoreanWon = user1.getKrw();
-                tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
-
-                user = null;
-            }
         });
     }
 
@@ -310,5 +338,53 @@ public class Fragment_investmentDetails extends Fragment {
             isRunning = false;
         }
     }
+
+    public void loadAd() {
+        // Use the test ad unit ID to load an ad.
+        RewardedInterstitialAd.load(context, "ca-app-pub-8481465476603755/3905762551",
+                new AdRequest.Builder().build(),  new RewardedInterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedInterstitialAd ad) {
+                        rewardedInterstitialAd = ad;
+                        Log.e(TAG, "onAdLoaded");
+                    }
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+                        Log.e(TAG, "onAdFailedToLoad");
+                    }
+                });
+    }
+
+    public class EarnKrw implements OnUserEarnedRewardListener{
+
+        @Override
+        public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+            User user = db.userDAO().getAll();
+
+            if(user == null){
+                db.userDAO().insert();
+            }else{
+                db.userDAO().updatePlusMoney(5000000);
+            }
+            User user1 = db.userDAO().getAll();
+            myKoreanWon = user1.getKrw();
+            tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
+            tv_myTotalProperty.setText(decimalFormat.format(totalEvaluation + myKoreanWon));
+
+            checkSecond = 1;
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //지연시키길 원하는 밀리초 뒤에 동작
+                    checkSecond = 0;
+                }
+            }, 5000 );
+
+            user = null;
+        }
+    }
+
 }
 

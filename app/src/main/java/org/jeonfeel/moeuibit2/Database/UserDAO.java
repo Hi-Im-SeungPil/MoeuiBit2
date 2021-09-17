@@ -28,4 +28,7 @@ public interface UserDAO {
 
     @Query("UPDATE User SET krw = krw - :money")
     void  updateMinusMoney(long money);
+
+    @Query("DELETE FROM User")
+    void deleteAll();
 }

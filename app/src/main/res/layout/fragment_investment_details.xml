@@ -32,26 +32,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_investmentDetails"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:tabTextColor="#D6D6D6"
-        app:tabSelectedTextColor="#303D88"
-        app:tabIndicatorColor="#303D88">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="보유코인"/>
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="거래내역"/>
-
-    </com.google.android.material.tabs.TabLayout>
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

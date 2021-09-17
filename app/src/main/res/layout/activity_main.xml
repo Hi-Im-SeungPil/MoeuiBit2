@@ -14,7 +14,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/menu_bottom"/>
+        app:layout_constraintBottom_toTopOf="@+id/adView"/>
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-8481465476603755/9732449089"
+        ads:layout_constraintBottom_toTopOf="@+id/menu_bottom"
+        ads:layout_constraintLeft_toLeftOf="parent"
+        ads:layout_constraintRight_toRightOf="parent"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/menu_bottom"
@@ -26,6 +39,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/menu_bottom"
         app:itemTextColor="@color/bottom_selected"
-        app:itemIconTint="@color/bottom_selected"/>
+        app:itemIconTint="@color/bottom_selected"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

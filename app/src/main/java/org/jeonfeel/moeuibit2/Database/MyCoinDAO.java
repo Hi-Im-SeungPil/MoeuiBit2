@@ -36,4 +36,7 @@ public interface MyCoinDAO {
     @Query("DELETE FROM MyCoin where market = :market")
     void delete(String market);
 
+    @Query("DELETE FROM MyCoin ")
+    void deleteAll();
+
 }

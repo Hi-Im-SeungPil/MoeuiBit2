@@ -9,11 +9,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.tabs.TabLayout;
 
 import org.jeonfeel.moeuibit2.CheckNetwork;
@@ -59,6 +65,7 @@ public class Activity_coinInfo extends FragmentActivity {
     private Button btn_bookMark;
     private Double globalCurrentPrice;
     private Double currentPrice;
+    private AdView mAdView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +74,15 @@ public class Activity_coinInfo extends FragmentActivity {
 
         db = MoEuiBitDatabase.getInstance(Activity_coinInfo.this);
         FindViewById();
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = findViewById(R.id.adView2);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         setCoinInfo();
         setTabLayout();

@@ -16,4 +16,7 @@ public interface TransactionInfoDAO {
     @Query("SELECT * FROM TransactionInfo where market=:market")
     List<TransactionInfo> select(String market);
 
+    @Query("DELETE FROM TransactionInfo ")
+    void deleteAll();
+
 }

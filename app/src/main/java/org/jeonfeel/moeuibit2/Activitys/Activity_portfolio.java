@@ -20,6 +20,7 @@ import com.github.mikephil.charting.data.PieEntry;
 
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.Database.MyCoin;
+import org.jeonfeel.moeuibit2.Database.User;
 import org.jeonfeel.moeuibit2.R;
 
 import java.util.ArrayList;
@@ -74,11 +75,17 @@ public class Activity_portfolio extends AppCompatActivity {
         coinKoreanName = new ArrayList<>();
 
         myCoinList = db.myCoinDAO().getAll();
-        long krw = db.userDAO().getAll().getKrw();
-        coinTotalPrice.add(krw);
-        coinSymbol.add("KRW");
-        coinKoreanName.add("원화");
-        coinAmount += krw;
+        User user = db.userDAO().getAll();
+
+        if(user != null) {
+            if(user.getKrw() != 0) {
+                long krw = user.getKrw();
+                coinTotalPrice.add(krw);
+                coinSymbol.add("KRW");
+                coinKoreanName.add("원화");
+                coinAmount += krw;
+            }
+        }
 
         for(int i = 0; i < myCoinList.size(); i++){
 
