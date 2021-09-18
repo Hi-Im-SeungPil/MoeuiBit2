@@ -50,31 +50,40 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
 
     @Override
     public void onBindViewHolder(@NonNull Adapter_rvMyCoins.CustomViewHolder holder, int position) {
+
+        String symbol = item.get(position).getMyCoinsSymbol();
+        String koreanName = item.get(position).getMyCoinsKoreanName();
+        Double buyingAverage = item.get(position).getMyCoinsBuyingAverage();
         Double quantity = item.get(position).getMyCoinsQuantity();
-        Double purchaseAmount = quantity * item.get(position).getMyCoinsBuyingAverage();
+        long purchaseAmount = round(quantity * buyingAverage);
 
-        holder.tv_myCoinsSymbol.setText(item.get(position).getMyCoinsSymbol());
-        holder.tv_myCoinsSymbol2.setText(item.get(position).getMyCoinsSymbol());
-        holder.tv_myCoinsKoreanName.setText(item.get(position).getMyCoinsKoreanName());
-        holder.tv_myCoinsQuantity.setText(String.valueOf(item.get(position).getMyCoinsQuantity()));
+        holder.tv_myCoinsSymbol.setText(symbol);
+        holder.tv_myCoinsSymbol2.setText(symbol);
+        holder.tv_myCoinsKoreanName.setText(koreanName);
+        holder.tv_myCoinsQuantity.setText(String.valueOf(quantity));
 
-        if(item.get(position).getMyCoinsBuyingAverage() >= 100) {
-            holder.tv_myCoinsBuyingAverage.setText(decimalFormat.format(round(item.get(position).getMyCoinsBuyingAverage())));
+        if(buyingAverage >= 100) {
+            long buyingAverage1 = round(buyingAverage);
+            holder.tv_myCoinsBuyingAverage.setText(decimalFormat.format(buyingAverage1));
         }else{
-            holder.tv_myCoinsBuyingAverage.setText(String.format("%.2f",item.get(position).getMyCoinsBuyingAverage()));
+            holder.tv_myCoinsBuyingAverage.setText(String.format("%.2f",buyingAverage));
         }
 
-        holder.tv_myCoinsPurchaseAmount.setText(decimalFormat.format(round(item.get(position).getMyCoinsQuantity() * item.get(position).getMyCoinsBuyingAverage())));
+        holder.tv_myCoinsPurchaseAmount.setText(decimalFormat.format(purchaseAmount));
 
         if(currentPrices != null) {
-            Double currentPrice = currentPrices.get(position);
-            Double evaluationAmount = quantity * currentPrice;
 
-            if(round(evaluationAmount - purchaseAmount) > 0){
+            Double currentPrice = currentPrices.get(position);
+            long evaluationAmount = round(quantity * currentPrice);
+            long lossGainAmount = evaluationAmount - purchaseAmount;
+            double lossGainCoin = currentPrice - buyingAverage;
+            double earningRate = lossGainCoin / buyingAverage * 100;
+
+            if(lossGainAmount > 0){
                 holder.tv_myCoinsEvaluation.setTextColor(Color.parseColor("#B77300"));
                 holder.tv_myCoinsEarningsRate.setTextColor(Color.parseColor("#B77300"));
                 holder.tv_myCoinsDifference.setTextColor(Color.parseColor("#B77300"));
-            }else if(round(evaluationAmount - purchaseAmount) < 0 ){
+            }else if(lossGainAmount < 0 ){
                 holder.tv_myCoinsEvaluation.setTextColor(Color.parseColor("#0054FF"));
                 holder.tv_myCoinsEarningsRate.setTextColor(Color.parseColor("#0054FF"));
                 holder.tv_myCoinsDifference.setTextColor(Color.parseColor("#0054FF"));
@@ -89,15 +98,16 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
                 holder.tv_myCoinsCurrentPrice.setText(String.format("%.2f",currentPrice));
             }
 
-            if(currentPrice - item.get(position).getMyCoinsBuyingAverage() >= 100 || currentPrice - item.get(position).getMyCoinsBuyingAverage() <= -100){
-                holder.tv_myCoinsDifference.setText(decimalFormat.format(round(currentPrice - item.get(position).getMyCoinsBuyingAverage())));
+            if(lossGainCoin >= 100 || lossGainCoin <= -100){
+                long text = round(lossGainCoin);
+                holder.tv_myCoinsDifference.setText(decimalFormat.format(text));
             }else{
-                holder.tv_myCoinsDifference.setText(String.format("%.2f",currentPrice - item.get(position).getMyCoinsBuyingAverage()));
+                holder.tv_myCoinsDifference.setText(String.format("%.2f",lossGainCoin));
             }
 
-            holder.tv_myCoinsEvaluationAmount.setText(decimalFormat.format(round(quantity * currentPrice)));
-            holder.tv_myCoinsEvaluation.setText(decimalFormat.format(round(evaluationAmount - purchaseAmount)));
-            holder.tv_myCoinsEarningsRate.setText(String.format("%.2f",(evaluationAmount - purchaseAmount) / purchaseAmount * 100) + "%");
+            holder.tv_myCoinsEvaluationAmount.setText(decimalFormat.format(evaluationAmount));
+            holder.tv_myCoinsEvaluation.setText(decimalFormat.format(lossGainAmount));
+            holder.tv_myCoinsEarningsRate.setText(String.format("%.2f",earningRate) + "%");
         }
 
         holder.linear_myCoinsWholeItem.setOnClickListener(new View.OnClickListener() {
@@ -113,9 +123,9 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
                                 if(CheckNetwork.CheckNetwork(context) != 0) {
 
                                     Intent intent = new Intent(context, Activity_coinInfo.class);
-                                    intent.putExtra("koreanName", item.get(position).getMyCoinsKoreanName());
-                                    intent.putExtra("symbol", item.get(position).getMyCoinsSymbol());
-                                    intent.putExtra("market", "KRW-" + item.get(position).getMyCoinsSymbol());
+                                    intent.putExtra("koreanName", koreanName);
+                                    intent.putExtra("symbol", symbol);
+                                    intent.putExtra("market", "KRW-" + symbol);
                                     context.startActivity(intent);
 
                                 }else{

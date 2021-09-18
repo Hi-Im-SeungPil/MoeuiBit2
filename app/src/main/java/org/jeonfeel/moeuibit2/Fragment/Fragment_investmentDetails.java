@@ -66,7 +66,7 @@ public class Fragment_investmentDetails extends Fragment {
     private RecyclerView rv_myCoins;
     private String markets = "";
     private List<MyCoin> myCoins;
-    private long totalBuyOut,myKoreanWon,totalEvaluation;
+    private long totalBuyOut,myKoreanWon = 0,totalEvaluation;
     private GetMyCoins getMyCoins;
     private ArrayList<Double> currentPrices;
     private Adapter_rvMyCoins adapter_rvMyCoins;
@@ -132,12 +132,14 @@ public class Fragment_investmentDetails extends Fragment {
 
         //보유 krw 설정
         User user = db.userDAO().getAll();
+
         if (user != null) {
             myKoreanWon = user.getKrw();
             tv_myTotalProperty.setText(decimalFormat.format(myKoreanWon));
         }else{
             myKoreanWon = 0;
         }
+
         // 총 매수 설정
         myCoins = db.myCoinDAO().getAll();
 
@@ -295,8 +297,8 @@ public class Fragment_investmentDetails extends Fragment {
                             }
 
                             Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
-                            int evaluationGainLoss = (int) (totalEvaluation - totalBuyOut);
-                            int myTotalProperty = (int) (myKoreanWon + totalEvaluation);
+                            long evaluationGainLoss =  (totalEvaluation - totalBuyOut);
+                            long myTotalProperty =  (myKoreanWon + totalEvaluation);
                             String yieldResult = String.format("%.2f", yield);
 
                             Log.d("totalEvaluation", totalEvaluation + "");
