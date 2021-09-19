@@ -66,7 +66,7 @@ public class Fragment_investmentDetails extends Fragment {
     private RecyclerView rv_myCoins;
     private String markets = "";
     private List<MyCoin> myCoins;
-    private long totalBuyOut,myKoreanWon = 0,totalEvaluation;
+    private long totalBuyOut,myKoreanWon = 0;
     private GetMyCoins getMyCoins;
     private ArrayList<Double> currentPrices;
     private Adapter_rvMyCoins adapter_rvMyCoins;
@@ -94,6 +94,16 @@ public class Fragment_investmentDetails extends Fragment {
         earnKrw = new EarnKrw();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getActivity());
+
+        if(rewardedInterstitialAd == null) {
+            MobileAds.initialize(context, new OnInitializationCompleteListener() {
+                @Override
+                public void onInitializationComplete(InitializationStatus initializationStatus) {
+                    loadAd();
+                }
+            });
+        }
+
         setRv_myCoins();
         init();
         setBtn_earningKrw(rootView);
@@ -234,17 +244,24 @@ public class Fragment_investmentDetails extends Fragment {
                         return;
                     }
 
-                    MobileAds.initialize(context, new OnInitializationCompleteListener() {
-                        @Override
-                        public void onInitializationComplete(InitializationStatus initializationStatus) {
-                            loadAd();
-                        }
-                    });
+                    if (rewardedInterstitialAd != null) {
 
-                    if (rewardedInterstitialAd != null)
                         rewardedInterstitialAd.show((Activity) context, earnKrw);
-                    else
+
+                        MobileAds.initialize(context, new OnInitializationCompleteListener() {
+                            @Override
+                            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                                loadAd();
+                            }
+                        });
+                    }
+                    else{
+
                         Toast.makeText(context, "잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
+
+                    }
+
+
                 }
         });
     }
@@ -259,7 +276,7 @@ public class Fragment_investmentDetails extends Fragment {
 
             while (isRunning) {
                 try {
-                        totalEvaluation = 0;
+                        Double totalEvaluation = 0.0;
 
                         URL url = new URL("https://api.upbit.com/v1/ticker?markets=" + markets);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -288,17 +305,16 @@ public class Fragment_investmentDetails extends Fragment {
 
                                 Double currentPrice = jsonObject.getDouble("trade_price");
                                 Double quantity = myCoins.get(i).getQuantity();
-                                String coinName = myCoins.get(i).getKoreanCoinName();
 
-                                totalEvaluation += round(currentPrice * quantity);
+                                totalEvaluation += currentPrice * quantity;
                                 currentPrices.set(i, currentPrice);
 
-                                Log.d("coinInfoqqqq", coinName + " : " + currentPrice);
                             }
 
-                            Double yield = (totalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
-                            long evaluationGainLoss =  (totalEvaluation - totalBuyOut);
-                            long myTotalProperty =  (myKoreanWon + totalEvaluation);
+                            long longTotalEvaluation = round(totalEvaluation);
+                            Double yield = (longTotalEvaluation - totalBuyOut) / Double.valueOf(totalBuyOut) * 100; //퍼센트 계산
+                            long evaluationGainLoss =  (longTotalEvaluation - totalBuyOut);
+                            long myTotalProperty =  (myKoreanWon + longTotalEvaluation);
                             String yieldResult = String.format("%.2f", yield);
 
                             Log.d("totalEvaluation", totalEvaluation + "");
@@ -310,10 +326,10 @@ public class Fragment_investmentDetails extends Fragment {
                                     @Override
                                     public void run() {
 
-                                        if (totalEvaluation - totalBuyOut > 0) {
+                                        if (longTotalEvaluation - totalBuyOut > 0) {
                                             tv_yield.setTextColor(Color.parseColor("#B77300"));
                                             tv_evaluationGainLoss.setTextColor(Color.parseColor("#B77300"));
-                                        } else if (totalEvaluation - totalBuyOut < 0) {
+                                        } else if (longTotalEvaluation - totalBuyOut < 0) {
                                             tv_yield.setTextColor(Color.parseColor("#0054FF"));
                                             tv_evaluationGainLoss.setTextColor(Color.parseColor("#0054FF"));
                                         } else {
@@ -321,7 +337,7 @@ public class Fragment_investmentDetails extends Fragment {
                                             tv_evaluationGainLoss.setTextColor(Color.parseColor("#000000"));
                                         }
 
-                                        tv_totalEvaluation.setText(decimalFormat.format(totalEvaluation));
+                                        tv_totalEvaluation.setText(decimalFormat.format(longTotalEvaluation));
                                         tv_myTotalProperty.setText(decimalFormat.format(myTotalProperty));
                                         tv_evaluationGainLoss.setText(decimalFormat.format(evaluationGainLoss));
                                         tv_yield.setText(yieldResult + "%");
@@ -373,10 +389,13 @@ public class Fragment_investmentDetails extends Fragment {
             }else{
                 db.userDAO().updatePlusMoney(5000000);
             }
+
             User user1 = db.userDAO().getAll();
             myKoreanWon = user1.getKrw();
             tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
-            tv_myTotalProperty.setText(decimalFormat.format(totalEvaluation + myKoreanWon));
+
+            long myTotalProperty = Long.parseLong(tv_myTotalProperty.getText().toString().replaceAll(",",""));
+            tv_myTotalProperty.setText(decimalFormat.format(myTotalProperty+5000000));
 
             checkSecond = 1;
 

@@ -31,7 +31,6 @@ public class MainActivity extends FragmentActivity {
     private AdView mAdView;
     private long backBtnTime = 0;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +56,6 @@ public class MainActivity extends FragmentActivity {
         Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog);
         Fragment_coinSite fragment_coinInfo = new Fragment_coinSite(MainActivity.this);
         Fragment_setting fragment_setting = new Fragment_setting();
-
 
         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_container, fragment_exchange).commit();
         currentFragment = "fragment_exchange";
@@ -114,6 +112,5 @@ public class MainActivity extends FragmentActivity {
             Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.",Toast.LENGTH_SHORT).show();
         }
     }
-
 
 }

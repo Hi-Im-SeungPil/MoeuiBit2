@@ -146,7 +146,7 @@ public class Fragment_chart extends Fragment {
         combinedChart.setHighlightPerTapEnabled(false);
         combinedChart.fitScreen();
         combinedChart.setAutoScaleMinMaxEnabled(true);
-        combinedChart.setBackgroundColor(Color.parseColor("#212121"));
+        combinedChart.setBackgroundColor(Color.parseColor("#F2212121"));
 
         combinedChart.setOnChartGestureListener(new OnChartGestureListener() {
 
@@ -219,6 +219,7 @@ public class Fragment_chart extends Fragment {
         YAxis leftAxis = combinedChart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setDrawLabels(false);
+        leftAxis.setAxisMinimum(0f);
 
         YAxis rightAxis = combinedChart.getAxisRight();
         rightAxis.setLabelCount(5, true);
@@ -249,16 +250,16 @@ public class Fragment_chart extends Fragment {
         candleDataSet = new CandleDataSet(candleEntries, "");
         candleDataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
-        candleDataSet.setShadowColor(Color.parseColor("#E6BDBDBD"));
+        candleDataSet.setShadowColor(Color.parseColor("#CCEAEAEA"));
         candleDataSet.setShadowWidth(1f);
 
-        candleDataSet.setDecreasingColor(Color.parseColor("#E66799FF"));
+        candleDataSet.setDecreasingColor(Color.parseColor("#CC6496FF"));
         candleDataSet.setDecreasingPaintStyle(Paint.Style.FILL);
 
-        candleDataSet.setIncreasingColor(Color.parseColor("#E6F15F5F"));
+        candleDataSet.setIncreasingColor(Color.parseColor("#CCFF6464"));
         candleDataSet.setIncreasingPaintStyle(Paint.Style.FILL);
 
-        candleDataSet.setNeutralColor(Color.parseColor("#E6BDBDBD"));
+        candleDataSet.setNeutralColor(Color.parseColor("#CCEAEAEA"));
         candleDataSet.setDrawValues(false);
 
 //---------------------------------------------------------------------------------------------------------
@@ -266,7 +267,7 @@ public class Fragment_chart extends Fragment {
         barDataSet = new BarDataSet(barEntries,"");
         barDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
         barDataSet.setDrawValues(false);
-        barDataSet.setColor(Color.parseColor("#33FFFFFF"));
+        barDataSet.setColor(Color.parseColor("#33FAF4C0"));
 
     }
 
