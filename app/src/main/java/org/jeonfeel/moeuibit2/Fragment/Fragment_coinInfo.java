@@ -29,11 +29,14 @@ public class Fragment_coinInfo extends Fragment {
 
     private LinearLayout linear_coinInfo,linear_homepage,linear_twitter,linear_amount,linear_block,linear_sorry;
     private DatabaseReference mDatabase;
-    private final String market;
+    private String market;
     private String homepage,amount,twitter,block,info;
     CustomLodingDialog customLodingDialog;
     int networkStatus;
     private Context context;
+
+    public Fragment_coinInfo() {
+    }
 
     public Fragment_coinInfo(String market) {
         this.market = market;

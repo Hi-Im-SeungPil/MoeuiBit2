@@ -152,8 +152,10 @@ public class Activity_coinInfo extends FragmentActivity {
                 if(currentPrice >= 100){ //만약 100원보다 가격이 높으면 천단위 콤마
                     String currentPriceResult = decimalFormat.format(round(currentPrice));
                     tv_coinInfoCoinPrice.setText(currentPriceResult);
-                }else{
+                }else if(currentPrice < 100 && currentPrice >= 1){
                     tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
+                }else if(currentPrice < 1){
+                    tv_coinInfoCoinPrice.setText(String.format("%.4f", currentPrice));
                 }
 
                 //--------------------------------------------------
@@ -162,11 +164,17 @@ public class Activity_coinInfo extends FragmentActivity {
                 if(changePrice >= 100){
                     tv_coinInfoChangePrice.setText("+"+ decimalFormat.format(round(changePrice)));
                 }else if(changePrice <= -100){
-                    tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice))+"");
-                }else if(changePrice < 100 && changePrice > 0){
+                    tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)));
+                }else if(changePrice < 100 && changePrice >= 1){
                     tv_coinInfoChangePrice.setText("+"+String.format("%.2f",changePrice));
-                }else{
+                }else if(changePrice <= -1 && changePrice > -100){
                     tv_coinInfoChangePrice.setText(String.format("%.2f",changePrice));
+                }else if(changePrice > 0 && changePrice < 1){
+                    tv_coinInfoChangePrice.setText("+"+String.format("%.3f",changePrice));
+                }else if(changePrice > -1 && changePrice < 0){
+                    tv_coinInfoChangePrice.setText(String.format("%.3f",changePrice));
+                }else if(changePrice == 0){
+                    tv_coinInfoChangePrice.setText("0.00");
                 }
 
                 if(changePrice > 0){
@@ -177,7 +185,7 @@ public class Activity_coinInfo extends FragmentActivity {
                     tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#0054FF"));
                     tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#0054FF"));
                     tv_coinInfoChangePrice.setTextColor(Color.parseColor("#0054FF"));
-                }else if(changePrice == 0 ){
+                }else if(changePrice == 0){
                     tv_coinInfoCoinPrice.setTextColor(Color.parseColor("#000000"));
                     tv_coinInfoCoinDayToDay.setTextColor(Color.parseColor("#000000"));
                     tv_coinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
@@ -344,20 +352,29 @@ public class Activity_coinInfo extends FragmentActivity {
                                         if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
                                             String currentPriceResult = decimalFormat.format(round(currentPrice));
                                             tv_coinInfoCoinPrice.setText(currentPriceResult);
-                                        } else {
+                                        } else if(currentPrice < 100 && currentPrice >= 1){
                                             tv_coinInfoCoinPrice.setText(String.format("%.2f", currentPrice));
+                                        }else if(currentPrice < 1){
+                                            tv_coinInfoCoinPrice.setText(String.format("%.4f", currentPrice));
                                         }
+
                                         //--------------------------------------------------
                                         tv_coinInfoCoinDayToDay.setText(String.format("%.2f", dayToDay * 100) + "%");
                                         //--------------------------------------------------
                                         if (changePrice >= 100) {
-                                            tv_coinInfoChangePrice.setText("+" + decimalFormat.format(round(changePrice)));
+                                            tv_coinInfoChangePrice.setText("+"+decimalFormat.format(round(changePrice)));
                                         } else if (changePrice <= -100) {
                                             tv_coinInfoChangePrice.setText(decimalFormat.format(round(changePrice)) + "");
-                                        } else if (changePrice < 100 && changePrice > 0) {
+                                        } else if (changePrice < 100 && changePrice >= 1) {
                                             tv_coinInfoChangePrice.setText("+" + String.format("%.2f", changePrice));
-                                        } else {
+                                        } else if(changePrice <= -1 && changePrice > -100){
                                             tv_coinInfoChangePrice.setText(String.format("%.2f", changePrice));
+                                        }else if(changePrice > 0 && changePrice < 1){
+                                            tv_coinInfoChangePrice.setText("+"+String.format("%.3f",changePrice));
+                                        }else if(changePrice > -1 && changePrice < 0){
+                                            tv_coinInfoChangePrice.setText(String.format("%.3f",changePrice));
+                                        }else if(changePrice == 0){
+                                            tv_coinInfoChangePrice.setText("0.00");
                                         }
 
                                         if (changePrice > 0) {

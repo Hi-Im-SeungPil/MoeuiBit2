@@ -14,9 +14,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -27,9 +30,11 @@ import org.jeonfeel.moeuibit2.Fragment.Fragment_setting;
 
 public class MainActivity extends FragmentActivity {
 
+    final String TAG = "MainActivity.java";
     String currentFragment = "";
     private AdView mAdView;
     private long backBtnTime = 0;
+    private RewardedInterstitialAd rewardedInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +55,22 @@ public class MainActivity extends FragmentActivity {
     }
     private void setMenuBottom(){
         CustomLodingDialog customLodingDialog = new CustomLodingDialog(this);
+        // Use the test ad unit ID to load an ad.
+        RewardedInterstitialAd.load(MainActivity.this, "ca-app-pub-8481465476603755/3905762551",
+                new AdRequest.Builder().build(),  new RewardedInterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedInterstitialAd ad) {
+                        rewardedInterstitialAd = ad;
+                        Log.e(TAG, "onAdLoaded");
+                    }
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+                        Log.e(TAG, "onAdFailedToLoad");
+                    }
+                });
+
         Fragment_Exchange fragment_exchange = new Fragment_Exchange(customLodingDialog,mAdView);
-        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog);
+        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog,rewardedInterstitialAd);
         Fragment_coinSite fragment_coinInfo = new Fragment_coinSite(MainActivity.this);
         Fragment_setting fragment_setting = new Fragment_setting();
 
@@ -72,6 +91,7 @@ public class MainActivity extends FragmentActivity {
                     return true;
                 }else if(item.getItemId() == R.id.tab_myPortfolio && !currentFragment.equals("fragment_investmentDetails")){
                     customLodingDialog.show();
+
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.main_fragment_container, fragment_investmentDetails).commit();
                     currentFragment = "fragment_investmentDetails";

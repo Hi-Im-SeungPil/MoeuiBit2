@@ -26,10 +26,14 @@ public class Fragment_coinSite extends Fragment {
     Button btn_hide1,btn_hide2,btn_hide3,btn_hide4,btn_hide5;
     Context context;
 
+    public Fragment_coinSite(){}
+
     public Fragment_coinSite(Context context) {
         this.context = context;
         // Required empty public constructor
     }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

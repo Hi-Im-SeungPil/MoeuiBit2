@@ -40,6 +40,7 @@ public class MoEuiBitMarkerView extends MarkerView {
 
     public MoEuiBitMarkerView(Context context,int layoutResource,CombinedChart combinedChart) {
         super(context, layoutResource);
+
         this.combinedChart = combinedChart;
         this.context = context;
         tv_candleTime = findViewById(R.id.tv_candleTime);
@@ -52,6 +53,7 @@ public class MoEuiBitMarkerView extends MarkerView {
         tv_highPricePercent = findViewById(R.id.tv_highPricePercent);
         tv_lowPricePercent = findViewById(R.id.tv_lowPricePercent);
         tv_endPricePercent = findViewById(R.id.tv_endPricePercent);
+
     }
 
     //마커뷰 세팅
@@ -120,26 +122,50 @@ public class MoEuiBitMarkerView extends MarkerView {
 
                 if (openPrice >= 100 || openPrice <= -100) {
                     tv_startPrice.setText(decimalFormat.format(round(openPrice)));
-                } else {
+                } else if(openPrice >= 1 && openPrice <100){
                     tv_startPrice.setText(String.format(String.format("%.2f", openPrice)));
+                }else if(openPrice <= -1 && openPrice > - 100){
+                    tv_startPrice.setText(String.format(String.format("%.2f", openPrice)));
+                }else if( openPrice > 0 && openPrice < 1){
+                    tv_startPrice.setText(String.format(String.format("%.4f", openPrice)));
+                }else if(openPrice < 0 && openPrice > -1){
+                    tv_startPrice.setText(String.format(String.format("%.4f", openPrice)));
                 }
 
                 if (highPrice >= 100 || highPrice <= -100) {
                     tv_highPrice.setText(decimalFormat.format(round(highPrice)));
-                } else {
+                } else if(highPrice >= 1 && highPrice <100){
                     tv_highPrice.setText(String.format(String.format("%.2f", highPrice)));
+                }else if(highPrice <= -1 && highPrice > - 100){
+                    tv_highPrice.setText(String.format(String.format("%.2f", highPrice)));
+                }else if( highPrice > 0 && highPrice < 1){
+                    tv_highPrice.setText(String.format(String.format("%.4f", highPrice)));
+                }else if(highPrice < 0 && highPrice > -1){
+                    tv_startPrice.setText(String.format(String.format("%.4f", highPrice)));
                 }
 
                 if (lowPrice >= 100 || lowPrice <= -100) {
                     tv_lowPrice.setText(decimalFormat.format(round(lowPrice)));
-                } else {
+                } else if(lowPrice >= 1 && lowPrice <100){
                     tv_lowPrice.setText(String.format(String.format("%.2f", lowPrice)));
+                }else if(lowPrice <= -1 && lowPrice > - 100){
+                    tv_lowPrice.setText(String.format(String.format("%.2f", lowPrice)));
+                }else if( lowPrice > 0 && lowPrice < 1){
+                    tv_lowPrice.setText(String.format(String.format("%.4f", lowPrice)));
+                }else if(lowPrice < 0 && lowPrice > -1){
+                    tv_lowPrice.setText(String.format(String.format("%.4f", lowPrice)));
                 }
 
                 if (closePrice >= 100 || closePrice <= -100) {
                     tv_endPrice.setText(decimalFormat.format(round(closePrice)));
-                } else {
+                } else if(closePrice >= 1 && closePrice <100){
                     tv_endPrice.setText(String.format(String.format("%.2f", closePrice)));
+                }else if(closePrice <= -1 && closePrice > - 100){
+                    tv_endPrice.setText(String.format(String.format("%.2f", closePrice)));
+                }else if( closePrice > 0 && closePrice < 1){
+                    tv_endPrice.setText(String.format(String.format("%.4f", closePrice)));
+                }else if(closePrice < 0 && closePrice > -1){
+                    tv_endPrice.setText(String.format(String.format("%.4f", closePrice)));
                 }
 
                 tv_highPricePercent.setText(String.format("%.2f", highPricePercent) + "%");

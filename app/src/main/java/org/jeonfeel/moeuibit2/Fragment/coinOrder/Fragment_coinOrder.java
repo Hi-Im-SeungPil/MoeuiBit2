@@ -92,6 +92,8 @@ public class Fragment_coinOrder extends Fragment {
     private Context context;
     private CustomLodingDialog customLodingDialog;
 
+    public Fragment_coinOrder(){}
+
     public Fragment_coinOrder(String market,String koreanName,String symbol) {
         // Required empty public constructor
         this.market = market;
@@ -496,11 +498,14 @@ public class Fragment_coinOrder extends Fragment {
                     tv_orderCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
                     tv_sellCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
 
-                }else {
+                }else if(initPrice >= 1 && initPrice < 100){
 
                     tv_orderCoinPrice.setText(String.format("%.2f", initPrice));
                     tv_sellCoinPrice.setText(String.format("%.2f", initPrice));
 
+                }else if(initPrice < 1){
+                    tv_orderCoinPrice.setText(String.format("%.4f", initPrice));
+                    tv_sellCoinPrice.setText(String.format("%.4f", initPrice));
                 }
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
@@ -611,8 +616,11 @@ public class Fragment_coinOrder extends Fragment {
                             if (averageOrderPrice >= 100) {
                                 int purchasePrice = (int) round(averageOrderPrice);
                                 db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
-                            } else {
+                            } else if(averageOrderPrice >= 1 && averageOrderPrice < 100){
                                 averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
+                                db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                            }else if(averageOrderPrice > 0 && averageOrderPrice < 1){
+                                averageOrderPrice = Double.valueOf(String.format("%.4f", averageOrderPrice));
                                 db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
                             }
 
@@ -943,9 +951,14 @@ public class Fragment_coinOrder extends Fragment {
                                             if (currentPrice >= 100) {
                                                 tv_orderCoinPrice.setText(decimalFormat.format(currentPrice));
                                                 tv_sellCoinPrice.setText(decimalFormat.format(currentPrice));
-                                            } else {
+                                            } else if(currentPrice >= 1 && currentPrice < 100){
+
                                                 tv_orderCoinPrice.setText(String.format("%.2f", currentPrice));
-                                                tv_sellCoinPrice.setText(String.format("%.2f",currentPrice));
+                                                tv_sellCoinPrice.setText(String.format("%.2f", currentPrice));
+
+                                            }else if(currentPrice < 1){
+                                                tv_orderCoinPrice.setText(String.format("%.4f", currentPrice));
+                                                tv_sellCoinPrice.setText(String.format("%.4f", currentPrice));
                                             }
 
                                             if(linear_coinOrder.getVisibility() == View.VISIBLE && tv_orderCoinTotalAmount.length() != 0

@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -28,6 +29,8 @@ import com.github.mikephil.charting.data.CandleData;
 import com.github.mikephil.charting.data.CandleDataSet;
 import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.CombinedData;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
@@ -70,6 +73,7 @@ public class Fragment_chart extends Fragment {
     private CandleDataSet candleDataSet;
     private BarData barData;
     private BarDataSet barDataSet;
+    private LineData lineData;
     private CombinedData finalCombinedData;
     private int minute = 1;
     private String period= "minutes";
@@ -82,8 +86,13 @@ public class Fragment_chart extends Fragment {
 
     private RadioGroup rg_chart,rg_minuteGroup;
     private RadioButton radio_minuteChart,radio_oneMinute;
+    private float sumLine1,sumLine2,sumLine3;
+    private ArrayList<Entry> line1Entry,line2Entry,line3Entry;
+    private GetMovingAverage getMovingAverage;
 
     // TODO: Rename and change types of parameters
+
+    public Fragment_chart(){}
 
     public Fragment_chart(String market) {
         this.market = market;
@@ -94,7 +103,6 @@ public class Fragment_chart extends Fragment {
         super.onCreate(savedInstanceState);
 
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -227,12 +235,31 @@ public class Fragment_chart extends Fragment {
         rightAxis.setAxisLineColor(Color.WHITE);
         rightAxis.setMinWidth(50f);
 
+        LegendEntry legendEntry1 = new LegendEntry();
+        legendEntry1.label = "단순 MA";
+
+        LegendEntry legendEntry2 = new LegendEntry();
+        legendEntry2.label = "5";
+        legendEntry2.formColor = Color.GREEN;
+
+        LegendEntry legendEntry3 = new LegendEntry();
+        legendEntry3.label = "20";
+        legendEntry3.formColor = Color.parseColor("#00D8FF");
+
+        LegendEntry legendEntry4 = new LegendEntry();
+        legendEntry4.label = "60";
+        legendEntry4.formColor = Color.RED;
+
         Legend l = combinedChart.getLegend();
+        l.setCustom(new LegendEntry[] {legendEntry1,legendEntry2,legendEntry3,legendEntry4});
+        l.setTextColor(Color.parseColor("#FFFFFFFF"));
         l.setWordWrapEnabled(true);
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         l.setDrawInside(true);
+
+
 
         combinedChart.zoom(4f,0f,0,0);
 
@@ -274,6 +301,10 @@ public class Fragment_chart extends Fragment {
     //코인 정보 200개 받아오는 메소드
     private void getCoinCandleData(int minute, String period) {
 
+        sumLine1 = 0.0f;
+        sumLine2 = 0.0f;
+        sumLine3 = 0.0f;
+
         if (candleEntries.size() != 0) {
             candleEntries.clear();
             barEntries.clear();
@@ -289,6 +320,12 @@ public class Fragment_chart extends Fragment {
             barData.clearValues();
         }else{
             barData = new BarData();
+        }
+
+        if(lineData != null){
+            lineData.clearValues();
+        }else{
+            lineData = new LineData();
         }
 
         if (finalCombinedData != null) {
@@ -336,15 +373,17 @@ public class Fragment_chart extends Fragment {
 
                     float openingPrice2 = 0;
 
-                    if (openingPrice < 100) {
+                    if (openingPrice < 100 && openingPrice >= 1) {
                         openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
-                    } else {
+                    }else if(openingPrice > 0 && openingPrice < 1){
+                        openingPrice2 = Float.parseFloat(String.format("%.4f", openingPrice));
+                    }else {
                         openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
                     }
 
-                    float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
-                    float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
-                    float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
+                    float highPrice2 = Float.parseFloat(String.format("%.4f", highPrice));
+                    float lowPrice2 = Float.parseFloat(String.format("%.4f", lowPrice));
+                    float tradePrice2 = Float.parseFloat(String.format("%.4f", tradePrice));
                     float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
 
                     candleDataSet.addEntry(new CandleEntry(candlePosition,highPrice2, lowPrice2, openingPrice2, tradePrice2));
@@ -366,8 +405,16 @@ public class Fragment_chart extends Fragment {
                 barData.addDataSet(barDataSet);
                 float maxValue = barData.getYMax(YAxis.AxisDependency.LEFT);
 //----------------------------------------------------------
+                getMovingAverage = new GetMovingAverage(candleEntries);
+                lineData = getMovingAverage.createLineData();
+                sumLine1 = getMovingAverage.getSumLine1();
+                sumLine2 = getMovingAverage.getSumLine2();
+                sumLine3 = getMovingAverage.getSumLine3();
+                //------------------------------------------------------------
+
                 finalCombinedData.setData(barData);
                 finalCombinedData.setData(candleData);
+                finalCombinedData.setData(lineData);
 
                 combinedChart.clear();
                 combinedChart.setData(finalCombinedData);
@@ -385,8 +432,10 @@ public class Fragment_chart extends Fragment {
                     String averageResultText = "";
                     if(averageResult >= 100){
                         averageResultText = decimalFormat.format(round(averageResult));
-                    }else{
+                    }else if(averageResult >= 1 && averageResult < 100){
                         averageResultText = String.format("%.2f",averageResult);
+                    }else{
+                        averageResultText = String.format("%.4f",averageResult);
                     }
 
                     LimitLine ll1 = new LimitLine(averageResult,"매수평균(" + averageResultText+")");
@@ -617,7 +666,6 @@ public class Fragment_chart extends Fragment {
 
             while (isRunning) {
                 try {
-
                         String coinUrl = "";
 
                         if (minute != 0 && minute != 2) {
@@ -662,15 +710,17 @@ public class Fragment_chart extends Fragment {
 
                                 float openingPrice2 = 0;
 
-                                if (openingPrice < 100) {
+                                if (openingPrice < 100 && openingPrice >= 1) {
                                     openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
-                                } else {
+                                } else if(openingPrice > 0 && openingPrice < 1){
+                                    openingPrice2 = Float.parseFloat(String.format("%.4f", openingPrice));
+                                }else {
                                     openingPrice2 = (float) ((float) round(openingPrice * 100) * 0.01);
                                 }
 
-                                float highPrice2 = Float.parseFloat(String.format("%.2f", highPrice));
-                                float lowPrice2 = Float.parseFloat(String.format("%.2f", lowPrice));
-                                float tradePrice2 = Float.parseFloat(String.format("%.2f", tradePrice));
+                                float highPrice2 = Float.parseFloat(String.format("%.4f", highPrice));
+                                float lowPrice2 = Float.parseFloat(String.format("%.4f", lowPrice));
+                                float tradePrice2 = Float.parseFloat(String.format("%.4f", tradePrice));
                                 float candleTransactionAmount2 = Float.parseFloat(String.valueOf(candleTransactionAmount));
 
                                 int candleSize = candleEntries.size();
@@ -680,12 +730,33 @@ public class Fragment_chart extends Fragment {
                                     candleEntries.set(candlePosition - 1,new CandleEntry(candlePosition - 1, highPrice2, lowPrice2, openingPrice2, tradePrice2));
                                     barEntries.set(candlePosition - 1,new BarEntry(candlePosition - 1,candleTransactionAmount2));
 
+                                    lineData.removeEntry(candlePosition -1,0);
+                                    lineData.addEntry(new Entry(candlePosition-1,(sumLine1 + tradePrice2) / 5),0);
+
+                                    lineData.removeEntry(candlePosition -1,1);
+                                    lineData.addEntry(new Entry(candlePosition-1,(sumLine2 + tradePrice2) / 20),1);
+
+                                    lineData.removeEntry(candlePosition -1,2);
+                                    lineData.addEntry(new Entry(candlePosition-1,(sumLine3 + tradePrice2) / 60),2);
+
                                     coinCandleDataDTOS.set(candleSize - 1, new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
 
                                 } else if (coinCandleDataDTOS.size() != 0 && candleEntries.size() != 0 && !coinCandleDataDTOS.get(candleSize - 1).getCandleDateTimeKst().equals(candleDateTimeKst)) {
 
                                     candleEntries.add(new CandleEntry(candlePosition,highPrice2, lowPrice2, openingPrice2, tradePrice2));
                                     barEntries.add(new BarEntry(candlePosition,candleTransactionAmount2));
+
+                                    sumLine1 += tradePrice2;
+                                    lineData.addEntry(new Entry(candlePosition,(sumLine1) / 5),0);
+                                    sumLine1 -= candleEntries.get(candlePosition - 5).getClose();
+
+                                    sumLine2 += tradePrice2;
+                                    lineData.addEntry(new Entry(candlePosition,(sumLine2) / 20),1);
+                                    sumLine2 -= candleEntries.get(candlePosition - 20).getClose();
+
+                                    sumLine3 += tradePrice2;
+                                    lineData.addEntry(new Entry(candlePosition,(sumLine3) / 60),2);
+                                    sumLine3 -= candleEntries.get(candlePosition - 60).getClose();
 
                                     coinCandleDataDTOS.add(new CoinCandleDataDTO(candleDateTimeKst, candleTransactionAmount));
 
@@ -698,8 +769,10 @@ public class Fragment_chart extends Fragment {
 
                                 if (tradePrice2 >= 100) {
                                     ll2 = new LimitLine(tradePrice2, decimalFormat.format(tradePrice2));
-                                } else {
-                                    ll2 = new LimitLine(tradePrice2, String.format("%.2f", tradePrice2));
+                                }else if(tradePrice2 >= 1 && tradePrice2 < 100){
+                                    ll2 = new LimitLine(tradePrice2, String.format("%.2f",tradePrice2));
+                                }else{
+                                    ll2 = new LimitLine(tradePrice2, String.format("%.4f",tradePrice2));
                                 }
 
                                 ll2.setLineWidth(0f);
@@ -710,6 +783,7 @@ public class Fragment_chart extends Fragment {
                                 ll2.setTextColor(Color.parseColor("#FFFFFFFF"));
                                 combinedChart.getAxisRight().addLimitLine(ll2);
 
+                                lineData.notifyDataChanged();
                                 combinedChart.notifyDataSetChanged();
                                 combinedChart.invalidate();
                             }
@@ -737,13 +811,6 @@ public class Fragment_chart extends Fragment {
 
         private void stopThread() {
             isRunning = false;
-        }
-        private void startThread(){
-            isRunning = true;
-        }
-        private void setMinutePeriod(int minute,String period){
-            this.minute = minute;
-            this.period = period;
         }
     }
 

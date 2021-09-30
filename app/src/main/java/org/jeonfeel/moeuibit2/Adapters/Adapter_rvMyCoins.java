@@ -65,8 +65,10 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
         if(buyingAverage >= 100) {
             long buyingAverage1 = round(buyingAverage);
             holder.tv_myCoinsBuyingAverage.setText(decimalFormat.format(buyingAverage1));
-        }else{
+        }else if(buyingAverage < 100 && buyingAverage >= 1){
             holder.tv_myCoinsBuyingAverage.setText(String.format("%.2f",buyingAverage));
+        }else{
+            holder.tv_myCoinsBuyingAverage.setText(String.format("%.4f",buyingAverage));
         }
 
         holder.tv_myCoinsPurchaseAmount.setText(decimalFormat.format(purchaseAmount));
@@ -94,15 +96,21 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
             }
             if(currentPrice >= 100) {
                 holder.tv_myCoinsCurrentPrice.setText(decimalFormat.format(round(currentPrice)));
-            }else{
+            }else if(buyingAverage < 100 && buyingAverage >= 1){
                 holder.tv_myCoinsCurrentPrice.setText(String.format("%.2f",currentPrice));
+            }else{
+                holder.tv_myCoinsCurrentPrice.setText(String.format("%.4f",currentPrice));
             }
 
             if(lossGainCoin >= 100 || lossGainCoin <= -100){
                 long text = round(lossGainCoin);
                 holder.tv_myCoinsDifference.setText(decimalFormat.format(text));
-            }else{
+            }else if(lossGainCoin < 100 && lossGainCoin >= 1){
                 holder.tv_myCoinsDifference.setText(String.format("%.2f",lossGainCoin));
+            }else if(lossGainCoin > -100 && lossGainCoin <= -1){
+                holder.tv_myCoinsDifference.setText(String.format("%.2f",lossGainCoin));
+            } else{
+                holder.tv_myCoinsDifference.setText(String.format("%.4f",lossGainCoin));
             }
 
             holder.tv_myCoinsEvaluationAmount.setText(decimalFormat.format(evaluationAmount));

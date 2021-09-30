@@ -30,7 +30,6 @@ public class Fragment_setting extends Fragment {
     MoEuiBitDatabase db;
 
     public Fragment_setting() {
-        // Required empty public constructor
     }
 
     @Override

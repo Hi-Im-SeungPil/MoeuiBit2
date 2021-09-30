@@ -76,11 +76,11 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             dayToDay = (Double) (((integerArcadePrice - integerOpenPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
 
-        }else if(arcadePrice < 100){
+        }else if(arcadePrice < 100 && arcadePrice >= 1){
 
             holder.tv_coinArcadePrice.setText(String.format("%.2f",arcadePrice));
 
-            dayToDay = (Double) (((item.get(position).getCoinArcadePrice() - openingPrice) / openingPrice) * 100);
+            dayToDay = (Double) (((arcadePrice - openingPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
 
         }else if(arcadePrice == 100.0){
@@ -88,6 +88,11 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadePrice.setText(integerArcadePrice+"");
 
             dayToDay = (Double) (((integerArcadePrice - integerOpenPrice) / openingPrice) * 100);
+            holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
+        }else if(arcadePrice < 1){
+            holder.tv_coinArcadePrice.setText(String.format("%.4f",arcadePrice));
+
+            dayToDay = (Double) (((arcadePrice - openingPrice) / openingPrice) * 100);
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
 
@@ -107,9 +112,22 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
                 }
 
-            }else {
+            }else if(currentPrice >= 1 && currentPrice < 100){
+
                 String price = String.format("%.2f", arcadePrice);
                 String Price2 = String.format("%.2f", currentPrice);
+
+                if (Price2.equals(price)) {
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_border3);
+                }else{
+                    holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                    holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
+                }
+
+            }else if(currentPrice < 1){
+                String price = String.format("%.4f", arcadePrice);
+                String Price2 = String.format("%.4f", currentPrice);
 
                 if (Price2.equals(price)) {
                     holder.linear_arcade1.setBackgroundResource(R.drawable.rv_arcade_border2);

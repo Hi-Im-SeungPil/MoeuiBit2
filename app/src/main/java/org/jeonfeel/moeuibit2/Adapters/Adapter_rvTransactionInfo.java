@@ -75,14 +75,17 @@ public class Adapter_rvTransactionInfo extends RecyclerView.Adapter<Adapter_rvTr
         holder.tv_transactionMarket.setText(item.get(position).getMarket());
         Date date = new Date(item.get(position).getTransactionTime());
         SimpleDateFormat datef = new SimpleDateFormat("MM-dd hh:mm", Locale.getDefault());
-        String date22 =  datef.format(date) ;
+        String date22 =  datef.format(date);
         holder.tv_transactionTime.setText(date22);
 
-        if(price >= 100)
-        holder.tv_transactionPrice.setText(decimalFormat.format(round(price)));
-        else{
+        if(price >= 100) {
+            holder.tv_transactionPrice.setText(decimalFormat.format(round(price)));
+        }else if(price < 100 && price >= 1){
             holder.tv_transactionPrice.setText(String.format("%.2f",price));
+        }else{
+            holder.tv_transactionPrice.setText(String.format("%.4f",price));
         }
+
         holder.tv_transactionQuantity.setText(String.format("%.8f",quantity));
         holder.tv_transactionAmount.setText(decimalFormat.format(round(price * quantity)));
     }

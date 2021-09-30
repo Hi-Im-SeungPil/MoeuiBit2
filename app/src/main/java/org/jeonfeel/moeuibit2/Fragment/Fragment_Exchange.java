@@ -96,6 +96,8 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
     private CustomLodingDialog customLodingDialog;
     private AdView mAdView;
 
+    public Fragment_Exchange(){}
+
     public Fragment_Exchange(CustomLodingDialog customLodingDialog,AdView mAdView) {
         // Required empty public constructor
         this.customLodingDialog = customLodingDialog;

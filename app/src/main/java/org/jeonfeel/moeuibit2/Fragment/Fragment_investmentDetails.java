@@ -76,9 +76,14 @@ public class Fragment_investmentDetails extends Fragment {
     private EarnKrw earnKrw;
     private int checkSecond = 0;
 
-    public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
+    public Fragment_investmentDetails(){}
+
+    public Fragment_investmentDetails(CustomLodingDialog customLodingDialog,RewardedInterstitialAd rewardedInterstitialAd) {
         this.customLodingDialog = customLodingDialog;
+        this.rewardedInterstitialAd = rewardedInterstitialAd;
     }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -254,8 +259,7 @@ public class Fragment_investmentDetails extends Fragment {
                                 loadAd();
                             }
                         });
-                    }
-                    else{
+                    } else{
 
                         Toast.makeText(context, "잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
 
