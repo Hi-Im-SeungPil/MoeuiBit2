@@ -56,21 +56,9 @@ public class MainActivity extends FragmentActivity {
     private void setMenuBottom(){
         CustomLodingDialog customLodingDialog = new CustomLodingDialog(this);
         // Use the test ad unit ID to load an ad.
-        RewardedInterstitialAd.load(MainActivity.this, "ca-app-pub-8481465476603755/3905762551",
-                new AdRequest.Builder().build(),  new RewardedInterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(RewardedInterstitialAd ad) {
-                        rewardedInterstitialAd = ad;
-                        Log.e(TAG, "onAdLoaded");
-                    }
-                    @Override
-                    public void onAdFailedToLoad(LoadAdError loadAdError) {
-                        Log.e(TAG, "onAdFailedToLoad");
-                    }
-                });
 
         Fragment_Exchange fragment_exchange = new Fragment_Exchange(customLodingDialog,mAdView);
-        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog,rewardedInterstitialAd);
+        Fragment_investmentDetails fragment_investmentDetails = new Fragment_investmentDetails(customLodingDialog);
         Fragment_coinSite fragment_coinInfo = new Fragment_coinSite(MainActivity.this);
         Fragment_setting fragment_setting = new Fragment_setting();
 

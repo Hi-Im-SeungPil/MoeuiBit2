@@ -158,12 +158,6 @@ public class Activity_Login extends AppCompatActivity {
     private void updateUI(FirebaseUser user) {
 
         if(user != null) {
-            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-
-            final String UID = user.getUid();
-            final String email = user.getEmail();
-
-            mDatabase.child("user").child(UID).child("eMail").setValue(email);
 
             Intent intent = new Intent(Activity_Login.this, MainActivity.class);
             startActivity(intent);
@@ -174,12 +168,8 @@ public class Activity_Login extends AppCompatActivity {
 
     private void alreadyLogin(FirebaseUser user){
         if(user != null) {
-            CustomLodingDialog customLodingDialog = new CustomLodingDialog(this);
-            customLodingDialog.show();
             Intent intent = new Intent(Activity_Login.this, MainActivity.class);
             startActivity(intent);
-            if(customLodingDialog!= null && customLodingDialog.isShowing())
-            customLodingDialog.dismiss();
 
             finish();
         }

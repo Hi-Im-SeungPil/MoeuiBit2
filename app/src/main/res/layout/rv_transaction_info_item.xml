@@ -131,7 +131,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="총 가격"
+            android:text="총액"
             android:textSize="15sp"
             android:textColor="#000000"
             android:fontFamily="@font/nanum_square_round_r"/>

@@ -14,18 +14,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_Login;
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.BuildConfig;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
 
 public class Fragment_setting extends Fragment {
 
-    Button btn_sendError,btn_sendSuggestions,btn_appReset,btn_logout;
+    Button btn_sendError,btn_sendSuggestions,btn_appReset,btn_logout,btn_writeReview,btn_needUpdate;
+    TextView tv_versionCheck;
     Context context;
     MoEuiBitDatabase db;
 
@@ -43,6 +46,7 @@ public class Fragment_setting extends Fragment {
                              Bundle savedInstanceState) {
 
         db = MoEuiBitDatabase.getInstance(context);
+        String versionName = BuildConfig.VERSION_NAME;
 
         View rootView = inflater.inflate(R.layout.fragment_setting, container, false);
         context = getActivity();
@@ -102,6 +106,17 @@ public class Fragment_setting extends Fragment {
                 ((Activity) context).finish();
             }
         });
+
+        btn_writeReview = rootView.findViewById(R.id.btn_writeReview);
+        btn_writeReview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"));
+                startActivity(intent);
+            }
+        });
+
         return rootView;
     }
+
 }

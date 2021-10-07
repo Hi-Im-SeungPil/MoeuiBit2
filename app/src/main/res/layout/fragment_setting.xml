@@ -74,6 +74,20 @@
         android:gravity="left"/>
 
     <Button
+        android:id="@+id/btn_writeReview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:text="리뷰 작성"
+        android:textSize="25sp"
+        android:textColor="#000000"
+        android:fontFamily="@font/nanum_square_round_r"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:background="#ffffffff"
+        android:gravity="left"/>
+
+    <Button
         android:id="@+id/btn_logout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -91,7 +105,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="※ 업비트가 점검중일땐 앱이 실행되지 않아요!"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:textSize="13sp"
+        android:textColor="#000000"
+        android:fontFamily="@font/nanum_square_round_r"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="※ 상장 폐지되거나 리브랜딩된 종목은 \n\n    거래가 불가능합니다. 그전에 매도하시는 것을 권장합니다."
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
         android:textSize="13sp"
         android:textColor="#000000"

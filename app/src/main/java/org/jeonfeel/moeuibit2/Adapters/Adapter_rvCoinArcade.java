@@ -112,7 +112,7 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
                     holder.tv_coinArcadeAmount.setBackgroundResource(R.drawable.rv_arcade_item_border);
                 }
 
-            }else if(currentPrice >= 1 && currentPrice < 100){
+            }else if(currentPrice >= 1 && currentPrice <= 100){
 
                 String price = String.format("%.2f", arcadePrice);
                 String Price2 = String.format("%.2f", currentPrice);

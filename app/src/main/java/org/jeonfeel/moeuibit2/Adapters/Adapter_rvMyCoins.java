@@ -157,6 +157,9 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
     public void setCurrentPrices(ArrayList<Double> currentPrices){
         this.currentPrices = currentPrices;
     }
+    public void setItem(ArrayList<MyCoinsDTO> item){
+        this.item = item;
+    }
 
     @Override
     public int getItemCount() {

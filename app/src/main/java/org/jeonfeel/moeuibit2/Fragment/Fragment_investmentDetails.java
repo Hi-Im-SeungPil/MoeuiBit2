@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,6 +32,11 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
@@ -54,6 +61,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static java.lang.Math.round;
 
@@ -75,12 +83,12 @@ public class Fragment_investmentDetails extends Fragment {
     private RewardedInterstitialAd rewardedInterstitialAd;
     private EarnKrw earnKrw;
     private int checkSecond = 0;
+    private ArrayList<String> marketList;
 
     public Fragment_investmentDetails(){}
 
-    public Fragment_investmentDetails(CustomLodingDialog customLodingDialog,RewardedInterstitialAd rewardedInterstitialAd) {
+    public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
         this.customLodingDialog = customLodingDialog;
-        this.rewardedInterstitialAd = rewardedInterstitialAd;
     }
 
 
@@ -139,11 +147,13 @@ public class Fragment_investmentDetails extends Fragment {
         StringBuilder stringBuilder = null;
         myCoinsDTOS = null;
         currentPrices = null;
+        marketList = null;
         totalBuyOut = 0;
 
         stringBuilder = new StringBuilder();
         myCoinsDTOS = new ArrayList<>();
         currentPrices = new ArrayList<>();
+        marketList = new ArrayList<>();
 
         //보유 krw 설정
         User user = db.userDAO().getAll();
@@ -163,11 +173,13 @@ public class Fragment_investmentDetails extends Fragment {
             for (int i = 0; i < myCoins.size(); i++) {
                 Double purchasePrice = myCoins.get(i).getPurchasePrice();
                 Double quantity = myCoins.get(i).getQuantity();
+                String market = myCoins.get(i).getMarket();
 
-                stringBuilder.append(myCoins.get(i).getMarket()).append(",");
+                stringBuilder.append(market).append(",");
                 // 객체 만들어서
                 MyCoinsDTO myCoinsDTO = new MyCoinsDTO(myCoins.get(i).getKoreanCoinName(), myCoins.get(i).getSymbol(), quantity, purchasePrice, 0.0);
                 myCoinsDTOS.add(myCoinsDTO);
+                marketList.add(market);
 
                 totalBuyOut += round(purchasePrice * quantity);
                 currentPrices.add(0.0);
@@ -233,6 +245,7 @@ public class Fragment_investmentDetails extends Fragment {
 
     }
 
+    // krw 충전
     private void setBtn_earningKrw(View rootView){
         Button btn_earningKrw = rootView.findViewById(R.id.btn_earningKrw);
         btn_earningKrw.setOnClickListener(new View.OnClickListener() {
@@ -249,27 +262,42 @@ public class Fragment_investmentDetails extends Fragment {
                         return;
                     }
 
-                    if (rewardedInterstitialAd != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("KRW 충전")
+                            .setMessage("짧은 광고를 시청하시면 5,000,000 KRW가 보상으로 지급됩니다.")
+                            .setPositiveButton("충전", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
 
-                        rewardedInterstitialAd.show((Activity) context, earnKrw);
+                                    if (rewardedInterstitialAd != null) {
 
-                        MobileAds.initialize(context, new OnInitializationCompleteListener() {
-                            @Override
-                            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                                loadAd();
-                            }
-                        });
-                    } else{
+                                        rewardedInterstitialAd.show((Activity) context, earnKrw);
 
-                        Toast.makeText(context, "잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
+                                        MobileAds.initialize(context, new OnInitializationCompleteListener() {
+                                            @Override
+                                            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                                                loadAd();
+                                            }
+                                        });
+                                    } else{
+                                        Toast.makeText(context, "잠시만 기다려 주세요.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }).setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
 
-                    }
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
 
 
                 }
         });
     }
 
+    //1초마다 업비트에서 코인 가격 받아오기
     public class GetMyCoins extends Thread{
 
         private boolean isRunning = true;
@@ -288,6 +316,8 @@ public class Fragment_investmentDetails extends Fragment {
                         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                         StringBuffer builder = new StringBuffer();
 
+
+                        Log.d("Qqqq",markets);
                         String inputString = null;
 
                         while ((inputString = bufferedReader.readLine()) != null) {
@@ -312,7 +342,6 @@ public class Fragment_investmentDetails extends Fragment {
 
                                 totalEvaluation += currentPrice * quantity;
                                 currentPrices.set(i, currentPrice);
-
                             }
 
                             long longTotalEvaluation = round(totalEvaluation);
@@ -352,6 +381,63 @@ public class Fragment_investmentDetails extends Fragment {
                             }
                         }
                 }catch (Exception e) {
+
+                    //코인 매수한게 사라지면 파이어베이스에서 사라진 코인 마켓을 불러와서 내장 db에서 삭제 하고
+                    //markets 목록을 초기화 해서 다시 실행되게 한다
+                    if (myCoins.size() != 0) {
+                        Log.d(TAG,"catch실행");
+                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                        mDatabase.child("removeCoin").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                String market = snapshot.getValue(String.class);
+                                String[] marketArray = market.split(",");
+
+                                for (int i = 0; i < marketArray.length; i++) {
+
+                                    db.myCoinDAO().delete(marketArray[i]);
+
+                                    int marketIndex = marketList.indexOf(marketArray[i]);
+                                    Log.d("marketIndex", marketIndex + "");
+
+                                    if (marketIndex != -1) {
+                                        myCoinsDTOS.remove(marketIndex);
+                                        marketList.remove(marketIndex);
+                                    }
+
+                                }
+
+                                markets = "";
+                                StringBuilder stringBuilder = new StringBuilder();
+
+                                for(int i = 0; i < marketList.size(); i++) {
+                                    stringBuilder.append(marketList.get(i)).append(",");
+                                }
+
+                                stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(","));
+                                markets = stringBuilder.toString();
+
+                                Log.d("markets",markets);
+
+                                myCoins = db.myCoinDAO().getAll();
+
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter_rvMyCoins.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
                     e.printStackTrace();
                 }
                 try {

@@ -510,7 +510,6 @@ public class Fragment_coinOrder extends Fragment {
                 adapter_rvCoinArcade.setItem(coinArcadeDTOS);
                 adapter_rvCoinArcade.notifyDataSetChanged();
                 rv_coinArcade.scrollToPosition(9);
-
             }
 
         } catch (Exception e) {
