@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.Fragment.Chart;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -78,10 +79,10 @@ public class Fragment_chart extends Fragment {
     private int minute = 1;
     private String period= "minutes";
     private MoEuiBitDatabase db;
-    LimitLine ll2;
+    private LimitLine ll2;
     private DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private CustomLodingDialog customLodingDialog;
-
+    private Context context;
     private GetRecentCoinChart getRecentCoinChart;
 
     private RadioGroup rg_chart,rg_minuteGroup;
@@ -108,8 +109,8 @@ public class Fragment_chart extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_chart, container, false);
-
-        customLodingDialog = new CustomLodingDialog(getActivity());
+        context = getActivity();
+        customLodingDialog = new CustomLodingDialog(context);
         customLodingDialog.show();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(getContext());
@@ -137,7 +138,7 @@ public class Fragment_chart extends Fragment {
     // 차트 초기화
     private void initCombinedChart() {
 
-        MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(getActivity(),R.layout.candle_info_marker,combinedChart);
+        MoEuiBitMarkerView moEuiBitMarkerView = new MoEuiBitMarkerView(context,R.layout.candle_info_marker,combinedChart);
 
         combinedChart.getDescription().setEnabled(false);
         combinedChart.setScaleYEnabled(false);
@@ -258,8 +259,6 @@ public class Fragment_chart extends Fragment {
         l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         l.setDrawInside(true);
-
-
 
         combinedChart.zoom(4f,0f,0,0);
 
@@ -509,7 +508,7 @@ public class Fragment_chart extends Fragment {
                             radio_oneMinute.setChecked(true);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 1분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_dailyChart :
@@ -520,7 +519,7 @@ public class Fragment_chart extends Fragment {
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 일봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_weeklyChart :
@@ -531,7 +530,7 @@ public class Fragment_chart extends Fragment {
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 주봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_monthlyChart :
@@ -542,7 +541,7 @@ public class Fragment_chart extends Fragment {
                             rg_minuteGroup.setVisibility(View.INVISIBLE);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 월봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                 }
@@ -571,7 +570,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 3분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 3분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_fiveMinute:
@@ -581,7 +580,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 5분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 5분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_tenMinute:
@@ -591,7 +590,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 10분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 10분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_fifteenMinute:
@@ -601,7 +600,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 15분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 15분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_thirtyMinute:
@@ -611,7 +610,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 30분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 30분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_hour:
@@ -621,7 +620,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 60분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 60분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     case R.id.radio_fourHour:
@@ -631,7 +630,7 @@ public class Fragment_chart extends Fragment {
                             setBtn(minute,period);
                             break;
                         }else{
-                            Toast.makeText(getActivity(), "현재 240분봉 입니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "현재 240분봉 입니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                 }
@@ -730,6 +729,7 @@ public class Fragment_chart extends Fragment {
                                     candleEntries.set(candlePosition - 1,new CandleEntry(candlePosition - 1, highPrice2, lowPrice2, openingPrice2, tradePrice2));
                                     barEntries.set(candlePosition - 1,new BarEntry(candlePosition - 1,candleTransactionAmount2));
 
+
                                     lineData.removeEntry(candlePosition -1,0);
                                     lineData.addEntry(new Entry(candlePosition-1,(sumLine1 + tradePrice2) / 5),0);
 
@@ -775,17 +775,22 @@ public class Fragment_chart extends Fragment {
                                     ll2 = new LimitLine(tradePrice2, String.format("%.4f",tradePrice2));
                                 }
 
-                                ll2.setLineWidth(0f);
-                                ll2.enableDashedLine(1f, 1f, 0f);
-                                ll2.setLineColor(Color.parseColor("#F2212121"));
-                                ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-                                ll2.setTextSize(10f);
-                                ll2.setTextColor(Color.parseColor("#FFFFFFFF"));
-                                combinedChart.getAxisRight().addLimitLine(ll2);
+                                ((Activity_coinInfo)context).runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ll2.setLineWidth(0f);
+                                        ll2.enableDashedLine(1f, 1f, 0f);
+                                        ll2.setLineColor(Color.parseColor("#F2212121"));
+                                        ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+                                        ll2.setTextSize(10f);
+                                        ll2.setTextColor(Color.parseColor("#FFFFFFFF"));
+                                        combinedChart.getAxisRight().addLimitLine(ll2);
 
-                                lineData.notifyDataChanged();
-                                combinedChart.notifyDataSetChanged();
-                                combinedChart.invalidate();
+                                        lineData.notifyDataChanged();
+                                        combinedChart.notifyDataSetChanged();
+                                        combinedChart.invalidate();
+                                    }
+                                });
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

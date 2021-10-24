@@ -106,7 +106,7 @@ public class Fragment_investmentDetails extends Fragment {
         context = getActivity();
         earnKrw = new EarnKrw();
         FindViewById(rootView);
-        db = MoEuiBitDatabase.getInstance(getActivity());
+        db = MoEuiBitDatabase.getInstance(context);
 
         if(rewardedInterstitialAd == null) {
             MobileAds.initialize(context, new OnInitializationCompleteListener() {
@@ -137,7 +137,7 @@ public class Fragment_investmentDetails extends Fragment {
     }
 
     private void setRv_myCoins(){
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         rv_myCoins.setLayoutManager(linearLayoutManager);
     }
 
@@ -192,7 +192,7 @@ public class Fragment_investmentDetails extends Fragment {
 
         tv_totalBuyOut.setText(decimalFormat.format(totalBuyOut));
         tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
-        adapter_rvMyCoins = new Adapter_rvMyCoins(myCoinsDTOS,getActivity());
+        adapter_rvMyCoins = new Adapter_rvMyCoins(myCoinsDTOS,context);
         rv_myCoins.setAdapter(adapter_rvMyCoins);
         adapter_rvMyCoins.setCurrentPrices(currentPrices);
         adapter_rvMyCoins.notifyDataSetChanged();
@@ -237,7 +237,7 @@ public class Fragment_investmentDetails extends Fragment {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(getActivity(), Activity_portfolio.class);
+                Intent intent = new Intent(context, Activity_portfolio.class);
                 startActivity(intent);
 
             }
@@ -354,8 +354,8 @@ public class Fragment_investmentDetails extends Fragment {
                             Log.d("totalBuyOut", totalBuyOut + "");
                             Log.d("evaluationGainLoss", evaluationGainLoss + "");
 
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(new Runnable() {
+                            if (context != null) {
+                                ((MainActivity)context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
 
@@ -422,8 +422,8 @@ public class Fragment_investmentDetails extends Fragment {
 
                                 myCoins = db.myCoinDAO().getAll();
 
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(new Runnable() {
+                                if (context != null) {
+                                    ((MainActivity)context).runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             adapter_rvMyCoins.notifyDataSetChanged();

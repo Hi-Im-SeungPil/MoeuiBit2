@@ -128,18 +128,18 @@ public class Fragment_coinOrder extends Fragment {
     }
 
     private void setRv_coinArcade() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         rv_coinArcade.setLayoutManager(linearLayoutManager);
     }
     private void setRv_transactionInfo(){
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
 
         rv_transactionInfo.setLayoutManager(linearLayoutManager);
 
         transactionInfos = new ArrayList<>();
-        adapter_rvTransactionInfo = new Adapter_rvTransactionInfo(transactionInfos,getActivity());
+        adapter_rvTransactionInfo = new Adapter_rvTransactionInfo(transactionInfos,context);
         rv_transactionInfo.setAdapter(adapter_rvTransactionInfo);
 
     }
@@ -155,7 +155,7 @@ public class Fragment_coinOrder extends Fragment {
         rv_transactionInfo.setVisibility(View.GONE);
         tv_sellAbleCoinSymbol.setText(symbol);
 
-        db = MoEuiBitDatabase.getInstance(getActivity());
+        db = MoEuiBitDatabase.getInstance(context);
 
         // 주문가능 설정 ---------------
 
@@ -188,7 +188,7 @@ public class Fragment_coinOrder extends Fragment {
         include_coin_parent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
                 if(linear_coinOrder.getVisibility() == View.VISIBLE) {
                     if (tv_orderCoinPrice.isFocused()) {
                         tv_orderCoinPrice.clearFocus();
@@ -218,7 +218,7 @@ public class Fragment_coinOrder extends Fragment {
                 }else if(et_orderCoinQuantity.isFocused()) {
                     et_orderCoinQuantity.clearFocus();
                 }
-                EditText editText = new EditText(getActivity());
+                EditText editText = new EditText(context);
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                 User user = db.userDAO().getAll();
                 long myKrw = 0;
@@ -228,7 +228,7 @@ public class Fragment_coinOrder extends Fragment {
                 TextWatcher textWatcher = tw2(editText);
                 editText.addTextChangedListener(textWatcher);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("매수할 총액을 입력하세요");
                 builder.setMessage("\n주문가능\n\n" + decimalFormat.format(myKrw) + " KRW");
                 builder.setView(editText);
@@ -236,10 +236,10 @@ public class Fragment_coinOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                        Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
 
                         if(editText.length() == 0){
-                            Toast.makeText(getActivity(), "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -251,14 +251,14 @@ public class Fragment_coinOrder extends Fragment {
                         myCoin = db.myCoinDAO().isInsert(market);
 
                         if (round(orderAmount) > leftMoney) {
-                            Toast.makeText(getActivity(), "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         if (myCoin == null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
-                                Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -277,12 +277,12 @@ public class Fragment_coinOrder extends Fragment {
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantityResult,round(orderAmount),"bid", System.currentTimeMillis());
 
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                         } else if (myCoin != null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
-                                Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -311,7 +311,7 @@ public class Fragment_coinOrder extends Fragment {
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantityResult,round(orderAmount),"bid",System.currentTimeMillis());
 
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }).setNegativeButton("취소", null);
@@ -319,7 +319,7 @@ public class Fragment_coinOrder extends Fragment {
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
 
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
                 editText.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -531,13 +531,12 @@ public class Fragment_coinOrder extends Fragment {
                 jsonObject = (JSONObject) jsonArray.get(0);
                 openingPrice = jsonObject.getDouble("prev_closing_price");
 
-                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, getActivity(), openingPrice,customLodingDialog);
+                adapter_rvCoinArcade = new Adapter_rvCoinArcade(coinArcadeDTOS, context, openingPrice,customLodingDialog);
                 rv_coinArcade.setAdapter(adapter_rvCoinArcade);
             }
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
     @Override
@@ -559,10 +558,10 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onClick(View view) {
 
-                    Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                    Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
 
                         if(et_orderCoinQuantity.length() == 0 || tv_orderCoinPrice.length() == 0 || tv_orderCoinTotalAmount.length() == 0){
-                            Toast.makeText(getActivity(), "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -573,14 +572,14 @@ public class Fragment_coinOrder extends Fragment {
                         myCoin = db.myCoinDAO().isInsert(market);
 
                         if (round(orderAmount) > leftMoney) {
-                            Toast.makeText(getActivity(), "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         if (myCoin == null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
-                                Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -599,12 +598,12 @@ public class Fragment_coinOrder extends Fragment {
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid", System.currentTimeMillis());
 
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
 
                         } else if (myCoin != null && orderAmount <= leftMoney) {
 
                             if (round(orderAmount) < 5000) {
-                                Toast.makeText(getActivity(), "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -637,7 +636,7 @@ public class Fragment_coinOrder extends Fragment {
 
                             db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid",System.currentTimeMillis());
 
-                            Toast.makeText(getActivity(), "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                         }
             }
         });
@@ -649,10 +648,10 @@ public class Fragment_coinOrder extends Fragment {
             public void onClick(View view) {
 
                     Double sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
-                    Double currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                    Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
 
                         if (et_sellCoinQuantity.length() == 0 || tv_sellCoinPrice.length() == 0|| tv_sellCoinPrice.length() == 0 ) {
-                            Toast.makeText(getActivity(), "빈곳없이 매도요청 해주세요!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "빈곳없이 매도요청 해주세요!", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -660,12 +659,12 @@ public class Fragment_coinOrder extends Fragment {
                         Double sellCoinPrice = Double.valueOf(tv_sellCoinPrice.getText().toString().replaceAll(",", ""));
 
                         if(sellAbleCoinQuantity < sellCoinQuantity){
-                            Toast.makeText(getActivity(), "판매가능한 수량이 부족합니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "판매가능한 수량이 부족합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
                         if(round(sellCoinQuantity * currentPrice) < 5000){
-                            Toast.makeText(getActivity(), "5000이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "5000이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -692,7 +691,7 @@ public class Fragment_coinOrder extends Fragment {
 
                             et_sellCoinQuantity.setText("0");
                             tv_sellCoinTotalAmount.setText("0");
-                            Toast.makeText(getActivity(), "매도 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "매도 되었습니다.", Toast.LENGTH_SHORT).show();
 
                             db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask",System.currentTimeMillis());
                         }
@@ -703,7 +702,7 @@ public class Fragment_coinOrder extends Fragment {
     private void setSpinner_sellCoinQuantity(){
         String[] items = {"%선택","최대","50%","25%","10%"};
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
+        ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item,items);
 
         spinner_sellCoinQuantity.setAdapter(adapter);
 
@@ -746,7 +745,7 @@ public class Fragment_coinOrder extends Fragment {
 
         String[] items = {"%선택","최대","50%","25%","10%"};
 
-        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item,items);
+        ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_spinner_dropdown_item,items);
 
         spinner_orderCoinQuantity.setAdapter(adapter);
 
@@ -923,8 +922,8 @@ public class Fragment_coinOrder extends Fragment {
                             index = 0;
                             index2 = 0;
 
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(new Runnable() {
+                            if (context != null) {
+                                ((Activity_coinInfo)context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
 
@@ -935,7 +934,7 @@ public class Fragment_coinOrder extends Fragment {
 
                                         Double currentPrice;
                                         try {
-                                            currentPrice = ((Activity_coinInfo)getActivity()).getGlobalCurrentPrice();
+                                            currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
                                         }catch (Exception e){
                                             e.printStackTrace();
                                             currentPrice = null;
