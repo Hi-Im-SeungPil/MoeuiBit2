@@ -452,7 +452,6 @@ public class Fragment_coinOrder extends Fragment {
         rv_transactionInfo = rootView.findViewById(R.id.rv_transactionInfo);
         tv_transactionInfoIsNull = rootView.findViewById(R.id.tv_transactionInfoIsNull);
         btn_purchaseByDesignatingTotalAmount = rootView.findViewById(R.id.btn_purchaseByDesignatingTotalAmount);
-
     }
 
     private void getCoinArcadeInfo() {
@@ -492,7 +491,6 @@ public class Fragment_coinOrder extends Fragment {
                 Double initPrice = coinArcadeDTOS.get(14).getCoinArcadePrice();
 
                 //초기 코인 가격 설정
-
                 if(initPrice >= 100){
 
                     tv_orderCoinPrice.setText(decimalFormat.format(round(initPrice))+"");
@@ -753,9 +751,7 @@ public class Fragment_coinOrder extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
-                        Double price = Double.valueOf(tv_orderCoinPrice.getText().toString().replace(",", ""));
-
-                        int orderablePrice = 0;
+                        long orderablePrice = 0;
 
                         switch (spinner_orderCoinQuantity.getSelectedItemPosition()) {
                             case 0:
@@ -774,8 +770,10 @@ public class Fragment_coinOrder extends Fragment {
                                 orderablePrice = round(Integer.parseInt(tv_orderableAmount.getText().toString().replace(",", "")) / 10);
                                 break;
                         }
-                        if(orderablePrice!=0)
-                        et_orderCoinQuantity.setText(String.format("%.8f", orderablePrice / price));
+                        if(orderablePrice!=0) {
+                            Double price = Double.valueOf(tv_orderCoinPrice.getText().toString().replace(",", ""));
+                            et_orderCoinQuantity.setText(String.format("%.8f", orderablePrice / price));
+                        }
                         else
                             et_orderCoinQuantity.setText("0");
                 }
@@ -971,7 +969,12 @@ public class Fragment_coinOrder extends Fragment {
 
                                             }else if(linear_coinSell.getVisibility() == View.VISIBLE && tv_sellCoinTotalAmount.length() != 0 && !tv_sellCoinTotalAmount.equals("0")){
 
-                                                Double sellQuantity = Double.parseDouble(et_sellCoinQuantity.getText().toString());
+                                                Double sellQuantity;
+                                                if(et_sellCoinQuantity.length() != 0) {
+                                                    sellQuantity = Double.parseDouble(et_sellCoinQuantity.getText().toString());
+                                                }else{
+                                                    sellQuantity = 0.0;
+                                                }
 
                                                 if(sellQuantity * currentPrice >= 100) {
                                                     tv_sellCoinTotalAmount.setText(decimalFormat.format(round(sellQuantity * currentPrice)));

@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.jeonfeel.moeuibit2.R;
@@ -98,42 +97,114 @@ public class Fragment_coinSite extends Fragment {
         linear_upBit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("com.dunamu.exchange","https://www.upbit.com");
+                isInstall("com.dunamu.exchange","https://www.upbit.com");
             }
         });
 
         linear_bithumb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("com.btckorea.bithumb","https://www.bithumb.com/");
+                isInstall("com.btckorea.bithumb","https://www.bithumb.com/");
             }
         });
         linear_coinOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("coinone.co.kr.official","https://coinone.co.kr/");
+                isInstall("coinone.co.kr.official","https://coinone.co.kr/");
             }
         });
         linear_binance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("com.binance.dev","https://www.binance.com/en/");
+                isInstall("com.binance.dev","https://www.binance.com/en/");
             }
         });
         linear_gopax.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("kr.co.gopax","https://www.gopax.co.kr/");
+                isInstall("kr.co.gopax","https://www.gopax.co.kr/");
             }
         });
         linear_bybit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                exchangesIsInstall("com.bybit.app","https://www.bybit.com/en-US/");
+                isInstall("com.bybit.app","https://www.bybit.com/en-US/");
+            }
+        });
+        linear_ddangle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.ddengle.app","https://www.ddengle.com/");
+            }
+        });
+        linear_coinPan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.coinpan.coinpan","https://coinpan.com/");
+            }
+        });
+        linear_moneyNet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("mnet7.mobile","https://www.moneynet.co.kr/");
+            }
+        });
+        linear_cobak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.cobak.android","https://cobak.co.kr/");
+            }
+        });
+        linear_blockChanHub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("kr.blockchainhub.app","https://blockchainhub.kr/");
+            }
+        });
+        linear_dcInside.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.dcinside.app","https://gall.dcinside.com/list.php?id=bitcoins_new1");
+            }
+        });
+        linear_FMkorea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.fmkorea.m.fmk","https://www.fmkorea.com/coin");
+            }
+        });
+        linear_coinMarketCap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.coinmarketcap.android","https://coinmarketcap.com/ko/");
+            }
+        });
+        linear_coinGeko.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.coingecko.coingeckoapp","https://www.coingecko.com/ko");
+            }
+        });
+        linear_xangle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.crossangle.xangle","https://xangle.io/");
+            }
+        });
+        linear_coinNess.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.coinness","https://kr.coinness.com/");
+            }
+        });
+        linear_coinMarketCal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isInstall("com.coincal","https://coinmarketcal.com/en/");
             }
         });
     }
-    private void exchangesIsInstall(String pakageName, String uri){
+    private void isInstall(String pakageName, String uri){
 
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(pakageName);
 
@@ -148,9 +219,7 @@ public class Fragment_coinSite extends Fragment {
     }
 
     private void setLinear(){
-        LinearLayout[] linearLayouts = {linear_ddangle,linear_coinPan,linear_moneyNet,linear_cobak,linear_blockChanHub,
-                linear_dcInside,linear_bitMan,linear_FMkorea,linear_FMkorea,linear_coinMarketCap,linear_coinGeko,
-                linear_xangle,linear_kimpga,linear_cryPrice,linear_coDal,linear_coinNess,linear_coinMarketCal,linear_musk};
+        LinearLayout[] linearLayouts = {linear_bitMan,linear_kimpga,linear_cryPrice,linear_coDal,linear_musk};
 
         SetLinears setLinears = new SetLinears();
 
@@ -232,41 +301,11 @@ public class Fragment_coinSite extends Fragment {
         public void onClick(View view) {
             String uri = "";
             switch (view.getId()){
-                case R.id.linear_ddangle:
-                    uri = "https://www.ddengle.com/";
-                    break;
-                case R.id.linear_coinPan:
-                    uri = "https://coinpan.com/";
-                    break;
-                case R.id.linear_moneyNet:
-                    uri = "https://www.moneynet.co.kr/";
-                    break;
-                case R.id.linear_cobak:
-                    uri = "https://cobak.co.kr/";
-                    break;
-                case R.id.linear_blockChanHub:
-                    uri = "https://blockchainhub.kr/";
-                    break;
-                case R.id.linear_dcInside:
-                    uri = "https://gall.dcinside.com/board/lists/?id=bitcoins";
-                    break;
                 case R.id.linear_bitMan:
                     uri = "https://cafe.naver.com/nexontv";
                     break;
-                case R.id.linear_FMkorea:
-                    uri = "https://www.fmkorea.com/coin";
-                    break;
                 case R.id.linear_musk:
                     uri = "https://twitter.com/elonmusk";
-                    break;
-                case R.id.linear_coinMarketCap:
-                    uri = "https://coinmarketcap.com/ko/";
-                    break;
-                case R.id.linear_coinGeko:
-                    uri = "https://www.coingecko.com/ko";
-                    break;
-                case R.id.linear_xangle:
-                    uri = "https://xangle.io/";
                     break;
                 case R.id.linear_kimpga:
                     uri = "https://kimpga.com/";
@@ -276,12 +315,6 @@ public class Fragment_coinSite extends Fragment {
                     break;
                 case R.id.linear_coDal:
                     uri = "https://www.coindalin.com/";
-                    break;
-                case R.id.linear_coinNess:
-                    uri = "https://kr.coinness.com/";
-                    break;
-                case R.id.linear_coinMarketCal:
-                    uri = "https://coinmarketcal.com/en/";
                     break;
             }
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));

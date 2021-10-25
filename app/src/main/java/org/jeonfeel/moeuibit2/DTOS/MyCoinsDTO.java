@@ -1,12 +1,14 @@
 package org.jeonfeel.moeuibit2.DTOS;
 
-public class MyCoinsDTO {
+public class MyCoinsDTO implements Comparable<MyCoinsDTO>{
 
     private String myCoinsKoreanName;
     private String myCoinsSymbol;
     private Double myCoinsQuantity;
     private Double myCoinsBuyingAverage;
     private Double currentPrice;
+    public static String orderStatus;
+    private Double myCoinYield;
 
     public MyCoinsDTO(String myCoinsKoreanName, String myCoinsSymbol, Double myCoinsQuantity, Double myCoinsBuyingAverage, Double currentPrice) {
         this.myCoinsKoreanName = myCoinsKoreanName;
@@ -54,5 +56,21 @@ public class MyCoinsDTO {
 
     public void setCurrentPrice(Double currentPrice) {
         this.currentPrice = currentPrice;
+        this.myCoinYield = (currentPrice - myCoinsBuyingAverage) / myCoinsBuyingAverage * 100;
+    }
+
+    public Double getYield(){
+        return myCoinYield;
+    }
+
+    @Override
+    public int compareTo(MyCoinsDTO o) {
+        switch (orderStatus) {
+            case "name":
+                return this.myCoinsKoreanName.compareTo(o.getMyCoinsKoreanName());
+            case "yield":
+                return this.myCoinYield.compareTo(o.getYield());
+        }
+        return -1;
     }
 }

@@ -28,10 +28,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.MainActivity;
 import org.jeonfeel.moeuibit2.R;
 
@@ -55,7 +51,8 @@ public class Activity_Login extends AppCompatActivity {
         FindViewById();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("601646266812-jjnt1dc0o5dfhfdv98o540q2n3hac9c0.apps.googleusercontent.com")
+                .requestIdToken(this.getResources().getString(R.string.default_web_client_id))
+
                 .requestEmail()
                 .build();
 

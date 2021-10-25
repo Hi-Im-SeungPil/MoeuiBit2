@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.Fragment.Chart;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -80,7 +79,7 @@ public class Fragment_chart extends Fragment {
     private String period= "minutes";
     private MoEuiBitDatabase db;
     private LimitLine ll2;
-    private DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private final DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private CustomLodingDialog customLodingDialog;
     private Context context;
     private GetRecentCoinChart getRecentCoinChart;
@@ -88,7 +87,6 @@ public class Fragment_chart extends Fragment {
     private RadioGroup rg_chart,rg_minuteGroup;
     private RadioButton radio_minuteChart,radio_oneMinute;
     private float sumLine1,sumLine2,sumLine3;
-    private ArrayList<Entry> line1Entry,line2Entry,line3Entry;
     private GetMovingAverage getMovingAverage;
 
     // TODO: Rename and change types of parameters
@@ -342,7 +340,7 @@ public class Fragment_chart extends Fragment {
         candlePosition = 0;
         ArrayList<CoinCandleDataDTO> valueInfo = new ArrayList<>();
 
-        String coinUrl = "";
+        String coinUrl;
 
         if(minute == 2) {
             coinUrl = "https://api.upbit.com/v1/candles/" + period + "?market=" + market + "&count=200";
@@ -353,12 +351,12 @@ public class Fragment_chart extends Fragment {
         GetUpBitCoins getUpBitCoins = new GetUpBitCoins();
 
         try {
-            JSONArray jsonArray = new JSONArray();
+            JSONArray jsonArray;
             jsonArray = getUpBitCoins.execute(coinUrl).get();
 
             if (jsonArray != null) {
 
-                JSONObject jsonObject = new JSONObject();
+                JSONObject jsonObject ;
 
                 for (int i = jsonArray.length() - 1; i >= 0; i--) {
                     jsonObject = (JSONObject) jsonArray.get(i);
@@ -370,7 +368,7 @@ public class Fragment_chart extends Fragment {
                     Double tradePrice = jsonObject.getDouble("trade_price");
                     Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
 
-                    float openingPrice2 = 0;
+                    float openingPrice2 ;
 
                     if (openingPrice < 100 && openingPrice >= 1) {
                         openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
@@ -428,7 +426,7 @@ public class Fragment_chart extends Fragment {
                 if(myCoin != null){
                     String average = String.valueOf(myCoin.getPurchasePrice());
                     float averageResult = Float.parseFloat(average);
-                    String averageResultText = "";
+                    String averageResultText ;
                     if(averageResult >= 100){
                         averageResultText = decimalFormat.format(round(averageResult));
                     }else if(averageResult >= 1 && averageResult < 100){
@@ -461,9 +459,7 @@ public class Fragment_chart extends Fragment {
                     customLodingDialog.dismiss();
             }
 
-        } catch (NegativeArraySizeException ex){
-            ex.printStackTrace();
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -679,7 +675,7 @@ public class Fragment_chart extends Fragment {
                         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                         StringBuffer builder = new StringBuffer();
 
-                        String inputString = null;
+                        String inputString ;
                         while ((inputString = bufferedReader.readLine()) != null) {
                             builder.append(inputString);
                         }
@@ -707,7 +703,7 @@ public class Fragment_chart extends Fragment {
                                 Double tradePrice = jsonObject.getDouble("trade_price");
                                 Double candleTransactionAmount = jsonObject.getDouble("candle_acc_trade_price");
 
-                                float openingPrice2 = 0;
+                                float openingPrice2 ;
 
                                 if (openingPrice < 100 && openingPrice >= 1) {
                                     openingPrice2 = Float.parseFloat(String.format("%.2f", openingPrice));
@@ -806,6 +802,7 @@ public class Fragment_chart extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

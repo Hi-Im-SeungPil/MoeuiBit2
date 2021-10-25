@@ -1,12 +1,7 @@
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
-        maven { url 'https://jitpack.io' }
-    }
-}
+//dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//
+//}
 
 include ':app'
 rootProject.name = "MoeuiBit2"

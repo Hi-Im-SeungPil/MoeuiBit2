@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".Fragment.Fragment_investmentDetails"
+    tools:context=".Fragment.investmentDetails.Fragment_investmentDetails"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -261,7 +261,36 @@
 
     </LinearLayout>
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginTop="5dp">
 
+    <Button
+        android:id="@+id/btn_investmentDetailOrderByName"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:text="이름 ↑↓"
+        android:background="#FAFAFA"
+        android:textColor="#ACABAB"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:textSize="13sp"/>
+
+    <Button
+        android:id="@+id/btn_investmentDetailOrderByYield"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:text="수익률 ↑↓"
+        android:background="#FAFAFA"
+        android:textColor="#ACABAB"
+        android:fontFamily="@font/nanum_square_round_b"
+        android:textSize="13sp"/>
+
+
+</LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_myCoins"

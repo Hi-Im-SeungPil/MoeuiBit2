@@ -1,31 +1,25 @@
 package org.jeonfeel.moeuibit2;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import org.jeonfeel.moeuibit2.Fragment.Fragment_Exchange;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinSite;
-import org.jeonfeel.moeuibit2.Fragment.Fragment_investmentDetails;
+import org.jeonfeel.moeuibit2.Fragment.investmentDetails.Fragment_investmentDetails;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_setting;
 
 public class MainActivity extends FragmentActivity {

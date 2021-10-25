@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.Fragment;
+package org.jeonfeel.moeuibit2.Fragment.investmentDetails;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -84,14 +84,11 @@ public class Fragment_investmentDetails extends Fragment {
     private EarnKrw earnKrw;
     private int checkSecond = 0;
     private ArrayList<String> marketList;
-
     public Fragment_investmentDetails(){}
 
     public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
         this.customLodingDialog = customLodingDialog;
     }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,6 +105,7 @@ public class Fragment_investmentDetails extends Fragment {
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(context);
 
+
         if(rewardedInterstitialAd == null) {
             MobileAds.initialize(context, new OnInitializationCompleteListener() {
                 @Override
@@ -119,6 +117,7 @@ public class Fragment_investmentDetails extends Fragment {
 
         setRv_myCoins();
         init();
+        setCoinOrder(rootView);
         setBtn_earningKrw(rootView);
         setBtn_portfolio(rootView);
 
@@ -134,6 +133,12 @@ public class Fragment_investmentDetails extends Fragment {
         tv_evaluationGainLoss = rootView.findViewById(R.id.tv_evaluationGainLoss);
         tv_yield = rootView.findViewById(R.id.tv_yield);
         rv_myCoins = rootView.findViewById(R.id.rv_myCoins);
+    }
+
+    private void setCoinOrder(View rootView){
+        Button btn_investmentDetailOrderByName = rootView.findViewById(R.id.btn_investmentDetailOrderByName);
+        Button btn_investmentDetailOrderByYield = rootView.findViewById(R.id.btn_investmentDetailOrderByYield);
+        CoinOrder coinOrder = new CoinOrder(btn_investmentDetailOrderByName,btn_investmentDetailOrderByYield,myCoinsDTOS);
     }
 
     private void setRv_myCoins(){
@@ -189,7 +194,6 @@ public class Fragment_investmentDetails extends Fragment {
             markets = stringBuilder.toString();
             //리사이클러뷰
         }
-
         tv_totalBuyOut.setText(decimalFormat.format(totalBuyOut));
         tv_myKoreanWon.setText(decimalFormat.format(myKoreanWon));
         adapter_rvMyCoins = new Adapter_rvMyCoins(myCoinsDTOS,context);
@@ -209,7 +213,6 @@ public class Fragment_investmentDetails extends Fragment {
             if(customLodingDialog!=null && customLodingDialog.isShowing())
                 customLodingDialog.dismiss();
         }
-
         if(myCoins.size() != 0) {
             if(customLodingDialog!=null && customLodingDialog.isShowing())
                 customLodingDialog.dismiss();
@@ -229,17 +232,14 @@ public class Fragment_investmentDetails extends Fragment {
             getMyCoins = null;
         }
     }
-
     private void setBtn_portfolio(View rootView){
 
         Button btn_portfolio = rootView.findViewById(R.id.btn_portfolio);
         btn_portfolio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent(context, Activity_portfolio.class);
                 startActivity(intent);
-
             }
         });
 
@@ -288,11 +288,8 @@ public class Fragment_investmentDetails extends Fragment {
                         public void onClick(DialogInterface dialogInterface, int i) {
                         }
                     });
-
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
-
-
                 }
         });
     }

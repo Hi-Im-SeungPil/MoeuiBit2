@@ -240,13 +240,13 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
             String url = "https://api.upbit.com/v1/market/all"; // 업비트 모든 코인 종류
             GetUpBitCoins getUpBitApi = new GetUpBitCoins();
             try {
-                JSONArray jsonArray = new JSONArray();
+                JSONArray jsonArray;
 
                 jsonArray = getUpBitApi.execute(url).get();
 
                 if (jsonArray != null) {
 
-                    JSONObject jsonObject = new JSONObject();
+                    JSONObject jsonObject;
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         jsonObject = (JSONObject) jsonArray.get(i);
@@ -325,7 +325,6 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         if(customLodingDialog.isShowing() && customLodingDialog != null){
                             customLodingDialog.dismiss();
                         }
-
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
