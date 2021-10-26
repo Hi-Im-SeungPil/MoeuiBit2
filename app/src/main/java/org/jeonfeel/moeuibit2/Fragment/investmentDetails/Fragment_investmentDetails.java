@@ -60,6 +60,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -84,6 +85,7 @@ public class Fragment_investmentDetails extends Fragment {
     private EarnKrw earnKrw;
     private int checkSecond = 0;
     private ArrayList<String> marketList;
+    private HashMap<String,Integer> hashMap;
     public Fragment_investmentDetails(){}
 
     public Fragment_investmentDetails(CustomLodingDialog customLodingDialog) {
@@ -104,7 +106,6 @@ public class Fragment_investmentDetails extends Fragment {
         earnKrw = new EarnKrw();
         FindViewById(rootView);
         db = MoEuiBitDatabase.getInstance(context);
-
 
         if(rewardedInterstitialAd == null) {
             MobileAds.initialize(context, new OnInitializationCompleteListener() {
@@ -138,7 +139,8 @@ public class Fragment_investmentDetails extends Fragment {
     private void setCoinOrder(View rootView){
         Button btn_investmentDetailOrderByName = rootView.findViewById(R.id.btn_investmentDetailOrderByName);
         Button btn_investmentDetailOrderByYield = rootView.findViewById(R.id.btn_investmentDetailOrderByYield);
-        CoinOrder coinOrder = new CoinOrder(btn_investmentDetailOrderByName,btn_investmentDetailOrderByYield,myCoinsDTOS);
+        CoinOrder coinOrder = new CoinOrder(btn_investmentDetailOrderByName,btn_investmentDetailOrderByYield,myCoinsDTOS,currentPrices,adapter_rvMyCoins);
+        hashMap = coinOrder.getHashMap();
     }
 
     private void setRv_myCoins(){
@@ -242,7 +244,6 @@ public class Fragment_investmentDetails extends Fragment {
                 startActivity(intent);
             }
         });
-
     }
 
     // krw 충전
@@ -329,16 +330,18 @@ public class Fragment_investmentDetails extends Fragment {
                         inputStream.close();
 
                         if (jsonCoinInfo != null && myCoins.size() == jsonCoinInfo.length()) {
-                            JSONObject jsonObject = new JSONObject();
+                            JSONObject jsonObject;
 
                             for (int i = 0; i < jsonCoinInfo.length(); i++) {
                                 jsonObject = (JSONObject) jsonCoinInfo.get(i);
 
                                 Double currentPrice = jsonObject.getDouble("trade_price");
                                 Double quantity = myCoins.get(i).getQuantity();
+                                String market = jsonObject.getString("market");
 
                                 totalEvaluation += currentPrice * quantity;
-                                currentPrices.set(i, currentPrice);
+                                currentPrices.set(hashMap.get(market), currentPrice);
+//                                currentPrices.set(i, currentPrice);
                             }
 
                             long longTotalEvaluation = round(totalEvaluation);

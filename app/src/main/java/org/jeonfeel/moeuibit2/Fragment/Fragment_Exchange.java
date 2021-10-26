@@ -325,6 +325,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                         if(customLodingDialog.isShowing() && customLodingDialog != null){
                             customLodingDialog.dismiss();
                         }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
