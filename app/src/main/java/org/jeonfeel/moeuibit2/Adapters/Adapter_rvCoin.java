@@ -3,9 +3,6 @@ package org.jeonfeel.moeuibit2.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,17 +15,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinDTO;
 import org.jeonfeel.moeuibit2.R;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import static java.lang.Math.round;
 
@@ -114,7 +108,7 @@ public class Adapter_rvCoin extends RecyclerView.Adapter<Adapter_rvCoin.CustomVi
                         customLodingDialog = new CustomLodingDialog(context);
                         customLodingDialog.show();
 
-                        Intent intent = new Intent(context, Activity_coinInfo.class);
+                        Intent intent = new Intent(context, Activity_coinDetails.class);
                         intent.putExtra("market", filteredItem.get(position).getMarket());
                         intent.putExtra("symbol", filteredItem.get(position).getSymbol());
                         intent.putExtra("koreanName", filteredItem.get(position).getKoreanName());

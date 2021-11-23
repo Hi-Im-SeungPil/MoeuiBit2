@@ -2,20 +2,17 @@ package org.jeonfeel.moeuibit2.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO;
 import org.jeonfeel.moeuibit2.R;
@@ -32,7 +29,6 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
     DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private Double openingPrice;
     private CustomLodingDialog customLodingDialog;
-
 
     public Adapter_rvCoinArcade(ArrayList<CoinArcadeDTO> item, Context context,Double openingPrice,CustomLodingDialog customLodingDialog) {
         this.item = item;
@@ -96,9 +92,9 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadeDayToDay.setText(String.format("%.2f",dayToDay)+"%");
         }
 
-        if(((Activity_coinInfo)context).getGlobalCurrentPrice() != null){
+        if(((Activity_coinDetails)context).getGlobalCurrentPrice() != null){
 
-            Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
+            Double currentPrice = ((Activity_coinDetails)context).getGlobalCurrentPrice();
             int intCurrentPrice = 0;
 
             if(currentPrice > 100){
@@ -159,7 +155,7 @@ public class Adapter_rvCoinArcade extends RecyclerView.Adapter<Adapter_rvCoinArc
             holder.tv_coinArcadeDayToDay.setTextColor(Color.parseColor("#000000"));
         }
 
-        if(customLodingDialog != null && customLodingDialog.isShowing() && ((Activity_coinInfo)context).getGlobalCurrentPrice() != null){
+        if(customLodingDialog != null && customLodingDialog.isShowing() && ((Activity_coinDetails)context).getGlobalCurrentPrice() != null){
             customLodingDialog.dismiss();
         }
 

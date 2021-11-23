@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoinArcade;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvTransactionInfo;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
@@ -52,6 +52,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -218,6 +219,7 @@ public class Fragment_coinOrder extends Fragment {
                 }else if(et_orderCoinQuantity.isFocused()) {
                     et_orderCoinQuantity.clearFocus();
                 }
+
                 EditText editText = new EditText(context);
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                 User user = db.userDAO().getAll();
@@ -236,82 +238,91 @@ public class Fragment_coinOrder extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
+                        try {
 
-                        if(editText.length() == 0){
-                            Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                            Double currentPrice = ((Activity_coinDetails) context).getGlobalCurrentPrice();
 
-                        Double orderAmount = Double.parseDouble(editText.getText().toString().replace(",",""));
-                        String orderQuantity = String.format("%.8f",orderAmount / currentPrice);
-                        Double orderQuantityResult = Double.parseDouble(orderQuantity);
+                            if(currentPrice == null){
+                                currentPrice = Double.parseDouble(tv_orderCoinPrice.getText().toString().replace(",",""));
+                            }
 
-                        MyCoin myCoin = null;
-                        myCoin = db.myCoinDAO().isInsert(market);
-
-                        if (round(orderAmount) > leftMoney) {
-                            Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (myCoin == null && orderAmount <= leftMoney) {
-
-                            if (round(orderAmount) < 5000) {
-                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                            if (editText.length() == 0) {
+                                Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
-                            MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantityResult);
-                            db.myCoinDAO().insert(myCoin1);
-                            db.userDAO().updateMinusMoney(round(orderAmount));
+                            Double orderAmount = Double.parseDouble(editText.getText().toString().replace(",", ""));
+                            String orderQuantity = String.format("%.8f", orderAmount / currentPrice);
+                            Double orderQuantityResult = Double.parseDouble(orderQuantity);
 
-                            User user = db.userDAO().getAll();
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
+                            MyCoin myCoin = null;
                             myCoin = db.myCoinDAO().isInsert(market);
-                            tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
 
-                            et_orderCoinQuantity.setText("");
-                            tv_orderCoinTotalAmount.setText("");
-
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantityResult,round(orderAmount),"bid", System.currentTimeMillis());
-
-                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
-
-                        } else if (myCoin != null && orderAmount <= leftMoney) {
-
-                            if (round(orderAmount) < 5000) {
-                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                            if (round(orderAmount) > leftMoney) {
+                                Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
-                            Double myCoinQuantity = myCoin.getQuantity();
-                            Double myCoinPrice = myCoin.getPurchasePrice();
+                            if (myCoin == null && orderAmount <= leftMoney) {
 
-                            Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantityResult, currentPrice);
-                            if (averageOrderPrice >= 100) {
-                                int purchasePrice = (int) round(averageOrderPrice);
-                                db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
-                            } else {
-                                averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
-                                db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                                if (round(orderAmount) < 5000) {
+                                    Toast.makeText(context, "5000KRW 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantityResult);
+                                db.myCoinDAO().insert(myCoin1);
+                                db.userDAO().updateMinusMoney(round(orderAmount));
+
+                                User user = db.userDAO().getAll();
+                                tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                                myCoin = db.myCoinDAO().isInsert(market);
+                                tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
+
+                                et_orderCoinQuantity.setText("");
+                                tv_orderCoinTotalAmount.setText("");
+
+                                db.transactionInfoDAO().insert(market, currentPrice, orderQuantityResult, round(orderAmount), "bid", System.currentTimeMillis());
+
+                                Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                            } else if (myCoin != null && orderAmount <= leftMoney) {
+
+                                if (round(orderAmount) < 5000) {
+                                    Toast.makeText(context, "5000KRW 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                Double myCoinQuantity = myCoin.getQuantity();
+                                Double myCoinPrice = myCoin.getPurchasePrice();
+
+                                Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantityResult, currentPrice);
+                                if (averageOrderPrice >= 100) {
+                                    int purchasePrice = (int) round(averageOrderPrice);
+                                    db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
+                                } else {
+                                    averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
+                                    db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                                }
+
+                                Double quantityResult = Double.valueOf(String.format("%.8f", myCoinQuantity + orderQuantityResult));
+
+                                db.myCoinDAO().updateQuantity(market, quantityResult);
+                                db.userDAO().updateMinusMoney(round(orderAmount));
+                                User user = db.userDAO().getAll();
+                                tv_orderableAmount.setText(decimalFormat.format(user.krw));
+
+                                myCoin = db.myCoinDAO().isInsert(market);
+                                et_orderCoinQuantity.setText("");
+                                tv_orderCoinTotalAmount.setText("");
+
+                                db.transactionInfoDAO().insert(market, currentPrice, orderQuantityResult, round(orderAmount), "bid", System.currentTimeMillis());
+
+                                Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
                             }
-
-                            Double quantityResult = Double.valueOf(String.format("%.8f", myCoinQuantity + orderQuantityResult));
-
-                            db.myCoinDAO().updateQuantity(market, quantityResult);
-                            db.userDAO().updateMinusMoney(round(orderAmount));
-                            User user = db.userDAO().getAll();
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
-                            myCoin = db.myCoinDAO().isInsert(market);
-                            et_orderCoinQuantity.setText("");
-                            tv_orderCoinTotalAmount.setText("");
-
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantityResult,round(orderAmount),"bid",System.currentTimeMillis());
-
-                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                        }catch (NullPointerException n){
+                            Toast.makeText(context, "오류가 발생했습니다 \n다시 시도해 주세요", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }).setNegativeButton("취소", null);
@@ -555,87 +566,95 @@ public class Fragment_coinOrder extends Fragment {
         btn_coinOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                try {
 
-                    Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
+                    Double currentPrice = ((Activity_coinDetails) context).getGlobalCurrentPrice();
 
-                        if(et_orderCoinQuantity.length() == 0 || tv_orderCoinPrice.length() == 0 || tv_orderCoinTotalAmount.length() == 0){
-                            Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
+                    if(currentPrice == null){
+                        currentPrice = Double.parseDouble(tv_orderCoinPrice.getText().toString().replace(",",""));
+                    }
+
+                    if (et_orderCoinQuantity.length() == 0 || tv_orderCoinPrice.length() == 0 || tv_orderCoinTotalAmount.length() == 0) {
+                        Toast.makeText(context, "빈곳없이 매수요청 해주세요!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Double orderQuantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
+                    long orderAmount = round(currentPrice * orderQuantity);
+
+                    MyCoin myCoin = null;
+                    myCoin = db.myCoinDAO().isInsert(market);
+
+                    if (round(orderAmount) > leftMoney) {
+                        Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (myCoin == null && orderAmount <= leftMoney) {
+
+                        if (round(orderAmount) < 5000) {
+                            Toast.makeText(context, "5000KRW 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Double orderQuantity = Double.valueOf(et_orderCoinQuantity.getText().toString());
-                        long orderAmount = round(currentPrice * orderQuantity);
+                        MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
+                        db.myCoinDAO().insert(myCoin1);
+                        db.userDAO().updateMinusMoney(round(orderAmount));
 
-                        MyCoin myCoin = null;
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.getKrw()));
+
                         myCoin = db.myCoinDAO().isInsert(market);
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
 
-                        if (round(orderAmount) > leftMoney) {
-                            Toast.makeText(context, "보유 KRW가 부족합니다.", Toast.LENGTH_SHORT).show();
+                        et_orderCoinQuantity.setText("0");
+                        tv_orderCoinTotalAmount.setText("0");
+
+                        db.transactionInfoDAO().insert(market, currentPrice, orderQuantity, round(orderAmount), "bid", System.currentTimeMillis());
+
+                        Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                    } else if (myCoin != null && orderAmount <= leftMoney) {
+
+                        if (round(orderAmount) < 5000) {
+                            Toast.makeText(context, "5000KRW 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        if (myCoin == null && orderAmount <= leftMoney) {
+                        Double myCoinQuantity = myCoin.getQuantity();
+                        Double myCoinPrice = myCoin.getPurchasePrice();
 
-                            if (round(orderAmount) < 5000) {
-                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            MyCoin myCoin1 = new MyCoin(market, currentPrice, koreanName, symbol, orderQuantity);
-                            db.myCoinDAO().insert(myCoin1);
-                            db.userDAO().updateMinusMoney(round(orderAmount));
-
-                            User user = db.userDAO().getAll();
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
-                            myCoin = db.myCoinDAO().isInsert(market);
-                            tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
-
-                            et_orderCoinQuantity.setText("0");
-                            tv_orderCoinTotalAmount.setText("0");
-
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid", System.currentTimeMillis());
-
-                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
-
-                        } else if (myCoin != null && orderAmount <= leftMoney) {
-
-                            if (round(orderAmount) < 5000) {
-                                Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-
-                            Double myCoinQuantity = myCoin.getQuantity();
-                            Double myCoinPrice = myCoin.getPurchasePrice();
-
-                            Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
-                            if (averageOrderPrice >= 100) {
-                                int purchasePrice = (int) round(averageOrderPrice);
-                                db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
-                            } else if(averageOrderPrice >= 1 && averageOrderPrice < 100){
-                                averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
-                                db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
-                            }else if(averageOrderPrice > 0 && averageOrderPrice < 1){
-                                averageOrderPrice = Double.valueOf(String.format("%.4f", averageOrderPrice));
-                                db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
-                            }
-
-                            Double quantityResult = Double.valueOf(String.format("%.8f", myCoinQuantity + orderQuantity));
-
-                            db.myCoinDAO().updateQuantity(market, quantityResult);
-                            db.userDAO().updateMinusMoney(round(orderAmount));
-                            User user = db.userDAO().getAll();
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
-                            myCoin = db.myCoinDAO().isInsert(market);
-                            tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
-                            et_orderCoinQuantity.setText("0");
-                            tv_orderCoinTotalAmount.setText("0");
-
-                            db.transactionInfoDAO().insert(market,currentPrice,orderQuantity,round(orderAmount),"bid",System.currentTimeMillis());
-
-                            Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                        Double averageOrderPrice = averageOrderPriceCalculate(myCoinQuantity, myCoinPrice, orderQuantity, currentPrice);
+                        if (averageOrderPrice >= 100) {
+                            int purchasePrice = (int) round(averageOrderPrice);
+                            db.myCoinDAO().updatePurchasePriceInt(market, purchasePrice);
+                        } else if (averageOrderPrice >= 1 && averageOrderPrice < 100) {
+                            averageOrderPrice = Double.valueOf(String.format("%.2f", averageOrderPrice));
+                            db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
+                        } else if (averageOrderPrice > 0 && averageOrderPrice < 1) {
+                            averageOrderPrice = Double.valueOf(String.format("%.4f", averageOrderPrice));
+                            db.myCoinDAO().updatePurchasePrice(market, averageOrderPrice);
                         }
+
+                        Double quantityResult = Double.valueOf(String.format("%.8f", myCoinQuantity + orderQuantity));
+
+                        db.myCoinDAO().updateQuantity(market, quantityResult);
+                        db.userDAO().updateMinusMoney(round(orderAmount));
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.getKrw()));
+
+                        myCoin = db.myCoinDAO().isInsert(market);
+                        tv_sellAbleCoinQuantity.setText(String.format("%.8f", myCoin.getQuantity()));
+                        et_orderCoinQuantity.setText("0");
+                        tv_orderCoinTotalAmount.setText("0");
+
+                        db.transactionInfoDAO().insert(market, currentPrice, orderQuantity, round(orderAmount), "bid", System.currentTimeMillis());
+
+                        Toast.makeText(context, "매수 되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }catch (NullPointerException n){
+                    Toast.makeText(context, "오류가 발생했습니다. \n다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -645,54 +664,62 @@ public class Fragment_coinOrder extends Fragment {
             @Override
             public void onClick(View view) {
 
+                try {
                     Double sellAbleCoinQuantity = Double.valueOf(tv_sellAbleCoinQuantity.getText().toString());
-                    Double currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
+                    Double currentPrice = ((Activity_coinDetails)context).getGlobalCurrentPrice();
 
-                        if (et_sellCoinQuantity.length() == 0 || tv_sellCoinPrice.length() == 0|| tv_sellCoinPrice.length() == 0 ) {
-                            Toast.makeText(context, "빈곳없이 매도요청 해주세요!", Toast.LENGTH_SHORT).show();
-                            return;
+                    if(currentPrice == null){
+                        currentPrice = Double.parseDouble(tv_orderCoinPrice.getText().toString().replace(",",""));
+                    }
+
+                    if (et_sellCoinQuantity.length() == 0 || tv_sellCoinPrice.length() == 0|| tv_sellCoinPrice.length() == 0 ) {
+                        Toast.makeText(context, "빈곳없이 매도요청 해주세요!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Double sellCoinQuantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
+                    Double sellCoinPrice = Double.valueOf(tv_sellCoinPrice.getText().toString().replaceAll(",", ""));
+
+                    if(sellAbleCoinQuantity < sellCoinQuantity){
+                        Toast.makeText(context, "판매가능한 수량이 부족합니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if(round(sellCoinQuantity * currentPrice) < 5000){
+                        Toast.makeText(context, "5000KRW 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * sellCoinPrice) >= 5000) {
+
+                        Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
+                        Double quantityResult = Double.valueOf(String.format("%.8f", initQuantity - sellCoinQuantity));
+
+                        db.myCoinDAO().updateQuantity(market, quantityResult);
+
+                        db.userDAO().updatePlusMoney(round(currentPrice * sellCoinQuantity));
+
+                        Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
+
+                        if (quantity == 0.00000000) {
+                            db.myCoinDAO().delete(market);
+                            tv_sellAbleCoinQuantity.setText("0");
+                        } else {
+                            tv_sellAbleCoinQuantity.setText(String.format("%.8f", quantity));
                         }
 
-                        Double sellCoinQuantity = Double.valueOf(et_sellCoinQuantity.getText().toString());
-                        Double sellCoinPrice = Double.valueOf(tv_sellCoinPrice.getText().toString().replaceAll(",", ""));
+                        User user = db.userDAO().getAll();
+                        tv_orderableAmount.setText(decimalFormat.format(user.krw));
 
-                        if(sellAbleCoinQuantity < sellCoinQuantity){
-                            Toast.makeText(context, "판매가능한 수량이 부족합니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                        et_sellCoinQuantity.setText("0");
+                        tv_sellCoinTotalAmount.setText("0");
+                        Toast.makeText(context, "매도 되었습니다.", Toast.LENGTH_SHORT).show();
 
-                        if(round(sellCoinQuantity * currentPrice) < 5000){
-                            Toast.makeText(context, "5000이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        if (sellCoinQuantity <= sellAbleCoinQuantity && round(sellCoinQuantity * sellCoinPrice) >= 5000) {
-
-                            Double initQuantity = db.myCoinDAO().isInsert(market).getQuantity();
-                            Double quantityResult = Double.valueOf(String.format("%.8f", initQuantity - sellCoinQuantity));
-
-                            db.myCoinDAO().updateQuantity(market, quantityResult);
-
-                            db.userDAO().updatePlusMoney(round(currentPrice * sellCoinQuantity));
-
-                            Double quantity = db.myCoinDAO().isInsert(market).getQuantity();
-
-                            if (quantity == 0.00000000) {
-                                db.myCoinDAO().delete(market);
-                                tv_sellAbleCoinQuantity.setText("0");
-                            } else {
-                                tv_sellAbleCoinQuantity.setText(String.format("%.8f", quantity));
-                            }
-
-                            User user = db.userDAO().getAll();
-                            tv_orderableAmount.setText(decimalFormat.format(user.krw));
-
-                            et_sellCoinQuantity.setText("0");
-                            tv_sellCoinTotalAmount.setText("0");
-                            Toast.makeText(context, "매도 되었습니다.", Toast.LENGTH_SHORT).show();
-
-                            db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask",System.currentTimeMillis());
-                        }
+                        db.transactionInfoDAO().insert(market,currentPrice,sellCoinQuantity,round(currentPrice*sellAbleCoinQuantity),"ask",System.currentTimeMillis());
+                    }
+                }catch (NullPointerException n){
+                    Toast.makeText(context, "오류가 발생했습니다. \n다시 시도해 주세요", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -866,14 +893,20 @@ public class Fragment_coinOrder extends Fragment {
     class GetUpBitCoinArcade extends Thread {
 
         private boolean isRunning = true;
-
+        URL url;
         @Override
         public void run() {
             super.run();
+            try {
+                url = new URL("https://api.upbit.com/v1/orderbook?markets=" + market);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
             while (isRunning) {
 
                 try {
-                    URL url = new URL("https://api.upbit.com/v1/orderbook?markets=" + market);
+
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     InputStream inputStream = new BufferedInputStream(conn.getInputStream());
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
@@ -921,21 +954,31 @@ public class Fragment_coinOrder extends Fragment {
                             index2 = 0;
 
                             if (context != null) {
-                                ((Activity_coinInfo)context).runOnUiThread(new Runnable() {
+
+                                final Double currentPrice;
+
+                                try {
+                                    currentPrice = ((Activity_coinDetails)context).getGlobalCurrentPrice();
+                                }catch (Exception e){
+
+                                    e.printStackTrace();
+
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException ee) {
+                                        ee.printStackTrace();
+                                    }
+
+                                     continue;
+                                }
+
+                                ((Activity_coinDetails)context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
 
                                         if(adapter_rvCoinArcade == null){
                                             getOpeningPriceFromApi();
                                             getCoinArcadeInfo();
-                                        }
-
-                                        Double currentPrice;
-                                        try {
-                                            currentPrice = ((Activity_coinInfo)context).getGlobalCurrentPrice();
-                                        }catch (Exception e){
-                                            e.printStackTrace();
-                                            currentPrice = null;
                                         }
 
                                         if (currentPrice != null) {

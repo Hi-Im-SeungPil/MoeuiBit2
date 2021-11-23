@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+// 비동기 처리를 위해 AsyncTask.
 public class GetUpBitCoins extends AsyncTask<String,Void, JSONArray> {
 
     JSONArray jsonCoinInfo;
@@ -28,8 +29,11 @@ public class GetUpBitCoins extends AsyncTask<String,Void, JSONArray> {
 
         try {
             URL url = new URL(strings[0]);
+            // 웹 서버 HTTP 통신을 위해
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            //inputStream 은 데이터를 byte 단위로 읽어들이는 통로(읽어드린 델이터를 byte로 돌려줌)
             InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+            //bufferedReader 는 버퍼를 이용하여 ㅇ파일로부터 문자열을 읽을 때 사용
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             StringBuffer builder = new StringBuffer();
 

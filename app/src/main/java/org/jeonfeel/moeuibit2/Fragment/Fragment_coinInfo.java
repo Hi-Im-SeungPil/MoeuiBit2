@@ -97,8 +97,6 @@ public class Fragment_coinInfo extends Fragment {
 
     private void getCoinData(){
 
-        Log.d("qqqq",market);
-
         mDatabase.child("coinInfo").child(market).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

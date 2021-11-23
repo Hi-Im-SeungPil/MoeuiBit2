@@ -13,7 +13,7 @@ import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.R;
 
@@ -186,7 +186,7 @@ public class MoEuiBitMarkerView extends MarkerView {
         }catch (Exception ee){
             ee.printStackTrace();
             Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-            ((Activity_coinInfo)context).finish();
+            ((Activity_coinDetails)context).finish();
         }
     }
 

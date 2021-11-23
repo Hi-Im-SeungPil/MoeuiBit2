@@ -37,7 +37,7 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.EntryXComparator;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
 import org.jeonfeel.moeuibit2.DTOS.CoinCandleDataDTO;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
@@ -771,7 +771,7 @@ public class Fragment_chart extends Fragment {
                                     ll2 = new LimitLine(tradePrice2, String.format("%.4f",tradePrice2));
                                 }
 
-                                ((Activity_coinInfo)context).runOnUiThread(new Runnable() {
+                                ((Activity_coinDetails)context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         ll2.setLineWidth(0f);

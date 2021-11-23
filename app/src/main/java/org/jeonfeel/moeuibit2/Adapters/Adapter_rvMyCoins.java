@@ -15,7 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
+import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails;
 import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO;
 import org.jeonfeel.moeuibit2.R;
@@ -130,7 +130,7 @@ public class Adapter_rvMyCoins extends RecyclerView.Adapter<Adapter_rvMyCoins.Cu
 
                                 if(CheckNetwork.CheckNetwork(context) != 0) {
 
-                                    Intent intent = new Intent(context, Activity_coinInfo.class);
+                                    Intent intent = new Intent(context, Activity_coinDetails.class);
                                     intent.putExtra("koreanName", koreanName);
                                     intent.putExtra("symbol", symbol);
                                     intent.putExtra("market", "KRW-" + symbol);

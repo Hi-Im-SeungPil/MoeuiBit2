@@ -1,10 +1,7 @@
 package org.jeonfeel.moeuibit2.Fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -29,7 +26,6 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvCoin;
 import org.jeonfeel.moeuibit2.CheckNetwork;
 import org.jeonfeel.moeuibit2.CustomLodingDialog;
@@ -39,15 +35,12 @@ import org.jeonfeel.moeuibit2.Fragment.Chart.GetUpBitCoins;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -284,20 +277,23 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
         //업비트 api를 받아온다.
         public void getUpBitCoinsInfo() {
 
+            // 네트워크 상태 체크
             int networkStatus = CheckNetwork.CheckNetwork(context);
-
+            // 네트워크가 연결되어 있다면?
             if (networkStatus != 0) {
 
+                // 해쉬 맵으로 포지션 저장 (나중에 현재가 , 전일대비 , 거래량 순으로 정렬을 위해)
                 orderPosition = new HashMap<>();
-
+                // 만약 코인을 담는 ArrayList가 비어 있지 않으면 중복을 피하기 위해 clear
                 if (allCoinInfoArray.size() != 0) {
                     allCoinInfoArray.clear();
                 }
-
+                // coin url
                 String allCoinsInfoUrl = "https://api.upbit.com/v1/ticker?markets=" + markets;
-
+                // AsyncTask class
                 GetUpBitCoins getUpBitApi = new GetUpBitCoins();
 
+                // try catch 문으로 받아온다.
                 try {
                     JSONArray jsonArray = new JSONArray();
                     jsonArray = getUpBitApi.execute(allCoinsInfoUrl).get();
@@ -313,13 +309,16 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                             Double transactionAmount = jsonObject.getDouble("acc_trade_price_24h");
                             String[] symbol = marketsArray.get(i).split("-");
 
+                            // coin dto 객체로 만든다
                             CoinDTO coinDTO = new CoinDTO(marketsArray.get(i), koreanNamesArray.get(i), englishNamesArray.get(i)
                                     , currentPrice, dayToDay, transactionAmount, symbol[1]);
-
+                            // coin dto 객체로 만든것을 코인 ArrayList에 담는다.
                             allCoinInfoArray.add(coinDTO);
                         }
                         orderByCoins();
+                        // RecyclerView Adapter 아이템에 set한다.
                         adapter_rvCoin.setItem(allCoinInfoArray);
+                        //RecyclerView 새로고침
                         adapter_rvCoin.notifyDataSetChanged();
 
                         if(customLodingDialog.isShowing() && customLodingDialog != null){
@@ -671,6 +670,7 @@ public class Fragment_Exchange extends Fragment implements TextWatcher {
                                         e.printStackTrace();
                                     }
                                 }
+
                                 CoinDTO coinDTO = null;
 
                                 if (marketsArray != null && koreanNamesArray != null && englishNamesArray != null && symbol.length != 0) {

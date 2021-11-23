@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jeonfeel.moeuibit2.Activitys.Activity_Login;
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.BuildConfig;
 import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;

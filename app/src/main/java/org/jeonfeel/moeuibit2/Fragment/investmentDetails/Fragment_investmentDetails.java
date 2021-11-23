@@ -31,14 +31,12 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
 import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio;
 import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins;
 import org.jeonfeel.moeuibit2.CheckNetwork;
@@ -62,7 +60,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static java.lang.Math.round;
 
@@ -139,7 +136,7 @@ public class Fragment_investmentDetails extends Fragment {
     private void setCoinOrder(View rootView){
         Button btn_investmentDetailOrderByName = rootView.findViewById(R.id.btn_investmentDetailOrderByName);
         Button btn_investmentDetailOrderByYield = rootView.findViewById(R.id.btn_investmentDetailOrderByYield);
-        CoinOrder coinOrder = new CoinOrder(btn_investmentDetailOrderByName,btn_investmentDetailOrderByYield,myCoinsDTOS,currentPrices,adapter_rvMyCoins);
+        CoinOrder coinOrder = new CoinOrder(btn_investmentDetailOrderByName,btn_investmentDetailOrderByYield,myCoinsDTOS,currentPrices);
         hashMap = coinOrder.getHashMap();
     }
 

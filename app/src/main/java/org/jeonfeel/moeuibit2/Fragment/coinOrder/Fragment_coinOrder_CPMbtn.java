@@ -1,15 +1,5 @@
 package org.jeonfeel.moeuibit2.Fragment.coinOrder;
 
-import android.content.Context;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import org.jeonfeel.moeuibit2.Activitys.Activity_coinInfo;
-
-import java.text.DecimalFormat;
-
 import static java.lang.Math.abs;
 import static java.lang.Math.round;
 

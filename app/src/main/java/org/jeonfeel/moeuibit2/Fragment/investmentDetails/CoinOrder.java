@@ -18,17 +18,16 @@ import java.util.HashMap;
 
 
 public class CoinOrder {
-    private Button btn_investmentDetailOrderByName;
-    private Button btn_investmentDetailOrderByYield;
-    private ArrayList<MyCoinsDTO> myCoinsDTO;
+    private final Button btn_investmentDetailOrderByName;
+    private final Button btn_investmentDetailOrderByYield;
+    private final ArrayList<MyCoinsDTO> myCoinsDTO;
     private int orderByName;
     private int orderByYield;
-    private HashMap<String,Integer> hashMap;
-    private ArrayList<Double> currentPrices;
-    private Adapter_rvMyCoins adapter_rvMyCoins;
+    private final HashMap<String,Integer> hashMap;
+    private final ArrayList<Double> currentPrices;
 
     public CoinOrder(Button btn_investmentDetailOrderByName, Button btn_investmentDetailOrderByYield,
-                     ArrayList<MyCoinsDTO> myCoinsDTO,ArrayList<Double> currentPrices,Adapter_rvMyCoins adapter_rvMyCoins) {
+                     ArrayList<MyCoinsDTO> myCoinsDTO,ArrayList<Double> currentPrices ) {
         this.btn_investmentDetailOrderByName = btn_investmentDetailOrderByName;
         this.btn_investmentDetailOrderByYield = btn_investmentDetailOrderByYield;
         this.myCoinsDTO = myCoinsDTO;
@@ -37,7 +36,6 @@ public class CoinOrder {
         this.btn_investmentDetailOrderByName.setOnClickListener(orderWays);
         this.btn_investmentDetailOrderByYield.setOnClickListener(orderWays);
         this.currentPrices = currentPrices;
-        this.adapter_rvMyCoins = adapter_rvMyCoins;
 
         hashMap = new HashMap<>();
 
@@ -58,7 +56,7 @@ public class CoinOrder {
                 btn_investmentDetailOrderByYield.setText("수익률 ↓↑");
                 MyCoinsDTO.orderStatus = "name";
                 Collections.sort(myCoinsDTO);
-                adapter_rvMyCoins.notifyDataSetChanged();
+
                 if(hashMap.isEmpty()) {
                     for (int i = 0; i < myCoinsDTO.size(); i++) {
                         String symbol = myCoinsDTO.get(i).getMyCoinsSymbol();
@@ -79,7 +77,7 @@ public class CoinOrder {
                     MyCoinsDTO.orderStatus = "name";
                     Collections.sort(myCoinsDTO);
                     Collections.reverse(myCoinsDTO);
-                    adapter_rvMyCoins.notifyDataSetChanged();
+
                     for(int i = 0; i < myCoinsDTO.size(); i++){
                         String symbol = myCoinsDTO.get(i).getMyCoinsSymbol();
                         hashMap.replace("KRW-"+symbol,i);
@@ -88,7 +86,7 @@ public class CoinOrder {
                     btn_investmentDetailOrderByName.setText("이름 ↑");
                     MyCoinsDTO.orderStatus = "name";
                     Collections.sort(myCoinsDTO);
-                    adapter_rvMyCoins.notifyDataSetChanged();
+
                     for(int i = 0; i < myCoinsDTO.size(); i++){
                         String symbol = myCoinsDTO.get(i).getMyCoinsSymbol();
                         hashMap.replace("KRW-"+symbol,i);
@@ -112,7 +110,6 @@ public class CoinOrder {
                     MyCoinsDTO.orderStatus = "yield";
                     Collections.sort(myCoinsDTO);
                     Collections.reverse(myCoinsDTO);
-                    adapter_rvMyCoins.notifyDataSetChanged();
 
                     for(int i = 0; i < myCoinsDTO.size(); i++){
                         String symbol = myCoinsDTO.get(i).getMyCoinsSymbol();
@@ -132,8 +129,6 @@ public class CoinOrder {
 
                     MyCoinsDTO.orderStatus = "yield";
                     Collections.sort(myCoinsDTO);
-
-                    adapter_rvMyCoins.notifyDataSetChanged();
 
                     for(int i = 0; i < myCoinsDTO.size(); i++){
                         String symbol = myCoinsDTO.get(i).getMyCoinsSymbol();

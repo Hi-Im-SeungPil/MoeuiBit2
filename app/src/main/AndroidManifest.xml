@@ -45,7 +45,8 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -53,7 +54,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activitys.Activity_Login">
+        <activity android:name=".Activitys.Activity_Login"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,7 +63,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activitys.Activity_coinInfo">
+        <activity android:name=".Activitys.Activity_coinDetails.Activity_coinDetails"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -69,7 +72,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activitys.Activity_portfolio">
+        <activity android:name=".Activitys.Activity_portfolio"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -77,7 +81,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity">
+        <activity android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

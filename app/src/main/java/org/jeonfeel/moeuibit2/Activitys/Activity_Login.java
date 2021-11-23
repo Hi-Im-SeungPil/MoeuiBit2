@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -30,70 +29,49 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import org.jeonfeel.moeuibit2.MainActivity;
 import org.jeonfeel.moeuibit2.R;
+import org.jeonfeel.moeuibit2.databinding.ActivityLoginBinding;
 
 
 public class Activity_Login extends AppCompatActivity {
     private final String TAG = "Activity_Login";
     private FirebaseAuth mAuth;
-    private ConstraintLayout const_googleLogin;
     private GoogleSignInClient mGoogleSignInClient;
     static final int PERMISSIONS_REQUEST = 0x0000001;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
         OnCheckPermission();
-        FindViewById();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(this.getResources().getString(R.string.default_web_client_id))
-
                 .requestEmail()
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
         mAuth = FirebaseAuth.getInstance();
 
-        const_googleLogin.setOnClickListener(new View.OnClickListener() {
+        binding.constGoogleLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signIn();
             }
         });
-
-//        UserApiClient.getInstance().me((user, meError) -> {
-//            if (meError != null) {
-//                setBtn_kakaoLogin();
-//            } else {
-//                Log.i(TAG, "사용자 정보 요청 성공");
-//                Intent intent = new Intent(Activity_Login.this, MainActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//            return null;
-//        });
-    }
-
-    private void FindViewById(){
-        const_googleLogin = findViewById(R.id.const_googleLogin);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         alreadyLogin(currentUser);
     }
-    // [END on_start_check_user]
 
-    // [START onactivityresult]
     public ActivityResultLauncher<Intent> resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -116,9 +94,6 @@ public class Activity_Login extends AppCompatActivity {
             }
     );
 
-    // [END onactivityresult]
-
-    // [START auth_with_google]
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
@@ -140,9 +115,7 @@ public class Activity_Login extends AppCompatActivity {
                     }
                 });
     }
-    // [END auth_with_google]
 
-    // [START signin]
     private void signIn() {
 
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -150,15 +123,10 @@ public class Activity_Login extends AppCompatActivity {
         resultLauncher.launch(signInIntent);
     }
 
-    // [END signin]
-
     private void updateUI(FirebaseUser user) {
-
         if(user != null) {
-
             Intent intent = new Intent(Activity_Login.this, MainActivity.class);
             startActivity(intent);
-
             finish();
         }
     }
@@ -167,7 +135,6 @@ public class Activity_Login extends AppCompatActivity {
         if(user != null) {
             Intent intent = new Intent(Activity_Login.this, MainActivity.class);
             startActivity(intent);
-
             finish();
         }
     }
@@ -176,119 +143,26 @@ public class Activity_Login extends AppCompatActivity {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 Toast.makeText(this, "앱 실행을 위해서 반드시 설정해야 합니다", Toast.LENGTH_SHORT).show();
-
-                ActivityCompat.requestPermissions(this,
-
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-
-                        PERMISSIONS_REQUEST);
-
-            } else {
-
-                ActivityCompat.requestPermissions(this,
-
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-
-                        PERMISSIONS_REQUEST);
-
             }
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST);
         }
     }
-
 
     @Override
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-
-            case PERMISSIONS_REQUEST:
-
-                if (grantResults.length > 0
-
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    Toast.makeText(this, "앱 실행을 위한 권한이 설정 되었습니다", Toast.LENGTH_SHORT).show();
-
-
-                } else {
-
-                    Toast.makeText(this, "권한이 없습니다. 앱 설정에서 변경 해 주세요.", Toast.LENGTH_SHORT).show();
-
-                }
-
-                break;
-
+        if (requestCode == PERMISSIONS_REQUEST) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "앱 실행을 위한 권한이 설정 되었습니다", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "권한이 없습니다. 앱 설정에서 변경 해 주세요.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
-    //카카오 로그인 매서드
-//    private void setBtn_kakaoLogin() {
-//        Button btn_kakaoLogin = findViewById(R.id.btn_kakaoLogin);
-//
-//        btn_kakaoLogin.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(Activity_Login.this)) {
-//                    UserApiClient.getInstance().loginWithKakaoTalk(Activity_Login.this, (oAuthToken, error) -> {
-//                        if (error != null) {
-//                            Log.e(TAG, "로그인 실패", error);
-//                        } else if (oAuthToken != null) {
-//                            Log.i(TAG, "로그인 성공(토큰) : " + oAuthToken.getAccessToken());
-//                            setUserInfo();
-//                        }
-//                        return null;
-//                    });
-//                } else {
-//                    UserApiClient.getInstance().loginWithKakaoAccount(Activity_Login.this, (oAuthToken, error) -> {
-//                        if (error != null) {
-//                            Log.e(TAG, "로그인 실패", error);
-//                        } else if (oAuthToken != null) {
-//                            Log.i(TAG, "로그인 성공(토큰) : " + oAuthToken.getAccessToken());
-//                            setUserInfo();
-//                        }
-//                        return null;
-//                    });
-//                }
-//            }
-//        });
-//    }
-//
-//    // 유저 정보 firebase에 저장
-//    private void setUserInfo() {
-//        UserApiClient.getInstance().me((user, meError) -> {
-//
-//            if (meError != null) {
-//                Log.e(TAG, "사용자 정보 요청 실패", meError);
-//            } else {
-//                Log.i(TAG, "사용자 정보 요청 성공");
-//                long userId = user.getId();
-//                String userEmail = user.getKakaoAccount().getEmail();
-//
-//                FirebaseDatabase database = FirebaseDatabase.getInstance();
-//                DatabaseReference defaultRef = database.getReference();
-//
-//                defaultRef.child("user").child(String.valueOf(userId)).setValue(userEmail).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) { // 정보저장 성공한다면
-//                        Toast.makeText(Activity_Login.this, "유저 정보 저장 성공!", Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(Activity_Login.this, MainActivity.class);
-//                        startActivity(intent);
-//                        finish();
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() { // 정보저장 실패 한다면
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Toast.makeText(Activity_Login.this, "유저 정보 저장 실패", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//            return null;
-//        });
-//    }
 }
