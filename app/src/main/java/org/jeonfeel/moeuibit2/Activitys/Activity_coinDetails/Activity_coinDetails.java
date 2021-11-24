@@ -11,20 +11,17 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.tabs.TabLayout;
 import org.jeonfeel.moeuibit2.CheckNetwork;
-import org.jeonfeel.moeuibit2.Database.Favorite;
 import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart;
 import org.jeonfeel.moeuibit2.Fragment.Fragment_coinInfo;
 import org.jeonfeel.moeuibit2.Fragment.coinOrder.Fragment_coinOrder;
-import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
 import org.jeonfeel.moeuibit2.R;
-import org.jeonfeel.moeuibit2.databinding.ActivityCoinInfoBinding;
+import org.jeonfeel.moeuibit2.databinding.ActivityCoinDetailsBinding;
 import org.jeonfeel.moeuibit2.getUpBitAPI.Retrofit_UpBit;
 
 import java.util.List;
@@ -35,12 +32,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Activity_coinDetails extends FragmentActivity {
+public class Activity_coinDetails extends FragmentActivity implements View.OnClickListener {
 
     private final String TAG = "Activity_coinInfo";
 
-    private ActivityCoinInfoBinding binding;
-    private MoEuiBitDatabase db;
+    private ActivityCoinDetailsBinding binding;
     private coinDetailsViewModel coinDetailsViewModel;
     private String market;
     private Retrofit_UpBit retrofit;
@@ -53,11 +49,13 @@ public class Activity_coinDetails extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCoinInfoBinding.inflate(getLayoutInflater());
+        binding = ActivityCoinDetailsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         coinDetailsViewModel = new ViewModelProvider(this).get(coinDetailsViewModel.class);
+
         init();
+
         coinDetailsViewModel.getSelectedCoinModelLiveData().observe(this, new Observer<SelectedCoinModel>() {
             @Override
             public void onChanged(SelectedCoinModel selectedCoinModel) {
@@ -65,35 +63,21 @@ public class Activity_coinDetails extends FragmentActivity {
             }
         });
 
-        db = MoEuiBitDatabase.getInstance(Activity_coinDetails.this);
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
-            }
-        });
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView2.loadAd(adRequest);
+        initAds();
+        binding.btnBookMark.setOnClickListener(this);
+        binding.btnCoinInfoBackSpace.setOnClickListener(this);
 
         setTabLayout();
-        setCoinSymbol();
-        favoriteInit();
-        setBtn_bookMark();
-
-        binding.btnCoinInfoBackSpace.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
     }
     private void init(){
         retrofit = new Retrofit_UpBit();
+
         Intent intent = getIntent();
         koreanName = intent.getStringExtra("koreanName");
         symbol = intent.getStringExtra("symbol");
-        call = retrofit.getSelectedCoin("KRW-"+symbol);
+
+        call = retrofit.getSelectedCoinCall("KRW-"+symbol);
+
         if(CheckNetwork.CheckNetwork(this) == 0){
             Toast.makeText(this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
             finish();
@@ -101,45 +85,24 @@ public class Activity_coinDetails extends FragmentActivity {
             call.enqueue(new Callback<List<SelectedCoinModel>>() {
                 @Override
                 public void onResponse(Call<List<SelectedCoinModel>> call, Response<List<SelectedCoinModel>> response) {
-                    List<SelectedCoinModel> selectedCoinModels = response.body();
-                    coinDetailsViewModel.getSelectedCoinModelLiveData().setValue(selectedCoinModels.get(0));
-                    globalCurrentPrice = coinDetailsViewModel.initCoinDetails(binding, koreanName, symbol);
+
+                    if(response.isSuccessful()) {
+                        List<SelectedCoinModel> selectedCoinModels = response.body();
+                        coinDetailsViewModel.getSelectedCoinModelLiveData().setValue(selectedCoinModels.get(0));
+                        globalCurrentPrice = coinDetailsViewModel.initCoinDetails(binding, koreanName, symbol);
+                    }else{
+                        Toast.makeText(Activity_coinDetails.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+
                 }
                 @Override
                 public void onFailure(Call<List<SelectedCoinModel>> call, Throwable t) {
-
+                    t.printStackTrace();
+                    Toast.makeText(Activity_coinDetails.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             });
-        }
-    }
-
-    private void setBtn_bookMark(){
-        binding.btnBookMark.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Favorite favorite = db.favoriteDAO().select(market);
-
-                if(favorite != null){
-                    db.favoriteDAO().delete(market);
-                    binding.btnBookMark.setBackgroundResource(R.drawable.favorite_off);
-                    Toast.makeText(Activity_coinDetails.this, "관심코인에서 삭제되었습니다.", Toast.LENGTH_SHORT).show();
-                }else{
-                    db.favoriteDAO().insert(market);
-                    binding.btnBookMark.setBackgroundResource(R.drawable.favorite_on);
-                    Toast.makeText(Activity_coinDetails.this, "관심코인에 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    private void favoriteInit(){
-        Favorite favorite = db.favoriteDAO().select(market);
-
-        if(favorite != null){
-            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_on);
-        }else{
-            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_off);
         }
     }
 
@@ -191,15 +154,11 @@ public class Activity_coinDetails extends FragmentActivity {
         });
     }
 
-    private void setCoinSymbol(){
-        String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"+symbol+".png";
-        Glide.with(Activity_coinDetails.this).load(imgUrl).error(R.drawable.img_not_yet).into(binding.ivCoinLogo);
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
         if (timer == null && TT == null) {
+
             timer = new Timer();
 
             int networkStatus = CheckNetwork.CheckNetwork(Activity_coinDetails.this);
@@ -212,12 +171,17 @@ public class Activity_coinDetails extends FragmentActivity {
                         call.clone().enqueue(new Callback<List<SelectedCoinModel>>() {
                             @Override
                             public void onResponse(Call<List<SelectedCoinModel>> call, Response<List<SelectedCoinModel>> response) {
-                                List<SelectedCoinModel> selectedCoinModels = response.body();
-                                coinDetailsViewModel.getSelectedCoinModelLiveData().setValue(selectedCoinModels.get(0));
+                                if (response.isSuccessful()) {
+                                    List<SelectedCoinModel> selectedCoinModels = response.body();
+                                    coinDetailsViewModel.getSelectedCoinModelLiveData().setValue(selectedCoinModels.get(0));
+                                }else{
+                                    Toast.makeText(Activity_coinDetails.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                                }
                             }
                             @Override
                             public void onFailure(Call<List<SelectedCoinModel>> call, Throwable t) {
-
+                                t.printStackTrace();
+                                Toast.makeText(Activity_coinDetails.this, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -240,8 +204,28 @@ public class Activity_coinDetails extends FragmentActivity {
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        if( view == binding.btnBookMark ){
+            coinDetailsViewModel.updateBookMark(binding,symbol);
+        }else if( view == binding.btnCoinInfoBackSpace){
+            finish();
+        }
+    }
+
     public Double getGlobalCurrentPrice(){
         return this.globalCurrentPrice;
     }
 
+    private void initAds(){
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView2.loadAd(adRequest);
+
+    }
 }

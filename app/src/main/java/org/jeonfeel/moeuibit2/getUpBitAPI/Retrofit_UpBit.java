@@ -10,7 +10,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Retrofit_UpBit {
 
     private Retrofit retrofit;
-    private List<SelectedCoinModel> selectedCoinModels;
 
     public Retrofit_UpBit() {
 
@@ -25,7 +24,7 @@ public class Retrofit_UpBit {
         return retrofit;
     }
 
-    public retrofit2.Call<List<SelectedCoinModel>> getSelectedCoin(String market) {
+    public retrofit2.Call<List<SelectedCoinModel>> getSelectedCoinCall(String market) {
 
         UpbitService upbitService = retrofit.create(UpbitService.class);
 

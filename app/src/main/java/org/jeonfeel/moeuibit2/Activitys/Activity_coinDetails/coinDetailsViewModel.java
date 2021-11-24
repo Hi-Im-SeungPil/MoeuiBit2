@@ -5,26 +5,35 @@ import static java.lang.Math.round;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import org.jeonfeel.moeuibit2.databinding.ActivityCoinInfoBinding;
+import org.jeonfeel.moeuibit2.Database.Favorite;
+import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase;
+import org.jeonfeel.moeuibit2.R;
+import org.jeonfeel.moeuibit2.databinding.ActivityCoinDetailsBinding;
 
 import java.text.DecimalFormat;
+import android.os.Handler;
+
+import com.bumptech.glide.Glide;
+
 
 public class coinDetailsViewModel extends AndroidViewModel {
 
     private final DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private MutableLiveData<SelectedCoinModel> selectedCoinModelLiveData;
+    private final MoEuiBitDatabase db;
     private final Context context;
 
     public coinDetailsViewModel(@NonNull Application application) {
         super(application);
-
-        this.context = application;
-
+        this.context = application.getApplicationContext();
+        db = MoEuiBitDatabase.getInstance(context);
     }
 
     public MutableLiveData<SelectedCoinModel> getSelectedCoinModelLiveData(){
@@ -34,16 +43,36 @@ public class coinDetailsViewModel extends AndroidViewModel {
         return selectedCoinModelLiveData;
     }
 
-    public Double initCoinDetails(ActivityCoinInfoBinding binding,String koreanName,String symbol){
+    public Double initCoinDetails(ActivityCoinDetailsBinding binding, String koreanName, String symbol){
 
+        String imgUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"+symbol+".png";
+        Glide.with(context).load(imgUrl).error(R.drawable.img_not_yet).into(binding.ivCoinLogo);
+
+        final Favorite[] favorite = new Favorite[1];
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                favorite[0] = db.favoriteDAO().select("KRW-"+symbol);
+            }
+        }).start();
+
+        if(favorite[0] == null){
+            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_off);
+        }else{
+            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_on);
+        }
+        //---------------------------------------------------------------------------------
         Double currentPrice = 0.0;
-
+        Double dayToDay = 0.0;
+        Double changePrice = 0.0;
         SelectedCoinModel  model = selectedCoinModelLiveData.getValue();
-        currentPrice = model.getCurrentPrice();
 
-        Double dayToDay = model.getDayToDay();
-        Double changePrice = model.getChangePrice();
-
+        if (model != null) {
+            currentPrice = model.getCurrentPrice();
+            dayToDay = model.getDayToDay();
+            changePrice = model.getChangePrice();
+        }
         //--------------------------------------------------
         binding.tvCoinInfoCoinName.setText(koreanName + "( KRW / "+symbol+" )");
         //--------------------------------------------------
@@ -91,15 +120,18 @@ public class coinDetailsViewModel extends AndroidViewModel {
         return currentPrice;
     }
 
-    public Double updateCoinDetails(ActivityCoinInfoBinding binding){
+    public Double updateCoinDetails(ActivityCoinDetailsBinding binding){
 
-        Double currentPrice;
-
+        Double currentPrice = 0.0;
+        Double dayToDay = 0.0;
+        Double changePrice = 0.0;
         SelectedCoinModel model = selectedCoinModelLiveData.getValue();
 
-        currentPrice = model.getCurrentPrice();
-        Double dayToDay = model.getDayToDay();
-        Double changePrice = model.getChangePrice();
+        if(model != null) {
+            currentPrice = model.getCurrentPrice();
+            dayToDay = model.getDayToDay();
+            changePrice = model.getChangePrice();
+        }
 
         if (currentPrice >= 100) { //만약 100원보다 가격이 높으면 천단위 콤마
             String currentPriceResult = decimalFormat.format(round(currentPrice));
@@ -142,5 +174,41 @@ public class coinDetailsViewModel extends AndroidViewModel {
             binding.tvCoinInfoChangePrice.setTextColor(Color.parseColor("#000000"));
         }
         return currentPrice;
+    }
+
+    public void updateBookMark(ActivityCoinDetailsBinding binding,String symbol){
+
+        String market = "KRW-"+symbol;
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Favorite favorite = db.favoriteDAO().select(market);
+
+                if(favorite != null){
+                    db.favoriteDAO().delete(market);
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_off);
+                            Toast.makeText(context, "관심코인에서 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }else{
+                    db.favoriteDAO().insert(market);
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.btnBookMark.setBackgroundResource(R.drawable.favorite_on);
+                            Toast.makeText(context, "관심코인에 등록되었습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }
