@@ -1,9 +1,9 @@
-package org.jeonfeel.moeuibit2.Fragment
+//package org.jeonfeel.moeuibit2.Fragment
 
 
-import androidx.fragment.app.Fragment
+//import androidx.fragment.app.Fragment
 
-class ExchangeFragment : Fragment() {
+//class ExchangeFragment : Fragment() {
 
     //정렬방식 class
 //    internal inner class OrderWays constructor() : View.OnClickListener {
@@ -57,4 +57,4 @@ class ExchangeFragment : Fragment() {
 //            orderByFavoriteCoins()
 //        }
 //    }
-}
+//}
