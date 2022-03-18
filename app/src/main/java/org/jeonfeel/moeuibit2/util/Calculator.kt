@@ -9,11 +9,11 @@ object Calculator {
 
     fun tradePriceCalculator(tradePrice: Double): String {
         return if (tradePrice >= 100) {
-            round(tradePrice).toString()
+            round(tradePrice).toInt().toString()
         } else if (tradePrice < 100 && tradePrice > 1) {
-            String.format("%.2f",tradePrice)
+            String.format("%.2f", tradePrice)
         } else {
-            String.format("%.4f",tradePrice)
+            String.format("%.4f", tradePrice)
         }
     }
 
@@ -22,7 +22,10 @@ object Calculator {
     }
 
     fun accTradePrice24hCalculator(accTradePrice24h: Double): String {
-        return decimalFormat.format(round(accTradePrice24h* 0.000001))
+        return decimalFormat.format(round(accTradePrice24h * 0.000001))
     }
 
+    fun getDecimalFormat(): DecimalFormat {
+        return decimalFormat
+    }
 }

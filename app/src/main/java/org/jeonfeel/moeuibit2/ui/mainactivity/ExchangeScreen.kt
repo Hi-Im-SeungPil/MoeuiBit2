@@ -1,14 +1,19 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity
 
-import android.util.Log
+import android.annotation.SuppressLint
+import android.inputmethodservice.Keyboard
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -18,31 +23,139 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.RealExchangeModel
+import org.jeonfeel.moeuibit2.KrwExchangeModel
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
-import java.lang.Exception
+
+@Composable
+fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
+    Column(Modifier
+        .fillMaxSize()) {
+        SearchTextField()
+        SortButtons()
+        ExchangeList(exchangeViewModel.krwExchangeModelMutableStateList)
+    }
+}
+
+@Composable
+fun SearchTextField() {
+    var text by remember { mutableStateOf("") }
+
+    TextField(value = text,
+        onValueChange = { text = it },
+        maxLines = 1,
+        placeholder = { Text(text = "코인명/심볼 검색") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp))
+}
+
+@Composable
+fun SortButtons() {
+
+    val selectedButtonState = remember { mutableStateOf(-1) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp)
+    ) {
+        Text(modifier = Modifier.weight(1f), text = "")
+
+        Button(onClick = {
+            when {
+                selectedButtonState.value != 0 && selectedButtonState.value != 1 -> {
+                    selectedButtonState.value = 0
+                }
+                selectedButtonState.value == 0 -> {
+                    selectedButtonState.value = 1
+                }
+                else -> {
+                    selectedButtonState.value = -1
+                }
+            }
+        }, modifier = Modifier.weight(1f)) {
+            when (selectedButtonState.value) {
+                0 -> {
+                    Text(text = "현재가↓", fontSize = 10.sp)
+                }
+                1 -> {
+                    Text(text = "현재가↑", fontSize = 10.sp)
+                }
+                else -> {
+                    Text(text = "현재가↓↑", fontSize = 10.sp)
+                }
+            }
+        }
+
+        Button(onClick = {
+            when {
+                selectedButtonState.value != 2 && selectedButtonState.value != 3 -> {
+                    selectedButtonState.value = 2
+                }
+                selectedButtonState.value == 2 -> {
+                    selectedButtonState.value = 3
+                }
+                else -> {
+                    selectedButtonState.value = -1
+                }
+            }
+        }, modifier = Modifier.weight(1f)) {
+            when (selectedButtonState.value) {
+                2 -> {
+                    Text(text = "전일대비↓", fontSize = 10.sp, maxLines = 1)
+                }
+                3 -> {
+                    Text(text = "전일대비↑", fontSize = 10.sp, maxLines = 1)
+                }
+                else -> {
+                    Text(text = "전일대비↓↑", fontSize = 10.sp, maxLines = 1)
+                }
+            }
+        }
+
+        Button(onClick = {
+            when {
+                selectedButtonState.value != 4 && selectedButtonState.value != 5 -> {
+                    selectedButtonState.value = 4
+                }
+                selectedButtonState.value == 4 -> {
+                    selectedButtonState.value = 5
+                }
+                else -> {
+                    selectedButtonState.value = -1
+                }
+            }
+        }, modifier = Modifier.weight(1f)) {
+            when (selectedButtonState.value) {
+                4 -> {
+                    Text(text = "거래량↓", fontSize = 10.sp)
+                }
+                5 -> {
+                    Text(text = "거래량↑", fontSize = 10.sp)
+                }
+                else -> {
+                    Text(text = "거래량↓↑", fontSize = 10.sp)
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ExchangeScreenItem(
-    realExchangeModel: RealExchangeModel,
-    tradePrice: Double,
+    krwExchangeModel: KrwExchangeModel,
+    preTradePrice: Double,
 ) {
-    val signedChangeRate = Calculator.signedChangeRateCalculator(realExchangeModel.signedChangeRate)
-    val preTradePrice = Calculator.tradePriceCalculator(tradePrice)
-    val curTradePrice = Calculator.tradePriceCalculator(realExchangeModel.tradePrice)
-    var priceHL = -1
-    if (preTradePrice < curTradePrice) {
-        priceHL = 1
-    } else if (preTradePrice > curTradePrice) {
-        priceHL = 2
-    } else {
-        priceHL = 0
-    }
-    Log.d("aaaaaaaaa", priceHL.toString())
+    val signedChangeRate =
+        Calculator.signedChangeRateCalculator(krwExchangeModel.signedChangeRate)
+    val curTradePrice = Calculator.tradePriceCalculator(krwExchangeModel.tradePrice)
+    val accTradePrice24h =
+        Calculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h)
+    val koreanName = krwExchangeModel.koreanName
+    val market = krwExchangeModel.market
 
     Row(Modifier
         .fillMaxWidth()
@@ -52,7 +165,7 @@ fun ExchangeScreenItem(
             .weight(1f)
             .align(Alignment.Bottom)) {
             Text(
-                text = realExchangeModel.koreanName,
+                text = koreanName,
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -60,7 +173,7 @@ fun ExchangeScreenItem(
                     .wrapContentHeight(Alignment.Bottom),
                 style = TextStyle(textAlign = TextAlign.Center)
             )
-            Text(text = realExchangeModel.market,
+            Text(text = market,
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -68,33 +181,9 @@ fun ExchangeScreenItem(
                     .fillMaxHeight(),
                 style = TextStyle(textAlign = TextAlign.Center))
         }
-
-        lateinit var modifier1: Modifier
-
-        when (priceHL) {
-            1 -> {
-                modifier1 = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .wrapContentHeight()
-                    .border(1.dp, Color.Red)
-            }
-            2 -> {
-                modifier1 = Modifier.weight(1f)
-                    .fillMaxHeight()
-                    .wrapContentHeight()
-                    .border(1.dp,Color.Blue)
-            }
-            else -> {
-                modifier1 = Modifier.weight(1f)
-                    .fillMaxHeight()
-                    .wrapContentHeight()
-                    .border(0.dp,Color.White)
-            }
-        }
-
-        Text(text = Calculator.tradePriceCalculator(realExchangeModel.tradePrice),
-            modifier = modifier1,
+        Text(text = getCurTradePriceTextFormat(curTradePrice),
+            modifier = getTradePriceTextModifier(preTradePrice,
+                curTradePrice).weight(1f),
             style = when {
                 signedChangeRate.toFloat() > 0 -> {
                     TextStyle(textAlign = TextAlign.Center, color = Color.Red)
@@ -107,7 +196,7 @@ fun ExchangeScreenItem(
                 }
             }
         )
-        Text(text = Calculator.signedChangeRateCalculator(realExchangeModel.signedChangeRate)
+        Text(text = signedChangeRate
             .plus("%"),
             modifier = Modifier
                 .weight(1f)
@@ -125,7 +214,7 @@ fun ExchangeScreenItem(
                 }
             }
         )
-        Text(text = Calculator.accTradePrice24hCalculator(realExchangeModel.accTradePrice24h)
+        Text(text = accTradePrice24h
             .plus("백만"),
             modifier = Modifier
                 .weight(1f)
@@ -136,29 +225,60 @@ fun ExchangeScreenItem(
 }
 
 @Composable
-fun ExchangeList(realItem: SnapshotStateList<RealExchangeModel>) {
-
-    val rr = remember {
-        ArrayList<RealExchangeModel>()
+fun ExchangeList(krwItem: SnapshotStateList<KrwExchangeModel>) {
+    val preItemArray = remember {
+        ArrayList<KrwExchangeModel>()
     }
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        itemsIndexed(items = realItem
+        itemsIndexed(items = krwItem
         ) { index, krwCoinListElement ->
-            if (rr.size - 1 >= index) {
-                ExchangeScreenItem(krwCoinListElement, rr[index].tradePrice)
-                rr[index] = krwCoinListElement
-            } else if (rr.size - 1 < index) {
+            if (preItemArray.size - 1 >= index) {
+                ExchangeScreenItem(krwCoinListElement, preItemArray[index].tradePrice)
+                preItemArray[index] = krwCoinListElement
+            } else if (preItemArray.size - 1 < index) {
                 ExchangeScreenItem(krwCoinListElement, krwCoinListElement.tradePrice)
-                rr.add(krwCoinListElement)
+                preItemArray.add(krwCoinListElement)
             }
         }
     }
 }
 
-@Composable
-fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
-    ExchangeList(exchangeViewModel.listst)
+@SuppressLint("ModifierFactoryExtensionFunction")
+fun getTradePriceTextModifier(
+    preTradePrice: Double,
+    curTradePrice: String,
+): Modifier {
+    val tempPreTradePrice = Calculator.tradePriceCalculator(preTradePrice)
+    when {
+        tempPreTradePrice < curTradePrice -> {
+            return Modifier
+                .fillMaxHeight()
+                .wrapContentHeight()
+                .border(1.dp, Color.Red)
+        }
+        tempPreTradePrice > curTradePrice -> {
+            return Modifier
+                .fillMaxHeight()
+                .wrapContentHeight()
+                .border(1.dp, Color.Blue)
+        }
+        else -> {
+            return Modifier
+                .fillMaxHeight()
+                .wrapContentHeight()
+                .border(0.dp, Color.White)
+        }
+    }
+}
+
+fun getCurTradePriceTextFormat(curTradePrice: String): String {
+    val tempCurTradePrice = curTradePrice.toDouble()
+    return if (tempCurTradePrice >= 100.0) {
+        Calculator.getDecimalFormat().format(tempCurTradePrice.toInt())
+    } else {
+        curTradePrice
+    }
 }
 
 @Preview(showBackground = true)

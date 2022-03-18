@@ -1,6 +1,6 @@
 package org.jeonfeel.moeuibit2
 
-data class TempModel (
+data class TickerModel (
     val cd: String,
     val tp: Double,
     val scr: Double,

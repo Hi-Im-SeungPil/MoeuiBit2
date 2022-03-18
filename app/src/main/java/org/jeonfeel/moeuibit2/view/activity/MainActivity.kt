@@ -36,10 +36,11 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
     fun MainScreen(viewModel: ExchangeViewModel) {
         val navController = rememberNavController()
         Scaffold(
-            bottomBar = { MainBottomNavigation(navController)}
-        ) {contentPadding ->
-            Box(modifier = Modifier.padding(contentPadding)){
-                Navigation(navController,viewModel)
+            bottomBar = { MainBottomNavigation(navController) },
+
+        ) { contentPadding ->
+            Box(modifier = Modifier.padding(contentPadding)) {
+                Navigation(navController, viewModel)
             }
         }
     }
@@ -58,7 +59,8 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
             super.onBackPressed()
         } else {
             backBtnTime = curTime
-            Toast.makeText(this@MainActivity, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 

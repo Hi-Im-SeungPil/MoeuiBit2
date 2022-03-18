@@ -2,7 +2,7 @@ package org.jeonfeel.moeuibit2
 
 import androidx.compose.runtime.Stable
 
-data class RealExchangeModel(
+data class KrwExchangeModel(
     @Stable
     val koreanName: String,
     @Stable
