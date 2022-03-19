@@ -31,9 +31,4 @@ object UpBitWebSocket {
     fun close() {
 //        socket.close()
     }
-
-//    fun getRealTimeKrwCoinList(markets: String) {
-//        val uuid = UUID.randomUUID().toString()
-//        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${markets}],"isOnlyRealtime":true},{"format":"SIMPLE"}]""")
-//    }
 }

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,11 +22,10 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
 
     private var backBtnTime: Long = 0
     private var text = ""
+    private val viewModel: ExchangeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val viewModel: ExchangeViewModel by viewModels()
 
         setContent {
             MainScreen(viewModel)
@@ -35,9 +35,10 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
     @Composable
     fun MainScreen(viewModel: ExchangeViewModel) {
         val navController = rememberNavController()
+//        val scaffoldState = rememberScaffoldState()
         Scaffold(
             bottomBar = { MainBottomNavigation(navController) },
-
+//            topBar =
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
                 Navigation(navController, viewModel)
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
     @Preview(showBackground = true)
     @Composable
     fun MainScreenPreview() {
-//        MainScreen()
+        MainScreen(viewModel)
     }
 
 

@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {

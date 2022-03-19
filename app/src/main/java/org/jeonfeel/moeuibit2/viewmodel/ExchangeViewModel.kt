@@ -32,9 +32,10 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
 
     private val krwCoinListStringBuffer = StringBuffer()
 
-    private val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
+    val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
 
     var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
+    var searchTextFieldValue = mutableStateOf("")
 
     init {
         UpBitWebSocket.getListener().setMessageListener1(this)
@@ -86,12 +87,16 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
     private fun createKrwExchangeModelList() {
         for (i in 0 until krwMarketCodeList.size) {
             val koreanName = krwMarketCodeList[i].korean_name
+            val englishName = krwMarketCodeList[i].english_name
             val market = krwMarketCodeList[i].market
             val tradePrice = krwTickerList[i].tradePrice
             val signedChangeRate = krwTickerList[i].signedChangePrice
             val accTradePrice24h = krwTickerList[i].accTradePrice24h
+            val symbol = market.substring(4)
             krwExchangeModelList.add(KrwExchangeModel(koreanName,
+                englishName,
                 market,
+                symbol,
                 tradePrice,
                 signedChangeRate,
                 accTradePrice24h))
@@ -118,7 +123,9 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
         val position = krwExchangeModelListPosition[model.cd] ?: -1
         krwExchangeModelList[position] =
             KrwExchangeModel(krwMarketCodeList[position].korean_name,
+                krwMarketCodeList[position].english_name,
                 model.cd,
+                model.cd.substring(4),
                 model.tp,
                 model.scr,
                 model.atp24h)
