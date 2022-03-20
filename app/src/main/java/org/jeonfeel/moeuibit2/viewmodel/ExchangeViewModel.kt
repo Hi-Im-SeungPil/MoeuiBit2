@@ -25,14 +25,17 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val repository = ExchangeViewModelRepository()
     private val gson = Gson()
+    var isSocketRunning = true
 
-    private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
-    private val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
+    private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
+    private val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
 
     private val krwCoinListStringBuffer = StringBuffer()
 
+    val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
+    val preItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
 
     var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
     var searchTextFieldValue = mutableStateOf("")
@@ -55,6 +58,10 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
                     }
                 }
                 krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
+                for (i in 0 until krwMarketCodeList.size) {
+                    krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
+                        listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
+                }
                 requestKrwTicker(krwCoinListStringBuffer.toString())
             }
 
@@ -100,17 +107,21 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
                 tradePrice,
                 signedChangeRate,
                 accTradePrice24h))
-            krwExchangeModelListPosition[market] = i
+        }
+        krwExchangeModelList.sortByDescending { it.accTradePrice24h }
+        for(i in krwExchangeModelList.indices) {
+            krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
         }
         krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+        preItemArray.addAll(krwExchangeModelList)
         UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
         updateExchange()
     }
 
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
-            while (true){
-                UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
+            while (isSocketRunning) {
+//                UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
                 krwExchangeModelMutableStateList.clear()
                 krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
                 delay(300)
@@ -122,8 +133,8 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
         val position = krwExchangeModelListPosition[model.cd] ?: -1
         krwExchangeModelList[position] =
-            KrwExchangeModel(krwMarketCodeList[position].korean_name,
-                krwMarketCodeList[position].english_name,
+            KrwExchangeModel(krwCoinKoreanNameAndEngName[model.cd]!![0],
+                krwCoinKoreanNameAndEngName[model.cd]!![1],
                 model.cd,
                 model.cd.substring(4),
                 model.tp,

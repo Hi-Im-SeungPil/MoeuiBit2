@@ -113,13 +113,8 @@ fun ExchangeScreenLazyColumn(
     KrwExchangeModelList: SnapshotStateList<KrwExchangeModel>,
     searchTextFieldValue: MutableState<String>,
     KrwExchangeModelListPosition: HashMap<String, Int>,
+    preItemArray: ArrayList<KrwExchangeModel>
 ) {
-    val preItemArray = remember {
-        ArrayList<KrwExchangeModel>()
-    }
-    if (preItemArray.size == 0) {
-        preItemArray.addAll(KrwExchangeModelList)
-    }
 
     var filteredKrwExchangeList: SnapshotStateList<KrwExchangeModel>
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -128,12 +123,12 @@ fun ExchangeScreenLazyColumn(
             KrwExchangeModelList
         } else {
             val resultList = SnapshotStateList<KrwExchangeModel>()
-            for (k in KrwExchangeModelList) {
-                if (k.koreanName.contains(searchedText) || k.EnglishName.uppercase()
-                        .contains(searchedText.uppercase()) || k.symbol.uppercase().contains(
+            for (element in KrwExchangeModelList) {
+                if (element.koreanName.contains(searchedText) || element.EnglishName.uppercase()
+                        .contains(searchedText.uppercase()) || element.symbol.uppercase().contains(
                         searchedText.uppercase())
                 ) {
-                    resultList.add(k)
+                    resultList.add(element)
                 }
             }
             resultList

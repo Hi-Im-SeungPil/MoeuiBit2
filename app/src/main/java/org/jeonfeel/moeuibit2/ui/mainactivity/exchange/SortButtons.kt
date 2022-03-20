@@ -11,9 +11,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
-fun SortButtons() {
+fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
     val selectedButtonState = remember { mutableStateOf(-1) }
     Row(
         modifier = Modifier
@@ -34,6 +36,7 @@ fun SortButtons() {
                     selectedButtonState.value = -1
                 }
             }
+            sortList(exchangeViewModel, selectedButtonState.value)
         }, modifier = Modifier.weight(1f)) {
             when (selectedButtonState.value) {
                 0 -> {
@@ -60,6 +63,7 @@ fun SortButtons() {
                     selectedButtonState.value = -1
                 }
             }
+            sortList(exchangeViewModel, selectedButtonState.value)
         }, modifier = Modifier.weight(1f)) {
             when (selectedButtonState.value) {
                 2 -> {
@@ -86,6 +90,7 @@ fun SortButtons() {
                     selectedButtonState.value = -1
                 }
             }
+            sortList(exchangeViewModel, selectedButtonState.value)
         }, modifier = Modifier.weight(1f)) {
             when (selectedButtonState.value) {
                 4 -> {
@@ -100,4 +105,77 @@ fun SortButtons() {
             }
         }
     }
+}
+
+fun sortList(exchangeViewModel: ExchangeViewModel, sortStandard: Int) {
+    exchangeViewModel.isSocketRunning = false
+
+    when (sortStandard) {
+        0 -> {
+            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
+                element.tradePrice
+            }
+            exchangeViewModel.preItemArray.sortByDescending { element ->
+                element.tradePrice
+            }
+        }
+        1 -> {
+            exchangeViewModel.krwExchangeModelList.sortBy { element ->
+                element.tradePrice
+            }
+            exchangeViewModel.preItemArray.sortBy { element ->
+                element.tradePrice
+            }
+        }
+        2 -> {
+            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
+                element.signedChangeRate
+            }
+            exchangeViewModel.preItemArray.sortByDescending { element ->
+                element.signedChangeRate
+            }
+        }
+        3 -> {
+            exchangeViewModel.krwExchangeModelList.sortBy { element ->
+                element.signedChangeRate
+            }
+            exchangeViewModel.preItemArray.sortBy { element ->
+                element.signedChangeRate
+            }
+        }
+        4 -> {
+            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
+                element.accTradePrice24h
+            }
+            exchangeViewModel.preItemArray.sortByDescending { element ->
+                element.accTradePrice24h
+            }
+        }
+        5 -> {
+            exchangeViewModel.krwExchangeModelList.sortBy { element ->
+                element.accTradePrice24h
+            }
+            exchangeViewModel.preItemArray.sortBy { element ->
+                element.accTradePrice24h
+            }
+        }
+        else -> {
+            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
+                element.accTradePrice24h
+            }
+            exchangeViewModel.preItemArray.sortByDescending { element ->
+                element.accTradePrice24h
+            }
+        }
+    }
+
+    for (i in 0 until exchangeViewModel.krwExchangeModelList.size) {
+        exchangeViewModel.krwExchangeModelListPosition[exchangeViewModel.krwExchangeModelList[i].market] =
+            i
+    }
+
+    exchangeViewModel.krwExchangeModelMutableStateList.clear()
+    exchangeViewModel.krwExchangeModelMutableStateList.addAll(exchangeViewModel.krwExchangeModelList)
+
+    exchangeViewModel.isSocketRunning = true
 }

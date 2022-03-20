@@ -12,9 +12,10 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
     Column(Modifier
         .fillMaxSize()) {
         SearchTextField(exchangeViewModel.searchTextFieldValue)
-        SortButtons()
+        SortButtons(exchangeViewModel)
         ExchangeScreenLazyColumn(exchangeViewModel.krwExchangeModelMutableStateList,
             exchangeViewModel.searchTextFieldValue,
-            exchangeViewModel.krwExchangeModelListPosition)
+            exchangeViewModel.krwExchangeModelListPosition,
+            exchangeViewModel.preItemArray)
     }
 }
