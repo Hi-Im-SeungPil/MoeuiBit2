@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="@color/statusBar">
+        android:background="@color/C0F0F5C">
 
         <TextView
             android:layout_width="wrap_content"
@@ -69,7 +69,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:fontFamily="@font/nanum_square_round_b"
                     android:background="@drawable/rv_coin_border"/>
 
@@ -85,7 +85,7 @@
                     android:background="#FAFAFA"
                     android:text="▲"
                     android:textSize="17sp"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:layout_marginRight="10dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -275,7 +275,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:fontFamily="@font/nanum_square_round_b"
                     android:background="@drawable/rv_coin_border"/>
 
@@ -289,7 +289,7 @@
                     android:background="#FAFAFA"
                     android:text="▲"
                     android:textSize="17sp"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:layout_marginRight="10dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -578,7 +578,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:fontFamily="@font/nanum_square_round_b"
                     android:background="@drawable/rv_coin_border"/>
 
@@ -592,7 +592,7 @@
                     android:background="#FAFAFA"
                     android:text="▲"
                     android:textSize="17sp"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:layout_marginRight="10dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -697,7 +697,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:fontFamily="@font/nanum_square_round_b"
                     android:background="@drawable/rv_coin_border"/>
 
@@ -711,7 +711,7 @@
                     android:background="#FAFAFA"
                     android:text="▲"
                     android:textSize="17sp"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:layout_marginRight="10dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -812,7 +812,7 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:fontFamily="@font/nanum_square_round_b"
                     android:background="@drawable/rv_coin_border"/>
 
@@ -826,7 +826,7 @@
                     android:background="#FAFAFA"
                     android:text="▲"
                     android:textSize="17sp"
-                    android:textColor="@color/statusBar"
+                    android:textColor="@color/C0F0F5C"
                     android:layout_marginRight="10dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/drawable/radio_selector.xml" value="0.1125" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/drawable/rv_coin_border.xml" value="0.117" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/drawable/spinner_item.xml" value="0.19074074074074074" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/drawable/switch_thumb.xml" value="0.19074074074074074" />
@@ -14,6 +15,7 @@
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_exchange.xml" value="0.25" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_exchange2.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_investment_details.xml" value="0.2" />
+        <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_setting.xml" value="0.1" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/rv_coin_item.xml" value="0.25" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/menu/menu_bottom.xml" value="0.14074074074074075" />
       </map>

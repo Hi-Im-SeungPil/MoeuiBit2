@@ -6,12 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.ExchangeModel
-import org.jeonfeel.moeuibit2.KrwExchangeModel
-import org.jeonfeel.moeuibit2.TickerModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
 import org.jeonfeel.moeuibit2.listener.OnMessageReceiveListener
@@ -19,18 +20,19 @@ import org.jeonfeel.moeuibit2.repository.ExchangeViewModelRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
+@HiltViewModel
+class ExchangeViewModel @Inject constructor(private val exchangeViewModelRepository: ExchangeViewModelRepository) :
+    ViewModel(), OnMessageReceiveListener {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
-    private val repository = ExchangeViewModelRepository()
     private val gson = Gson()
     var isSocketRunning = true
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
     private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
     private val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
-
     private val krwCoinListStringBuffer = StringBuffer()
 
     val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
@@ -42,53 +44,48 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
 
     init {
         UpBitWebSocket.getListener().setMessageListener1(this)
-        requestKrwMarketCode()
+        viewModelScope.launch {
+            requestKrwMarketCode()
+            requestKrwTicker(krwCoinListStringBuffer.toString())
+            createKrwExchangeModelList()
+            updateExchange()
+        }
     }
 
     // get market, koreanName, englishName, warning
-    private fun requestKrwMarketCode() {
-        repository.getMarketCodeCall().enqueue(object : Callback<JsonArray> {
-            override fun onResponse(call: Call<JsonArray>, response: Response<JsonArray>) {
-                val jsonArray = response.body()
-                for (i in 0 until jsonArray!!.size()) {
-                    val krwMarketCode = gson.fromJson(jsonArray[i], MarketCodeModel::class.java)
-                    if (krwMarketCode.market.contains("KRW-")) {
-                        krwCoinListStringBuffer.append("${krwMarketCode.market},")
-                        krwMarketCodeList.add(krwMarketCode)
-                    }
+    private suspend fun requestKrwMarketCode() {
+        val resultMarketCode = exchangeViewModelRepository.getMarketCodeService()
+        if (!resultMarketCode.isJsonNull){
+            for (i in 0 until resultMarketCode.size()) {
+                val krwMarketCode =
+                    gson.fromJson(resultMarketCode[i], MarketCodeModel::class.java)
+                if (krwMarketCode.market.contains("KRW-")) {
+                    krwCoinListStringBuffer.append("${krwMarketCode.market},")
+                    krwMarketCodeList.add(krwMarketCode)
                 }
-                krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
-                for (i in 0 until krwMarketCodeList.size) {
-                    krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
-                        listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
-                }
-                requestKrwTicker(krwCoinListStringBuffer.toString())
             }
-
-            override fun onFailure(call: Call<JsonArray>, t: Throwable) {
-                Log.e(TAG, "ERROR => ${t.message}")
+            krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
+            for (i in 0 until krwMarketCodeList.size) {
+                krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
+                    listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
             }
-        })
+        } else {
+            Log.e(TAG,"requestKrwMarketCode Error!")
+        }
     }
 
     // get market, tradePrice, signed_change_price, acc_trade_price_24h
-    private fun requestKrwTicker(markets: String) {
-        Log.e(TAG, markets)
-        repository.getKrwTickerCall(markets).enqueue(object : Callback<JsonArray> {
-            override fun onResponse(call: Call<JsonArray>, response: Response<JsonArray>) {
-                val jsonArray = response.body()
-                Log.e(TAG, response.body().toString())
-                for (i in 0 until jsonArray!!.size()) {
-                    val krwTicker = gson.fromJson(jsonArray[i], ExchangeModel::class.java)
-                    krwTickerList.add(krwTicker)
-                }
-                createKrwExchangeModelList()
+    private suspend fun requestKrwTicker(markets: String) {
+        val resultKrwTicker =
+            exchangeViewModelRepository.getKrwTickerService(markets)
+        if (!resultKrwTicker.isJsonNull){
+            for (i in 0 until resultKrwTicker.size()) {
+                val krwTicker = gson.fromJson(resultKrwTicker[i], ExchangeModel::class.java)
+                krwTickerList.add(krwTicker)
             }
-
-            override fun onFailure(call: Call<JsonArray>, t: Throwable) {
-                Log.e(TAG, "ERROR => ${t.message}")
-            }
-        })
+        } else {
+            Log.e(TAG,"requestKrwTicker Error!")
+        }
     }
 
     private fun createKrwExchangeModelList() {
@@ -109,19 +106,17 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
                 accTradePrice24h))
         }
         krwExchangeModelList.sortByDescending { it.accTradePrice24h }
-        for(i in krwExchangeModelList.indices) {
+        for (i in krwExchangeModelList.indices) {
             krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
         }
         krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
         preItemArray.addAll(krwExchangeModelList)
         UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
-        updateExchange()
     }
 
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isSocketRunning) {
-//                UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
                 krwExchangeModelMutableStateList.clear()
                 krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
                 delay(300)
@@ -131,14 +126,14 @@ class ExchangeViewModel : ViewModel(), OnMessageReceiveListener {
 
     override fun onMessageReceiveListener(tickerJsonObject: String) {
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-        val position = krwExchangeModelListPosition[model.cd] ?: -1
+        val position = krwExchangeModelListPosition[model.code] ?: -1
         krwExchangeModelList[position] =
-            KrwExchangeModel(krwCoinKoreanNameAndEngName[model.cd]!![0],
-                krwCoinKoreanNameAndEngName[model.cd]!![1],
-                model.cd,
-                model.cd.substring(4),
-                model.tp,
-                model.scr,
-                model.atp24h)
+            KrwExchangeModel(krwCoinKoreanNameAndEngName[model.code]!![0],
+                krwCoinKoreanNameAndEngName[model.code]!![1],
+                model.code,
+                model.code.substring(4),
+                model.tradePrice,
+                model.signedChangeRate,
+                model.accTradePrice24h)
     }
 }

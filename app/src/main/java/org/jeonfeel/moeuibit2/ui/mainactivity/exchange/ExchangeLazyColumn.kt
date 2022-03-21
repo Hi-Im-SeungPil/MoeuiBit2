@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.jeonfeel.moeuibit2.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.util.Calculator
 
 @Composable
@@ -113,11 +112,11 @@ fun ExchangeScreenLazyColumn(
     KrwExchangeModelList: SnapshotStateList<KrwExchangeModel>,
     searchTextFieldValue: MutableState<String>,
     KrwExchangeModelListPosition: HashMap<String, Int>,
-    preItemArray: ArrayList<KrwExchangeModel>
+    preItemArray: ArrayList<KrwExchangeModel>,
 ) {
-
     var filteredKrwExchangeList: SnapshotStateList<KrwExchangeModel>
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        //search-----------------------------------------------------
         val searchedText = searchTextFieldValue.value
         filteredKrwExchangeList = if (searchedText.isEmpty()) {
             KrwExchangeModelList
@@ -133,6 +132,7 @@ fun ExchangeScreenLazyColumn(
             }
             resultList
         }
+        //search-----------------------------------------------------
         itemsIndexed(items = filteredKrwExchangeList
         ) { _, krwCoinListElement ->
             ExchangeScreenLazyColumnItem(krwCoinListElement,

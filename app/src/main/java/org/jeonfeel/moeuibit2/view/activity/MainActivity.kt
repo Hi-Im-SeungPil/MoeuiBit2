@@ -13,11 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.listener.OnMessageReceiveListener
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.Navigation
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
 
     private var backBtnTime: Long = 0

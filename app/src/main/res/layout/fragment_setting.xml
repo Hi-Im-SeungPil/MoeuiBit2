@@ -13,7 +13,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="@color/statusBar"
+        android:background="@color/C0F0F5C"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <TextView

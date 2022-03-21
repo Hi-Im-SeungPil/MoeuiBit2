@@ -7,8 +7,8 @@ import retrofit2.http.Query
 
 interface UpBitService {
     @GET("https://api.upbit.com/v1/market/all?isDetails=true")
-    fun getMarketCode(): Call<JsonArray>
+    suspend fun getMarketCode(): JsonArray
 
     @GET("https://api.upbit.com/v1/ticker")
-    fun getKrwTicker(@Query("markets") markets: String): Call<JsonArray>
+    suspend fun getKrwTicker(@Query("markets") markets: String): JsonArray
 }

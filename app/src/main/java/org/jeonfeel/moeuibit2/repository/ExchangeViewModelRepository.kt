@@ -1,19 +1,21 @@
 package org.jeonfeel.moeuibit2.repository
 
 import com.google.gson.JsonArray
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.RetrofitUpBit
+import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 import retrofit2.Call
 
-class ExchangeViewModelRepository {
+class ExchangeViewModelRepository(private val upBitService: UpBitService) {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
 
-    fun getMarketCodeCall(): Call<JsonArray> {
-        return RetrofitUpBit().getMarketCodeCall()
+    suspend fun getMarketCodeService(): JsonArray {
+        return upBitService.getMarketCode()
     }
 
-    fun getKrwTickerCall(markets: String): Call<JsonArray> {
-        return RetrofitUpBit().getKrwTickerCall(markets)
+    suspend fun getKrwTickerService(markets: String): JsonArray {
+        return upBitService.getKrwTicker(markets)
     }
 }
