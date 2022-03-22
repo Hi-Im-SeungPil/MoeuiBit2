@@ -12,7 +12,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,7 +40,20 @@ fun ExchangeScreenLazyColumnItem(
     Row(Modifier
         .fillMaxWidth()
         .height(50.dp)
-        .border(BorderStroke(0.5.dp, color = Color.LightGray))) {
+        .drawWithContent {
+            drawContent()
+            clipRect {
+                val strokeWidth = Stroke.DefaultMiter
+                val y = size.height
+                drawLine(
+                    brush = SolidColor(Color.LightGray),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Square,
+                    start = Offset.Zero.copy(y = y),
+                    end = Offset(x = size.width, y = y)
+                )
+            }
+        }) {
 
         Column(Modifier
             .weight(1f)
