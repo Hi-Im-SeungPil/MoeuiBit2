@@ -22,8 +22,10 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
 fun ExchangeScreenLazyColumnItem(
@@ -127,37 +129,17 @@ fun ExchangeScreenLazyColumnItem(
 }
 
 @Composable
-fun ExchangeScreenLazyColumn(
-    KrwExchangeModelList: SnapshotStateList<KrwExchangeModel>,
-    searchTextFieldValue: MutableState<String>,
-    KrwExchangeModelListPosition: HashMap<String, Int>,
-    preItemArray: ArrayList<KrwExchangeModel>,
-) {
-    var filteredKrwExchangeList: SnapshotStateList<KrwExchangeModel>
+fun ExchangeScreenLazyColumn(exchangeViewModel: ExchangeViewModel = viewModel()) {
+
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        //search-----------------------------------------------------
-        val searchedText = searchTextFieldValue.value
-        filteredKrwExchangeList = if (searchedText.isEmpty()) {
-            KrwExchangeModelList
-        } else {
-            val resultList = SnapshotStateList<KrwExchangeModel>()
-            for (element in KrwExchangeModelList) {
-                if (element.koreanName.contains(searchedText) || element.EnglishName.uppercase()
-                        .contains(searchedText.uppercase()) || element.symbol.uppercase().contains(
-                        searchedText.uppercase())
-                ) {
-                    resultList.add(element)
-                }
-            }
-            resultList
-        }
-        //search-----------------------------------------------------
+        val filteredKrwExchangeList = exchangeViewModel.filterKrwCoinList()
         itemsIndexed(items = filteredKrwExchangeList
         ) { _, krwCoinListElement ->
             ExchangeScreenLazyColumnItem(krwCoinListElement,
-                preItemArray[KrwExchangeModelListPosition[krwCoinListElement.market]
+                exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
                     ?: 0].tradePrice)
-            preItemArray[KrwExchangeModelListPosition[krwCoinListElement.market] ?: 0] =
+            exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
+                ?: 0] =
                 krwCoinListElement
         }
     }

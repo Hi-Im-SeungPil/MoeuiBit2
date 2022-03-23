@@ -29,11 +29,8 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
     Column(Modifier
         .fillMaxSize()) {
-        SearchBasicTextFieldResult(exchangeViewModel.searchTextFieldValue)
+        SearchBasicTextFieldResult(exchangeViewModel)
         SortButtons(exchangeViewModel)
-        ExchangeScreenLazyColumn(exchangeViewModel.krwExchangeModelMutableStateList,
-            exchangeViewModel.searchTextFieldValue,
-            exchangeViewModel.krwExchangeModelListPosition,
-            exchangeViewModel.preItemArray)
+        ExchangeScreenLazyColumn(exchangeViewModel)
     }
 }

@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -24,11 +26,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
 fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
@@ -54,8 +53,8 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(modifier = Modifier
-            .weight(1f)
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp), text = "")
+            .weight(1f), text = "")
+//--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
             when {
                 selectedButtonState.value != 0 && selectedButtonState.value != 1 -> {
@@ -68,8 +67,10 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     selectedButtonState.value = -1
                 }
             }
-            sortList(exchangeViewModel, selectedButtonState.value)
-        }, modifier = Modifier.weight(1f),
+            exchangeViewModel.sortList(selectedButtonState.value)
+        }, modifier = Modifier
+            .weight(1f)
+            .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
             colors = getButtonBackgroundColor(buttonNum = 1,
                 buttonState = selectedButtonState.value),
             shape = RectangleShape) {
@@ -91,7 +92,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 }
             }
         }
-
+//--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
             when {
                 selectedButtonState.value != 2 && selectedButtonState.value != 3 -> {
@@ -104,7 +105,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     selectedButtonState.value = -1
                 }
             }
-            sortList(exchangeViewModel, selectedButtonState.value)
+            exchangeViewModel.sortList(selectedButtonState.value)
         }, modifier = Modifier
             .weight(1f)
             .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
@@ -132,7 +133,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 }
             }
         }
-
+//--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
             when {
                 selectedButtonState.value != 4 && selectedButtonState.value != 5 -> {
@@ -145,7 +146,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     selectedButtonState.value = -1
                 }
             }
-            sortList(exchangeViewModel, selectedButtonState.value)
+            exchangeViewModel.sortList(selectedButtonState.value)
         }, modifier = Modifier
             .weight(1f)
             .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
@@ -171,63 +172,6 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
             }
         }
     }
-}
-
-fun sortList(exchangeViewModel: ExchangeViewModel, sortStandard: Int) {
-    exchangeViewModel.isSocketRunning = false
-
-    when (sortStandard) {
-        0 -> {
-            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
-                element.tradePrice
-            }
-        }
-        1 -> {
-            exchangeViewModel.krwExchangeModelList.sortBy { element ->
-                element.tradePrice
-            }
-        }
-        2 -> {
-            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
-                element.signedChangeRate
-            }
-        }
-        3 -> {
-            exchangeViewModel.krwExchangeModelList.sortBy { element ->
-                element.signedChangeRate
-            }
-        }
-        4 -> {
-            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
-                element.accTradePrice24h
-            }
-        }
-        5 -> {
-            exchangeViewModel.krwExchangeModelList.sortBy { element ->
-                element.accTradePrice24h
-            }
-        }
-        else -> {
-            exchangeViewModel.krwExchangeModelList.sortByDescending { element ->
-                element.accTradePrice24h
-            }
-        }
-    }
-
-    exchangeViewModel.preItemArray.clear()
-    exchangeViewModel.preItemArray.addAll(exchangeViewModel.krwExchangeModelList)
-
-    for (i in 0 until exchangeViewModel.krwExchangeModelList.size) {
-        exchangeViewModel.krwExchangeModelListPosition[exchangeViewModel.krwExchangeModelList[i].market] =
-            i
-    }
-
-    for (i in 0 until exchangeViewModel.krwExchangeModelList.size) {
-        exchangeViewModel.krwExchangeModelMutableStateList[i] =
-            exchangeViewModel.krwExchangeModelList[i]
-    }
-
-    exchangeViewModel.isSocketRunning = true
 }
 
 @Composable

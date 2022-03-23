@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -35,7 +36,7 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
     private val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
     private val krwCoinListStringBuffer = StringBuffer()
 
-    val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
+    private val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     val preItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
 
@@ -52,10 +53,13 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
         }
     }
 
+    /**
+     * request data
+     * */
     // get market, koreanName, englishName, warning
     private suspend fun requestKrwMarketCode() {
         val resultMarketCode = exchangeViewModelRepository.getMarketCodeService()
-        if (!resultMarketCode.isJsonNull){
+        if (!resultMarketCode.isJsonNull) {
             for (i in 0 until resultMarketCode.size()) {
                 val krwMarketCode =
                     gson.fromJson(resultMarketCode[i], MarketCodeModel::class.java)
@@ -70,7 +74,7 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
                     listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
             }
         } else {
-            Log.e(TAG,"requestKrwMarketCode Error!")
+            Log.e(TAG, "requestKrwMarketCode Error!")
         }
     }
 
@@ -78,13 +82,13 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
     private suspend fun requestKrwTicker(markets: String) {
         val resultKrwTicker =
             exchangeViewModelRepository.getKrwTickerService(markets)
-        if (!resultKrwTicker.isJsonNull){
+        if (!resultKrwTicker.isJsonNull) {
             for (i in 0 until resultKrwTicker.size()) {
                 val krwTicker = gson.fromJson(resultKrwTicker[i], ExchangeModel::class.java)
                 krwTickerList.add(krwTicker)
             }
         } else {
-            Log.e(TAG,"requestKrwTicker Error!")
+            Log.e(TAG, "requestKrwTicker Error!")
         }
     }
 
@@ -117,11 +121,92 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isSocketRunning) {
-                krwExchangeModelMutableStateList.clear()
-                krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+                for (i in 0 until krwExchangeModelMutableStateList.size) {
+                    krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+                }
                 delay(300)
             }
         }
+    }
+
+    /**
+     * data sorting, filter
+     * */
+    fun filterKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
+        return if (searchTextFieldValue.value.isEmpty()) {
+            krwExchangeModelMutableStateList
+        } else {
+            val resultList = SnapshotStateList<KrwExchangeModel>()
+            for (element in krwExchangeModelMutableStateList) {
+                if (element.koreanName.contains(searchTextFieldValue.value) || element.EnglishName.uppercase()
+                        .contains(searchTextFieldValue.value.uppercase()) || element.symbol.uppercase()
+                        .contains(
+                            searchTextFieldValue.value.uppercase())
+                ) {
+                    resultList.add(element)
+                }
+            }
+            resultList
+        }
+    }
+
+    fun sortList(sortStandard: Int) {
+        isSocketRunning = false
+
+        when (sortStandard) {
+            0 -> {
+                krwExchangeModelList.sortByDescending { element ->
+                    element.tradePrice
+                }
+            }
+            1 -> {
+                krwExchangeModelList.sortBy { element ->
+                    element.tradePrice
+                }
+            }
+            2 -> {
+                krwExchangeModelList.sortByDescending { element ->
+                    element.signedChangeRate
+                }
+            }
+            3 -> {
+                krwExchangeModelList.sortBy { element ->
+                    element.signedChangeRate
+                }
+            }
+            4 -> {
+                krwExchangeModelList.sortByDescending { element ->
+                    element.accTradePrice24h
+                }
+            }
+            5 -> {
+                krwExchangeModelList.sortBy { element ->
+                    element.accTradePrice24h
+                }
+            }
+            else -> {
+                krwExchangeModelList.sortByDescending { element ->
+                    element.accTradePrice24h
+                }
+            }
+        }
+
+        for (i in 0 until preItemArray.size) {
+            preItemArray[i] =
+                krwExchangeModelList[i]
+        }
+
+        for (i in 0 until krwExchangeModelList.size) {
+            krwExchangeModelListPosition[krwExchangeModelList[i].market] =
+                i
+        }
+
+        for (i in 0 until krwExchangeModelList.size) {
+            krwExchangeModelMutableStateList[i] =
+                krwExchangeModelList[i]
+        }
+
+        isSocketRunning = true
     }
 
     override fun onMessageReceiveListener(tickerJsonObject: String) {
