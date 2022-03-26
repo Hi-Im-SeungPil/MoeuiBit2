@@ -119,6 +119,8 @@ dependencies {
     //inset
     implementation "com.google.accompanist:accompanist-insets:0.22.0-rc"
     implementation "com.google.accompanist:accompanist-insets-ui:0.22.0-rc"
+    //localBroadcastManager
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 }
 repositories {
     mavenCentral()

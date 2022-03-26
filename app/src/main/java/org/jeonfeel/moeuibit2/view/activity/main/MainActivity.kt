@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.view.activity
+package org.jeonfeel.moeuibit2.view.activity.main
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,29 +8,56 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.jeonfeel.moeuibit2.listener.OnMessageReceiveListener
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.Navigation
+import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.util.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
+import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
+class MainActivity : AppCompatActivity() {
 
     private var backBtnTime: Long = 0
-    private var text = ""
-    private val viewModel: ExchangeViewModel by viewModels()
+    private val exchangeViewModel: ExchangeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        initActivity()
+
         setContent {
-            MainScreen(viewModel)
+            MainScreen(exchangeViewModel)
+        }
+    }
+
+    private fun initActivity() {
+        initNetworkStateMonitor()
+    }
+
+    private fun initNetworkStateMonitor() {
+        val networkMonitorUtil = NetworkMonitorUtil(this)
+        lifecycle.addObserver(MainLifecycleObserver(networkMonitorUtil))
+
+        networkMonitorUtil.result = { isAvailable, _ ->
+            when (isAvailable) {
+                true -> {
+                    if (currentNetworkState != INTERNET_CONNECTION) {
+                        currentNetworkState = INTERNET_CONNECTION
+                    }
+                }
+                false -> {
+                    if (currentNetworkState != NO_INTERNET_CONNECTION) {
+                        currentNetworkState = NO_INTERNET_CONNECTION
+                        exchangeViewModel.errorState.value = NO_INTERNET_CONNECTION
+                    }
+                }
+            }
         }
     }
 
@@ -48,13 +75,6 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
         }
     }
 
-    @Preview(showBackground = true)
-    @Composable
-    fun MainScreenPreview() {
-        MainScreen(viewModel)
-    }
-
-
     override fun onBackPressed() {
         val curTime = System.currentTimeMillis()
         val gapTime = curTime - backBtnTime
@@ -66,19 +86,4 @@ class MainActivity : AppCompatActivity(), OnMessageReceiveListener {
                 .show()
         }
     }
-
-    override fun onMessageReceiveListener(tickerJsonObject: String) {
-        this.text = tickerJsonObject
-    }
-
-//    private val callback2 = object : Callback{
-//        override fun onFailure(call: Call, e: IOException) {
-//
-//        }
-//
-//        override fun onResponse(call: Call, response: Response) {
-//            val gson = Gson()
-//            Log.d("TAG","// ${response.body()!!.string()} //")
-//        }
-//    }
 }

@@ -123,7 +123,7 @@
 //import android.content.Intent
 //import org.jeonfeel.moeuibit2.Activitys.Activity_portfolio
 //import android.app.Activity
-//import org.jeonfeel.moeuibit2.view.activity.MainActivity
+//import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
 //import com.google.firebase.database.DatabaseReference
 //import com.google.firebase.database.FirebaseDatabase
 //import com.google.firebase.database.ValueEventListener

@@ -21,7 +21,7 @@
 //import com.google.android.gms.tasks.OnCompleteListener
 //import com.google.firebase.auth.AuthResult
 //import android.widget.Toast
-//import org.jeonfeel.moeuibit2.view.activity.MainActivity
+//import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
 //import androidx.core.app.ActivityCompat
 //import android.content.pm.PackageManager
 //import org.jeonfeel.moeuibit2.Activitys.Activity_Login

@@ -118,7 +118,7 @@
 //import android.graphics.Canvas
 //import android.graphics.Color
 //import android.graphics.Paint
-//import org.jeonfeel.moeuibit2.view.activity.MainActivity
+//import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
 //import com.google.firebase.database.DatabaseReference
 //import com.google.firebase.database.FirebaseDatabase
 //import com.google.firebase.database.ValueEventListener

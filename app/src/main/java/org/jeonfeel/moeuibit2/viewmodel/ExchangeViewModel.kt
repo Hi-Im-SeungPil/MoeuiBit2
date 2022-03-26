@@ -1,35 +1,35 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
-import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.google.gson.JsonArray
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
 import org.jeonfeel.moeuibit2.listener.OnMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.ExchangeViewModelRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.util.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import javax.inject.Inject
 
 @HiltViewModel
-class ExchangeViewModel @Inject constructor(private val exchangeViewModelRepository: ExchangeViewModelRepository) :
-    ViewModel(), OnMessageReceiveListener {
+class ExchangeViewModel @Inject constructor(
+    private val exchangeViewModelRepository: ExchangeViewModelRepository,
+) : ViewModel(), OnMessageReceiveListener {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
-    var isSocketRunning = true
+    private var isSocketRunning = true
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
     private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
@@ -40,41 +40,57 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     val preItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
 
-    var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
-    var searchTextFieldValue = mutableStateOf("")
+    private var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
+    val searchTextFieldValue = mutableStateOf("")
+    val errorState = mutableStateOf(INTERNET_CONNECTION)
 
     init {
         UpBitWebSocket.getListener().setMessageListener1(this)
-        viewModelScope.launch {
-            requestKrwMarketCode()
-            requestKrwTicker(krwCoinListStringBuffer.toString())
-            createKrwExchangeModelList()
-            updateExchange()
-        }
+        requestData()
     }
 
     /**
      * request data
      * */
+    fun requestData() {
+        when (currentNetworkState) {
+            INTERNET_CONNECTION -> {
+                viewModelScope.launch {
+                    requestKrwMarketCode()
+                    requestKrwTicker(krwCoinListStringBuffer.toString())
+                    createKrwExchangeModelList()
+                    updateExchange()
+                    if (errorState.value != INTERNET_CONNECTION) {
+                        errorState.value = INTERNET_CONNECTION
+                    }
+                }
+            }
+            else -> errorState.value = currentNetworkState
+        }
+    }
+
     // get market, koreanName, englishName, warning
     private suspend fun requestKrwMarketCode() {
         val resultMarketCode = exchangeViewModelRepository.getMarketCodeService()
-        if (!resultMarketCode.isJsonNull) {
-            for (i in 0 until resultMarketCode.size()) {
-                val krwMarketCode =
-                    gson.fromJson(resultMarketCode[i], MarketCodeModel::class.java)
-                if (krwMarketCode.market.contains("KRW-")) {
-                    krwCoinListStringBuffer.append("${krwMarketCode.market},")
-                    krwMarketCodeList.add(krwMarketCode)
+        if (resultMarketCode.isSuccessful) {
+            try {
+                for (i in 0 until resultMarketCode.body()!!.size()) {
+                    val krwMarketCode =
+                        gson.fromJson(resultMarketCode.body()!![i], MarketCodeModel::class.java)
+                    if (krwMarketCode.market.contains("KRW-")) {
+                        krwCoinListStringBuffer.append("${krwMarketCode.market},")
+                        krwMarketCodeList.add(krwMarketCode)
+                    }
                 }
+                krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
+                for (i in 0 until krwMarketCodeList.size) {
+                    krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
+                        listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                currentNetworkState = NETWORK_ERROR
             }
-            krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
-            for (i in 0 until krwMarketCodeList.size) {
-                krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
-                    listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
-            }
-        } else {
-            Log.e(TAG, "requestKrwMarketCode Error!")
         }
     }
 
@@ -82,13 +98,17 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
     private suspend fun requestKrwTicker(markets: String) {
         val resultKrwTicker =
             exchangeViewModelRepository.getKrwTickerService(markets)
-        if (!resultKrwTicker.isJsonNull) {
-            for (i in 0 until resultKrwTicker.size()) {
-                val krwTicker = gson.fromJson(resultKrwTicker[i], ExchangeModel::class.java)
-                krwTickerList.add(krwTicker)
+        if (resultKrwTicker.isSuccessful) {
+            try {
+                for (i in 0 until resultKrwTicker.body()!!.size()) {
+                    val krwTicker =
+                        gson.fromJson(resultKrwTicker.body()!![i], ExchangeModel::class.java)
+                    krwTickerList.add(krwTicker)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                currentNetworkState = NETWORK_ERROR
             }
-        } else {
-            Log.e(TAG, "requestKrwTicker Error!")
         }
     }
 
@@ -115,7 +135,7 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
         }
         krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
         preItemArray.addAll(krwExchangeModelList)
-        UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
+        requestKrwCoinList()
     }
 
     private fun updateExchange() {
@@ -127,6 +147,10 @@ class ExchangeViewModel @Inject constructor(private val exchangeViewModelReposit
                 delay(300)
             }
         }
+    }
+
+    fun requestKrwCoinList() {
+        UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
     }
 
     /**

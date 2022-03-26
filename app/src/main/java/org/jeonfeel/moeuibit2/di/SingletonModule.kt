@@ -1,8 +1,11 @@
 package org.jeonfeel.moeuibit2.di
 
+import android.content.Context
+import android.net.ConnectivityManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import retrofit2.Retrofit
@@ -25,5 +28,11 @@ class SingletonModule {
     @Provides
     fun provideUpBitRetrofitMarketCodeService(retrofit: Retrofit): UpBitService {
         return retrofit.create(UpBitService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNetworkStateCheckOnce(@ApplicationContext context: Context): ConnectivityManager? {
+        return context.getSystemService(ConnectivityManager::class.java)
     }
 }

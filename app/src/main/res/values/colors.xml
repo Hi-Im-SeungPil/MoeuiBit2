@@ -10,6 +10,7 @@
     <color name="C0F0F5C">#0F0F5C</color>
     <color name="plusColor">#B77300</color>
     <color name="minusColor">#0054FF</color>
+    <color name="C0054FF">#0054FF</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

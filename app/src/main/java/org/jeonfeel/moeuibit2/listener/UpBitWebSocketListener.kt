@@ -5,6 +5,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
 
 class UpBitWebSocketListener : WebSocketListener() {
 
@@ -45,6 +46,8 @@ class UpBitWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e("Socket", "Error => ${t.message}")
+        Log.e("Socket", "Error => ${response?.code()}")
+        UpBitWebSocket.currentSocketState = response?.code() ?: -1
     }
 
     companion object {
