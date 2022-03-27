@@ -3,10 +3,17 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.listener.UpBitWebSocketListener
+import org.jeonfeel.moeuibit2.listener.UpBitWebSocketListener.Companion.NORMAL_CLOSURE_STATUS
 import java.util.*
 
+const val SOCKET_IS_CONNECTED = 0
+const val SOCKET_IS_NO_CONNECTION = -1
+const val SOCKET_IS_ON_PAUSE = -2
+
+
 object UpBitWebSocket {
-    var currentSocketState = 0
+    private var krwMarkets = ""
+    var currentSocketState = SOCKET_IS_CONNECTED
     private val TAG = UpBitWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
@@ -20,20 +27,38 @@ object UpBitWebSocket {
         return socketListener
     }
 
-    fun requestKrwCoinList(markets: String) {
+    fun requestKrwCoinList() {
         socketRebuild()
         val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${markets}],"isOnlyRealtime":true},{"format":"SIMPLE"}]""")
+        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}],"isOnlyRealtime":true},{"format":"SIMPLE"}]""")
     }
 
     private fun socketRebuild() {
-        if(currentSocketState != 0) {
+        if(currentSocketState != SOCKET_IS_CONNECTED) {
             socket = client.newWebSocket(request, socketListener)
-            currentSocketState = 0
+            currentSocketState = SOCKET_IS_CONNECTED
         }
     }
 
-    fun close() {
-//        socket.close()
+    fun setKrwMarkets (markets: String) {
+        krwMarkets = markets
+    }
+
+    fun onPause() {
+        socket.close(NORMAL_CLOSURE_STATUS,"onPause")
+        currentSocketState = SOCKET_IS_ON_PAUSE
+    }
+
+    fun onResume() {
+        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
+            requestKrwCoinList()
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
+
+    fun onFail() {
+        if (currentSocketState != SOCKET_IS_NO_CONNECTION) {
+            currentSocketState = SOCKET_IS_NO_CONNECTION
+        }
     }
 }

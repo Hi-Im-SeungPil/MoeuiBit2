@@ -12,12 +12,17 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
     Column(Modifier
         .fillMaxSize()) {
-        if(exchangeViewModel.errorState.value == INTERNET_CONNECTION){
+//        if(!exchangeViewModel.loading.value) {
+        if (exchangeViewModel.errorState.value == INTERNET_CONNECTION) {
             SearchBasicTextFieldResult(exchangeViewModel)
             SortButtons(exchangeViewModel)
             ExchangeScreenLazyColumn(exchangeViewModel)
-        }else {
+        } else {
             ErrorScreen(exchangeViewModel)
         }
     }
+//        } else {
+//            ExchangeScreenLoading()
+//        }
 }
+

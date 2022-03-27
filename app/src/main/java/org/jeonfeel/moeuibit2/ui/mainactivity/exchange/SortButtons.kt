@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,8 +10,6 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -31,7 +30,8 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
 fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
-    val selectedButtonState = remember { mutableStateOf(-1) }
+    val selectedButtonState = exchangeViewModel.selectedButtonState
+    Log.e("sortButon", selectedButtonState.value.toString())
     Row(
         modifier = Modifier
             .fillMaxWidth()

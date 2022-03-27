@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -43,6 +44,8 @@ class ExchangeViewModel @Inject constructor(
     private var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
     val searchTextFieldValue = mutableStateOf("")
     val errorState = mutableStateOf(INTERNET_CONNECTION)
+    val selectedButtonState =  mutableStateOf(-1)
+    val loading = mutableStateOf(true)
 
     init {
         UpBitWebSocket.getListener().setMessageListener1(this)
@@ -53,6 +56,7 @@ class ExchangeViewModel @Inject constructor(
      * request data
      * */
     fun requestData() {
+        if(!loading.value) loading.value = true
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
@@ -63,9 +67,13 @@ class ExchangeViewModel @Inject constructor(
                     if (errorState.value != INTERNET_CONNECTION) {
                         errorState.value = INTERNET_CONNECTION
                     }
+                    loading.value = false
                 }
             }
-            else -> errorState.value = currentNetworkState
+            else -> {
+                loading.value = false
+                errorState.value = currentNetworkState
+            }
         }
     }
 
@@ -83,6 +91,7 @@ class ExchangeViewModel @Inject constructor(
                     }
                 }
                 krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
+                UpBitWebSocket.setKrwMarkets(krwCoinListStringBuffer.toString())
                 for (i in 0 until krwMarketCodeList.size) {
                     krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
                         listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
@@ -150,7 +159,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun requestKrwCoinList() {
-        UpBitWebSocket.requestKrwCoinList(krwCoinListStringBuffer.toString())
+        UpBitWebSocket.requestKrwCoinList()
     }
 
     /**
@@ -244,5 +253,6 @@ class ExchangeViewModel @Inject constructor(
                 model.tradePrice,
                 model.signedChangeRate,
                 model.accTradePrice24h)
+        Log.e(TAG,model.code)
     }
 }

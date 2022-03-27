@@ -46,8 +46,7 @@ class UpBitWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e("Socket", "Error => ${t.message}")
-        Log.e("Socket", "Error => ${response?.code()}")
-        UpBitWebSocket.currentSocketState = response?.code() ?: -1
+        UpBitWebSocket.onFail()
     }
 
     companion object {

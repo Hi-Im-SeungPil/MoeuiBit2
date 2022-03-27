@@ -19,7 +19,7 @@ class NetworkMonitorUtil(context: Context) {
     lateinit var result: ((isAvailable: Boolean, type: ConnectionType?) -> Unit)
 
     companion object {
-        var currentNetworkState =  INTERNET_CONNECTION
+        var currentNetworkState = INTERNET_CONNECTION
     }
 
     fun register() {
@@ -56,5 +56,20 @@ class NetworkMonitorUtil(context: Context) {
         val connectivityManager =
             mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+
+    fun internetConnection(markets: String) {
+        if (currentNetworkState != INTERNET_CONNECTION) {
+            currentNetworkState = INTERNET_CONNECTION
+        }
+//        if(UpBitWebSocket.currentSocketState == SOCKET_IS_NO_CONNECTION) {
+//            UpBitWebSocket.requestKrwCoinList(markets)
+//        }
+    }
+
+    fun noInternetConnection() {
+        if (currentNetworkState != NO_INTERNET_CONNECTION) {
+            currentNetworkState = NO_INTERNET_CONNECTION
+        }
     }
 }
