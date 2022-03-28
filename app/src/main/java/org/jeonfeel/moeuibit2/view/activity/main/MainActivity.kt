@@ -8,10 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.Navigation
 import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
@@ -64,13 +72,18 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun MainScreen(viewModel: ExchangeViewModel) {
         val navController = rememberNavController()
-//        val scaffoldState = rememberScaffoldState()
+        val title = remember{
+            mutableStateOf("")
+        }
         Scaffold(
+            topBar = {
+                TopAppBar(title = { (Text(text = title.value, style = TextStyle(color = Color.White))) },
+                    backgroundColor = colorResource(id = R.color.C0F0F5C))
+            },
             bottomBar = { MainBottomNavigation(navController) },
-//            topBar =
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                Navigation(navController, viewModel)
+                Navigation(navController, viewModel, title)
             }
         }
     }

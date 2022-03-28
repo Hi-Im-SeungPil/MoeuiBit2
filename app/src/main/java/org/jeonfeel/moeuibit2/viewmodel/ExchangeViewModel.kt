@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
@@ -30,7 +31,7 @@ class ExchangeViewModel @Inject constructor(
 
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
-    private var isSocketRunning = true
+    var isSocketRunning = true
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
     private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
@@ -44,7 +45,7 @@ class ExchangeViewModel @Inject constructor(
     private var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
     val searchTextFieldValue = mutableStateOf("")
     val errorState = mutableStateOf(INTERNET_CONNECTION)
-    val selectedButtonState =  mutableStateOf(-1)
+    val selectedButtonState = mutableStateOf(-1)
     val loading = mutableStateOf(true)
 
     init {
@@ -56,18 +57,27 @@ class ExchangeViewModel @Inject constructor(
      * request data
      * */
     fun requestData() {
-        if(!loading.value) loading.value = true
+        if (!loading.value) loading.value = true
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
-                    requestKrwMarketCode()
-                    requestKrwTicker(krwCoinListStringBuffer.toString())
-                    createKrwExchangeModelList()
-                    updateExchange()
-                    if (errorState.value != INTERNET_CONNECTION) {
-                        errorState.value = INTERNET_CONNECTION
+                    withTimeout(4900L) {
+                        try {
+                            requestKrwMarketCode()
+                            requestKrwTicker(krwCoinListStringBuffer.toString())
+                            createKrwExchangeModelList()
+                            updateExchange()
+                            if (errorState.value != INTERNET_CONNECTION) {
+                                errorState.value = INTERNET_CONNECTION
+                            }
+                            loading.value = false
+                        }catch (e: Exception) {
+                            currentNetworkState = NETWORK_ERROR
+                            errorState.value = currentNetworkState
+                            loading.value = false
+                        }
+
                     }
-                    loading.value = false
                 }
             }
             else -> {
@@ -243,16 +253,18 @@ class ExchangeViewModel @Inject constructor(
     }
 
     override fun onMessageReceiveListener(tickerJsonObject: String) {
-        val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-        val position = krwExchangeModelListPosition[model.code] ?: -1
-        krwExchangeModelList[position] =
-            KrwExchangeModel(krwCoinKoreanNameAndEngName[model.code]!![0],
-                krwCoinKoreanNameAndEngName[model.code]!![1],
-                model.code,
-                model.code.substring(4),
-                model.tradePrice,
-                model.signedChangeRate,
-                model.accTradePrice24h)
-        Log.e(TAG,model.code)
+        if (isSocketRunning) {
+            val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
+            val position = krwExchangeModelListPosition[model.code] ?: -1
+            krwExchangeModelList[position] =
+                KrwExchangeModel(krwCoinKoreanNameAndEngName[model.code]!![0],
+                    krwCoinKoreanNameAndEngName[model.code]!![1],
+                    model.code,
+                    model.code.substring(4),
+                    model.tradePrice,
+                    model.signedChangeRate,
+                    model.accTradePrice24h)
+            Log.e(TAG, model.code)
+        }
     }
 }

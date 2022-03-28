@@ -6,7 +6,9 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -16,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.mainactivity.coinnews.CoinNewsScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
@@ -28,6 +31,9 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_rout
 
 @Composable
 fun MainBottomNavigation(navController: NavController) {
+    var a = remember {
+        1
+    }
     val items = listOf(
         MainBottomNavItem.Exchange,
         MainBottomNavItem.CoinSite,
@@ -52,6 +58,9 @@ fun MainBottomNavigation(navController: NavController) {
                 alwaysShowLabel = true,
                 selected = currentRoute == item.screen_route,
                 onClick = {
+                    if (currentRoute == item.screen_route) {
+                        return@BottomNavigationItem
+                    }
                     navController.navigate(item.screen_route) {
                         navController.graph.startDestinationRoute?.let { route ->
                             popUpTo(route) {
@@ -68,11 +77,17 @@ fun MainBottomNavigation(navController: NavController) {
 }
 
 @Composable
-fun Navigation(navController: NavHostController,viewModel: ExchangeViewModel) {
+fun Navigation(
+    navController: NavHostController,
+    viewModel: ExchangeViewModel,
+    title: MutableState<String>,
+) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
             ExchangeScreen(viewModel)
         }
+        composable(MainBottomNavItem.CoinSite.screen_route) {
+            CoinNewsScreen()
+        }
     }
 }
-

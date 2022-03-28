@@ -56,18 +56,20 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
             .weight(1f), text = "")
 //--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
-            when {
-                selectedButtonState.value != 0 && selectedButtonState.value != 1 -> {
-                    selectedButtonState.value = 0
+            if (exchangeViewModel.isSocketRunning) {
+                when {
+                    selectedButtonState.value != 0 && selectedButtonState.value != 1 -> {
+                        selectedButtonState.value = 0
+                    }
+                    selectedButtonState.value == 0 -> {
+                        selectedButtonState.value = 1
+                    }
+                    else -> {
+                        selectedButtonState.value = -1
+                    }
                 }
-                selectedButtonState.value == 0 -> {
-                    selectedButtonState.value = 1
-                }
-                else -> {
-                    selectedButtonState.value = -1
-                }
+                exchangeViewModel.sortList(selectedButtonState.value)
             }
-            exchangeViewModel.sortList(selectedButtonState.value)
         }, modifier = Modifier
             .weight(1f)
             .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
@@ -94,18 +96,20 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
         }
 //--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
-            when {
-                selectedButtonState.value != 2 && selectedButtonState.value != 3 -> {
-                    selectedButtonState.value = 2
+            if(exchangeViewModel.isSocketRunning) {
+                when {
+                    selectedButtonState.value != 2 && selectedButtonState.value != 3 -> {
+                        selectedButtonState.value = 2
+                    }
+                    selectedButtonState.value == 2 -> {
+                        selectedButtonState.value = 3
+                    }
+                    else -> {
+                        selectedButtonState.value = -1
+                    }
                 }
-                selectedButtonState.value == 2 -> {
-                    selectedButtonState.value = 3
-                }
-                else -> {
-                    selectedButtonState.value = -1
-                }
+                exchangeViewModel.sortList(selectedButtonState.value)
             }
-            exchangeViewModel.sortList(selectedButtonState.value)
         }, modifier = Modifier
             .weight(1f)
             .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
@@ -135,18 +139,20 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
         }
 //--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
-            when {
-                selectedButtonState.value != 4 && selectedButtonState.value != 5 -> {
-                    selectedButtonState.value = 4
+            if(exchangeViewModel.isSocketRunning) {
+                when {
+                    selectedButtonState.value != 4 && selectedButtonState.value != 5 -> {
+                        selectedButtonState.value = 4
+                    }
+                    selectedButtonState.value == 4 -> {
+                        selectedButtonState.value = 5
+                    }
+                    else -> {
+                        selectedButtonState.value = -1
+                    }
                 }
-                selectedButtonState.value == 4 -> {
-                    selectedButtonState.value = 5
-                }
-                else -> {
-                    selectedButtonState.value = -1
-                }
+                exchangeViewModel.sortList(selectedButtonState.value)
             }
-            exchangeViewModel.sortList(selectedButtonState.value)
         }, modifier = Modifier
             .weight(1f)
             .padding(0.dp, 0.dp, 0.dp, 0.5.dp),

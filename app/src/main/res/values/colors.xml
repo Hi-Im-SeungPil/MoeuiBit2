@@ -11,6 +11,8 @@
     <color name="plusColor">#B77300</color>
     <color name="minusColor">#0054FF</color>
     <color name="C0054FF">#0054FF</color>
+    <color name="CDCDCDC">#DCDCDC</color>
+    <color name="CECECEC">#ECECEC</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>
