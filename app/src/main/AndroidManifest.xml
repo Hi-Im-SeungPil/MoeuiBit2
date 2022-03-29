@@ -54,6 +54,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".view.activity.coindetail.CoinDetailActivity"/>
+
 <!--        <activity android:name=".Activitys.Activity_Login"-->
 <!--            android:exported="true">-->
 <!--            <intent-filter>-->

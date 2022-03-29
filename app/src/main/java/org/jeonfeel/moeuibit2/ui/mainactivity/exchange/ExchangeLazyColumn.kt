@@ -1,15 +1,14 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
+import android.content.Intent
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -19,12 +18,16 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
@@ -38,6 +41,7 @@ fun ExchangeScreenLazyColumnItem(
     val accTradePrice24h =
         Calculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h)
     val koreanName = krwExchangeModel.koreanName
+    val context = LocalContext.current
 
     Row(Modifier
         .fillMaxWidth()
@@ -55,6 +59,13 @@ fun ExchangeScreenLazyColumnItem(
                     end = Offset(x = size.width, y = y)
                 )
             }
+        }
+        .clickable {
+            val intent = Intent(context, CoinDetailActivity::class.java)
+            intent.putExtra("coinKoreanName", koreanName)
+            intent.putExtra("coinSymbol", krwExchangeModel.symbol)
+            context.startActivity(intent)
+            (context as MainActivity).overridePendingTransition(R.anim.lazy_column_item_slide_left, R.anim.none)
         }) {
 
         Column(Modifier

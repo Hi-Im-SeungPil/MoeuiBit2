@@ -23,11 +23,11 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkSt
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
-fun ErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun ExchangeErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
     val context = LocalContext.current
     val errorText = when (currentNetworkState) {
         NO_INTERNET_CONNECTION -> context.getString(R.string.NO_INTERNET_CONNECTION)
-        NETWORK_ERROR -> context.getString(NETWORK_ERROR)
+        NETWORK_ERROR -> context.getString(R.string.NETWORK_ERROR)
         else -> ""
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -50,7 +50,7 @@ fun ErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     if (exchangeViewModel.preItemArray.isEmpty()) {
                         exchangeViewModel.requestData()
                     } else {
-                        if (currentNetworkState == INTERNET_CONNECTION) {
+                        if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
                             exchangeViewModel.errorState.value = currentNetworkState
                             exchangeViewModel.requestKrwCoinList()
                         }

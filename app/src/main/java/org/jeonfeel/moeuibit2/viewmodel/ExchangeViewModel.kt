@@ -61,8 +61,8 @@ class ExchangeViewModel @Inject constructor(
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
-                    withTimeout(4900L) {
-                        try {
+                    try {
+                        withTimeout(4900L) {
                             requestKrwMarketCode()
                             requestKrwTicker(krwCoinListStringBuffer.toString())
                             createKrwExchangeModelList()
@@ -71,12 +71,11 @@ class ExchangeViewModel @Inject constructor(
                                 errorState.value = INTERNET_CONNECTION
                             }
                             loading.value = false
-                        }catch (e: Exception) {
-                            currentNetworkState = NETWORK_ERROR
-                            errorState.value = currentNetworkState
-                            loading.value = false
                         }
-
+                    } catch (e: Exception) {
+                        currentNetworkState = NETWORK_ERROR
+                        errorState.value = currentNetworkState
+                        loading.value = false
                     }
                 }
             }

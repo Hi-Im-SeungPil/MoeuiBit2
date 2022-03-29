@@ -6,13 +6,13 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,9 +31,6 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_rout
 
 @Composable
 fun MainBottomNavigation(navController: NavController) {
-    var a = remember {
-        1
-    }
     val items = listOf(
         MainBottomNavItem.Exchange,
         MainBottomNavItem.CoinSite,
@@ -44,7 +41,7 @@ fun MainBottomNavigation(navController: NavController) {
         backgroundColor = colorResource(id = R.color.C0F0F5C)
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+        val currentDestination = navBackStackEntry?.destination
         items.forEach { item ->
             BottomNavigationItem(
                 icon = {
@@ -56,16 +53,15 @@ fun MainBottomNavigation(navController: NavController) {
                 selectedContentColor = androidx.compose.ui.graphics.Color.White,
                 unselectedContentColor = androidx.compose.ui.graphics.Color.White.copy(0.4f),
                 alwaysShowLabel = true,
-                selected = currentRoute == item.screen_route,
+                selected = currentDestination?.hierarchy?.any { it.route == item.screen_route } == true,
                 onClick = {
-                    if (currentRoute == item.screen_route) {
+                    if (currentDestination?.hierarchy?.any() { it.route == item.screen_route } == true) {
                         return@BottomNavigationItem
                     }
+
                     navController.navigate(item.screen_route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -80,7 +76,6 @@ fun MainBottomNavigation(navController: NavController) {
 fun Navigation(
     navController: NavHostController,
     viewModel: ExchangeViewModel,
-    title: MutableState<String>,
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
