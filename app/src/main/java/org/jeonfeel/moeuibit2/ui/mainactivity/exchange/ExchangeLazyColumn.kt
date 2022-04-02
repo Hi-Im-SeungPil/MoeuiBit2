@@ -184,7 +184,7 @@ fun getTradePriceTextModifier(
     }
 }
 
-fun getCurTradePriceTextFormat(curTradePrice: String): String {
+private fun getCurTradePriceTextFormat(curTradePrice: String): String {
     val tempCurTradePrice = curTradePrice.toDouble()
     return if (tempCurTradePrice >= 100.0) {
         Calculator.getDecimalFormat().format(tempCurTradePrice.toInt())

@@ -1,11 +1,9 @@
 package org.jeonfeel.moeuibit2.view.activity.main
 
 import android.os.Bundle
-import android.transition.Slide
-import android.view.Gravity
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
@@ -26,17 +24,12 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkSt
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     private var backBtnTime: Long = 0
     private val exchangeViewModel: ExchangeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        val slide = Slide()
-        slide.slideEdge = Gravity.RIGHT
-        window.enterTransition = slide
-
         super.onCreate(savedInstanceState)
 
         initActivity()
@@ -52,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initNetworkStateMonitor() {
         val networkMonitorUtil = NetworkMonitorUtil(this)
-        lifecycle.addObserver(MainLifecycleObserver(networkMonitorUtil))
 
         networkMonitorUtil.result = { isAvailable, _ ->
             when (isAvailable) {

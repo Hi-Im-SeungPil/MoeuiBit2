@@ -27,7 +27,10 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
         OnLifecycleEvent{ _, event ->
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> UpBitWebSocket.onPause()
-                Lifecycle.Event.ON_RESUME -> UpBitWebSocket.onResume()
+                Lifecycle.Event.ON_RESUME -> {
+                    exchangeViewModel.setWebSocketMessageListener()
+                    UpBitWebSocket.exchangeScreenOnResume()
+                }
                 else -> {}
             }
         }

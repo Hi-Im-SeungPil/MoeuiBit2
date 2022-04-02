@@ -9,11 +9,11 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
 
 class UpBitWebSocketListener : WebSocketListener() {
 
-    private lateinit var messageListener: OnMessageReceiveListener
+    private var messageListener: OnMessageReceiveListener? = null
 
     @JvmName("setMessageListener1")
     fun setMessageListener1(onMessageReceiveListener: OnMessageReceiveListener?) {
-        if (onMessageReceiveListener != null) {
+        if (onMessageReceiveListener != null && this.messageListener !== onMessageReceiveListener) {
             this.messageListener = onMessageReceiveListener
         }
     }
@@ -30,7 +30,7 @@ class UpBitWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        messageListener.onMessageReceiveListener(bytes.string(Charsets.UTF_8))
+        messageListener?.onMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

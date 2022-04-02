@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.util
 
 import java.text.DecimalFormat
+import kotlin.math.abs
 import kotlin.math.round
 
 object Calculator {
@@ -23,6 +24,23 @@ object Calculator {
 
     fun accTradePrice24hCalculator(accTradePrice24h: Double): String {
         return decimalFormat.format(round(accTradePrice24h * 0.000001))
+    }
+
+    fun changePriceCalculator(changePrice: Double): String {
+        val absChangePrice = abs(changePrice)
+        var result = ""
+        if (absChangePrice >= 100) {
+            result = decimalFormat.format(round(changePrice).toInt())
+        } else if (absChangePrice < 100 && absChangePrice >= 0) {
+            result =  String.format("%.2f", changePrice)
+        } else {
+            result = String.format("%.4f", changePrice)
+        }
+
+        if(changePrice > 0.0) {
+            return "+".plus(result)
+        }
+        return result
     }
 
     fun getDecimalFormat(): DecimalFormat {

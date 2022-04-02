@@ -33,23 +33,36 @@ object UpBitWebSocket {
         socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}],"isOnlyRealtime":true},{"format":"SIMPLE"}]""")
     }
 
+    fun requestKrwCoin(market: String) {
+        socketRebuild()
+        val uuid = UUID.randomUUID().toString()
+        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":["${market}"]},{"format":"SIMPLE"}]""")
+    }
+
     private fun socketRebuild() {
-        if(currentSocketState != SOCKET_IS_CONNECTED) {
+        if (currentSocketState != SOCKET_IS_CONNECTED) {
             socket = client.newWebSocket(request, socketListener)
             currentSocketState = SOCKET_IS_CONNECTED
         }
     }
 
-    fun setKrwMarkets (markets: String) {
+    fun setKrwMarkets(markets: String) {
         krwMarkets = markets
     }
 
     fun onPause() {
-        socket.close(NORMAL_CLOSURE_STATUS,"onPause")
+        socket.close(NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 
-    fun onResume() {
+    fun coinDetailScreenOnResume(market: String) {
+        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
+            requestKrwCoin(market)
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
+
+    fun exchangeScreenOnResume() {
         if (currentSocketState == SOCKET_IS_ON_PAUSE) {
             requestKrwCoinList()
             currentSocketState = SOCKET_IS_CONNECTED

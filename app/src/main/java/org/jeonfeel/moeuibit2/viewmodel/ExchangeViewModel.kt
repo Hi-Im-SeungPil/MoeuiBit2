@@ -49,8 +49,12 @@ class ExchangeViewModel @Inject constructor(
     val loading = mutableStateOf(true)
 
     init {
-        UpBitWebSocket.getListener().setMessageListener1(this)
+        setWebSocketMessageListener()
         requestData()
+    }
+
+    fun setWebSocketMessageListener() {
+        UpBitWebSocket.getListener().setMessageListener1(this)
     }
 
     /**
