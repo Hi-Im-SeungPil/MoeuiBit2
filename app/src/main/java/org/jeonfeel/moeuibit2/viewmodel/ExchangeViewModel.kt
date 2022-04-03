@@ -16,8 +16,8 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
-import org.jeonfeel.moeuibit2.listener.OnMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.ExchangeViewModelRepository
 import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.NETWORK_ERROR
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val exchangeViewModelRepository: ExchangeViewModelRepository,
-) : ViewModel(), OnMessageReceiveListener {
+) : ViewModel(), OnTickerMessageReceiveListener {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
@@ -54,7 +54,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun setWebSocketMessageListener() {
-        UpBitWebSocket.getListener().setMessageListener1(this)
+        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
     }
 
     /**
@@ -104,7 +104,7 @@ class ExchangeViewModel @Inject constructor(
                     }
                 }
                 krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
-                UpBitWebSocket.setKrwMarkets(krwCoinListStringBuffer.toString())
+                UpBitTickerWebSocket.setKrwMarkets(krwCoinListStringBuffer.toString())
                 for (i in 0 until krwMarketCodeList.size) {
                     krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
                         listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
@@ -143,10 +143,12 @@ class ExchangeViewModel @Inject constructor(
             val signedChangeRate = krwTickerList[i].signedChangePrice
             val accTradePrice24h = krwTickerList[i].accTradePrice24h
             val symbol = market.substring(4)
+            val openingPrice = krwTickerList[i].preClosingPrice
             krwExchangeModelList.add(KrwExchangeModel(koreanName,
                 englishName,
                 market,
                 symbol,
+                openingPrice,
                 tradePrice,
                 signedChangeRate,
                 accTradePrice24h))
@@ -172,7 +174,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun requestKrwCoinList() {
-        UpBitWebSocket.requestKrwCoinList()
+        UpBitTickerWebSocket.requestKrwCoinList()
     }
 
     /**
@@ -255,7 +257,7 @@ class ExchangeViewModel @Inject constructor(
         isSocketRunning = true
     }
 
-    override fun onMessageReceiveListener(tickerJsonObject: String) {
+    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (isSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
             val position = krwExchangeModelListPosition[model.code] ?: -1
@@ -264,6 +266,7 @@ class ExchangeViewModel @Inject constructor(
                     krwCoinKoreanNameAndEngName[model.code]!![1],
                     model.code,
                     model.code.substring(4),
+                    model.preClosingPrice,
                     model.tradePrice,
                     model.signedChangeRate,
                     model.accTradePrice24h)

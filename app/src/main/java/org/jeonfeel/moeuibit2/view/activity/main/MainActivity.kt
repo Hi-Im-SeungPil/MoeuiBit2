@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
-import org.jeonfeel.moeuibit2.ui.mainactivity.Navigation
+import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
 import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                Navigation(navController, viewModel)
+                MainNavigation(navController, viewModel)
             }
         }
     }

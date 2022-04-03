@@ -11,46 +11,64 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
 @Composable
 fun CoinDetailMain(
     currentPrice: Double = 100.0,
     symbol: String,
-    coinDetailTickerModel: CoinDetailTickerModel,
+    coinDetailViewModel: CoinDetailViewModel
 ) {
     val curTradePrice = getCurTradePriceTextFormat(currentPrice)
-    val curChangeRate = Calculator.signedChangeRateCalculator(coinDetailTickerModel.signedChangeRate)
-    val curChangePrice = Calculator.changePriceCalculator(coinDetailTickerModel.signed_change_price)
+    val curChangeRate =
+        Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate)
+    val curChangePrice = Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price)
     val textColor = getTextColor(curChangeRate)
-    Row(modifier = Modifier
+    val navController = rememberNavController()
+
+    Column(modifier = Modifier
         .padding(0.dp, 10.dp, 0.dp, 0.dp)
         .fillMaxWidth()
-        .height(70.dp)) {
-        Column(modifier = Modifier
-            .weight(2f)
-            .fillMaxHeight()) {
-            Text(text = curTradePrice,
-                modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
-                style = TextStyle(color = textColor, fontSize = 27.sp))
+        .wrapContentHeight()) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)) {
+            Column(modifier = Modifier
+                .weight(2f)
+                .fillMaxHeight()) {
+                Text(text = curTradePrice,
+                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
+                    style = TextStyle(color = textColor, fontSize = 27.sp))
 
-            Row(modifier = Modifier
-                .padding(20.dp, 0.dp, 0.dp, 10.dp)
-                .fillMaxHeight()
-                .wrapContentHeight(Alignment.Bottom)
-            ) {
-                Text(text = "전일대비", modifier = Modifier.weight(1f))
-                Text(text = curChangeRate.plus("%"), modifier = Modifier.weight(1f), style = TextStyle(color = textColor))
-                Text(text = curChangePrice, modifier = Modifier.weight(1f), style = TextStyle(color = textColor))
+                Row(modifier = Modifier
+                    .padding(20.dp, 0.dp, 0.dp, 10.dp)
+                    .fillMaxHeight()
+                    .wrapContentHeight(Alignment.Bottom)
+                ) {
+                    Text(text = "전일대비", modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(0.dp, 0.dp, 10.dp, 0.dp))
+                    Text(text = curChangeRate.plus("%"),
+                        modifier = Modifier.weight(1f),
+                        style = TextStyle(color = textColor),
+                        maxLines = 1)
+                    Text(text = curChangePrice,
+                        modifier = Modifier.weight(1f),
+                        style = TextStyle(color = textColor),
+                        maxLines = 1)
+                }
             }
+            GlideImage(imageModel = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/$symbol.png",
+                modifier = Modifier
+                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
+                    .weight(1f),
+                contentScale = ContentScale.FillHeight)
         }
-        GlideImage(imageModel = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/$symbol.png",
-            modifier = Modifier
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                .weight(1f),
-            contentScale = ContentScale.FillHeight)
+        CoinDetailMainTabRow(navController = navController)
+        TabRowMainNavigation(navController,coinDetailViewModel)
     }
 }
 

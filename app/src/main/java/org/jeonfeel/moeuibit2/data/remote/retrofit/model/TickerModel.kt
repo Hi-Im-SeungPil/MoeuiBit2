@@ -10,5 +10,7 @@ data class TickerModel (
     @SerializedName("scr")
     val signedChangeRate: Double,
     @SerializedName("atp24h")
-    val accTradePrice24h: Double
+    val accTradePrice24h: Double,
+    @SerializedName("pcp")
+    val preClosingPrice: Double
 )

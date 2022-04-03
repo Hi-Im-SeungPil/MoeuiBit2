@@ -64,6 +64,7 @@ fun ExchangeScreenLazyColumnItem(
             val intent = Intent(context, CoinDetailActivity::class.java)
             intent.putExtra("coinKoreanName", koreanName)
             intent.putExtra("coinSymbol", krwExchangeModel.symbol)
+            intent.putExtra("openingPrice",krwExchangeModel.opening_price)
             context.startActivity(intent)
             (context as MainActivity).overridePendingTransition(R.anim.lazy_column_item_slide_left, R.anim.none)
         }) {

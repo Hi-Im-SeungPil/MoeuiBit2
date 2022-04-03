@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
@@ -26,10 +26,10 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
         }
         OnLifecycleEvent{ _, event ->
             when (event) {
-                Lifecycle.Event.ON_PAUSE -> UpBitWebSocket.onPause()
+                Lifecycle.Event.ON_PAUSE -> UpBitTickerWebSocket.onPause()
                 Lifecycle.Event.ON_RESUME -> {
                     exchangeViewModel.setWebSocketMessageListener()
-                    UpBitWebSocket.exchangeScreenOnResume()
+                    UpBitTickerWebSocket.exchangeScreenOnResume()
                 }
                 else -> {}
             }

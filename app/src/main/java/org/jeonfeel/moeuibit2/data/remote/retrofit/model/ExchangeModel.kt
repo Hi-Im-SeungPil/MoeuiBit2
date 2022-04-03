@@ -9,5 +9,7 @@ data class ExchangeModel(
     @SerializedName("signed_change_rate")
     val signedChangePrice: Double,
     @SerializedName("acc_trade_price_24h")
-    val accTradePrice24h: Double
+    val accTradePrice24h: Double,
+    @SerializedName("prev_closing_price")
+    val preClosingPrice: Double
 )

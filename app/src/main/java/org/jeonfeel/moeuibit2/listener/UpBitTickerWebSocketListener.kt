@@ -5,16 +5,15 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 
-class UpBitWebSocketListener : WebSocketListener() {
+class UpBitTickerWebSocketListener : WebSocketListener() {
 
-    private var messageListener: OnMessageReceiveListener? = null
+    private var messageListener: OnTickerMessageReceiveListener? = null
 
-    @JvmName("setMessageListener1")
-    fun setMessageListener1(onMessageReceiveListener: OnMessageReceiveListener?) {
-        if (onMessageReceiveListener != null && this.messageListener !== onMessageReceiveListener) {
-            this.messageListener = onMessageReceiveListener
+    fun setTickerMessageListener(onTickerMessageReceiveListener: OnTickerMessageReceiveListener?) {
+        if (onTickerMessageReceiveListener != null && this.messageListener !== onTickerMessageReceiveListener) {
+            this.messageListener = onTickerMessageReceiveListener
         }
     }
 
@@ -30,7 +29,7 @@ class UpBitWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        messageListener?.onMessageReceiveListener(bytes.string(Charsets.UTF_8))
+        messageListener?.onTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -46,7 +45,7 @@ class UpBitWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e("Socket", "Error => ${t.message}")
-        UpBitWebSocket.onFail()
+        UpBitTickerWebSocket.onFail()
     }
 
     companion object {
@@ -54,6 +53,6 @@ class UpBitWebSocketListener : WebSocketListener() {
     }
 }
 
-interface OnMessageReceiveListener {
-    fun onMessageReceiveListener(tickerJsonObject: String)
+interface OnTickerMessageReceiveListener {
+    fun onTickerMessageReceiveListener(tickerJsonObject: String)
 }

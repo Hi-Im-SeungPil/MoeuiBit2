@@ -11,6 +11,8 @@ data class KrwExchangeModel(
     val market: String,
     @Stable
     val symbol: String,
+    @Stable
+    val opening_price: Double,
     var tradePrice: Double,
     var signedChangeRate: Double,
     var accTradePrice24h: Double,

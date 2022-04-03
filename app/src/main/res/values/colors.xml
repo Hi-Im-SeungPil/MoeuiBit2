@@ -13,6 +13,8 @@
     <color name="C0054FF">#0054FF</color>
     <color name="CDCDCDC">#DCDCDC</color>
     <color name="CECECEC">#ECECEC</color>
+    <color name="orderBookAskBackground">#1A3654FF</color>
+    <color name="orderBookBidBackground">#1AFF3030</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

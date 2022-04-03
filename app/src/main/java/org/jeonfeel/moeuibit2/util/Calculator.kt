@@ -29,18 +29,37 @@ object Calculator {
     fun changePriceCalculator(changePrice: Double): String {
         val absChangePrice = abs(changePrice)
         var result = ""
-        if (absChangePrice >= 100) {
-            result = decimalFormat.format(round(changePrice).toInt())
+        result = if (absChangePrice >= 100) {
+            decimalFormat.format(round(changePrice).toInt())
         } else if (absChangePrice < 100 && absChangePrice >= 0) {
-            result =  String.format("%.2f", changePrice)
+            String.format("%.2f", changePrice)
         } else {
-            result = String.format("%.4f", changePrice)
+            String.format("%.4f", changePrice)
         }
 
         if(changePrice > 0.0) {
             return "+".plus(result)
         }
         return result
+    }
+
+    fun orderBookPriceCalculator(orderBookPrice: Double): String{
+        var result = ""
+        result = if (orderBookPrice >= 100) {
+            decimalFormat.format(round(orderBookPrice).toInt())
+        } else if (orderBookPrice < 100 && orderBookPrice >= 0) {
+            String.format("%.2f", orderBookPrice)
+        } else {
+            String.format("%.4f", orderBookPrice)
+        }
+        return result
+    }
+
+    fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
+//        증가액 / 전년도 연봉 * 100
+//        val open = round(openingPrice*100) / 100
+//        val orderBook = round(orderBookPrice*100) / 100
+        return ((orderBookPrice-preClosingPrice) / preClosingPrice * 100)
     }
 
     fun getDecimalFormat(): DecimalFormat {

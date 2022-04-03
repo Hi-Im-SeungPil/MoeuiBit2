@@ -73,7 +73,7 @@ fun MainBottomNavigation(navController: NavController) {
 }
 
 @Composable
-fun Navigation(
+fun MainNavigation(
     navController: NavHostController,
     viewModel: ExchangeViewModel,
 ) {

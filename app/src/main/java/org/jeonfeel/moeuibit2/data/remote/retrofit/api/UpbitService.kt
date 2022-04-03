@@ -11,4 +11,7 @@ interface UpBitService {
 
     @GET("https://api.upbit.com/v1/ticker")
     suspend fun getKrwTicker(@Query("markets") markets: String): Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/orderbook")
+    suspend fun getKrwOrderBook(@Query("markets") market: String): Response<JsonArray>
 }

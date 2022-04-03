@@ -5,15 +5,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
-
+@AndroidEntryPoint
 class CoinDetailActivity : AppCompatActivity() {
 
     lateinit var coinKoreanName: String
-    lateinit var coinSymbol: String
-    val coinDetailViewModel : CoinDetailViewModel by viewModels()
+    private lateinit var coinSymbol: String
+    private var openingPrice: Double = 0.0
+    private val coinDetailViewModel: CoinDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +30,12 @@ class CoinDetailActivity : AppCompatActivity() {
     private fun initActivity() {
         coinKoreanName = intent.getStringExtra("coinKoreanName") ?: ""
         coinSymbol = intent.getStringExtra("coinSymbol") ?: ""
-        coinDetailViewModel.requestCoinTicker("KRW-".plus(coinSymbol))
+        openingPrice = intent.getDoubleExtra("openingPrice", 0.0)
+        coinDetailViewModel.initOrder("KRW-".plus(coinSymbol),openingPrice)
     }
 
     @Composable
     fun CoinDetailActivityScreen() {
-        CoinDetailScreen(coinKoreanName, coinSymbol,coinDetailViewModel)
+        CoinDetailScreen(coinKoreanName, coinSymbol, coinDetailViewModel)
     }
 }

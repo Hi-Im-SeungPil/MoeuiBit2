@@ -9,20 +9,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
 @Composable
-fun CoinDetailScreen(coinKoreanName: String, coinSymbol: String,coinDetailViewModel: CoinDetailViewModel) {
+fun CoinDetailScreen(
+    coinKoreanName: String,
+    coinSymbol: String,
+    coinDetailViewModel: CoinDetailViewModel,
+) {
     val context = LocalContext.current
-    OnLifecycleEvent{ _, event ->
+    OnLifecycleEvent { _, event ->
         when (event) {
-            Lifecycle.Event.ON_PAUSE -> UpBitWebSocket.onPause()
+            Lifecycle.Event.ON_PAUSE -> UpBitTickerWebSocket.onPause()
             Lifecycle.Event.ON_RESUME -> {
                 coinDetailViewModel.setWebSocketMessageListener()
-                UpBitWebSocket.coinDetailScreenOnResume("KRW-".plus(coinSymbol))
+                UpBitTickerWebSocket.coinDetailScreenOnResume("KRW-".plus(coinSymbol))
             }
             else -> {}
         }
@@ -34,7 +38,9 @@ fun CoinDetailScreen(coinKoreanName: String, coinSymbol: String,coinDetailViewMo
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            CoinDetailMain(coinDetailViewModel.priceState.value,coinSymbol,coinDetailViewModel.coinDetailModel)
+            CoinDetailMain(coinDetailViewModel.priceState.value,
+                coinSymbol,
+                coinDetailViewModel)
         }
         BackHandler(true) {
             (context as CoinDetailActivity).finish()
