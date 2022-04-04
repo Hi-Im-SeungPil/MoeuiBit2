@@ -34,6 +34,7 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 else -> {}
             }
         }
+
         BackHandler(true) {
             val curTime = System.currentTimeMillis()
             val gapTime = curTime - backBtnTime

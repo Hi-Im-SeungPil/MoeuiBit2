@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
@@ -79,7 +80,8 @@ fun ExchangeScreenLazyColumnItem(
                     .weight(1f)
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom),
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
+                overflow = TextOverflow.Ellipsis
             )
             Text(text = "${krwExchangeModel.symbol}/KRW",
                 maxLines = 1,

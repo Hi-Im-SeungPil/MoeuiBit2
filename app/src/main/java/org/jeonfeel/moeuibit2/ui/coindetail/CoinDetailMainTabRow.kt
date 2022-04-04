@@ -64,7 +64,7 @@ fun CoinDetailMainTabRow(navController: NavController) {
 @Composable
 fun TabRowMainNavigation(
     navController: NavHostController,
-    coinDetailViewModel: CoinDetailViewModel
+    coinDetailViewModel: CoinDetailViewModel,
 ) {
 
     NavHost(navController = navController,startDestination = CoinDetailMainTabRowItem.Order.screen_route) {
@@ -75,7 +75,7 @@ fun TabRowMainNavigation(
             AskedPriceScreen()
         }
         composable(CoinDetailMainTabRowItem.Chart.screen_route) {
-            ChartScreen()
+            ChartScreen(coinDetailViewModel)
         }
         composable(CoinDetailMainTabRowItem.MarketPrice.screen_route) {
             MarketPriceScreen()

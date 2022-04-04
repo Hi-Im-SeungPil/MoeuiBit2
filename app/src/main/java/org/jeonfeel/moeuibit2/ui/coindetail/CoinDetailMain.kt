@@ -20,7 +20,7 @@ import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 fun CoinDetailMain(
     currentPrice: Double = 100.0,
     symbol: String,
-    coinDetailViewModel: CoinDetailViewModel
+    coinDetailViewModel: CoinDetailViewModel,
 ) {
     val curTradePrice = getCurTradePriceTextFormat(currentPrice)
     val curChangeRate =

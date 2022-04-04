@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -22,19 +22,34 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
+import kotlin.math.round
 
 @Composable
 fun OrderScreen(
     coinDetailViewModel: CoinDetailViewModel,
 ) {
+
+    OnLifecycleEvent { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_PAUSE -> UpBitOrderBookWebSocket.onPause()
+            Lifecycle.Event.ON_RESUME -> {
+                coinDetailViewModel.setOrderBookWebSocketMessageListener()
+                UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
+            }
+            else -> {}
+        }
+    }
+
     Row(modifier = Modifier.fillMaxSize()) {
         AskingPriceLazyColumn(Modifier
             .weight(3f)
@@ -53,10 +68,11 @@ fun AskingPriceLazyColumn(
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
     LazyColumn(modifier = modifier, state = scrollState) {
-        itemsIndexed(items = coinDetailViewModel.orderBook) { _, item ->
+        itemsIndexed(items = coinDetailViewModel.orderBookMutableStateList) { _, item ->
             AskingPriceLazyColumnItem(item,
                 coinDetailViewModel.preClosingPrice,
-                coinDetailViewModel.priceState.value)
+                coinDetailViewModel.currentTradePriceStateForOrderBook.value,
+                coinDetailViewModel.maxOrderBookSize)
         }
     }
 }
@@ -66,20 +82,22 @@ fun AskingPriceLazyColumnItem(
     orderBook: CoinDetailOrderBookModel,
     preClosingPrice: Double,
     currentTradePrice: Double,
+    maxOrderBookSize: Double,
 ) {
-    var multiplier = remember { mutableStateOf(1f) }
     val price = Calculator.orderBookPriceCalculator(orderBook.price)
     val rate = Calculator.orderBookRateCalculator(preClosingPrice, orderBook.price)
     val textColor = getOrderBookTextColor(rate)
     val borderModifier = getOrderBookBorder(currentTradePrice, orderBook.price)
     val rateResult = String.format("%.2f", rate).plus("%")
     val orderBookSize = String.format("%.3f", orderBook.size)
+    val orderBookBlock = round(orderBook.size / maxOrderBookSize * 100)
+    val orderBokBlockColor = getBlockColor(orderBook.state)
 
     Row(modifier = borderModifier
         .fillMaxWidth()
         .height(40.dp)
         .background(getOrderBookBackGround(orderBook.state))) {
-        Column(modifier = Modifier.weight(2f)) {
+        Column(modifier = Modifier.weight(5f)) {
             Text(text = price,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +114,7 @@ fun AskingPriceLazyColumnItem(
                 style = TextStyle(fontSize = 13.sp, color = textColor))
         }
         Box(modifier = Modifier
-            .weight(1f)
+            .weight(3f)
             .fillMaxHeight()
             .drawWithContent {
                 drawContent()
@@ -110,20 +128,21 @@ fun AskingPriceLazyColumnItem(
                     )
                 }
             }) {
-            Text(text = orderBookSize, modifier = Modifier
-                .padding(2.dp, 0.dp, 0.5.dp, 0.dp)
+            Box(modifier = Modifier
                 .fillMaxHeight()
-                .wrapContentHeight(),
-                maxLines = 1, // modify to fit your need
-                overflow = TextOverflow.Visible,
-                style = LocalTextStyle.current.copy(
-                    fontSize = 15.sp * multiplier.value
-                ),
-                onTextLayout = {
-                    if (it.hasVisualOverflow) {
-                        multiplier.value *= 0.90f // you can tune this constant
-                    }
-                }
+                .wrapContentHeight()
+                .height(20.dp)
+                .fillMaxWidth(1f * orderBookBlock.toFloat() / 100)
+                .background(orderBokBlockColor))
+
+            val textStyleBody1 = MaterialTheme.typography.body1
+            var textStyle = remember { mutableStateOf(textStyleBody1) }
+            AutoSizeText(
+                text = orderBookSize, textStyle = textStyle.value,
+                modifier = Modifier
+                    .padding(2.dp, 0.dp, 0.5.dp, 0.dp)
+                    .fillMaxHeight()
+                    .wrapContentHeight()
             )
         }
     }
@@ -162,8 +181,45 @@ fun getOrderBookBorder(currentPrice: Double, orderBookPrice: Double): Modifier {
 }
 
 @Composable
+fun getBlockColor(kind: Int): Color {
+    return if (kind == 0) {
+        colorResource(id = R.color.orderBookAskBlock)
+    } else {
+        colorResource(id = R.color.orderBookBidBlock)
+    }
+}
+
+@Composable
+fun AutoSizeText(
+    text: String,
+    textStyle: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    var scaledTextStyle = remember { mutableStateOf(textStyle) }
+    var readyToDraw = remember { mutableStateOf(false) }
+
+    Text(
+        text,
+        modifier.drawWithContent {
+            if (readyToDraw.value) {
+                drawContent()
+            }
+        },
+        style = scaledTextStyle.value,
+        softWrap = false,
+        onTextLayout = { textLayoutResult ->
+            if (textLayoutResult.didOverflowWidth) {
+                scaledTextStyle.value =
+                    scaledTextStyle.value.copy(fontSize = scaledTextStyle.value.fontSize * 0.9)
+            } else {
+                readyToDraw.value = true
+            }
+        }
+    )
+}
+
+@Composable
 @Preview(showBackground = true)
 fun preask() {
 //    askingPriceLazyColumnItem()
 }
-

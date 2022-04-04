@@ -38,7 +38,7 @@ fun CoinDetailScreen(
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            CoinDetailMain(coinDetailViewModel.priceState.value,
+            CoinDetailMain(coinDetailViewModel.currentTradePriceState.value,
                 coinSymbol,
                 coinDetailViewModel)
         }

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.listener.UpBitOrderBookWebSocketListener
@@ -21,11 +22,30 @@ object UpBitOrderBookWebSocket {
     }
 
     fun requestOrderBookList(market: String) {
+        socketRebuild()
         val uuid = UUID.randomUUID().toString()
         socket.send("""[{"ticket":"$uuid"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]""")
     }
-    fun initOrderBook(market: String) {
-        val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"orderbook","codes":[${market}],"isOnlySnapshot":true},{"format":"SIMPLE"}]""")
+
+    fun onPause() {
+        socket.close(UpBitOrderBookWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
+        currentSocketState = SOCKET_IS_ON_PAUSE
+        Log.d("onPause","호출")
+    }
+
+    fun onResume(market: String) {
+        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
+            requestOrderBookList(market)
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
+
+    private fun socketRebuild() {
+        if (currentSocketState != SOCKET_IS_CONNECTED) {
+            socket = client.newWebSocket(
+                request,
+                socketListener)
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
     }
 }

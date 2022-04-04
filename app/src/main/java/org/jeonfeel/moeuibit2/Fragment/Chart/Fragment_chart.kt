@@ -313,6 +313,7 @@
 //            barEntries = ArrayList()
 //        }
 //        candleDataSet = CandleDataSet(candleEntries, "")
+
 //        candleDataSet!!.axisDependency = YAxis.AxisDependency.RIGHT
 //        candleDataSet!!.shadowColor = Color.parseColor("#CCEAEAEA")
 //        candleDataSet!!.shadowWidth = 1f

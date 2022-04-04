@@ -5,6 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import com.github.mikephil.charting.charts.CombinedChart
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
@@ -21,7 +22,7 @@ class CoinDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         initActivity()
-
+        val a = CombinedChart(this)
         setContent {
             CoinDetailActivityScreen()
         }

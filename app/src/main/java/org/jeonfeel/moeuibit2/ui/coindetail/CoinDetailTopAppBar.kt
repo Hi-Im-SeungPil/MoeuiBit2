@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
@@ -31,7 +32,8 @@ fun CoinDetailTopAppBar(coinKoreanName: String, coinSymbol: String) {
                     fontSize = 17.sp,
                     textAlign = TextAlign.Center),
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 1)
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis)
         },
         navigationIcon = {
             IconButton(onClick = {

@@ -30,7 +30,7 @@ object UpBitTickerWebSocket {
     fun requestKrwCoinList() {
         socketRebuild()
         val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}],"isOnlyRealtime":true},{"format":"SIMPLE"}]""")
+        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}]},{"format":"SIMPLE"}]""")
     }
 
     fun requestKrwCoin(market: String) {
