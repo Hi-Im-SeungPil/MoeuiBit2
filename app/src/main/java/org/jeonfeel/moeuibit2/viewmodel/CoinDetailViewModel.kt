@@ -154,6 +154,9 @@ class CoinDetailViewModel @Inject constructor(
             candleDataSet.increasingColor = Color.RED
             candleDataSet.increasingPaintStyle = Paint.Style.FILL
             candleDataSet.neutralColor = Color.GRAY
+            candleDataSet.highLightColor = Color.BLACK
+            candleDataSet.setDrawHorizontalHighlightIndicator(true)
+            candleDataSet.isHighlightEnabled= false
             candleDataSet.setDrawValues(false)
 
             val candleData = CandleData(candleDataSet)

@@ -40,7 +40,7 @@ fun CoinDetailMainTabRow(navController: NavController) {
 
     TabRow(selectedTabIndex = tabState.value,
         modifier = Modifier.height(40.dp),
-        backgroundColor = colorResource(id = R.color.design_default_color_background)) {
+        backgroundColor = colorResource(id = R.color.white)) {
         items.forEachIndexed { index, tab ->
             Tab(text = { Text(tab.title) },
                 selected = tabState.value == index,
