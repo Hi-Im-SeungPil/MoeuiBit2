@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class ChartModel(
     @SerializedName("candle_date_time_kst")
     val candleDateTimeKst: String,
+    @SerializedName("candle_date_time_utc")
+    val candleDateTimeUtc: String,
     @SerializedName("opening_price")
     val openingPrice: Double,
     @SerializedName("high_price")

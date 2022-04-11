@@ -21,5 +21,6 @@ interface UpBitService {
         @Path("minute") minute: String,
         @Query("market") market: String,
         @Query("count") count: String,
+        @Query("to") time: String
     ) : Response<JsonArray>
 }

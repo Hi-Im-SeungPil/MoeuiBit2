@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import com.github.mikephil.charting.charts.CombinedChart
-import org.jeonfeel.moeuibit2.util.ChartSetting.Companion.initCombinedChart
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.util.initCombinedChart
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
 @Composable
@@ -31,7 +31,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
                 combinedChart.xAxis.valueFormatter = null
             }
             Lifecycle.Event.ON_START -> {
-                combinedChart.initCombinedChart()
+                combinedChart.initCombinedChart(coinDetailViewModel)
                 coinDetailViewModel.requestChartData("1",combinedChart)
             }
             else -> {}
