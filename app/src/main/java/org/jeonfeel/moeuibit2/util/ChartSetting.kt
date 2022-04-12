@@ -1,10 +1,10 @@
 package org.jeonfeel.moeuibit2.util
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.MotionEvent
-import android.view.View
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
@@ -12,124 +12,171 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.ui.coindetail.DrawPractice
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
 fun CandleDataSet.initCandleDataSet() {
-    this.axisDependency = YAxis.AxisDependency.RIGHT
-    this.shadowColorSameAsCandle = true
-    this.shadowWidth = 1f
-    this.decreasingColor = Color.BLUE
-    this.decreasingPaintStyle = Paint.Style.FILL
-    this.increasingColor = Color.RED
-    this.increasingPaintStyle = Paint.Style.FILL
-    this.neutralColor = Color.GRAY
-    this.highLightColor = Color.BLACK
-    this.setDrawHorizontalHighlightIndicator(false)
-    this.setDrawVerticalHighlightIndicator(false)
-    this.isHighlightEnabled = true
-    this.setDrawValues(false)
+    val candleDataSet = this
+    candleDataSet.apply {
+        axisDependency = YAxis.AxisDependency.RIGHT
+        shadowColorSameAsCandle = true
+        shadowWidth = 1f
+        decreasingColor = Color.BLUE
+        decreasingPaintStyle = Paint.Style.FILL
+        increasingColor = Color.RED
+        increasingPaintStyle = Paint.Style.FILL
+        neutralColor = Color.DKGRAY
+        highLightColor = Color.BLACK
+        setDrawHorizontalHighlightIndicator(false)
+        setDrawVerticalHighlightIndicator(false)
+        isHighlightEnabled = true
+        setDrawValues(false)
+    }
 }
 
 @SuppressLint("ClickableViewAccessibility")
-fun CombinedChart.initCombinedChart(coinDetailViewModel: CoinDetailViewModel) {
-    this.description.isEnabled = false
-    this.isScaleYEnabled = false
-    this.isDoubleTapToZoomEnabled = false
-    this.isDragDecelerationEnabled = false
-    this.isDragEnabled = true
-    this.isAutoScaleMinMaxEnabled = true
-    this.setPinchZoom(false)
-    this.setDrawGridBackground(false)
-    this.setDrawBorders(false)
-    this.fitScreen()
-    this.isDragYEnabled = false
-    this.isHighlightPerTapEnabled = false
+fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinDetailViewModel) {
+    val chart = this@initCombinedChart
+    chart.removeAllViews()
+    //chart
+    chart.apply {
+        description.isEnabled = false
+        isScaleYEnabled = false
+        isDoubleTapToZoomEnabled = false
+        isDragDecelerationEnabled = false
+        isDragEnabled = true
+        isAutoScaleMinMaxEnabled = true
+        isDragYEnabled = false
+        isHighlightPerTapEnabled = false
+        legend.isEnabled = false
+        setPinchZoom(false)
+        setDrawGridBackground(false)
+        setDrawBorders(false)
+        fitScreen()
+    }
+    //bottom Axis
+    val xAxis = chart.xAxis
+    xAxis.apply {
+        textColor = Color.parseColor("#000000")
+        position = XAxis.XAxisPosition.BOTTOM
+        setDrawGridLines(false)
+        setAvoidFirstLastClipping(true)
+        setLabelCount(3, true)
+        setDrawLabels(true)
+        setDrawAxisLine(false)
+        axisLineColor = Color.GRAY
+        granularity = 3f
+        isGranularityEnabled = true
+    }
+    //left Axis
+    val leftAxis = chart.axisLeft
+    leftAxis.apply {
+        setDrawGridLines(false)
+        setDrawLabels(false)
+        setDrawAxisLine(false)
+        axisMinimum = 0f
+    }
+    //right Axis
+    val rightAxis = chart.axisRight
+    rightAxis.apply {
+        setLabelCount(5, true)
+        textColor = Color.BLACK
+        setDrawAxisLine(true)
+        setDrawGridLines(false)
+        axisLineColor = Color.GRAY
+        minWidth = 50f
+    }
 
-    this.setOnTouchListener(object:View.OnTouchListener {
-        override fun onTouch(p0: View?, me: MotionEvent?): Boolean {
-            if (me!!.action == MotionEvent.ACTION_DOWN) {
-                if(coinDetailViewModel.loadingMoreChartData) {
-                    coinDetailViewModel.loadingMoreChartData = false
-                }
+    val canvasView = DrawPractice(context)
+    canvasView.cInit(chart.rendererRightYAxis.paintAxisLabels.textSize)
+    chart.addView(canvasView)
+    chart.setOnTouchListener { _, me ->
+        val action = me!!.action
+        val x = me.x
+        val y = me.y
+        if (action == MotionEvent.ACTION_DOWN) {
+            val highlight = getHighlightByTouchPoint(x, y)
+            val value = chart.getValuesByTouchPoint(
+                x,
+                y,
+                axisRight.axisDependency
+            )
+            val verticalLine = LimitLine(value.x.toInt().toFloat())
+            val horizontalLine = LimitLine(value.y.toFloat())
+            val canvasXPosition =
+                chart.measuredWidth - rightAxis.getRequiredWidthSpace(
+                    chart.rendererRightYAxis.paintAxisLabels
+                )
+            val text = Calculator.tradePriceCalculatorForChart(
+                chart.getValuesByTouchPoint(
+                    x,
+                    y,
+                    axisRight.axisDependency
+                ).y
+            )
+            val length = chart.rendererRightYAxis
+                .paintAxisLabels
+                .measureText(axisRight.longestLabel)
+            val textMarginLeft = axisRight.xOffset
 
-                val highlight = getHighlightByTouchPoint(me.x, me.y)
-                if (highlight != null) {
-                    this@initCombinedChart.highlightValue(highlight, true)
-                }
-
-                if (this@initCombinedChart.xAxis.limitLines.size != 0) {
-                    this@initCombinedChart.xAxis.removeAllLimitLines()
-                    this@initCombinedChart.axisRight.removeAllLimitLines()
-                }
-                val value = this@initCombinedChart.getValuesByTouchPoint(me.x,
-                    me.y,
-                    this@initCombinedChart.axisRight.axisDependency)
-
-                val verticalLine = LimitLine(value.x.toInt().toFloat())
-                verticalLine.apply {
-                    lineColor = Color.BLACK;
-                    lineWidth = 0.5f
-                }
-
+            if (coinDetailViewModel.loadingMoreChartData) {
+                coinDetailViewModel.loadingMoreChartData = false
+            }
+            if (highlight != null) {
+                chart.highlightValue(highlight, true)
+            }
+            if (xAxis.limitLines.size != 0) {
+                xAxis.removeAllLimitLines()
+                rightAxis.removeAllLimitLines()
+            }
+            horizontalLine.apply {
+                lineColor = Color.BLACK;
+                lineWidth = 0.5f
+            }
+            verticalLine.apply {
+                lineColor = Color.BLACK;
+                lineWidth = 0.5f
+            }
+            xAxis.addLimitLine(verticalLine)
+            rightAxis.addLimitLine(horizontalLine)
+            canvasView.actionDownInvalidate(canvasXPosition, y, text, textMarginLeft, length)
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            if (xAxis.limitLines.size != 0) {
+                val value = chart.getValuesByTouchPoint(
+                    x,
+                    y,
+                    rightAxis.axisDependency
+                )
                 val horizontalLine = LimitLine(value.y.toFloat())
+                val text = Calculator.tradePriceCalculatorForChart(
+                    chart.getValuesByTouchPoint(
+                        x,
+                        y,
+                        axisRight.axisDependency
+                    ).y
+                )
                 horizontalLine.apply {
                     lineColor = Color.BLACK;
                     lineWidth = 0.5f
                 }
-                this@initCombinedChart.xAxis.addLimitLine(verticalLine)
-                this@initCombinedChart.axisRight.addLimitLine(horizontalLine)
-            } else if (me.action == MotionEvent.ACTION_MOVE) {
-                if (this@initCombinedChart.xAxis.limitLines.size != 0) {
-                    val value = this@initCombinedChart.getValuesByTouchPoint(me.x,
-                        me.y,
-                        this@initCombinedChart.axisRight.axisDependency)
-                    val horizontalLine = LimitLine(value.y.toFloat())
-                    horizontalLine.apply {
-                        lineColor = Color.BLACK;
-                        lineWidth = 0.5f
-                    }
-                    this@initCombinedChart.axisRight.limitLines[0] = horizontalLine
-                }
-                if(coinDetailViewModel.loadingMoreChartData) {
-                    this@initCombinedChart.moveViewToX(coinDetailViewModel.startPosition)
-                } else if(this@initCombinedChart.lowestVisibleX <= this@initCombinedChart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
-                    coinDetailViewModel.requestMoreData("1",this@initCombinedChart)
+                rightAxis.limitLines[0] = horizontalLine
+                canvasView.actionMoveInvalidate(y, text)
+                val highestVisibleX = chart.highestVisibleX
+                val chartXMax = chart.candleData.xMax
+                if(highestVisibleX < chartXMax) {
+                    coinDetailViewModel.highestVisibleXPrice.value =
+                        chart.candleData.getDataSetByIndex(0)
+                            .getEntryForXValue(highestVisibleX, 0f).close
                 }
             }
-            return false
+        } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
+            coinDetailViewModel.requestMoreData("1", chart)
         }
-    })
-    //bottom Axis
-    val xAxis = this.xAxis
-    xAxis.textColor = Color.parseColor("#000000")
-    xAxis.position = XAxis.XAxisPosition.BOTTOM
-    xAxis.setDrawGridLines(false)
-    xAxis.setAvoidFirstLastClipping(true)
-    xAxis.setLabelCount(3, true)
-    xAxis.setDrawLabels(true)
-    xAxis.setDrawAxisLine(false)
-    xAxis.axisLineColor = Color.GRAY
-    xAxis.granularity = 3f
-    xAxis.isGranularityEnabled = true
-    //left Axis
-    val leftAxis = this.axisLeft
-    leftAxis.setDrawGridLines(false)
-    leftAxis.setDrawLabels(false)
-    leftAxis.setDrawAxisLine(false)
-    leftAxis.axisMinimum = 0f
-    //right Axis
-    val rightAxis = this.axisRight
-    rightAxis.setLabelCount(5, true)
-    rightAxis.textColor = Color.BLACK
-    rightAxis.setDrawAxisLine(true)
-    rightAxis.setDrawGridLines(false)
-    rightAxis.axisLineColor = Color.GRAY
-    rightAxis.minWidth = 50f
+        false
+    }
 }
 
 fun CombinedChart.chartRefreshSetting(
-    chartData: ArrayList<ChartModel>,
     candleEntries: ArrayList<CandleEntry>,
 ) {
     this.zoom(4f, 0f, 0f, 0f)
@@ -141,25 +188,24 @@ fun CombinedChart.chartRefreshSetting(
     }
     this.xAxis.axisMaximum = this.candleData.xMax + 3f
     this.xAxis.axisMinimum = this.candleData.xMin - 3f
-//    if (chartData.size != 0) {
-//        var a: MyValueFormatter? = MyValueFormatter(chartData)
-//        this.xAxis.valueFormatter = a
-//        a = null
-//    }
 }
 
-class MyValueFormatter(var mValue: ArrayList<ChartModel>) :
+class MyValueFormatter :
     ValueFormatter() {
-    var size: Int = mValue.size
+    private var dateHashMap = HashMap<Int, String>()
     override fun getFormattedValue(value: Float): String {
-        if (value.toInt() < 0 || value.toInt() >= size) {
+        if (dateHashMap[value.toInt()] == null) {
             return ""
-        } else if (value.toInt() < size) {
-            val fullyDate = mValue[value.toInt()].candleDateTimeKst.split("T").toTypedArray()
+        } else if (dateHashMap[value.toInt()] != null) {
+            val fullyDate = dateHashMap[value.toInt()]!!.split("T").toTypedArray()
             val date = fullyDate[0].split("-").toTypedArray()
             val time = fullyDate[1].split(":").toTypedArray()
             return date[1] + "-" + date[2] + " " + time[0] + ":" + time[1]
         }
         return ""
+    }
+
+    fun setItem(newDateHashMap: HashMap<Int, String>) {
+        this.dateHashMap = newDateHashMap
     }
 }

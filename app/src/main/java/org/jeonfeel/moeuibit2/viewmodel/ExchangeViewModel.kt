@@ -95,7 +95,8 @@ class ExchangeViewModel @Inject constructor(
         val resultMarketCode = exchangeViewModelRepository.getMarketCodeService()
         if (resultMarketCode.isSuccessful) {
             try {
-                for (i in 0 until resultMarketCode.body()!!.size()) {
+                val indices = resultMarketCode.body()!!.size()
+                for (i in 0 until indices) {
                     val krwMarketCode =
                         gson.fromJson(resultMarketCode.body()!![i], MarketCodeModel::class.java)
                     if (krwMarketCode.market.contains("KRW-")) {
@@ -105,7 +106,8 @@ class ExchangeViewModel @Inject constructor(
                 }
                 krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
                 UpBitTickerWebSocket.setKrwMarkets(krwCoinListStringBuffer.toString())
-                for (i in 0 until krwMarketCodeList.size) {
+                val marketCodeIndices = krwMarketCodeList.size
+                for (i in 0 until marketCodeIndices) {
                     krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
                         listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
                 }
@@ -122,7 +124,8 @@ class ExchangeViewModel @Inject constructor(
             exchangeViewModelRepository.getKrwTickerService(markets)
         if (resultKrwTicker.isSuccessful) {
             try {
-                for (i in 0 until resultKrwTicker.body()!!.size()) {
+                val indices = resultKrwTicker.body()!!.size()
+                for (i in 0 until indices) {
                     val krwTicker =
                         gson.fromJson(resultKrwTicker.body()!![i], ExchangeModel::class.java)
                     krwTickerList.add(krwTicker)
@@ -135,7 +138,8 @@ class ExchangeViewModel @Inject constructor(
     }
 
     private fun createKrwExchangeModelList() {
-        for (i in 0 until krwMarketCodeList.size) {
+        val indices = krwMarketCodeList.size
+        for (i in 0 until indices) {
             val koreanName = krwMarketCodeList[i].korean_name
             val englishName = krwMarketCodeList[i].english_name
             val market = krwMarketCodeList[i].market
@@ -239,17 +243,17 @@ class ExchangeViewModel @Inject constructor(
             }
         }
 
-        for (i in 0 until preItemArray.size) {
+        for (i in preItemArray.indices) {
             preItemArray[i] =
                 krwExchangeModelList[i]
         }
 
-        for (i in 0 until krwExchangeModelList.size) {
+        for (i in krwExchangeModelList.indices) {
             krwExchangeModelListPosition[krwExchangeModelList[i].market] =
                 i
         }
 
-        for (i in 0 until krwExchangeModelList.size) {
+        for (i in krwExchangeModelList.indices) {
             krwExchangeModelMutableStateList[i] =
                 krwExchangeModelList[i]
         }

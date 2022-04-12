@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -28,6 +27,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.CoinDetailRepository
+import org.jeonfeel.moeuibit2.util.MyValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshSetting
 import org.jeonfeel.moeuibit2.util.initCandleDataSet
 import javax.inject.Inject
@@ -55,7 +55,9 @@ class CoinDetailViewModel @Inject constructor(
     private val chartData = ArrayList<ChartModel>()
     private val candleEntries = ArrayList<CandleEntry>()
     var loadingMoreChartData = false
-    var startPosition = 0f
+    private val dateHashMap = HashMap<Int, String>()
+    private val valueFormatter = MyValueFormatter()
+    val highestVisibleXPrice = mutableStateOf(0f)
 
     /**
      * orderScreen
@@ -75,7 +77,6 @@ class CoinDetailViewModel @Inject constructor(
 
     fun setWebSocketMessageListener() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-
     }
 
     fun setOrderBookWebSocketMessageListener() {
@@ -89,21 +90,34 @@ class CoinDetailViewModel @Inject constructor(
             val a = body?.first() ?: JsonObject()
             val modelOBj = gson.fromJson(a, JsonObject::class.java)
             val modelJsonArray = modelOBj.getAsJsonArray("orderbook_units")
-            for (i in modelJsonArray.size() - 1 downTo 0) {
+            val indices = modelJsonArray.size()
+            for (i in indices - 1 downTo 0) {
                 val orderBookAskModel =
-                    gson.fromJson(modelJsonArray[i],
-                        CoinDetailOrderBookAskRetrofitModel::class.java)
-                orderBookMutableStateList.add(CoinDetailOrderBookModel(orderBookAskModel.ask_price,
-                    orderBookAskModel.ask_size,
-                    0))
+                    gson.fromJson(
+                        modelJsonArray[i],
+                        CoinDetailOrderBookAskRetrofitModel::class.java
+                    )
+                orderBookMutableStateList.add(
+                    CoinDetailOrderBookModel(
+                        orderBookAskModel.ask_price,
+                        orderBookAskModel.ask_size,
+                        0
+                    )
+                )
             }
-            for (i in 0 until modelJsonArray.size()) {
+            for (i in 0 until indices) {
                 val orderBookBidModel =
-                    gson.fromJson(modelJsonArray[i],
-                        CoinDetailOrderBookBidRetrofitModel::class.java)
-                orderBookMutableStateList.add(CoinDetailOrderBookModel(orderBookBidModel.bid_price,
-                    orderBookBidModel.bid_size,
-                    1))
+                    gson.fromJson(
+                        modelJsonArray[i],
+                        CoinDetailOrderBookBidRetrofitModel::class.java
+                    )
+                orderBookMutableStateList.add(
+                    CoinDetailOrderBookModel(
+                        orderBookBidModel.bid_price,
+                        orderBookBidModel.bid_size,
+                        1
+                    )
+                )
             }
         }
     }
@@ -122,29 +136,36 @@ class CoinDetailViewModel @Inject constructor(
      * */
     fun requestChartData(minute: String, combinedChart: CombinedChart) {
         val candleDataSet = CandleDataSet(candleEntries, "")
-
         viewModelScope.launch {
             val response = coinDetailRepository.getCandleService(minute, market)
             if (response.isSuccessful) {
                 chartData.clear()
                 candleEntries.clear()
+                dateHashMap.clear()
                 val chartModelList = response.body() ?: JsonArray()
                 if (chartModelList.size() != 0) {
-                    for (i in chartModelList.size() - 1 downTo 0) {
+                    val indices = chartModelList.size()
+                    for (i in indices - 1 downTo 0) {
                         val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
                         if (candlePosition == 0f) {
                             chartData.add(model)
                         }
-                        candleEntries.add(CandleEntry(candlePosition,
-                            model.highPrice.toFloat(),
-                            model.lowPrice.toFloat(),
-                            model.openingPrice.toFloat(),
-                            model.tradePrice.toFloat()))
+                        candleEntries.add(
+                            CandleEntry(
+                                candlePosition,
+                                model.highPrice.toFloat(),
+                                model.lowPrice.toFloat(),
+                                model.openingPrice.toFloat(),
+                                model.tradePrice.toFloat()
+                            )
+                        )
+                        dateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
                         candlePosition += 1f
                     }
                 } else {
                     //TODO
                 }
+                valueFormatter.setItem(dateHashMap)
             }
             candleDataSet.notifyDataSetChanged()
             candleDataSet.initCandleDataSet()
@@ -160,14 +181,14 @@ class CoinDetailViewModel @Inject constructor(
                 combinedChart.data = combinedData
             }
             combinedChart.invalidate()
-            combinedChart.chartRefreshSetting(chartData, candleEntries)
+            combinedChart.chartRefreshSetting(candleEntries)
+            combinedChart.xAxis.valueFormatter = valueFormatter
         }
     }
 
     fun requestMoreData(minute: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
-
-        startPosition = combinedChart.lowestVisibleX
+        val startPosition = combinedChart.lowestVisibleX
         val currentVisible = combinedChart.visibleXRange
         val tempCandleEntries = ArrayList<CandleEntry>()
         val time = chartData.last().candleDateTimeUtc.replace("T", " ")
@@ -176,9 +197,9 @@ class CoinDetailViewModel @Inject constructor(
             val response = coinDetailRepository.getCandleService("1", market, "200", time)
             if (response.isSuccessful) {
                 val chartModelList = response.body() ?: JsonArray()
-                val indices = chartModelList.size() - 1
+                val indices = chartModelList.size()
                 var tempCandlePosition = combinedChart.data.candleData.xMin - indices - 1
-                for (i in indices downTo 0) {
+                for (i in indices - 1 downTo 0) {
                     val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
                     if (i == indices) {
                         chartData.add(model)
@@ -192,12 +213,13 @@ class CoinDetailViewModel @Inject constructor(
                             model.tradePrice.toFloat()
                         )
                     )
+                    dateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
                     tempCandlePosition += 1f
                 }
+                valueFormatter.setItem(dateHashMap)
                 tempCandleEntries.addAll(candleEntries)
                 candleEntries.clear()
                 candleEntries.addAll(tempCandleEntries)
-                Log.d("aaaaa", candleEntries.size.toString())
                 val candleDataSet = CandleDataSet(candleEntries, "")
                 candleDataSet.initCandleDataSet()
                 combinedChart.data.candleData.removeDataSet(0)
@@ -206,6 +228,7 @@ class CoinDetailViewModel @Inject constructor(
                 combinedChart.xAxis.axisMinimum = (combinedChart.data.candleData.xMin - 3f)
                 combinedChart.fitScreen()
                 combinedChart.setVisibleXRangeMaximum(currentVisible)
+                combinedChart.data.notifyDataChanged()
                 combinedChart.moveViewToX(startPosition)
 
                 combinedChart.setVisibleXRangeMinimum(20f)
@@ -227,22 +250,27 @@ class CoinDetailViewModel @Inject constructor(
             var index = 0
             val modelOBj = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = modelOBj.getAsJsonArray("obu")
-            for (i in modelJsonArray.size() - 1 downTo 0) {
+            val indices = modelJsonArray.size()
+            for (i in indices - 1 downTo 0) {
                 val orderBookAskModel =
                     gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
                 orderBookMutableStateList[index] =
-                    CoinDetailOrderBookModel(orderBookAskModel.ask_price,
+                    CoinDetailOrderBookModel(
+                        orderBookAskModel.ask_price,
                         orderBookAskModel.ask_size,
-                        0)
+                        0
+                    )
                 index++
             }
-            for (i in 0 until modelJsonArray.size()) {
+            for (i in 0 until indices) {
                 val orderBookBidModel =
                     gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
                 orderBookMutableStateList[index] =
-                    CoinDetailOrderBookModel(orderBookBidModel.bid_price,
+                    CoinDetailOrderBookModel(
+                        orderBookBidModel.bid_price,
                         orderBookBidModel.bid_size,
-                        1)
+                        1
+                    )
                 index++
             }
             maxOrderBookSize = orderBookMutableStateList.maxOf { it.size }

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -19,6 +20,7 @@ import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
 
     val context = LocalContext.current
+    val applicationContext = context.applicationContext
 
     val combinedChart = remember {
         CombinedChart(context)
@@ -31,8 +33,10 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
                 combinedChart.xAxis.valueFormatter = null
             }
             Lifecycle.Event.ON_START -> {
-                combinedChart.initCombinedChart(coinDetailViewModel)
-                coinDetailViewModel.requestChartData("1",combinedChart)
+
+                combinedChart.initCombinedChart(applicationContext, coinDetailViewModel)
+                combinedChart.addView(drawPractice2)
+                coinDetailViewModel.requestChartData("1", combinedChart)
             }
             else -> {}
         }
@@ -67,5 +71,24 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
         },
             modifier = Modifier.fillMaxSize()
         )
+    }
+}
+
+@Composable
+fun DrawPractice2(context: Context, chart: CombinedChart, coinDetailViewModel: CoinDetailViewModel) {
+    val drawPractice2 = DrawPractice2(context)
+    val canvasXPosition =
+        chart.measuredWidth - chart.axisRight.getRequiredWidthSpace(
+            chart.rendererRightYAxis.paintAxisLabels
+        )
+    drawPractice2.initCanvas(canvasXPosition)
+    val highestVisibleCandlePosition = chart.highestVisibleX
+    val xMax = chart.data.candleData.xMax
+    if(highestVisibleCandlePosition > xMax) {
+        val text = coinDetailViewModel.currentTradePriceState.toString()
+        drawPractice2.invalidate1(text)
+    } else {
+        val text = coinDetailViewModel.highestVisibleXPrice.value.toString()
+        drawPractice2.invalidate2(text,)
     }
 }
