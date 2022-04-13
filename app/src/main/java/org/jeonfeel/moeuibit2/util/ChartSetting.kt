@@ -9,11 +9,16 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.formatter.ValueFormatter
+import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.coindetail.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.coindetail.DrawPractice
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
+import kotlin.math.roundToInt
 
 fun CandleDataSet.initCandleDataSet() {
     val candleDataSet = this
@@ -49,6 +54,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         isDragYEnabled = false
         isHighlightPerTapEnabled = false
         legend.isEnabled = false
+        marker = ChartMarkerView(context, R.layout.candle_info_marker, coinDetailViewModel.kstDateHashMap)
         setPinchZoom(false)
         setDrawGridBackground(false)
         setDrawBorders(false)
@@ -101,18 +107,14 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 y,
                 axisRight.axisDependency
             )
-            val verticalLine = LimitLine(value.x.toInt().toFloat())
+            val verticalLine = LimitLine(value.x.roundToInt().toFloat())
             val horizontalLine = LimitLine(value.y.toFloat())
             val canvasXPosition =
                 chart.measuredWidth - rightAxis.getRequiredWidthSpace(
                     chart.rendererRightYAxis.paintAxisLabels
                 )
             val text = Calculator.tradePriceCalculatorForChart(
-                chart.getValuesByTouchPoint(
-                    x,
-                    y,
-                    axisRight.axisDependency
-                ).y
+                value.y
             )
             val length = chart.rendererRightYAxis
                 .paintAxisLabels
@@ -161,13 +163,14 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 }
                 rightAxis.limitLines[0] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
-                val highestVisibleX = chart.highestVisibleX
-                val chartXMax = chart.candleData.xMax
-                if(highestVisibleX < chartXMax) {
-                    coinDetailViewModel.highestVisibleXPrice.value =
-                        chart.candleData.getDataSetByIndex(0)
-                            .getEntryForXValue(highestVisibleX, 0f).close
-                }
+//                val highestVisibleX = chart.highestVisibleX
+//                val chartXMax = chart.candleData.xMax
+//                if(highestVisibleX < chartXMax) {
+//                    coinDetailViewModel.highestVisibleXPrice.value =
+//                        chart.candleData.getDataSetByIndex(0)
+//                            .getEntryForXValue(highestVisibleX, 0f).close
+//                    Log.d("highestVisibleXPrice",coinDetailViewModel.highestVisibleXPrice.value.toString())
+//                }
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
             coinDetailViewModel.requestMoreData("1", chart)
@@ -176,18 +179,53 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     }
 }
 
-fun CombinedChart.chartRefreshSetting(
-    candleEntries: ArrayList<CandleEntry>,
-) {
-    this.zoom(4f, 0f, 0f, 0f)
-    this.moveViewToX(candleEntries.size.toFloat())
-    if (candleEntries.size >= 20) {
-        this.setVisibleXRangeMinimum(20f)
-    } else {
-        this.setVisibleXRangeMinimum(candleEntries.size.toFloat())
+fun CombinedChart.chartRefreshSetting(candleEntries: ArrayList<CandleEntry>,candleDataSet: CandleDataSet,valueFormatter: MyValueFormatter) {
+    if(candleDataSet.entryCount != 0) {
+        val chart = this
+        val xAxis = chart.xAxis
+        candleDataSet.initCandleDataSet()
+
+        if (chart.combinedData != null) {
+            chart.combinedData.candleData.removeDataSet(0)
+            chart.combinedData.candleData.addDataSet(candleDataSet)
+            chart.combinedData.candleData.notifyDataChanged()
+        } else {
+            val candleData = CandleData(candleDataSet)
+            val combinedData = CombinedData()
+            combinedData.setData(candleData)
+            chart.data = combinedData
+        }
+
+        chart.zoom(4f, 0f, 0f, 0f)
+        chart.moveViewToX(candleEntries.size.toFloat())
+        if (candleEntries.size >= 20) {
+            chart.setVisibleXRangeMinimum(20f)
+        } else {
+            chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
+        }
+        xAxis.axisMaximum = chart.candleData.xMax + 3f
+        xAxis.axisMinimum = chart.candleData.xMin - 3f
+        xAxis.valueFormatter = valueFormatter
     }
-    this.xAxis.axisMaximum = this.candleData.xMax + 3f
-    this.xAxis.axisMinimum = this.candleData.xMin - 3f
+}
+
+fun CombinedChart.chartRefreshLoadMoreData(
+    candleDataSet: CandleDataSet,
+    startPosition: Float,
+    currentVisible: Float
+) {
+    val chart = this
+    candleDataSet.initCandleDataSet()
+    chart.data.candleData.removeDataSet(0)
+    chart.data.candleData.addDataSet(candleDataSet)
+    chart.data.candleData.notifyDataChanged()
+    chart.xAxis.axisMinimum = (chart.data.candleData.xMin - 3f)
+    chart.fitScreen()
+    chart.setVisibleXRangeMaximum(currentVisible)
+    chart.data.notifyDataChanged()
+    chart.moveViewToX(startPosition)
+    chart.setVisibleXRangeMinimum(20f)
+    chart.setVisibleXRangeMaximum(190f)
 }
 
 class MyValueFormatter :

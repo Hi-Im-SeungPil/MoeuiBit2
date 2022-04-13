@@ -28,6 +28,16 @@ object Calculator {
         }
     }
 
+    fun tradePriceCalculatorForChart(tradePrice: Float): String {
+        return if (tradePrice >= 100) {
+            decimalFormat.format(round(tradePrice))
+        } else if (tradePrice < 100 && tradePrice >= 1) {
+            String.format("%.2f", tradePrice)
+        } else {
+            String.format("%.4f", tradePrice)
+        }
+    }
+
     fun signedChangeRateCalculator(signedChangeRate: Double): String {
         return String.format("%.2f", signedChangeRate * 100)
     }
@@ -71,6 +81,13 @@ object Calculator {
 //        val open = round(openingPrice*100) / 100
 //        val orderBook = round(orderBookPrice*100) / 100
         return ((orderBookPrice-preClosingPrice) / preClosingPrice * 100)
+    }
+
+    fun markerViewRateCalculator(preClosingPrice: Float, orderBookPrice: Float): Float {
+//        증가액 / 전년도 연봉 * 100
+//        val open = round(openingPrice*100) / 100
+//        val orderBook = round(orderBookPrice*100) / 100
+        return (orderBookPrice-preClosingPrice) / preClosingPrice * 100
     }
 
     fun getDecimalFormat(): DecimalFormat {
