@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.charts.CombinedChart
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import com.google.gson.Gson
@@ -31,6 +33,7 @@ import org.jeonfeel.moeuibit2.repository.CoinDetailRepository
 import org.jeonfeel.moeuibit2.util.MyValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.util.chartRefreshSetting
+import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,24 +49,30 @@ class CoinDetailViewModel @Inject constructor(
 
     val gson = Gson()
     private val isTickerSocketRunning = true
-    private val isOrderBookSocketRunning = true
+
+    //    private val isOrderBookSocketRunning = true
+    var isUpdateChart = true
 
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
 
-    private val firstCandleDataSetMutableLiveData = MutableLiveData<CandleDataSet>()
-    val firstCandleDataSetLiveData: LiveData<CandleDataSet> get() = firstCandleDataSetMutableLiveData
+    private val firstCandleDataSetMutableLiveData = MutableLiveData<String>()
+    val firstCandleDataSetLiveData: LiveData<String> get() = firstCandleDataSetMutableLiveData
 
     var candlePosition = 0f
+    private var candleEntriesLastPosition = 0
     private val chartData = ArrayList<ChartModel>()
-    val candleEntries = ArrayList<CandleEntry>()
+    private val candleEntries = ArrayList<CandleEntry>()
+    private val positiveBarEntries = ArrayList<BarEntry>()
+    private val negativeBarEntries = ArrayList<BarEntry>()
 
+    val candleType = mutableStateOf("1")
     var loadingMoreChartData = false
     val kstDateHashMap = HashMap<Int, String>()
-    val utcDateArray = ArrayList<String>()
+    private val utcDateList = ArrayList<String>()
+    private var kstTime = ""
     private val valueFormatter = MyValueFormatter()
-//    val highestVisibleXPrice = mutableStateOf(0f)
 
     /**
      * orderScreen
@@ -131,7 +140,12 @@ class CoinDetailViewModel @Inject constructor(
     private fun updateTicker() {
         viewModelScope.launch {
             while (isTickerSocketRunning) {
-                currentTradePriceState.value = coinDetailModel.tradePrice
+                val tradPrice = coinDetailModel.tradePrice
+                currentTradePriceState.value = tradPrice
+                if (isUpdateChart && candleEntries.isNotEmpty()) {
+                    candleEntries[candleEntriesLastPosition].close = tradPrice.toFloat()
+                    firstCandleDataSetMutableLiveData.postValue("set")
+                }
                 delay(100)
             }
         }
@@ -140,17 +154,38 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * chartScreen
      * */
-    fun requestChartData(minute: String, combinedChart: CombinedChart) {
+    fun requestChartData(candleType: String, combinedChart: CombinedChart) {
+        isUpdateChart = false
         viewModelScope.launch {
-            val response = coinDetailRepository.getCandleService(minute, market)
-            if (response.isSuccessful) {
+            val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
+                coinDetailRepository.getOtherCandleService(candleType, market)
+            } else {
+                coinDetailRepository.getMinuteCandleService(candleType, market)
+            }
+            if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+                candlePosition = 0f
+                candleEntriesLastPosition = 0
                 chartData.clear()
                 candleEntries.clear()
+                positiveBarEntries.clear()
+                negativeBarEntries.clear()
+                utcDateList.clear()
                 kstDateHashMap.clear()
                 val chartModelList = response.body() ?: JsonArray()
                 if (chartModelList.size() != 0) {
                     val indices = chartModelList.size()
-                    utcDateArray.add(gson.fromJson(chartModelList[indices - 1], ChartModel::class.java).candleDateTimeUtc)
+                    utcDateList.add(
+                        gson.fromJson(
+                            chartModelList[indices - 1],
+                            ChartModel::class.java
+                        ).candleDateTimeUtc
+                    )
+
+                    kstTime = gson.fromJson(
+                        chartModelList[0],
+                        ChartModel::class.java
+                    ).candleDateTimeKst
+
                     for (i in indices - 1 downTo 0) {
                         val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
                         candleEntries.add(
@@ -162,33 +197,63 @@ class CoinDetailViewModel @Inject constructor(
                                 model.tradePrice.toFloat()
                             )
                         )
+                        if(model.tradePrice - model.openingPrice >= 0.0) {
+                            positiveBarEntries.add(
+                                BarEntry(candlePosition,model.candleAccTradePrice.toFloat())
+                            )
+                        } else {
+                            negativeBarEntries.add(
+                                BarEntry(candlePosition,model.candleAccTradePrice.toFloat())
+                            )
+                        }
+
                         kstDateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
                         candlePosition += 1f
+                        candleEntriesLastPosition = candleEntries.size - 1
                     }
                 } else {
                     //TODO
                 }
                 valueFormatter.setItem(kstDateHashMap)
+                candlePosition -= 1f
+                Log.d("aaaaz",( positiveBarEntries.size + negativeBarEntries.size ).toString())
             }
-            combinedChart.chartRefreshSetting(candleEntries, CandleDataSet(candleEntries,""),valueFormatter)
+            combinedChart.chartRefreshSetting(
+                candleEntries,
+                CandleDataSet(candleEntries, ""),
+                BarDataSet(positiveBarEntries,""),
+                BarDataSet(negativeBarEntries,""),
+                valueFormatter
+            )
+            isUpdateChart = true
+            updateChart()
         }
     }
 
-    fun requestMoreData(minute: String, combinedChart: CombinedChart) {
+    fun requestMoreData(candleType: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
-        val startPosition = combinedChart.lowestVisibleX
-        val currentVisible = combinedChart.visibleXRange
-        val tempCandleEntries = ArrayList<CandleEntry>()
-        val time = utcDateArray.last().replace("T", " ")
-        Log.d("aaaa",time)
-//        Log.d("aaaa",kstDateHashMap[combinedChart.candleData.xMin.toInt()]!!)
+        val time = utcDateList.last().replace("T", " ")
         viewModelScope.launch {
-            val response = coinDetailRepository.getCandleService("1", market, "200", time)
-            if (response.isSuccessful) {
+            val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
+                coinDetailRepository.getOtherCandleService(candleType, market, "200", time)
+            } else {
+                coinDetailRepository.getMinuteCandleService(candleType, market, "200", time)
+            }
+            if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+                val startPosition = combinedChart.lowestVisibleX
+                val currentVisible = combinedChart.visibleXRange
+                val tempCandleEntries = ArrayList<CandleEntry>()
+                val tempPositiveBarEntries = ArrayList<BarEntry>()
+                val tempNegativeBarEntries = ArrayList<BarEntry>()
                 val chartModelList = response.body() ?: JsonArray()
                 val indices = chartModelList.size()
                 var tempCandlePosition = combinedChart.data.candleData.xMin - indices
-                utcDateArray.add(gson.fromJson(chartModelList[indices - 1], ChartModel::class.java).candleDateTimeUtc)
+                utcDateList.add(
+                    gson.fromJson(
+                        chartModelList[indices - 1],
+                        ChartModel::class.java
+                    ).candleDateTimeUtc
+                )
                 for (i in indices - 1 downTo 0) {
                     val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
                     tempCandleEntries.add(
@@ -200,19 +265,92 @@ class CoinDetailViewModel @Inject constructor(
                             model.tradePrice.toFloat()
                         )
                     )
+
+                    if(model.tradePrice - model.openingPrice >= 0.0) {
+                        tempPositiveBarEntries.add(
+                            BarEntry(tempCandlePosition,model.candleAccTradePrice.toFloat())
+                        )
+                    } else {
+                        tempNegativeBarEntries.add(
+                            BarEntry(tempCandlePosition,model.candleAccTradePrice.toFloat())
+                        )
+                    }
+
                     kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
                     tempCandlePosition += 1f
+                    Log.d("aaaaz2",( positiveBarEntries.size + negativeBarEntries.size ).toString())
                 }
                 valueFormatter.setItem(kstDateHashMap)
+
                 tempCandleEntries.addAll(candleEntries)
                 candleEntries.clear()
                 candleEntries.addAll(tempCandleEntries)
+                tempPositiveBarEntries.addAll(positiveBarEntries)
+                tempNegativeBarEntries.addAll(negativeBarEntries)
+                positiveBarEntries.clear()
+                negativeBarEntries.clear()
+                positiveBarEntries.addAll(tempPositiveBarEntries)
+                negativeBarEntries.addAll(tempNegativeBarEntries)
+
+                candleEntriesLastPosition = candleEntries.size - 1
+
                 val candleDataSet = CandleDataSet(candleEntries, "")
+                val positiveBarDataSet = BarDataSet(positiveBarEntries,"")
+                val negativeBarDataSet = BarDataSet(negativeBarEntries,"")
                 combinedChart.chartRefreshLoadMoreData(
                     candleDataSet,
+                    positiveBarDataSet,
+                    negativeBarDataSet,
                     startPosition,
                     currentVisible
                 )
+            }
+        }
+    }
+
+    private fun updateChart() {
+        viewModelScope.launch {
+            while (isUpdateChart) {
+                val response: Response<JsonArray> = if (candleType.value.toIntOrNull() == null) {
+                    coinDetailRepository.getOtherCandleService(candleType.value, market, "1")
+                } else {
+                    coinDetailRepository.getMinuteCandleService(candleType.value, market, "1")
+                }
+                if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+                    val newData = response.body()
+                    val model = gson.fromJson(newData!!.first(), ChartModel::class.java)
+                    if (kstTime != model.candleDateTimeKst) {
+                        isUpdateChart = false
+                        candleEntries.add(
+                            CandleEntry(
+                                candlePosition,
+                                model.highPrice.toFloat(),
+                                model.lowPrice.toFloat(),
+                                model.openingPrice.toFloat(),
+                                model.tradePrice.toFloat()
+                            )
+                        )
+                        kstTime = model.candleDateTimeKst
+                        candlePosition += 1f
+                        candleEntriesLastPosition += 1
+                        kstDateHashMap[candlePosition.toInt()] = kstTime
+                        valueFormatter.addItem(kstTime, candlePosition.toInt())
+                        firstCandleDataSetMutableLiveData.postValue("add")
+                        isUpdateChart = true
+                    } else {
+                        val last = candleEntries.lastIndex
+                        candleEntries[last] =
+                            CandleEntry(
+                                candlePosition,
+                                model.highPrice.toFloat(),
+                                model.lowPrice.toFloat(),
+                                model.openingPrice.toFloat(),
+                                model.tradePrice.toFloat()
+                            )
+                        firstCandleDataSetMutableLiveData.postValue("set")
+                    }
+                }
+                delay(600)
             }
         }
     }

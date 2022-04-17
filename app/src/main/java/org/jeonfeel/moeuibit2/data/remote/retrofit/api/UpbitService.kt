@@ -17,8 +17,16 @@ interface UpBitService {
     suspend fun getKrwOrderBook(@Query("markets") market: String): Response<JsonArray>
 
     @GET("https://api.upbit.com/v1/candles/minutes/{minute}")
-    suspend fun getCandle(
+    suspend fun getMinuteCandle(
         @Path("minute") minute: String,
+        @Query("market") market: String,
+        @Query("count") count: String,
+        @Query("to") time: String
+    ) : Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/candles/{period}")
+    suspend fun getOtherCandle(
+        @Path("period") period: String,
         @Query("market") market: String,
         @Query("count") count: String,
         @Query("to") time: String

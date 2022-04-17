@@ -9,8 +9,12 @@ class CoinDetailRepository(private val upBitService: UpBitService) {
         return upBitService.getKrwOrderBook(market)
     }
 
-    suspend fun getCandleService(minute: String, market: String, count: String = "200", time: String = "") : Response<JsonArray> {
-        return upBitService.getCandle(minute,market,count,time)
+    suspend fun getMinuteCandleService(minute: String, market: String, count: String = "200", time: String = "") : Response<JsonArray> {
+        return upBitService.getMinuteCandle(minute,market,count,time)
+    }
+
+    suspend fun getOtherCandleService(candleType: String, market: String, count: String = "200", time: String = "") : Response<JsonArray> {
+        return upBitService.getOtherCandle(candleType,market,count,time)
     }
 
 }

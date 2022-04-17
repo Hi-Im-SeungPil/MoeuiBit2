@@ -9,10 +9,7 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.CandleData
-import com.github.mikephil.charting.data.CandleDataSet
-import com.github.mikephil.charting.data.CandleEntry
-import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.ChartMarkerView
@@ -39,6 +36,28 @@ fun CandleDataSet.initCandleDataSet() {
     }
 }
 
+fun BarDataSet.initPositiveBarDataSet() {
+    val barDataSet = this
+    barDataSet.apply {
+        axisDependency = YAxis.AxisDependency.LEFT
+        isHighlightEnabled = false
+        color = Color.parseColor("#4DFF0000")
+        setDrawIcons(false)
+        setDrawValues(false)
+    }
+}
+
+fun BarDataSet.initNegativeBarDataSet() {
+    val barDataSet = this
+    barDataSet.apply {
+        axisDependency = YAxis.AxisDependency.LEFT
+        isHighlightEnabled = false
+        color = Color.parseColor("#4D0100FF")
+        setDrawIcons(false)
+        setDrawValues(false)
+    }
+}
+
 @SuppressLint("ClickableViewAccessibility")
 fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinDetailViewModel) {
     val chart = this@initCombinedChart
@@ -54,7 +73,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         isDragYEnabled = false
         isHighlightPerTapEnabled = false
         legend.isEnabled = false
-        marker = ChartMarkerView(context, R.layout.candle_info_marker, coinDetailViewModel.kstDateHashMap)
+        marker = ChartMarkerView(context,
+            R.layout.candle_info_marker,
+            coinDetailViewModel.kstDateHashMap)
         setPinchZoom(false)
         setDrawGridBackground(false)
         setDrawBorders(false)
@@ -80,6 +101,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         setDrawGridLines(false)
         setDrawLabels(false)
         setDrawAxisLine(false)
+        spaceTop = 400f
         axisMinimum = 0f
     }
     //right Axis
@@ -91,6 +113,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         setDrawGridLines(false)
         axisLineColor = Color.GRAY
         minWidth = 50f
+        spaceBottom = 40f
     }
 
     val canvasView = DrawPractice(context)
@@ -132,11 +155,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 rightAxis.removeAllLimitLines()
             }
             horizontalLine.apply {
-                lineColor = Color.BLACK;
+                lineColor = Color.BLACK
                 lineWidth = 0.5f
             }
             verticalLine.apply {
-                lineColor = Color.BLACK;
+                lineColor = Color.BLACK
                 lineWidth = 0.5f
             }
             xAxis.addLimitLine(verticalLine)
@@ -158,7 +181,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     ).y
                 )
                 horizontalLine.apply {
-                    lineColor = Color.BLACK;
+                    lineColor = Color.BLACK
                     lineWidth = 0.5f
                 }
                 rightAxis.limitLines[0] = horizontalLine
@@ -173,52 +196,73 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
 //                }
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
-            coinDetailViewModel.requestMoreData("1", chart)
+            coinDetailViewModel.requestMoreData(coinDetailViewModel.candleType.value, chart)
         }
         false
     }
 }
 
-fun CombinedChart.chartRefreshSetting(candleEntries: ArrayList<CandleEntry>,candleDataSet: CandleDataSet,valueFormatter: MyValueFormatter) {
-    if(candleDataSet.entryCount != 0) {
+fun CombinedChart.chartRefreshSetting(
+    candleEntries: ArrayList<CandleEntry>,
+    candleDataSet: CandleDataSet,
+    positiveBarDataSet: BarDataSet,
+    negativeBarDataSet: BarDataSet,
+    valueFormatter: MyValueFormatter,
+) {
+    if (candleDataSet.entryCount != 0
+        && positiveBarDataSet.entryCount != 0 && negativeBarDataSet.entryCount != 0
+    ) {
         val chart = this
         val xAxis = chart.xAxis
         candleDataSet.initCandleDataSet()
+        positiveBarDataSet.initPositiveBarDataSet()
+        negativeBarDataSet.initNegativeBarDataSet()
 
-        if (chart.combinedData != null) {
-            chart.combinedData.candleData.removeDataSet(0)
-            chart.combinedData.candleData.addDataSet(candleDataSet)
-            chart.combinedData.candleData.notifyDataChanged()
-        } else {
-            val candleData = CandleData(candleDataSet)
-            val combinedData = CombinedData()
-            combinedData.setData(candleData)
-            chart.data = combinedData
-        }
+        val candleData = CandleData(candleDataSet)
+        val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
+        val combinedData = CombinedData()
+        combinedData.setData(candleData)
+        combinedData.setData(barData)
+        chart.data = combinedData
 
+        chart.candleData.notifyDataChanged()
+        chart.barData.notifyDataChanged()
+        xAxis.axisMaximum = chart.candleData.xMax + 3f
+        xAxis.axisMinimum = chart.candleData.xMin - 3f
+        chart.fitScreen()
         chart.zoom(4f, 0f, 0f, 0f)
-        chart.moveViewToX(candleEntries.size.toFloat())
         if (candleEntries.size >= 20) {
             chart.setVisibleXRangeMinimum(20f)
         } else {
             chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
         }
-        xAxis.axisMaximum = chart.candleData.xMax + 3f
-        xAxis.axisMinimum = chart.candleData.xMin - 3f
+
+        chart.data.notifyDataChanged()
         xAxis.valueFormatter = valueFormatter
+        chart.moveViewToX(candleEntries.size.toFloat())
     }
 }
 
 fun CombinedChart.chartRefreshLoadMoreData(
     candleDataSet: CandleDataSet,
+    positiveBarDataSet: BarDataSet,
+    negativeBarDataSet: BarDataSet,
     startPosition: Float,
-    currentVisible: Float
+    currentVisible: Float,
 ) {
     val chart = this
     candleDataSet.initCandleDataSet()
-    chart.data.candleData.removeDataSet(0)
-    chart.data.candleData.addDataSet(candleDataSet)
-    chart.data.candleData.notifyDataChanged()
+    positiveBarDataSet.initPositiveBarDataSet()
+    negativeBarDataSet.initNegativeBarDataSet()
+
+    val candleData = CandleData(candleDataSet)
+    val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
+    val combinedData = CombinedData()
+    combinedData.setData(candleData)
+    combinedData.setData(barData)
+    chart.data = combinedData
+    chart.data.notifyDataChanged()
+
     chart.xAxis.axisMinimum = (chart.data.candleData.xMin - 3f)
     chart.fitScreen()
     chart.setVisibleXRangeMaximum(currentVisible)
@@ -245,5 +289,9 @@ class MyValueFormatter :
 
     fun setItem(newDateHashMap: HashMap<Int, String>) {
         this.dateHashMap = newDateHashMap
+    }
+
+    fun addItem(newDateString: String, position: Int) {
+        this.dateHashMap[position] = newDateString
     }
 }
