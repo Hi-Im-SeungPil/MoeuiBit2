@@ -136,7 +136,7 @@ fun AskingPriceLazyColumnItem(
                 .background(orderBokBlockColor))
 
             val textStyleBody1 = MaterialTheme.typography.body1
-            var textStyle = remember { mutableStateOf(textStyleBody1) }
+            val textStyle = remember { mutableStateOf(textStyleBody1) }
             AutoSizeText(
                 text = orderBookSize, textStyle = textStyle.value,
                 modifier = Modifier
@@ -195,8 +195,8 @@ fun AutoSizeText(
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
 ) {
-    var scaledTextStyle = remember { mutableStateOf(textStyle) }
-    var readyToDraw = remember { mutableStateOf(false) }
+    val scaledTextStyle = remember { mutableStateOf(textStyle) }
+    val readyToDraw = remember { mutableStateOf(false) }
 
     Text(
         text,

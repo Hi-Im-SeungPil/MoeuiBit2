@@ -81,7 +81,7 @@ fun TabRowMainNavigation(
             MarketPriceScreen()
         }
         composable(CoinDetailMainTabRowItem.CoinInfo.screen_route) {
-            CoinInfoScreen()
+            CoinInfoScreen(coinDetailViewModel)
         }
     }
 }

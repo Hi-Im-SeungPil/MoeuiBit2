@@ -123,6 +123,8 @@ dependencies {
     implementation "com.google.accompanist:accompanist-insets-ui:0.22.0-rc"
     //localBroadcastManager
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    //flexWebView
+    implementation 'com.github.Kyun-J:FlexHybridApp-Android:1.0.3'
 }
 repositories {
     mavenCentral()

@@ -12,6 +12,10 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -57,8 +61,8 @@ class CoinDetailViewModel @Inject constructor(
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
 
-    private val firstCandleDataSetMutableLiveData = MutableLiveData<String>()
-    val firstCandleDataSetLiveData: LiveData<String> get() = firstCandleDataSetMutableLiveData
+    private val _firstCandleDataSetMutableLiveData = MutableLiveData<String>()
+    val firstCandleDataSetLiveData: LiveData<String> get() = _firstCandleDataSetMutableLiveData
 
     var candlePosition = 0f
     private var candleEntriesLastPosition = 0
@@ -73,6 +77,11 @@ class CoinDetailViewModel @Inject constructor(
     private val utcDateList = ArrayList<String>()
     private var kstTime = ""
     private val valueFormatter = MyValueFormatter()
+
+    private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String,String>>()
+    val coinInfoLiveData: LiveData<HashMap<String,String>> get() = _coinInfoMutableLiveData
+
+    val coinInfoHashMap = mutableStateOf(HashMap<String,String>())
 
     /**
      * orderScreen
@@ -144,7 +153,7 @@ class CoinDetailViewModel @Inject constructor(
                 currentTradePriceState.value = tradPrice
                 if (isUpdateChart && candleEntries.isNotEmpty()) {
                     candleEntries[candleEntriesLastPosition].close = tradPrice.toFloat()
-                    firstCandleDataSetMutableLiveData.postValue("set")
+                    _firstCandleDataSetMutableLiveData.postValue("set")
                 }
                 delay(100)
             }
@@ -335,7 +344,7 @@ class CoinDetailViewModel @Inject constructor(
                         candleEntriesLastPosition += 1
                         kstDateHashMap[candlePosition.toInt()] = kstTime
                         valueFormatter.addItem(kstTime, candlePosition.toInt())
-                        firstCandleDataSetMutableLiveData.postValue("add")
+                        _firstCandleDataSetMutableLiveData.postValue("add")
                         isUpdateChart = true
                     } else {
                         val last = candleEntries.lastIndex
@@ -347,12 +356,37 @@ class CoinDetailViewModel @Inject constructor(
                                 model.openingPrice.toFloat(),
                                 model.tradePrice.toFloat()
                             )
-                        firstCandleDataSetMutableLiveData.postValue("set")
+                        _firstCandleDataSetMutableLiveData.postValue("set")
                     }
                 }
                 delay(600)
             }
         }
+    }
+
+    /**
+     * coinInfo
+     * */
+
+    fun getCoinInfo() {
+        val mDatabase = FirebaseDatabase.getInstance().reference
+        mDatabase.child("coinInfo").child(market).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val coinInfos = HashMap<String,String>()
+
+                coinInfos["homepage"] = snapshot.child("homepage").getValue(String::class.java)!!
+                coinInfos["amount"] = snapshot.child("amount").getValue(String::class.java)!!
+                coinInfos["twitter"] = snapshot.child("twitter").getValue(String::class.java)!!
+                coinInfos["block"] = snapshot.child("block").getValue(String::class.java)!!
+                coinInfos["info"] = snapshot.child("content").getValue(String::class.java)!!
+
+                _coinInfoMutableLiveData.postValue(coinInfos)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("firebase error", error.message)
+            }
+        })
     }
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
