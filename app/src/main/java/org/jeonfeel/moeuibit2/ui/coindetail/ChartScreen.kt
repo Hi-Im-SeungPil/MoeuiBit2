@@ -1,12 +1,18 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -22,9 +28,14 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
 
     val context = LocalContext.current
     val applicationContext = context.applicationContext
-
     val combinedChart = remember {
         CombinedChart(context)
+    }
+    val minuteVisible = remember {
+        mutableStateOf(false)
+    }
+    val minuteText = remember {
+        mutableStateOf("1분")
     }
 
     OnLifecycleEvent { lifeCycleOwner, event ->
@@ -42,13 +53,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
                 )
                 coinDetailViewModel.isUpdateChart = true
                 coinDetailViewModel.firstCandleDataSetLiveData.observe(lifeCycleOwner, Observer {
-                    if(it == "add") {
+                    if (it == "add") {
                         combinedChart.candleData.notifyDataChanged()
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
                         combinedChart.data.notifyDataChanged()
                         combinedChart.invalidate()
                     } else {
-                        if(combinedChart.candleData != null) {
+                        if (combinedChart.candleData != null) {
                             combinedChart.candleData.notifyDataChanged()
                             combinedChart.invalidate()
                         }
@@ -65,99 +76,217 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
                 .fillMaxWidth()
                 .height(35.dp)
         ) {
-            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text(text = "분") }
-            Button(onClick = {
+            TextButton(onClick = {
+                minuteVisible.value = !minuteVisible.value
+            }, modifier = Modifier.weight(1f)) { Text(text = minuteText.value) }
+            TextButton(onClick = {
                 coinDetailViewModel.candleType.value = "days"
                 coinDetailViewModel.requestChartData(
                     coinDetailViewModel.candleType.value,
                     combinedChart
                 )
+                minuteText.value = "분"
             }, modifier = Modifier.weight(1f)) { Text(text = "일") }
-            Button(onClick = {
+            TextButton(onClick = {
                 coinDetailViewModel.candleType.value = "weeks"
                 coinDetailViewModel.requestChartData(
                     coinDetailViewModel.candleType.value,
                     combinedChart
                 )
+                minuteText.value = "분"
             }, modifier = Modifier.weight(1f)) { Text(text = "주") }
-            Button(onClick = {
+            TextButton(onClick = {
                 coinDetailViewModel.candleType.value = "months"
                 coinDetailViewModel.requestChartData(
                     coinDetailViewModel.candleType.value,
                     combinedChart
                 )
+                minuteText.value = "분"
             }, modifier = Modifier.weight(1f)) { Text(text = "월") }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(35.dp)
-        ) {
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "1"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+                factory = { context ->
                     combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "1분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "3"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "3분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "5"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "5분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "10"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "10분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "15"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "15분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "30"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "30분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "60"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "60분") }
-            Button(onClick = {
-                coinDetailViewModel.candleType.value = "240"
-                coinDetailViewModel.requestChartData(
-                    coinDetailViewModel.candleType.value,
-                    combinedChart
-                )
-            }, modifier = Modifier.weight(1f)) { Text(text = "240분") }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+            if (minuteVisible.value) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(35.dp)
+                        .align(Alignment.TopCenter)
+                ) {
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "1"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "1분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        Text(text = "1분")
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "3"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "3분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        Text(text = "3분")
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "5"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "5분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        Text(text = "5분")
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "10"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "10분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        val style = MaterialTheme.typography.body1
+                        val textStyle = remember { mutableStateOf(style) }
+                        AutoSizeText(
+                            text = "10분", textStyle = textStyle.value,
+                            modifier = Modifier
+                        )
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "15"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "15분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        val style = MaterialTheme.typography.body1
+                        val textStyle = remember { mutableStateOf(style) }
+                        AutoSizeText(
+                            text = "15분", textStyle = textStyle.value,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight()
+                                .weight(1f)
+                        )
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "30"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "30분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        val style = MaterialTheme.typography.body1
+                        val textStyle = remember { mutableStateOf(style) }
+                        AutoSizeText(
+                            text = "30분", textStyle = textStyle.value,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight()
+                                .weight(1f)
+                        )
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "60"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "60분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        val style = MaterialTheme.typography.body1
+                        val textStyle = remember { mutableStateOf(style) }
+                        AutoSizeText(
+                            text = "60분", textStyle = textStyle.value,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight()
+                                .weight(1f)
+                        )
+                    }
+                    TextButton(onClick = {
+                        coinDetailViewModel.candleType.value = "240"
+                        coinDetailViewModel.requestChartData(
+                            coinDetailViewModel.candleType.value,
+                            combinedChart
+                        )
+                        minuteVisible.value = false
+                        minuteText.value = "240분"
+                    }, modifier = Modifier
+                        .weight(1f)
+                        .background(Color.White)
+                        .border(0.5.dp,Color.LightGray)
+                        .fillMaxHeight()
+                    ) {
+                        val style = MaterialTheme.typography.body1
+                        val textStyle = remember { mutableStateOf(style) }
+                        AutoSizeText(
+                            text = "240분", textStyle = textStyle.value,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight()
+                                .weight(1f)
+                        )
+                    }
+                }
+            }
         }
-
-        AndroidView(
-            factory = { context ->
-                combinedChart
-            },
-            modifier = Modifier.fillMaxSize()
-        )
     }
 }
 
@@ -165,7 +294,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
 fun DrawPractice2(
     context: Context,
     chart: CombinedChart,
-    coinDetailViewModel: CoinDetailViewModel
+    coinDetailViewModel: CoinDetailViewModel,
 ) {
     val drawPractice2 = DrawPractice2(context)
 //    val canvasXPosition =

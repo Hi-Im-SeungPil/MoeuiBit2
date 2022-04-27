@@ -27,8 +27,7 @@ fun ExchangeErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
     val context = LocalContext.current
     val errorText = when (currentNetworkState) {
         NO_INTERNET_CONNECTION -> context.getString(R.string.NO_INTERNET_CONNECTION)
-        NETWORK_ERROR -> context.getString(R.string.NETWORK_ERROR)
-        else -> ""
+        else -> context.getString(R.string.NETWORK_ERROR)
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Card(modifier = Modifier

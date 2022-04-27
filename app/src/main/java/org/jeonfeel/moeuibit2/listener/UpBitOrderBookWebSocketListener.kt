@@ -5,11 +5,12 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 
 class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     private var messageListener: OnOrderBookMessageReceiveListener? = null
-//            && this.messageListener !== onOrderBookMessageReceiveListener
+
     fun setOrderBookMessageListener(onOrderBookMessageReceiveListener: OnOrderBookMessageReceiveListener?) {
         if (onOrderBookMessageReceiveListener != null) {
             this.messageListener = onOrderBookMessageReceiveListener
@@ -41,6 +42,7 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.d("onFailure",t.message.toString())
+        UpBitOrderBookWebSocket.onFail()
     }
 
     companion object {

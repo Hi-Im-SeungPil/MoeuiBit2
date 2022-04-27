@@ -6,8 +6,11 @@ import okhttp3.Request
 import org.jeonfeel.moeuibit2.listener.UpBitOrderBookWebSocketListener
 import java.util.*
 
+
+
 object UpBitOrderBookWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
+    private var retryCount = 0
     private val TAG = UpBitTickerWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
@@ -46,6 +49,13 @@ object UpBitOrderBookWebSocket {
                 request,
                 socketListener)
             currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
+
+    fun onFail() {
+        if(retryCount != 1) {
+            socketRebuild()
+            retryCount += 1
         }
     }
 }

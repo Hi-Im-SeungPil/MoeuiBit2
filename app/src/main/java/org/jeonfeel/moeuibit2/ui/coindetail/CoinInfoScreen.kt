@@ -141,7 +141,10 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
         }, modifier = Modifier
             .fillMaxHeight()
             .wrapContentWidth()
-            .padding(10.dp, 0.dp))
+            .padding(10.dp, 0.dp)
+//            .border(1.dp,)
+        )
+
     }
 }
 

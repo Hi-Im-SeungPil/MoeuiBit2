@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
@@ -65,8 +65,7 @@ class ExchangeViewModel @Inject constructor(
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
-                    try {
-                        withTimeout(4900L) {
+                        val loadingJob = withTimeoutOrNull(4900L) {
                             requestKrwMarketCode()
                             requestKrwTicker(krwCoinListStringBuffer.toString())
                             createKrwExchangeModelList()
@@ -75,10 +74,9 @@ class ExchangeViewModel @Inject constructor(
                                 errorState.value = INTERNET_CONNECTION
                             }
                             loading.value = false
-                        }
-                    } catch (e: Exception) {
-                        currentNetworkState = NETWORK_ERROR
-                        errorState.value = currentNetworkState
+                    }
+                    if(loadingJob == null) {
+                        errorState.value = NETWORK_ERROR
                         loading.value = false
                     }
                 }

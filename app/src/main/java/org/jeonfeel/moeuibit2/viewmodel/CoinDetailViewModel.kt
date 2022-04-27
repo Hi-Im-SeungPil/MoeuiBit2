@@ -74,14 +74,14 @@ class CoinDetailViewModel @Inject constructor(
     val candleType = mutableStateOf("1")
     var loadingMoreChartData = false
     val kstDateHashMap = HashMap<Int, String>()
-    private val utcDateList = ArrayList<String>()
+    private var firstCandleUtcTime = ""
     private var kstTime = ""
     private val valueFormatter = MyValueFormatter()
 
-    private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String,String>>()
-    val coinInfoLiveData: LiveData<HashMap<String,String>> get() = _coinInfoMutableLiveData
+    private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String, String>>()
+    val coinInfoLiveData: LiveData<HashMap<String, String>> get() = _coinInfoMutableLiveData
 
-    val coinInfoHashMap = mutableStateOf(HashMap<String,String>())
+    val coinInfoHashMap = mutableStateOf(HashMap<String, String>())
 
     /**
      * orderScreen
@@ -178,17 +178,15 @@ class CoinDetailViewModel @Inject constructor(
                 candleEntries.clear()
                 positiveBarEntries.clear()
                 negativeBarEntries.clear()
-                utcDateList.clear()
                 kstDateHashMap.clear()
                 val chartModelList = response.body() ?: JsonArray()
                 if (chartModelList.size() != 0) {
                     val indices = chartModelList.size()
-                    utcDateList.add(
+                    firstCandleUtcTime =
                         gson.fromJson(
                             chartModelList[indices - 1],
                             ChartModel::class.java
                         ).candleDateTimeUtc
-                    )
 
                     kstTime = gson.fromJson(
                         chartModelList[0],
@@ -206,13 +204,13 @@ class CoinDetailViewModel @Inject constructor(
                                 model.tradePrice.toFloat()
                             )
                         )
-                        if(model.tradePrice - model.openingPrice >= 0.0) {
+                        if (model.tradePrice - model.openingPrice >= 0.0) {
                             positiveBarEntries.add(
-                                BarEntry(candlePosition,model.candleAccTradePrice.toFloat())
+                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
                             )
                         } else {
                             negativeBarEntries.add(
-                                BarEntry(candlePosition,model.candleAccTradePrice.toFloat())
+                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
                             )
                         }
 
@@ -225,13 +223,13 @@ class CoinDetailViewModel @Inject constructor(
                 }
                 valueFormatter.setItem(kstDateHashMap)
                 candlePosition -= 1f
-                Log.d("aaaaz",( positiveBarEntries.size + negativeBarEntries.size ).toString())
+                Log.d("aaaaz", (positiveBarEntries.size + negativeBarEntries.size).toString())
             }
             combinedChart.chartRefreshSetting(
                 candleEntries,
                 CandleDataSet(candleEntries, ""),
-                BarDataSet(positiveBarEntries,""),
-                BarDataSet(negativeBarEntries,""),
+                BarDataSet(positiveBarEntries, ""),
+                BarDataSet(negativeBarEntries, ""),
                 valueFormatter
             )
             isUpdateChart = true
@@ -241,7 +239,7 @@ class CoinDetailViewModel @Inject constructor(
 
     fun requestMoreData(candleType: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
-        val time = utcDateList.last().replace("T", " ")
+        val time = firstCandleUtcTime.replace("T", " ")
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
                 coinDetailRepository.getOtherCandleService(candleType, market, "200", time)
@@ -257,12 +255,12 @@ class CoinDetailViewModel @Inject constructor(
                 val chartModelList = response.body() ?: JsonArray()
                 val indices = chartModelList.size()
                 var tempCandlePosition = combinedChart.data.candleData.xMin - indices
-                utcDateList.add(
+                firstCandleUtcTime =
                     gson.fromJson(
                         chartModelList[indices - 1],
                         ChartModel::class.java
                     ).candleDateTimeUtc
-                )
+
                 for (i in indices - 1 downTo 0) {
                     val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
                     tempCandleEntries.add(
@@ -275,22 +273,21 @@ class CoinDetailViewModel @Inject constructor(
                         )
                     )
 
-                    if(model.tradePrice - model.openingPrice >= 0.0) {
+                    if (model.tradePrice - model.openingPrice >= 0.0) {
                         tempPositiveBarEntries.add(
-                            BarEntry(tempCandlePosition,model.candleAccTradePrice.toFloat())
+                            BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
                         )
                     } else {
                         tempNegativeBarEntries.add(
-                            BarEntry(tempCandlePosition,model.candleAccTradePrice.toFloat())
+                            BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
                         )
                     }
 
                     kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
                     tempCandlePosition += 1f
-                    Log.d("aaaaz2",( positiveBarEntries.size + negativeBarEntries.size ).toString())
+                    Log.d("aaaaz2", (positiveBarEntries.size + negativeBarEntries.size).toString())
                 }
                 valueFormatter.setItem(kstDateHashMap)
-
                 tempCandleEntries.addAll(candleEntries)
                 candleEntries.clear()
                 candleEntries.addAll(tempCandleEntries)
@@ -304,8 +301,8 @@ class CoinDetailViewModel @Inject constructor(
                 candleEntriesLastPosition = candleEntries.size - 1
 
                 val candleDataSet = CandleDataSet(candleEntries, "")
-                val positiveBarDataSet = BarDataSet(positiveBarEntries,"")
-                val negativeBarDataSet = BarDataSet(negativeBarEntries,"")
+                val positiveBarDataSet = BarDataSet(positiveBarEntries, "")
+                val negativeBarDataSet = BarDataSet(negativeBarEntries, "")
                 combinedChart.chartRefreshLoadMoreData(
                     candleDataSet,
                     positiveBarDataSet,
@@ -370,23 +367,25 @@ class CoinDetailViewModel @Inject constructor(
 
     fun getCoinInfo() {
         val mDatabase = FirebaseDatabase.getInstance().reference
-        mDatabase.child("coinInfo").child(market).addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val coinInfos = HashMap<String,String>()
+        mDatabase.child("coinInfo").child(market)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val coinInfos = HashMap<String, String>()
 
-                coinInfos["homepage"] = snapshot.child("homepage").getValue(String::class.java)!!
-                coinInfos["amount"] = snapshot.child("amount").getValue(String::class.java)!!
-                coinInfos["twitter"] = snapshot.child("twitter").getValue(String::class.java)!!
-                coinInfos["block"] = snapshot.child("block").getValue(String::class.java)!!
-                coinInfos["info"] = snapshot.child("content").getValue(String::class.java)!!
+                    coinInfos["homepage"] =
+                        snapshot.child("homepage").getValue(String::class.java)!!
+                    coinInfos["amount"] = snapshot.child("amount").getValue(String::class.java)!!
+                    coinInfos["twitter"] = snapshot.child("twitter").getValue(String::class.java)!!
+                    coinInfos["block"] = snapshot.child("block").getValue(String::class.java)!!
+                    coinInfos["info"] = snapshot.child("content").getValue(String::class.java)!!
 
-                _coinInfoMutableLiveData.postValue(coinInfos)
-            }
+                    _coinInfoMutableLiveData.postValue(coinInfos)
+                }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("firebase error", error.message)
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("firebase error", error.message)
+                }
+            })
     }
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {

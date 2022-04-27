@@ -27,6 +27,7 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 class MainActivity : ComponentActivity() {
 
     private var backBtnTime: Long = 0
+    val networkMonitorUtil = NetworkMonitorUtil(this)
     private val exchangeViewModel: ExchangeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,8 +45,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initNetworkStateMonitor() {
-        val networkMonitorUtil = NetworkMonitorUtil(this)
-
         networkMonitorUtil.result = { isAvailable, _ ->
             when (isAvailable) {
                 true -> {
@@ -61,6 +60,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        networkMonitorUtil.register()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        networkMonitorUtil.unregister()
     }
 
     @Composable
