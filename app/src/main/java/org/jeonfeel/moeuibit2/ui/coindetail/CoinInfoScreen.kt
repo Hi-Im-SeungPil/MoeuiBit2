@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -23,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
@@ -66,71 +69,70 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
             .fillMaxWidth()) {
 
             TextButton(onClick = {
-                selectedButton.value = 1
+                selected.value = coinInfoHashMap.value["block"]!!
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
+                context.startActivity(intent)
+            },
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()) {
+                Text(text = "블럭조회",
+                    fontSize = 12.sp,
+                    style = TextStyle(color = Color.Blue,
+                        textDecoration = TextDecoration.Underline))
+            }
+
+            TextButton(onClick = {
                 selected.value = coinInfoHashMap.value["homepage"]!!
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
                 context.startActivity(intent)
             },
-                modifier = getButtonModifier(selectedButton.value, 1)
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()) {
                 Text(text = "홈페이지",
                     fontSize = 12.sp,
-                    style = TextStyle(color = getTextColor(selectedButton.value, 1)))
+                    style = TextStyle(color = Color.Blue,
+                        textDecoration = TextDecoration.Underline))
             }
 
             TextButton(onClick = {
-                selectedButton.value = 2
-                selected.value = coinInfoHashMap.value["amount"]!!
-                flex.loadUrl(selected.value)
+                selected.value = coinInfoHashMap.value["info"]!!
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
+                context.startActivity(intent)
             },
-                modifier = getButtonModifier(selectedButton.value, 2)
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()) {
-                Text(text = "시가총액",
+                Text(text = "정보",
                     fontSize = 12.sp,
-                    style = TextStyle(color = getTextColor(selectedButton.value, 2)))
+                    style = TextStyle(color = Color.Blue,
+                        textDecoration = TextDecoration.Underline))
             }
-
             TextButton(onClick = {
-                selectedButton.value = 3
+                selectedButton.value = 4
                 selected.value = coinInfoHashMap.value["twitter"]!!
                 flex.loadData("<a class=\"twitter-timeline\" href=\"${selected.value}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>",
                     "text/html; charset=utf-8",
                     "UTF-8")
             },
-                modifier = getButtonModifier(selectedButton.value, 3)
-                    .weight(1f)
-                    .fillMaxHeight()) {
-                Text(text = "트위터",
-                    fontSize = 12.sp,
-                    style = TextStyle(color = getTextColor(selectedButton.value, 3)))
-            }
-
-            TextButton(onClick = {
-                selectedButton.value = 4
-                selected.value = coinInfoHashMap.value["block"]!!
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                context.startActivity(intent)
-            },
                 modifier = getButtonModifier(selectedButton.value, 4)
                     .weight(1f)
                     .fillMaxHeight()) {
-                Text(text = "블럭조회",
+                Text(text = "트위터",
                     fontSize = 12.sp,
                     style = TextStyle(color = getTextColor(selectedButton.value, 4)))
             }
 
             TextButton(onClick = {
                 selectedButton.value = 5
-                selected.value = coinInfoHashMap.value["info"]!!
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                context.startActivity(intent)
+                selected.value = coinInfoHashMap.value["amount"]!!
+                flex.loadUrl(selected.value)
             },
                 modifier = getButtonModifier(selectedButton.value, 5)
                     .weight(1f)
                     .fillMaxHeight()) {
-                Text(text = "정보",
+                Text(text = "시가총액",
                     fontSize = 12.sp,
                     style = TextStyle(color = getTextColor(selectedButton.value, 5)))
             }
@@ -142,7 +144,7 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
             .fillMaxHeight()
             .wrapContentWidth()
             .padding(10.dp, 0.dp)
-//            .border(1.dp,)
+            .border(1.dp, Color.DarkGray)
         )
 
     }
@@ -151,7 +153,7 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
 @Composable
 fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
     return if (selectedButton == buttonId) {
-        Modifier.border(1.dp, Color.Magenta)
+        Modifier.border(1.dp, colorResource(id = R.color.C0F0F5C))
     } else {
         Modifier
     }
@@ -160,7 +162,8 @@ fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
 @Composable
 fun getTextColor(selectedButton: Int, buttonId: Int): Color {
     return if (selectedButton == buttonId) {
-        Color.Magenta
+        colorResource(id = R.color.C0F0F5C)
+        
     } else {
         Color.LightGray
     }
