@@ -2,14 +2,12 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
+import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.listener.UpBitTickerWebSocketListener
 import org.jeonfeel.moeuibit2.listener.UpBitTickerWebSocketListener.Companion.NORMAL_CLOSURE_STATUS
 import java.util.*
-
-const val SOCKET_IS_CONNECTED = 0
-const val SOCKET_IS_NO_CONNECTION = -1
-const val SOCKET_IS_ON_PAUSE = -2
-
 
 object UpBitTickerWebSocket {
     private var krwMarkets = ""

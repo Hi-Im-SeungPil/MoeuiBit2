@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
@@ -33,7 +34,7 @@ const val WEEK_SELECT = 3
 const val MONTH_SELECT = 4
 
 @Composable
-fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
+fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
     val context = LocalContext.current
     val applicationContext = context.applicationContext
@@ -273,7 +274,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel) {
 
 @Composable
 fun PeriodButton(
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
     combinedChart: CombinedChart,
     minuteText: MutableState<String>,
     minuteVisible: MutableState<Boolean>,
@@ -304,7 +305,7 @@ fun PeriodButton(
 
 @Composable
 fun MinuteButton(
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
     combinedChart: CombinedChart,
     minuteVisible: MutableState<Boolean>,
     minuteText: MutableState<String>,

@@ -11,6 +11,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.util.Calculator
@@ -20,7 +21,7 @@ import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 fun CoinDetailMain(
     currentPrice: Double = 100.0,
     symbol: String,
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val curTradePrice = getCurTradePriceTextFormat(currentPrice)
     val curChangeRate =

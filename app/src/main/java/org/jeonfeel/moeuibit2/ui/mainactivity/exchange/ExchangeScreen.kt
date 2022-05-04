@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -10,14 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 @Composable
-fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun ExchangeScreen(
+    exchangeViewModel: ExchangeViewModel = viewModel(),
+    startForActivityResult: ActivityResultLauncher<Intent>
+) {
     Column(Modifier
         .fillMaxSize()) {
         val context = LocalContext.current
@@ -51,7 +56,7 @@ fun ExchangeScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
             if (exchangeViewModel.errorState.value == INTERNET_CONNECTION) {
                 SearchBasicTextFieldResult(exchangeViewModel)
                 SortButtons(exchangeViewModel)
-                ExchangeScreenLazyColumn(exchangeViewModel)
+                ExchangeScreenLazyColumn(exchangeViewModel,startForActivityResult)
             } else {
                 ExchangeErrorScreen(exchangeViewModel)
             }

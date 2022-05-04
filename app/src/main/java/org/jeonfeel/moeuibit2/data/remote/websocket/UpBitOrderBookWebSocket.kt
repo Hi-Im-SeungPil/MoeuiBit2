@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.listener.UpBitOrderBookWebSocketListener
 import java.util.*
 

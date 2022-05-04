@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,6 +36,8 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 fun ExchangeScreenLazyColumnItem(
     krwExchangeModel: KrwExchangeModel,
     preTradePrice: Double,
+    isFavorite: Boolean,
+    startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
     val signedChangeRate =
         Calculator.signedChangeRateCalculator(krwExchangeModel.signedChangeRate)
@@ -66,7 +69,8 @@ fun ExchangeScreenLazyColumnItem(
             intent.putExtra("coinKoreanName", koreanName)
             intent.putExtra("coinSymbol", krwExchangeModel.symbol)
             intent.putExtra("openingPrice",krwExchangeModel.opening_price)
-            context.startActivity(intent)
+            intent.putExtra("isFavorite",isFavorite)
+            startForActivityResult.launch(intent)
             (context as MainActivity).overridePendingTransition(R.anim.lazy_column_item_slide_left, R.anim.none)
         }) {
 
@@ -143,7 +147,10 @@ fun ExchangeScreenLazyColumnItem(
 }
 
 @Composable
-fun ExchangeScreenLazyColumn(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun ExchangeScreenLazyColumn(
+    exchangeViewModel: ExchangeViewModel = viewModel(),
+    startForActivityResult: ActivityResultLauncher<Intent>
+) {
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         val filteredKrwExchangeList = exchangeViewModel.filterKrwCoinList()
@@ -151,10 +158,10 @@ fun ExchangeScreenLazyColumn(exchangeViewModel: ExchangeViewModel = viewModel())
         ) { _, krwCoinListElement ->
             ExchangeScreenLazyColumnItem(krwCoinListElement,
                 exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
-                    ?: 0].tradePrice)
+                    ?: 0].tradePrice,exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,startForActivityResult)
+
             exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
-                ?: 0] =
-                krwCoinListElement
+                ?: 0] = krwCoinListElement
         }
     }
 }
@@ -187,6 +194,7 @@ fun getTradePriceTextModifier(
     }
 }
 
+@Composable
 private fun getCurTradePriceTextFormat(curTradePrice: String): String {
     val tempCurTradePrice = curTradePrice.toDouble()
     return if (tempCurTradePrice >= 100.0) {

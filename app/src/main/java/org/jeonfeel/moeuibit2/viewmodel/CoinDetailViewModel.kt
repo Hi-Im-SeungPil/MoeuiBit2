@@ -33,7 +33,8 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookMod
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.repository.CoinDetailRepository
+import org.jeonfeel.moeuibit2.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.MyValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.util.chartRefreshSetting
@@ -42,7 +43,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
-    private val coinDetailRepository: CoinDetailRepository,
+    private val remoteRepository: RemoteRepository,
+    private val localRepository: LocalRepository
 ) : ViewModel(), OnTickerMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
 
@@ -54,43 +56,49 @@ class CoinDetailViewModel @Inject constructor(
     val gson = Gson()
     private val isTickerSocketRunning = true
 
-    //    private val isOrderBookSocketRunning = true
-    var isUpdateChart = true
-
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
 
-    private val _firstCandleDataSetMutableLiveData = MutableLiveData<String>()
-    val firstCandleDataSetLiveData: LiveData<String> get() = _firstCandleDataSetMutableLiveData
-
+    /**
+     * chart
+     * */
+    var isUpdateChart = true
     var candlePosition = 0f
     private var candleEntriesLastPosition = 0
     private val chartData = ArrayList<ChartModel>()
     private val candleEntries = ArrayList<CandleEntry>()
     private val positiveBarEntries = ArrayList<BarEntry>()
     private val negativeBarEntries = ArrayList<BarEntry>()
-
     val candleType = mutableStateOf("1")
     var loadingMoreChartData = false
     val kstDateHashMap = HashMap<Int, String>()
     private var firstCandleUtcTime = ""
     private var kstTime = ""
     private val valueFormatter = MyValueFormatter()
+    private val _firstCandleDataSetMutableLiveData = MutableLiveData<String>()
+    val firstCandleDataSetLiveData: LiveData<String> get() = _firstCandleDataSetMutableLiveData
 
+    /**
+     * coin info
+     * */
     private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String, String>>()
     val coinInfoLiveData: LiveData<HashMap<String, String>> get() = _coinInfoMutableLiveData
 
-    val coinInfoHashMap = mutableStateOf(HashMap<String, String>())
+    /**
+     * favorite
+     * */
+    val favoriteMutableState = mutableStateOf(false)
 
     /**
      * orderScreen
      * */
-    fun initOrder(market: String, preClosingPrice: Double) {
+    fun initOrder(market: String, preClosingPrice: Double, isFavorite: Boolean) {
         setWebSocketMessageListener()
         setOrderBookWebSocketMessageListener()
         this.market = market
         this.preClosingPrice = preClosingPrice
+        this.favoriteMutableState.value = isFavorite
         viewModelScope.launch {
             UpBitTickerWebSocket.requestKrwCoin(market)
             updateTicker()
@@ -108,7 +116,7 @@ class CoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun initOrderBook(market: String) {
-        val response = coinDetailRepository.getOrderBookService(market)
+        val response = remoteRepository.getOrderBookService(market)
         if (response.isSuccessful) {
             val body = response.body()
             val a = body?.first() ?: JsonObject()
@@ -167,9 +175,9 @@ class CoinDetailViewModel @Inject constructor(
         isUpdateChart = false
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
-                coinDetailRepository.getOtherCandleService(candleType, market)
+                remoteRepository.getOtherCandleService(candleType, market)
             } else {
-                coinDetailRepository.getMinuteCandleService(candleType, market)
+                remoteRepository.getMinuteCandleService(candleType, market)
             }
             if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
                 candlePosition = 0f
@@ -223,7 +231,6 @@ class CoinDetailViewModel @Inject constructor(
                 }
                 valueFormatter.setItem(kstDateHashMap)
                 candlePosition -= 1f
-                Log.d("aaaaz", (positiveBarEntries.size + negativeBarEntries.size).toString())
             }
             combinedChart.chartRefreshSetting(
                 candleEntries,
@@ -242,9 +249,9 @@ class CoinDetailViewModel @Inject constructor(
         val time = firstCandleUtcTime.replace("T", " ")
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
-                coinDetailRepository.getOtherCandleService(candleType, market, "200", time)
+                remoteRepository.getOtherCandleService(candleType, market, "200", time)
             } else {
-                coinDetailRepository.getMinuteCandleService(candleType, market, "200", time)
+                remoteRepository.getMinuteCandleService(candleType, market, "200", time)
             }
             if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
                 val startPosition = combinedChart.lowestVisibleX
@@ -318,9 +325,9 @@ class CoinDetailViewModel @Inject constructor(
         viewModelScope.launch {
             while (isUpdateChart) {
                 val response: Response<JsonArray> = if (candleType.value.toIntOrNull() == null) {
-                    coinDetailRepository.getOtherCandleService(candleType.value, market, "1")
+                    remoteRepository.getOtherCandleService(candleType.value, market, "1")
                 } else {
-                    coinDetailRepository.getMinuteCandleService(candleType.value, market, "1")
+                    remoteRepository.getMinuteCandleService(candleType.value, market, "1")
                 }
                 if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
                     val newData = response.body()
@@ -364,7 +371,6 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * coinInfo
      * */
-
     fun getCoinInfo() {
         val mDatabase = FirebaseDatabase.getInstance().reference
         mDatabase.child("coinInfo").child(market)

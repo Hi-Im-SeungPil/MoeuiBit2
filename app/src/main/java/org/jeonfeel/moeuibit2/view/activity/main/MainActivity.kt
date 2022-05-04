@@ -1,8 +1,11 @@
 package org.jeonfeel.moeuibit2.view.activity.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -14,11 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
-import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.util.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
@@ -27,8 +30,9 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 class MainActivity : ComponentActivity() {
 
     private var backBtnTime: Long = 0
-    val networkMonitorUtil = NetworkMonitorUtil(this)
+    private val networkMonitorUtil = NetworkMonitorUtil(this)
     private val exchangeViewModel: ExchangeViewModel by viewModels()
+    private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +45,17 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initActivity() {
+        startForActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    val resultData = it.data
+                    if (resultData != null) {
+                        val isFavorite = resultData.getBooleanExtra("isFavorite", false)
+                        val market = resultData.getStringExtra("market") ?: ""
+                        exchangeViewModel.updateFavorite(market, isFavorite)
+                    }
+                }
+            }
         initNetworkStateMonitor()
     }
 
@@ -77,14 +92,16 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         Scaffold(
             topBar = {
-                TopAppBar(backgroundColor = colorResource(id = R.color.C0F0F5C), title = {Text(text = "")} )
+                TopAppBar(backgroundColor = colorResource(id = R.color.C0F0F5C),
+                    title = { Text(text = "") })
             },
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                MainNavigation(navController, viewModel)
+                MainNavigation(navController, viewModel, startForActivityResult)
             }
         }
+        RESULT_OK
     }
 
 //    override fun onBackPressed() {

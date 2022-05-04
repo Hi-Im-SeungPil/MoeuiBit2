@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
@@ -36,7 +36,7 @@ import kotlin.math.round
 
 @Composable
 fun OrderScreen(
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
 
     OnLifecycleEvent { _, event ->
@@ -64,7 +64,7 @@ fun OrderScreen(
 @Composable
 fun AskingPriceLazyColumn(
     modifier: Modifier,
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
     LazyColumn(modifier = modifier, state = scrollState) {
@@ -216,10 +216,4 @@ fun AutoSizeText(
             }
         }
     )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun preask() {
-//    askingPriceLazyColumnItem()
 }

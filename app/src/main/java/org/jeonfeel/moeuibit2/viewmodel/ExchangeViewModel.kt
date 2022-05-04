@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -12,21 +11,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.repository.ExchangeViewModelRepository
-import org.jeonfeel.moeuibit2.util.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.util.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import javax.inject.Inject
 
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
-    private val exchangeViewModelRepository: ExchangeViewModelRepository,
+    private val remoteRepository: RemoteRepository,
+    private val localRepository: LocalRepository
 ) : ViewModel(), OnTickerMessageReceiveListener {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
@@ -48,9 +50,12 @@ class ExchangeViewModel @Inject constructor(
     val selectedButtonState = mutableStateOf(-1)
     val loading = mutableStateOf(true)
 
+    val favoriteHashMap = HashMap<String,Int>()
+
     init {
         setWebSocketMessageListener()
         requestData()
+        requestFavoriteData()
     }
 
     fun setWebSocketMessageListener() {
@@ -90,7 +95,7 @@ class ExchangeViewModel @Inject constructor(
 
     // get market, koreanName, englishName, warning
     private suspend fun requestKrwMarketCode() {
-        val resultMarketCode = exchangeViewModelRepository.getMarketCodeService()
+        val resultMarketCode = remoteRepository.getMarketCodeService()
         if (resultMarketCode.isSuccessful) {
             try {
                 val indices = resultMarketCode.body()!!.size()
@@ -119,7 +124,7 @@ class ExchangeViewModel @Inject constructor(
     // get market, tradePrice, signed_change_price, acc_trade_price_24h
     private suspend fun requestKrwTicker(markets: String) {
         val resultKrwTicker =
-            exchangeViewModelRepository.getKrwTickerService(markets)
+            remoteRepository.getKrwTickerService(markets)
         if (resultKrwTicker.isSuccessful) {
             try {
                 val indices = resultKrwTicker.body()!!.size()
@@ -177,6 +182,30 @@ class ExchangeViewModel @Inject constructor(
 
     fun requestKrwCoinList() {
         UpBitTickerWebSocket.requestKrwCoinList()
+    }
+
+    private fun requestFavoriteData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
+            if(favoriteList.isNotEmpty()) {
+                for(i in favoriteList.indices)
+                    favoriteHashMap[favoriteList[i]?.market ?: ""] = 0
+            }
+        }
+    }
+
+    fun updateFavorite(market: String, isFavorite: Boolean) {
+        if(favoriteHashMap[market] == null && isFavorite) {
+            viewModelScope.launch(Dispatchers.IO) {
+                favoriteHashMap[market] = 0
+                localRepository.getFavoriteDao().insert(market)
+            }
+        } else if (favoriteHashMap[market] != null && !isFavorite) {
+            viewModelScope.launch(Dispatchers.IO) {
+                favoriteHashMap.remove(market)
+                localRepository.getFavoriteDao().delete(market)
+            }
+        }
     }
 
     /**
@@ -272,7 +301,7 @@ class ExchangeViewModel @Inject constructor(
                     model.tradePrice,
                     model.signedChangeRate,
                     model.accTradePrice24h)
-            Log.e(TAG, model.code)
+//            Log.e(TAG, model.code)
         }
     }
 }

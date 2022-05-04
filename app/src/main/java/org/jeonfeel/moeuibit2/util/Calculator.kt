@@ -84,9 +84,6 @@ object Calculator {
     }
 
     fun markerViewRateCalculator(preClosingPrice: Float, orderBookPrice: Float): Float {
-//        증가액 / 전년도 연봉 * 100
-//        val open = round(openingPrice*100) / 100
-//        val orderBook = round(orderBookPrice*100) / 100
         return (orderBookPrice-preClosingPrice) / preClosingPrice * 100
     }
 

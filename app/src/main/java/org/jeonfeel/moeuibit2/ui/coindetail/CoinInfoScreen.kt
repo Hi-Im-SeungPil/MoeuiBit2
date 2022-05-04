@@ -163,7 +163,6 @@ fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
 fun getTextColor(selectedButton: Int, buttonId: Int): Color {
     return if (selectedButton == buttonId) {
         colorResource(id = R.color.C0F0F5C)
-        
     } else {
         Color.LightGray
     }

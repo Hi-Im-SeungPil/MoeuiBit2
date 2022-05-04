@@ -4,14 +4,12 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
 
 enum class ConnectionType {
     Wifi, Cellular
 }
-
-const val INTERNET_CONNECTION = 0
-const val NO_INTERNET_CONNECTION = -1
-const val NETWORK_ERROR = -2
 
 class NetworkMonitorUtil(context: Context) {
     private var mContext = context
