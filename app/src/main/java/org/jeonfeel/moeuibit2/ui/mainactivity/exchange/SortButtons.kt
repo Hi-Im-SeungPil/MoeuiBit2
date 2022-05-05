@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
-import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +30,6 @@ import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 @Composable
 fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
     val selectedButtonState = exchangeViewModel.selectedButtonState
-    Log.e("sortButon", selectedButtonState.value.toString())
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,7 +88,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 else -> {
                     Text(text = "현재가↓↑",
                         fontSize = 13.sp,
-                        style = TextStyle(color = Color.LightGray))
+                        style = TextStyle(color = Color.Black))
                 }
             }
         }
@@ -133,7 +131,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     Text(text = "전일대비↓↑",
                         fontSize = 13.sp,
                         maxLines = 1,
-                        style = TextStyle(color = Color.LightGray))
+                        style = TextStyle(color = Color.Black))
                 }
             }
         }
@@ -173,7 +171,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 else -> {
                     Text(text = "거래량↓↑",
                         fontSize = 13.sp,
-                        style = TextStyle(color = Color.LightGray))
+                        style = TextStyle(color = Color.Black))
                 }
             }
         }

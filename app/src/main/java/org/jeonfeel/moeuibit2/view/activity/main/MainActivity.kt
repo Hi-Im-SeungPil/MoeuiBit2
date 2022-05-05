@@ -9,12 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
@@ -93,7 +94,26 @@ class MainActivity : ComponentActivity() {
         Scaffold(
             topBar = {
                 TopAppBar(backgroundColor = colorResource(id = R.color.C0F0F5C),
-                    title = { Text(text = "") })
+                    title = { Text(text = "모의비트",style = TextStyle(color = Color.White, fontSize = 23.sp)) },
+                    actions = {
+                        Text(text = "관심" , style = TextStyle(color = Color.White))
+                        Switch(
+                            checked = exchangeViewModel.showFavorite.value,
+                            onCheckedChange = {
+                                exchangeViewModel.showFavorite.value =
+                                    !exchangeViewModel.showFavorite.value
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                uncheckedThumbColor = Color.White,
+                                checkedTrackColor = Color.Yellow,
+                                uncheckedTrackColor = Color.DarkGray,
+                                checkedTrackAlpha = 1.0f,
+                                uncheckedTrackAlpha = 1.0f
+                            )
+                        )
+                    }
+                )
             },
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->

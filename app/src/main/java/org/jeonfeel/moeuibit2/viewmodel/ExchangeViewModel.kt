@@ -51,6 +51,7 @@ class ExchangeViewModel @Inject constructor(
     val loading = mutableStateOf(true)
 
     val favoriteHashMap = HashMap<String,Int>()
+    var showFavorite = mutableStateOf(false)
 
     init {
         setWebSocketMessageListener()
@@ -212,20 +213,52 @@ class ExchangeViewModel @Inject constructor(
      * data sorting, filter
      * */
     fun filterKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
-        return if (searchTextFieldValue.value.isEmpty()) {
+        return if (searchTextFieldValue.value.isEmpty() && !showFavorite.value) {
             krwExchangeModelMutableStateList
-        } else {
+        }else if(searchTextFieldValue.value.isEmpty() && showFavorite.value) {
+            val favoriteList = SnapshotStateList<KrwExchangeModel>()
+            val tempArray = ArrayList<Int>()
+            for (i in favoriteHashMap) {
+                tempArray.add(krwExchangeModelListPosition[i.key]!!)
+            }
+            tempArray.sort()
+            for (i in tempArray) {
+                favoriteList.add(krwExchangeModelMutableStateList[i])
+            }
+            favoriteList
+        } else if (searchTextFieldValue.value.isNotEmpty() && !showFavorite.value) {
             val resultList = SnapshotStateList<KrwExchangeModel>()
             for (element in krwExchangeModelMutableStateList) {
-                if (element.koreanName.contains(searchTextFieldValue.value) || element.EnglishName.uppercase()
-                        .contains(searchTextFieldValue.value.uppercase()) || element.symbol.uppercase()
-                        .contains(
-                            searchTextFieldValue.value.uppercase())
+                if (
+                    element.koreanName.contains(searchTextFieldValue.value) ||
+                    element.EnglishName.uppercase().contains(searchTextFieldValue.value.uppercase()) ||
+                    element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
                 ) {
                     resultList.add(element)
                 }
             }
             resultList
+        } else {
+            val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
+            val favoriteList = SnapshotStateList<KrwExchangeModel>()
+            val tempArray = ArrayList<Int>()
+            for (i in favoriteHashMap) {
+                tempArray.add(krwExchangeModelListPosition[i.key]!!)
+            }
+            tempArray.sort()
+            for (i in tempArray) {
+                tempFavoriteList.add(krwExchangeModelMutableStateList[i])
+            }
+            for (element in tempFavoriteList) {
+                if (
+                    element.koreanName.contains(searchTextFieldValue.value) ||
+                    element.EnglishName.uppercase().contains(searchTextFieldValue.value.uppercase()) ||
+                    element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
+                ) {
+                    favoriteList.add(element)
+                }
+            }
+            favoriteList
         }
     }
 
