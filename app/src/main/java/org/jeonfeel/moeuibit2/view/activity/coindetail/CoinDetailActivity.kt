@@ -5,7 +5,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 
@@ -28,11 +30,14 @@ class CoinDetailActivity : AppCompatActivity() {
     }
 
     private fun initActivity() {
+        window.statusBarColor = this.getColor(R.color.C0F0F5C)
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars =
+            false
         coinKoreanName = intent.getStringExtra("coinKoreanName") ?: ""
         coinSymbol = intent.getStringExtra("coinSymbol") ?: ""
         openingPrice = intent.getDoubleExtra("openingPrice", 0.0)
         isFavorite = intent.getBooleanExtra("isFavorite", false)
-        coinDetailViewModel.initOrder("KRW-".plus(coinSymbol), openingPrice, isFavorite)
+        coinDetailViewModel.initViewModel("KRW-".plus(coinSymbol), openingPrice, isFavorite)
     }
 
     @Composable

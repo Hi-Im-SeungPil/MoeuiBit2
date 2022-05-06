@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.NETWORK_ERROR
 import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
@@ -51,7 +52,8 @@ fun ExchangeErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
                             exchangeViewModel.errorState.value = currentNetworkState
-                            exchangeViewModel.requestKrwCoinList()
+                            UpBitTickerWebSocket.onPause()
+                            exchangeViewModel.initViewModel()
                         }
                     }
                 }) {

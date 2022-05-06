@@ -3,9 +3,10 @@
     <style name="Theme.MoeuiBit" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/C0F0F5C</item>
+        <item name="colorPrimaryDark">@color/design_default_color_background</item>
         <item name="colorAccent">@color/teal_200</item>
         <!-- Customize your theme here. -->
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

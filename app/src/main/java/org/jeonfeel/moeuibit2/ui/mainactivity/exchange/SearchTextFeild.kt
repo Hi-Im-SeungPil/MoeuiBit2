@@ -84,20 +84,6 @@ fun SearchBasicTextFieldResult(exchangeViewModel: ExchangeViewModel = viewModel(
         modifier = Modifier
             .fillMaxWidth()
             .height(45.dp)
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = Stroke.DefaultMiter
-                    val y = size.height // - strokeWidth
-                    drawLine(
-                        brush = SolidColor(Color.LightGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            }
             .clearFocusOnKeyboardDismiss(),
         leadingIcon = {
             Icon(

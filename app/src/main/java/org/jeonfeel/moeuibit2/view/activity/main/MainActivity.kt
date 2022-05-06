@@ -9,18 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
@@ -92,29 +87,6 @@ class MainActivity : ComponentActivity() {
     fun MainScreen(viewModel: ExchangeViewModel) {
         val navController = rememberNavController()
         Scaffold(
-            topBar = {
-                TopAppBar(backgroundColor = colorResource(id = R.color.C0F0F5C),
-                    title = { Text(text = "모의비트",style = TextStyle(color = Color.White, fontSize = 23.sp)) },
-                    actions = {
-                        Text(text = "관심" , style = TextStyle(color = Color.White))
-                        Switch(
-                            checked = exchangeViewModel.showFavorite.value,
-                            onCheckedChange = {
-                                exchangeViewModel.showFavorite.value =
-                                    !exchangeViewModel.showFavorite.value
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                uncheckedThumbColor = Color.White,
-                                checkedTrackColor = Color.Yellow,
-                                uncheckedTrackColor = Color.DarkGray,
-                                checkedTrackAlpha = 1.0f,
-                                uncheckedTrackAlpha = 1.0f
-                            )
-                        )
-                    }
-                )
-            },
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {

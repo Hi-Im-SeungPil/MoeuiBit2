@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
@@ -33,6 +35,7 @@ class ExchangeViewModel @Inject constructor(
 
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
+    val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
     var isSocketRunning = true
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
@@ -53,13 +56,17 @@ class ExchangeViewModel @Inject constructor(
     val favoriteHashMap = HashMap<String,Int>()
     var showFavorite = mutableStateOf(false)
 
-    init {
-        setWebSocketMessageListener()
-        requestData()
-        requestFavoriteData()
+    fun initViewModel() {
+        if(krwExchangeModelMutableStateList.isEmpty()) {
+            setWebSocketMessageListener()
+            requestData()
+            requestFavoriteData()
+        } else {
+            requestKrwCoinList()
+        }
     }
 
-    fun setWebSocketMessageListener() {
+    private fun setWebSocketMessageListener() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
     }
 
@@ -182,6 +189,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun requestKrwCoinList() {
+        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
         UpBitTickerWebSocket.requestKrwCoinList()
     }
 
@@ -334,7 +342,7 @@ class ExchangeViewModel @Inject constructor(
                     model.tradePrice,
                     model.signedChangeRate,
                     model.accTradePrice24h)
-//            Log.e(TAG, model.code)
+            Log.e(TAG, model.code)
         }
     }
 }

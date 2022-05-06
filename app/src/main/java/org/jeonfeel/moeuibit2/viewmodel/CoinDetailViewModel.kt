@@ -25,14 +25,14 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookAskRetrofitModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookBidRetrofitModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookAskModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookBidModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
+import org.jeonfeel.moeuibit2.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
-import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.MyValueFormatter
@@ -44,8 +44,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
-    private val localRepository: LocalRepository
-) : ViewModel(), OnTickerMessageReceiveListener,
+    private val localRepository: LocalRepository,
+) : ViewModel(), OnCoinDetailMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
 
     var preClosingPrice = 0.0
@@ -78,6 +78,7 @@ class CoinDetailViewModel @Inject constructor(
     private val valueFormatter = MyValueFormatter()
     private val _firstCandleDataSetMutableLiveData = MutableLiveData<String>()
     val firstCandleDataSetLiveData: LiveData<String> get() = _firstCandleDataSetMutableLiveData
+    val dialogState = mutableStateOf(false)
 
     /**
      * coin info
@@ -93,22 +94,33 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * orderScreen
      * */
-    fun initOrder(market: String, preClosingPrice: Double, isFavorite: Boolean) {
-        setWebSocketMessageListener()
-        setOrderBookWebSocketMessageListener()
+
+    fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
-        viewModelScope.launch {
-            UpBitTickerWebSocket.requestKrwCoin(market)
-            updateTicker()
-            initOrderBook(market)
+    }
+
+    fun initOrder() {
+        if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
+            setCoinDetailWebSocketMessageListener()
+            setOrderBookWebSocketMessageListener()
+            viewModelScope.launch {
+                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                updateTicker()
+                initOrderBook(market)
+                UpBitOrderBookWebSocket.requestOrderBookList(market)
+            }
+        } else {
+            setCoinDetailWebSocketMessageListener()
+            setOrderBookWebSocketMessageListener()
+            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
             UpBitOrderBookWebSocket.requestOrderBookList(market)
         }
     }
 
-    fun setWebSocketMessageListener() {
-        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
+    fun setCoinDetailWebSocketMessageListener() {
+        UpBitCoinDetailWebSocket.getListener().setTickerMessageListener(this)
     }
 
     fun setOrderBookWebSocketMessageListener() {
@@ -173,6 +185,7 @@ class CoinDetailViewModel @Inject constructor(
      * */
     fun requestChartData(candleType: String, combinedChart: CombinedChart) {
         isUpdateChart = false
+        dialogState.value = true
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
                 remoteRepository.getOtherCandleService(candleType, market)
@@ -240,12 +253,14 @@ class CoinDetailViewModel @Inject constructor(
                 valueFormatter
             )
             isUpdateChart = true
+            dialogState.value = false
             updateChart()
         }
     }
 
     fun requestMoreData(candleType: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
+        dialogState.value = true
         val time = firstCandleUtcTime.replace("T", " ")
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
@@ -318,6 +333,7 @@ class CoinDetailViewModel @Inject constructor(
                     currentVisible
                 )
             }
+            dialogState.value = false
         }
     }
 
@@ -394,11 +410,12 @@ class CoinDetailViewModel @Inject constructor(
             })
     }
 
-    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
+    override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             coinDetailModel = model
             currentTradePriceStateForOrderBook.value = coinDetailModel.tradePrice
+            Log.d("model",model.toString())
         }
     }
 
@@ -431,6 +448,7 @@ class CoinDetailViewModel @Inject constructor(
                 index++
             }
             maxOrderBookSize = orderBookMutableStateList.maxOf { it.size }
+            Log.d("model","a")
         }
     }
 }

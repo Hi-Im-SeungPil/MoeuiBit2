@@ -6,34 +6,32 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 
-class UpBitTickerWebSocketListener : WebSocketListener() {
+class UpBitCoinDetailWebSocketListener: WebSocketListener() {
 
-    private var messageListener: OnTickerMessageReceiveListener? = null
+    private var messageListener: OnCoinDetailMessageReceiveListener? = null
 
-    fun setTickerMessageListener(onTickerMessageReceiveListener: OnTickerMessageReceiveListener?) {
-        if (onTickerMessageReceiveListener != null && this.messageListener !== onTickerMessageReceiveListener) {
-            this.messageListener = onTickerMessageReceiveListener
+    fun setTickerMessageListener(onCoinDetailMessageReceiveListener: OnCoinDetailMessageReceiveListener?) {
+        if (onCoinDetailMessageReceiveListener != null && this.messageListener !== onCoinDetailMessageReceiveListener) {
+            this.messageListener = onCoinDetailMessageReceiveListener
         }
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        Log.e("TAG", "open!")
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.e("TAG", "Receiving $text")
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        messageListener?.onTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
+        messageListener?.onCoinDetailMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        webSocket.close(NORMAL_CLOSURE_STATUS, null)
+        webSocket.close(UpBitTickerWebSocketListener.NORMAL_CLOSURE_STATUS, null)
         webSocket.cancel()
     }
 
@@ -44,14 +42,12 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e("Socket", "Error => ${t.message}")
-//        UpBitCoinDetailWebSocket.onFail()
     }
 
-    companion object {
+    companion object{
         const val NORMAL_CLOSURE_STATUS = 1000
     }
 }
-
-interface OnTickerMessageReceiveListener {
-    fun onTickerMessageReceiveListener(tickerJsonObject: String)
+interface OnCoinDetailMessageReceiveListener {
+    fun onCoinDetailMessageReceiveListener(tickerJsonObject: String)
 }

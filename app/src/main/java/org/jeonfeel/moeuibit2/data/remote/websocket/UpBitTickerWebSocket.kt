@@ -12,7 +12,7 @@ import java.util.*
 object UpBitTickerWebSocket {
     private var krwMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
-    private val TAG = UpBitTickerWebSocket::class.java.simpleName
+    private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
     private val request = Request.Builder()
@@ -31,11 +31,11 @@ object UpBitTickerWebSocket {
         socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}]},{"format":"SIMPLE"}]""")
     }
 
-    fun requestKrwCoin(market: String) {
-        socketRebuild()
-        val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":["$market"]},{"format":"SIMPLE"}]""")
-    }
+//    fun requestKrwCoin(market: String) {
+//        socketRebuild()
+//        val uuid = UUID.randomUUID().toString()
+//        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":["$market"]},{"format":"SIMPLE"}]""")
+//    }
 
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
@@ -53,23 +53,19 @@ object UpBitTickerWebSocket {
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 
-    fun coinDetailScreenOnResume(market: String) {
-        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
-            requestKrwCoin(market)
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
-    }
+//    fun coinDetailScreenOnResume(market: String) {
+//        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
+//            requestKrwCoin(market)
+//            currentSocketState = SOCKET_IS_CONNECTED
+//        }
+//    }
 
     fun exchangeScreenOnResume() {
-        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
-            requestKrwCoinList()
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
+        requestKrwCoinList()
+        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     fun onFail() {
-        if (currentSocketState != SOCKET_IS_NO_CONNECTION) {
-            currentSocketState = SOCKET_IS_NO_CONNECTION
-        }
+        currentSocketState = SOCKET_IS_NO_CONNECTION
     }
 }

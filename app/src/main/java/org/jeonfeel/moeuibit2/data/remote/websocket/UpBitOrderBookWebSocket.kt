@@ -4,16 +4,16 @@ import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.listener.UpBitOrderBookWebSocketListener
 import java.util.*
 
 
-
 object UpBitOrderBookWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
     private var retryCount = 0
-    private val TAG = UpBitTickerWebSocket::class.java.simpleName
+    private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
     private val request = Request.Builder()
@@ -35,14 +35,12 @@ object UpBitOrderBookWebSocket {
     fun onPause() {
         socket.close(UpBitOrderBookWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
-        Log.d("onPause","호출")
+        Log.d("onPause", "호출")
     }
 
     fun onResume(market: String) {
-        if (currentSocketState == SOCKET_IS_ON_PAUSE) {
-            requestOrderBookList(market)
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
+        requestOrderBookList(market)
+        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     private fun socketRebuild() {
@@ -55,7 +53,8 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onFail() {
-        if(retryCount != 1) {
+        currentSocketState = SOCKET_IS_NO_CONNECTION
+        if (retryCount != 1) {
             socketRebuild()
             retryCount += 1
         }

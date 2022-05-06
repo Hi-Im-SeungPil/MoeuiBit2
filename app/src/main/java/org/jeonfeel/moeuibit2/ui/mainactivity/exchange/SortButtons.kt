@@ -40,7 +40,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     val strokeWidth = Stroke.DefaultMiter
                     val y = size.height
                     drawLine(
-                        brush = SolidColor(Color.LightGray),
+                        brush = SolidColor(Color.DarkGray),
                         strokeWidth = strokeWidth,
                         cap = StrokeCap.Square,
                         start = Offset.Zero.copy(y = y),

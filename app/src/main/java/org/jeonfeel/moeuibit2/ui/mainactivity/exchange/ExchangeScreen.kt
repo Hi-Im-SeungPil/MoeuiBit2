@@ -33,8 +33,7 @@ fun ExchangeScreen(
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> UpBitTickerWebSocket.onPause()
                 Lifecycle.Event.ON_RESUME -> {
-                    exchangeViewModel.setWebSocketMessageListener()
-                    UpBitTickerWebSocket.exchangeScreenOnResume()
+                    exchangeViewModel.initViewModel()
                 }
                 else -> {}
             }
@@ -55,6 +54,7 @@ fun ExchangeScreen(
         if (!exchangeViewModel.loading.value) {
             if (exchangeViewModel.errorState.value == INTERNET_CONNECTION) {
                 SearchBasicTextFieldResult(exchangeViewModel)
+                MarketButtons(exchangeViewModel)
                 SortButtons(exchangeViewModel)
                 ExchangeScreenLazyColumn(exchangeViewModel,startForActivityResult)
             } else {

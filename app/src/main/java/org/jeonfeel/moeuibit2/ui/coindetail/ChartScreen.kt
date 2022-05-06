@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -13,12 +15,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -50,6 +55,8 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val selectedButton = remember {
         mutableStateOf(MINUTE_SELECT)
     }
+
+    ProgressDialog(coinDetailViewModel)
 
     OnLifecycleEvent { lifeCycleOwner, event ->
         when (event) {
@@ -94,7 +101,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     .weight(1f)
                     .fillMaxHeight()
             }
-            val btnColor = if(selectedButton.value == MINUTE_SELECT) {
+            val btnColor = if (selectedButton.value == MINUTE_SELECT) {
                 colorResource(id = R.color.C0F0F5C)
             } else {
                 Color.LightGray
@@ -299,8 +306,10 @@ fun PeriodButton(
         minuteText.value = "분"
         minuteVisible.value = false
         buttonPeriod.value = period
-    }, modifier = modifier) { Text(text = buttonText,
-        style = TextStyle(color = buttonColor)) }
+    }, modifier = modifier) {
+        Text(text = buttonText,
+            style = TextStyle(color = buttonColor))
+    }
 }
 
 @Composable
@@ -338,6 +347,26 @@ fun MinuteButton(
             )
         } else {
             Text(text = minuteTextValue, style = TextStyle(color = Color.Black, fontSize = 14.sp))
+        }
+    }
+}
+
+@Composable
+fun ProgressDialog(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+    if (coinDetailViewModel.dialogState.value) {
+        Dialog(onDismissRequest = { coinDetailViewModel.dialogState.value = false },
+            DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(100.dp)
+                    .background(Transparent, shape = RoundedCornerShape(12.dp))
+            ) {
+                Column {
+                    CircularProgressIndicator(modifier = Modifier.padding(6.dp, 0.dp, 0.dp, 0.dp))
+                    Text(text = "데이터 불러오는 중...", Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp))
+                }
+            }
         }
     }
 }

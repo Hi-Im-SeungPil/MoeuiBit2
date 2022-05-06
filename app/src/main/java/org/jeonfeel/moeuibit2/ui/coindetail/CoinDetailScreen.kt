@@ -11,7 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
@@ -25,10 +26,12 @@ fun CoinDetailScreen(
     val context = LocalContext.current
     OnLifecycleEvent { _, event ->
         when (event) {
-            Lifecycle.Event.ON_PAUSE -> UpBitTickerWebSocket.onPause()
+            Lifecycle.Event.ON_PAUSE -> {
+                UpBitCoinDetailWebSocket.onPause()
+                UpBitOrderBookWebSocket.onPause()
+            }
             Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.setWebSocketMessageListener()
-                UpBitTickerWebSocket.coinDetailScreenOnResume("KRW-".plus(coinSymbol))
+                coinDetailViewModel.initOrder()
             }
             else -> {}
         }
