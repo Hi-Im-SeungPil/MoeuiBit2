@@ -79,7 +79,9 @@ class CoinDetailViewModel @Inject constructor(
     private val _firstCandleDataSetMutableLiveData = MutableLiveData<String>()
     val firstCandleDataSetLiveData: LiveData<String> get() = _firstCandleDataSetMutableLiveData
     val dialogState = mutableStateOf(false)
-
+    val accData = HashMap<Int,Double>()
+    val minuteVisible = mutableStateOf(false)
+    var chartLastData = false
     /**
      * coin info
      * */
@@ -236,6 +238,7 @@ class CoinDetailViewModel @Inject constructor(
                         }
 
                         kstDateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
+                        accData[candlePosition.toInt()] = model.candleAccTradePrice
                         candlePosition += 1f
                         candleEntriesLastPosition = candleEntries.size - 1
                     }
@@ -260,8 +263,10 @@ class CoinDetailViewModel @Inject constructor(
 
     fun requestMoreData(candleType: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
-        dialogState.value = true
         val time = firstCandleUtcTime.replace("T", " ")
+        if(!chartLastData && loadingMoreChartData) {
+            dialogState.value = true
+        }
         viewModelScope.launch {
             val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
                 remoteRepository.getOtherCandleService(candleType, market, "200", time)
@@ -306,8 +311,8 @@ class CoinDetailViewModel @Inject constructor(
                     }
 
                     kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
+                    accData[tempCandlePosition.toInt()] = model.candleAccTradePrice
                     tempCandlePosition += 1f
-                    Log.d("aaaaz2", (positiveBarEntries.size + negativeBarEntries.size).toString())
                 }
                 valueFormatter.setItem(kstDateHashMap)
                 tempCandleEntries.addAll(candleEntries)
@@ -332,8 +337,13 @@ class CoinDetailViewModel @Inject constructor(
                     startPosition,
                     currentVisible
                 )
+                dialogState.value = false
+                loadingMoreChartData = false
+            } else {
+                chartLastData = true
+                dialogState.value = false
+                loadingMoreChartData = true
             }
-            dialogState.value = false
         }
     }
 
@@ -364,6 +374,15 @@ class CoinDetailViewModel @Inject constructor(
                         candleEntriesLastPosition += 1
                         kstDateHashMap[candlePosition.toInt()] = kstTime
                         valueFormatter.addItem(kstTime, candlePosition.toInt())
+                        accData[candlePosition.toInt()] = model.candleAccTradePrice
+
+                        if (model.tradePrice - model.openingPrice >= 0.0) {
+                            positiveBarEntries.add(
+                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                            )
+                        } else {
+                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                        }
                         _firstCandleDataSetMutableLiveData.postValue("add")
                         isUpdateChart = true
                     } else {
@@ -376,10 +395,30 @@ class CoinDetailViewModel @Inject constructor(
                                 model.openingPrice.toFloat(),
                                 model.tradePrice.toFloat()
                             )
+
+                        accData[candlePosition.toInt()] = model.candleAccTradePrice
                         _firstCandleDataSetMutableLiveData.postValue("set")
                     }
                 }
                 delay(600)
+            }
+        }
+    }
+
+    fun setBar() {
+        if (candleEntries.last().close - candleEntries.last().open >= 0.0) {
+            if(positiveBarEntries[positiveBarEntries.lastIndex].x == candlePosition) {
+                positiveBarEntries[positiveBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
+            }else if(positiveBarEntries[positiveBarEntries.lastIndex].x != candlePosition && negativeBarEntries[negativeBarEntries.lastIndex].x == candlePosition) {
+                positiveBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                negativeBarEntries.removeLast()
+            }
+        } else {
+            if(negativeBarEntries[negativeBarEntries.lastIndex].x == candlePosition) {
+                negativeBarEntries[negativeBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
+            } else if(negativeBarEntries[negativeBarEntries.lastIndex].x != candlePosition && positiveBarEntries[positiveBarEntries.lastIndex].x == candlePosition){
+                negativeBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                positiveBarEntries.removeLast()
             }
         }
     }
@@ -415,7 +454,7 @@ class CoinDetailViewModel @Inject constructor(
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             coinDetailModel = model
             currentTradePriceStateForOrderBook.value = coinDetailModel.tradePrice
-            Log.d("model",model.toString())
+            Log.d("model", model.toString())
         }
     }
 
@@ -448,7 +487,7 @@ class CoinDetailViewModel @Inject constructor(
                 index++
             }
             maxOrderBookSize = orderBookMutableStateList.maxOf { it.size }
-            Log.d("model","a")
+            Log.d("model", "a")
         }
     }
 }

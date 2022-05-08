@@ -40,7 +40,7 @@ fun MainBottomNavigation(navController: NavController) {
         MainBottomNavItem.Setting
     )
     BottomNavigation(
-        backgroundColor = colorResource(id = R.color.C0F0F5C)
+        backgroundColor = colorResource(id = R.color.design_default_color_background)
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -52,8 +52,8 @@ fun MainBottomNavigation(navController: NavController) {
                         modifier = Modifier.fillMaxSize(0.4f))
                 },
                 label = { Text(text = item.title) },
-                selectedContentColor = androidx.compose.ui.graphics.Color.White,
-                unselectedContentColor = androidx.compose.ui.graphics.Color.White.copy(0.4f),
+                selectedContentColor = colorResource(id = R.color.C0F0F5C),
+                unselectedContentColor = androidx.compose.ui.graphics.Color.LightGray,
                 alwaysShowLabel = true,
                 selected = currentDestination?.hierarchy?.any { it.route == item.screen_route } == true,
                 onClick = {

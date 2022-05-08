@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -46,15 +45,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val combinedChart = remember {
         CombinedChart(context)
     }
-    val minuteVisible = remember {
-        mutableStateOf(false)
-    }
     val minuteText = remember {
         mutableStateOf("1분")
     }
     val selectedButton = remember {
         mutableStateOf(MINUTE_SELECT)
     }
+    val minuteVisible = coinDetailViewModel.minuteVisible
 
     ProgressDialog(coinDetailViewModel)
 
@@ -74,13 +71,15 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 coinDetailViewModel.isUpdateChart = true
                 coinDetailViewModel.firstCandleDataSetLiveData.observe(lifeCycleOwner, Observer {
                     if (it == "add") {
-                        combinedChart.candleData.notifyDataChanged()
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
                         combinedChart.data.notifyDataChanged()
+                        combinedChart.notifyDataSetChanged()
                         combinedChart.invalidate()
                     } else {
                         if (combinedChart.candleData != null) {
-                            combinedChart.candleData.notifyDataChanged()
+                            coinDetailViewModel.setBar()
+                            combinedChart.data.notifyDataChanged()
+                            combinedChart.notifyDataSetChanged()
                             combinedChart.invalidate()
                         }
                     }
@@ -359,12 +358,11 @@ fun ProgressDialog(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(100.dp)
-                    .background(Transparent, shape = RoundedCornerShape(12.dp))
+                    .background(colorResource(id = R.color.design_default_color_background), shape = RoundedCornerShape(12.dp))
             ) {
                 Column {
-                    CircularProgressIndicator(modifier = Modifier.padding(6.dp, 0.dp, 0.dp, 0.dp))
-                    Text(text = "데이터 불러오는 중...", Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally).padding(0.dp,20.dp,0.dp,0.dp))
+                    Text(text = "데이터 불러오는 중...", Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp))
                 }
             }
         }

@@ -75,7 +75,8 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         legend.isEnabled = false
         marker = ChartMarkerView(context,
             R.layout.candle_info_marker,
-            coinDetailViewModel.kstDateHashMap)
+            coinDetailViewModel.kstDateHashMap,
+            coinDetailViewModel.accData)
         setPinchZoom(false)
         setDrawGridBackground(false)
         setDrawBorders(false)
@@ -119,10 +120,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     val canvasView = DrawPractice(context)
     canvasView.cInit(chart.rendererRightYAxis.paintAxisLabels.textSize)
     chart.addView(canvasView)
-    chart.setOnTouchListener { _, me ->
+    chart.setOnTouchListener { view, me ->
+        if(coinDetailViewModel.minuteVisible.value) {
+            coinDetailViewModel.minuteVisible.value = false
+        }
         val action = me!!.action
         val x = me.x
-        val y = me.y
+        val y = me.y - 170f
         if (action == MotionEvent.ACTION_DOWN) {
             val highlight = getHighlightByTouchPoint(x, y)
             val value = chart.getValuesByTouchPoint(
@@ -144,9 +148,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 .measureText(axisRight.longestLabel)
             val textMarginLeft = axisRight.xOffset
 
-            if (coinDetailViewModel.loadingMoreChartData) {
-                coinDetailViewModel.loadingMoreChartData = false
-            }
+//            if (coinDetailViewModel.loadingMoreChartData) {
+//                coinDetailViewModel.loadingMoreChartData = false
+//            }
             if (highlight != null) {
                 chart.highlightValue(highlight, true)
             }
@@ -186,16 +190,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 }
                 rightAxis.limitLines[0] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
-//                val highestVisibleX = chart.highestVisibleX
-//                val chartXMax = chart.candleData.xMax
-//                if(highestVisibleX < chartXMax) {
-//                    coinDetailViewModel.highestVisibleXPrice.value =
-//                        chart.candleData.getDataSetByIndex(0)
-//                            .getEntryForXValue(highestVisibleX, 0f).close
-//                    Log.d("highestVisibleXPrice",coinDetailViewModel.highestVisibleXPrice.value.toString())
-//                }
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
+            view.parent.requestDisallowInterceptTouchEvent(true)
             coinDetailViewModel.requestMoreData(coinDetailViewModel.candleType.value, chart)
         }
         false
@@ -230,15 +227,14 @@ fun CombinedChart.chartRefreshSetting(
         xAxis.axisMaximum = chart.candleData.xMax + 3f
         xAxis.axisMinimum = chart.candleData.xMin - 3f
         chart.fitScreen()
-        chart.zoom(4f, 0f, 0f, 0f)
         if (candleEntries.size >= 20) {
             chart.setVisibleXRangeMinimum(20f)
         } else {
             chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
         }
-
         chart.data.notifyDataChanged()
         xAxis.valueFormatter = valueFormatter
+        chart.zoom(4f, 0f, 0f, 0f)
         chart.moveViewToX(candleEntries.size.toFloat())
     }
 }
@@ -267,9 +263,9 @@ fun CombinedChart.chartRefreshLoadMoreData(
     chart.fitScreen()
     chart.setVisibleXRangeMaximum(currentVisible)
     chart.data.notifyDataChanged()
-    chart.moveViewToX(startPosition)
     chart.setVisibleXRangeMinimum(20f)
     chart.setVisibleXRangeMaximum(190f)
+    chart.moveViewToX(startPosition)
 }
 
 class MyValueFormatter :

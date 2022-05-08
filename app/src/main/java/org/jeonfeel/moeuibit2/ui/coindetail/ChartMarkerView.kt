@@ -18,14 +18,15 @@ import org.jeonfeel.moeuibit2.util.Calculator
 class ChartMarkerView constructor(
     context: Context?,
     layoutResource: Int,
-    private val dateHashMap: HashMap<Int, String>
+    private val dateHashMap: HashMap<Int, String>,
+    private val chartData: HashMap<Int, Double>
 ) :
     MarkerView(context, layoutResource) {
 
     private val binding: CandleInfoMarkerBinding =
         CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, false)
     var dateTime: String = ""
-
+    var acc: String = ""
     init {
         addView(binding.root)
     }
@@ -35,6 +36,7 @@ class ChartMarkerView constructor(
             if (e is CandleEntry) {
                 val splitDateTime = dateHashMap[e.x.toInt()].toString().split('T')
                 dateTime = splitDateTime[0].plus("  ${splitDateTime[1].slice(0 until 5)}")
+                acc = Calculator.accTradePrice24hCalculator(chartData[e.x.toInt()]!!)
                 val highPrice = Calculator.tradePriceCalculatorForChart(e.high)
                 val openPrice = Calculator.tradePriceCalculatorForChart(e.open)
                 val lowPrice = Calculator.tradePriceCalculatorForChart(e.low)
@@ -74,7 +76,7 @@ class ChartMarkerView constructor(
                     "0.00%",
                     lowPriceRateString,
                     closePriceRateString,
-                    ""
+                    acc.plus(" 백만")
                 )
                 with(binding) {
                     binding.candleInfo = candleInfo
