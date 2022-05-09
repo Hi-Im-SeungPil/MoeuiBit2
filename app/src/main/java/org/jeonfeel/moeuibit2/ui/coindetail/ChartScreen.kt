@@ -297,6 +297,7 @@ fun PeriodButton(
     }
 
     TextButton(onClick = {
+        coinDetailViewModel.chartLastData = false
         coinDetailViewModel.candleType.value = candleType
         coinDetailViewModel.requestChartData(
             coinDetailViewModel.candleType.value,
@@ -324,6 +325,7 @@ fun MinuteButton(
     autoSizeText: Boolean,
 ) {
     TextButton(onClick = {
+        coinDetailViewModel.chartLastData = false
         coinDetailViewModel.candleType.value = candleType
         coinDetailViewModel.requestChartData(
             coinDetailViewModel.candleType.value,

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import android.view.MotionEvent
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.LimitLine
@@ -105,6 +106,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         spaceTop = 400f
         axisMinimum = 0f
     }
+
     //right Axis
     val rightAxis = chart.axisRight
     rightAxis.apply {
@@ -121,7 +123,12 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     canvasView.cInit(chart.rendererRightYAxis.paintAxisLabels.textSize)
     chart.addView(canvasView)
     chart.setOnTouchListener { view, me ->
-        if(coinDetailViewModel.minuteVisible.value) {
+
+        if (coinDetailViewModel.loadingMoreChartData) {
+            return@setOnTouchListener true
+        }
+
+        if (coinDetailViewModel.minuteVisible.value) {
             coinDetailViewModel.minuteVisible.value = false
         }
         val action = me!!.action
@@ -134,6 +141,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 y,
                 axisRight.axisDependency
             )
+
             val verticalLine = LimitLine(value.x.roundToInt().toFloat())
             val horizontalLine = LimitLine(value.y.toFloat())
             val canvasXPosition =
@@ -145,12 +153,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             )
             val length = chart.rendererRightYAxis
                 .paintAxisLabels
-                .measureText(axisRight.longestLabel)
+                .measureText(axisRight.longestLabel.plus('0'))
             val textMarginLeft = axisRight.xOffset
 
-//            if (coinDetailViewModel.loadingMoreChartData) {
-//                coinDetailViewModel.loadingMoreChartData = false
-//            }
             if (highlight != null) {
                 chart.highlightValue(highlight, true)
             }
@@ -166,9 +171,21 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 lineColor = Color.BLACK
                 lineWidth = 0.5f
             }
+//            chart.getPosition(chart.candleData.dataSets[0].entry)
+
+            Log.d("height",chart.getPosition(chart.data.candleData.dataSets[0].getEntryForIndex(199),rightAxis.axisDependency).y.toString())
+            Log.d("height2",me.y.toString())
+
+            val yp2 = if(chart.candleData.xMax < highestVisibleX) {
+                val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.candleData.xMax.toInt()).close
+                chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+            } else {
+                val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.highestVisibleX.toInt()).close
+                chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+            }
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
-            canvasView.actionDownInvalidate(canvasXPosition, y, text, textMarginLeft, length)
+            canvasView.actionDownInvalidate(canvasXPosition, y, text, textMarginLeft, length,yp2)
         } else if (action == MotionEvent.ACTION_MOVE) {
             if (xAxis.limitLines.size != 0) {
                 val value = chart.getValuesByTouchPoint(
@@ -188,11 +205,21 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     lineColor = Color.BLACK
                     lineWidth = 0.5f
                 }
+                chart.xChartMax
+
+
+
+                val yp2 = if(chart.candleData.xMax < highestVisibleX) {
+                    val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.candleData.xMax.toInt()).close
+                    chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+                } else {
+                    val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.highestVisibleX.toInt()).close
+                    chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+                }
                 rightAxis.limitLines[0] = horizontalLine
-                canvasView.actionMoveInvalidate(y, text)
+                canvasView.actionMoveInvalidate(y, text,yp2)
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
-            view.parent.requestDisallowInterceptTouchEvent(true)
             coinDetailViewModel.requestMoreData(coinDetailViewModel.candleType.value, chart)
         }
         false

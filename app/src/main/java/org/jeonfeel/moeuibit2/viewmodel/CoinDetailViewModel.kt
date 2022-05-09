@@ -264,7 +264,7 @@ class CoinDetailViewModel @Inject constructor(
     fun requestMoreData(candleType: String, combinedChart: CombinedChart) {
         loadingMoreChartData = true
         val time = firstCandleUtcTime.replace("T", " ")
-        if(!chartLastData && loadingMoreChartData) {
+        if(!chartLastData) {
             dialogState.value = true
         }
         viewModelScope.launch {
@@ -342,7 +342,7 @@ class CoinDetailViewModel @Inject constructor(
             } else {
                 chartLastData = true
                 dialogState.value = false
-                loadingMoreChartData = true
+                loadingMoreChartData = false
             }
         }
     }

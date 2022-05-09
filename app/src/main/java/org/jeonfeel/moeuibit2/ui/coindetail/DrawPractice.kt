@@ -19,6 +19,8 @@ class DrawPractice constructor(context: Context?) :
     private var width = 0f
     private val rectPaint = Paint()
     private val textPaint = Paint()
+    private val rectPaint2 = Paint()
+    private var yPosition2 = 0f
 
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)
@@ -31,6 +33,10 @@ class DrawPractice constructor(context: Context?) :
             val textY = (top - (top - bottom) * 0.75).toFloat()
             val textX = left + textMarginLeft
 
+            val top2 = yPosition2 - textSize / 2 - 10f
+            val bottom2 = yPosition2 + textSize / 2 + 10f
+
+            canvas?.drawRect(left,top2,right,bottom2, rectPaint2)
             canvas?.drawRect(left, top, right, bottom, rectPaint)
             canvas?.drawText(text, textX,textY, textPaint)
         }
@@ -39,6 +45,7 @@ class DrawPractice constructor(context: Context?) :
     fun cInit(textSize: Float) {
         this.textSize = textSize
         rectPaint.color = Color.parseColor("#004B00")
+        rectPaint2.color = Color.BLUE
         textPaint.color = Color.WHITE
         textPaint.textSize = textSize
     }
@@ -48,17 +55,20 @@ class DrawPractice constructor(context: Context?) :
         y: Float,
         text: String,
         textMarginLeft: Float,
-        width: Float
+        width: Float,
+        yPosition2: Float
     ) {
         this.width = width
         this.xPosition = x
         this.yPosition = y
         this.text = text
         this.textMarginLeft = textMarginLeft
+        this.yPosition2 = yPosition2
         this.invalidate()
     }
 
-    fun actionMoveInvalidate(y: Float, text: String) {
+    fun actionMoveInvalidate(y: Float, text: String,yPosition2: Float) {
+        this.yPosition2 = yPosition2
         this.yPosition = y
         this.text = text
         this.invalidate()
