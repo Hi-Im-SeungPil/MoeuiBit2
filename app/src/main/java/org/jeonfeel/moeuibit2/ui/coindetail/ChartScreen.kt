@@ -23,10 +23,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
+import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.initCombinedChart
@@ -69,6 +71,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     combinedChart
                 )
                 coinDetailViewModel.isUpdateChart = true
+
                 coinDetailViewModel.firstCandleDataSetLiveData.observe(lifeCycleOwner, Observer {
                     if (it == "add") {
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
@@ -77,9 +80,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         combinedChart.invalidate()
                     } else {
                         if (combinedChart.candleData != null) {
-                            coinDetailViewModel.setBar()
                             combinedChart.data.notifyDataChanged()
                             combinedChart.notifyDataSetChanged()
+                            if(combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && coinDetailViewModel.candleEntries.isNotEmpty()) {
+                                val a = coinDetailViewModel.candleEntries.last().close
+                                val yp = combinedChart.getPosition(CandleEntry(a,a,a,a,a),combinedChart.axisRight.axisDependency).y
+                                (combinedChart[0] as DrawPractice).actionDownDrawLastCandleClose(yp)
+                            }
                             combinedChart.invalidate()
                         }
                     }

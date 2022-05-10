@@ -38,8 +38,10 @@ import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.MyValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.util.chartRefreshSetting
+import org.jeonfeel.moeuibit2.util.initCanvas
 import retrofit2.Response
 import javax.inject.Inject
+import kotlin.collections.set
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
@@ -67,7 +69,7 @@ class CoinDetailViewModel @Inject constructor(
     var candlePosition = 0f
     private var candleEntriesLastPosition = 0
     private val chartData = ArrayList<ChartModel>()
-    private val candleEntries = ArrayList<CandleEntry>()
+    val candleEntries = ArrayList<CandleEntry>()
     private val positiveBarEntries = ArrayList<BarEntry>()
     private val negativeBarEntries = ArrayList<BarEntry>()
     val candleType = mutableStateOf("1")
@@ -257,7 +259,8 @@ class CoinDetailViewModel @Inject constructor(
             )
             isUpdateChart = true
             dialogState.value = false
-            updateChart()
+            updateChart(combinedChart)
+            combinedChart.initCanvas()
         }
     }
 
@@ -347,7 +350,7 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    private fun updateChart() {
+    private fun updateChart(combinedChart: CombinedChart) {
         viewModelScope.launch {
             while (isUpdateChart) {
                 val response: Response<JsonArray> = if (candleType.value.toIntOrNull() == null) {
@@ -381,7 +384,9 @@ class CoinDetailViewModel @Inject constructor(
                                 BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
                             )
                         } else {
-                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                            negativeBarEntries.add(
+                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                            )
                         }
                         _firstCandleDataSetMutableLiveData.postValue("add")
                         isUpdateChart = true
@@ -395,8 +400,8 @@ class CoinDetailViewModel @Inject constructor(
                                 model.openingPrice.toFloat(),
                                 model.tradePrice.toFloat()
                             )
-
                         accData[candlePosition.toInt()] = model.candleAccTradePrice
+                        setBar()
                         _firstCandleDataSetMutableLiveData.postValue("set")
                     }
                 }
@@ -406,19 +411,21 @@ class CoinDetailViewModel @Inject constructor(
     }
 
     fun setBar() {
-        if (candleEntries.last().close - candleEntries.last().open >= 0.0) {
-            if(positiveBarEntries[positiveBarEntries.lastIndex].x == candlePosition) {
-                positiveBarEntries[positiveBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
-            }else if(positiveBarEntries[positiveBarEntries.lastIndex].x != candlePosition && negativeBarEntries[negativeBarEntries.lastIndex].x == candlePosition) {
-                positiveBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
-                negativeBarEntries.removeLast()
-            }
-        } else {
-            if(negativeBarEntries[negativeBarEntries.lastIndex].x == candlePosition) {
-                negativeBarEntries[negativeBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
-            } else if(negativeBarEntries[negativeBarEntries.lastIndex].x != candlePosition && positiveBarEntries[positiveBarEntries.lastIndex].x == candlePosition){
-                negativeBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
-                positiveBarEntries.removeLast()
+        if(isUpdateChart) {
+            if (candleEntries.last().close - candleEntries.last().open >= 0.0) {
+                if( positiveBarEntries.last().x == candlePosition) {
+                    positiveBarEntries[positiveBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
+                }else if(positiveBarEntries.last().x != candlePosition && negativeBarEntries.last().x == candlePosition) {
+                    positiveBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                    negativeBarEntries.removeLast()
+                }
+            } else {
+                if(negativeBarEntries.last().x == candlePosition) {
+                    negativeBarEntries[negativeBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
+                } else if(negativeBarEntries.last().x != candlePosition && positiveBarEntries.last().x == candlePosition){
+                    negativeBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                    positiveBarEntries.removeLast()
+                }
             }
         }
     }

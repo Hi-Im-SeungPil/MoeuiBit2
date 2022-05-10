@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import android.util.Log
 import android.view.MotionEvent
+import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.coindetail.DrawPractice
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 fun CandleDataSet.initCandleDataSet() {
@@ -119,10 +120,10 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         spaceBottom = 40f
     }
 
+
     val canvasView = DrawPractice(context)
-    canvasView.cInit(chart.rendererRightYAxis.paintAxisLabels.textSize)
     chart.addView(canvasView)
-    chart.setOnTouchListener { view, me ->
+    chart.setOnTouchListener { _, me ->
 
         if (coinDetailViewModel.loadingMoreChartData) {
             return@setOnTouchListener true
@@ -131,6 +132,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         if (coinDetailViewModel.minuteVisible.value) {
             coinDetailViewModel.minuteVisible.value = false
         }
+
         val action = me!!.action
         val x = me.x
         val y = me.y - 170f
@@ -144,17 +146,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
 
             val verticalLine = LimitLine(value.x.roundToInt().toFloat())
             val horizontalLine = LimitLine(value.y.toFloat())
-            val canvasXPosition =
-                chart.measuredWidth - rightAxis.getRequiredWidthSpace(
-                    chart.rendererRightYAxis.paintAxisLabels
-                )
             val text = Calculator.tradePriceCalculatorForChart(
                 value.y
             )
-            val length = chart.rendererRightYAxis
-                .paintAxisLabels
-                .measureText(axisRight.longestLabel.plus('0'))
-            val textMarginLeft = axisRight.xOffset
 
             if (highlight != null) {
                 chart.highlightValue(highlight, true)
@@ -171,21 +165,15 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 lineColor = Color.BLACK
                 lineWidth = 0.5f
             }
-//            chart.getPosition(chart.candleData.dataSets[0].entry)
 
-            Log.d("height",chart.getPosition(chart.data.candleData.dataSets[0].getEntryForIndex(199),rightAxis.axisDependency).y.toString())
-            Log.d("height2",me.y.toString())
-
-            val yp2 = if(chart.candleData.xMax < highestVisibleX) {
-                val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.candleData.xMax.toInt()).close
-                chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
-            } else {
-                val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.highestVisibleX.toInt()).close
-                chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+            if(chart.candleData.xMax > highestVisibleX) {
+                val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX))[0].close
+                val yp = chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+                canvasView.actionDownDrawLastCandleClose(yp)
             }
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
-            canvasView.actionDownInvalidate(canvasXPosition, y, text, textMarginLeft, length,yp2)
+            canvasView.actionDownInvalidate(y, text)
         } else if (action == MotionEvent.ACTION_MOVE) {
             if (xAxis.limitLines.size != 0) {
                 val value = chart.getValuesByTouchPoint(
@@ -205,19 +193,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     lineColor = Color.BLACK
                     lineWidth = 0.5f
                 }
-                chart.xChartMax
-
-
-
-                val yp2 = if(chart.candleData.xMax < highestVisibleX) {
-                    val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.candleData.xMax.toInt()).close
-                    chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
-                } else {
-                    val a = chart.data.candleData.dataSets[0].getEntryForIndex(chart.highestVisibleX.toInt()).close
-                    chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+                if(chart.candleData.xMax > highestVisibleX) {
+                    val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first().close
+                    val yp = chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
+                    canvasView.actionMoveDrawLastCandleClose(yp)
                 }
                 rightAxis.limitLines[0] = horizontalLine
-                canvasView.actionMoveInvalidate(y, text,yp2)
+                canvasView.actionMoveInvalidate(y, text)
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
             coinDetailViewModel.requestMoreData(coinDetailViewModel.candleType.value, chart)
@@ -293,6 +275,21 @@ fun CombinedChart.chartRefreshLoadMoreData(
     chart.setVisibleXRangeMinimum(20f)
     chart.setVisibleXRangeMaximum(190f)
     chart.moveViewToX(startPosition)
+}
+
+
+fun CombinedChart.initCanvas() {
+    val combinedChart = this
+    val canvasXPosition =
+        combinedChart.measuredWidth - combinedChart.axisRight.getRequiredWidthSpace(
+            combinedChart.rendererRightYAxis.paintAxisLabels
+        )
+    val length = combinedChart.rendererRightYAxis
+        .paintAxisLabels
+        .measureText(combinedChart.axisRight.longestLabel.plus('0'))
+    val textMarginLeft = combinedChart.axisRight.xOffset
+    val textSize = combinedChart.rendererRightYAxis.paintAxisLabels.textSize
+    (combinedChart[0] as DrawPractice).cInit(textSize, textMarginLeft, length, canvasXPosition)
 }
 
 class MyValueFormatter :
