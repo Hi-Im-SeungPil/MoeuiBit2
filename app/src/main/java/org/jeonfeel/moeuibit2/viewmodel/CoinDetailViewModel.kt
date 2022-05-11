@@ -33,7 +33,6 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookMod
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
-import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.MyValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
@@ -46,7 +45,7 @@ import kotlin.collections.set
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
-    private val localRepository: LocalRepository,
+//    private val localRepository: LocalRepository,
 ) : ViewModel(), OnCoinDetailMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
 
@@ -84,6 +83,7 @@ class CoinDetailViewModel @Inject constructor(
     val accData = HashMap<Int,Double>()
     val minuteVisible = mutableStateOf(false)
     var chartLastData = false
+
     /**
      * coin info
      * */
@@ -123,7 +123,7 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun setCoinDetailWebSocketMessageListener() {
+    private fun setCoinDetailWebSocketMessageListener() {
         UpBitCoinDetailWebSocket.getListener().setTickerMessageListener(this)
     }
 
@@ -284,6 +284,11 @@ class CoinDetailViewModel @Inject constructor(
                 val tempNegativeBarEntries = ArrayList<BarEntry>()
                 val chartModelList = response.body() ?: JsonArray()
                 val indices = chartModelList.size()
+                val positiveBarDataIndex = combinedChart.barData.dataSets[0].entryCount
+                val negativeBarDataIndex = combinedChart.barData.dataSets[1].entryCount
+                val tempPositiveBarDataSet = combinedChart.barData.dataSets[0]
+                val tempNegativeBarDataSet = combinedChart.barData.dataSets[1]
+
                 var tempCandlePosition = combinedChart.data.candleData.xMin - indices
                 firstCandleUtcTime =
                     gson.fromJson(
@@ -321,18 +326,19 @@ class CoinDetailViewModel @Inject constructor(
                 tempCandleEntries.addAll(candleEntries)
                 candleEntries.clear()
                 candleEntries.addAll(tempCandleEntries)
-                tempPositiveBarEntries.addAll(positiveBarEntries)
-                tempNegativeBarEntries.addAll(negativeBarEntries)
-                positiveBarEntries.clear()
-                negativeBarEntries.clear()
-                positiveBarEntries.addAll(tempPositiveBarEntries)
-                negativeBarEntries.addAll(tempNegativeBarEntries)
+                for(i in 0 until positiveBarDataIndex) {
+                    tempPositiveBarEntries.add(tempPositiveBarDataSet.getEntryForIndex(i))
+                }
+                for(i in 0 until negativeBarDataIndex) {
+                    tempNegativeBarEntries.add(tempNegativeBarDataSet.getEntryForIndex(i))
+                }
+
+                val positiveBarDataSet = BarDataSet(tempPositiveBarEntries,"")
+                val negativeBarDataSet = BarDataSet(tempNegativeBarEntries,"")
 
                 candleEntriesLastPosition = candleEntries.size - 1
 
                 val candleDataSet = CandleDataSet(candleEntries, "")
-                val positiveBarDataSet = BarDataSet(positiveBarEntries, "")
-                val negativeBarDataSet = BarDataSet(negativeBarEntries, "")
                 combinedChart.chartRefreshLoadMoreData(
                     candleDataSet,
                     positiveBarDataSet,
@@ -380,14 +386,13 @@ class CoinDetailViewModel @Inject constructor(
                         accData[candlePosition.toInt()] = model.candleAccTradePrice
 
                         if (model.tradePrice - model.openingPrice >= 0.0) {
-                            positiveBarEntries.add(
-                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
-                            )
+                            combinedChart.barData.dataSets[0].addEntry(BarEntry(candlePosition, model.candleAccTradePrice.toFloat()))
                         } else {
-                            negativeBarEntries.add(
-                                BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
-                            )
+                            combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition, model.candleAccTradePrice.toFloat()))
                         }
+                        combinedChart.barData.notifyDataChanged()
+                        combinedChart.data.notifyDataChanged()
+                        combinedChart.notifyDataSetChanged()
                         _firstCandleDataSetMutableLiveData.postValue("add")
                         isUpdateChart = true
                     } else {
@@ -401,7 +406,7 @@ class CoinDetailViewModel @Inject constructor(
                                 model.tradePrice.toFloat()
                             )
                         accData[candlePosition.toInt()] = model.candleAccTradePrice
-                        setBar()
+                        setBar(combinedChart)
                         _firstCandleDataSetMutableLiveData.postValue("set")
                     }
                 }
@@ -410,23 +415,32 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun setBar() {
+    private fun setBar(combinedChart: CombinedChart) {
         if(isUpdateChart) {
+            val positiveBarLast = combinedChart.barData.dataSets[0].getEntriesForXValue(candlePosition) ?: emptyList()
+            val negativeBarLast = combinedChart.barData.dataSets[1].getEntriesForXValue(candlePosition) ?: emptyList()
+            val positiveDataSet = combinedChart.barData.dataSets[0]
+            val negativeDataSet = combinedChart.barData.dataSets[1]
             if (candleEntries.last().close - candleEntries.last().open >= 0.0) {
-                if( positiveBarEntries.last().x == candlePosition) {
-                    positiveBarEntries[positiveBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
-                }else if(positiveBarEntries.last().x != candlePosition && negativeBarEntries.last().x == candlePosition) {
-                    positiveBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
-                    negativeBarEntries.removeLast()
+                if(positiveBarLast.isNotEmpty()) {
+                    positiveDataSet.removeLast()
+                    positiveDataSet.addEntry(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                }else if(positiveBarLast.isEmpty()) {
+                    positiveDataSet.addEntry(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                    negativeDataSet.removeLast()
                 }
             } else {
-                if(negativeBarEntries.last().x == candlePosition) {
-                    negativeBarEntries[negativeBarEntries.lastIndex] = BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat())
-                } else if(negativeBarEntries.last().x != candlePosition && positiveBarEntries.last().x == candlePosition){
-                    negativeBarEntries.add(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
-                    positiveBarEntries.removeLast()
+                if(negativeBarLast.isNotEmpty()) {
+                    negativeDataSet.removeLast()
+                    negativeDataSet.addEntry(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                } else if(negativeBarLast.isEmpty()){
+                    negativeDataSet.addEntry(BarEntry(candlePosition,accData[candlePosition.toInt()]!!.toFloat()))
+                    positiveDataSet.removeLast()
                 }
             }
+            combinedChart.barData.notifyDataChanged()
+            combinedChart.data.notifyDataChanged()
+            combinedChart.notifyDataSetChanged()
         }
     }
 

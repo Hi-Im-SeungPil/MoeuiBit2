@@ -8,7 +8,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Call
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,9 +52,6 @@ fun CoinDetailTopAppBar(coinKoreanName: String, coinSymbol: String, coinDetailVi
             }
         },
         actions = {
-            IconButton(onClick = { }) {
-                Icon(Icons.Outlined.Call, contentDescription = null, tint = Color.White)
-            }
             if(!coinDetailViewModel.favoriteMutableState.value) {
                 IconButton(onClick = { coinDetailViewModel.favoriteMutableState.value = true }) {
                     Icon(painterResource(R.drawable.img_unfavorite), contentDescription = null, tint = Color.White)

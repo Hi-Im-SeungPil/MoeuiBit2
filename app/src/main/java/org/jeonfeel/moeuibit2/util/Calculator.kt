@@ -46,6 +46,10 @@ object Calculator {
         return decimalFormat.format(round(accTradePrice24h * 0.000001))
     }
 
+    fun accTradePrice24hCalculator(accTradePrice24h: Float): String {
+        return decimalFormat.format(round(accTradePrice24h * 0.000001))
+    }
+
 
     fun changePriceCalculator(changePrice: Double): String {
         val absChangePrice = abs(changePrice)

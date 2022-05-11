@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +30,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.coindetail.AutoSizeText
+import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.initCombinedChart
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
@@ -75,17 +77,31 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 coinDetailViewModel.firstCandleDataSetLiveData.observe(lifeCycleOwner, Observer {
                     if (it == "add") {
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
-                        combinedChart.data.notifyDataChanged()
-                        combinedChart.notifyDataSetChanged()
                         combinedChart.invalidate()
                     } else {
                         if (combinedChart.candleData != null) {
-                            combinedChart.data.notifyDataChanged()
-                            combinedChart.notifyDataSetChanged()
                             if(combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && coinDetailViewModel.candleEntries.isNotEmpty()) {
-                                val a = coinDetailViewModel.candleEntries.last().close
-                                val yp = combinedChart.getPosition(CandleEntry(a,a,a,a,a),combinedChart.axisRight.axisDependency).y
-                                (combinedChart[0] as DrawPractice).actionDownDrawLastCandleClose(yp)
+                                val canvas = (combinedChart[0] as DrawPractice)
+                                val lastCandle = coinDetailViewModel.candleEntries.last()
+                                val tradePrice = lastCandle.close
+                                val openPrice = lastCandle.open
+//                                val lastX = lastCandle.x
+                                val color = if(tradePrice - openPrice >= 0.0) {
+                                    android.graphics.Color.RED
+                                } else {
+                                    android.graphics.Color.BLUE
+                                }
+//                                val lastBar = if(combinedChart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
+//                                    combinedChart.barData.dataSets[1].getEntriesForXValue(lastX).first()
+//                                } else {
+//                                    combinedChart.barData.dataSets[0].getEntriesForXValue(lastX).first()
+//                                }
+//                                val barPrice = lastBar.y
+                                val yp = combinedChart.getPosition(CandleEntry(tradePrice,tradePrice,tradePrice,tradePrice,tradePrice),combinedChart.axisRight.axisDependency).y
+//                                val yp2 = combinedChart.getPosition(BarEntry(0f,barPrice),combinedChart.axisLeft.axisDependency).y
+//                                canvas.setBarPositionAndText(Calculator.accTradePrice24hCalculator(coinDetailViewModel.accData[lastX.toInt()]),yp2)
+                                canvas.actionDownDrawLastCandleClose(yp,
+                                    Calculator.tradePriceCalculatorForChart(tradePrice),color)
                             }
                             combinedChart.invalidate()
                         }

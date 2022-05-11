@@ -13,8 +13,8 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.coindetail.ChartMarkerView
-import org.jeonfeel.moeuibit2.ui.coindetail.DrawPractice
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartMarkerView
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.DrawPractice
 import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -167,9 +167,16 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             }
 
             if(chart.candleData.xMax > highestVisibleX) {
-                val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX))[0].close
-                val yp = chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
-                canvasView.actionDownDrawLastCandleClose(yp)
+                val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
+                val tradePrice = a.close
+                val openPrice = a.open
+                val color = if(tradePrice - openPrice >= 0.0) {
+                    Color.RED
+                } else {
+                    Color.BLUE
+                }
+                val yp = chart.getPosition(CandleEntry(tradePrice,tradePrice,tradePrice,tradePrice,tradePrice),rightAxis.axisDependency).y
+                canvasView.actionDownDrawLastCandleClose(yp,Calculator.tradePriceCalculatorForChart(tradePrice),color)
             }
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
@@ -194,9 +201,16 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     lineWidth = 0.5f
                 }
                 if(chart.candleData.xMax > highestVisibleX) {
-                    val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first().close
-                    val yp = chart.getPosition(CandleEntry(a,a,a,a,a),rightAxis.axisDependency).y
-                    canvasView.actionMoveDrawLastCandleClose(yp)
+                    val a = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
+                    val tradePrice = a.close
+                    val openPrice = a.open
+                    val color = if(tradePrice - openPrice >= 0.0) {
+                        Color.RED
+                    } else {
+                        Color.BLUE
+                    }
+                    val yp = chart.getPosition(CandleEntry(tradePrice,tradePrice,tradePrice,tradePrice,tradePrice),rightAxis.axisDependency).y
+                    canvasView.actionMoveDrawLastCandleClose(yp,Calculator.tradePriceCalculatorForChart(tradePrice), color)
                 }
                 rightAxis.limitLines[0] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
@@ -274,6 +288,7 @@ fun CombinedChart.chartRefreshLoadMoreData(
     chart.data.notifyDataChanged()
     chart.setVisibleXRangeMinimum(20f)
     chart.setVisibleXRangeMaximum(190f)
+    chart.notifyDataSetChanged()
     chart.moveViewToX(startPosition)
 }
 
