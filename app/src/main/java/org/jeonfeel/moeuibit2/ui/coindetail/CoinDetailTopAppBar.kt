@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 @Composable
 fun CoinDetailTopAppBar(coinKoreanName: String, coinSymbol: String, coinDetailViewModel: CoinDetailViewModel = viewModel()) {

@@ -5,13 +5,16 @@ import android.net.Uri
 import android.os.Message
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -21,18 +24,22 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 
 @Composable
-fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
+fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+    CoinInfoProgressDialog(coinDetailViewModel)
     val context = LocalContext.current
     val coinInfoHashMap = remember {
         mutableStateOf(HashMap<String, String>())
@@ -57,6 +64,7 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel) {
                 coinDetailViewModel.getCoinInfo()
                 coinDetailViewModel.coinInfoLiveData.observe(lifeCycleOwner, Observer {
                     coinInfoHashMap.value = it
+                    coinDetailViewModel.coinInfoDialog.value = false
                 })
             }
             else -> {}
@@ -165,6 +173,28 @@ fun getTextColor(selectedButton: Int, buttonId: Int): Color {
         colorResource(id = R.color.C0F0F5C)
     } else {
         Color.LightGray
+    }
+}
+
+@Composable
+fun CoinInfoProgressDialog(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+    if (coinDetailViewModel.coinInfoDialog.value) {
+        Dialog(onDismissRequest = { coinDetailViewModel.dialogState = false },
+            DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = false)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .background(colorResource(id = R.color.design_default_color_background))
+            ) {
+                Column {
+                    CircularProgressIndicator(modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(0.dp, 20.dp, 0.dp, 0.dp),
+                        color = colorResource(id = R.color.C0F0F5C))
+                    Text(text = "코인정보 불러오는 중...", Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp))
+                }
+            }
+        }
     }
 }
 

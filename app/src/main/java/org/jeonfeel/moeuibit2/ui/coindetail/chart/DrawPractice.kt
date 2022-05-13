@@ -94,24 +94,33 @@ class DrawPractice constructor(context: Context?) :
         this.invalidate()
     }
 
-    fun actionDownDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int) {
+    fun realTimeLastCandleClose(lastCandlePriceYPosition: Float, lastCandlePrice: String, color: Int) {
         this.lastCandlePrice = lastCandlePrice
         this.lastCandlePriceYPosition = lastCandlePriceYPosition
         this.lastCandlePriceRectPaint.color = color
         this.lastBarRecPaint.color = color
+        this.lastBarPrice = ""
+        this.lastBarYPosition = 0f
         this.invalidate()
     }
 
-    fun actionMoveDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int) {
+    fun actionDownDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int,lastBarPrice: String,lastBarYPosition: Float) {
         this.lastCandlePrice = lastCandlePrice
         this.lastCandlePriceYPosition = lastCandlePriceYPosition
         this.lastCandlePriceRectPaint.color = color
         this.lastBarRecPaint.color = color
+        this.lastBarPrice = lastBarPrice
+        this.lastBarYPosition = lastBarYPosition
         this.invalidate()
     }
 
-    fun setBarPositionAndText(lastBarPrice: String,lastBarYPosition: Float) {
-        this.lastBarPrice
-        this.lastBarYPosition
+    fun actionMoveDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int,lastBarPrice: String,lastBarYPosition: Float) {
+        this.lastCandlePrice = lastCandlePrice
+        this.lastCandlePriceYPosition = lastCandlePriceYPosition
+        this.lastCandlePriceRectPaint.color = color
+        this.lastBarRecPaint.color = color
+        this.lastBarPrice = lastBarPrice
+        this.lastBarYPosition = lastBarYPosition
+        this.invalidate()
     }
 }
