@@ -8,7 +8,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,12 +26,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.coindetail.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.util.initCombinedChart
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
@@ -41,6 +40,10 @@ const val DAY_SELECT = 2
 const val WEEK_SELECT = 3
 const val MONTH_SELECT = 4
 
+const val CHART_ADD = 1
+const val CHART_SET_CANDLE = 2
+const val CHART_SET_ALL = 3
+
 @Composable
 fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
@@ -48,12 +51,6 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val applicationContext = context.applicationContext
     val combinedChart = remember {
         CombinedChart(context)
-    }
-    val minuteText = remember {
-        mutableStateOf("1분")
-    }
-    val selectedButton = remember {
-        mutableStateOf(MINUTE_SELECT)
     }
 
     ProgressDialog(coinDetailViewModel)
@@ -68,34 +65,10 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 combinedChart.initCombinedChart(applicationContext, coinDetailViewModel)
                 coinDetailViewModel.requestChartData(combinedChart)
                 coinDetailViewModel.isUpdateChart = true
-
                 coinDetailViewModel.candleUpdateLiveData.observe(lifeCycleOwner, Observer {
-                    if (it == "add") {
+                    if (it == CHART_ADD) {
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
                         combinedChart.invalidate()
-                    } else if (it == "set") {
-                        if (combinedChart.candleData != null) {
-                            if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
-                                val canvas = (combinedChart[0] as DrawPractice)
-                                val lastCandle = coinDetailViewModel.candleEntryLast
-                                val tradePrice = lastCandle.close
-                                val openPrice = lastCandle.open
-                                val color = if (tradePrice - openPrice >= 0.0) {
-                                    android.graphics.Color.RED
-                                } else {
-                                    android.graphics.Color.BLUE
-                                }
-                                val yp = combinedChart.getPosition(CandleEntry(tradePrice,
-                                    tradePrice,
-                                    tradePrice,
-                                    tradePrice,
-                                    tradePrice), combinedChart.axisRight.axisDependency).y
-                                canvas.realTimeLastCandleClose(yp,
-                                    Calculator.tradePriceCalculatorForChart(tradePrice),
-                                    color)
-                            }
-                            combinedChart.invalidate()
-                        }
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
@@ -103,46 +76,38 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                 val lastCandle = coinDetailViewModel.candleEntryLast
                                 val tradePrice = lastCandle.close
                                 val openPrice = lastCandle.open
-                                val lastX = lastCandle.x
                                 val color = if (tradePrice - openPrice >= 0.0) {
                                     android.graphics.Color.RED
                                 } else {
                                     android.graphics.Color.BLUE
                                 }
-
-                                val lastBar =
-                                    if (combinedChart.barData.dataSets[0].getEntriesForXValue(lastX)
-                                            .isEmpty()
-                                    ) {
-                                        combinedChart.barData.dataSets[1].getEntriesForXValue(lastX)
-                                            .first()
-                                    } else {
-                                        combinedChart.barData.dataSets[0].getEntriesForXValue(lastX)
-                                            .first()
-                                    }
-
-                                val barPrice = lastBar.y
                                 val yp = combinedChart.getPosition(CandleEntry(tradePrice,
                                     tradePrice,
                                     tradePrice,
                                     tradePrice,
                                     tradePrice), combinedChart.axisRight.axisDependency).y
-
-                                if (combinedChart.axisLeft.limitLines.isNotEmpty()) {
-                                    combinedChart.axisLeft.removeAllLimitLines()
-                                }
-                                val lastBarLimitLine = LimitLine(barPrice,
-                                    Calculator.accTradePrice24hCalculator(coinDetailViewModel.accData[lastX.toInt()]!!))
-                                lastBarLimitLine.lineColor = color
-                                lastBarLimitLine.textColor = color
-                                lastBarLimitLine.lineWidth = 0f
-                                lastBarLimitLine.textSize = 11f
-                                lastBarLimitLine.labelPosition =
-                                    LimitLine.LimitLabelPosition.RIGHT_TOP
-                                combinedChart.axisLeft.addLimitLine(lastBarLimitLine)
                                 canvas.realTimeLastCandleClose(yp,
                                     Calculator.tradePriceCalculatorForChart(tradePrice),
                                     color)
+                                if (it == CHART_SET_ALL) {
+                                    val lastBar =
+                                        if (combinedChart.barData.dataSets[0].getEntriesForXValue(
+                                                lastCandle.x)
+                                                .isEmpty()
+                                        ) {
+                                            combinedChart.barData.dataSets[1].getEntriesForXValue(
+                                                lastCandle.x)
+                                                .first()
+                                        } else {
+                                            combinedChart.barData.dataSets[0].getEntriesForXValue(
+                                                lastCandle.x)
+                                                .first()
+                                        }
+
+                                    combinedChart.addAccAmountLimitLine(lastBar.x,
+                                        coinDetailViewModel,
+                                        color)
+                                }
                             }
                             combinedChart.invalidate()
                         }
@@ -164,7 +129,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     .weight(1f)
                     .fillMaxHeight()
             }
-            val btnColor = if (selectedButton.value == MINUTE_SELECT) {
+            val btnColor = if (coinDetailViewModel.selectedButton == MINUTE_SELECT) {
                 colorResource(id = R.color.C0F0F5C)
             } else {
                 Color.LightGray
@@ -172,70 +137,64 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
             TextButton(onClick = {
                 coinDetailViewModel.minuteVisible = !coinDetailViewModel.minuteVisible
-            }, modifier = if (selectedButton.value == MINUTE_SELECT)
+            }, modifier = if (coinDetailViewModel.selectedButton == MINUTE_SELECT)
                 buttonModifier
                     .border(1.dp, colorResource(id = R.color.C0F0F5C))
                     .fillMaxHeight()
             else buttonModifier) {
-                Text(text = minuteText.value,
+                Text(text = coinDetailViewModel.minuteText,
                     style = TextStyle(color = btnColor)
                 )
             }
-            if (selectedButton.value == DAY_SELECT) {
+            if (coinDetailViewModel.selectedButton == DAY_SELECT) {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier
                         .border(1.dp,
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "days",
-                    "일", selectedButton, DAY_SELECT)
+                    "일", DAY_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier,
                     "days",
-                    "일", selectedButton, DAY_SELECT)
+                    "일", DAY_SELECT)
             }
 
-            if (selectedButton.value == WEEK_SELECT) {
+            if (coinDetailViewModel.selectedButton == WEEK_SELECT) {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier
                         .border(1.dp,
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "weeks",
-                    "주", selectedButton, WEEK_SELECT)
+                    "주", WEEK_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier,
                     "weeks",
-                    "주", selectedButton, WEEK_SELECT)
+                    "주", WEEK_SELECT)
             }
 
-            if (selectedButton.value == MONTH_SELECT) {
+            if (coinDetailViewModel.selectedButton == MONTH_SELECT) {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier
                         .border(1.dp,
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "months",
-                    "월", selectedButton, MONTH_SELECT)
+                    "월", MONTH_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
-                    minuteText,
                     buttonModifier,
                     "months",
-                    "월", selectedButton, MONTH_SELECT)
+                    "월", MONTH_SELECT)
             }
         }
 
@@ -260,67 +219,51 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         .fillMaxHeight()
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "1",
                         "1분",
-                        selectedButton,
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "3",
                         "3분",
-                        selectedButton,
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "5",
                         "5분",
-                        selectedButton,
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "10",
                         "10분",
-                        selectedButton,
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "15",
                         "15분",
-                        selectedButton,
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "30",
                         "30분",
-                        selectedButton,
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "60",
                         "60분",
-                        selectedButton,
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
-                        minuteText,
                         modifier,
                         "240",
                         "240분",
-                        selectedButton,
                         true)
                 }
             }
@@ -332,14 +275,12 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 fun PeriodButton(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     combinedChart: CombinedChart,
-    minuteText: MutableState<String>,
     modifier: Modifier,
     candleType: String,
     buttonText: String,
-    buttonPeriod: MutableState<Int>,
     period: Int,
 ) {
-    val buttonColor = if (buttonPeriod.value == period) {
+    val buttonColor = if (coinDetailViewModel.selectedButton == period) {
         colorResource(id = R.color.C0F0F5C)
     } else {
         Color.LightGray
@@ -348,10 +289,10 @@ fun PeriodButton(
     TextButton(onClick = {
         coinDetailViewModel.chartLastData = false
         coinDetailViewModel.candleType = candleType
-        coinDetailViewModel.requestChartData(combinedChart)
         coinDetailViewModel.minuteVisible = false
-        minuteText.value = "분"
-        buttonPeriod.value = period
+        coinDetailViewModel.minuteText = "분"
+        coinDetailViewModel.requestChartData(combinedChart)
+        coinDetailViewModel.selectedButton = period
     }, modifier = modifier) {
         Text(text = buttonText,
             style = TextStyle(color = buttonColor))
@@ -362,11 +303,9 @@ fun PeriodButton(
 fun MinuteButton(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     combinedChart: CombinedChart,
-    minuteText: MutableState<String>,
     modifier: Modifier,
     candleType: String,
     minuteTextValue: String,
-    buttonPeriod: MutableState<Int>,
     autoSizeText: Boolean,
 ) {
     TextButton(onClick = {
@@ -374,8 +313,8 @@ fun MinuteButton(
         coinDetailViewModel.candleType = candleType
         coinDetailViewModel.requestChartData(combinedChart)
         coinDetailViewModel.minuteVisible = false
-        minuteText.value = minuteTextValue
-        buttonPeriod.value = MINUTE_SELECT
+        coinDetailViewModel.minuteText = minuteTextValue
+        coinDetailViewModel.selectedButton = MINUTE_SELECT
     }, modifier = modifier
     ) {
         if (autoSizeText) {

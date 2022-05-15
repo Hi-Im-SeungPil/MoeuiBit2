@@ -17,6 +17,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_ADD
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_CANDLE
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.MINUTE_SELECT
 import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.util.chartRefreshSetting
@@ -38,15 +42,17 @@ class ChartUseCase @Inject constructor(
     var isUpdateChart = true
     var chartLastData = false
     var loadingMoreChartData = false
-    val dialogState = mutableStateOf(false)
-    val minuteVisible = mutableStateOf(false)
-    val kstDateHashMap = HashMap<Int, String>()
-    val accData = HashMap<Int, Double>()
     var candlePosition = 0f
     val candleType = mutableStateOf("1")
+    val dialogState = mutableStateOf(false)
+    val minuteVisible = mutableStateOf(false)
+    val minuteText = mutableStateOf("1분")
+    val selectedButton = mutableStateOf(MINUTE_SELECT)
+    val kstDateHashMap = HashMap<Int, String>()
+    val accData = HashMap<Int, Double>()
 
-    private val _candleUpdateMutableLiveData = MutableLiveData<String>()
-    val candleUpdateLiveData: LiveData<String> get() = _candleUpdateMutableLiveData
+    private val _candleUpdateMutableLiveData = MutableLiveData<Int>()
+    val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData
 
     fun requestChartData(
         candleType: String = this.candleType.value,
@@ -226,7 +232,7 @@ class ChartUseCase @Inject constructor(
     fun updateCandleTicker(tradePrice: Double) {
         if (isUpdateChart && candleEntries.isNotEmpty()) {
             candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-            _candleUpdateMutableLiveData.postValue("set")
+            _candleUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
         }
     }
 
@@ -269,7 +275,7 @@ class ChartUseCase @Inject constructor(
                         combinedChart.barData.notifyDataChanged()
                         combinedChart.data.notifyDataChanged()
                         combinedChart.notifyDataSetChanged()
-                        _candleUpdateMutableLiveData.postValue("add")
+                        _candleUpdateMutableLiveData.postValue(CHART_ADD)
                         isUpdateChart = true
                     } else {
                         val last = candleEntries.lastIndex
@@ -282,8 +288,8 @@ class ChartUseCase @Inject constructor(
                                 model.tradePrice.toFloat()
                             )
                         accData[candlePosition.toInt()] = model.candleAccTradePrice
-                        setBar(combinedChart)
-                        _candleUpdateMutableLiveData.postValue("set2")
+                        updateBar(combinedChart)
+                        _candleUpdateMutableLiveData.postValue(CHART_SET_ALL)
                     }
                 }
                 delay(600)
@@ -291,7 +297,7 @@ class ChartUseCase @Inject constructor(
         }
     }
 
-    private fun setBar(combinedChart: CombinedChart) {
+    private fun updateBar(combinedChart: CombinedChart) {
         if (isUpdateChart) {
             val positiveBarLast =
                 combinedChart.barData.dataSets[0].getEntriesForXValue(candlePosition) ?: emptyList()

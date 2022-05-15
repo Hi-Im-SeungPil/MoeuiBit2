@@ -32,10 +32,19 @@ fun ExchangeScreenLoading() {
             .shimmer()) {
 
             Box(modifier = Modifier
-                .padding(10.dp)
+                .padding(10.dp,0.dp)
                 .fillMaxWidth()
-                .height(25.dp)
+                .height(45.dp)
+                .padding(0.dp,5.dp)
                 .background(color = colorResource(id = R.color.CECECEC)))
+
+            Row(modifier = Modifier.fillMaxWidth().height(40.dp).padding(10.dp,0.dp,10.dp,10.dp)) {
+                Text(text = "", modifier = Modifier.padding(0.dp,5.dp,5.dp,5.dp).weight(1f).background(color = colorResource(id = R.color.CECECEC)).fillMaxHeight())
+                Text(text = "", modifier = Modifier.padding(5.dp,5.dp,0.dp,5.dp).weight(1f).background(color = colorResource(id = R.color.CECECEC)).fillMaxHeight())
+                Text(text = "", modifier = Modifier.weight(1f))
+                Text(text = "", modifier = Modifier.weight(1f))
+            }
+
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp)) {
@@ -44,17 +53,17 @@ fun ExchangeScreenLoading() {
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
-                        .background(color = colorResource(id = R.color.CECECEC)))
+                        .background(color = colorResource(id = R.color.CECECEC)).wrapContentHeight())
                 Text(text = "",
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
-                        .background(color = colorResource(id = R.color.CECECEC)))
+                        .background(color = colorResource(id = R.color.CECECEC)).wrapContentHeight())
                 Text(text = "",
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
-                        .background(color = colorResource(id = R.color.CECECEC)))
+                        .background(color = colorResource(id = R.color.CECECEC)).wrapContentHeight())
             }
             for (i in 0..14) {
                 LoadingLazyColumnItem()

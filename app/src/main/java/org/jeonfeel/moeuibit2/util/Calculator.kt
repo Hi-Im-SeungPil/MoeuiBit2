@@ -46,8 +46,13 @@ object Calculator {
         return decimalFormat.format(round(accTradePrice24h * 0.000001))
     }
 
-    fun accTradePrice24hCalculator(accTradePrice24h: Float): String {
-        return decimalFormat.format(round(accTradePrice24h * 0.000001))
+    fun accTradePrice24hCalculatorForChart(accTradePrice24h: Double): String {
+        val decimalFormatResult = decimalFormat.format(round(accTradePrice24h * 0.000001))
+        return if(decimalFormatResult != "0") {
+            decimalFormatResult
+        } else {
+            String.format("%.2f",accTradePrice24h * 0.000001)
+        }
     }
 
 
@@ -81,9 +86,6 @@ object Calculator {
     }
 
     fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
-//        증가액 / 전년도 연봉 * 100
-//        val open = round(openingPrice*100) / 100
-//        val orderBook = round(orderBookPrice*100) / 100
         return ((orderBookPrice-preClosingPrice) / preClosingPrice * 100)
     }
 
@@ -95,3 +97,7 @@ object Calculator {
         return decimalFormat
     }
 }
+
+//        증가액 / 전년도 연봉 * 100
+//        val open = round(openingPrice*100) / 100
+//        val orderBook = round(orderBookPrice*100) / 100

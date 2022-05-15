@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.order
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -24,42 +24,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 import kotlin.math.round
-
-@Composable
-fun OrderScreen(
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
-) {
-
-    OnLifecycleEvent { _, event ->
-        when (event) {
-            Lifecycle.Event.ON_PAUSE -> UpBitOrderBookWebSocket.onPause()
-            Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.setOrderBookWebSocketMessageListener()
-                UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
-            }
-            else -> {}
-        }
-    }
-
-    Row(modifier = Modifier.fillMaxSize()) {
-        AskingPriceLazyColumn(Modifier
-            .weight(3f)
-            .fillMaxHeight(), coinDetailViewModel)
-        Box(modifier = Modifier
-            .weight(7f)
-            .fillMaxHeight()) {
-        }
-    }
-}
 
 @Composable
 fun AskingPriceLazyColumn(
@@ -187,33 +158,4 @@ fun getBlockColor(kind: Int): Color {
     } else {
         colorResource(id = R.color.orderBookBidBlock)
     }
-}
-
-@Composable
-fun AutoSizeText(
-    text: String,
-    textStyle: TextStyle,
-    modifier: Modifier = Modifier,
-) {
-    val scaledTextStyle = remember { mutableStateOf(textStyle) }
-    val readyToDraw = remember { mutableStateOf(false) }
-
-    Text(
-        text,
-        modifier.drawWithContent {
-            if (readyToDraw.value) {
-                drawContent()
-            }
-        },
-        style = scaledTextStyle.value,
-        softWrap = false,
-        onTextLayout = { textLayoutResult ->
-            if (textLayoutResult.didOverflowWidth) {
-                scaledTextStyle.value =
-                    scaledTextStyle.value.copy(fontSize = scaledTextStyle.value.fontSize * 0.9)
-            } else {
-                readyToDraw.value = true
-            }
-        }
-    )
 }

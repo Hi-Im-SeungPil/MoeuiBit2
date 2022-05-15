@@ -36,7 +36,7 @@ class ChartMarkerView constructor(
             if (e is CandleEntry) {
                 val splitDateTime = dateHashMap[e.x.toInt()].toString().split('T')
                 dateTime = splitDateTime[0].plus("  ${splitDateTime[1].slice(0 until 5)}")
-                acc = Calculator.accTradePrice24hCalculator(chartData[e.x.toInt()]!!)
+                acc = Calculator.accTradePrice24hCalculatorForChart(chartData[e.x.toInt()]!!)
                 val highPrice = Calculator.tradePriceCalculatorForChart(e.high)
                 val openPrice = Calculator.tradePriceCalculatorForChart(e.open)
                 val lowPrice = Calculator.tradePriceCalculatorForChart(e.low)

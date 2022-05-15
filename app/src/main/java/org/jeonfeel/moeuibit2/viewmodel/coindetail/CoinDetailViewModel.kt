@@ -170,10 +170,12 @@ class CoinDetailViewModel @Inject constructor(
                     coinInfos["info"] = snapshot.child("content").getValue(String::class.java)!!
 
                     _coinInfoMutableLiveData.postValue(coinInfos)
+                    coinInfoDialog.value = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("firebase error", error.message)
+                    coinInfoDialog.value = false
                 }
             })
     }
@@ -203,6 +205,22 @@ class CoinDetailViewModel @Inject constructor(
         }
         get() {
             return chartUseCase.candleType.value
+        }
+
+    var minuteText: String
+        set(value) {
+            chartUseCase.minuteText.value = value
+        }
+        get() {
+            return chartUseCase.minuteText.value
+        }
+
+    var selectedButton: Int
+        set(value) {
+            chartUseCase.selectedButton.value = value
+        }
+        get() {
+            return chartUseCase.selectedButton.value
         }
 
     var chartLastData: Boolean
@@ -257,7 +275,7 @@ class CoinDetailViewModel @Inject constructor(
             return chartUseCase.candleEntriesIsEmpty()
         }
 
-    val candleUpdateLiveData: LiveData<String>
+    val candleUpdateLiveData: LiveData<Int>
         get() {
             return chartUseCase.candleUpdateLiveData
         }

@@ -12,19 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -110,59 +102,6 @@ fun SearchBasicTextFieldResult(exchangeViewModel: ExchangeViewModel = viewModel(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewSearch2() {
-    SearchBasic(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(45.dp)
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = Stroke.DefaultMiter
-                    val y = size.height // - strokeWidth
-                    drawLine(
-                        brush = SolidColor(Color.LightGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            },
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(25.dp),
-                tint = colorResource(id = R.color.C0F0F5C)
-            )
-        },
-        trailingIcon = {
-            IconButton(onClick = { it.invoke() }) {
-                Icon(Icons.Default.Close,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(25.dp),
-                    tint = colorResource(id = R.color.C0F0F5C))
-            }
-        },
-        placeholderText = "코인명/심볼 검색",
-        fontSize = 17.sp
-    )
-}
-fun View.isKeyboardOpen(): Boolean {
-    val rect = Rect()
-    getWindowVisibleDisplayFrame(rect);
-    val screenHeight = rootView.height
-    val keypadHeight = screenHeight - rect.bottom;
-    return keypadHeight > screenHeight * 0.15
-}
-
 @Composable
 fun rememberIsKeyboardOpen(): State<Boolean> {
     val view = LocalView.current
@@ -174,6 +113,14 @@ fun rememberIsKeyboardOpen(): State<Boolean> {
 
         awaitDispose { viewTreeObserver.removeOnGlobalLayoutListener(listener)  }
     }
+}
+
+fun View.isKeyboardOpen(): Boolean {
+    val rect = Rect()
+    getWindowVisibleDisplayFrame(rect);
+    val screenHeight = rootView.height
+    val keypadHeight = screenHeight - rect.bottom;
+    return keypadHeight > screenHeight * 0.15
 }
 
 fun Modifier.clearFocusOnKeyboardDismiss(): Modifier = composed {
