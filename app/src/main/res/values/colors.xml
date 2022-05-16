@@ -17,6 +17,9 @@
     <color name="orderBookBidBackground">#1AFF3030</color>
     <color name="orderBookAskBlock">#333654FF</color>
     <color name="orderBookBidBlock">#33FF3030</color>
+    <color name="CF6F6F6">#F6F6F6</color>
+    <color name ="CEA3030">#EA3030</color>
+    <color name ="C3048EA">#3048EA</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

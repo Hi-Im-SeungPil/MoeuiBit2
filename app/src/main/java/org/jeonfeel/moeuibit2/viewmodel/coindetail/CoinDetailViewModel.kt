@@ -53,6 +53,8 @@ class CoinDetailViewModel @Inject constructor(
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
 
+    val askBidSelectedTab = mutableStateOf(1)
+
     /**
      * coin info
      * */
@@ -281,11 +283,15 @@ class CoinDetailViewModel @Inject constructor(
         }
 
     fun requestMoreData(combinedChart: CombinedChart) {
-        chartUseCase.requestMoreData(combinedChart = combinedChart, market = market)
+        viewModelScope.launch {
+            chartUseCase.requestMoreData(combinedChart = combinedChart, market = market)
+        }
     }
 
     fun requestChartData(combinedChart: CombinedChart) {
-        chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
+        viewModelScope.launch {
+            chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
+        }
     }
 
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
@@ -293,7 +299,6 @@ class CoinDetailViewModel @Inject constructor(
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             coinDetailModel = model
             currentTradePriceStateForOrderBook.value = coinDetailModel.tradePrice
-            Log.d("model", model.toString())
         }
     }
 
@@ -326,7 +331,6 @@ class CoinDetailViewModel @Inject constructor(
                 index++
             }
             maxOrderBookSize = orderBookMutableStateList.maxOf { it.size }
-            Log.d("model", "a")
         }
     }
 }

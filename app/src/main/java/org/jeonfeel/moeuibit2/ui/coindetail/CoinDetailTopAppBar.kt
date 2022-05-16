@@ -33,7 +33,7 @@ fun CoinDetailTopAppBar(coinKoreanName: String, coinSymbol: String, coinDetailVi
                 style = TextStyle(color = Color.White,
                     fontSize = 17.sp,
                     textAlign = TextAlign.Center),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis)
         },
