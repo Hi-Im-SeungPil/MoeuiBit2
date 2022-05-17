@@ -3,9 +3,9 @@ package org.jeonfeel.moeuibit2.ui.coindetail.order
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -118,7 +118,38 @@ fun OrderScreenQuantity() {
                 placeholderText = "0",
                 fontSize = 15.sp)
         }
-        Text(text = "가능", modifier = Modifier.weight(1f))
+        OrderScreenQuantityDropDown(Modifier.weight(1f))
+    }
+}
+
+@Composable
+fun OrderScreenQuantityDropDown(modifier: Modifier) {
+    val buttonText = remember{ mutableStateOf("가능") }
+    val expanded = remember { mutableStateOf(false) }
+    val suggestions = listOf("최대", "50%", "25%", "10%")
+
+    Box(modifier = modifier) {
+        TextButton(onClick = { expanded.value = !expanded.value }){
+            Text (buttonText.value)
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+            )
+        }
+        DropdownMenu(
+            expanded = expanded.value,
+            onDismissRequest = { expanded.value = false },
+        ) {
+            suggestions.forEach { label ->
+                DropdownMenuItem(onClick = {
+                    buttonText.value = label
+                    expanded.value = false
+                    //do something ...
+                }) {
+                    Text(text = label)
+                }
+            }
+        }
     }
 }
 
