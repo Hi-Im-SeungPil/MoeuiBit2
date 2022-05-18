@@ -10,7 +10,7 @@ object Calculator {
 
     fun tradePriceCalculator(tradePrice: Double): String {
         return if (tradePrice >= 100) {
-            round(tradePrice).toInt().toString()
+            round(tradePrice).toLong().toString()
         } else if (tradePrice < 100 && tradePrice >= 1) {
             String.format("%.2f", tradePrice)
         } else {
@@ -95,6 +95,17 @@ object Calculator {
 
     fun getDecimalFormat(): DecimalFormat {
         return decimalFormat
+    }
+
+    fun orderScreenTotalPriceCalculator(quantity: Double, tradePrice: Double): String {
+        val result = round(quantity * tradePrice)
+        return if (result >= 100) {
+            decimalFormat.format(round(result).toLong())
+        } else if (result < 100 && result >= 1) {
+            String.format("%.2f", result)
+        } else {
+            String.format("%.4f", result)
+        }
     }
 }
 

@@ -1,43 +1,61 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import kotlin.math.round
 
 @Composable
 fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    Column(modifier = Modifier
-        .fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         OrderScreenTabs(coinDetailViewModel)
-        Box(modifier = Modifier
-            .padding(10.dp, 0.dp)
-            .weight(1f)) {
+        Box(
+            modifier = Modifier
+                .padding(10.dp, 0.dp)
+                .weight(1f)
+        ) {
             Column() {
-                OrderScreenUserSeedMoney()
-                OrderScreenQuantity()
+                OrderScreenUserSeedMoney(coinDetailViewModel)
+                OrderScreenQuantity(coinDetailViewModel)
                 OrderScreenPrice(coinDetailViewModel)
-                OrderScreenTotalPrice()
+                OrderScreenTotalPrice(coinDetailViewModel)
                 OrderScreenButtons(coinDetailViewModel)
+                OrderScreenNotice()
             }
         }
     }
@@ -46,77 +64,125 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 @Composable
 fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val selectedTab = coinDetailViewModel.askBidSelectedTab
+    val interactionSource = remember { MutableInteractionSource() }
 
-    Row(Modifier
-        .fillMaxWidth()
-        .height(40.dp)) {
-        TextButton(onClick = { selectedTab.value = 1 }, modifier = Modifier
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+    ) {
+        Box(modifier = Modifier
             .background(getTabBackGround(selectedTab.value, 1))
             .weight(1f)
-            .fillMaxHeight()) {
-            Text(text = "매수", style = getTabTextStyle(selectedTab.value, 1))
+            .fillMaxHeight()
+            .wrapContentHeight()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { selectedTab.value = 1 }) {
+            Text(
+                text = "매수",
+                modifier = Modifier.fillMaxWidth(),
+                style = getTabTextStyle(selectedTab.value, 1)
+            )
         }
-        TextButton(onClick = { selectedTab.value = 2 }, modifier = Modifier
+        Box(modifier = Modifier
             .background(getTabBackGround(selectedTab.value, 2))
             .weight(1f)
-            .fillMaxHeight()) {
-            Text(text = "매도", style = getTabTextStyle(selectedTab.value, 2))
+            .fillMaxHeight()
+            .wrapContentHeight()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { selectedTab.value = 2 }
+        ) {
+            Text(
+                text = "매도",
+                modifier = Modifier.fillMaxWidth(),
+                style = getTabTextStyle(selectedTab.value, 2)
+            )
         }
-        TextButton(onClick = { selectedTab.value = 3 }, modifier = Modifier
+        Box(modifier = Modifier
             .background(getTabBackGround(selectedTab.value, 3))
             .weight(1f)
-            .fillMaxHeight()) {
-            Text(text = "거래내역", style = getTabTextStyle(selectedTab.value, 3))
+            .fillMaxHeight()
+            .wrapContentHeight()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { selectedTab.value = 3 }
+        ) {
+            Text(
+                text = "거래내역",
+                modifier = Modifier.fillMaxWidth(),
+                style = getTabTextStyle(selectedTab.value, 3)
+            )
         }
     }
 }
 
 @Composable
-fun OrderScreenUserSeedMoney() {
+fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
-    val textStyleBody1 = MaterialTheme.typography.body1.copy(fontWeight = FontWeight.Bold,
+    val textStyleBody1 = MaterialTheme.typography.body1.copy(
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.End,
-        fontSize = 15.sp)
+        fontSize = 15.sp
+    )
     val textStyle = remember { mutableStateOf(textStyleBody1) }
 
-    Row(modifier = Modifier
-        .padding(0.dp, 10.dp)
-        .fillMaxWidth()
-        .height(30.dp)
-        .wrapContentHeight()
+    Row(
+        modifier = Modifier
+            .padding(0.dp, 10.dp)
+            .fillMaxWidth()
+            .height(30.dp)
+            .wrapContentHeight()
     ) {
         Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
-        AutoSizeText(text = "500,000,000,000",
+        AutoSizeText(
+            text = Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney.value),
             textStyle = textStyle.value,
-            modifier = Modifier.weight(1f, true))
-        Text(text = "  KRW",
+            modifier = Modifier.weight(1f, true)
+        )
+        Text(
+            text = "  KRW",
             modifier = Modifier.wrapContentWidth(),
-            fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            fontWeight = FontWeight.Bold, fontSize = 15.sp
+        )
     }
 }
 
 @Composable
-fun OrderScreenQuantity() {
+fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
     val text = remember { mutableStateOf("") }
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(35.dp)) {
-        Row(modifier = Modifier
-            .weight(2f)
-            .fillMaxHeight()
-            .border(0.7.dp, Color.LightGray)
-            .wrapContentHeight()) {
-            Text(text = "수량",
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(35.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .weight(2f)
+                .fillMaxHeight()
+                .border(0.7.dp, Color.LightGray)
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = "수량",
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = 15.sp))
-            OrderScreenQuantityTextField(textFieldValue = text,
+                style = TextStyle(fontSize = 15.sp)
+            )
+            OrderScreenQuantityTextField(
+                textFieldValue = text,
                 modifier = Modifier.weight(1f, true),
                 placeholderText = "0",
-                fontSize = 15.sp)
+                fontSize = 15.sp,
+                coinDetailViewModel = coinDetailViewModel
+            )
         }
         OrderScreenQuantityDropDown(Modifier.weight(1f))
     }
@@ -124,21 +190,35 @@ fun OrderScreenQuantity() {
 
 @Composable
 fun OrderScreenQuantityDropDown(modifier: Modifier) {
-    val buttonText = remember{ mutableStateOf("가능") }
+    val buttonText = remember { mutableStateOf("가능") }
     val expanded = remember { mutableStateOf(false) }
     val suggestions = listOf("최대", "50%", "25%", "10%")
+    val imageVector = if (expanded.value) {
+        Icons.Filled.KeyboardArrowUp
+    } else {
+        Icons.Filled.KeyboardArrowDown
+    }
+    val textButtonWidth = remember {
+        mutableStateOf(0f)
+    }
 
     Box(modifier = modifier) {
-        TextButton(onClick = { expanded.value = !expanded.value }){
-            Text (buttonText.value)
+        TextButton(
+            onClick = { expanded.value = !expanded.value },
+            modifier = Modifier.onGloballyPositioned { coordinates ->
+                textButtonWidth.value = coordinates.size.toSize().width
+            }
+        ) {
+            Text(buttonText.value, style = TextStyle(color = Color.Black))
             Icon(
-                imageVector = Icons.Filled.ArrowDropDown,
+                imageVector = imageVector,
                 contentDescription = null,
             )
         }
         DropdownMenu(
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false },
+            modifier = Modifier.width(with(LocalDensity.current) { textButtonWidth.value.toDp() })
         ) {
             suggestions.forEach { label ->
                 DropdownMenuItem(onClick = {
@@ -155,47 +235,75 @@ fun OrderScreenQuantityDropDown(modifier: Modifier) {
 
 @Composable
 fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    Row(modifier = Modifier
-        .padding(0.dp, 5.dp)
-        .fillMaxWidth()
-        .height(35.dp)
-        .border(0.7.dp, Color.LightGray)
-        .wrapContentHeight()) {
-        Text(text = "가격", modifier = Modifier
-            .wrapContentWidth()
-            .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp))
-        Text(text = Calculator.tradePriceCalculatorForChart(coinDetailViewModel.currentTradePriceState.value),
+    Row(
+        modifier = Modifier
+            .padding(0.dp, 5.dp)
+            .fillMaxWidth()
+            .height(35.dp)
+            .border(0.7.dp, Color.LightGray)
+            .wrapContentHeight()
+    ) {
+        Text(
+            text = "가격", modifier = Modifier
+                .wrapContentWidth()
+                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
+        )
+        Text(
+            text = Calculator.tradePriceCalculatorForChart(coinDetailViewModel.currentTradePriceState.value),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
-            style = TextStyle(fontSize = 15.sp))
-        Text(text = "  KRW",
+            style = TextStyle(fontSize = 15.sp)
+        )
+        Text(
+            text = "  KRW",
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold))
+            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        )
     }
 }
 
 @Composable
-fun OrderScreenTotalPrice() {
-    Row(modifier = Modifier
-        .padding(0.dp, 0.dp, 0.dp, 5.dp)
-        .fillMaxWidth()
-        .height(35.dp)
-        .border(0.7.dp, Color.LightGray)
-        .wrapContentHeight()) {
-        Text(text = "총액", modifier = Modifier
-            .wrapContentWidth()
-            .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp))
-        Text(text = "1,000,000",
+fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+    Row(
+        modifier = Modifier
+            .padding(0.dp, 0.dp, 0.dp, 5.dp)
+            .fillMaxWidth()
+            .height(35.dp)
+            .border(0.7.dp, Color.LightGray)
+            .wrapContentHeight()
+    ) {
+        Text(
+            text = "총액", modifier = Modifier
+                .wrapContentWidth()
+                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
+        )
+        Text(
+            text = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
+                if(coinDetailViewModel.bidQuantity.value.isEmpty()) {
+                    "0"
+                } else {
+                    Calculator.orderScreenTotalPriceCalculator(coinDetailViewModel.bidQuantity.value.toDouble(), coinDetailViewModel.currentTradePriceState.value)
+                }
+            } else {
+                if(coinDetailViewModel.askQuantity.value.isEmpty()) {
+                    "0"
+                } else {
+                    Calculator.orderScreenTotalPriceCalculator(coinDetailViewModel.askQuantity.value.toDouble(), coinDetailViewModel.currentTradePriceState.value)
+                }
+            },
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
-            style = TextStyle(fontSize = 15.sp))
-        Text(text = "  KRW",
+            style = TextStyle(fontSize = 15.sp)
+        )
+        Text(
+            text = "  KRW",
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold))
+            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        )
     }
 }
 
@@ -204,34 +312,86 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val buttonBackground = getButtonsBackground(coinDetailViewModel.askBidSelectedTab.value)
     val buttonText = getButtonsText(coinDetailViewModel.askBidSelectedTab.value)
 
-    Column(modifier = Modifier
-        .fillMaxWidth()) {
-        Row(modifier = Modifier
-            .padding(0.dp, 5.dp)
+    Column(
+        modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)) {
-            TextButton(onClick = {}, modifier = Modifier
-                .padding(0.dp, 0.dp, 4.dp, 0.dp)
-                .weight(1f)
-                .background(color = Color.LightGray)
-                .fillMaxHeight()) {
-                Text(text = "초기화", style = TextStyle(color = Color.White) , fontSize = 18.sp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(0.dp, 5.dp)
+                .fillMaxWidth()
+                .height(40.dp)
+        ) {
+            TextButton(
+                onClick = { }, modifier = Modifier
+                    .padding(0.dp, 0.dp, 4.dp, 0.dp)
+                    .weight(1f)
+                    .background(color = Color.LightGray)
+                    .fillMaxHeight()
+            ) {
+                Text(text = "초기화", style = TextStyle(color = Color.White), fontSize = 18.sp)
             }
-            TextButton(onClick = { }, modifier = Modifier
-                .padding(4.dp, 0.dp, 0.dp, 0.dp)
-                .weight(1f)
-                .background(buttonBackground)
-                .fillMaxHeight()) {
+            TextButton(
+                onClick = { }, modifier = Modifier
+                    .padding(4.dp, 0.dp, 0.dp, 0.dp)
+                    .weight(1f)
+                    .background(buttonBackground)
+                    .fillMaxHeight()
+            ) {
                 Text(text = buttonText, style = TextStyle(color = Color.White), fontSize = 18.sp)
             }
         }
+        TextButton(
+            onClick = { }, modifier = Modifier
+                .padding(0.dp, 5.dp)
+                .fillMaxWidth()
+                .background(buttonBackground)
+                .height(40.dp)
+        ) {
+            Text(
+                text = "총액 지정하여 ".plus(buttonText),
+                style = TextStyle(color = Color.White),
+                fontSize = 18.sp
+            )
+        }
+    }
+}
 
-        TextButton(onClick = { }, modifier = Modifier
-            .padding(0.dp, 5.dp)
-            .fillMaxWidth()
-            .background(buttonBackground)
-            .height(40.dp)) {
-            Text(text = "총액 지정하여 ".plus(buttonText), style = TextStyle(color = Color.White) , fontSize = 18.sp)
+@Composable
+fun OrderScreenNotice() {
+    Column(modifier = Modifier
+        .padding(0.dp, 10.dp, 0.dp, 0.dp)
+        .fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = "최소 주문 금액",
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start,
+                style = TextStyle(color = Color.Gray)
+            )
+            Text(
+                text = "5000 KRW",
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End,
+                style = TextStyle(color = Color.Gray)
+            )
+        }
+        Row(
+            Modifier
+                .padding(0.dp, 10.dp, 0.dp, 0.dp)
+                .fillMaxWidth()) {
+            Text(
+                text = "수수료",
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Start,
+                style = TextStyle(color = Color.Gray)
+            )
+            Text(
+                text = "0.05%",
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.End,
+                style = TextStyle(color = Color.Gray)
+            )
         }
     }
 }
@@ -239,11 +399,14 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 @Composable
 fun getTabTextStyle(selectedTab: Int, tabNum: Int): TextStyle {
     return if (selectedTab == tabNum) {
-        TextStyle(color = colorResource(id = R.color.C0F0F5C),
+        TextStyle(
+            color = colorResource(id = R.color.C0F0F5C),
             fontWeight = FontWeight.Bold,
-            fontSize = 15.sp)
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center
+        )
     } else {
-        TextStyle(color = Color.Gray, fontSize = 15.sp)
+        TextStyle(color = Color.Gray, fontSize = 15.sp, textAlign = TextAlign.Center)
     }
 }
 

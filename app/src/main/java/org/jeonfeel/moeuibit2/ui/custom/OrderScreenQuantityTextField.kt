@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 @Composable
 fun OrderScreenQuantityTextField(
@@ -29,10 +30,18 @@ fun OrderScreenQuantityTextField(
     textFieldValue: MutableState<String> = mutableStateOf(""),
     placeholderText: String = "Placeholder",
     fontSize: TextUnit = MaterialTheme.typography.body2.fontSize,
+    coinDetailViewModel: CoinDetailViewModel
 ) {
     val focusManager = LocalFocusManager.current
-    BasicTextField(value = textFieldValue.value, onValueChange = {
-        textFieldValue.value = it
+
+    val value = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
+        coinDetailViewModel.bidQuantity
+    } else {
+        coinDetailViewModel.askQuantity
+    }
+
+    BasicTextField(value = value.value, onValueChange = {
+        value.value = it
     }, singleLine = true,
         textStyle = TextStyle(color = Color.Black,
             fontSize = 17.sp, textAlign = TextAlign.End),
@@ -41,7 +50,7 @@ fun OrderScreenQuantityTextField(
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f,true)) {
-                    if (textFieldValue.value.isEmpty()) {
+                    if (value.value.isEmpty()) {
                         Text(
                             placeholderText,
                             style = TextStyle(color = Color.Black,

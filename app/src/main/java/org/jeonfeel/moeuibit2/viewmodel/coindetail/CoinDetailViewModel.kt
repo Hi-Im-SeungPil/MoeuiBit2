@@ -28,6 +28,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookMod
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
+import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
 import javax.inject.Inject
@@ -37,7 +38,7 @@ import kotlin.collections.set
 class CoinDetailViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val chartUseCase: ChartUseCase,
-//    private val localRepository: LocalRepository,
+    val localRepository: LocalRepository,
 ) : ViewModel(), OnCoinDetailMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
 
@@ -54,6 +55,9 @@ class CoinDetailViewModel @Inject constructor(
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
 
     val askBidSelectedTab = mutableStateOf(1)
+    val userSeedMoney = mutableStateOf(0L)
+    val bidQuantity = mutableStateOf("")
+    val askQuantity = mutableStateOf("")
 
     /**
      * coin info
@@ -67,16 +71,15 @@ class CoinDetailViewModel @Inject constructor(
      * */
     val favoriteMutableState = mutableStateOf(false)
 
-    /**
-     * orderScreen
-     * */
-
     fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
     }
 
+    /**
+     * orderScreen
+     * */
     fun initOrder() {
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
             setCoinDetailWebSocketMessageListener()
@@ -86,6 +89,9 @@ class CoinDetailViewModel @Inject constructor(
                 updateTicker()
                 initOrderBook(market)
                 UpBitOrderBookWebSocket.requestOrderBookList(market)
+                localRepository.getUserDao().all.let {
+                    userSeedMoney.value = it?.krw ?: 0L
+                }
             }
         } else {
             setCoinDetailWebSocketMessageListener()

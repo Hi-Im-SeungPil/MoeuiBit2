@@ -9,7 +9,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.User
 @Dao
 interface UserDAO {
     @get:Query("SELECT * FROM User")
-    val all: User
+    val all: User?
 
     @Insert
     fun insertAll(vararg users: User?)
@@ -17,7 +17,7 @@ interface UserDAO {
     @Delete
     fun delete(user: User)
 
-    @Query("Insert into User values(5000000)")
+    @Query("Insert into User values(10000000)")
     fun insert()
 
     @Query("UPDATE User SET krw = :money")
