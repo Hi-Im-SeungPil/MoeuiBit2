@@ -18,6 +18,7 @@ class CoinDetailActivity : AppCompatActivity() {
     private lateinit var coinSymbol: String
     private var openingPrice: Double = 0.0
     private var isFavorite = false
+    private var koreanName = ""
     private val coinDetailViewModel: CoinDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -26,15 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import kotlin.math.round
 
 @Composable
 fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
@@ -48,7 +48,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 .padding(10.dp, 0.dp)
                 .weight(1f)
         ) {
-            Column() {
+            Column(modifier = Modifier.fillMaxSize()) {
                 OrderScreenUserSeedMoney(coinDetailViewModel)
                 OrderScreenQuantity(coinDetailViewModel)
                 OrderScreenPrice(coinDetailViewModel)
@@ -129,25 +129,42 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
         fontSize = 15.sp
     )
     val textStyle = remember { mutableStateOf(textStyleBody1) }
-
-    Row(
-        modifier = Modifier
-            .padding(0.dp, 10.dp)
-            .fillMaxWidth()
-            .height(30.dp)
-            .wrapContentHeight()
-    ) {
-        Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
-        AutoSizeText(
-            text = Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney.value),
-            textStyle = textStyle.value,
-            modifier = Modifier.weight(1f, true)
-        )
-        Text(
-            text = "  KRW",
-            modifier = Modifier.wrapContentWidth(),
-            fontWeight = FontWeight.Bold, fontSize = 15.sp
-        )
+    var krwOrSymbol = ""
+    var currentUserCoinValue = ""
+    val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+        krwOrSymbol = "KRW"
+        Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney.value)
+    } else {
+        val userCoin = coinDetailViewModel.userCoin.value
+        currentUserCoinValue = Calculator.getDecimalFormat().format(round(coinDetailViewModel.currentTradePriceState.value * userCoin))
+        krwOrSymbol = coinDetailViewModel.market.substring(4)
+        Calculator.getDecimalDecimalFormat().format(userCoin)
+    }
+    Column(modifier = Modifier
+        .padding(0.dp, 10.dp)
+        .fillMaxWidth()
+        .wrapContentHeight()) {
+        Row(
+        ) {
+            Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
+            AutoSizeText(
+                text = userSeedMoneyOrCoin,
+                textStyle = textStyle.value,
+                modifier = Modifier.weight(1f, true)
+            )
+            Text(
+                text = "  ".plus(krwOrSymbol),
+                modifier = Modifier.wrapContentWidth(),
+                fontWeight = FontWeight.Bold, fontSize = 15.sp,
+                textAlign = TextAlign.End
+            )
+        }
+        if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+            Text(text = "= $currentUserCoinValue  KRW",
+                modifier = Modifier.padding(0.dp,2.dp).align(Alignment.End),
+                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+            )
+        }
     }
 }
 
@@ -190,7 +207,7 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) 
 @Composable
 fun OrderScreenQuantityDropDown(
     modifier: Modifier,
-    coinDetailViewModel: CoinDetailViewModel = viewModel()
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val buttonText = remember { mutableStateOf("가능") }
     val expanded = remember { mutableStateOf(false) }
@@ -240,7 +257,6 @@ fun OrderScreenQuantityDropDown(
                             coinDetailViewModel.askQuantity.value = quantity
                         }
                     }
-                    //do something ...
                 }) {
                     Text(text = label)
                 }
@@ -368,25 +384,28 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         quantity.toDouble(),
                         currentPrice.value
                     )
+                    val userSeedMoney = coinDetailViewModel.userSeedMoney.value
                     when {
                         totalPrice.toLong() < 5000 -> {
-                            Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                "주문 가능한 최소금액은 5,000KRW 입니다.",
+                                Toast.LENGTH_SHORT)
+                                .show()
                         }
-                        totalPrice.toLong() > coinDetailViewModel.userSeedMoney.value -> {
+                        totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
                             Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
                         }
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
                             Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
                         }
                         else -> {
-                            Toast.makeText(context, "주문 ㄱ", Toast.LENGTH_SHORT).show()
-                            CoroutineScope(Dispatchers.IO).launch {
-//                                if(coinDetailViewModel.localRepository.getMyCoinDao().isInsert(coinDetailViewModel.market) == null) {
-//                                    coinDetailViewModel.localRepository.getMyCoinDao().insert(MyCoin(coinDetailViewModel.market,currentPrice.value,coinDetailViewModel.koreanName,coinDetailViewModel.market.substring(4)))
-//                                } else {
-//                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePurchasePriceLong(coinDetailViewModel.market,totalPrice.toLong())
-//                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePlusQuantity(coinDetailViewModel.market,quantity.toDouble())
-//                                }
+                            if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                                coinDetailViewModel.bidRequest(currentPrice.value,
+                                    quantity.toDouble(),
+                                    totalPrice.toLong())
+                                Log.d("taggggg", totalPrice.toLong().toString())
+                            } else {
+                                // TODO
                             }
                         }
                     }

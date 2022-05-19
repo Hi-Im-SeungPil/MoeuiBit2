@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel.coindetail
 
-import android.net.Network
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,8 +16,10 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookAskRetrofitModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookBidRetrofitModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
@@ -31,6 +32,7 @@ import org.jeonfeel.moeuibit2.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
 import javax.inject.Inject
 import kotlin.collections.set
@@ -58,6 +60,7 @@ class CoinDetailViewModel @Inject constructor(
 
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
+    val userCoin = mutableStateOf(0.0)
     val bidQuantity = mutableStateOf("")
     val askQuantity = mutableStateOf("")
 
@@ -94,6 +97,9 @@ class CoinDetailViewModel @Inject constructor(
                 UpBitOrderBookWebSocket.requestOrderBookList(market)
                 localRepository.getUserDao().all.let {
                     userSeedMoney.value = it?.krw ?: 0L
+                }
+                localRepository.getMyCoinDao().isInsert(market).let {
+                    userCoin.value = it?.quantity ?: 0.0
                 }
             }
         } else {
@@ -302,6 +308,44 @@ class CoinDetailViewModel @Inject constructor(
             chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
         }
     }
+
+    fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val coinDao = localRepository.getMyCoinDao()
+            val userDao = localRepository.getUserDao()
+            val symbol = market.substring(4)
+            val myCoin: MyCoin? = coinDao.isInsert(market)
+
+            if (myCoin == null) {
+                coinDao.insert(MyCoin(
+                        market,
+                        currentPrice,
+                        koreanName,
+                        symbol,
+                        quantity)
+                )
+                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
+                userSeedMoney.value = userDao.all?.krw ?: 0L
+                bidQuantity.value = ""
+            } else {
+                val preAveragePurchasePrice = myCoin.purchasePrice
+                val preCoinQuantity = myCoin.quantity
+
+                coinDao.updatePurchasePriceLong(market,
+                    Calculator.averagePurchasePriceCalculator(currentPrice,
+                        quantity,
+                        preAveragePurchasePrice,
+                        preCoinQuantity).toLong()
+                )
+
+                coinDao.updatePlusQuantity(market, quantity)
+                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
+                userSeedMoney.value = userDao.all?.krw ?: 0L
+                bidQuantity.value = ""
+            }
+        }
+    }
+
 
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {

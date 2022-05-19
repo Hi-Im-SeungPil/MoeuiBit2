@@ -7,6 +7,7 @@ import kotlin.math.round
 object Calculator {
 
     private val decimalFormat = DecimalFormat("###,###")
+    private val decimalDecimalFormat = DecimalFormat("#.########")
 
     fun tradePriceCalculator(tradePrice: Double): String {
         return if (tradePrice >= 100) {
@@ -97,6 +98,10 @@ object Calculator {
         return decimalFormat
     }
 
+    fun getDecimalDecimalFormat(): DecimalFormat {
+        return decimalDecimalFormat
+    }
+
     fun orderScreenTotalPriceCalculator(quantity: Double, tradePrice: Double): String {
         val result = round(quantity * tradePrice)
         return if (result >= 100) {
@@ -108,19 +113,19 @@ object Calculator {
         }
     }
 
-    fun orderScreenBidTotalPriceCalculator(quantity: Double, tradePrice: Double): String {
+    fun orderScreenBidTotalPriceCalculator(quantity: Double, tradePrice: Double): Double {
         val result = round(quantity * tradePrice)
         return if (result == 0.0) {
-            "0"
+            0.0
         } else {
-            result.toLong().toString()
+            result
         }
     }
 
     fun orderScreenSpinnerValueCalculator(
         label: String,
         seedMoney: Long,
-        tradePrice: Double
+        tradePrice: Double,
     ): String {
         return when (label) {
             "최대" -> {
@@ -137,6 +142,26 @@ object Calculator {
             }
             else -> "0"
         }
+    }
+
+    fun averagePurchasePriceCalculator(
+        currentPrice: Double,
+        currentQuantity: Double,
+        preAveragePurchasePrice: Double,
+        preCoinQuantity: Double,
+    ): Double {
+        val result = (preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity) / (currentQuantity + preCoinQuantity)
+        return if (result >= 100) {
+            round(result).toDouble()
+        } else if (result < 100 && result >= 1) {
+            String.format("%.2f", result).toDouble()
+        } else {
+            String.format("%.4f", result).toDouble()
+        }
+    }
+
+    fun plusQuantity(currentQuantity: Double, preCoinQuantity: Double): Double {
+        return currentQuantity + preCoinQuantity
     }
 }
 
