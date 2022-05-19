@@ -15,7 +15,7 @@
 //import android.widget.Filter.FilterResults
 //import android.widget.LinearLayout
 //import android.widget.TextView
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //import android.content.DialogInterface
 //import android.graphics.Color
 //import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO

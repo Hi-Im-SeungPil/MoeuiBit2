@@ -1,7 +1,4 @@
-//package org.jeonfeel.moeuibit2.DTOS
-
-//import org.jeonfeel.moeuibit2.DTOS.CoinDTO
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+package org.jeonfeel.moeuibit2.dtos
 
 //class MyCoinsDTO(
 //    var myCoinsKoreanName: String,
@@ -21,17 +18,11 @@
 //        this.currentPrice = currentPrice
 //        yield = (currentPrice - myCoinsBuyingAverage) / myCoinsBuyingAverage * 100
 //    }
-//
-//    override fun compareTo(o: MyCoinsDTO): Int {
-//        when (orderStatus) {
-//            "name" -> return myCoinsKoreanName.compareTo(o.myCoinsKoreanName)
-//            "yield" -> return yield!!.compareTo(o.yield!!)
-//        }
-//        return -1
-//    }
-//
-//    companion object {
-//        @JvmField
-//        var orderStatus: String? = null
-//    }
 //}
+
+data class MyCoinDTO(
+    var myCoinsKoreanName: String,
+    var myCoinsSymbol: String,
+    var myCoinsQuantity: Double,
+    var myCoinsBuyingAverage: Double,
+        )

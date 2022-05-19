@@ -1,7 +1,7 @@
 //package org.jeonfeel.moeuibit2.DTOS
 //
 //import org.jeonfeel.moeuibit2.DTOS.CoinDTO
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //
 //class RvTransactionInfoDTO(
 //    var market: String,

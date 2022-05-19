@@ -12,7 +12,7 @@
 //import androidx.recyclerview.widget.RecyclerView
 //import androidx.recyclerview.widget.LinearLayoutManager
 //import android.content.DialogInterface
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //import org.jeonfeel.moeuibit2.Adapters.Adapter_rvMyCoins
 //import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 //import com.google.android.gms.ads.initialization.OnInitializationCompleteListener

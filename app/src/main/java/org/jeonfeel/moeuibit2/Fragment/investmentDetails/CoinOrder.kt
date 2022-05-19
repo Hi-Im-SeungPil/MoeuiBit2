@@ -1,7 +1,7 @@
 //package org.jeonfeel.moeuibit2.Fragment.investmentDetails
 //
 //import org.jeonfeel.moeuibit2.R
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //import androidx.annotation.RequiresApi
 //import android.os.Build
 //import android.graphics.Color

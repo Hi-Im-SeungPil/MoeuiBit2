@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
@@ -30,10 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 import kotlin.math.round
 
@@ -184,15 +191,20 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) 
                 coinDetailViewModel = coinDetailViewModel
             )
         }
-        OrderScreenQuantityDropDown(Modifier.weight(1f))
+        OrderScreenQuantityDropDown(Modifier.weight(1f), coinDetailViewModel)
     }
 }
 
 @Composable
-fun OrderScreenQuantityDropDown(modifier: Modifier) {
+fun OrderScreenQuantityDropDown(
+    modifier: Modifier,
+    coinDetailViewModel: CoinDetailViewModel = viewModel()
+) {
     val buttonText = remember { mutableStateOf("가능") }
     val expanded = remember { mutableStateOf(false) }
-    val suggestions = listOf("최대", "50%", "25%", "10%")
+    val suggestions = remember {
+        listOf("최대", "50%", "25%", "10%")
+    }
     val imageVector = if (expanded.value) {
         Icons.Filled.KeyboardArrowUp
     } else {
@@ -224,6 +236,18 @@ fun OrderScreenQuantityDropDown(modifier: Modifier) {
                 DropdownMenuItem(onClick = {
                     buttonText.value = label
                     expanded.value = false
+                    val quantity = Calculator.orderScreenSpinnerValueCalculator(
+                        label,
+                        coinDetailViewModel.userSeedMoney.value,
+                        coinDetailViewModel.currentTradePriceState.value
+                    )
+                    if (quantity.toDouble() != 0.0) {
+                        if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                            coinDetailViewModel.bidQuantity.value = quantity
+                        } else {
+                            coinDetailViewModel.askQuantity.value = quantity
+                        }
+                    }
                     //do something ...
                 }) {
                     Text(text = label)
@@ -280,17 +304,23 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
                 .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
-                if(coinDetailViewModel.bidQuantity.value.isEmpty()) {
+            text = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                if (coinDetailViewModel.bidQuantity.value.isEmpty()) {
                     "0"
                 } else {
-                    Calculator.orderScreenTotalPriceCalculator(coinDetailViewModel.bidQuantity.value.toDouble(), coinDetailViewModel.currentTradePriceState.value)
+                    Calculator.orderScreenTotalPriceCalculator(
+                        coinDetailViewModel.bidQuantity.value.toDouble(),
+                        coinDetailViewModel.currentTradePriceState.value
+                    )
                 }
             } else {
-                if(coinDetailViewModel.askQuantity.value.isEmpty()) {
+                if (coinDetailViewModel.askQuantity.value.isEmpty()) {
                     "0"
                 } else {
-                    Calculator.orderScreenTotalPriceCalculator(coinDetailViewModel.askQuantity.value.toDouble(), coinDetailViewModel.currentTradePriceState.value)
+                    Calculator.orderScreenTotalPriceCalculator(
+                        coinDetailViewModel.askQuantity.value.toDouble(),
+                        coinDetailViewModel.currentTradePriceState.value
+                    )
                 }
             },
             modifier = Modifier.weight(1f, true),
@@ -311,7 +341,10 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
 fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val buttonBackground = getButtonsBackground(coinDetailViewModel.askBidSelectedTab.value)
     val buttonText = getButtonsText(coinDetailViewModel.askBidSelectedTab.value)
-
+    val currentPrice = remember {
+        mutableStateOf(0.0)
+    }
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -332,7 +365,40 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 Text(text = "초기화", style = TextStyle(color = Color.White), fontSize = 18.sp)
             }
             TextButton(
-                onClick = { }, modifier = Modifier
+                onClick = {
+                    currentPrice.value = coinDetailViewModel.currentTradePriceState.value
+                    val quantity = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                        coinDetailViewModel.bidQuantity.value.ifEmpty { "0" }
+                    } else {
+                        coinDetailViewModel.askQuantity.value.ifEmpty { "0" }
+                    }
+                    val totalPrice = Calculator.orderScreenBidTotalPriceCalculator(
+                        quantity.toDouble(),
+                        currentPrice.value
+                    )
+                    when {
+                        totalPrice.toLong() < 5000 -> {
+                            Toast.makeText(context, "5000원 이상만 주문 가능합니다.", Toast.LENGTH_SHORT).show()
+                        }
+                        totalPrice.toLong() > coinDetailViewModel.userSeedMoney.value -> {
+                            Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
+                        }
+                        OneTimeNetworkCheck.networkCheck(context) == null -> {
+                            Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            Toast.makeText(context, "주문 ㄱ", Toast.LENGTH_SHORT).show()
+                            CoroutineScope(Dispatchers.IO).launch {
+                                if(coinDetailViewModel.localRepository.getMyCoinDao().isInsert(coinDetailViewModel.market) == null) {
+//                                    coinDetailViewModel.localRepository.getMyCoinDao().insert(MyCoin(coinDetailViewModel.market,currentPrice.value,coinDetailViewModel.koreanName,coinDetailViewModel.market.substring(4)))
+                                } else {
+                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePurchasePriceLong(coinDetailViewModel.market,totalPrice.toLong())
+                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePlusQuantity(coinDetailViewModel.market,quantity.toDouble())
+                                }
+                            }
+                        }
+                    }
+                }, modifier = Modifier
                     .padding(4.dp, 0.dp, 0.dp, 0.dp)
                     .weight(1f)
                     .background(buttonBackground)
@@ -359,9 +425,11 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
 @Composable
 fun OrderScreenNotice() {
-    Column(modifier = Modifier
-        .padding(0.dp, 10.dp, 0.dp, 0.dp)
-        .fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .padding(0.dp, 10.dp, 0.dp, 0.dp)
+            .fillMaxWidth()
+    ) {
         Row(Modifier.fillMaxWidth()) {
             Text(
                 text = "최소 주문 금액",
@@ -370,7 +438,7 @@ fun OrderScreenNotice() {
                 style = TextStyle(color = Color.Gray)
             )
             Text(
-                text = "5000 KRW",
+                text = "5,000 KRW",
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
                 style = TextStyle(color = Color.Gray)
@@ -379,7 +447,8 @@ fun OrderScreenNotice() {
         Row(
             Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
-                .fillMaxWidth()) {
+                .fillMaxWidth()
+        ) {
             Text(
                 text = "수수료",
                 modifier = Modifier.weight(1f),

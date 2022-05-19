@@ -16,7 +16,7 @@ interface MyCoinDAO {
     fun updatePurchasePrice(market: String?, price: Double?)
 
     @Query("UPDATE MYCOIN SET purchasePrice = :price WHERE market = :market")
-    fun updatePurchasePriceInt(market: String?, price: Int)
+    fun updatePurchasePriceLong(market: String?, price: Long)
 
     @Query("UPDATE MYCOIN SET quantity = quantity + :afterQuantity  WHERE market = :market")
     fun updatePlusQuantity(market: String?, afterQuantity: Double?)

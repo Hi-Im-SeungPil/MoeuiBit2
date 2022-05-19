@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.viewmodel.coindetail
 
+import android.net.Network
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ class CoinDetailViewModel @Inject constructor(
     var preClosingPrice = 0.0
     var maxOrderBookSize = 0.0
     var market = ""
+    var koreanName = ""
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
 
     val gson = Gson()
@@ -75,6 +77,7 @@ class CoinDetailViewModel @Inject constructor(
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
+        this.koreanName = koreanName
     }
 
     /**

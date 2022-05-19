@@ -48,10 +48,10 @@ object Calculator {
 
     fun accTradePrice24hCalculatorForChart(accTradePrice24h: Double): String {
         val decimalFormatResult = decimalFormat.format(round(accTradePrice24h * 0.000001))
-        return if(decimalFormatResult != "0") {
+        return if (decimalFormatResult != "0") {
             decimalFormatResult
         } else {
-            String.format("%.2f",accTradePrice24h * 0.000001)
+            String.format("%.2f", accTradePrice24h * 0.000001)
         }
     }
 
@@ -67,13 +67,13 @@ object Calculator {
             String.format("%.4f", changePrice)
         }
 
-        if(changePrice > 0.0) {
+        if (changePrice > 0.0) {
             return "+".plus(result)
         }
         return result
     }
 
-    fun orderBookPriceCalculator(orderBookPrice: Double): String{
+    fun orderBookPriceCalculator(orderBookPrice: Double): String {
         var result = ""
         result = if (orderBookPrice >= 100) {
             decimalFormat.format(round(orderBookPrice).toInt())
@@ -86,11 +86,11 @@ object Calculator {
     }
 
     fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
-        return ((orderBookPrice-preClosingPrice) / preClosingPrice * 100)
+        return ((orderBookPrice - preClosingPrice) / preClosingPrice * 100)
     }
 
     fun markerViewRateCalculator(preClosingPrice: Float, orderBookPrice: Float): Float {
-        return (orderBookPrice-preClosingPrice) / preClosingPrice * 100
+        return (orderBookPrice - preClosingPrice) / preClosingPrice * 100
     }
 
     fun getDecimalFormat(): DecimalFormat {
@@ -105,6 +105,37 @@ object Calculator {
             String.format("%.2f", result)
         } else {
             String.format("%.4f", result)
+        }
+    }
+
+    fun orderScreenBidTotalPriceCalculator(quantity: Double, tradePrice: Double): String {
+        val result = round(quantity * tradePrice)
+        return if (result == 0.0) {
+            "0"
+        } else {
+            result.toLong().toString()
+        }
+    }
+
+    fun orderScreenSpinnerValueCalculator(
+        label: String,
+        seedMoney: Long,
+        tradePrice: Double
+    ): String {
+        return when (label) {
+            "최대" -> {
+                String.format("%.8f", (seedMoney - (seedMoney * 0.0005)) / tradePrice)
+            }
+            "50%" -> {
+                String.format("%.8f", (seedMoney * 0.5) / tradePrice)
+            }
+            "25%" -> {
+                String.format("%.8f", (seedMoney * 0.25) / tradePrice)
+            }
+            "10%" -> {
+                String.format("%.8f", (seedMoney * 0.1) / tradePrice)
+            }
+            else -> "0"
         }
     }
 }

@@ -12,7 +12,7 @@
 //import android.content.Intent
 //import org.jeonfeel.moeuibit2.Activitys.Activity_coinDetails.Activity_coinDetails
 //import android.widget.Filter.FilterResults
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //import android.content.DialogInterface
 //import android.graphics.Color
 //import org.jeonfeel.moeuibit2.DTOS.CoinArcadeDTO

@@ -24,8 +24,8 @@
 //import org.jeonfeel.moeuibit2.Database.MyCoinDAO.delete
 //import org.jeonfeel.moeuibit2.Database.TransactionInfoDAO.select
 //import org.jeonfeel.moeuibit2.Adapters.Adapter_rvTransactionInfo.getItemCount
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO.myCoinsSymbol
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO.setCurrentPrice
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO.myCoinsSymbol
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO.setCurrentPrice
 //import org.jeonfeel.moeuibit2.Database.MyCoinDAO.all
 //import org.jeonfeel.moeuibit2.Database.MyCoin.market
 //import org.jeonfeel.moeuibit2.Database.MyCoin.koreanCoinName
@@ -99,7 +99,7 @@
 //import android.widget.AdapterView
 //import com.google.android.material.tabs.TabLayout
 //import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-//import org.jeonfeel.moeuibit2.DTOS.MyCoinsDTO
+//import org.jeonfeel.moeuibit2.dtos.MyCoinsDTO
 //import androidx.annotation.RequiresApi
 //import android.os.Build
 //import org.jeonfeel.moeuibit2.Fragment.investmentDetails.Fragment_investmentDetails.GetMyCoins
