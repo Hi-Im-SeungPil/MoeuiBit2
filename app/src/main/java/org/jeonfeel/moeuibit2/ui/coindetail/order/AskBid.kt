@@ -1,25 +1,19 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -36,13 +30,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
-import kotlin.math.round
 
 @Composable
 fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
@@ -389,12 +381,12 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         else -> {
                             Toast.makeText(context, "주문 ㄱ", Toast.LENGTH_SHORT).show()
                             CoroutineScope(Dispatchers.IO).launch {
-                                if(coinDetailViewModel.localRepository.getMyCoinDao().isInsert(coinDetailViewModel.market) == null) {
+//                                if(coinDetailViewModel.localRepository.getMyCoinDao().isInsert(coinDetailViewModel.market) == null) {
 //                                    coinDetailViewModel.localRepository.getMyCoinDao().insert(MyCoin(coinDetailViewModel.market,currentPrice.value,coinDetailViewModel.koreanName,coinDetailViewModel.market.substring(4)))
-                                } else {
-                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePurchasePriceLong(coinDetailViewModel.market,totalPrice.toLong())
-                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePlusQuantity(coinDetailViewModel.market,quantity.toDouble())
-                                }
+//                                } else {
+//                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePurchasePriceLong(coinDetailViewModel.market,totalPrice.toLong())
+//                                    coinDetailViewModel.localRepository.getMyCoinDao().updatePlusQuantity(coinDetailViewModel.market,quantity.toDouble())
+//                                }
                             }
                         }
                     }

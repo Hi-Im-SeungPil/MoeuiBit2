@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -75,7 +76,10 @@ fun CoinDetailTopAppBar(
                 Icon(Icons.Default.Clear, contentDescription = null, tint = Color.White)
             }
             if (!coinDetailViewModel.favoriteMutableState.value) {
-                IconButton(onClick = { coinDetailViewModel.favoriteMutableState.value = true }) {
+                IconButton(onClick = {
+                    coinDetailViewModel.favoriteMutableState.value = true
+                    Toast.makeText(context,"관심 코인에 추가되었습니다.",Toast.LENGTH_SHORT).show()
+                }) {
                     Icon(
                         painterResource(R.drawable.img_unfavorite),
                         contentDescription = null,
@@ -83,7 +87,10 @@ fun CoinDetailTopAppBar(
                     )
                 }
             } else {
-                IconButton(onClick = { coinDetailViewModel.favoriteMutableState.value = false }) {
+                IconButton(onClick = {
+                    coinDetailViewModel.favoriteMutableState.value = false
+                    Toast.makeText(context,"관심 코인에서 삭제되었습니다.",Toast.LENGTH_SHORT).show()
+                }) {
                     Icon(
                         painterResource(R.drawable.img_favorite),
                         contentDescription = null,
