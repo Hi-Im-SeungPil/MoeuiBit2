@@ -16,12 +16,16 @@ import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.NETWORK_ERROR
 import org.jeonfeel.moeuibit2.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.dtos.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
@@ -30,13 +34,14 @@ import javax.inject.Inject
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
-    private val localRepository: LocalRepository
-) : ViewModel(), OnTickerMessageReceiveListener {
+    private val localRepository: LocalRepository,
+) : ViewModel(), OnTickerMessageReceiveListener, PortfolioOnTickerMessageReceiveListener {
 
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
     val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
     var isSocketRunning = true
+    var isPortfolioSocketRunning = true
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
     private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
@@ -53,11 +58,22 @@ class ExchangeViewModel @Inject constructor(
     val selectedButtonState = mutableStateOf(-1)
     val loading = mutableStateOf(true)
 
-    val favoriteHashMap = HashMap<String,Int>()
+    val favoriteHashMap = HashMap<String, Int>()
     var showFavorite = mutableStateOf(false)
 
+    val userSeedMoney = mutableStateOf(0L)
+    var userHoldCoinList = emptyList<MyCoin?>()
+    var totalPurchase = mutableStateOf(0.0)
+    val TotalHoldings = mutableStateOf("")
+    var userHoldCoinsMarket = StringBuffer()
+    val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+    val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
+    val totalValuedAssets = mutableStateOf(0.0)
+
+
     fun initViewModel() {
-        if(krwExchangeModelMutableStateList.isEmpty()) {
+        if (krwExchangeModelMutableStateList.isEmpty()) {
             setWebSocketMessageListener()
             requestData()
             requestFavoriteData()
@@ -68,6 +84,7 @@ class ExchangeViewModel @Inject constructor(
 
     private fun setWebSocketMessageListener() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
+        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(this)
     }
 
     /**
@@ -78,17 +95,17 @@ class ExchangeViewModel @Inject constructor(
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
-                        val loadingJob = withTimeoutOrNull(4900L) {
-                            requestKrwMarketCode()
-                            requestKrwTicker(krwCoinListStringBuffer.toString())
-                            createKrwExchangeModelList()
-                            updateExchange()
-                            if (errorState.value != INTERNET_CONNECTION) {
-                                errorState.value = INTERNET_CONNECTION
-                            }
-                            loading.value = false
+                    val loadingJob = withTimeoutOrNull(4900L) {
+                        requestKrwMarketCode()
+                        requestKrwTicker(krwCoinListStringBuffer.toString())
+                        createKrwExchangeModelList()
+                        updateExchange()
+                        if (errorState.value != INTERNET_CONNECTION) {
+                            errorState.value = INTERNET_CONNECTION
+                        }
+                        loading.value = false
                     }
-                    if(loadingJob == null) {
+                    if (loadingJob == null) {
                         errorState.value = NETWORK_ERROR
                         loading.value = false
                     }
@@ -180,7 +197,7 @@ class ExchangeViewModel @Inject constructor(
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isSocketRunning) {
-                for (i in 0 until krwExchangeModelMutableStateList.size) {
+                for (i in krwExchangeModelMutableStateList.indices) {
                     krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
                 }
                 delay(300)
@@ -188,7 +205,7 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun requestKrwCoinList() {
+    private fun requestKrwCoinList() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
         UpBitTickerWebSocket.requestKrwCoinList()
     }
@@ -196,15 +213,15 @@ class ExchangeViewModel @Inject constructor(
     private fun requestFavoriteData() {
         viewModelScope.launch(Dispatchers.IO) {
             val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
-            if(favoriteList.isNotEmpty()) {
-                for(i in favoriteList.indices)
+            if (favoriteList.isNotEmpty()) {
+                for (i in favoriteList.indices)
                     favoriteHashMap[favoriteList[i]?.market ?: ""] = 0
             }
         }
     }
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
-        if(favoriteHashMap[market] == null && isFavorite) {
+        if (favoriteHashMap[market] == null && isFavorite) {
             viewModelScope.launch(Dispatchers.IO) {
                 favoriteHashMap[market] = 0
                 localRepository.getFavoriteDao().insert(market)
@@ -223,7 +240,7 @@ class ExchangeViewModel @Inject constructor(
     fun filterKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
         return if (searchTextFieldValue.value.isEmpty() && !showFavorite.value) {
             krwExchangeModelMutableStateList
-        }else if(searchTextFieldValue.value.isEmpty() && showFavorite.value) {
+        } else if (searchTextFieldValue.value.isEmpty() && showFavorite.value) {
             val favoriteList = SnapshotStateList<KrwExchangeModel>()
             val tempArray = ArrayList<Int>()
             for (i in favoriteHashMap) {
@@ -239,7 +256,8 @@ class ExchangeViewModel @Inject constructor(
             for (element in krwExchangeModelMutableStateList) {
                 if (
                     element.koreanName.contains(searchTextFieldValue.value) ||
-                    element.EnglishName.uppercase().contains(searchTextFieldValue.value.uppercase()) ||
+                    element.EnglishName.uppercase()
+                        .contains(searchTextFieldValue.value.uppercase()) ||
                     element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
                 ) {
                     resultList.add(element)
@@ -260,7 +278,8 @@ class ExchangeViewModel @Inject constructor(
             for (element in tempFavoriteList) {
                 if (
                     element.koreanName.contains(searchTextFieldValue.value) ||
-                    element.EnglishName.uppercase().contains(searchTextFieldValue.value.uppercase()) ||
+                    element.EnglishName.uppercase()
+                        .contains(searchTextFieldValue.value.uppercase()) ||
                     element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
                 ) {
                     favoriteList.add(element)
@@ -329,6 +348,67 @@ class ExchangeViewModel @Inject constructor(
         isSocketRunning = true
     }
 
+    fun getUserSeedMoney() {
+        viewModelScope.launch(Dispatchers.IO) {
+            userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
+        }
+    }
+
+    fun getUserHoldCoins() {
+        viewModelScope.launch(Dispatchers.IO) {
+            var localTotalPurchase = 0.0
+            userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
+            if (userHoldCoinList.isNotEmpty()) {
+                userHoldCoinDtoList.clear()
+                userHoldCoinsMarket = StringBuffer()
+                userHoldCoinDtoListPositionHashMap.clear()
+                tempUserHoldCoinDtoList.clear()
+                for (i in userHoldCoinList.indices) {
+                    val userHoldCoin = userHoldCoinList[i]!!
+                    val koreanName = userHoldCoin.koreanCoinName
+                    val symbol = userHoldCoin.symbol
+                    val quantity = userHoldCoin.quantity
+                    val purchaseAverage = userHoldCoin.purchasePrice
+                    localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
+                    userHoldCoinsMarket.append(userHoldCoin.market).append(",")
+                    userHoldCoinDtoList.add(UserHoldCoinDTO(koreanName,
+                        symbol,
+                        quantity,
+                        purchaseAverage))
+                    tempUserHoldCoinDtoList.add(UserHoldCoinDTO(koreanName,
+                        symbol,
+                        quantity,
+                        purchaseAverage))
+                    userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
+                }
+                userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
+                UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
+                totalPurchase.value = localTotalPurchase
+                UpBitPortfolioWebSocket.requestKrwCoinList()
+                updateUserHoldCoins()
+            } else {
+                totalPurchase.value = 0.0
+            }
+        }
+    }
+
+    private fun updateUserHoldCoins() {
+        viewModelScope.launch(Dispatchers.Main) {
+            while (isPortfolioSocketRunning) {
+                var tempTotalValuedAssets = 0.0
+                for (i in tempUserHoldCoinDtoList.indices) {
+                    val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
+                    userHoldCoinDtoList[i] = userHoldCoinDTO
+                    tempTotalValuedAssets += userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
+                }
+                totalValuedAssets.value = tempTotalValuedAssets
+//                    Calculator.getDecimalFormat().format(round(tempTotalValuedAssets).toLong())
+                delay(300)
+            }
+        }
+    }
+
+
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (isSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
@@ -342,6 +422,23 @@ class ExchangeViewModel @Inject constructor(
                     model.tradePrice,
                     model.signedChangeRate,
                     model.accTradePrice24h)
+            Log.e(TAG, model.code)
+        }
+    }
+
+    override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
+        if (isPortfolioSocketRunning) {
+            val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
+            val position = userHoldCoinDtoListPositionHashMap[model.code] ?: -1
+            val userHoldCoin = userHoldCoinList[position]!!
+            tempUserHoldCoinDtoList[position] =
+                UserHoldCoinDTO(
+                    userHoldCoin.koreanCoinName,
+                    userHoldCoin.symbol,
+                    userHoldCoin.quantity,
+                    userHoldCoin.purchasePrice,
+                    model.tradePrice,
+                )
             Log.e(TAG, model.code)
         }
     }

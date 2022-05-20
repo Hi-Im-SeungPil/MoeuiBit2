@@ -89,7 +89,7 @@ fun MainNavigation(
             CoinNewsScreen()
         }
         composable(MainBottomNavItem.Portfolio.screen_route){
-            PortfolioScreen()
+            PortfolioScreen(viewModel)
         }
     }
 }
