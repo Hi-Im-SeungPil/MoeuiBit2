@@ -122,7 +122,7 @@ object Calculator {
         }
     }
 
-    fun orderScreenSpinnerValueCalculator(
+    fun orderScreenSpinnerBidValueCalculator(
         label: String,
         seedMoney: Long,
         tradePrice: Double,
@@ -139,6 +139,27 @@ object Calculator {
             }
             "10%" -> {
                 String.format("%.8f", (seedMoney * 0.1) / tradePrice)
+            }
+            else -> "0"
+        }
+    }
+
+    fun orderScreenSpinnerAskValueCalculator(
+        label: String,
+        userCoinQuantity: Double,
+    ): String {
+        return when (label) {
+            "최대" -> {
+                String.format("%.8f",userCoinQuantity)
+            }
+            "50%" -> {
+                String.format("%.8f",userCoinQuantity * 0.5)
+            }
+            "25%" -> {
+                String.format("%.8f",userCoinQuantity * 0.25)
+            }
+            "10%" -> {
+                String.format("%.8f",userCoinQuantity * 0.1)
             }
             else -> "0"
         }

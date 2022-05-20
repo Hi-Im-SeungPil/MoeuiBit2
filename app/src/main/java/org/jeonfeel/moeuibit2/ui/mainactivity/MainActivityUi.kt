@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.mainactivity.coinnews.CoinNewsScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
+import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
@@ -86,6 +87,9 @@ fun MainNavigation(
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
             CoinNewsScreen()
+        }
+        composable(MainBottomNavItem.Portfolio.screen_route){
+            PortfolioScreen()
         }
     }
 }

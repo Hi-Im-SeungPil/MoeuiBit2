@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
@@ -122,7 +125,6 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
 @Composable
 fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-
     val textStyleBody1 = MaterialTheme.typography.body1.copy(
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.End,
@@ -135,15 +137,18 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
         krwOrSymbol = "KRW"
         Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney.value)
     } else {
-        val userCoin = coinDetailViewModel.userCoin.value
-        currentUserCoinValue = Calculator.getDecimalFormat().format(round(coinDetailViewModel.currentTradePriceState.value * userCoin))
+        val userCoin = coinDetailViewModel.userCoinQuantity.value
+        currentUserCoinValue = Calculator.getDecimalFormat()
+            .format(round(coinDetailViewModel.currentTradePriceState.value * userCoin))
         krwOrSymbol = coinDetailViewModel.market.substring(4)
         Calculator.getDecimalDecimalFormat().format(userCoin)
     }
-    Column(modifier = Modifier
-        .padding(0.dp, 10.dp)
-        .fillMaxWidth()
-        .wrapContentHeight()) {
+    Column(
+        modifier = Modifier
+            .padding(0.dp, 10.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
         Row(
         ) {
             Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
@@ -160,8 +165,11 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
             )
         }
         if (coinDetailViewModel.askBidSelectedTab.value == 2) {
-            Text(text = "= $currentUserCoinValue  KRW",
-                modifier = Modifier.padding(0.dp,2.dp).align(Alignment.End),
+            Text(
+                text = "= $currentUserCoinValue  KRW",
+                modifier = Modifier
+                    .padding(0.dp, 2.dp)
+                    .align(Alignment.End),
                 style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
             )
         }
@@ -170,9 +178,6 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
 
 @Composable
 fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-
-    val text = remember { mutableStateOf("") }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -193,7 +198,6 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) 
                 style = TextStyle(fontSize = 15.sp)
             )
             OrderScreenQuantityTextField(
-                textFieldValue = text,
                 modifier = Modifier.weight(1f, true),
                 placeholderText = "0",
                 fontSize = 15.sp,
@@ -211,9 +215,7 @@ fun OrderScreenQuantityDropDown(
 ) {
     val buttonText = remember { mutableStateOf("가능") }
     val expanded = remember { mutableStateOf(false) }
-    val suggestions = remember {
-        listOf("최대", "50%", "25%", "10%")
-    }
+    val suggestions = remember { listOf("최대", "50%", "25%", "10%") }
     val imageVector = if (expanded.value) {
         Icons.Filled.KeyboardArrowUp
     } else {
@@ -245,15 +247,21 @@ fun OrderScreenQuantityDropDown(
                 DropdownMenuItem(onClick = {
                     buttonText.value = label
                     expanded.value = false
-                    val quantity = Calculator.orderScreenSpinnerValueCalculator(
-                        label,
-                        coinDetailViewModel.userSeedMoney.value,
-                        coinDetailViewModel.currentTradePriceState.value
-                    )
-                    if (quantity.toDouble() != 0.0) {
-                        if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                    if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                        val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
+                            label,
+                            coinDetailViewModel.userSeedMoney.value,
+                            coinDetailViewModel.currentTradePriceState.value
+                        )
+                        if (quantity.toDouble() != 0.0) {
                             coinDetailViewModel.bidQuantity.value = quantity
-                        } else {
+                        }
+                    } else if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+                        val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
+                            label,
+                            coinDetailViewModel.userCoinQuantity.value
+                        )
+                        if (quantity.toDouble() != 0.0) {
                             coinDetailViewModel.askQuantity.value = quantity
                         }
                     }
@@ -385,27 +393,43 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         currentPrice.value
                     )
                     val userSeedMoney = coinDetailViewModel.userSeedMoney.value
+                    val userCoin = coinDetailViewModel.userCoinQuantity.value
                     when {
                         totalPrice.toLong() < 5000 -> {
-                            Toast.makeText(context,
+                            Toast.makeText(
+                                context,
                                 "주문 가능한 최소금액은 5,000KRW 입니다.",
-                                Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                        totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
-                            Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
                             Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
                         }
+                        coinDetailViewModel.askBidSelectedTab.value == 1 && totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
+                            Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
+                        }
+                        coinDetailViewModel.askBidSelectedTab.value == 2 && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {
+                            Toast.makeText(context, "매도 가능 수량이 부족합니다.", Toast.LENGTH_SHORT).show()
+                        }
                         else -> {
                             if (coinDetailViewModel.askBidSelectedTab.value == 1) {
-                                coinDetailViewModel.bidRequest(currentPrice.value,
-                                    quantity.toDouble(),
-                                    totalPrice.toLong())
-                                Log.d("taggggg", totalPrice.toLong().toString())
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    coinDetailViewModel.bidRequest(
+                                        currentPrice.value,
+                                        quantity.toDouble(),
+                                        totalPrice.toLong()
+                                    ).join()
+                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             } else {
-                                // TODO
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    coinDetailViewModel.askRequest(
+                                        quantity.toDouble(), totalPrice.toLong()
+                                    ).join()
+                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             }
                         }
                     }

@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
@@ -60,7 +61,9 @@ class CoinDetailViewModel @Inject constructor(
 
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
-    val userCoin = mutableStateOf(0.0)
+    val userCoinQuantity = mutableStateOf(0.0)
+    val bidDropdownText = mutableStateOf("")
+    val askDropdownText = mutableStateOf("")
     val bidQuantity = mutableStateOf("")
     val askQuantity = mutableStateOf("")
 
@@ -99,7 +102,7 @@ class CoinDetailViewModel @Inject constructor(
                     userSeedMoney.value = it?.krw ?: 0L
                 }
                 localRepository.getMyCoinDao().isInsert(market).let {
-                    userCoin.value = it?.quantity ?: 0.0
+                    userCoinQuantity.value = it?.quantity ?: 0.0
                 }
             }
         } else {
@@ -309,8 +312,8 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long): Job {
+        val job = viewModelScope.launch(Dispatchers.IO) {
             val coinDao = localRepository.getMyCoinDao()
             val userDao = localRepository.getUserDao()
             val symbol = market.substring(4)
@@ -327,6 +330,7 @@ class CoinDetailViewModel @Inject constructor(
                 userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
+                userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
             } else {
                 val preAveragePurchasePrice = myCoin.purchasePrice
                 val preCoinQuantity = myCoin.quantity
@@ -342,10 +346,25 @@ class CoinDetailViewModel @Inject constructor(
                 userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
+                userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
             }
         }
+        return job
     }
 
+    fun askRequest(quantity: Double,totalPrice: Long): Job {
+        val job = viewModelScope.launch(Dispatchers.IO) {
+            val coinDao = localRepository.getMyCoinDao()
+            val userDao = localRepository.getUserDao()
+
+            coinDao.updateMinusQuantity(market,quantity)
+            userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).toLong())
+            userSeedMoney.value = userDao.all?.krw ?: 0L
+            askQuantity.value = ""
+            userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
+        }
+        return job
+    }
 
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {

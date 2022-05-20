@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.custom
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,17 +23,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 @Composable
 fun OrderScreenQuantityTextField(
     modifier: Modifier = Modifier,
-    textFieldValue: MutableState<String> = mutableStateOf(""),
     placeholderText: String = "Placeholder",
     fontSize: TextUnit = MaterialTheme.typography.body2.fontSize,
-    coinDetailViewModel: CoinDetailViewModel
+    coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     val value = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
@@ -41,11 +44,18 @@ fun OrderScreenQuantityTextField(
     }
 
     BasicTextField(value = value.value, onValueChange = {
-        value.value = it
+        if(it.toDoubleOrNull() == null) {
+            value.value = ""
+            Toast.makeText(context,"숫자만 입력 가능합니다.",Toast.LENGTH_SHORT).show()
+        } else {
+            value.value = it
+        }
     }, singleLine = true,
         textStyle = TextStyle(color = Color.Black,
             fontSize = 17.sp, textAlign = TextAlign.End),
-        modifier = modifier.clearFocusOnKeyboardDismiss().padding(0.dp,0.dp,9.dp,0.dp),
+        modifier = modifier
+            .clearFocusOnKeyboardDismiss()
+            .padding(0.dp, 0.dp, 9.dp, 0.dp),
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
