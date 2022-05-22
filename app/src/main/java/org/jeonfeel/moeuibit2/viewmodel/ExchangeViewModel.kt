@@ -66,9 +66,9 @@ class ExchangeViewModel @Inject constructor(
     var totalPurchase = mutableStateOf(0.0)
     val TotalHoldings = mutableStateOf("")
     var userHoldCoinsMarket = StringBuffer()
-    val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-    val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
-    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
+    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    private val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
 
 
