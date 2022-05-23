@@ -361,7 +361,13 @@ class CoinDetailViewModel @Inject constructor(
             userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).toLong())
             userSeedMoney.value = userDao.all?.krw ?: 0L
             askQuantity.value = ""
-            userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
+            val currentCoin = coinDao.isInsert(market)
+            if(currentCoin != null && currentCoin.quantity == 0.0) {
+                coinDao.delete(market)
+                userCoinQuantity.value = 0.0
+            } else {
+                userCoinQuantity.value = currentCoin?.quantity ?: 0.0
+            }
         }
         return job
     }

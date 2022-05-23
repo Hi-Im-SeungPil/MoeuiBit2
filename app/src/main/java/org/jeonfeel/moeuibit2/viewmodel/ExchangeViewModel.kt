@@ -361,18 +361,19 @@ class ExchangeViewModel @Inject constructor(
     fun getUserHoldCoins() {
         viewModelScope.launch(Dispatchers.IO) {
             var localTotalPurchase = 0.0
+            userHoldCoinDtoList.clear()
+            userHoldCoinsMarket = StringBuffer()
+            userHoldCoinDtoListPositionHashMap.clear()
+            tempUserHoldCoinDtoList.clear()
             userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
             if (userHoldCoinList.isNotEmpty()) {
-                userHoldCoinDtoList.clear()
-                userHoldCoinsMarket = StringBuffer()
-                userHoldCoinDtoListPositionHashMap.clear()
-                tempUserHoldCoinDtoList.clear()
                 for (i in userHoldCoinList.indices) {
                     val userHoldCoin = userHoldCoinList[i]!!
                     val koreanName = userHoldCoin.koreanCoinName
                     val symbol = userHoldCoin.symbol
                     val quantity = userHoldCoin.quantity
                     val purchaseAverage = userHoldCoin.purchasePrice
+                    Log.d(koreanName,purchaseAverage.toString())
                     localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                     userHoldCoinDtoList.add(
@@ -414,7 +415,6 @@ class ExchangeViewModel @Inject constructor(
                     tempTotalValuedAssets += userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
                 }
                 totalValuedAssets.value = tempTotalValuedAssets
-//                    Calculator.getDecimalFormat().format(round(tempTotalValuedAssets).toLong())
                 delay(300)
             }
         }
@@ -447,7 +447,7 @@ class ExchangeViewModel @Inject constructor(
             val userHoldCoin = userHoldCoinList[position]!!
             tempUserHoldCoinDtoList[position] =
                 UserHoldCoinDTO(
-                    userHoldCoin.koreanCoinName,
+                    krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
                     userHoldCoin.symbol,
                     userHoldCoin.quantity,
                     userHoldCoin.purchasePrice,

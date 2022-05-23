@@ -171,9 +171,9 @@ object Calculator {
         preAveragePurchasePrice: Double,
         preCoinQuantity: Double,
     ): Double {
-        val result = (preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity) / (currentQuantity + preCoinQuantity)
+        val result = ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
         return if (result >= 100) {
-            round(result).toDouble()
+            round(result)
         } else if (result < 100 && result >= 1) {
             String.format("%.2f", result).toDouble()
         } else {
