@@ -15,19 +15,4 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun myCoinDAO(): MyCoinDAO
     abstract fun favoriteDAO(): FavoriteDAO
     abstract fun transactionInfoDAO(): TransactionInfoDAO
-
-    companion object {
-        private var instance: AppDatabase? = null
-        private val sLock = Any()
-//        @JvmStatic
-//        @Synchronized
-//        fun getInstance(context: Context): AppDatabase {
-//            synchronized(sLock) {
-//                if (instance == null) {
-//                    instance =
-//                }
-//                return instance as AppDatabase
-//            }
-//        }
-    }
 }

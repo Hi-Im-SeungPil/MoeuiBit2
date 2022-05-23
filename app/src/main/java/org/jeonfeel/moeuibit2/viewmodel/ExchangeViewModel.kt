@@ -66,9 +66,9 @@ class ExchangeViewModel @Inject constructor(
     var totalPurchase = mutableStateOf(0.0)
     val TotalHoldings = mutableStateOf("")
     var userHoldCoinsMarket = StringBuffer()
-    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
-    private val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
+    val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+    val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
 
 
@@ -176,14 +176,18 @@ class ExchangeViewModel @Inject constructor(
             val accTradePrice24h = krwTickerList[i].accTradePrice24h
             val symbol = market.substring(4)
             val openingPrice = krwTickerList[i].preClosingPrice
-            krwExchangeModelList.add(KrwExchangeModel(koreanName,
-                englishName,
-                market,
-                symbol,
-                openingPrice,
-                tradePrice,
-                signedChangeRate,
-                accTradePrice24h))
+            krwExchangeModelList.add(
+                KrwExchangeModel(
+                    koreanName,
+                    englishName,
+                    market,
+                    symbol,
+                    openingPrice,
+                    tradePrice,
+                    signedChangeRate,
+                    accTradePrice24h
+                )
+            )
         }
         krwExchangeModelList.sortByDescending { it.accTradePrice24h }
         for (i in krwExchangeModelList.indices) {
@@ -371,14 +375,22 @@ class ExchangeViewModel @Inject constructor(
                     val purchaseAverage = userHoldCoin.purchasePrice
                     localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
-                    userHoldCoinDtoList.add(UserHoldCoinDTO(koreanName,
-                        symbol,
-                        quantity,
-                        purchaseAverage))
-                    tempUserHoldCoinDtoList.add(UserHoldCoinDTO(koreanName,
-                        symbol,
-                        quantity,
-                        purchaseAverage))
+                    userHoldCoinDtoList.add(
+                        UserHoldCoinDTO(
+                            koreanName,
+                            symbol,
+                            quantity,
+                            purchaseAverage
+                        )
+                    )
+                    tempUserHoldCoinDtoList.add(
+                        UserHoldCoinDTO(
+                            koreanName,
+                            symbol,
+                            quantity,
+                            purchaseAverage
+                        )
+                    )
                     userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
                 }
                 userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
@@ -414,14 +426,16 @@ class ExchangeViewModel @Inject constructor(
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
             val position = krwExchangeModelListPosition[model.code] ?: -1
             krwExchangeModelList[position] =
-                KrwExchangeModel(krwCoinKoreanNameAndEngName[model.code]!![0],
+                KrwExchangeModel(
+                    krwCoinKoreanNameAndEngName[model.code]!![0],
                     krwCoinKoreanNameAndEngName[model.code]!![1],
                     model.code,
                     model.code.substring(4),
                     model.preClosingPrice,
                     model.tradePrice,
                     model.signedChangeRate,
-                    model.accTradePrice24h)
+                    model.accTradePrice24h
+                )
             Log.e(TAG, model.code)
         }
     }

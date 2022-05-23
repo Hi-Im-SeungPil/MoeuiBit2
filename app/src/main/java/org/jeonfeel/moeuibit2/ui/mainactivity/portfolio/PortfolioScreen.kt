@@ -1,6 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -16,13 +18,17 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
@@ -86,12 +92,15 @@ fun PortfolioMain(exchangeViewModel: ExchangeViewModel = viewModel()) {
     val aReturn = if (exchangeViewModel.totalValuedAssets.value == 0.0) {
         "0"
     } else {
-        String.format("%.2f",
-            (exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value) / exchangeViewModel.totalPurchase.value * 100)
+        String.format(
+            "%.2f",
+            (exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value) / exchangeViewModel.totalPurchase.value * 100
+        )
     }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentHeight()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         Text(
             text = "보유 자산",
@@ -129,18 +138,20 @@ fun PortfolioMain(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 totalPurchaseValue,
                 "총평가",
                 totalValuedAssets,
-                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong())
+                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
+            )
 
-            PortfolioMainItem(text1 = "총 보유자산",
+            PortfolioMainItem(
+                text1 = "총 보유자산",
                 text2 = totalHoldings,
                 "평가손익",
                 valuationGainOrLoss,
                 "수익률",
                 aReturn.plus("%"),
-                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong())
+                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
+            )
         }
-        UserHoldCoinLazyColumnItem()
-        UserHoldCoinLazyColumnItem()
+        UserHoldCoinLazyColumn(exchangeViewModel)
     }
 
 }
@@ -154,13 +165,15 @@ fun RowScope.PortfolioMainItem(
     text4: String,
     text5: String,
     text6: String,
-    colorStandard: Long,
+    colorStandard: Long
 ) {
     val textColor = getReturnTextColor(colorStandard, text5)
-    Column(modifier = Modifier
-        .padding()
-        .wrapContentHeight()
-        .weight(2f, true)) {
+    Column(
+        modifier = Modifier
+            .padding()
+            .wrapContentHeight()
+            .weight(2f, true)
+    ) {
         Text(
             text = text1,
             modifier = Modifier
@@ -172,21 +185,25 @@ fun RowScope.PortfolioMainItem(
                 fontSize = 18.sp,
             )
         )
-        Text(
+
+        PortfolioAutoSizeText(
             text = text2,
             modifier = Modifier
                 .padding(8.dp, 5.dp, 8.dp, 0.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
-            style = TextStyle(
+            textStyle = TextStyle(
                 color = Color.Black,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
         )
-        Row(modifier = Modifier
-            .padding(0.dp, 15.dp, 0.dp, 0.dp)
-            .wrapContentHeight()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 15.dp, 0.dp, 0.dp)
+                .wrapContentHeight()
+        ) {
             Text(
                 text = text3,
                 modifier = Modifier
@@ -198,23 +215,24 @@ fun RowScope.PortfolioMainItem(
                     fontSize = 14.sp,
                 )
             )
-            Text(
+            PortfolioAutoSizeText(
                 text = text4,
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .weight(1f, true)
                     .wrapContentHeight(),
-                style = TextStyle(
+                textStyle = TextStyle(
                     color = textColor,
-                    fontSize = 14.sp
-                ),
-                textAlign = TextAlign.End
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.End
+                )
             )
         }
-
-        Row(modifier = Modifier
-            .padding(0.dp, 8.dp, 0.dp, 25.dp)
-            .wrapContentHeight()) {
+        Row(
+            modifier = Modifier
+                .padding(0.dp, 8.dp, 0.dp, 25.dp)
+                .wrapContentHeight()
+        ) {
             Text(
                 text = text5,
                 modifier = Modifier
@@ -226,24 +244,67 @@ fun RowScope.PortfolioMainItem(
                     fontSize = 14.sp,
                 )
             )
-            Text(
+            PortfolioAutoSizeText(
                 text = text6,
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .weight(1f, true)
                     .wrapContentHeight(),
-                style = TextStyle(
+                textStyle = TextStyle(
                     color = textColor,
-                    fontSize = 14.sp
-                ),
-                textAlign = TextAlign.End
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.End
+                )
             )
         }
     }
 }
 
 @Composable
-fun UserHoldCoinLazyColumnItem() {
+fun UserHoldCoinLazyColumn(exchangeViewModel: ExchangeViewModel) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        val userHoldCoinDtoList = exchangeViewModel.userHoldCoinDtoList
+        itemsIndexed(items = userHoldCoinDtoList) { _, item ->
+            if(userHoldCoinDtoList.isNotEmpty()) {
+                val koreanName = item.myCoinsKoreanName
+                val symbol = item.myCoinsSymbol
+                val purchaseAmount = item.myCoinsQuantity * item.myCoinsBuyingAverage
+                val evaluationAmount = item.myCoinsQuantity * item.currentPrice
+                val purchaseAverage = item.myCoinsBuyingAverage
+                val valuationGainOrLoss = evaluationAmount - purchaseAmount
+                val coinQuantity = item.myCoinsQuantity
+                val aReturn = if(((item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).isNaN()) {
+                    0
+                } else{
+                    (item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100
+                }
+
+                UserHoldCoinLazyColumnItem(
+                    koreanName,
+                    symbol,
+                    valuationGainOrLoss.toString(),
+                    aReturn.toString(),
+                    coinQuantity.toString(),
+                    purchaseAverage.toString(),
+                    purchaseAmount.toString(),
+                    evaluationAmount.toString()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UserHoldCoinLazyColumnItem(
+    coinKoreanName: String,
+    symbol: String,
+    valuationGainOrLoss: String,
+    aReturn: String,
+    coinQuantity: String,
+    purchaseAverage: String,
+    purchaseAmount: String,
+    evaluationAmount: String
+) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -261,85 +322,129 @@ fun UserHoldCoinLazyColumnItem() {
                 )
             }
         }) {
-        Row(modifier = Modifier
-            .padding(0.dp,8.dp,0.dp,0.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()) {
-            Column(modifier = Modifier
-                .weight(1f)
-                .padding(8.dp)) {
-                Text(text = "리플",
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 1.dp),
+        Row(
+            modifier = Modifier
+                .padding(0.dp, 8.dp, 0.dp, 0.dp)
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = coinKoreanName,
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 0.dp, 1.dp)
+                        .fillMaxWidth(),
+                    style = TextStyle(
+                        color = colorResource(id = R.color.C0F0F5C),
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = symbol,
                     fontWeight = FontWeight.Bold,
-                    style = TextStyle(color = colorResource(id = R.color.C0F0F5C), fontSize = 17.sp))
-                Text(text = "XRP",
-                    fontWeight = FontWeight.Bold,
-                    style = TextStyle(color = colorResource(id = R.color.C0F0F5C), fontSize = 17.sp))
+                    style = TextStyle(
+                        color = colorResource(id = R.color.C0F0F5C),
+                        fontSize = 17.sp
+                    ),
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            Column(modifier = Modifier
-                .weight(1f)
-                .padding(8.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+            ) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(text = "평가손익", modifier = Modifier.wrapContentWidth())
-                    Text(text = "-1,000,000",
+                    PortfolioAutoSizeText(
+                        text = "valuationGainOrLoss",
                         modifier = Modifier
-                            .weight(1f, true)
-                            .padding(0.dp, 0.dp, 0.dp, 4.dp),
-                        textAlign = TextAlign.End)
+                            .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                            .weight(1f, true),
+                        textStyle = TextStyle(textAlign = TextAlign.End)
+                    )
+//                    PortfolioAutoSizeText(
+//                        text = "text1",
+//                        modifier = Modifier.weight(1f, true),
+//                        textStyle = TextStyle(textAlign = TextAlign.End)
+//                    )
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(text = "수익률", modifier = Modifier.wrapContentWidth())
-                    Text(text = "-49.86%",
-                        modifier = Modifier.weight(1f, true),
-                        textAlign = TextAlign.End)
+//                    PortfolioAutoSizeText(
+//                        text = aReturn,
+//                        modifier = Modifier.fillMaxWidth().weight(1f, true),
+//                        textStyle = TextStyle(textAlign = TextAlign.End)
+//                    )
                 }
 
             }
         }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()) {
-            UserHoldCoinLazyColumnItemContent("0.00000024", "XRP", "보유수량")
-            UserHoldCoinLazyColumnItemContent("1,085", "KRW", "매수평균가")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            UserHoldCoinLazyColumnItemContent(coinQuantity, symbol, "보유수량")
+            UserHoldCoinLazyColumnItemContent(purchaseAverage, "KRW", "매수평균가")
         }
-        Row(modifier = Modifier
-            .padding(0.dp,0.dp,0.dp,8.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()
-            ) {
-            UserHoldCoinLazyColumnItemContent("1,000,000", "KRW", "평가금액")
-            UserHoldCoinLazyColumnItemContent("1,500,000", "KRW", "매수금액")
+        Row(
+            modifier = Modifier
+                .padding(0.dp, 0.dp, 0.dp, 8.dp)
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            UserHoldCoinLazyColumnItemContent(evaluationAmount, "KRW", "평가금액")
+            UserHoldCoinLazyColumnItemContent(purchaseAmount, "KRW", "매수금액")
         }
     }
 }
 
 @Composable
 fun RowScope.UserHoldCoinLazyColumnItemContent(text1: String, text2: String, text3: String) {
-    Column(modifier = Modifier
-        .weight(1f)
-        .padding(8.dp)) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 0.dp, 0.dp, 2.dp)) {
-            Text(text = text1, modifier = Modifier.weight(1f, true), textAlign = TextAlign.End)
-            Text(text = "  ".plus(text2),
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 0.dp, 0.dp, 2.dp)
+        ) {
+            PortfolioAutoSizeText(
+                text = text1,
+                modifier = Modifier.weight(1f, true),
+                textStyle = TextStyle(textAlign = TextAlign.End)
+            )
+            Text(
+                text = "  ".plus(text2),
                 modifier = Modifier.wrapContentWidth(),
-                fontWeight = FontWeight.Bold)
+                fontWeight = FontWeight.Bold
+            )
         }
-        Text(text = text3,
+        Text(
+            text = text3,
             modifier = Modifier.fillMaxWidth(),
             style = TextStyle(color = Color.Gray),
-            textAlign = TextAlign.End)
+            textAlign = TextAlign.End
+        )
     }
-
 }
 
 
-@Composable
-@Preview(showBackground = true)
-fun preview() {
-    UserHoldCoinLazyColumnItem()
-}
+//@Composable
+//@Preview(showBackground = true)
+//fun preview() {
+//    UserHoldCoinLazyColumnItem()
+//}
 
 @Composable
 fun getReturnTextColor(colorStandard: Long, text5: String): Color {

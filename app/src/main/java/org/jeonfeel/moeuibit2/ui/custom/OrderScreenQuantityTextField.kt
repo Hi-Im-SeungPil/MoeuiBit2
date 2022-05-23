@@ -35,8 +35,6 @@ fun OrderScreenQuantityTextField(
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-
     val value = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
         coinDetailViewModel.bidQuantity
     } else {
