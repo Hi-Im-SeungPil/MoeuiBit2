@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
@@ -272,7 +271,6 @@ fun OrderScreenQuantityDropDown(
         }
     }
 }
-
 @Composable
 fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     Row(
@@ -405,7 +403,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
                             Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
                         }
-                        coinDetailViewModel.askBidSelectedTab.value == 1 && totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
+                        coinDetailViewModel.askBidSelectedTab.value == 1 && totalPrice.toLong() > userSeedMoney - round(userSeedMoney * 0.0005) -> {
                             Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 2 && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {

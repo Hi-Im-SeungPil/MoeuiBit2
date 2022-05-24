@@ -19,6 +19,7 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
+        UpBitOrderBookWebSocket.retryCount = 0
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {

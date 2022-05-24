@@ -5,6 +5,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 
 class UpBitTickerWebSocketListener : WebSocketListener() {
 
@@ -18,7 +19,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        Log.e("TAG", "open!")
+        UpBitTickerWebSocket.retryCount = 0
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -44,7 +45,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
         Log.e("Socket", "Error => ${t.message}")
-//        UpBitCoinDetailWebSocket.onFail()
+        UpBitTickerWebSocket.onFail()
     }
 
     companion object {

@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -70,6 +69,7 @@ class ExchangeViewModel @Inject constructor(
     val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
+    val loadingComplete = mutableStateOf(false)
 
 
     fun initViewModel() {
@@ -360,6 +360,9 @@ class ExchangeViewModel @Inject constructor(
 
     fun getUserHoldCoins() {
         viewModelScope.launch(Dispatchers.IO) {
+            if(loadingComplete.value) {
+                loadingComplete.value = false
+            }
             var localTotalPurchase = 0.0
             userHoldCoinDtoList.clear()
             userHoldCoinsMarket = StringBuffer()
@@ -369,11 +372,10 @@ class ExchangeViewModel @Inject constructor(
             if (userHoldCoinList.isNotEmpty()) {
                 for (i in userHoldCoinList.indices) {
                     val userHoldCoin = userHoldCoinList[i]!!
-                    val koreanName = userHoldCoin.koreanCoinName
+                    val koreanName = krwCoinKoreanNameAndEngName[userHoldCoin.market]?.get(0) ?: ""
                     val symbol = userHoldCoin.symbol
                     val quantity = userHoldCoin.quantity
                     val purchaseAverage = userHoldCoin.purchasePrice
-                    Log.d(koreanName,purchaseAverage.toString())
                     localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                     userHoldCoinDtoList.add(
@@ -399,8 +401,10 @@ class ExchangeViewModel @Inject constructor(
                 totalPurchase.value = localTotalPurchase
                 UpBitPortfolioWebSocket.requestKrwCoinList()
                 updateUserHoldCoins()
+                loadingComplete.value = true
             } else {
                 totalPurchase.value = 0.0
+                loadingComplete.value = true
             }
         }
     }
@@ -436,7 +440,6 @@ class ExchangeViewModel @Inject constructor(
                     model.signedChangeRate,
                     model.accTradePrice24h
                 )
-            Log.e(TAG, model.code)
         }
     }
 
@@ -453,7 +456,6 @@ class ExchangeViewModel @Inject constructor(
                     userHoldCoin.purchasePrice,
                     model.tradePrice,
                 )
-            Log.e(TAG, model.code)
         }
     }
 }

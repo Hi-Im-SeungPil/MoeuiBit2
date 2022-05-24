@@ -12,7 +12,6 @@ import java.util.*
 
 object UpBitOrderBookWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
-    private var retryCount = 0
     private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
@@ -21,6 +20,8 @@ object UpBitOrderBookWebSocket {
         .build()
     private val socketListener = UpBitOrderBookWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
+    var market = ""
+    var retryCount = 0
 
     fun getListener(): UpBitOrderBookWebSocketListener {
         return socketListener
@@ -35,7 +36,6 @@ object UpBitOrderBookWebSocket {
     fun onPause() {
         socket.close(UpBitOrderBookWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
-        Log.d("onPause", "호출")
     }
 
     fun onResume(market: String) {
@@ -54,9 +54,10 @@ object UpBitOrderBookWebSocket {
 
     fun onFail() {
         currentSocketState = SOCKET_IS_NO_CONNECTION
-        if (retryCount != 1) {
-            socketRebuild()
-            retryCount += 1
+        if (retryCount <= 10) {
+            Log.d("onfail", "호출")
+            requestOrderBookList(market)
         }
+        retryCount++
     }
 }

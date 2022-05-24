@@ -20,6 +20,7 @@ object UpBitTickerWebSocket {
         .build()
     private val socketListener = UpBitTickerWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
+    var retryCount = 0
 
     fun getListener(): UpBitTickerWebSocketListener {
         return socketListener
@@ -54,5 +55,9 @@ object UpBitTickerWebSocket {
 
     fun onFail() {
         currentSocketState = SOCKET_IS_NO_CONNECTION
+        if (retryCount <= 10) {
+            requestKrwCoinList()
+        }
+        retryCount++
     }
 }

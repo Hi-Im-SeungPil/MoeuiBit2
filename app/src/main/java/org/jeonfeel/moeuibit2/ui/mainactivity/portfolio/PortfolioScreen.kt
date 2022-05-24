@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -25,6 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
@@ -69,7 +71,9 @@ fun PortfolioScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            UserHoldCoinLazyColumn(exchangeViewModel)
+            if(exchangeViewModel.loadingComplete.value) {
+                UserHoldCoinLazyColumn(exchangeViewModel)
+            }
         }
     }
 }
@@ -218,10 +222,10 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    color = textColor,
                     fontSize = 14.sp,
                     textAlign = TextAlign.End
-                )
+                ),
+                color = textColor
             )
         }
         Row(
@@ -247,10 +251,10 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    color = textColor,
                     fontSize = 14.sp,
                     textAlign = TextAlign.End
-                )
+                ),
+                color = textColor
             )
         }
     }
@@ -271,7 +275,7 @@ fun UserHoldCoinLazyColumn(exchangeViewModel: ExchangeViewModel) {
                 val evaluationAmount = round(item.myCoinsQuantity * item.currentPrice).toLong()
                 val purchaseAverage = item.myCoinsBuyingAverage
                 val valuationGainOrLoss = evaluationAmount - purchaseAmount
-                val coinQuantity = item.myCoinsQuantity
+                val coinQuantity = Calculator.getDecimalDecimalFormat().format(item.myCoinsQuantity)
                 val aReturn = if(((item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).isNaN()) {
                     0
                 } else{
@@ -288,12 +292,12 @@ fun UserHoldCoinLazyColumn(exchangeViewModel: ExchangeViewModel) {
                 UserHoldCoinLazyColumnItem(
                     koreanName,
                     symbol,
-                    valuationGainOrLoss.toString(),
+                    Calculator.valuationGainOrLossDecimal(valuationGainOrLoss.toDouble()),
                     aReturn.toString().plus("%"),
-                    coinQuantity.toString(),
-                    purchaseAverage.toString(),
-                    purchaseAmount.toString(),
-                    evaluationAmount.toString(),
+                    coinQuantity,
+                    Calculator.tradePriceCalculatorForChart(purchaseAverage),
+                    Calculator.tradePriceCalculatorForChart(purchaseAmount.toDouble()),
+                    Calculator.getDecimalFormat().format(evaluationAmount),
                     color
                 )
             }
@@ -319,10 +323,10 @@ fun UserHoldCoinLazyColumnItem(
         .drawWithContent {
             drawContent()
             clipRect {
-                val strokeWidth = 1f
+                val strokeWidth = 2f
                 val y = size.height
                 drawLine(
-                    brush = SolidColor(Color.LightGray),
+                    brush = SolidColor(Color.Gray),
                     strokeWidth = strokeWidth,
                     cap = StrokeCap.Square,
                     start = Offset.Zero.copy(y = y),
@@ -376,7 +380,8 @@ fun UserHoldCoinLazyColumnItem(
                         modifier = Modifier
                             .padding(0.dp, 0.dp, 0.dp, 4.dp)
                             .weight(1f, true),
-                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp, color = color)
+                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                        color = color
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -386,7 +391,8 @@ fun UserHoldCoinLazyColumnItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f, true),
-                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp, color = color)
+                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                        color = color
                     )
                 }
 
@@ -398,6 +404,7 @@ fun UserHoldCoinLazyColumnItem(
                 .wrapContentHeight()
         ) {
             UserHoldCoinLazyColumnItemContent(coinQuantity, symbol, "보유수량")
+            Log.d(symbol,coinQuantity.toString())
             UserHoldCoinLazyColumnItemContent(purchaseAverage, "KRW", "매수평균가")
         }
         Row(
@@ -424,7 +431,8 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(text1: String, text2: String, tex
                 .fillMaxWidth()
                 .padding(0.dp, 0.dp, 0.dp, 2.dp)
         ) {
-            PortfolioAutoSizeText(
+//            PortfolioAutoSize
+            AutoSizeText(
                 text = text1,
                 modifier = Modifier.weight(1f, true),
                 textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp)

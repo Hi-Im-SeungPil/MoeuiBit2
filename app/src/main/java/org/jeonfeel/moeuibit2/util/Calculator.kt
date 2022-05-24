@@ -56,7 +56,6 @@ object Calculator {
         }
     }
 
-
     fun changePriceCalculator(changePrice: Double): String {
         val absChangePrice = abs(changePrice)
         var result = ""
@@ -129,7 +128,7 @@ object Calculator {
     ): String {
         return when (label) {
             "최대" -> {
-                String.format("%.8f", (seedMoney - (seedMoney * 0.0005)) / tradePrice)
+                String.format("%.8f", (seedMoney - round(seedMoney * 0.0005)) / tradePrice)
             }
             "50%" -> {
                 String.format("%.8f", (seedMoney * 0.5) / tradePrice)
@@ -178,6 +177,19 @@ object Calculator {
             String.format("%.2f", result).toDouble()
         } else {
             String.format("%.4f", result).toDouble()
+        }
+    }
+
+    fun valuationGainOrLossDecimal(purchaseAverage: Double): String {
+        var absPrice = abs(purchaseAverage)
+        return if (absPrice >= 100) {
+            decimalFormat.format(round(purchaseAverage))
+        } else if (absPrice < 100 && absPrice >= 1) {
+            String.format("%.2f", purchaseAverage)
+        } else if (absPrice == 0.0){
+            "0"
+        } else {
+            String.format("%.4f", purchaseAverage)
         }
     }
 

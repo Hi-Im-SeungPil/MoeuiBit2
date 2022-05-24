@@ -8,8 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.TextUnit
-import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavItem
 
 @Composable
 fun AutoSizeText(
@@ -45,6 +43,7 @@ fun PortfolioAutoSizeText(
     text: String,
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
+    color: Color = Color.Black
 ) {
     val scaledTextStyle = remember { mutableStateOf(textStyle) }
     val readyToDraw = remember { mutableStateOf(false) }
@@ -57,7 +56,7 @@ fun PortfolioAutoSizeText(
                 drawContent()
             }
         },
-        style = scaledTextStyle.value,
+        style = scaledTextStyle.value.copy(color = color),
         softWrap = false,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.didOverflowWidth) {

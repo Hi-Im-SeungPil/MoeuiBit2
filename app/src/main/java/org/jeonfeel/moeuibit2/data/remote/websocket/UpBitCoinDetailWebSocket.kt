@@ -4,6 +4,7 @@ import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.listener.UpBitCoinDetailWebSocketListener
 import java.util.*
@@ -17,6 +18,8 @@ object UpBitCoinDetailWebSocket {
         .build()
     private val socketListener = UpBitCoinDetailWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
+    var market = ""
+    var retryCount = 0
 
     fun getListener(): UpBitCoinDetailWebSocketListener {
         return socketListener
@@ -46,4 +49,11 @@ object UpBitCoinDetailWebSocket {
         currentSocketState = SOCKET_IS_CONNECTED
     }
 
+    fun onFail() {
+        currentSocketState = SOCKET_IS_NO_CONNECTION
+        if (retryCount <= 10) {
+            requestCoinDetailData(market)
+        }
+        retryCount++
+    }
 }

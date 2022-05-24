@@ -37,6 +37,7 @@ import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
 import javax.inject.Inject
 import kotlin.collections.set
+import kotlin.math.roundToLong
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
@@ -94,6 +95,8 @@ class CoinDetailViewModel @Inject constructor(
             setCoinDetailWebSocketMessageListener()
             setOrderBookWebSocketMessageListener()
             viewModelScope.launch {
+                UpBitCoinDetailWebSocket.market = market
+                UpBitOrderBookWebSocket.market = market
                 UpBitCoinDetailWebSocket.requestCoinDetailData(market)
                 updateTicker()
                 initOrderBook(market)
@@ -327,23 +330,26 @@ class CoinDetailViewModel @Inject constructor(
                         symbol,
                         quantity)
                 )
-                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
+                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005).roundToLong()))
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
             } else {
                 val preAveragePurchasePrice = myCoin.purchasePrice
                 val preCoinQuantity = myCoin.quantity
+                val purchaseAverage = Calculator.averagePurchasePriceCalculator(currentPrice,
+                    quantity,
+                    preAveragePurchasePrice,
+                    preCoinQuantity)
 
-                coinDao.updatePurchasePriceLong(market,
-                    Calculator.averagePurchasePriceCalculator(currentPrice,
-                        quantity,
-                        preAveragePurchasePrice,
-                        preCoinQuantity).toLong()
-                )
+                if(purchaseAverage >= 100) {
+                    coinDao.updatePurchasePriceInt(market,purchaseAverage.toInt())
+                } else {
+                    coinDao.updatePurchasePrice(market, purchaseAverage)
+                }
 
                 coinDao.updatePlusQuantity(market, quantity)
-                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).toLong())
+                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
@@ -358,7 +364,7 @@ class CoinDetailViewModel @Inject constructor(
             val userDao = localRepository.getUserDao()
 
             coinDao.updateMinusQuantity(market,quantity)
-            userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).toLong())
+            userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).roundToLong())
             userSeedMoney.value = userDao.all?.krw ?: 0L
             askQuantity.value = ""
             val currentCoin = coinDao.isInsert(market)

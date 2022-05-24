@@ -93,7 +93,10 @@ fun ExchangeScreenLazyColumnItem(
                     .weight(1f)
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                style = TextStyle(textAlign = TextAlign.Center))
+                style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray),
+                overflow = TextOverflow.Ellipsis
+            )
+
         }
 
         Box(modifier = getTradePriceTextModifier(preTradePrice,

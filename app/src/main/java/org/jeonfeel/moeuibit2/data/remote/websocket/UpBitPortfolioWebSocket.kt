@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.listener.UpBitPortfolioWebSocketListener
 import org.jeonfeel.moeuibit2.listener.UpBitTickerWebSocketListener
@@ -10,7 +11,7 @@ import java.util.*
 
 object UpBitPortfolioWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
-    private var retryCount = 0
+
     private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
     private var krwMarkets = ""
     private val client = OkHttpClient()
@@ -19,6 +20,7 @@ object UpBitPortfolioWebSocket {
         .build()
     private val socketListener = UpBitPortfolioWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
+    var retryCount = 0
 
     fun getListener(): UpBitPortfolioWebSocketListener {
         return socketListener
@@ -44,5 +46,13 @@ object UpBitPortfolioWebSocket {
     fun onPause() {
         socket.close(UpBitTickerWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
+    }
+
+    fun onFail() {
+        currentSocketState = SOCKET_IS_NO_CONNECTION
+        if (retryCount <= 10) {
+            requestKrwCoinList()
+        }
+        retryCount++
     }
 }
