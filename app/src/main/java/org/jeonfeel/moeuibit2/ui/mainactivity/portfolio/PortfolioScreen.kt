@@ -152,7 +152,6 @@ fun PortfolioMain(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
             )
         }
-//        UserHoldCoinLazyColumn(exchangeViewModel)
     }
 }
 
@@ -395,7 +394,6 @@ fun UserHoldCoinLazyColumnItem(
                         color = color
                     )
                 }
-
             }
         }
         Row(

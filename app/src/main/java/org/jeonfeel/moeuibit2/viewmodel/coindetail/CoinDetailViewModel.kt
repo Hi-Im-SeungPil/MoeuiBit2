@@ -37,6 +37,7 @@ import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
 import javax.inject.Inject
 import kotlin.collections.set
+import kotlin.math.round
 import kotlin.math.roundToLong
 
 @HiltViewModel
@@ -74,6 +75,7 @@ class CoinDetailViewModel @Inject constructor(
     private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String, String>>()
     val coinInfoLiveData: LiveData<HashMap<String, String>> get() = _coinInfoMutableLiveData
     val coinInfoDialog = mutableStateOf(false)
+    val coinInfoLoading = mutableStateOf(false)
 
     /**
      * favorite
@@ -184,16 +186,24 @@ class CoinDetailViewModel @Inject constructor(
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val coinInfos = HashMap<String, String>()
+                    val homepage = snapshot.child("homepage").getValue(String::class.java) ?: ""
+                    val amount = snapshot.child("amount").getValue(String::class.java) ?: ""
+                    val twitter = snapshot.child("twitter").getValue(String::class.java) ?: ""
+                    val block = snapshot.child("block").getValue(String::class.java) ?: ""
+                    val info = snapshot.child("content").getValue(String::class.java) ?: ""
 
-                    coinInfos["homepage"] =
-                        snapshot.child("homepage").getValue(String::class.java)!!
-                    coinInfos["amount"] = snapshot.child("amount").getValue(String::class.java)!!
-                    coinInfos["twitter"] = snapshot.child("twitter").getValue(String::class.java)!!
-                    coinInfos["block"] = snapshot.child("block").getValue(String::class.java)!!
-                    coinInfos["info"] = snapshot.child("content").getValue(String::class.java)!!
-
-                    _coinInfoMutableLiveData.postValue(coinInfos)
+                    if (homepage.isEmpty()) {
+                        _coinInfoMutableLiveData.postValue(coinInfos)
+                    } else {
+                        coinInfos["homepage"] = homepage
+                        coinInfos["amount"] = amount
+                        coinInfos["twitter"] = twitter
+                        coinInfos["block"] = block
+                        coinInfos["info"] = info
+                        _coinInfoMutableLiveData.postValue(coinInfos)
+                    }
                     coinInfoDialog.value = false
+                    coinInfoLoading.value = true
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -323,33 +333,39 @@ class CoinDetailViewModel @Inject constructor(
             val myCoin: MyCoin? = coinDao.isInsert(market)
 
             if (myCoin == null) {
-                coinDao.insert(MyCoin(
+                coinDao.insert(
+                    MyCoin(
                         market,
                         currentPrice,
                         koreanName,
                         symbol,
-                        quantity)
+                        quantity
+                    )
                 )
-                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005).roundToLong()))
+                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
+                Log.d("viewModellll",(totalPrice + (totalPrice * 0.0005).roundToLong()).toString())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
             } else {
                 val preAveragePurchasePrice = myCoin.purchasePrice
                 val preCoinQuantity = myCoin.quantity
-                val purchaseAverage = Calculator.averagePurchasePriceCalculator(currentPrice,
+                val purchaseAverage = Calculator.averagePurchasePriceCalculator(
+                    currentPrice,
                     quantity,
                     preAveragePurchasePrice,
-                    preCoinQuantity)
+                    preCoinQuantity
+                )
 
-                if(purchaseAverage >= 100) {
-                    coinDao.updatePurchasePriceInt(market,purchaseAverage.toInt())
+                if (purchaseAverage >= 100) {
+                    coinDao.updatePurchasePriceInt(market, purchaseAverage.toInt())
                 } else {
                     coinDao.updatePurchasePrice(market, purchaseAverage)
                 }
 
                 coinDao.updatePlusQuantity(market, quantity)
                 userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
+                Log.d("viewModellll",(totalPrice + (totalPrice * 0.0005).roundToLong()).toString())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
@@ -358,17 +374,17 @@ class CoinDetailViewModel @Inject constructor(
         return job
     }
 
-    fun askRequest(quantity: Double,totalPrice: Long): Job {
+    fun askRequest(quantity: Double, totalPrice: Long): Job {
         val job = viewModelScope.launch(Dispatchers.IO) {
             val coinDao = localRepository.getMyCoinDao()
             val userDao = localRepository.getUserDao()
 
-            coinDao.updateMinusQuantity(market,quantity)
+            coinDao.updateMinusQuantity(market, quantity)
             userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).roundToLong())
             userSeedMoney.value = userDao.all?.krw ?: 0L
             askQuantity.value = ""
             val currentCoin = coinDao.isInsert(market)
-            if(currentCoin != null && currentCoin.quantity == 0.0) {
+            if (currentCoin != null && currentCoin.quantity == 0.0) {
                 coinDao.delete(market)
                 userCoinQuantity.value = 0.0
             } else {

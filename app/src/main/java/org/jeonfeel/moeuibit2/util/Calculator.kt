@@ -128,16 +128,16 @@ object Calculator {
     ): String {
         return when (label) {
             "최대" -> {
-                String.format("%.8f", (seedMoney - round(seedMoney * 0.0005)) / tradePrice)
+                decimalDecimalFormat.format((seedMoney - (seedMoney * 0.0005)) / tradePrice)
             }
             "50%" -> {
-                String.format("%.8f", (seedMoney * 0.5) / tradePrice)
+                decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
             }
             "25%" -> {
-                String.format("%.8f", (seedMoney * 0.25) / tradePrice)
+                decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
             }
             "10%" -> {
-                String.format("%.8f", (seedMoney * 0.1) / tradePrice)
+                decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
             }
             else -> "0"
         }
@@ -149,16 +149,16 @@ object Calculator {
     ): String {
         return when (label) {
             "최대" -> {
-                String.format("%.8f",userCoinQuantity)
+                decimalDecimalFormat.format(userCoinQuantity)
             }
             "50%" -> {
-                String.format("%.8f",userCoinQuantity * 0.5)
+                decimalDecimalFormat.format(userCoinQuantity * 0.5)
             }
             "25%" -> {
-                String.format("%.8f",userCoinQuantity * 0.25)
+                decimalDecimalFormat.format(userCoinQuantity * 0.25)
             }
             "10%" -> {
-                String.format("%.8f",userCoinQuantity * 0.1)
+                decimalDecimalFormat.format(userCoinQuantity * 0.1)
             }
             else -> "0"
         }
