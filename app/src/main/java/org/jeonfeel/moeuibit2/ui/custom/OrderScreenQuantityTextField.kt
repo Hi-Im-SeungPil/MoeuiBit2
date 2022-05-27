@@ -42,7 +42,7 @@ fun OrderScreenQuantityTextField(
     }
 
     BasicTextField(value = value.value, onValueChange = {
-        if(it.toDoubleOrNull() == null) {
+        if(it.toDoubleOrNull() == null && it != "") {
             value.value = ""
             Toast.makeText(context,"숫자만 입력 가능합니다.",Toast.LENGTH_SHORT).show()
         } else {

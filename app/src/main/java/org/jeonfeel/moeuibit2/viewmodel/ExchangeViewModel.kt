@@ -241,7 +241,7 @@ class ExchangeViewModel @Inject constructor(
     /**
      * data sorting, filter
      * */
-    fun filterKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
+    fun getFilteredKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
         return if (searchTextFieldValue.value.isEmpty() && !showFavorite.value) {
             krwExchangeModelMutableStateList
         } else if (searchTextFieldValue.value.isEmpty() && showFavorite.value) {

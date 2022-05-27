@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.view.activity.coindetail
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +13,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 @AndroidEntryPoint
-class CoinDetailActivity : AppCompatActivity() {
+class CoinDetailActivity : ComponentActivity() {
 
     lateinit var coinKoreanName: String
     private lateinit var coinSymbol: String

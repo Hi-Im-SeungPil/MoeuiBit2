@@ -21,7 +21,7 @@ import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 fun CoinDetailScreen(
     coinKoreanName: String,
     coinSymbol: String,
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
     OnLifecycleEvent { _, event ->

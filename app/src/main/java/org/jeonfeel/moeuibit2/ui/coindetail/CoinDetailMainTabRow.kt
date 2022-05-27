@@ -24,9 +24,7 @@ import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: String) {
     object Order : CoinDetailMainTabRowItem("주문", "order")
-    object AskingPrice : CoinDetailMainTabRowItem("호가", "AskingPrice")
     object Chart : CoinDetailMainTabRowItem("차트", "Chart")
-    object MarketPrice : CoinDetailMainTabRowItem("시세", "MarketPrice")
     object CoinInfo : CoinDetailMainTabRowItem("정보", "CoinInfo")
 }
 
@@ -35,9 +33,7 @@ fun CoinDetailMainTabRow(navController: NavController) {
     val tabState = remember { mutableStateOf(0) }
     val items = listOf(
         CoinDetailMainTabRowItem.Order,
-        CoinDetailMainTabRowItem.AskingPrice,
         CoinDetailMainTabRowItem.Chart,
-        CoinDetailMainTabRowItem.MarketPrice,
         CoinDetailMainTabRowItem.CoinInfo
     )
 
@@ -74,14 +70,8 @@ fun TabRowMainNavigation(
         composable(CoinDetailMainTabRowItem.Order.screen_route) {
             OrderScreen(coinDetailViewModel)
         }
-        composable(CoinDetailMainTabRowItem.AskingPrice.screen_route) {
-            AskedPriceScreen()
-        }
         composable(CoinDetailMainTabRowItem.Chart.screen_route) {
             ChartScreen(coinDetailViewModel)
-        }
-        composable(CoinDetailMainTabRowItem.MarketPrice.screen_route) {
-            MarketPriceScreen()
         }
         composable(CoinDetailMainTabRowItem.CoinInfo.screen_route) {
             CoinInfoScreen(coinDetailViewModel)

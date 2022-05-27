@@ -1,9 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -33,7 +30,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(30.dp)
+            .wrapContentHeight()
             .drawWithContent {
                 drawContent()
                 clipRect {
@@ -50,8 +47,10 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(modifier = Modifier
-            .weight(1f), text = "")
+        Text(
+            modifier = Modifier
+                .weight(1f), text = ""
+        )
 //--------------------------------------------------------------------------------------------------
         TextButton(onClick = {
             if (exchangeViewModel.isSocketRunning) {
@@ -69,24 +68,27 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 exchangeViewModel.sortList(selectedButtonState.value)
             }
         }, modifier = Modifier
-            .weight(1f)
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
+            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
+            .weight(1f),
             colors = getButtonBackgroundColor(buttonNum = 1,
                 buttonState = selectedButtonState.value),
             shape = RectangleShape) {
             when (selectedButtonState.value) {
                 0 -> {
                     Text(text = "현재가↓",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.White))
                 }
                 1 -> {
                     Text(text = "현재가↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.White))
                 }
                 else -> {
                     Text(text = "현재가↓↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.Black))
                 }
@@ -109,26 +111,29 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 exchangeViewModel.sortList(selectedButtonState.value)
             }
         }, modifier = Modifier
-            .weight(1f)
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
+            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
+            .weight(1f),
             colors = getButtonBackgroundColor(buttonNum = 2,
                 buttonState = selectedButtonState.value),
             shape = RectangleShape) {
             when (selectedButtonState.value) {
                 2 -> {
                     Text(text = "전일대비↓",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         maxLines = 1,
                         style = TextStyle(color = Color.White))
                 }
                 3 -> {
                     Text(text = "전일대비↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         maxLines = 1,
                         style = TextStyle(color = Color.White))
                 }
                 else -> {
                     Text(text = "전일대비↓↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         maxLines = 1,
                         style = TextStyle(color = Color.Black))
@@ -152,24 +157,27 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 exchangeViewModel.sortList(selectedButtonState.value)
             }
         }, modifier = Modifier
-            .weight(1f)
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp),
+            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
+            .weight(1f),
             colors = getButtonBackgroundColor(buttonNum = 3,
                 buttonState = selectedButtonState.value),
             shape = RectangleShape) {
             when (selectedButtonState.value) {
                 4 -> {
                     Text(text = "거래량↓",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.White))
                 }
                 5 -> {
                     Text(text = "거래량↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.White))
                 }
                 else -> {
                     Text(text = "거래량↓↑",
+                        modifier = Modifier.wrapContentHeight(),
                         fontSize = 13.sp,
                         style = TextStyle(color = Color.Black))
                 }

@@ -68,15 +68,19 @@ fun ExchangeScreenLazyColumnItem(
             val intent = Intent(context, CoinDetailActivity::class.java)
             intent.putExtra("coinKoreanName", koreanName)
             intent.putExtra("coinSymbol", krwExchangeModel.symbol)
-            intent.putExtra("openingPrice",krwExchangeModel.opening_price)
-            intent.putExtra("isFavorite",isFavorite)
+            intent.putExtra("openingPrice", krwExchangeModel.opening_price)
+            intent.putExtra("isFavorite", isFavorite)
             startForActivityResult.launch(intent)
-            (context as MainActivity).overridePendingTransition(R.anim.lazy_column_item_slide_left, R.anim.none)
+            (context as MainActivity).overridePendingTransition(
+                R.anim.lazy_column_item_slide_left,
+                R.anim.none
+            )
         }) {
 
-        Column(Modifier
-            .weight(1f)
-            .align(Alignment.Bottom)) {
+        Column(
+            Modifier
+                .weight(1f)
+                .align(Alignment.Bottom)) {
             Text(
                 text = koreanName,
                 maxLines = 1,
@@ -96,7 +100,6 @@ fun ExchangeScreenLazyColumnItem(
                 style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray),
                 overflow = TextOverflow.Ellipsis
             )
-
         }
 
         Box(modifier = getTradePriceTextModifier(preTradePrice,
@@ -154,17 +157,20 @@ fun ExchangeScreenLazyColumn(
     exchangeViewModel: ExchangeViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
+    val filteredKrwExchangeList = exchangeViewModel.getFilteredKrwCoinList()
+    if(filteredKrwExchangeList.isEmpty()) {
+        Text(text = "등록된 관심코인이 없습니다.")
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            itemsIndexed(items = filteredKrwExchangeList
+            ) { _, krwCoinListElement ->
+                ExchangeScreenLazyColumnItem(krwCoinListElement,
+                    exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
+                        ?: 0].tradePrice,exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,startForActivityResult)
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        val filteredKrwExchangeList = exchangeViewModel.filterKrwCoinList()
-        itemsIndexed(items = filteredKrwExchangeList
-        ) { _, krwCoinListElement ->
-            ExchangeScreenLazyColumnItem(krwCoinListElement,
                 exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
-                    ?: 0].tradePrice,exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,startForActivityResult)
-
-            exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
-                ?: 0] = krwCoinListElement
+                    ?: 0] = krwCoinListElement
+            }
         }
     }
 }
