@@ -62,11 +62,12 @@ class ExchangeViewModel @Inject constructor(
 
     val userSeedMoney = mutableStateOf(0L)
     var userHoldCoinList = emptyList<MyCoin?>()
+    val userHoldCoinHashMap = HashMap<String,MyCoin>()
     var totalPurchase = mutableStateOf(0.0)
-    val TotalHoldings = mutableStateOf("")
+    val totalHoldings = mutableStateOf("")
     var userHoldCoinsMarket = StringBuffer()
-    val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-    val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
     val loadingComplete = mutableStateOf(false)
@@ -348,10 +349,10 @@ class ExchangeViewModel @Inject constructor(
             krwExchangeModelMutableStateList[i] =
                 krwExchangeModelList[i]
         }
-
         isSocketRunning = true
     }
 
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     fun getUserSeedMoney() {
         viewModelScope.launch(Dispatchers.IO) {
             userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
@@ -360,7 +361,7 @@ class ExchangeViewModel @Inject constructor(
 
     fun getUserHoldCoins() {
         viewModelScope.launch(Dispatchers.IO) {
-            if(loadingComplete.value) {
+            if (loadingComplete.value) {
                 loadingComplete.value = false
             }
             var localTotalPurchase = 0.0
@@ -376,6 +377,7 @@ class ExchangeViewModel @Inject constructor(
                     val symbol = userHoldCoin.symbol
                     val quantity = userHoldCoin.quantity
                     val purchaseAverage = userHoldCoin.purchasePrice
+                    userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
                     localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                     userHoldCoinDtoList.add(
@@ -409,6 +411,48 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
+    fun sortUserHoldCoin(sortStandard: Int) {
+        isPortfolioSocketRunning = false
+        when (sortStandard) {
+            0 -> {
+                tempUserHoldCoinDtoList.sortByDescending { element ->
+                    element.myCoinsKoreanName
+                }
+            }
+            1 -> {
+                tempUserHoldCoinDtoList.sortBy { element ->
+                    element.myCoinsKoreanName
+                }
+            }
+            2 -> {
+                tempUserHoldCoinDtoList.sortBy { element ->
+                    element.myCoinsBuyingAverage / element.currentPrice
+                }
+            }
+            3 -> {
+                tempUserHoldCoinDtoList.sortByDescending { element ->
+                    element.myCoinsBuyingAverage / element.currentPrice
+                }
+            }
+            else -> {
+                tempUserHoldCoinDtoList.sortBy { element ->
+                    element.myCoinsKoreanName
+                }
+            }
+        }
+
+        for (i in tempUserHoldCoinDtoList.indices) {
+            userHoldCoinDtoListPositionHashMap["KRW-".plus(tempUserHoldCoinDtoList[i].myCoinsSymbol)] =
+                i
+        }
+
+        for (i in tempUserHoldCoinDtoList.indices) {
+            userHoldCoinDtoList[i] = tempUserHoldCoinDtoList[i]
+        }
+
+        isPortfolioSocketRunning = true
+    }
+
     private fun updateUserHoldCoins() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isPortfolioSocketRunning) {
@@ -423,7 +467,6 @@ class ExchangeViewModel @Inject constructor(
             }
         }
     }
-
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (isSocketRunning) {
@@ -447,7 +490,7 @@ class ExchangeViewModel @Inject constructor(
         if (isPortfolioSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
             val position = userHoldCoinDtoListPositionHashMap[model.code] ?: -1
-            val userHoldCoin = userHoldCoinList[position]!!
+            val userHoldCoin = userHoldCoinHashMap[model.code]!!
             tempUserHoldCoinDtoList[position] =
                 UserHoldCoinDTO(
                     krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",

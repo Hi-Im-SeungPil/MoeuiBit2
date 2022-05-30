@@ -1,6 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.AskBidDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
@@ -271,6 +274,7 @@ fun OrderScreenQuantityDropDown(
         }
     }
 }
+
 @Composable
 fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     Row(
@@ -359,6 +363,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         mutableStateOf(0.0)
     }
     val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -441,7 +446,9 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             }
         }
         TextButton(
-            onClick = { }, modifier = Modifier
+            onClick = {
+                coinDetailViewModel.askBidDialogState.value = true
+            }, modifier = Modifier
                 .padding(0.dp, 5.dp)
                 .fillMaxWidth()
                 .background(buttonBackground)
@@ -453,6 +460,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 fontSize = 18.sp
             )
         }
+        AskBidDialog(visible = coinDetailViewModel.askBidDialogState.value, coinDetailViewModel = coinDetailViewModel)
     }
 }
 

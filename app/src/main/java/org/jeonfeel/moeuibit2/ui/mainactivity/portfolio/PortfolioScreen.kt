@@ -1,6 +1,9 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -8,6 +11,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +33,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
+import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.getButtonBackgroundColor
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
@@ -71,7 +77,7 @@ fun PortfolioScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            if(exchangeViewModel.loadingComplete.value) {
+            if (exchangeViewModel.loadingComplete.value) {
                 UserHoldCoinLazyColumn(exchangeViewModel)
             }
         }
@@ -98,7 +104,29 @@ fun PortfolioMain(exchangeViewModel: ExchangeViewModel = viewModel()) {
             (exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value) / exchangeViewModel.totalPurchase.value * 100
         )
     }
-
+    val portfolioOrderState = remember {
+        mutableStateOf(-1)
+    }
+//    val orderByNameTextInfo = getTextColors(buttonNum = 1, textState = portfolioOrderState.value)
+//    val orderByRateTextInfo = getTextColors(buttonNum = 2, textState = portfolioOrderState.value)
+    val orderByNameTextInfo = remember {
+        mutableStateOf(
+            listOf(
+                "이름↓↑",
+                Color.Black,
+                Color.White
+            )
+        )
+    }
+    val orderByRateTextInfo = remember {
+        mutableStateOf(
+            listOf(
+                "수익률↓↑",
+                Color.Black,
+                Color.White
+            )
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -152,9 +180,60 @@ fun PortfolioMain(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
             )
         }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = orderByNameTextInfo.value[0] as String,
+                modifier = Modifier
+                    .weight(1f)
+                    .background(color = orderByNameTextInfo.value[2] as Color)
+                    .clickable() {
+                        if (exchangeViewModel.isPortfolioSocketRunning) {
+                            if (portfolioOrderState.value != 0 && portfolioOrderState.value != 1) {
+                                portfolioOrderState.value = 0
+                            } else if (portfolioOrderState.value == 0) {
+                                portfolioOrderState.value = 1
+                            } else {
+                                portfolioOrderState.value = -1
+                            }
+                            orderByNameTextInfo.value = getTextColors(1,portfolioOrderState.value)
+                            orderByRateTextInfo.value = getTextColors(2,portfolioOrderState.value)
+                            exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        }
+                    },
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                style = TextStyle(color = orderByNameTextInfo.value[1] as Color)
+            )
+            Text(
+                text = orderByRateTextInfo.value[0] as String,
+                modifier = Modifier
+                    .weight(1f)
+                    .background(color = orderByRateTextInfo.value[2] as Color)
+                    .clickable {
+                        if (exchangeViewModel.isPortfolioSocketRunning) {
+                            if (portfolioOrderState.value != 2 && portfolioOrderState.value != 3) {
+                                portfolioOrderState.value = 2
+                            } else if (portfolioOrderState.value == 2) {
+                                portfolioOrderState.value = 3
+                            } else {
+                                portfolioOrderState.value = -1
+                            }
+                            orderByNameTextInfo.value = getTextColors(1,portfolioOrderState.value)
+                            orderByRateTextInfo.value = getTextColors(2,portfolioOrderState.value)
+                            exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        }
+                    },
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                style = TextStyle(color = orderByRateTextInfo.value[1] as Color)
+            )
+        }
     }
 }
-
 
 @Composable
 fun RowScope.PortfolioMainItem(
@@ -267,22 +346,27 @@ fun UserHoldCoinLazyColumn(exchangeViewModel: ExchangeViewModel) {
             PortfolioMain(exchangeViewModel)
         }
         itemsIndexed(items = userHoldCoinDtoList) { _, item ->
-            if(userHoldCoinDtoList.isNotEmpty()) {
+            if (userHoldCoinDtoList.isNotEmpty()) {
                 val koreanName = item.myCoinsKoreanName
                 val symbol = item.myCoinsSymbol
-                val purchaseAmount = round(item.myCoinsQuantity * item.myCoinsBuyingAverage).toLong()
+                val purchaseAmount =
+                    round(item.myCoinsQuantity * item.myCoinsBuyingAverage).toLong()
                 val evaluationAmount = round(item.myCoinsQuantity * item.currentPrice).toLong()
                 val purchaseAverage = item.myCoinsBuyingAverage
                 val valuationGainOrLoss = evaluationAmount - purchaseAmount
                 val coinQuantity = Calculator.getDecimalDecimalFormat().format(item.myCoinsQuantity)
-                val aReturn = if(((item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).isNaN()) {
-                    0
-                } else{
-                    String.format("%.2f",(item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100)
-                }
-                val color = if(valuationGainOrLoss > 0) {
+                val aReturn =
+                    if (((item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).isNaN()) {
+                        0
+                    } else {
+                        String.format(
+                            "%.2f",
+                            (item.currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100
+                        )
+                    }
+                val color = if (valuationGainOrLoss > 0) {
                     Color.Red
-                } else if(valuationGainOrLoss < 0) {
+                } else if (valuationGainOrLoss < 0) {
                     Color.Blue
                 } else {
                     Color.Black
@@ -402,7 +486,7 @@ fun UserHoldCoinLazyColumnItem(
                 .wrapContentHeight()
         ) {
             UserHoldCoinLazyColumnItemContent(coinQuantity, symbol, "보유수량")
-            Log.d(symbol,coinQuantity.toString())
+            Log.d(symbol, coinQuantity.toString())
             UserHoldCoinLazyColumnItemContent(purchaseAverage, "KRW", "매수평균가")
         }
         Row(
@@ -418,7 +502,12 @@ fun UserHoldCoinLazyColumnItem(
 }
 
 @Composable
-fun RowScope.UserHoldCoinLazyColumnItemContent(text1: String, text2: String, text3: String, color: Color = Color.Black) {
+fun RowScope.UserHoldCoinLazyColumnItemContent(
+    text1: String,
+    text2: String,
+    text3: String,
+    color: Color = Color.Black
+) {
     Column(
         modifier = Modifier
             .weight(1f)
@@ -456,6 +545,48 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(text1: String, text2: String, tex
 //fun preview() {
 //    UserHoldCoinLazyColumnItem()
 //}
+private fun getTextColors(buttonNum: Int, textState: Int): List<Any> {
+    return when (buttonNum) {
+        1 -> {
+            when (textState) {
+                0 -> {
+                    listOf("이름↓", Color.White, Color.Magenta)
+                }
+                1 -> {
+                    listOf("이름↑", Color.White, Color.Magenta)
+                }
+                else -> {
+                    listOf(
+                        "이름↓↑",
+                        Color.Black,
+                        Color.White
+                    )
+                }
+            }
+        }
+        2 -> {
+            when (textState) {
+                2 -> {
+                    listOf("수익률↓", Color.White, Color.Magenta)
+                }
+                3 -> {
+                    listOf("수익률↑", Color.White, Color.Magenta)
+                }
+                else -> {
+                    listOf(
+                        "수익률↓↑",
+                        Color.Black,
+                        Color.White
+                    )
+                }
+            }
+        }
+        else -> {
+            listOf("수익률아래", Color.White, Color.Black)
+        }
+    }
+}
+
 
 @Composable
 fun getReturnTextColor(colorStandard: Long, text5: String): Color {

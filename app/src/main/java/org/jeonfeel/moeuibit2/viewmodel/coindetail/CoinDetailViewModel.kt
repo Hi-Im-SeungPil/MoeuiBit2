@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.viewmodel.coindetail
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -68,6 +69,7 @@ class CoinDetailViewModel @Inject constructor(
     val askDropdownText = mutableStateOf("")
     val bidQuantity = mutableStateOf("")
     val askQuantity = mutableStateOf("")
+    val askBidDialogState = mutableStateOf(false)
 
     /**
      * coin info

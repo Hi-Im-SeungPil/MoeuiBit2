@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
@@ -80,7 +82,8 @@ fun ExchangeScreenLazyColumnItem(
         Column(
             Modifier
                 .weight(1f)
-                .align(Alignment.Bottom)) {
+                .align(Alignment.Bottom)
+        ) {
             Text(
                 text = koreanName,
                 maxLines = 1,
@@ -91,7 +94,8 @@ fun ExchangeScreenLazyColumnItem(
                 style = TextStyle(textAlign = TextAlign.Center),
                 overflow = TextOverflow.Ellipsis
             )
-            Text(text = "${krwExchangeModel.symbol}/KRW",
+            Text(
+                text = "${krwExchangeModel.symbol}/KRW",
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -102,9 +106,14 @@ fun ExchangeScreenLazyColumnItem(
             )
         }
 
-        Box(modifier = getTradePriceTextModifier(preTradePrice,
-            curTradePrice).weight(1f)) {
-            Text(text = getCurTradePriceTextFormat(curTradePrice),
+        Box(
+            modifier = getTradePriceTextModifier(
+                preTradePrice,
+                curTradePrice
+            ).weight(1f)
+        ) {
+            Text(
+                text = getCurTradePriceTextFormat(curTradePrice),
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
@@ -123,8 +132,9 @@ fun ExchangeScreenLazyColumnItem(
             )
         }
 
-        Text(text = signedChangeRate
-            .plus("%"),
+        Text(
+            text = signedChangeRate
+                .plus("%"),
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
@@ -142,13 +152,15 @@ fun ExchangeScreenLazyColumnItem(
             }
         )
 
-        Text(text = accTradePrice24h
-            .plus("백만"),
+        Text(
+            text = accTradePrice24h
+                .plus("백만"),
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .wrapContentHeight(),
-            style = TextStyle(textAlign = TextAlign.Center))
+            style = TextStyle(textAlign = TextAlign.Center)
+        )
     }
 }
 
@@ -158,15 +170,38 @@ fun ExchangeScreenLazyColumn(
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
     val filteredKrwExchangeList = exchangeViewModel.getFilteredKrwCoinList()
-    if(filteredKrwExchangeList.isEmpty()) {
-        Text(text = "등록된 관심코인이 없습니다.")
+    if (filteredKrwExchangeList.isEmpty() && exchangeViewModel.showFavorite.value) {
+        Text(
+            text = "등록된 관심코인이 없습니다.",
+            modifier = Modifier
+                .fillMaxSize()
+                .wrapContentHeight(),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+    } else if (filteredKrwExchangeList.isEmpty() && !exchangeViewModel.showFavorite.value && exchangeViewModel.searchTextFieldValue.value.isNotEmpty()) {
+        Text(
+            text = "일치하는 코인이 없습니다.",
+            modifier = Modifier
+                .padding(0.dp,20.dp,0.dp,0.dp)
+                .fillMaxSize(),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            itemsIndexed(items = filteredKrwExchangeList
+            itemsIndexed(
+                items = filteredKrwExchangeList
             ) { _, krwCoinListElement ->
-                ExchangeScreenLazyColumnItem(krwCoinListElement,
+                ExchangeScreenLazyColumnItem(
+                    krwCoinListElement,
                     exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
-                        ?: 0].tradePrice,exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,startForActivityResult)
+                        ?: 0].tradePrice,
+                    exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,
+                    startForActivityResult
+                )
 
                 exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
                     ?: 0] = krwCoinListElement
