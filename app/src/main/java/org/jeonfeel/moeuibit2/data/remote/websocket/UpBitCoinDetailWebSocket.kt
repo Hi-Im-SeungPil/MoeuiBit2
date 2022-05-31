@@ -53,7 +53,7 @@ object UpBitCoinDetailWebSocket {
         currentSocketState = SOCKET_IS_NO_CONNECTION
         if (retryCount <= 10) {
             requestCoinDetailData(market)
+            retryCount++
         }
-        retryCount++
     }
 }

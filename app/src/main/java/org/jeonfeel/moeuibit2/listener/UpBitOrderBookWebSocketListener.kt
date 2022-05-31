@@ -42,8 +42,12 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.d("onFailure",t.message.toString())
-        UpBitOrderBookWebSocket.onFail()
+        Log.d("orderbook onFailure",t.message.toString())
+        if(UpBitOrderBookWebSocket.retryCount <= 10) {
+            UpBitOrderBookWebSocket.onFail()
+        } else {
+            UpBitOrderBookWebSocket.onPause()
+        }
     }
 
     companion object {

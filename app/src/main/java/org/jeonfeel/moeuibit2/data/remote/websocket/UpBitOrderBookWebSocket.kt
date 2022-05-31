@@ -57,7 +57,7 @@ object UpBitOrderBookWebSocket {
         if (retryCount <= 10) {
             Log.d("onfail", "호출")
             requestOrderBookList(market)
+            retryCount++
         }
-        retryCount++
     }
 }

@@ -9,6 +9,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,9 +76,9 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             else -> {}
         }
     }
-    if(coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
-        CoinInfoContent(selected,selectedButton,context,coinInfoHashMap,flex)
-    } else if(coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
+    if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
+        CoinInfoContent(selected, selectedButton, context, coinInfoHashMap, flex)
+    } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }
 }
@@ -92,116 +94,118 @@ fun CoinInfoContent(
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
-                .height(40.dp)
                 .fillMaxWidth()
+                .wrapContentHeight()
         ) {
 
-            TextButton(
-                onClick = {
-                    selected.value = coinInfoHashMap.value["block"]!!
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                    context.startActivity(intent)
-                },
+            Text(
+                text = "블럭조회",
+                fontSize = 14.sp,
+                style = TextStyle(
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline,
+                    textAlign = TextAlign.Center
+                ),
                 modifier = Modifier
+                    .padding(0.dp, 4.dp)
                     .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = "블럭조회",
-                    fontSize = 12.sp,
-                    style = TextStyle(
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline
-                    )
-                )
-            }
+                    .wrapContentHeight()
+                    .clickable {
+                        selected.value = coinInfoHashMap.value["block"]!!
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
+                        context.startActivity(intent)
+                    }
+                    .padding(0.dp, 5.dp)
+            )
 
-            TextButton(
-                onClick = {
-                    selected.value = coinInfoHashMap.value["homepage"]!!
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                    context.startActivity(intent)
-                },
+            Text(
+                text = "홈페이지",
+                fontSize = 14.sp,
+                style = TextStyle(
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline,
+                    textAlign = TextAlign.Center
+                ),
                 modifier = Modifier
+                    .padding(0.dp, 4.dp)
                     .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = "홈페이지",
-                    fontSize = 12.sp,
-                    style = TextStyle(
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline
-                    )
-                )
-            }
+                    .wrapContentHeight()
+                    .clickable {
+                        selected.value = coinInfoHashMap.value["homepage"]!!
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
+                        context.startActivity(intent)
+                    }
+                    .padding(0.dp, 5.dp)
+            )
 
-            TextButton(
-                onClick = {
-                    selected.value = coinInfoHashMap.value["info"]!!
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                    context.startActivity(intent)
-                },
+            Text(
+                text = "정보",
+                fontSize = 14.sp,
+                style = TextStyle(
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline,
+                    textAlign = TextAlign.Center
+                ),
                 modifier = Modifier
+                    .padding(0.dp, 4.dp)
                     .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = "정보",
-                    fontSize = 12.sp,
-                    style = TextStyle(
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline
-                    )
-                )
-            }
-            TextButton(
-                onClick = {
-                    selectedButton.value = 4
-                    selected.value = coinInfoHashMap.value["twitter"]!!
-                    flex.loadData(
-                        "<a class=\"twitter-timeline\" href=\"${selected.value}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>",
-                        "text/html; charset=utf-8",
-                        "UTF-8"
-                    )
-                },
+                    .wrapContentHeight()
+                    .clickable {
+                        selected.value = coinInfoHashMap.value["info"]!!
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
+                        context.startActivity(intent)
+                    }
+                    .padding(0.dp, 5.dp)
+            )
+
+            Text(
+                text = "트위터",
+                fontSize = 14.sp,
                 modifier = getButtonModifier(selectedButton.value, 4)
                     .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = "트위터",
-                    fontSize = 12.sp,
-                    style = TextStyle(color = getTextColor(selectedButton.value, 4))
+                    .wrapContentHeight()
+                    .clickable {
+                        selectedButton.value = 4
+                        selected.value = coinInfoHashMap.value["twitter"]!!
+                        flex.loadData(
+                            "<a class=\"twitter-timeline\" href=\"${selected.value}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>",
+                            "text/html; charset=utf-8",
+                            "UTF-8"
+                        )
+                    }
+                    .padding(0.dp, 5.dp),
+                style = TextStyle(
+                    color = getTextColor(selectedButton.value, 4),
+                    textAlign = TextAlign.Center
                 )
-            }
+            )
 
-            TextButton(
-                onClick = {
-                    selectedButton.value = 5
-                    selected.value = coinInfoHashMap.value["amount"]!!
-                    flex.loadUrl(selected.value)
-                },
+            Text(
+                text = "시가총액",
+                fontSize = 14.sp,
+                style = TextStyle(
+                    color = getTextColor(selectedButton.value, 5),
+                    textAlign = TextAlign.Center
+                ),
                 modifier = getButtonModifier(selectedButton.value, 5)
                     .weight(1f)
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    text = "시가총액",
-                    fontSize = 12.sp,
-                    style = TextStyle(color = getTextColor(selectedButton.value, 5))
-                )
-            }
+                    .wrapContentHeight()
+                    .clickable {
+                        selectedButton.value = 5
+                        selected.value = coinInfoHashMap.value["amount"]!!
+                        flex.loadUrl(selected.value)
+                    }
+                    .padding(0.dp, 5.dp)
+            )
         }
 
         AndroidView(
-            factory = { context ->
+            factory = {
                 flex
             }, modifier = Modifier
                 .fillMaxHeight()
                 .wrapContentWidth()
                 .padding(10.dp, 0.dp)
-                .border(1.dp, Color.DarkGray)
         )
     }
 }
@@ -209,9 +213,11 @@ fun CoinInfoContent(
 @Composable
 fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
     return if (selectedButton == buttonId) {
-        Modifier.border(1.dp, colorResource(id = R.color.C0F0F5C))
-    } else {
         Modifier
+            .padding(0.dp, 4.dp)
+            .border(1.dp, colorResource(id = R.color.C0F0F5C))
+    } else {
+        Modifier.padding(0.dp, 4.dp)
     }
 }
 

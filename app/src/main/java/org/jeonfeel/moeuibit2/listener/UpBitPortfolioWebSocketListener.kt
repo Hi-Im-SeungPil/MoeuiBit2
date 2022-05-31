@@ -12,40 +12,49 @@ class UpBitPortfolioWebSocketListener: WebSocketListener() {
     private var messageListener: PortfolioOnTickerMessageReceiveListener? = null
 
     fun setPortfolioMessageListener(portfolioOnTickerMessageReceiveListener: PortfolioOnTickerMessageReceiveListener?) {
-        if (portfolioOnTickerMessageReceiveListener != null && this.messageListener !== portfolioOnTickerMessageReceiveListener) {
+        if (this.messageListener !== portfolioOnTickerMessageReceiveListener) {
             this.messageListener = portfolioOnTickerMessageReceiveListener
+            Log.e("portfolio Socket", "setListener")
         }
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
         UpBitPortfolioWebSocket.retryCount = 0
+        Log.e("portfolio Socket", "open")
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.e("TAG", "Receiving $text")
+        Log.e("portfolio Socket", "Receiving $text")
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
+        Log.e("portfolio Socket", "onMessage")
         messageListener?.portfolioOnTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
+        Log.e("portfolio Socket", "onClosing")
         webSocket.close(NORMAL_CLOSURE_STATUS, null)
         webSocket.cancel()
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
+        Log.e("portfolio Socket", "Closed")
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.e("Socket", "Error => ${t.message}")
-        UpBitPortfolioWebSocket.onFail()
+        Log.e("portfolio Socket", "Error1 => ${t.message}")
+        if(UpBitPortfolioWebSocket.retryCount <= 10) {
+            UpBitPortfolioWebSocket.onFail()
+        } else {
+            UpBitPortfolioWebSocket.onPause()
+        }
     }
 
     companion object {

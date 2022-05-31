@@ -43,8 +43,12 @@ class UpBitCoinDetailWebSocketListener: WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        UpBitCoinDetailWebSocket.onFail()
-        Log.e("Socket", "Error => ${t.message}")
+        if(UpBitCoinDetailWebSocket.retryCount <= 10) {
+            UpBitCoinDetailWebSocket.onFail()
+        } else {
+            UpBitCoinDetailWebSocket.onPause()
+        }
+        Log.e("detail Socket", "Error => ${t.message}")
     }
 
     companion object{

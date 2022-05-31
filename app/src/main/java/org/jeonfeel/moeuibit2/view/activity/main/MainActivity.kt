@@ -16,8 +16,10 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
+import org.jeonfeel.moeuibit2.util.ConnectionType
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
@@ -56,10 +58,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initNetworkStateMonitor() {
-        networkMonitorUtil.result = { isAvailable, _ ->
+        networkMonitorUtil.result = { isAvailable, type ->
             when (isAvailable) {
                 true -> {
-                    if (currentNetworkState != INTERNET_CONNECTION) {
+                    if (type == ConnectionType.Wifi) {
+                        currentNetworkState = INTERNET_CONNECTION
+                    } else if(type == ConnectionType.Cellular) {
                         currentNetworkState = INTERNET_CONNECTION
                     }
                 }
@@ -67,6 +71,9 @@ class MainActivity : ComponentActivity() {
                     if (currentNetworkState != NO_INTERNET_CONNECTION) {
                         currentNetworkState = NO_INTERNET_CONNECTION
                         exchangeViewModel.errorState.value = NO_INTERNET_CONNECTION
+                        UpBitTickerWebSocket.onPause()
+                        UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                        exchangeViewModel.isSocketRunning = false
                     }
                 }
             }

@@ -64,7 +64,7 @@ class ChartUseCase @Inject constructor(
         } else {
             remoteRepository.getMinuteCandleService(candleType, market)
         }
-        if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+        if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
             val positiveBarEntries = ArrayList<BarEntry>()
             val negativeBarEntries = ArrayList<BarEntry>()
             candlePosition = 0f
@@ -146,7 +146,7 @@ class ChartUseCase @Inject constructor(
         } else {
             remoteRepository.getMinuteCandleService(candleType, market, "200", time)
         }
-        if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+        if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
             val startPosition = combinedChart.lowestVisibleX
             val currentVisible = combinedChart.visibleXRange
             val tempCandleEntries = ArrayList<CandleEntry>()
@@ -177,7 +177,6 @@ class ChartUseCase @Inject constructor(
                         model.tradePrice.toFloat()
                     )
                 )
-
                 if (model.tradePrice - model.openingPrice >= 0.0) {
                     tempPositiveBarEntries.add(
                         BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
@@ -187,7 +186,6 @@ class ChartUseCase @Inject constructor(
                         BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
                     )
                 }
-
                 kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
                 accData[tempCandlePosition.toInt()] = model.candleAccTradePrice
                 tempCandlePosition += 1f
@@ -237,7 +235,7 @@ class ChartUseCase @Inject constructor(
             } else {
                 remoteRepository.getMinuteCandleService(candleType.value, market, "1")
             }
-            if (response.isSuccessful && response.body()?.size() ?: JsonArray() != 0) {
+            if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
                 val newData = response.body()
                 val model = gson.fromJson(newData!!.first(), ChartModel::class.java)
                 if (kstTime != model.candleDateTimeKst) {

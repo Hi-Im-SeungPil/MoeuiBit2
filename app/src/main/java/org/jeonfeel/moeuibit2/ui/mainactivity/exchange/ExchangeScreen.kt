@@ -7,12 +7,16 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
@@ -29,9 +33,14 @@ fun ExchangeScreen(
         var backBtnTime = remember{
             0L
         }
-        OnLifecycleEvent{ _, event ->
+
+        OnLifecycleEvent { _, event ->
             when (event) {
-                Lifecycle.Event.ON_PAUSE -> UpBitTickerWebSocket.onPause()
+                Lifecycle.Event.ON_PAUSE -> {
+                    exchangeViewModel.isSocketRunning = false
+                    UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                    UpBitTickerWebSocket.onPause()
+                }
                 Lifecycle.Event.ON_RESUME -> {
                     exchangeViewModel.initViewModel()
                 }

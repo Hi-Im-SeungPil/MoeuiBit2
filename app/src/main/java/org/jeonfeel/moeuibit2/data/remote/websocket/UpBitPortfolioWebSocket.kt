@@ -52,7 +52,7 @@ object UpBitPortfolioWebSocket {
         currentSocketState = SOCKET_IS_NO_CONNECTION
         if (retryCount <= 10) {
             requestKrwCoinList()
+            retryCount++
         }
-        retryCount++
     }
 }

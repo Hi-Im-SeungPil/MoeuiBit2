@@ -12,7 +12,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     private var messageListener: OnTickerMessageReceiveListener? = null
 
     fun setTickerMessageListener(onTickerMessageReceiveListener: OnTickerMessageReceiveListener?) {
-        if (onTickerMessageReceiveListener != null && this.messageListener !== onTickerMessageReceiveListener) {
+        if (this.messageListener !== onTickerMessageReceiveListener) {
             this.messageListener = onTickerMessageReceiveListener
         }
     }
@@ -44,8 +44,12 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.e("Socket", "Error => ${t.message}")
-        UpBitTickerWebSocket.onFail()
+        Log.e("ticker Socket", "Error => ${t.message}")
+        if(UpBitTickerWebSocket.retryCount <= 10){
+            UpBitTickerWebSocket.onFail()
+        } else {
+            UpBitTickerWebSocket.onPause()
+        }
     }
 
     companion object {

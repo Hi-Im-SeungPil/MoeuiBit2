@@ -9,10 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
@@ -41,10 +39,16 @@ import kotlin.math.round
 @Composable
 fun PortfolioScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
 
+
     OnLifecycleEvent { _, event ->
         when (event) {
-            Lifecycle.Event.ON_PAUSE -> UpBitPortfolioWebSocket.onPause()
+            Lifecycle.Event.ON_PAUSE -> {
+                exchangeViewModel.isPortfolioSocketRunning = false
+                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+                UpBitPortfolioWebSocket.onPause()
+            }
             Lifecycle.Event.ON_RESUME -> {
+                exchangeViewModel.isPortfolioSocketRunning = true
                 exchangeViewModel.getUserHoldCoins()
             }
             else -> {}
@@ -134,7 +138,7 @@ fun PortfolioMain(
                     val strokeWidth = 2f
                     val y = size.height
                     drawLine(
-                        brush = SolidColor(Color.LightGray),
+                        brush = SolidColor(Color.DarkGray),
                         strokeWidth = strokeWidth,
                         cap = StrokeCap.Square,
                         start = Offset.Zero.copy(y = y),
@@ -166,11 +170,26 @@ fun PortfolioMain(
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .drawWithContent {
+                drawContent()
+                clipRect {
+                    val strokeWidth = 2f
+                    val y = size.height
+                    drawLine(
+                        brush = SolidColor(Color.DarkGray),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Square,
+                        start = Offset.Zero.copy(y = y),
+                        end = Offset(x = size.width, y = y)
+                    )
+                }
+            }
         ) {
             Text(
                 text = orderByNameTextInfo[0] as String,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .background(color = orderByNameTextInfo[2] as Color)
                     .clickable() {
                         if (exchangeViewModel.isPortfolioSocketRunning) {
@@ -183,7 +202,8 @@ fun PortfolioMain(
                             }
                             exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
                         }
-                    },
+                    }
+                    .padding(0.dp, 8.dp),
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 style = TextStyle(color = orderByNameTextInfo[1] as Color)
@@ -192,6 +212,7 @@ fun PortfolioMain(
                 text = orderByRateTextInfo[0] as String,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .background(color = orderByRateTextInfo[2] as Color)
                     .clickable {
                         if (exchangeViewModel.isPortfolioSocketRunning) {
@@ -204,7 +225,8 @@ fun PortfolioMain(
                             }
                             exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
                         }
-                    },
+                    }
+                    .padding(0.dp,8.dp),
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 style = TextStyle(color = orderByRateTextInfo[1] as Color)
@@ -474,7 +496,6 @@ fun UserHoldCoinLazyColumnItem(
                 .wrapContentHeight()
         ) {
             UserHoldCoinLazyColumnItemContent(coinQuantity, symbol, "보유수량")
-            Log.d(symbol, coinQuantity.toString())
             UserHoldCoinLazyColumnItemContent(purchaseAverage, "KRW", "매수평균가")
         }
         Row(

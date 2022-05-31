@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -39,8 +40,8 @@ class ExchangeViewModel @Inject constructor(
     private val TAG = ExchangeViewModel::class.java.simpleName
     private val gson = Gson()
     val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
-    var isSocketRunning = true
-    var isPortfolioSocketRunning = true
+    var isSocketRunning = false
+    var isPortfolioSocketRunning = false
 
     private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
     private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
@@ -75,17 +76,12 @@ class ExchangeViewModel @Inject constructor(
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
-            setWebSocketMessageListener()
+            UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
             requestData()
             requestFavoriteData()
         } else {
             requestKrwCoinList()
         }
-    }
-
-    private fun setWebSocketMessageListener() {
-        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(this)
     }
 
     /**
@@ -96,11 +92,14 @@ class ExchangeViewModel @Inject constructor(
         when (currentNetworkState) {
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
-                    val loadingJob = withTimeoutOrNull(4900L) {
+                    val loadingJob = withTimeoutOrNull(9900L) {
                         requestKrwMarketCode()
                         requestKrwTicker(krwCoinListStringBuffer.toString())
                         createKrwExchangeModelList()
-                        updateExchange()
+                        if(!isSocketRunning) {
+                            isSocketRunning = true
+                            updateExchange()
+                        }
                         if (errorState.value != INTERNET_CONNECTION) {
                             errorState.value = INTERNET_CONNECTION
                         }
@@ -109,11 +108,13 @@ class ExchangeViewModel @Inject constructor(
                     if (loadingJob == null) {
                         errorState.value = NETWORK_ERROR
                         loading.value = false
+                        isSocketRunning = false
                     }
                 }
             }
             else -> {
                 loading.value = false
+                isSocketRunning = false
                 errorState.value = currentNetworkState
             }
         }
@@ -202,6 +203,7 @@ class ExchangeViewModel @Inject constructor(
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isSocketRunning) {
+                Log.d("aaaa2","aaaa2")
                 for (i in krwExchangeModelMutableStateList.indices) {
                     krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
                 }
@@ -213,6 +215,10 @@ class ExchangeViewModel @Inject constructor(
     private fun requestKrwCoinList() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
         UpBitTickerWebSocket.requestKrwCoinList()
+        if(!isSocketRunning) {
+            isSocketRunning = true
+            updateExchange()
+        }
     }
 
     private fun requestFavoriteData() {
@@ -401,6 +407,7 @@ class ExchangeViewModel @Inject constructor(
                 userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
                 UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
                 totalPurchase.value = localTotalPurchase
+                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(this@ExchangeViewModel)
                 UpBitPortfolioWebSocket.requestKrwCoinList()
                 updateUserHoldCoins()
                 loadingComplete.value = true
