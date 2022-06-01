@@ -1,24 +1,25 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,165 +53,143 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
             modifier = Modifier
                 .weight(1f), text = ""
         )
-//--------------------------------------------------------------------------------------------------
-        TextButton(onClick = {
-            if (exchangeViewModel.isSocketRunning) {
-                when {
-                    selectedButtonState.value != 0 && selectedButtonState.value != 1 -> {
-                        selectedButtonState.value = 0
-                    }
-                    selectedButtonState.value == 0 -> {
-                        selectedButtonState.value = 1
-                    }
-                    else -> {
-                        selectedButtonState.value = -1
-                    }
-                }
-                exchangeViewModel.sortList(selectedButtonState.value)
-            }
-        }, modifier = Modifier
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
-            .weight(1f),
-            colors = getButtonBackgroundColor(buttonNum = 1,
-                buttonState = selectedButtonState.value),
-            shape = RectangleShape) {
-            when (selectedButtonState.value) {
-                0 -> {
-                    Text(text = "현재가↓",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.White))
-                }
-                1 -> {
-                    Text(text = "현재가↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.White))
-                }
-                else -> {
-                    Text(text = "현재가↓↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.Black))
-                }
-            }
-        }
-//--------------------------------------------------------------------------------------------------
-        TextButton(onClick = {
-            if(exchangeViewModel.isSocketRunning) {
-                when {
-                    selectedButtonState.value != 2 && selectedButtonState.value != 3 -> {
-                        selectedButtonState.value = 2
-                    }
-                    selectedButtonState.value == 2 -> {
-                        selectedButtonState.value = 3
-                    }
-                    else -> {
-                        selectedButtonState.value = -1
-                    }
-                }
-                exchangeViewModel.sortList(selectedButtonState.value)
-            }
-        }, modifier = Modifier
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
-            .weight(1f),
-            colors = getButtonBackgroundColor(buttonNum = 2,
-                buttonState = selectedButtonState.value),
-            shape = RectangleShape) {
-            when (selectedButtonState.value) {
-                2 -> {
-                    Text(text = "전일대비↓",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        maxLines = 1,
-                        style = TextStyle(color = Color.White))
-                }
-                3 -> {
-                    Text(text = "전일대비↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        maxLines = 1,
-                        style = TextStyle(color = Color.White))
-                }
-                else -> {
-                    Text(text = "전일대비↓↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        maxLines = 1,
-                        style = TextStyle(color = Color.Black))
-                }
-            }
-        }
-//--------------------------------------------------------------------------------------------------
-        TextButton(onClick = {
-            if(exchangeViewModel.isSocketRunning) {
-                when {
-                    selectedButtonState.value != 4 && selectedButtonState.value != 5 -> {
-                        selectedButtonState.value = 4
-                    }
-                    selectedButtonState.value == 4 -> {
-                        selectedButtonState.value = 5
-                    }
-                    else -> {
-                        selectedButtonState.value = -1
-                    }
-                }
-                exchangeViewModel.sortList(selectedButtonState.value)
-            }
-        }, modifier = Modifier
-            .padding(0.dp, 0.dp, 0.dp, 0.5.dp)
-            .weight(1f),
-            colors = getButtonBackgroundColor(buttonNum = 3,
-                buttonState = selectedButtonState.value),
-            shape = RectangleShape) {
-            when (selectedButtonState.value) {
-                4 -> {
-                    Text(text = "거래량↓",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.White))
-                }
-                5 -> {
-                    Text(text = "거래량↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.White))
-                }
-                else -> {
-                    Text(text = "거래량↓↑",
-                        modifier = Modifier.wrapContentHeight(),
-                        fontSize = 13.sp,
-                        style = TextStyle(color = Color.Black))
-                }
-            }
-        }
+        SortButton(1, selectedButtonState, exchangeViewModel)
+        SortButton(2, selectedButtonState, exchangeViewModel)
+        SortButton(3, selectedButtonState, exchangeViewModel)
     }
 }
 
 @Composable
-fun getButtonBackgroundColor(buttonNum: Int, buttonState: Int): ButtonColors {
+private fun RowScope.SortButton(
+    buttonNum: Int,
+    buttonState: MutableState<Int>,
+    exchangeViewModel: ExchangeViewModel,
+) {
+    val buttonText = remember {
+        mutableStateOf("")
+    }
+    val textColor = remember {
+        mutableStateOf(Color.Black)
+    }
+    val textBackground = remember {
+        mutableStateOf(Color.White)
+    }
     when (buttonNum) {
         1 -> {
-            return if (buttonState == 0 || buttonState == 1) {
-                ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.C0F0F5C))
-            } else {
-                ButtonDefaults.buttonColors(backgroundColor = Color.White)
+            when (buttonState.value) {
+                0 -> {
+                    buttonText.value = "현재가↓"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                1 -> {
+                    buttonText.value = "현재가↑"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                else -> {
+                    buttonText.value = "현재가↓↑"
+                    textColor.value = Color.Black
+                    textBackground.value = Color.White
+                }
             }
         }
         2 -> {
-            return if (buttonState == 2 || buttonState == 3) {
-                ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.C0F0F5C))
-            } else {
-                ButtonDefaults.buttonColors(backgroundColor = Color.White)
+            when (buttonState.value) {
+                2 -> {
+                    buttonText.value = "전일대비↓"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                3 -> {
+                    buttonText.value = "전일대비↑"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                else -> {
+                    buttonText.value = "전일대비↓↑"
+                    textColor.value = Color.Black
+                    textBackground.value = Color.White
+                }
             }
         }
         3 -> {
-            return if (buttonState == 4 || buttonState == 5) {
-                ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.C0F0F5C))
-            } else {
-                ButtonDefaults.buttonColors(backgroundColor = Color.White)
+            when (buttonState.value) {
+                4 -> {
+                    buttonText.value = "거래량↓"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                5 -> {
+                    buttonText.value = "거래량↑"
+                    textColor.value = Color.White
+                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                }
+                else -> {
+                    buttonText.value = "거래량↓↑"
+                    textColor.value = Color.Black
+                    textBackground.value = Color.White
+                }
             }
         }
-        else -> return ButtonDefaults.buttonColors(backgroundColor = Color.White)
     }
+    Text(text = buttonText.value,
+        modifier = Modifier
+            .weight(1f)
+            .clickable {
+                when (buttonNum) {
+                    1 -> {
+                        if (exchangeViewModel.isSocketRunning) {
+                            when {
+                                buttonState.value != 0 && buttonState.value != 1 -> {
+                                    buttonState.value = 0
+                                }
+                                buttonState.value == 0 -> {
+                                    buttonState.value = 1
+                                }
+                                else -> {
+                                    buttonState.value = -1
+                                }
+                            }
+                            exchangeViewModel.sortList(buttonState.value)
+                        }
+                    }
+                    2 -> {
+                        if (exchangeViewModel.isSocketRunning) {
+                            when {
+                                buttonState.value != 2 && buttonState.value != 3 -> {
+                                    buttonState.value = 2
+                                }
+                                buttonState.value == 2 -> {
+                                    buttonState.value = 3
+                                }
+                                else -> {
+                                    buttonState.value = -1
+                                }
+                            }
+                            exchangeViewModel.sortList(buttonState.value)
+                        }
+                    }
+                    3 -> {
+                        if (exchangeViewModel.isSocketRunning) {
+                            when {
+                                buttonState.value != 4 && buttonState.value != 5 -> {
+                                    buttonState.value = 4
+                                }
+                                buttonState.value == 4 -> {
+                                    buttonState.value = 5
+                                }
+                                else -> {
+                                    buttonState.value = -1
+                                }
+                            }
+                            exchangeViewModel.sortList(buttonState.value)
+                        }
+                    }
+                }
+            }
+            .align(Alignment.CenterVertically)
+            .background(textBackground.value)
+            .padding(0.dp, 7.dp),
+        style = TextStyle(color = textColor.value,fontSize = 13.sp, textAlign = TextAlign.Center))
 }

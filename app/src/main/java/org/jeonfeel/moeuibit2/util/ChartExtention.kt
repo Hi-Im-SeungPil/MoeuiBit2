@@ -232,7 +232,8 @@ fun CombinedChart.chartRefreshSetting(
     candleDataSet: CandleDataSet,
     positiveBarDataSet: BarDataSet,
     negativeBarDataSet: BarDataSet,
-    valueFormatter: XAxisValueFormatter,
+    lineData: LineData,
+    valueFormatter: XAxisValueFormatter
 ) {
     if (candleDataSet.entryCount != 0 && positiveBarDataSet.entryCount != 0 && negativeBarDataSet.entryCount != 0) {
         val chart = this
@@ -246,6 +247,7 @@ fun CombinedChart.chartRefreshSetting(
         val combinedData = CombinedData()
         combinedData.setData(candleData)
         combinedData.setData(barData)
+        combinedData.setData(lineData)
         chart.data = combinedData
 
         chart.candleData.notifyDataChanged()
@@ -269,6 +271,7 @@ fun CombinedChart.chartRefreshLoadMoreData(
     candleDataSet: CandleDataSet,
     positiveBarDataSet: BarDataSet,
     negativeBarDataSet: BarDataSet,
+    lineData: LineData,
     startPosition: Float,
     currentVisible: Float,
 ) {
@@ -282,6 +285,7 @@ fun CombinedChart.chartRefreshLoadMoreData(
     val combinedData = CombinedData()
     combinedData.setData(candleData)
     combinedData.setData(barData)
+    combinedData.setData(lineData)
     chart.data = combinedData
     chart.data.notifyDataChanged()
 

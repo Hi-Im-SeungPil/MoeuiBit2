@@ -54,7 +54,7 @@
 //import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart.GetRecentCoinChart
 //import android.widget.RadioGroup
 //import android.widget.RadioButton
-//import org.jeonfeel.moeuibit2.Fragment.Chart.GetMovingAverage
+//import org.jeonfeel.moeuibit2.Fragment.Chart.org.jeonfeel.moeuibit2.helper.GetMovingAverage
 //import android.os.Bundle
 //import android.view.LayoutInflater
 //import android.view.ViewGroup
@@ -176,7 +176,7 @@
 //    private var sumLine1 = 0f
 //    private var sumLine2 = 0f
 //    private var sumLine3 = 0f
-//    private var getMovingAverage: GetMovingAverage? = null
+//    private var getMovingAverage: org.jeonfeel.moeuibit2.helper.GetMovingAverage? = null
 //
 //    // TODO: Rename and change types of parameters
 //    constructor() {}
@@ -419,7 +419,7 @@
 //                barData!!.addDataSet(barDataSet)
 //                val maxValue = barData!!.getYMax(YAxis.AxisDependency.LEFT)
 //                //----------------------------------------------------------
-//                getMovingAverage = GetMovingAverage(candleEntries)
+//                getMovingAverage = org.jeonfeel.moeuibit2.helper.GetMovingAverage(candleEntries)
 //                lineData = getMovingAverage!!.createLineData()
 //                sumLine1 = getMovingAverage.getSumLine1()
 //                sumLine2 = getMovingAverage.getSumLine2()

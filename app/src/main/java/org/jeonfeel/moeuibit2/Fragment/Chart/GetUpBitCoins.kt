@@ -62,7 +62,7 @@
 //import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart.GetRecentCoinChart
 //import android.widget.RadioGroup
 //import android.widget.RadioButton
-//import org.jeonfeel.moeuibit2.Fragment.Chart.GetMovingAverage
+//import org.jeonfeel.moeuibit2.Fragment.Chart.org.jeonfeel.moeuibit2.helper.GetMovingAverage
 //import android.os.Bundle
 //import android.view.LayoutInflater
 //import android.view.ViewGroup

@@ -103,12 +103,12 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                                 lastCandle.x)
                                                 .first()
                                         }
-
                                     combinedChart.addAccAmountLimitLine(lastBar.x,
                                         coinDetailViewModel,
                                         color)
                                 }
                             }
+                            combinedChart.lineData.notifyDataChanged()
                             combinedChart.invalidate()
                         }
                     }

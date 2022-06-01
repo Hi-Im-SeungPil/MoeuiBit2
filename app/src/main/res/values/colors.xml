@@ -20,6 +20,11 @@
     <color name="CF6F6F6">#F6F6F6</color>
     <color name ="CEA3030">#EA3030</color>
     <color name ="C3048EA">#3048EA</color>
+    <color name ="CFF36FF">#FF36FF</color>
+    <color name="C0000B7">#0000B7</color>
+    <color name="CDBC000">#DBC000</color>
+    <color name="CFF4848">#FF4848</color>
+    <color name="CBDBDBD">#BDBDBD</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

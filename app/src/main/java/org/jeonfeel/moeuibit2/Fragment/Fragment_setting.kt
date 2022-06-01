@@ -59,7 +59,7 @@
 //import org.jeonfeel.moeuibit2.Database.MoEuiBitDatabase
 //import com.github.mikephil.charting.components.LimitLine
 //import org.jeonfeel.moeuibit2.Fragment.Chart.Fragment_chart.GetRecentCoinChart
-//import org.jeonfeel.moeuibit2.Fragment.Chart.GetMovingAverage
+//import org.jeonfeel.moeuibit2.Fragment.Chart.org.jeonfeel.moeuibit2.helper.GetMovingAverage
 //import android.os.Bundle
 //import android.view.LayoutInflater
 //import android.view.ViewGroup

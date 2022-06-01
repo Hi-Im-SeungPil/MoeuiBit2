@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -14,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
@@ -66,7 +69,9 @@ fun CoinDetailMain(
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
                     .weight(1f),
-                contentScale = ContentScale.FillHeight)
+                contentScale = ContentScale.FillHeight,
+            placeHolder = ImageBitmap.imageResource(R.drawable.img_glide_placeholder)
+            )
         }
         CoinDetailMainTabRow(navController = navController)
         TabRowMainNavigation(navController,coinDetailViewModel)

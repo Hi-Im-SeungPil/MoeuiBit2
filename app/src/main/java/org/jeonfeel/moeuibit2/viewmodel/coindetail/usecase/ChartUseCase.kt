@@ -5,15 +5,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.CandleDataSet
-import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.*
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.helper.GetMovingAverage
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_ADD
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
@@ -37,6 +35,7 @@ class ChartUseCase @Inject constructor(
     private val candleEntries = ArrayList<CandleEntry>()
     private var firstCandleUtcTime = ""
     private var kstTime = ""
+    private val getMovingAverage = GetMovingAverage(candleEntries)
     var isUpdateChart = true
     var chartLastData = false
     var loadingMoreChartData = false
@@ -122,8 +121,10 @@ class ChartUseCase @Inject constructor(
                 CandleDataSet(candleEntries, ""),
                 BarDataSet(positiveBarEntries, ""),
                 BarDataSet(negativeBarEntries, ""),
+                getMovingAverage.createLineData(),
                 this@ChartUseCase.xAxisValueFormatter
             )
+            getMovingAverage.isOk = true
             isUpdateChart = true
             dialogState.value = false
             combinedChart.initCanvas()
@@ -209,9 +210,11 @@ class ChartUseCase @Inject constructor(
                 candleDataSet,
                 positiveBarDataSet,
                 negativeBarDataSet,
+                getMovingAverage.createLineData(),
                 startPosition,
                 currentVisible
             )
+            getMovingAverage.isOk = true
             dialogState.value = false
             loadingMoreChartData = false
         } else {
@@ -223,7 +226,9 @@ class ChartUseCase @Inject constructor(
 
     fun updateCandleTicker(tradePrice: Double) {
         if (isUpdateChart && candleEntries.isNotEmpty()) {
+            beforeUpdateLineData()
             candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+            updateLineData(1)
             _candleUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
         }
     }
@@ -263,7 +268,9 @@ class ChartUseCase @Inject constructor(
                         combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition,
                             model.candleAccTradePrice.toFloat()))
                     }
+                    updateLineData(2)
                     combinedChart.barData.notifyDataChanged()
+                    combinedChart.lineData.notifyDataChanged()
                     combinedChart.data.notifyDataChanged()
                     combinedChart.notifyDataSetChanged()
                     _candleUpdateMutableLiveData.postValue(CHART_ADD)
@@ -317,6 +324,71 @@ class ChartUseCase @Inject constructor(
             combinedChart.data.notifyDataChanged()
             combinedChart.notifyDataSetChanged()
         }
+    }
+
+    private fun updateLineData(chartState: Int) {
+        if (chartState == 1 && isUpdateChart && getMovingAverage.line1Entries.isNotEmpty()) {
+            val line1LastIndex = getMovingAverage.line1Entries.lastIndex
+            val line2LastIndex = getMovingAverage.line2Entries.lastIndex
+            val line3LastIndex = getMovingAverage.line3Entries.lastIndex
+            val line4LastIndex = getMovingAverage.line4Entries.lastIndex
+            val line5LastIndex = getMovingAverage.line5Entries.lastIndex
+            getMovingAverage.sumLine1 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine2 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine3 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine4 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine5 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.line1Entries[line1LastIndex] =
+                Entry(candlePosition, getMovingAverage.sumLine1 / getMovingAverage.Line1)
+            getMovingAverage.line2Entries[line2LastIndex] =
+                Entry(candlePosition, getMovingAverage.sumLine2 / getMovingAverage.Line2)
+            getMovingAverage.line3Entries[line3LastIndex] =
+                Entry(candlePosition, getMovingAverage.sumLine3 / getMovingAverage.Line3)
+            getMovingAverage.line4Entries[line4LastIndex] =
+                Entry(candlePosition, getMovingAverage.sumLine4 / getMovingAverage.Line4)
+            getMovingAverage.line5Entries[line5LastIndex] =
+                Entry(candlePosition, getMovingAverage.sumLine5 / getMovingAverage.Line5)
+            getMovingAverage.sumLine1 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
+            getMovingAverage.sumLine2 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
+            getMovingAverage.sumLine3 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
+            getMovingAverage.sumLine4 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
+            getMovingAverage.sumLine5 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
+        } else if (chartState != 1 && !isUpdateChart) {
+            getMovingAverage.count++
+            getMovingAverage.sumLine1 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine2 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine3 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine4 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.sumLine5 += candleEntries[candlePosition.toInt()].close
+            getMovingAverage.line1Entries.add(Entry(candlePosition,
+                getMovingAverage.sumLine1 / getMovingAverage.Line1))
+            getMovingAverage.line2Entries.add(Entry(candlePosition,
+                getMovingAverage.sumLine2 / getMovingAverage.Line2))
+            getMovingAverage.line3Entries.add(Entry(candlePosition,
+                getMovingAverage.sumLine3 / getMovingAverage.Line3))
+            getMovingAverage.line4Entries.add(Entry(candlePosition,
+                getMovingAverage.sumLine4 / getMovingAverage.Line4))
+            getMovingAverage.line5Entries.add(Entry(candlePosition,
+                getMovingAverage.sumLine5 / getMovingAverage.Line5))
+            getMovingAverage.sumLine1 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
+            getMovingAverage.sumLine2 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
+            getMovingAverage.sumLine3 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
+            getMovingAverage.sumLine4 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
+            getMovingAverage.sumLine5 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
+        }
+    }
+
+    private fun beforeUpdateLineData() {
+        getMovingAverage.sumLine1 -= candleEntries[candlePosition.toInt()].close
+        getMovingAverage.sumLine2 -= candleEntries[candlePosition.toInt()].close
+        getMovingAverage.sumLine3 -= candleEntries[candlePosition.toInt()].close
+        getMovingAverage.sumLine4 -= candleEntries[candlePosition.toInt()].close
+        getMovingAverage.sumLine5 -= candleEntries[candlePosition.toInt()].close
+        getMovingAverage.sumLine1 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
+        getMovingAverage.sumLine2 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
+        getMovingAverage.sumLine3 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
+        getMovingAverage.sumLine4 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
+        getMovingAverage.sumLine5 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
     }
 
     fun getCandleEntryLast(): CandleEntry {
