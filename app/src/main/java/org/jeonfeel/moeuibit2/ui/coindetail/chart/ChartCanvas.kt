@@ -8,7 +8,7 @@ import android.graphics.Paint
 import android.view.View
 
 @SuppressLint("ViewConstructor")
-class DrawPractice constructor(context: Context?) :
+class ChartCanvas constructor(context: Context?) :
     View(context) {
 
     private var xPosition = 0f
@@ -66,8 +66,8 @@ class DrawPractice constructor(context: Context?) :
         }
     }
 
-    fun cInit(textSize: Float,textMarginLeft: Float,
-              width: Float,x: Float) {
+    fun canvasInit(textSize: Float, textMarginLeft: Float,
+                   width: Float, x: Float) {
         this.textSize = textSize
         this.width = width
         this.xPosition = x
@@ -101,26 +101,6 @@ class DrawPractice constructor(context: Context?) :
         this.lastBarRecPaint.color = color
         this.lastBarPrice = ""
         this.lastBarYPosition = 0f
-        this.invalidate()
-    }
-
-    fun actionDownDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int,lastBarPrice: String,lastBarYPosition: Float) {
-        this.lastCandlePrice = lastCandlePrice
-        this.lastCandlePriceYPosition = lastCandlePriceYPosition
-        this.lastCandlePriceRectPaint.color = color
-        this.lastBarRecPaint.color = color
-        this.lastBarPrice = lastBarPrice
-        this.lastBarYPosition = lastBarYPosition
-        this.invalidate()
-    }
-
-    fun actionMoveDrawLastCandleClose(lastCandlePriceYPosition: Float,lastCandlePrice: String, color: Int,lastBarPrice: String,lastBarYPosition: Float) {
-        this.lastCandlePrice = lastCandlePrice
-        this.lastCandlePriceYPosition = lastCandlePriceYPosition
-        this.lastCandlePriceRectPaint.color = color
-        this.lastBarRecPaint.color = color
-        this.lastBarPrice = lastBarPrice
-        this.lastBarYPosition = lastBarYPosition
         this.invalidate()
     }
 }

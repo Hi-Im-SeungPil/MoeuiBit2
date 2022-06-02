@@ -12,5 +12,7 @@ data class TickerModel (
     @SerializedName("atp24h")
     val accTradePrice24h: Double,
     @SerializedName("pcp")
-    val preClosingPrice: Double
+    val preClosingPrice: Double,
+    @SerializedName("mw")
+    val marketWarning: String
 )

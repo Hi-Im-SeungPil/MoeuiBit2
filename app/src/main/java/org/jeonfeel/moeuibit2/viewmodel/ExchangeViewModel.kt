@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -23,7 +22,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.dtos.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
@@ -63,7 +62,7 @@ class ExchangeViewModel @Inject constructor(
 
     val userSeedMoney = mutableStateOf(0L)
     var userHoldCoinList = emptyList<MyCoin?>()
-    val userHoldCoinHashMap = HashMap<String,MyCoin>()
+    val userHoldCoinHashMap = HashMap<String, MyCoin>()
     var totalPurchase = mutableStateOf(0.0)
     val totalHoldings = mutableStateOf("")
     var userHoldCoinsMarket = StringBuffer()
@@ -72,7 +71,6 @@ class ExchangeViewModel @Inject constructor(
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
     val loadingComplete = mutableStateOf(false)
-
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
@@ -96,7 +94,7 @@ class ExchangeViewModel @Inject constructor(
                         requestKrwMarketCode()
                         requestKrwTicker(krwCoinListStringBuffer.toString())
                         createKrwExchangeModelList()
-                        if(!isSocketRunning) {
+                        if (!isSocketRunning) {
                             isSocketRunning = true
                             updateExchange()
                         }
@@ -178,6 +176,7 @@ class ExchangeViewModel @Inject constructor(
             val accTradePrice24h = krwTickerList[i].accTradePrice24h
             val symbol = market.substring(4)
             val openingPrice = krwTickerList[i].preClosingPrice
+            val warning = krwMarketCodeList[i].market_warning
             krwExchangeModelList.add(
                 KrwExchangeModel(
                     koreanName,
@@ -187,7 +186,8 @@ class ExchangeViewModel @Inject constructor(
                     openingPrice,
                     tradePrice,
                     signedChangeRate,
-                    accTradePrice24h
+                    accTradePrice24h,
+                    warning
                 )
             )
         }
@@ -203,7 +203,6 @@ class ExchangeViewModel @Inject constructor(
     private fun updateExchange() {
         viewModelScope.launch(Dispatchers.Main) {
             while (isSocketRunning) {
-                Log.d("aaaa2","aaaa2")
                 for (i in krwExchangeModelMutableStateList.indices) {
                     krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
                 }
@@ -215,7 +214,7 @@ class ExchangeViewModel @Inject constructor(
     private fun requestKrwCoinList() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
         UpBitTickerWebSocket.requestKrwCoinList()
-        if(!isSocketRunning) {
+        if (!isSocketRunning) {
             isSocketRunning = true
             updateExchange()
         }
@@ -407,7 +406,8 @@ class ExchangeViewModel @Inject constructor(
                 userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
                 UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
                 totalPurchase.value = localTotalPurchase
-                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(this@ExchangeViewModel)
+                UpBitPortfolioWebSocket.getListener()
+                    .setPortfolioMessageListener(this@ExchangeViewModel)
                 UpBitPortfolioWebSocket.requestKrwCoinList()
                 updateUserHoldCoins()
                 loadingComplete.value = true
@@ -488,7 +488,8 @@ class ExchangeViewModel @Inject constructor(
                     model.preClosingPrice,
                     model.tradePrice,
                     model.signedChangeRate,
-                    model.accTradePrice24h
+                    model.accTradePrice24h,
+                    model.marketWarning
                 )
         }
     }

@@ -16,9 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +36,7 @@ import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 fun CoinDetailTopAppBar(
     coinKoreanName: String,
     coinSymbol: String,
+    warning: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -39,7 +44,18 @@ fun CoinDetailTopAppBar(
         backgroundColor = colorResource(id = R.color.C0F0F5C),
         title = {
             Text(
-                text = "${coinKoreanName}(${coinSymbol}/KRW)",
+                if (warning == "CAUTION") {
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Yellow, fontWeight = FontWeight.Bold)) {
+                            append("[유의]")
+                        }
+                        append("${coinKoreanName}(${coinSymbol}/KRW)")
+                    }
+                } else {
+                    buildAnnotatedString {
+                        append("${coinKoreanName}(${coinSymbol}/KRW)")
+                    }
+                },
                 style = TextStyle(
                     color = Color.White,
                     fontSize = 17.sp,
@@ -70,7 +86,8 @@ fun CoinDetailTopAppBar(
             IconButton(onClick = {
                 CoroutineScope(Dispatchers.IO).launch {
                     coinDetailViewModel.localRepository.getUserDao().insert()
-                    coinDetailViewModel.userSeedMoney.value = coinDetailViewModel.localRepository.getUserDao().all?.krw ?: 0
+                    coinDetailViewModel.userSeedMoney.value =
+                        coinDetailViewModel.localRepository.getUserDao().all?.krw ?: 0
                 }
             }) {
                 Icon(Icons.Default.Clear, contentDescription = null, tint = Color.White)
@@ -78,7 +95,7 @@ fun CoinDetailTopAppBar(
             if (!coinDetailViewModel.favoriteMutableState.value) {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = true
-                    Toast.makeText(context,"관심 코인에 추가되었습니다.",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "관심 코인에 추가되었습니다.", Toast.LENGTH_SHORT).show()
                 }) {
                     Icon(
                         painterResource(R.drawable.img_unfavorite),
@@ -89,7 +106,7 @@ fun CoinDetailTopAppBar(
             } else {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = false
-                    Toast.makeText(context,"관심 코인에서 삭제되었습니다.",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "관심 코인에서 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                 }) {
                     Icon(
                         painterResource(R.drawable.img_favorite),

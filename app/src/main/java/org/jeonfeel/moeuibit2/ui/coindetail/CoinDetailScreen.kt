@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 fun CoinDetailScreen(
     coinKoreanName: String,
     coinSymbol: String,
+    warning: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -39,7 +40,7 @@ fun CoinDetailScreen(
 
     Scaffold(
         topBar = {
-            CoinDetailTopAppBar(coinKoreanName = coinKoreanName, coinSymbol = coinSymbol)
+            CoinDetailTopAppBar(coinKoreanName = coinKoreanName, coinSymbol = coinSymbol, warning = warning)
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {

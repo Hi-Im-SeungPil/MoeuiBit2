@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.chart
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.marker
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,12 +6,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
+import android.view.View
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
-import org.jeonfeel.moeuibit2.dtos.MarkerViewDataBinding
 import org.jeonfeel.moeuibit2.util.Calculator
 
 @SuppressLint("ViewConstructor")
@@ -20,15 +20,14 @@ class ChartMarkerView constructor(
     layoutResource: Int,
     private val dateHashMap: HashMap<Int, String>,
     private val chartData: HashMap<Int, Double>
-) :
-    MarkerView(context, layoutResource) {
-
+) : MarkerView(context, layoutResource) {
     private val binding: CandleInfoMarkerBinding =
-        CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, false)
+        CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
     var dateTime: String = ""
     var acc: String = ""
+
     init {
-        addView(binding.root)
+        binding.linearMarker.visibility = View.VISIBLE
     }
 
     override fun refreshContent(e: Entry, highlight: Highlight) {

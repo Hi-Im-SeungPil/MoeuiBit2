@@ -7,14 +7,12 @@ import android.graphics.Paint
 import android.view.MotionEvent
 import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.components.LimitLine
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartMarkerView
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.DrawPractice
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
 import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -74,15 +72,59 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         isAutoScaleMinMaxEnabled = true
         isDragYEnabled = false
         isHighlightPerTapEnabled = false
-        legend.isEnabled = false
-        marker = ChartMarkerView(context,
+        legend.isEnabled = true
+        marker = ChartMarkerView(
+            context,
             R.layout.candle_info_marker,
             coinDetailViewModel.kstDateHashMap,
-            coinDetailViewModel.accData)
+            coinDetailViewModel.accData
+        )
         setPinchZoom(false)
         setDrawGridBackground(false)
         setDrawBorders(false)
         fitScreen()
+    }
+    //legend
+    chart.apply {
+        val legendEntry1 = LegendEntry()
+        legendEntry1.label = "단순 MA"
+        val legendEntry2 = LegendEntry().apply {
+            label = "5"
+            formColor = Color.parseColor("#B3FF36FF")
+        }
+        val legendEntry3 = LegendEntry().apply {
+            label = "10"
+            formColor = Color.parseColor("#B30000B7")
+        }
+        val legendEntry4 = LegendEntry().apply {
+            label = "20"
+            formColor = Color.parseColor("#B3DBC000")
+        }
+        val legendEntry5 = LegendEntry().apply {
+            label = "60"
+            formColor = Color.parseColor("#B3FF4848")
+        }
+        val legendEntry6 = LegendEntry().apply {
+            label = "120"
+            formColor = Color.parseColor("#B3BDBDBD")
+        }
+        val legend = chart.legend
+        legend.setCustom(
+            arrayOf(
+                legendEntry1,
+                legendEntry2,
+                legendEntry3,
+                legendEntry4,
+                legendEntry5,
+                legendEntry6
+            )
+        )
+        legend.textColor = Color.BLACK
+        legend.isWordWrapEnabled = true
+        legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+        legend.orientation = Legend.LegendOrientation.HORIZONTAL
+        legend.setDrawInside(true)
     }
     //bottom Axis
     val xAxis = chart.xAxis
@@ -121,7 +163,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         spaceBottom = 40f
     }
 
-    val canvasView = DrawPractice(context)
+    val canvasView = ChartCanvas(context)
     chart.addView(canvasView)
     chart.setOnTouchListener { _, me ->
 
@@ -166,21 +208,34 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 lineWidth = 0.5f
             }
 
-            if(chart.candleData.xMax > highestVisibleX) {
+            if (chart.candleData.xMax > highestVisibleX) {
                 if (chart.axisLeft.limitLines.isNotEmpty()) {
                     chart.axisLeft.removeAllLimitLines()
                 }
                 val highestVisibleCandle = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
-                val tradePrice = highestVisibleCandle.close
-                val openPrice = highestVisibleCandle.open
-                val color = if(tradePrice - openPrice >= 0.0) {
-                    Color.RED
-                } else {
-                    Color.BLUE
-                }
-                chart.addAccAmountLimitLine(highestVisibleCandle.x,coinDetailViewModel,color)
-                val yp = chart.getPosition(CandleEntry(tradePrice,tradePrice,tradePrice,tradePrice,tradePrice),rightAxis.axisDependency).y
-                canvasView.realTimeLastCandleClose(yp,Calculator.tradePriceCalculatorForChart(tradePrice),color)
+
+                    val tradePrice = highestVisibleCandle.close
+                    val openPrice = highestVisibleCandle.open
+                    val color = if (tradePrice - openPrice >= 0.0) {
+                        Color.RED
+                    } else {
+                        Color.BLUE
+                    }
+                    chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
+                    val yp = chart.getPosition(
+                        CandleEntry(
+                            tradePrice,
+                            tradePrice,
+                            tradePrice,
+                            tradePrice,
+                            tradePrice
+                        ), rightAxis.axisDependency
+                    ).y
+                    canvasView.realTimeLastCandleClose(
+                        yp,
+                        Calculator.tradePriceCalculatorForChart(tradePrice),
+                        color
+                    )
             }
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
@@ -204,18 +259,32 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     lineColor = Color.BLACK
                     lineWidth = 0.5f
                 }
-                if(chart.candleData.xMax > highestVisibleX) {
+                if (chart.candleData.xMax > highestVisibleX) {
                     val highestVisibleCandle = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
-                    val tradePrice = highestVisibleCandle.close
-                    val openPrice = highestVisibleCandle.open
-                    val color = if(tradePrice - openPrice >= 0.0) {
-                        Color.RED
-                    } else {
-                        Color.BLUE
-                    }
-                    chart.addAccAmountLimitLine(highestVisibleCandle.x,coinDetailViewModel,color)
-                    val yp = chart.getPosition(CandleEntry(tradePrice,tradePrice,tradePrice,tradePrice,tradePrice),rightAxis.axisDependency).y
-                    canvasView.realTimeLastCandleClose(yp,Calculator.tradePriceCalculatorForChart(tradePrice),color)
+
+                        val tradePrice = highestVisibleCandle.close
+                        val openPrice = highestVisibleCandle.open
+                        val color = if (tradePrice - openPrice >= 0.0) {
+                            Color.RED
+                        } else {
+                            Color.BLUE
+                        }
+                        chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
+                        val yp = chart.getPosition(
+                            CandleEntry(
+                                tradePrice,
+                                tradePrice,
+                                tradePrice,
+                                tradePrice,
+                                tradePrice
+                            ), rightAxis.axisDependency
+                        ).y
+                        canvasView.realTimeLastCandleClose(
+                            yp,
+                            Calculator.tradePriceCalculatorForChart(tradePrice),
+                            color
+                        )
+
                 }
                 rightAxis.limitLines[0] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
@@ -235,7 +304,7 @@ fun CombinedChart.chartRefreshSetting(
     lineData: LineData,
     valueFormatter: XAxisValueFormatter
 ) {
-    if (candleDataSet.entryCount != 0 && positiveBarDataSet.entryCount != 0 && negativeBarDataSet.entryCount != 0) {
+    if (candleDataSet.entryCount > 0 && positiveBarDataSet.entryCount >= 0 && negativeBarDataSet.entryCount >= 0) {
         val chart = this
         val xAxis = chart.xAxis
         candleDataSet.initCandleDataSet()
@@ -252,18 +321,25 @@ fun CombinedChart.chartRefreshSetting(
 
         chart.candleData.notifyDataChanged()
         chart.barData.notifyDataChanged()
-        xAxis.axisMaximum = chart.candleData.xMax + 3f
-        xAxis.axisMinimum = chart.candleData.xMin - 3f
-        chart.fitScreen()
         if (candleEntries.size >= 20) {
+            xAxis.axisMaximum = chart.candleData.xMax + 3f
+            xAxis.axisMinimum = chart.candleData.xMin - 3f
+            chart.fitScreen()
             chart.setVisibleXRangeMinimum(20f)
+            chart.data.notifyDataChanged()
+            xAxis.valueFormatter = valueFormatter
+            chart.zoom(4f, 0f, 0f, 0f)
+            chart.moveViewToX(candleEntries.size.toFloat())
         } else {
+            xAxis.axisMaximum = chart.candleData.xMax
+            xAxis.axisMinimum = chart.candleData.xMin - 0.5f
+            chart.fitScreen()
             chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
+            chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
+            chart.data.notifyDataChanged()
+            xAxis.valueFormatter = valueFormatter
+            chart.invalidate()
         }
-        chart.data.notifyDataChanged()
-        xAxis.valueFormatter = valueFormatter
-        chart.zoom(4f, 0f, 0f, 0f)
-        chart.moveViewToX(candleEntries.size.toFloat())
     }
 }
 
@@ -311,22 +387,28 @@ fun CombinedChart.initCanvas() {
         .measureText(combinedChart.axisRight.longestLabel.plus('0'))
     val textMarginLeft = combinedChart.axisRight.xOffset
     val textSize = combinedChart.rendererRightYAxis.paintAxisLabels.textSize
-    (combinedChart[0] as DrawPractice).cInit(textSize, textMarginLeft, length, canvasXPosition)
+    (combinedChart[0] as ChartCanvas).canvasInit(textSize, textMarginLeft, length, canvasXPosition)
 }
 
-fun CombinedChart.addAccAmountLimitLine(lastX: Float,coinDetailViewModel: CoinDetailViewModel,color: Int) {
+fun CombinedChart.addAccAmountLimitLine(
+    lastX: Float,
+    coinDetailViewModel: CoinDetailViewModel,
+    color: Int
+) {
     val chart = this
     if (chart.axisLeft.limitLines.isNotEmpty()) {
         chart.axisLeft.removeAllLimitLines()
     }
-    val lastBar = if(chart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
+    val lastBar = if (chart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
         chart.barData.dataSets[1].getEntriesForXValue(lastX).first()
     } else {
         chart.barData.dataSets[0].getEntriesForXValue(lastX).first()
     }
     val barPrice = lastBar.y
-    val lastBarLimitLine = LimitLine(barPrice,
-        Calculator.accTradePrice24hCalculatorForChart(coinDetailViewModel.accData[lastX.toInt()]!!))
+    val lastBarLimitLine = LimitLine(
+        barPrice,
+        Calculator.accTradePrice24hCalculatorForChart(coinDetailViewModel.accData[lastX.toInt()]!!)
+    )
     lastBarLimitLine.lineColor = color
     lastBarLimitLine.textColor = color
     lastBarLimitLine.lineWidth = 0f

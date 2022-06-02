@@ -25,6 +25,7 @@
     <color name="CDBC000">#DBC000</color>
     <color name="CFF4848">#FF4848</color>
     <color name="CBDBDBD">#BDBDBD</color>
+    <color name="C26FFE400">#26FFE400</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

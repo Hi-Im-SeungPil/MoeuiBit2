@@ -6,14 +6,17 @@
     <data>
         <variable
             name="candleInfo"
-            type="org.jeonfeel.moeuibit2.dtos.MarkerViewDataBinding" />
+            type="org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.MarkerViewDataBinding" />
     </data>
 
     <LinearLayout
+        android:id="@+id/linear_marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#E6FFFFFF"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="4dp"
+        android:background="@drawable/candle_info_marker"
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/q"

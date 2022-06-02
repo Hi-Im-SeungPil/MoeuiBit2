@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.dtos
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.marker
 
 data class MarkerViewDataBinding(
     val dateTime: String,

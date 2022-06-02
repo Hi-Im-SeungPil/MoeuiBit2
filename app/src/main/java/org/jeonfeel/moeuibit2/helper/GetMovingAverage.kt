@@ -8,8 +8,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 
 class GetMovingAverage(private val candleEntries: ArrayList<CandleEntry>?) {
-
-    var isOk = true
     var count = 0
     val line1Entries = ArrayList<Entry>()
     val line2Entries = ArrayList<Entry>()
@@ -29,7 +27,6 @@ class GetMovingAverage(private val candleEntries: ArrayList<CandleEntry>?) {
     val Line4 = 60
     val Line5 = 120
     fun createLineData(): LineData {
-        isOk = false
         val lineData = LineData()
         count = 0
         sumLine1 = 0.0f
@@ -73,45 +70,33 @@ class GetMovingAverage(private val candleEntries: ArrayList<CandleEntry>?) {
             }
         }
         val lineDataSet1 = LineDataSet(line1Entries, "")
-        lineDataSet1.setDrawCircles(false)
-        lineDataSet1.color = Color.parseColor("#B3FF36FF")
-        lineDataSet1.lineWidth = 1f
-        lineDataSet1.axisDependency = YAxis.AxisDependency.RIGHT
-        lineDataSet1.isHighlightEnabled = false
-        lineDataSet1.valueTextSize = 0f
+        lineDataSet1.defaultSet("#B3FF36FF")
         val lineDataSet2 = LineDataSet(line2Entries, "")
-        lineDataSet2.setDrawCircles(false)
-        lineDataSet2.color = Color.parseColor("#B30000B7")
-        lineDataSet2.lineWidth = 1f
-        lineDataSet2.axisDependency = YAxis.AxisDependency.RIGHT
-        lineDataSet2.isHighlightEnabled = false
-        lineDataSet2.valueTextSize = 0f
+        lineDataSet2.defaultSet("#B30000B7")
         val lineDataSet3 = LineDataSet(line3Entries, "")
-        lineDataSet3.setDrawCircles(false)
-        lineDataSet3.color = Color.parseColor("#B3DBC000")
-        lineDataSet3.lineWidth = 1f
-        lineDataSet3.axisDependency = YAxis.AxisDependency.RIGHT
-        lineDataSet3.isHighlightEnabled = false
-        lineDataSet3.valueTextSize = 0f
+        lineDataSet3.defaultSet("#B3DBC000")
         val lineDataSet4 = LineDataSet(line4Entries, "")
-        lineDataSet4.setDrawCircles(false)
-        lineDataSet4.color = Color.parseColor("#B3FF4848")
-        lineDataSet4.lineWidth = 1f
-        lineDataSet4.axisDependency = YAxis.AxisDependency.RIGHT
-        lineDataSet4.isHighlightEnabled = false
-        lineDataSet4.valueTextSize = 0f
+        lineDataSet4.defaultSet("#B3FF4848")
         val lineDataSet5 = LineDataSet(line5Entries, "")
-        lineDataSet5.setDrawCircles(false)
-        lineDataSet5.color = Color.parseColor("#B3BDBDBD")
-        lineDataSet5.lineWidth = 1f
-        lineDataSet5.axisDependency = YAxis.AxisDependency.RIGHT
-        lineDataSet5.isHighlightEnabled = false
-        lineDataSet5.valueTextSize = 0f
+        lineDataSet5.defaultSet("#B3BDBDBD")
         lineData.addDataSet(lineDataSet1)
         lineData.addDataSet(lineDataSet2)
         lineData.addDataSet(lineDataSet3)
         lineData.addDataSet(lineDataSet4)
         lineData.addDataSet(lineDataSet5)
+
         return lineData
+    }
+}
+
+fun LineDataSet.defaultSet(lineColor: String) {
+    val lineDataset = this
+    lineDataset.apply {
+        setDrawCircles(false)
+        color = Color.parseColor(lineColor)
+        lineWidth = 1f
+        axisDependency = YAxis.AxisDependency.RIGHT
+        isHighlightEnabled = false
+        valueTextSize = 0f
     }
 }

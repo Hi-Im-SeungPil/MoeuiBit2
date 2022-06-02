@@ -72,7 +72,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
-                                val canvas = (combinedChart[0] as DrawPractice)
+                                val canvas = (combinedChart[0] as ChartCanvas)
                                 val lastCandle = coinDetailViewModel.candleEntryLast
                                 val tradePrice = lastCandle.close
                                 val openPrice = lastCandle.open

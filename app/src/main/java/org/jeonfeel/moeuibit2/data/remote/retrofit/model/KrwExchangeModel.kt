@@ -16,4 +16,5 @@ data class KrwExchangeModel(
     var tradePrice: Double,
     var signedChangeRate: Double,
     var accTradePrice24h: Double,
+    var warning: String
 )

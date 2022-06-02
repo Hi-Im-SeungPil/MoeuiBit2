@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,8 +21,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,6 +52,7 @@ fun ExchangeScreenLazyColumnItem(
         Calculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h)
     val koreanName = krwExchangeModel.koreanName
     val context = LocalContext.current
+    val warning = krwExchangeModel.warning
 
     Row(Modifier
         .fillMaxWidth()
@@ -72,28 +77,48 @@ fun ExchangeScreenLazyColumnItem(
             intent.putExtra("coinSymbol", krwExchangeModel.symbol)
             intent.putExtra("openingPrice", krwExchangeModel.opening_price)
             intent.putExtra("isFavorite", isFavorite)
+            intent.putExtra("warning",warning)
             startForActivityResult.launch(intent)
             (context as MainActivity).overridePendingTransition(
                 R.anim.lazy_column_item_slide_left,
                 R.anim.none
             )
-        }) {
+        }
+    ) {
 
         Column(
             Modifier
                 .weight(1f)
                 .align(Alignment.Bottom)
         ) {
-            Text(
-                text = koreanName,
-                maxLines = 1,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .wrapContentHeight(Alignment.Bottom),
-                style = TextStyle(textAlign = TextAlign.Center),
-                overflow = TextOverflow.Ellipsis
-            )
+            if(warning == "CAUTION") {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.Bold)) {
+                            append("[유]")
+                        }
+                        append(koreanName)
+                    },
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.Bottom),
+                    style = TextStyle(textAlign = TextAlign.Center),
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                Text(
+                    text = koreanName,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .wrapContentHeight(Alignment.Bottom),
+                    style = TextStyle(textAlign = TextAlign.Center),
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Text(
                 text = "${krwExchangeModel.symbol}/KRW",
                 maxLines = 1,
@@ -184,7 +209,7 @@ fun ExchangeScreenLazyColumn(
         Text(
             text = "일치하는 코인이 없습니다.",
             modifier = Modifier
-                .padding(0.dp,20.dp,0.dp,0.dp)
+                .padding(0.dp, 20.dp, 0.dp, 0.dp)
                 .fillMaxSize(),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -233,7 +258,7 @@ fun getTradePriceTextModifier(
             return Modifier
                 .padding(0.dp, 4.dp)
                 .fillMaxHeight()
-                .border(0.dp, Color.White)
+                .border(0.dp, Color.Transparent)
         }
     }
 }
