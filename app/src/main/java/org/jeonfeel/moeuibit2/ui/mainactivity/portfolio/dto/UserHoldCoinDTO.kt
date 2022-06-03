@@ -5,5 +5,8 @@ data class UserHoldCoinDTO(
     var myCoinsSymbol: String,
     var myCoinsQuantity: Double,
     var myCoinsBuyingAverage: Double = 0.0,
-    var currentPrice: Double = myCoinsBuyingAverage
+    var currentPrice: Double = myCoinsBuyingAverage,
+    var openingPrice: Double,
+    var warning: String,
+    var isFavorite: Int? = null
 )

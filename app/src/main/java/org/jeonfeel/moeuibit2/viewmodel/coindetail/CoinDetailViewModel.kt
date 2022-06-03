@@ -345,7 +345,6 @@ class CoinDetailViewModel @Inject constructor(
                     )
                 )
                 userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
-                Log.d("viewModellll",(totalPrice + (totalPrice * 0.0005).roundToLong()).toString())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
@@ -367,7 +366,6 @@ class CoinDetailViewModel @Inject constructor(
 
                 coinDao.updatePlusQuantity(market, quantity)
                 userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
-                Log.d("viewModellll",(totalPrice + (totalPrice * 0.0005).roundToLong()).toString())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0

@@ -131,7 +131,7 @@
 //        for (i in coinTotalPrice!!.indices) {
 //            colors.get(i) = color_Array.getColor(position, 0)
 //            position++
-//            if (position >= 42) {
+//            if (position >= 46) {
 //                position = 0
 //            }
 //        }
@@ -156,8 +156,7 @@
 //
 //    private fun insertTextView() {
 //        for (i in coinTotalPrice!!.indices) {
-//            val coinPercent: String =
-//                String.format("%.1f", (coinTotalPrice!!.get(i) / coinAmount.toFloat()) * 100)
+//            val coinPercent: String = String.format("%.1f", (coinTotalPrice!!.get(i) / coinAmount.toFloat()) * 100)
 //            val textView: TextView = TextView(this@Activity_portfolio)
 //            textView.setText("★ " + coinKoreanName!!.get(i) + " (" + coinSymbol!!.get(i) + ") " + coinPercent + "%")
 //            textView.setTextColor(colors.get(i))

@@ -72,6 +72,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         isAutoScaleMinMaxEnabled = true
         isDragYEnabled = false
         isHighlightPerTapEnabled = false
+        isHighlightPerDragEnabled = false
         legend.isEnabled = true
         marker = ChartMarkerView(
             context,
@@ -289,7 +290,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 rightAxis.limitLines[0] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
             }
-        } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData) {
+        } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData && coinDetailViewModel.isUpdateChart) {
             coinDetailViewModel.requestMoreData(chart)
         }
         false

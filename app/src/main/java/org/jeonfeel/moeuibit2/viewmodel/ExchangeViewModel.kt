@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -70,7 +71,7 @@ class ExchangeViewModel @Inject constructor(
     private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
-    val loadingComplete = mutableStateOf(false)
+    val portfolioLoadingComplete = mutableStateOf(false)
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
@@ -366,8 +367,8 @@ class ExchangeViewModel @Inject constructor(
 
     fun getUserHoldCoins() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (loadingComplete.value) {
-                loadingComplete.value = false
+            if (portfolioLoadingComplete.value) {
+                portfolioLoadingComplete.value = false
             }
             var localTotalPurchase = 0.0
             userHoldCoinDtoList.clear()
@@ -380,8 +381,13 @@ class ExchangeViewModel @Inject constructor(
                     val userHoldCoin = userHoldCoinList[i]!!
                     val koreanName = krwCoinKoreanNameAndEngName[userHoldCoin.market]?.get(0) ?: ""
                     val symbol = userHoldCoin.symbol
+                    val position = krwExchangeModelListPosition["KRW-".plus(symbol)] ?: 0
                     val quantity = userHoldCoin.quantity
                     val purchaseAverage = userHoldCoin.purchasePrice
+                    val openingPrice = krwExchangeModelList[position].opening_price
+                    Log.d(symbol.plus("->>>"), krwExchangeModelList[position].opening_price.toString())
+                    val warning = krwExchangeModelList[position].warning
+                    val isFavorite = favoriteHashMap["KRW-".plus(symbol)]
                     userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
                     localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
@@ -390,7 +396,10 @@ class ExchangeViewModel @Inject constructor(
                             koreanName,
                             symbol,
                             quantity,
-                            purchaseAverage
+                            purchaseAverage,
+                            openingPrice = openingPrice,
+                            warning = warning,
+                            isFavorite = isFavorite
                         )
                     )
                     tempUserHoldCoinDtoList.add(
@@ -398,11 +407,15 @@ class ExchangeViewModel @Inject constructor(
                             koreanName,
                             symbol,
                             quantity,
-                            purchaseAverage
+                            purchaseAverage,
+                            openingPrice = openingPrice,
+                            warning = warning,
+                            isFavorite = isFavorite
                         )
                     )
                     userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
                 }
+                sortUserHoldCoin(-1)
                 userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
                 UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
                 totalPurchase.value = localTotalPurchase
@@ -410,10 +423,10 @@ class ExchangeViewModel @Inject constructor(
                     .setPortfolioMessageListener(this@ExchangeViewModel)
                 UpBitPortfolioWebSocket.requestKrwCoinList()
                 updateUserHoldCoins()
-                loadingComplete.value = true
+                portfolioLoadingComplete.value = true
             } else {
                 totalPurchase.value = 0.0
-                loadingComplete.value = true
+                portfolioLoadingComplete.value = true
             }
         }
     }
@@ -497,8 +510,12 @@ class ExchangeViewModel @Inject constructor(
     override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
         if (isPortfolioSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-            val position = userHoldCoinDtoListPositionHashMap[model.code] ?: -1
+            val tickerListPosition = krwExchangeModelListPosition[model.code] ?: 0
+            val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
             val userHoldCoin = userHoldCoinHashMap[model.code]!!
+            val openingPrice = krwExchangeModelList[tickerListPosition].opening_price
+            val warning = model.marketWarning
+            val isFavorite = favoriteHashMap[model.code]
             tempUserHoldCoinDtoList[position] =
                 UserHoldCoinDTO(
                     krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
@@ -506,6 +523,9 @@ class ExchangeViewModel @Inject constructor(
                     userHoldCoin.quantity,
                     userHoldCoin.purchasePrice,
                     model.tradePrice,
+                    openingPrice = openingPrice,
+                    warning = warning,
+                    isFavorite = isFavorite
                 )
         }
     }

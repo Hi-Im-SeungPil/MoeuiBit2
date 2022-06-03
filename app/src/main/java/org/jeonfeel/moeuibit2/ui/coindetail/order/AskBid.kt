@@ -33,6 +33,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AskBidDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
@@ -375,7 +377,13 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 .height(40.dp)
         ) {
             TextButton(
-                onClick = { }, modifier = Modifier
+                onClick = {
+                          if(coinDetailViewModel.askBidSelectedTab.value == 1) {
+                              coinDetailViewModel.bidQuantity.value = ""
+                          } else {
+                              coinDetailViewModel.askQuantity.value = ""
+                          }
+                }, modifier = Modifier
                     .padding(0.dp, 0.dp, 4.dp, 0.dp)
                     .weight(1f)
                     .background(color = Color.LightGray)
@@ -407,6 +415,9 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         }
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
                             Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                        }
+                        UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                            Toast.makeText(context, "네트워크 오류 입니다.", Toast.LENGTH_SHORT).show()
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 1 && totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
                             Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
