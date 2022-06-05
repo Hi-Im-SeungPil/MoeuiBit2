@@ -2,18 +2,12 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import android.content.Context
 import android.graphics.Color
-import android.icu.number.Precision.currency
-import android.text.TextPaint
-import android.util.Log
-import androidx.core.view.size
 import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.utils.ViewPortHandler
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 
@@ -21,7 +15,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 class UserHoldCoinPieChart(
     context: Context,
     private val userSeedMoney: Long,
-    private val userHoldCoinList: List<MyCoin?>
+    private var userHoldCoinList: List<MyCoin?>
 ) : PieChart(context) {
     private val pieChart = this
     private val symbolArray = ArrayList<String>()
@@ -30,6 +24,12 @@ class UserHoldCoinPieChart(
     private val colorArray = resources.obtainTypedArray(R.array.pieChart_color)
 
     init {
+        if(userSeedMoney != 0L || userHoldCoinList.isNotEmpty()) {
+            drawPieChart()
+        }
+    }
+
+    private fun drawPieChart() {
         this.initPieChart()
         getEachCoinAmount()
         val legendEntryArrayList = ArrayList<LegendEntry>()
@@ -62,7 +62,6 @@ class UserHoldCoinPieChart(
         for (i in eachCoinAmountArray.indices) {
             data.add(PieEntry(eachCoinAmountArray[i].toFloat()))
         }
-
         val pieDataSet = PieDataSet(data, "").apply {
             setColors(*colors)
             isHighlightEnabled = false
@@ -90,6 +89,9 @@ class UserHoldCoinPieChart(
             symbolArray.add("KRW")
             totalAssets += krw
         }
+
+        userHoldCoinList = userHoldCoinList.sortedByDescending { it!!.quantity * it.purchasePrice }
+
         for (i in userHoldCoinList.indices) {
             symbolArray.add(userHoldCoinList[i]?.symbol ?: "")
             val eachCoinAmount =

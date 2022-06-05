@@ -1,11 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -45,6 +41,7 @@ import kotlin.math.round
 
 @Composable
 fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,6 +51,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             modifier = Modifier
                 .padding(10.dp, 0.dp)
                 .weight(1f)
+                .verticalScroll(scrollState)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 OrderScreenUserSeedMoney(coinDetailViewModel)
@@ -419,7 +417,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                             Toast.makeText(context, "네트워크 오류 입니다.", Toast.LENGTH_SHORT).show()
                         }
-                        coinDetailViewModel.askBidSelectedTab.value == 1 && totalPrice.toLong() > userSeedMoney - (userSeedMoney * 0.0005) -> {
+                        coinDetailViewModel.askBidSelectedTab.value == 1 && userSeedMoney < totalPrice + round(totalPrice * 0.0005) -> {
                             Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 2 && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {

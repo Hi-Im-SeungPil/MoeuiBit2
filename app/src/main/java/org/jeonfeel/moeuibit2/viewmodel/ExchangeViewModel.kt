@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -23,11 +22,11 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import javax.inject.Inject
 
@@ -385,7 +384,6 @@ class ExchangeViewModel @Inject constructor(
                     val quantity = userHoldCoin.quantity
                     val purchaseAverage = userHoldCoin.purchasePrice
                     val openingPrice = krwExchangeModelList[position].opening_price
-                    Log.d(symbol.plus("->>>"), krwExchangeModelList[position].opening_price.toString())
                     val warning = krwExchangeModelList[position].warning
                     val isFavorite = favoriteHashMap["KRW-".plus(symbol)]
                     userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
@@ -425,6 +423,7 @@ class ExchangeViewModel @Inject constructor(
                 updateUserHoldCoins()
                 portfolioLoadingComplete.value = true
             } else {
+                totalValuedAssets.value = 0.0
                 totalPurchase.value = 0.0
                 portfolioLoadingComplete.value = true
             }

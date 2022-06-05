@@ -5,4 +5,42 @@
     <string name="NO_INTERNET_CONNECTION">인터넷 연결을 확인해 주세요.</string>
     <string name="NETWORK_ERROR">네트워크 오류입니다.</string>
     <string name="retry">재시도</string>
+    <string name="openSourceIntro">This app uses open source. Thank you very, very much for the open-source makers used to create this app.</string>
+
+    <string-array name="openSourceNames">
+        <item>UpBit</item>
+        <item>MpAndroidChart</item>
+        <item>Dexter</item>
+        <item>Glide</item>
+        <item>Firebase Android SDK</item>
+        <item>google-gson</item>
+        <item>OkHttp</item>
+        <item>flexWebView</item>
+        <item>icon8</item>
+    </string-array>
+
+    <string-array name="openSourceUrl">
+        <item>https://upbit.com/</item>
+        <item>https://github.com/PhilJay/MPAndroidChart</item>
+        <item>https://github.com/Karumi/Dexter</item>
+        <item>https://github.com/bumptech/glide</item>
+        <item>https://github.com/firebase/firebase-android-sdk</item>
+        <item>https://github.com/google/gson</item>
+        <item>https://square.github.io/okhttp/</item>
+        <item>https://github.com/Kyun-J/FlexHybridApp-Android</item>
+        <item>https://icons8.com/</item>
+    </string-array>
+
+    <string-array name="openSourceLicense">
+        <item>Api 제공해주셔서 감사합니다. \nThank you for providing Api!</item>
+        <item>Copyright 2019 philipp jahoda \nApache License 2.0</item>
+        <item>Copyright 2015 Karumi\nApache License 2.0</item>
+        <item>Copyright 2014 Google Inc\nCopyright 2012 Jake Wharton\nCopyright 2011 The Android Open Source Project\nCopyright 2013 Xcellent Creations Inc.\nCopyright 1994 Anthony Dekker\nBSD 2-clause "Simplified" License\nApache License2.0\nMIT License</item>
+        <item>Copyright 2018 Google\nApache License 2.0</item>
+        <item>Copyright 2008 Google Inc.\nApache License 2.0</item>
+        <item>Copyright 2014 Square, Inc.\nApache License 2.0</item>
+        <item>Copyright (c) 2020, Kyun-Joo, Hwang All rights reserved.\nBSD-3-Clause license</item>
+        <item>Thank you for providing free icons.</item>
+    </string-array>
+
 </resources>

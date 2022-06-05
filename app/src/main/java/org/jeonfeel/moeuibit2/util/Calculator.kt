@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.util
 
+import android.util.Log
 import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.round
@@ -128,7 +129,8 @@ object Calculator {
     ): String {
         return when (label) {
             "최대" -> {
-                decimalDecimalFormat.format((seedMoney - (seedMoney * 0.0005)) / tradePrice)
+                Log.d("bid1",(seedMoney - round(seedMoney * 0.0005)).toString())
+                decimalDecimalFormat.format((seedMoney - round(seedMoney * 0.0005)) / tradePrice)
             }
             "50%" -> {
                 decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)

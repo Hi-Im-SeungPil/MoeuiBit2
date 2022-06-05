@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.viewmodel.coindetail
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -39,7 +38,6 @@ import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
 import javax.inject.Inject
 import kotlin.collections.set
 import kotlin.math.round
-import kotlin.math.roundToLong
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
@@ -344,7 +342,11 @@ class CoinDetailViewModel @Inject constructor(
                         quantity
                     )
                 )
-                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
+                if(totalPrice == (userSeedMoney.value - round(userSeedMoney.value * 0.0005)).toLong()) {
+                    userDao.updateMinusMoney((totalPrice + round(userSeedMoney.value * 0.0005)).toLong())
+                } else {
+                    userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                }
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
@@ -365,7 +367,8 @@ class CoinDetailViewModel @Inject constructor(
                 }
 
                 coinDao.updatePlusQuantity(market, quantity)
-                userDao.updateMinusMoney((totalPrice + (totalPrice * 0.0005)).roundToLong())
+                userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                Log.d("bid2",((totalPrice + round(totalPrice * 0.0005)).toString()))
                 userSeedMoney.value = userDao.all?.krw ?: 0L
                 bidQuantity.value = ""
                 userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
@@ -380,7 +383,7 @@ class CoinDetailViewModel @Inject constructor(
             val userDao = localRepository.getUserDao()
 
             coinDao.updateMinusQuantity(market, quantity)
-            userDao.updatePlusMoney((totalPrice - (totalPrice * 0.0005)).roundToLong())
+            userDao.updatePlusMoney((totalPrice - round(totalPrice * 0.0005)).toLong())
             userSeedMoney.value = userDao.all?.krw ?: 0L
             askQuantity.value = ""
             val currentCoin = coinDao.isInsert(market)
