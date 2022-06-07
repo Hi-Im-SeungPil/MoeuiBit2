@@ -215,7 +215,8 @@ fun OrderScreenQuantityDropDown(
     modifier: Modifier,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val buttonText = remember { mutableStateOf("가능") }
+    val bidButtonText = remember { mutableStateOf("가능") }
+    val askButtonText = remember { mutableStateOf("가능") }
     val expanded = remember { mutableStateOf(false) }
     val suggestions = remember { listOf("최대", "50%", "25%", "10%") }
     val imageVector = if (expanded.value) {
@@ -234,7 +235,19 @@ fun OrderScreenQuantityDropDown(
                 textButtonWidth.value = coordinates.size.toSize().width
             }
         ) {
-            Text(buttonText.value, style = TextStyle(color = Color.Black))
+            val buttonText = when (coinDetailViewModel.askBidSelectedTab.value) {
+                1 -> {
+                    bidButtonText.value
+                }
+                2 -> {
+                    askButtonText.value
+                }
+                else -> {
+                    ""
+                }
+            }
+
+            Text(buttonText, style = TextStyle(color = Color.Black))
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
@@ -247,11 +260,11 @@ fun OrderScreenQuantityDropDown(
         ) {
             suggestions.forEach { label ->
                 DropdownMenuItem(onClick = {
-                    buttonText.value = label
                     expanded.value = false
                     if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                        bidButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
-                            label,
+                            bidButtonText.value,
                             coinDetailViewModel.userSeedMoney.value,
                             coinDetailViewModel.currentTradePriceState.value
                         )
@@ -259,8 +272,9 @@ fun OrderScreenQuantityDropDown(
                             coinDetailViewModel.bidQuantity.value = quantity
                         }
                     } else if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+                        askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
-                            label,
+                            askButtonText.value,
                             coinDetailViewModel.userCoinQuantity.value
                         )
                         if (quantity.toDouble() != 0.0) {
