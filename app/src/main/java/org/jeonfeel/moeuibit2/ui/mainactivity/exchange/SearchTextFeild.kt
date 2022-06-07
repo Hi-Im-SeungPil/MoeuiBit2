@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
 fun SearchBasic(
@@ -70,9 +70,9 @@ fun SearchBasic(
 }
 
 @Composable
-fun SearchBasicTextFieldResult(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun SearchBasicTextFieldResult(mainViewModel: MainViewModel = viewModel()) {
     SearchBasic(
-        searchTextFieldValue = exchangeViewModel.searchTextFieldValue,
+        searchTextFieldValue = mainViewModel.searchTextFieldValue,
         modifier = Modifier
             .fillMaxWidth()
             .height(45.dp)
@@ -117,9 +117,9 @@ fun rememberIsKeyboardOpen(): State<Boolean> {
 
 fun View.isKeyboardOpen(): Boolean {
     val rect = Rect()
-    getWindowVisibleDisplayFrame(rect);
+    getWindowVisibleDisplayFrame(rect)
     val screenHeight = rootView.height
-    val keypadHeight = screenHeight - rect.bottom;
+    val keypadHeight = screenHeight - rect.bottom
     return keypadHeight > screenHeight * 0.15
 }
 

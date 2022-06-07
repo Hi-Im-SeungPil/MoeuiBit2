@@ -26,6 +26,8 @@ class UserHoldCoinPieChart(
     init {
         if(userSeedMoney != 0L || userHoldCoinList.isNotEmpty()) {
             drawPieChart()
+        } else if(userSeedMoney == 0L && userHoldCoinList.isEmpty()) {
+            emptyPieChart()
         }
     }
 
@@ -99,6 +101,20 @@ class UserHoldCoinPieChart(
             eachCoinAmountArray.add(eachCoinAmount)
             totalAssets += eachCoinAmount
         }
+    }
+
+    private fun emptyPieChart() {
+        this.initPieChart()
+        this.centerText = "보유하신 자산이 존재하지 않습니다."
+        val data: ArrayList<PieEntry> = ArrayList()
+        data.add(PieEntry(1f))
+        val pieData = PieData(PieDataSet(data,"").apply {
+            setColors(Color.TRANSPARENT)
+            isHighlightEnabled = false
+            valueTextColor = Color.parseColor("#FFFFFFFF")
+        })
+        pieChart.data = pieData
+        pieChart.invalidate()
     }
 }
 

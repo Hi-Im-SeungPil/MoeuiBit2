@@ -30,7 +30,6 @@
     </queries>
 
     <application
-        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="모의비트"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -44,7 +43,7 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
-        <activity android:name=".view.activity.main.MainActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.activity.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,7 +51,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.activity.coindetail.CoinDetailActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity"
             android:exported="true"/>
     </application>
 </manifest>

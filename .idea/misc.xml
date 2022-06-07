@@ -9,6 +9,8 @@
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_coin_site.xml" value="0.2" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_exchange.xml" value="0.12335359675785208" />
         <entry key="..\:/Users/thrhc/AndroidStudioProjects/MoeuiBit2/app/src/main/res/layout/fragment_investment_details.xml" value="0.2" />
+        <entry key="app/src/main/res/drawable/button_click.xml" value="0.238" />
+        <entry key="app/src/main/res/drawable/button_click_coin_info.xml" value="0.238" />
         <entry key="app/src/main/res/drawable/candle_info_marker.xml" value="0.238" />
         <entry key="app/src/main/res/layout/candle_info_marker.xml" value="0.5067708333333333" />
       </map>

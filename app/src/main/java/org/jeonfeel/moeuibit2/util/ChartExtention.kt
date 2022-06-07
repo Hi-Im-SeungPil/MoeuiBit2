@@ -13,7 +13,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import kotlin.math.round
 import kotlin.math.roundToInt
 

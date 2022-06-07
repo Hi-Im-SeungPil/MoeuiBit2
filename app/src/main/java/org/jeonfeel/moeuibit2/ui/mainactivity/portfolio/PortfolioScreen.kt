@@ -44,14 +44,14 @@ import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.main.MainActivity
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import kotlin.math.round
 
 @Composable
 fun PortfolioScreen(
-    exchangeViewModel: ExchangeViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
     val dialogState = remember {
@@ -61,13 +61,13 @@ fun PortfolioScreen(
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
-                exchangeViewModel.isPortfolioSocketRunning = false
+                mainViewModel.isPortfolioSocketRunning = false
                 UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
                 UpBitPortfolioWebSocket.onPause()
             }
             Lifecycle.Event.ON_RESUME -> {
-                exchangeViewModel.isPortfolioSocketRunning = true
-                exchangeViewModel.getUserHoldCoins()
+                mainViewModel.isPortfolioSocketRunning = true
+                mainViewModel.getUserHoldCoins()
             }
             else -> {}
         }
@@ -98,8 +98,8 @@ fun PortfolioScreen(
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            if (exchangeViewModel.portfolioLoadingComplete.value) {
-                UserHoldCoinLazyColumn(exchangeViewModel, startForActivityResult, dialogState)
+            if (mainViewModel.portfolioLoadingComplete.value) {
+                UserHoldCoinLazyColumn(mainViewModel, startForActivityResult, dialogState)
             }
         }
     }
@@ -107,28 +107,28 @@ fun PortfolioScreen(
 
 @Composable
 fun PortfolioMain(
-    exchangeViewModel: ExchangeViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel(),
     portfolioOrderState: MutableState<Int>,
     orderByNameTextInfo: List<Any>,
     orderByRateTextInfo: List<Any>,
     pieChartState: MutableState<Boolean>
 ) {
-    exchangeViewModel.getUserSeedMoney()
+    mainViewModel.getUserSeedMoney()
     val totalValuedAssets = Calculator.getDecimalFormat()
-        .format(round(exchangeViewModel.totalValuedAssets.value).toLong())
+        .format(round(mainViewModel.totalValuedAssets.value).toLong())
     val totalPurchaseValue =
-        Calculator.getDecimalFormat().format(round(exchangeViewModel.totalPurchase.value).toLong())
-    val userSeedMoney = Calculator.getDecimalFormat().format(exchangeViewModel.userSeedMoney.value)
+        Calculator.getDecimalFormat().format(round(mainViewModel.totalPurchase.value).toLong())
+    val userSeedMoney = Calculator.getDecimalFormat().format(mainViewModel.userSeedMoney.value)
     val totalHoldings = Calculator.getDecimalFormat()
-        .format(round(exchangeViewModel.userSeedMoney.value + exchangeViewModel.totalValuedAssets.value).toLong())
+        .format(round(mainViewModel.userSeedMoney.value + mainViewModel.totalValuedAssets.value).toLong())
     val valuationGainOrLoss = Calculator.getDecimalFormat()
-        .format(round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong())
-    val aReturn = if (exchangeViewModel.totalValuedAssets.value == 0.0) {
+        .format(round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong())
+    val aReturn = if (mainViewModel.totalValuedAssets.value == 0.0) {
         "0"
     } else {
         String.format(
             "%.2f",
-            (exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value) / exchangeViewModel.totalPurchase.value * 100
+            (mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value) / mainViewModel.totalPurchase.value * 100
         )
     }
 
@@ -196,7 +196,7 @@ fun PortfolioMain(
                 totalPurchaseValue,
                 "총평가",
                 totalValuedAssets,
-                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
+                round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
             )
             PortfolioMainItem(
                 text1 = "총 보유자산",
@@ -205,18 +205,18 @@ fun PortfolioMain(
                 valuationGainOrLoss,
                 "수익률",
                 aReturn.plus("%"),
-                round(exchangeViewModel.totalValuedAssets.value - exchangeViewModel.totalPurchase.value).toLong()
+                round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
             )
         }
         PortfolioPieChart(
             pieChartState,
-            exchangeViewModel.userSeedMoney,
-            exchangeViewModel.userHoldCoinList
+            mainViewModel.userSeedMoney,
+            mainViewModel.userHoldCoinList
         )
         PortfolioMainSortButtons(
             orderByRateTextInfo,
             orderByNameTextInfo,
-            exchangeViewModel,
+            mainViewModel,
             portfolioOrderState
         )
     }
@@ -226,7 +226,7 @@ fun PortfolioMain(
 fun PortfolioMainSortButtons(
     orderByRateTextInfo: List<Any>,
     orderByNameTextInfo: List<Any>,
-    exchangeViewModel: ExchangeViewModel,
+    mainViewModel: MainViewModel,
     portfolioOrderState: MutableState<Int>
 
 ) {
@@ -256,7 +256,7 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByNameTextInfo[2] as Color)
                 .clickable {
-                    if (exchangeViewModel.isPortfolioSocketRunning) {
+                    if (mainViewModel.isPortfolioSocketRunning) {
                         if (portfolioOrderState.value != 0 && portfolioOrderState.value != 1) {
                             portfolioOrderState.value = 0
                         } else if (portfolioOrderState.value == 0) {
@@ -264,7 +264,7 @@ fun PortfolioMainSortButtons(
                         } else {
                             portfolioOrderState.value = -1
                         }
-                        exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        mainViewModel.sortUserHoldCoin(portfolioOrderState.value)
                     }
                 }
                 .padding(0.dp, 8.dp),
@@ -279,7 +279,7 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByRateTextInfo[2] as Color)
                 .clickable {
-                    if (exchangeViewModel.isPortfolioSocketRunning) {
+                    if (mainViewModel.isPortfolioSocketRunning) {
                         if (portfolioOrderState.value != 2 && portfolioOrderState.value != 3) {
                             portfolioOrderState.value = 2
                         } else if (portfolioOrderState.value == 2) {
@@ -287,7 +287,7 @@ fun PortfolioMainSortButtons(
                         } else {
                             portfolioOrderState.value = -1
                         }
-                        exchangeViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        mainViewModel.sortUserHoldCoin(portfolioOrderState.value)
                     }
                 }
                 .padding(0.dp, 8.dp),
@@ -464,7 +464,7 @@ fun RowScope.PortfolioMainItem(
 
 @Composable
 fun UserHoldCoinLazyColumn(
-    exchangeViewModel: ExchangeViewModel,
+    mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
     dialogState: MutableState<Boolean>
 ) {
@@ -480,10 +480,10 @@ fun UserHoldCoinLazyColumn(
     val orderByNameTextInfo = getTextColors(buttonNum = 1, textState = portfolioOrderState.value)
     val orderByRateTextInfo = getTextColors(buttonNum = 2, textState = portfolioOrderState.value)
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        val userHoldCoinDtoList = exchangeViewModel.userHoldCoinDtoList
+        val userHoldCoinDtoList = mainViewModel.userHoldCoinDtoList
         item {
             PortfolioMain(
-                exchangeViewModel,
+                mainViewModel,
                 portfolioOrderState,
                 orderByNameTextInfo,
                 orderByRateTextInfo,

@@ -8,16 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
-fun AskBidDialog(text: String = "", visible: Boolean, coinDetailViewModel: CoinDetailViewModel) {
+fun AskBidDialog(visible: Boolean, coinDetailViewModel: CoinDetailViewModel) {
     if (visible) {
         AlertDialog(
             onDismissRequest = { coinDetailViewModel.askBidDialogState.value = false },
             text = {
                 Card(Modifier.wrapContentSize()) {
-                    AskBidDialogContent(text)
+                    AskBidDialogContent()
                 }
             },
             dismissButton = {},
@@ -28,7 +28,7 @@ fun AskBidDialog(text: String = "", visible: Boolean, coinDetailViewModel: CoinD
 }
 
 @Composable
-fun AskBidDialogContent(text: String) {
+fun AskBidDialogContent() {
     Column(
         modifier = Modifier
             .padding(30.dp, 0.dp)

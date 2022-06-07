@@ -29,8 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun CoinDetailTopAppBar(

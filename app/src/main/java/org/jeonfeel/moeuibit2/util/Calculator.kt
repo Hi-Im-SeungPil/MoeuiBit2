@@ -75,15 +75,13 @@ object Calculator {
     }
 
     fun orderBookPriceCalculator(orderBookPrice: Double): String {
-        var result = ""
-        result = if (orderBookPrice >= 100) {
+        return if (orderBookPrice >= 100) {
             decimalFormat.format(round(orderBookPrice).toInt())
         } else if (orderBookPrice < 100 && orderBookPrice >= 1) {
             String.format("%.2f", orderBookPrice)
         } else {
             String.format("%.4f", orderBookPrice)
         }
-        return result
     }
 
     fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
@@ -183,7 +181,7 @@ object Calculator {
     }
 
     fun valuationGainOrLossDecimal(purchaseAverage: Double): String {
-        var absPrice = abs(purchaseAverage)
+        val absPrice = abs(purchaseAverage)
         return if (absPrice >= 100) {
             decimalFormat.format(round(purchaseAverage))
         } else if (absPrice < 100 && absPrice >= 1) {

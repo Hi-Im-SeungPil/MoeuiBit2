@@ -24,7 +24,7 @@ import org.jeonfeel.moeuibit2.ui.mainactivity.coinnews.CoinNewsScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.setting.OpenSourceLicenseLazyColumn
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
     object Exchange : MainBottomNavItem("거래소", R.drawable.img_exchange, "exchange")
@@ -79,7 +79,7 @@ fun MainBottomNavigation(navController: NavController) {
 @Composable
 fun MainNavigation(
     navController: NavHostController,
-    viewModel: ExchangeViewModel,
+    viewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {

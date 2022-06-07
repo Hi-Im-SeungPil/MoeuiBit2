@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.usecase.ChartUseCase
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

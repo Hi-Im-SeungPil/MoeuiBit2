@@ -10,7 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun OrderScreen(

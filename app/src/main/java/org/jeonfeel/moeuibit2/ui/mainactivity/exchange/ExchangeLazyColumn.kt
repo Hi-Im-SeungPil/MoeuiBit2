@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,11 +20,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,9 +30,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
 import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.view.activity.main.MainActivity
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.main.MainActivity
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
 fun ExchangeScreenLazyColumnItem(
@@ -191,11 +187,11 @@ fun ExchangeScreenLazyColumnItem(
 
 @Composable
 fun ExchangeScreenLazyColumn(
-    exchangeViewModel: ExchangeViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
-    val filteredKrwExchangeList = exchangeViewModel.getFilteredKrwCoinList()
-    if (filteredKrwExchangeList.isEmpty() && exchangeViewModel.showFavorite.value) {
+    val filteredKrwExchangeList = mainViewModel.getFilteredKrwCoinList()
+    if (filteredKrwExchangeList.isEmpty() && mainViewModel.showFavorite.value) {
         Text(
             text = "등록된 관심코인이 없습니다.",
             modifier = Modifier
@@ -205,7 +201,7 @@ fun ExchangeScreenLazyColumn(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-    } else if (filteredKrwExchangeList.isEmpty() && !exchangeViewModel.showFavorite.value && exchangeViewModel.searchTextFieldValue.value.isNotEmpty()) {
+    } else if (filteredKrwExchangeList.isEmpty() && !mainViewModel.showFavorite.value && mainViewModel.searchTextFieldValue.value.isNotEmpty()) {
         Text(
             text = "일치하는 코인이 없습니다.",
             modifier = Modifier
@@ -222,13 +218,13 @@ fun ExchangeScreenLazyColumn(
             ) { _, krwCoinListElement ->
                 ExchangeScreenLazyColumnItem(
                     krwCoinListElement,
-                    exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
+                    mainViewModel.preItemArray[mainViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
                         ?: 0].tradePrice,
-                    exchangeViewModel.favoriteHashMap[krwCoinListElement.market] != null,
+                    mainViewModel.favoriteHashMap[krwCoinListElement.market] != null,
                     startForActivityResult
                 )
 
-                exchangeViewModel.preItemArray[exchangeViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
+                mainViewModel.preItemArray[mainViewModel.krwExchangeModelListPosition[krwCoinListElement.market]
                     ?: 0] = krwCoinListElement
             }
         }

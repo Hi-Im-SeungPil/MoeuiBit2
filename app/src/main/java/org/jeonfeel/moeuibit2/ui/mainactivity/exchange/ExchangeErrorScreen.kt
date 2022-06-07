@@ -21,10 +21,10 @@ import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
-fun ExchangeErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun ExchangeErrorScreen(mainViewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     val errorText = when (currentNetworkState) {
         NO_INTERNET_CONNECTION -> context.getString(R.string.NO_INTERNET_CONNECTION)
@@ -47,13 +47,13 @@ fun ExchangeErrorScreen(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     style = TextStyle(color = Color.White, fontSize = 13.sp))
 
                 TextButton(onClick = {
-                    if (exchangeViewModel.preItemArray.isEmpty()) {
-                        exchangeViewModel.requestData()
+                    if (mainViewModel.preItemArray.isEmpty()) {
+                        mainViewModel.requestData()
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
-                            exchangeViewModel.errorState.value = currentNetworkState
+                            mainViewModel.errorState.value = currentNetworkState
                             UpBitTickerWebSocket.onPause()
-                            exchangeViewModel.initViewModel()
+                            mainViewModel.initViewModel()
                         }
                     }
                 }) {

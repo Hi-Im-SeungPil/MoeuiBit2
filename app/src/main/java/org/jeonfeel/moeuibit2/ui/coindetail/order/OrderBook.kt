@@ -29,7 +29,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import kotlin.math.round
 
 @Composable

@@ -23,7 +23,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 
 
 sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: String) {

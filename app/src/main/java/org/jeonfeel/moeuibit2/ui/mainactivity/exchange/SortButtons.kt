@@ -24,11 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
-fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
-    val selectedButtonState = exchangeViewModel.selectedButtonState
+fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
+    val selectedButtonState = mainViewModel.selectedButtonState
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,9 +53,9 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
             modifier = Modifier
                 .weight(1f), text = ""
         )
-        SortButton(1, selectedButtonState, exchangeViewModel)
-        SortButton(2, selectedButtonState, exchangeViewModel)
-        SortButton(3, selectedButtonState, exchangeViewModel)
+        SortButton(1, selectedButtonState, mainViewModel)
+        SortButton(2, selectedButtonState, mainViewModel)
+        SortButton(3, selectedButtonState, mainViewModel)
     }
 }
 
@@ -63,7 +63,7 @@ fun SortButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
 private fun RowScope.SortButton(
     buttonNum: Int,
     buttonState: MutableState<Int>,
-    exchangeViewModel: ExchangeViewModel,
+    mainViewModel: MainViewModel,
 ) {
     val buttonText = remember {
         mutableStateOf("")
@@ -139,7 +139,7 @@ private fun RowScope.SortButton(
             .clickable {
                 when (buttonNum) {
                     1 -> {
-                        if (exchangeViewModel.isSocketRunning) {
+                        if (mainViewModel.isSocketRunning) {
                             when {
                                 buttonState.value != 0 && buttonState.value != 1 -> {
                                     buttonState.value = 0
@@ -151,11 +151,11 @@ private fun RowScope.SortButton(
                                     buttonState.value = -1
                                 }
                             }
-                            exchangeViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(buttonState.value)
                         }
                     }
                     2 -> {
-                        if (exchangeViewModel.isSocketRunning) {
+                        if (mainViewModel.isSocketRunning) {
                             when {
                                 buttonState.value != 2 && buttonState.value != 3 -> {
                                     buttonState.value = 2
@@ -167,11 +167,11 @@ private fun RowScope.SortButton(
                                     buttonState.value = -1
                                 }
                             }
-                            exchangeViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(buttonState.value)
                         }
                     }
                     3 -> {
-                        if (exchangeViewModel.isSocketRunning) {
+                        if (mainViewModel.isSocketRunning) {
                             when {
                                 buttonState.value != 4 && buttonState.value != 5 -> {
                                     buttonState.value = 4
@@ -183,7 +183,7 @@ private fun RowScope.SortButton(
                                     buttonState.value = -1
                                 }
                             }
-                            exchangeViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(buttonState.value)
                         }
                     }
                 }

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="candleInfo"
             type="org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.MarkerViewDataBinding" />
@@ -13,9 +14,9 @@
         android:id="@+id/linear_marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/candle_info_marker"
         android:orientation="vertical"
         android:padding="4dp"
-        android:background="@drawable/candle_info_marker"
         android:visibility="gone">
 
         <LinearLayout
@@ -30,9 +31,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="시간"
+                android:text="@string/time"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -41,13 +42,13 @@
                 android:id="@+id/tv_candleTime"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:layout_marginLeft="5dp"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
                 android:layout_weight="2"
-                android:gravity="right"
+                android:gravity="end"
                 android:text="@{candleInfo.dateTime}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -66,22 +67,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="시가"
+                android:text="@string/openPrice"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_openPrice"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
                 android:text="@{candleInfo.openPrice}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -90,10 +91,10 @@
                 android:id="@+id/tv_openPriceRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:text="@{candleInfo.openPriceRate}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -112,22 +113,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="고가"
+                android:text="@string/highPrice"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_highPrice"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
                 android:text="@{candleInfo.highPrice}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -136,12 +137,12 @@
                 android:id="@+id/tv_highPriceRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginLeft="5dp"
-                android:gravity="right"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
                 android:text="@{candleInfo.highPriceRate}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -161,22 +162,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="저가"
+                android:text="@string/lowPrice"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_lowPrice"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
                 android:text="@{candleInfo.lowPrice}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -185,12 +186,12 @@
                 android:id="@+id/tv_lowPriceRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginLeft="5dp"
-                android:gravity="right"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
                 android:text="@{candleInfo.lowPriceRate}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -209,22 +210,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="종가"
+                android:text="@string/closePrice"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_closePrice"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_weight="1"
                 android:text="@{candleInfo.closePrice}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -233,12 +234,12 @@
                 android:id="@+id/tv_closePriceRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginLeft="5dp"
-                android:gravity="right"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
                 android:text="@{candleInfo.closePriceRate}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -257,9 +258,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="거래량"
+                android:text="@string/tradeAmount"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -268,12 +269,12 @@
                 android:id="@+id/tv_markerTransactionAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginLeft="5dp"
-                android:gravity="right"
+                android:layout_gravity="end"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
                 android:text="@{candleInfo.tradeAmount}"
                 android:textColor="#000000"
-                android:textSize="10dp"
+                android:textSize="11sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

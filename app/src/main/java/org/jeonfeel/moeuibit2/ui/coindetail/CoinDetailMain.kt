@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun CoinDetailMain(
@@ -76,12 +75,6 @@ fun CoinDetailMain(
         CoinDetailMainTabRow(navController = navController)
         TabRowMainNavigation(navController,coinDetailViewModel)
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CoinDetailMainPreview() {
-//    CoinDetailMain()
 }
 
 fun getTextColor(

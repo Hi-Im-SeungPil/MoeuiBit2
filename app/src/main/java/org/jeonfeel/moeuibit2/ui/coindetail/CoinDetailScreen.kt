@@ -14,8 +14,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun CoinDetailScreen(

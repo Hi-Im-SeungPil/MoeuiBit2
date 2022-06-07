@@ -6,7 +6,7 @@ import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
-import org.jeonfeel.moeuibit2.listener.UpBitOrderBookWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitOrderBookWebSocketListener
 import java.util.*
 
 

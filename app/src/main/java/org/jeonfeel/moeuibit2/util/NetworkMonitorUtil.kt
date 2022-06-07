@@ -1,11 +1,14 @@
 package org.jeonfeel.moeuibit2.util
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.os.Build
 import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
 
 enum class ConnectionType {
     Wifi, Cellular
@@ -21,33 +24,40 @@ class NetworkMonitorUtil(context: Context) {
     }
 
     fun register() {
-        val connectivityManager =
-            mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connectivityManager.activeNetwork == null) {
-            result(false, null)
-        }
-        networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onLost(network: Network) {
-                super.onLost(network)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val connectivityManager =
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            if (connectivityManager.activeNetwork == null) {
                 result(false, null)
             }
+            networkCallback = object : ConnectivityManager.NetworkCallback() {
+                override fun onLost(network: Network) {
+                    super.onLost(network)
+                    result(false, null)
+                }
 
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities,
-            ) {
-                super.onCapabilitiesChanged(network, networkCapabilities)
-                when {
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
-                        result(true, ConnectionType.Wifi)
-                    }
-                    else -> {
-                        result(true, ConnectionType.Cellular)
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    networkCapabilities: NetworkCapabilities
+                ) {
+                    super.onCapabilitiesChanged(network, networkCapabilities)
+                    when {
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                            result(true, ConnectionType.Wifi)
+                        }
+                        else -> {
+                            result(true, ConnectionType.Cellular)
+                        }
                     }
                 }
             }
+            connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        } else {
+            val intentFilter = IntentFilter()
+            intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
+            mContext.registerReceiver(networkChangeReceiver, intentFilter)
         }
-        connectivityManager.registerDefaultNetworkCallback(networkCallback)
     }
 
     fun unregister() {
@@ -56,18 +66,25 @@ class NetworkMonitorUtil(context: Context) {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    fun internetConnection(markets: String) {
-        if (currentNetworkState != INTERNET_CONNECTION) {
-            currentNetworkState = INTERNET_CONNECTION
-        }
-//        if(UpBitWebSocket.currentSocketState == SOCKET_IS_NO_CONNECTION) {
-//            UpBitWebSocket.requestKrwCoinList(markets)
-//        }
-    }
+    @Suppress("DEPRECATION")
+    private val networkChangeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val connectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetworkInfo = connectivityManager.activeNetworkInfo
 
-    fun noInternetConnection() {
-        if (currentNetworkState != NO_INTERNET_CONNECTION) {
-            currentNetworkState = NO_INTERNET_CONNECTION
+            if (activeNetworkInfo != null) {
+                when (activeNetworkInfo.type) {
+                    ConnectivityManager.TYPE_WIFI -> {
+                        result(true, ConnectionType.Wifi)
+                    }
+                    else -> {
+                        result(true, ConnectionType.Cellular)
+                    }
+                }
+            } else {
+                result(false, null)
+            }
         }
     }
 }

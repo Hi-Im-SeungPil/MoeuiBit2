@@ -33,7 +33,7 @@ import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.util.initCombinedChart
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 const val MINUTE_SELECT = 1
 const val DAY_SELECT = 2
@@ -65,7 +65,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 combinedChart.initCombinedChart(applicationContext, coinDetailViewModel)
                 coinDetailViewModel.requestChartData(combinedChart)
                 coinDetailViewModel.isUpdateChart = true
-                coinDetailViewModel.candleUpdateLiveData.observe(lifeCycleOwner, Observer {
+                coinDetailViewModel.candleUpdateLiveData.observe(lifeCycleOwner) {
                     if (it == CHART_ADD) {
                         combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
                         combinedChart.invalidate()
@@ -81,38 +81,49 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                 } else {
                                     android.graphics.Color.BLUE
                                 }
-                                val yp = combinedChart.getPosition(CandleEntry(tradePrice,
-                                    tradePrice,
-                                    tradePrice,
-                                    tradePrice,
-                                    tradePrice), combinedChart.axisRight.axisDependency).y
-                                canvas.realTimeLastCandleClose(yp,
+                                val yp = combinedChart.getPosition(
+                                    CandleEntry(
+                                        tradePrice,
+                                        tradePrice,
+                                        tradePrice,
+                                        tradePrice,
+                                        tradePrice
+                                    ), combinedChart.axisRight.axisDependency
+                                ).y
+                                canvas.realTimeLastCandleClose(
+                                    yp,
                                     Calculator.tradePriceCalculatorForChart(tradePrice),
-                                    color)
+                                    color
+                                )
                                 if (it == CHART_SET_ALL) {
                                     val lastBar =
                                         if (combinedChart.barData.dataSets[0].getEntriesForXValue(
-                                                lastCandle.x)
+                                                lastCandle.x
+                                            )
                                                 .isEmpty()
                                         ) {
                                             combinedChart.barData.dataSets[1].getEntriesForXValue(
-                                                lastCandle.x)
+                                                lastCandle.x
+                                            )
                                                 .first()
                                         } else {
                                             combinedChart.barData.dataSets[0].getEntriesForXValue(
-                                                lastCandle.x)
+                                                lastCandle.x
+                                            )
                                                 .first()
                                         }
-                                    combinedChart.addAccAmountLimitLine(lastBar.x,
+                                    combinedChart.addAccAmountLimitLine(
+                                        lastBar.x,
                                         coinDetailViewModel,
-                                        color)
+                                        color
+                                    )
                                 }
                             }
                             combinedChart.lineData.notifyDataChanged()
                             combinedChart.invalidate()
                         }
                     }
-                })
+                }
             }
             else -> {}
         }

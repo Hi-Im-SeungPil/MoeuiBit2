@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,10 +25,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.viewmodel.ExchangeViewModel
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
-fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
+fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
@@ -59,8 +58,8 @@ fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     interactionSource = interactionSource,
                     indication = null
                 ) {
-                    exchangeViewModel.showFavorite.value = false
-                    exchangeViewModel.selectedMarket.value = SELECTED_KRW_MARKET
+                    mainViewModel.showFavorite.value = false
+                    mainViewModel.selectedMarket.value = SELECTED_KRW_MARKET
                 }
         ) {
             Text(
@@ -68,7 +67,7 @@ fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth()
                 ,style = TextStyle(
                     color = getTextColor(
-                        exchangeViewModel,
+                        mainViewModel,
                         SELECTED_KRW_MARKET
                     ), fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
                 )
@@ -83,8 +82,8 @@ fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                     interactionSource = interactionSource,
                     indication = null
                 ) {
-                    exchangeViewModel.showFavorite.value = true
-                    exchangeViewModel.selectedMarket.value = SELECTED_FAVORITE
+                    mainViewModel.showFavorite.value = true
+                    mainViewModel.selectedMarket.value = SELECTED_FAVORITE
                 }
         ) {
             Text(
@@ -92,7 +91,7 @@ fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 style = TextStyle(
                     color = getTextColor(
-                        exchangeViewModel,
+                        mainViewModel,
                         SELECTED_FAVORITE
                     ), fontSize = 17.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
                 )
@@ -118,8 +117,8 @@ fun MarketButtons(exchangeViewModel: ExchangeViewModel = viewModel()) {
 }
 
 @Composable
-fun getTextColor(exchangeViewModel: ExchangeViewModel = viewModel(), buttonId: Int): Color {
-    return if (exchangeViewModel.selectedMarket.value == buttonId) {
+fun getTextColor(mainViewModel: MainViewModel = viewModel(), buttonId: Int): Color {
+    return if (mainViewModel.selectedMarket.value == buttonId) {
         colorResource(R.color.C0F0F5C)
     } else {
         Color.LightGray

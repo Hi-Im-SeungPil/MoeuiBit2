@@ -6,7 +6,7 @@ import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
-import org.jeonfeel.moeuibit2.listener.UpBitCoinDetailWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitCoinDetailWebSocketListener
 import java.util.*
 
 object UpBitCoinDetailWebSocket {
@@ -43,10 +43,6 @@ object UpBitCoinDetailWebSocket {
         socket.close(UpBitCoinDetailWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
         Log.d("onPause", "호출")
-    }
-
-    fun onResume(market: String) {
-        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     fun onFail() {

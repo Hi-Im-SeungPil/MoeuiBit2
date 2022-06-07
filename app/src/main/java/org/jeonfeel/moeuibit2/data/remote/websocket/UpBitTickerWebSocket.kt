@@ -5,8 +5,8 @@ import okhttp3.Request
 import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
-import org.jeonfeel.moeuibit2.listener.UpBitTickerWebSocketListener
-import org.jeonfeel.moeuibit2.listener.UpBitTickerWebSocketListener.Companion.NORMAL_CLOSURE_STATUS
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener.Companion.NORMAL_CLOSURE_STATUS
 import java.util.*
 
 object UpBitTickerWebSocket {

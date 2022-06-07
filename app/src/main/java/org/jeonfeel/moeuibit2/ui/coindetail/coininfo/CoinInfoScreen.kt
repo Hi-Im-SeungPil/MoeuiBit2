@@ -1,19 +1,18 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Message
 import android.webkit.WebSettings
 import android.webkit.WebView
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -32,17 +31,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoEmptyScreen
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.view.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.viewmodel.coindetail.CoinDetailViewModel
 
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     CoinInfoProgressDialog(coinDetailViewModel)
@@ -68,10 +66,10 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             Lifecycle.Event.ON_START -> {
                 flex.initFlex()
                 coinDetailViewModel.getCoinInfo()
-                coinDetailViewModel.coinInfoLiveData.observe(lifeCycleOwner, Observer {
+                coinDetailViewModel.coinInfoLiveData.observe(lifeCycleOwner) {
                     coinInfoHashMap.value = it
                     coinDetailViewModel.coinInfoDialog.value = false
-                })
+                }
             }
             else -> {}
         }
