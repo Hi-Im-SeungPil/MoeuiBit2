@@ -18,7 +18,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen

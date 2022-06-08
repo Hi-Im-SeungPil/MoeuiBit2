@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2
+package org.jeonfeel.moeuibit2.constant
 
 const val apache2 = """Version 2.0, January 2004
 http://www.apache.org/licenses/

@@ -14,8 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.manager.PermissionManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
@@ -86,16 +86,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        networkMonitorUtil.register()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        networkMonitorUtil.unregister()
-    }
-
     @Composable
     fun MainScreen(viewModel: MainViewModel) {
         val navController = rememberNavController()
@@ -108,6 +98,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        networkMonitorUtil.register()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        networkMonitorUtil.unregister()
+    }
+}
+
 //    override fun onBackPressed() {
 //        val curTime = System.currentTimeMillis()
 //        val gapTime = curTime - backBtnTime
@@ -119,4 +120,3 @@ class MainActivity : ComponentActivity() {
 //                .show()
 //        }
 //    }
-}

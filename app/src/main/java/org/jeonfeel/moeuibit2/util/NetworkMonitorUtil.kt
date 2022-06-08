@@ -8,7 +8,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Build
-import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 
 enum class ConnectionType {
     Wifi, Cellular

@@ -24,8 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jeonfeel.moeuibit2.*
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constant.apache2
+import org.jeonfeel.moeuibit2.constant.bsd_2
+import org.jeonfeel.moeuibit2.constant.bsd_3
+import org.jeonfeel.moeuibit2.constant.mit
 
 @Composable
 fun OpenSourceLicenseLazyColumn() {

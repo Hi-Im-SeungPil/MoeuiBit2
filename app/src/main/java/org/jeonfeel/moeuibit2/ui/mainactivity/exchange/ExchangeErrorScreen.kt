@@ -15,9 +15,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.NETWORK_ERROR
-import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState

@@ -11,9 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.NETWORK_ERROR
-import org.jeonfeel.moeuibit2.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel

@@ -51,10 +51,8 @@ class CoinDetailViewModel @Inject constructor(
     var maxOrderBookSize = 0.0
     var market = ""
     var koreanName = ""
-    var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
 
     val gson = Gson()
-    private val isTickerSocketRunning = true
 
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
@@ -63,8 +61,6 @@ class CoinDetailViewModel @Inject constructor(
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
     val userCoinQuantity = mutableStateOf(0.0)
-    val bidDropdownText = mutableStateOf("")
-    val askDropdownText = mutableStateOf("")
     val bidQuantity = mutableStateOf("")
     val askQuantity = mutableStateOf("")
     val askBidDialogState = mutableStateOf(false)
@@ -88,35 +84,6 @@ class CoinDetailViewModel @Inject constructor(
         this.favoriteMutableState.value = isFavorite
     }
 
-    /**
-     * orderScreen
-     * */
-    fun initOrder() {
-        if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
-            setCoinDetailWebSocketMessageListener()
-            setOrderBookWebSocketMessageListener()
-            viewModelScope.launch {
-                UpBitCoinDetailWebSocket.market = market
-                UpBitOrderBookWebSocket.market = market
-                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                updateTicker()
-                initOrderBook(market)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
-                localRepository.getUserDao().all.let {
-                    userSeedMoney.value = it?.krw ?: 0L
-                }
-                localRepository.getMyCoinDao().isInsert(market).let {
-                    userCoinQuantity.value = it?.quantity ?: 0.0
-                }
-            }
-        } else {
-            setCoinDetailWebSocketMessageListener()
-            setOrderBookWebSocketMessageListener()
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-            UpBitOrderBookWebSocket.requestOrderBookList(market)
-        }
-    }
-
     private fun setCoinDetailWebSocketMessageListener() {
         UpBitCoinDetailWebSocket.getListener().setTickerMessageListener(this)
     }
@@ -125,44 +92,91 @@ class CoinDetailViewModel @Inject constructor(
         UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
     }
 
-    private suspend fun initOrderBook(market: String) {
-        val response = remoteRepository.getOrderBookService(market)
-        if (response.isSuccessful) {
-            val body = response.body()
-            val a = body?.first() ?: JsonObject()
-            val modelOBj = gson.fromJson(a, JsonObject::class.java)
-            val modelJsonArray = modelOBj.getAsJsonArray("orderbook_units")
-            val indices = modelJsonArray.size()
-            for (i in indices - 1 downTo 0) {
-                val orderBookAskModel =
-                    gson.fromJson(
-                        modelJsonArray[i],
-                        CoinDetailOrderBookAskRetrofitModel::class.java
-                    )
-                orderBookMutableStateList.add(
-                    CoinDetailOrderBookModel(
-                        orderBookAskModel.ask_price,
-                        orderBookAskModel.ask_size,
-                        0
-                    )
-                )
-            }
-            for (i in 0 until indices) {
-                val orderBookBidModel =
-                    gson.fromJson(
-                        modelJsonArray[i],
-                        CoinDetailOrderBookBidRetrofitModel::class.java
-                    )
-                orderBookMutableStateList.add(
-                    CoinDetailOrderBookModel(
-                        orderBookBidModel.bid_price,
-                        orderBookBidModel.bid_size,
-                        1
-                    )
-                )
-            }
+    /**
+     * orderScreen
+     * */
+    fun initOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            setCoinDetailWebSocketMessageListener()
+            setOrderBookWebSocketMessageListener()
+
         }
+
+        fun updateTicker() {
+            viewModelScope.launch {
+                while (isTickerSocketRunning) {
+                    val tradPrice = coinDetailModel.tradePrice
+                    currentTradePriceState.value = tradPrice
+                    chartUseCase.updateCandleTicker(tradPrice)
+                    delay(100)
+                }
+            }
+
+        }
+
+//        if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
+//            setCoinDetailWebSocketMessageListener()
+//            setOrderBookWebSocketMessageListener()
+//            viewModelScope.launch {
+//                UpBitCoinDetailWebSocket.market = market
+//                UpBitOrderBookWebSocket.market = market
+//                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+//                updateTicker()
+//                initOrderBook(market)
+//                UpBitOrderBookWebSocket.requestOrderBookList(market)
+//                localRepository.getUserDao().all.let {
+//                    userSeedMoney.value = it?.krw ?: 0L
+//                }
+//                localRepository.getMyCoinDao().isInsert(market).let {
+//                    userCoinQuantity.value = it?.quantity ?: 0.0
+//                }
+//            }
+//        } else {
+//            setCoinDetailWebSocketMessageListener()
+//            setOrderBookWebSocketMessageListener()
+//            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+//            UpBitOrderBookWebSocket.requestOrderBookList(market)
+//        }
     }
+
+//    private suspend fun initOrderBook(market: String) {
+//        val response = remoteRepository.getOrderBookService(market)
+//        if (response.isSuccessful) {
+//            val body = response.body()
+//            val a = body?.first() ?: JsonObject()
+//            val modelOBj = gson.fromJson(a, JsonObject::class.java)
+//            val modelJsonArray = modelOBj.getAsJsonArray("orderbook_units")
+//            val indices = modelJsonArray.size()
+//            for (i in indices - 1 downTo 0) {
+//                val orderBookAskModel =
+//                    gson.fromJson(
+//                        modelJsonArray[i],
+//                        CoinDetailOrderBookAskRetrofitModel::class.java
+//                    )
+//                orderBookMutableStateList.add(
+//                    CoinDetailOrderBookModel(
+//                        orderBookAskModel.ask_price,
+//                        orderBookAskModel.ask_size,
+//                        0
+//                    )
+//                )
+//            }
+//            for (i in 0 until indices) {
+//                val orderBookBidModel =
+//                    gson.fromJson(
+//                        modelJsonArray[i],
+//                        CoinDetailOrderBookBidRetrofitModel::class.java
+//                    )
+//                orderBookMutableStateList.add(
+//                    CoinDetailOrderBookModel(
+//                        orderBookBidModel.bid_price,
+//                        orderBookBidModel.bid_size,
+//                        1
+//                    )
+//                )
+//            }
+//        }
+//    }
 
     private fun updateTicker() {
         viewModelScope.launch {

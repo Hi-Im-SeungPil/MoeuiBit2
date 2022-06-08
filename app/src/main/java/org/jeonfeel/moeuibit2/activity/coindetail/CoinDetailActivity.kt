@@ -8,8 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
-import org.jeonfeel.moeuibit2.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.util.ConnectionType

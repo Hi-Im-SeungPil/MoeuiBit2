@@ -2,9 +2,9 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jeonfeel.moeuibit2.SOCKET_IS_CONNECTED
-import org.jeonfeel.moeuibit2.SOCKET_IS_NO_CONNECTION
-import org.jeonfeel.moeuibit2.SOCKET_IS_ON_PAUSE
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_NO_CONNECTION
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitPortfolioWebSocketListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
 import java.util.*

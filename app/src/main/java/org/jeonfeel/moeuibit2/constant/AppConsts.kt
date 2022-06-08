@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2
+package org.jeonfeel.moeuibit2.constant
 
 const val SOCKET_IS_CONNECTED = 0
 const val SOCKET_IS_NO_CONNECTION = -1

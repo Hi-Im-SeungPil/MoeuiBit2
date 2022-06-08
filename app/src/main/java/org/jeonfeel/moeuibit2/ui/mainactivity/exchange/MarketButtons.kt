@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.SELECTED_FAVORITE
-import org.jeonfeel.moeuibit2.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.SELECTED_FAVORITE
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 
 @Composable
