@@ -86,7 +86,7 @@ fun CoinDetailTopAppBar(
             IconButton(onClick = {
                 CoroutineScope(Dispatchers.IO).launch {
                     coinDetailViewModel.localRepository.getUserDao().insert()
-                    coinDetailViewModel.userSeedMoney.value =
+                    coinDetailViewModel.userSeedMoney =
                         coinDetailViewModel.localRepository.getUserDao().all?.krw ?: 0
                 }
             }) {

@@ -32,7 +32,7 @@ fun CoinDetailScreen(
                 UpBitOrderBookWebSocket.onPause()
             }
             Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.initOrder()
+                coinDetailViewModel.initOrderScreen()
             }
             else -> {}
         }
@@ -44,7 +44,7 @@ fun CoinDetailScreen(
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            CoinDetailMain(coinDetailViewModel.currentTradePriceState.value,
+            CoinDetailMain(coinDetailViewModel.currentTradePriceState,
                 coinSymbol,
                 coinDetailViewModel)
         }

@@ -14,7 +14,7 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 fun AskBidDialog(visible: Boolean, coinDetailViewModel: CoinDetailViewModel) {
     if (visible) {
         AlertDialog(
-            onDismissRequest = { coinDetailViewModel.askBidDialogState.value = false },
+            onDismissRequest = { coinDetailViewModel.askBidDialogState = false },
             text = {
                 Card(Modifier.wrapContentSize()) {
                     AskBidDialogContent()

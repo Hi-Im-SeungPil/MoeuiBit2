@@ -137,11 +137,11 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
     var currentUserCoinValue = ""
     val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
         krwOrSymbol = "KRW"
-        Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney.value)
+        Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney)
     } else {
-        val userCoin = coinDetailViewModel.userCoinQuantity.value
+        val userCoin = coinDetailViewModel.userCoinQuantity
         currentUserCoinValue = Calculator.getDecimalFormat()
-            .format(round(coinDetailViewModel.currentTradePriceState.value * userCoin))
+            .format(round(coinDetailViewModel.currentTradePriceState * userCoin))
         krwOrSymbol = coinDetailViewModel.market.substring(4)
         Calculator.getDecimalDecimalFormat().format(userCoin)
     }
@@ -151,8 +151,7 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        Row(
-        ) {
+        Row {
             Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
             AutoSizeText(
                 text = userSeedMoneyOrCoin,
@@ -265,8 +264,8 @@ fun OrderScreenQuantityDropDown(
                         bidButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
                             bidButtonText.value,
-                            coinDetailViewModel.userSeedMoney.value,
-                            coinDetailViewModel.currentTradePriceState.value
+                            coinDetailViewModel.userSeedMoney,
+                            coinDetailViewModel.currentTradePriceState
                         )
                         if (quantity.toDouble() != 0.0) {
                             coinDetailViewModel.bidQuantity.value = quantity
@@ -275,7 +274,7 @@ fun OrderScreenQuantityDropDown(
                         askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
                             askButtonText.value,
-                            coinDetailViewModel.userCoinQuantity.value
+                            coinDetailViewModel.userCoinQuantity
                         )
                         if (quantity.toDouble() != 0.0) {
                             coinDetailViewModel.askQuantity.value = quantity
@@ -305,7 +304,7 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = Calculator.tradePriceCalculatorForChart(coinDetailViewModel.currentTradePriceState.value),
+            text = Calculator.tradePriceCalculatorForChart(coinDetailViewModel.currentTradePriceState),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
             style = TextStyle(fontSize = 15.sp)
@@ -342,7 +341,7 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
                 } else {
                     Calculator.orderScreenTotalPriceCalculator(
                         coinDetailViewModel.bidQuantity.value.toDouble(),
-                        coinDetailViewModel.currentTradePriceState.value
+                        coinDetailViewModel.currentTradePriceState
                     )
                 }
             } else {
@@ -351,7 +350,7 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
                 } else {
                     Calculator.orderScreenTotalPriceCalculator(
                         coinDetailViewModel.askQuantity.value.toDouble(),
-                        coinDetailViewModel.currentTradePriceState.value
+                        coinDetailViewModel.currentTradePriceState
                     )
                 }
             },
@@ -405,7 +404,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             }
             TextButton(
                 onClick = {
-                    currentPrice.value = coinDetailViewModel.currentTradePriceState.value
+                    currentPrice.value = coinDetailViewModel.currentTradePriceState
                     val quantity = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
                         coinDetailViewModel.bidQuantity.value.ifEmpty { "0" }
                     } else {
@@ -415,8 +414,8 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         quantity.toDouble(),
                         currentPrice.value
                     )
-                    val userSeedMoney = coinDetailViewModel.userSeedMoney.value
-                    val userCoin = coinDetailViewModel.userCoinQuantity.value
+                    val userSeedMoney = coinDetailViewModel.userSeedMoney
+                    val userCoin = coinDetailViewModel.userCoinQuantity
                     when {
                         totalPrice.toLong() < 5000 -> {
                             Toast.makeText(
@@ -445,16 +444,14 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                         quantity.toDouble(),
                                         totalPrice.toLong()
                                     ).join()
-                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     coinDetailViewModel.askRequest(
                                         quantity.toDouble(), totalPrice.toLong()
                                     ).join()
-                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -470,7 +467,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         }
         TextButton(
             onClick = {
-                coinDetailViewModel.askBidDialogState.value = true
+                coinDetailViewModel.askBidDialogState = true
             }, modifier = Modifier
                 .padding(0.dp, 5.dp)
                 .fillMaxWidth()
@@ -483,7 +480,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 fontSize = 18.sp
             )
         }
-        AskBidDialog(visible = coinDetailViewModel.askBidDialogState.value, coinDetailViewModel = coinDetailViewModel)
+        AskBidDialog(visible = coinDetailViewModel.askBidDialogState, coinDetailViewModel = coinDetailViewModel)
     }
 }
 

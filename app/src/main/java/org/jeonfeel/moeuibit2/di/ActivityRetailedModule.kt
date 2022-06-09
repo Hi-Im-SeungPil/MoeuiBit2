@@ -7,6 +7,8 @@ import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
+import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
@@ -18,7 +20,18 @@ class ActivityRetailedModule {
     }
 
     @Provides
-    fun provideChartUseCase(remoteRepository: RemoteRepository,xAxisValueFormatter: XAxisValueFormatter): ChartUseCase {
-        return ChartUseCase(remoteRepository,xAxisValueFormatter)
+    fun provideChartUseCase(
+        remoteRepository: RemoteRepository,
+        xAxisValueFormatter: XAxisValueFormatter
+    ): ChartUseCase {
+        return ChartUseCase(remoteRepository, xAxisValueFormatter)
+    }
+
+    @Provides
+    fun provideOrderScreenUseCase(
+        remoteRepository: RemoteRepository,
+        localRepository: LocalRepository
+    ): OrderScreenUseCase {
+        return OrderScreenUseCase(remoteRepository, localRepository)
     }
 }

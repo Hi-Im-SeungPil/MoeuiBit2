@@ -42,7 +42,7 @@ fun AskingPriceLazyColumn(
         itemsIndexed(items = coinDetailViewModel.orderBookMutableStateList) { _, item ->
             AskingPriceLazyColumnItem(item,
                 coinDetailViewModel.preClosingPrice,
-                coinDetailViewModel.currentTradePriceStateForOrderBook.value,
+                coinDetailViewModel.currentTradePriceStateForOrderBook,
                 coinDetailViewModel.maxOrderBookSize)
         }
     }
