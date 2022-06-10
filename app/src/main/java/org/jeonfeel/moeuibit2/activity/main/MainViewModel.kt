@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -484,6 +485,15 @@ class MainViewModel @Inject constructor(
                 totalValuedAssets.value = tempTotalValuedAssets
                 delay(300)
             }
+        }
+    }
+
+    fun resetAll() {
+        viewModelScope.launch(Dispatchers.IO) {
+            localRepository.getUserDao().deleteAll()
+            localRepository.getFavoriteDao().deleteAll()
+            localRepository.getTransactionInfoDao().deleteAll()
+            localRepository.getMyCoinDao().deleteAll()
         }
     }
 

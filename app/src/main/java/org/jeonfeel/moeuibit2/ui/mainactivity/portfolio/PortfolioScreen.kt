@@ -837,20 +837,21 @@ fun UserHoldCoinLazyColumnItemDialog(
                 }
 
                 Row(
-                    modifier = Modifier.drawWithContent {
-                        drawContent()
-                        clipRect {
-                            val strokeWidth = 2f
-                            val y = size.height
-                            drawLine(
-                                brush = SolidColor(Color.LightGray),
-                                strokeWidth = strokeWidth,
-                                cap = StrokeCap.Square,
-                                start = Offset.Zero.copy(y = y),
-                                end = Offset(x = size.width, y = y)
-                            )
-                        }
-                    }
+                    modifier = Modifier
+//                        .drawWithContent {
+//                        drawContent()
+//                        clipRect {
+//                            val strokeWidth = 2f
+//                            val y = size.height
+//                            drawLine(
+//                                brush = SolidColor(Color.LightGray),
+//                                strokeWidth = strokeWidth,
+//                                cap = StrokeCap.Square,
+//                                start = Offset.Zero.copy(y = y),
+//                                end = Offset(x = size.width, y = y)
+//                            )
+//                        }
+//                    }
                 ) {
                     Text(
                         text = "전일대비",
@@ -874,7 +875,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         )
                     )
                 }
-
+                Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
                 Row {
                     Text(
                         text = "취소", modifier = Modifier

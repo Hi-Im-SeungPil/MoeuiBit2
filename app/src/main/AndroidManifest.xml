@@ -53,5 +53,8 @@
 
         <activity android:name="org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity"
             android:exported="true"/>
+
+        <activity android:name="org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense"
+            android:exported="true"/>
     </application>
 </manifest>

@@ -25,6 +25,7 @@ import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.setting.OpenSourceLicenseLazyColumn
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.ui.mainactivity.setting.SettingScreen
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
     object Exchange : MainBottomNavItem("거래소", R.drawable.img_exchange, "exchange")
@@ -93,7 +94,7 @@ fun MainNavigation(
             PortfolioScreen(viewModel,startForActivityResult)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
-            OpenSourceLicenseLazyColumn()
+            SettingScreen(viewModel)
         }
     }
 }
