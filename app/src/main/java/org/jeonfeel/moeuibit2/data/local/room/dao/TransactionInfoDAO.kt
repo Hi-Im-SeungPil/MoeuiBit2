@@ -19,6 +19,9 @@ interface TransactionInfoDAO {
     @Query("SELECT * FROM TransactionInfo where market=:market")
     fun select(market: String?): List<TransactionInfo>
 
+    @Query("DELETE FROM TransactionInfo WHERE market=:market")
+    fun delete(market: String)
+
     @Query("DELETE FROM TransactionInfo ")
     fun deleteAll()
 }

@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +40,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.main.MainActivity
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
@@ -44,20 +50,30 @@ import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.activity.main.MainActivity
-import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import kotlin.math.round
 
 @Composable
 fun PortfolioScreen(
     mainViewModel: MainViewModel = viewModel(),
-    startForActivityResult: ActivityResultLauncher<Intent>
+    startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
+    val context = LocalContext.current
     val dialogState = remember {
         mutableStateOf(false)
     }
-
+    val editHoldCoinDialogState = remember {
+        mutableStateOf(false)
+    }
+    if (editHoldCoinDialogState.value) {
+        EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
+    }
+    if (mainViewModel.removeCoinCount.value == 1) {
+        Toast.makeText(context, "삭제된 코인이 없습니다.", Toast.LENGTH_SHORT).show()
+    } else if (mainViewModel.removeCoinCount.value > 1) {
+        Toast.makeText(context,
+            "${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 삭제되었습니다.",
+            Toast.LENGTH_SHORT).show()
+    }
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
@@ -79,13 +95,13 @@ fun PortfolioScreen(
             TopAppBar(
                 modifier = Modifier
                     .fillMaxWidth(),
-                backgroundColor = colorResource(id = R.color.design_default_color_background),
+                backgroundColor = colorResource(id = R.color.design_default_color_background)
             ) {
                 Text(
                     text = "투자 내역",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(3.dp, 0.dp, 0.dp, 0.dp)
+                        .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                        .weight(1f, true)
                         .fillMaxHeight()
                         .wrapContentHeight(),
                     style = TextStyle(
@@ -94,6 +110,9 @@ fun PortfolioScreen(
                         fontWeight = FontWeight.Bold
                     )
                 )
+                IconButton(onClick = { editHoldCoinDialogState.value = true }) {
+                    Icon(Icons.Filled.Edit, contentDescription = null, tint = Color.Black)
+                }
             }
         }
     ) { contentPadding ->
@@ -111,7 +130,7 @@ fun PortfolioMain(
     portfolioOrderState: MutableState<Int>,
     orderByNameTextInfo: List<Any>,
     orderByRateTextInfo: List<Any>,
-    pieChartState: MutableState<Boolean>
+    pieChartState: MutableState<Boolean>,
 ) {
     mainViewModel.getUserSeedMoney()
     val totalValuedAssets = Calculator.getDecimalFormat()
@@ -227,9 +246,9 @@ fun PortfolioMainSortButtons(
     orderByRateTextInfo: List<Any>,
     orderByNameTextInfo: List<Any>,
     mainViewModel: MainViewModel,
-    portfolioOrderState: MutableState<Int>
+    portfolioOrderState: MutableState<Int>,
 
-) {
+    ) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -302,7 +321,7 @@ fun PortfolioMainSortButtons(
 fun PortfolioPieChart(
     pieChartState: MutableState<Boolean>,
     userSeedMoney: MutableState<Long>,
-    userHoldCoinList: List<MyCoin?>
+    userHoldCoinList: List<MyCoin?>,
 ) {
     val imageVector = remember {
         mutableStateOf(Icons.Filled.KeyboardArrowDown)
@@ -346,7 +365,9 @@ fun PortfolioPieChart(
                 tint = colorResource(
                     id = R.color.C0F0F5C
                 ),
-                modifier = Modifier.padding(8.dp,8.dp).fillMaxHeight()
+                modifier = Modifier
+                    .padding(8.dp, 8.dp)
+                    .fillMaxHeight()
             )
 
         }
@@ -367,7 +388,7 @@ fun RowScope.PortfolioMainItem(
     text4: String,
     text5: String,
     text6: String,
-    colorStandard: Long
+    colorStandard: Long,
 ) {
     val textColor = getReturnTextColor(colorStandard, text5)
     Column(
@@ -466,7 +487,7 @@ fun RowScope.PortfolioMainItem(
 fun UserHoldCoinLazyColumn(
     mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    dialogState: MutableState<Boolean>
+    dialogState: MutableState<Boolean>,
 ) {
     val portfolioOrderState = remember {
         mutableStateOf(-1)
@@ -561,7 +582,7 @@ fun UserHoldCoinLazyColumnItem(
     currentPrice: Double,
     startForActivityResult: ActivityResultLauncher<Intent>,
     selectedCoinKoreanName: MutableState<String>,
-    dialogState: MutableState<Boolean>
+    dialogState: MutableState<Boolean>,
 ) {
     if (dialogState.value && coinKoreanName == selectedCoinKoreanName.value) {
         UserHoldCoinLazyColumnItemDialog(
@@ -770,7 +791,7 @@ fun UserHoldCoinLazyColumnItemDialog(
     openingPrice: Double,
     isFavorite: Int?,
     warning: String,
-    startForActivityResult: ActivityResultLauncher<Intent>
+    startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
     val context = LocalContext.current
     val textColor = if (openingPrice < currentPrice) {
@@ -836,23 +857,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-//                        .drawWithContent {
-//                        drawContent()
-//                        clipRect {
-//                            val strokeWidth = 2f
-//                            val y = size.height
-//                            drawLine(
-//                                brush = SolidColor(Color.LightGray),
-//                                strokeWidth = strokeWidth,
-//                                cap = StrokeCap.Square,
-//                                start = Offset.Zero.copy(y = y),
-//                                end = Offset(x = size.width, y = y)
-//                            )
-//                        }
-//                    }
-                ) {
+                Row {
                     Text(
                         text = "전일대비",
                         modifier = Modifier
@@ -911,6 +916,80 @@ fun UserHoldCoinLazyColumnItemDialog(
                                     R.anim.lazy_column_item_slide_left,
                                     R.anim.none
                                 )
+                                dialogState.value = false
+                            }
+                            .padding(0.dp, 10.dp),
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableState<Boolean>) {
+    Dialog(onDismissRequest = { dialogState.value = false }) {
+        Card(
+            modifier = Modifier
+                .padding(40.dp, 0.dp)
+                .wrapContentSize()
+        ) {
+            Column(
+                Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = "보유 코인 정리",
+                    modifier = Modifier
+                        .padding(0.dp, 20.dp)
+                        .fillMaxWidth(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        textAlign = TextAlign.Center,
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Text(
+                    text = "보유하고 있는 코인이 상장 폐지나 기타 사유로 거래가 불가능한 경우\n\n\"해당 코인들을 정리(삭제)합니다\"",
+                    modifier = Modifier
+                        .padding(10.dp, 10.dp, 10.dp, 20.dp)
+                        .fillMaxWidth(),
+                    style = TextStyle(fontSize = 18.sp)
+                )
+                Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
+                Row {
+                    Text(
+                        text = stringResource(id = R.string.commonCancel), modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                dialogState.value = false
+                            }
+                            .padding(0.dp, 10.dp),
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    )
+                    Text(
+                        text = "", modifier = Modifier
+                            .width(0.5.dp)
+                            .border(0.5.dp, Color.LightGray)
+                            .padding(0.dp, 10.dp), fontSize = 18.sp
+                    )
+                    Text(text = "정리",
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                mainViewModel.editUserHoldCoin()
                                 dialogState.value = false
                             }
                             .padding(0.dp, 10.dp),

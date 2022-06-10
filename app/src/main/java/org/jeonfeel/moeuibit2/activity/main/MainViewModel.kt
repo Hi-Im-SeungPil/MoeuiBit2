@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +36,6 @@ class MainViewModel @Inject constructor(
     private val localRepository: LocalRepository,
 ) : ViewModel(), OnTickerMessageReceiveListener, PortfolioOnTickerMessageReceiveListener {
 
-    private val TAG = MainViewModel::class.java.simpleName
     private val gson = Gson()
     val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
     var isSocketRunning = false
@@ -63,15 +61,15 @@ class MainViewModel @Inject constructor(
 
     val userSeedMoney = mutableStateOf(0L)
     var userHoldCoinList = emptyList<MyCoin?>()
-    val userHoldCoinHashMap = HashMap<String, MyCoin>()
+    private val userHoldCoinHashMap = HashMap<String, MyCoin>()
     var totalPurchase = mutableStateOf(0.0)
-    val totalHoldings = mutableStateOf("")
-    var userHoldCoinsMarket = StringBuffer()
+    private var userHoldCoinsMarket = StringBuffer()
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
     private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
     val portfolioLoadingComplete = mutableStateOf(false)
+    var removeCoinCount = mutableStateOf(0)
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
@@ -471,6 +469,33 @@ class MainViewModel @Inject constructor(
         }
 
         isPortfolioSocketRunning = true
+    }
+
+    fun editUserHoldCoin() {
+        var count = 1
+        isPortfolioSocketRunning = false
+        viewModelScope.launch(Dispatchers.IO) {
+            for (i in userHoldCoinList) {
+                if(krwExchangeModelListPosition[i!!.market] == null) {
+                    localRepository.getFavoriteDao().delete(i.market)
+                    localRepository.getMyCoinDao().delete(i.market)
+                    localRepository.getTransactionInfoDao().delete(i.market)
+                    count += 1
+                }
+            }
+            if(count > 1) {
+                isPortfolioSocketRunning = false
+                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+                UpBitPortfolioWebSocket.onPause()
+                isPortfolioSocketRunning = true
+                getUserHoldCoins()
+            } else {
+                isPortfolioSocketRunning = true
+            }
+            removeCoinCount.value = count
+            delay(100L)
+            removeCoinCount.value = 0
+        }
     }
 
     private fun updateUserHoldCoins() {

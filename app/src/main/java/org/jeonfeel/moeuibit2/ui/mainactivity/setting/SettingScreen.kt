@@ -97,7 +97,7 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
             .fillMaxWidth()
             .border(1.dp, Color.DarkGray)
             .clickable { clickAction() }
-            .padding(5.dp, 10.dp),
+            .padding(10.dp, 10.dp),
         style = TextStyle(fontSize = 25.sp)
     )
 }

@@ -20,19 +20,22 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
-import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
+import org.jeonfeel.moeuibit2.util.Calculator
 
 @Composable
 fun ExchangeScreenLazyColumnItem(
@@ -90,7 +93,7 @@ fun ExchangeScreenLazyColumnItem(
             if(warning == "CAUTION") {
                 Text(
                     buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.Bold)) {
+                        withStyle(style = SpanStyle(color = Color.Magenta, fontWeight = FontWeight.Bold)) {
                             append("[유]")
                         }
                         append(koreanName)
