@@ -43,12 +43,14 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import kotlin.math.round
 
@@ -68,10 +70,12 @@ fun PortfolioScreen(
         EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
     }
     if (mainViewModel.removeCoinCount.value == 1) {
-        Toast.makeText(context, "삭제된 코인이 없습니다.", Toast.LENGTH_SHORT).show()
-    } else if (mainViewModel.removeCoinCount.value > 1) {
+        Toast.makeText(context, "정리된 코인이 없습니다.", Toast.LENGTH_SHORT).show()
+    } else if(mainViewModel.removeCoinCount.value == -1) {
+        Toast.makeText(context, "네트워크 상태 오류입니다.", Toast.LENGTH_SHORT).show()
+    }else if (mainViewModel.removeCoinCount.value > 1) {
         Toast.makeText(context,
-            "${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 삭제되었습니다.",
+            "${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 정리되었습니다.",
             Toast.LENGTH_SHORT).show()
     }
     OnLifecycleEvent { _, event ->
@@ -82,8 +86,12 @@ fun PortfolioScreen(
                 UpBitPortfolioWebSocket.onPause()
             }
             Lifecycle.Event.ON_RESUME -> {
-                mainViewModel.isPortfolioSocketRunning = true
-                mainViewModel.getUserHoldCoins()
+                if(NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+                    mainViewModel.isPortfolioSocketRunning = true
+                    mainViewModel.getUserHoldCoins()
+                } else {
+                    Toast.makeText(context, "인터넷 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                }
             }
             else -> {}
         }
@@ -936,7 +944,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
     Dialog(onDismissRequest = { dialogState.value = false }) {
         Card(
             modifier = Modifier
-                .padding(40.dp, 0.dp)
+                .padding(20.dp, 0.dp)
                 .wrapContentSize()
         ) {
             Column(
@@ -985,7 +993,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                             .border(0.5.dp, Color.LightGray)
                             .padding(0.dp, 10.dp), fontSize = 18.sp
                     )
-                    Text(text = "정리",
+                    Text(text = stringResource(id = R.string.commonAccept),
                         modifier = Modifier
                             .weight(1f)
                             .clickable {

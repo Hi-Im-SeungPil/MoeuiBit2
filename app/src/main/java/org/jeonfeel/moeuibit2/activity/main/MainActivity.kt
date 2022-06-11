@@ -27,8 +27,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private var backBtnTime: Long = 0
     @Inject
     lateinit var networkMonitorUtil: NetworkMonitorUtil
     @Inject
@@ -108,15 +106,3 @@ class MainActivity : ComponentActivity() {
         networkMonitorUtil.unregister()
     }
 }
-
-//    override fun onBackPressed() {
-//        val curTime = System.currentTimeMillis()
-//        val gapTime = curTime - backBtnTime
-//        if (gapTime in 0..2000) {
-//            super.onBackPressed()
-//        } else {
-//            backBtnTime = curTime
-//            Toast.makeText(this@MainActivity, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT)
-//                .show()
-//        }
-//    }

@@ -36,7 +36,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
         android:usesCleartextTraffic="true"
-        android:name=".MyApplication">
+        android:name=".MyApplication"
+        android:screenOrientation="portrait">
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data

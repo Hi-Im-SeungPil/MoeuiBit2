@@ -14,6 +14,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
@@ -474,27 +475,36 @@ class MainViewModel @Inject constructor(
     fun editUserHoldCoin() {
         var count = 1
         isPortfolioSocketRunning = false
+
         viewModelScope.launch(Dispatchers.IO) {
-            for (i in userHoldCoinList) {
-                if(krwExchangeModelListPosition[i!!.market] == null) {
-                    localRepository.getFavoriteDao().delete(i.market)
-                    localRepository.getMyCoinDao().delete(i.market)
-                    localRepository.getTransactionInfoDao().delete(i.market)
-                    count += 1
+            if (UpBitPortfolioWebSocket.currentSocketState != SOCKET_IS_CONNECTED || currentNetworkState != INTERNET_CONNECTION) {
+                removeCoinCount.value = -1
+                delay(100L)
+                removeCoinCount.value = 0
+            } else {
+                if(krwExchangeModelListPosition.isNotEmpty()) {
+                    for (i in userHoldCoinList) {
+                        if (krwExchangeModelListPosition[i!!.market] == null) {
+                            localRepository.getFavoriteDao().delete(i.market)
+                            localRepository.getMyCoinDao().delete(i.market)
+                            localRepository.getTransactionInfoDao().delete(i.market)
+                            count += 1
+                        }
+                    }
+                    if (count > 1) {
+                        isPortfolioSocketRunning = false
+                        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+                        UpBitPortfolioWebSocket.onPause()
+                        isPortfolioSocketRunning = true
+                        getUserHoldCoins()
+                    } else {
+                        isPortfolioSocketRunning = true
+                    }
+                    removeCoinCount.value = count
+                    delay(100L)
+                    removeCoinCount.value = 0
                 }
             }
-            if(count > 1) {
-                isPortfolioSocketRunning = false
-                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-                UpBitPortfolioWebSocket.onPause()
-                isPortfolioSocketRunning = true
-                getUserHoldCoins()
-            } else {
-                isPortfolioSocketRunning = true
-            }
-            removeCoinCount.value = count
-            delay(100L)
-            removeCoinCount.value = 0
         }
     }
 
