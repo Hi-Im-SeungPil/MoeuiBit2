@@ -20,11 +20,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.mainactivity.coinnews.CoinNewsScreen
+import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.ui.mainactivity.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.PortfolioScreen
-import org.jeonfeel.moeuibit2.ui.mainactivity.setting.OpenSourceLicenseLazyColumn
-import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.ui.mainactivity.setting.SettingScreen
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
@@ -88,7 +87,7 @@ fun MainNavigation(
             ExchangeScreen(viewModel,startForActivityResult)
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
-            CoinNewsScreen()
+            CoinSiteScreen()
         }
         composable(MainBottomNavItem.Portfolio.screen_route){
             PortfolioScreen(viewModel,startForActivityResult)

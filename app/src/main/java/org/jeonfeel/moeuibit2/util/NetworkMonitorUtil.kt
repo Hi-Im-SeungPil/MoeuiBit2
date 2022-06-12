@@ -61,9 +61,13 @@ class NetworkMonitorUtil(context: Context) {
     }
 
     fun unregister() {
-        val connectivityManager =
-            mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.unregisterNetworkCallback(networkCallback)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val connectivityManager =
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } else {
+            mContext.unregisterReceiver(networkChangeReceiver)
+        }
     }
 
     @Suppress("DEPRECATION")

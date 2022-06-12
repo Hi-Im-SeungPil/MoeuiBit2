@@ -14,18 +14,22 @@
         <package android:name="coinone.co.kr.official" />
         <package android:name="com.binance.dev" />
         <package android:name="com.bybit.app" />
+        <package android:name="com.korbit.exchange" />
         <package android:name="kr.co.gopax" />
+
         <package android:name="com.ddengle.app" />
         <package android:name="com.coinpan.coinpan" />
         <package android:name="mnet7.mobile" />
-        <package android:name="com.coinness" />
+        <package android:name="live.coinness" />
         <package android:name="com.cobak.android" />
         <package android:name="kr.blockchainhub.app" />
         <package android:name="com.dcinside.app" />
         <package android:name="com.fmkorea.m.fmk" />
+
         <package android:name="com.coinmarketcap.android" />
         <package android:name="com.coingecko.coingeckoapp" />
         <package android:name="com.crossangle.xangle" />
+
         <package android:name="com.coincal" />
     </queries>
 

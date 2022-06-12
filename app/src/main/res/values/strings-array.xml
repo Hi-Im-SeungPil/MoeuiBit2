@@ -40,4 +40,42 @@
         <item>Thank you for providing free icons.</item>
     </string-array>
 
+    <string-array name="exchangeUrl">
+        <item>https://www.upbit.com</item>
+        <item>https://www.bithumb.com</item>
+        <item>https://coinone.co.kr</item>
+        <item>https://www.korbit.co.kr/</item>
+        <item>https://www.gopax.co.kr</item>
+        <item>https://www.binance.com/en</item>
+    </string-array>
+    
+    <string-array name="communityUrl">
+        <item>https://www.ddengle.com</item>
+        <item>https://coinpan.com</item>
+        <item>https://www.moneynet.co.kr</item>
+        <item>https://cobak.co.kr</item>
+        <item>https://blockchainhub.kr</item>
+        <item>https://gall.dcinside.com/board/lists/?id=bitcoins_new1</item>
+        <item>https://www.fmkorea.com/coin</item>
+        <item>https://cafe.naver.com/nexontv</item>
+        <item>https://twitter.com/elonmusk</item>
+    </string-array>
+
+    <string-array name="coinInfoUrl">
+        <item>https://coinmarketcap.com/ko</item>
+        <item>https://www.coingecko.com/ko</item>
+        <item>https://xangle.io</item>
+    </string-array>
+
+    <string-array name="kimpUrl">
+        <item>https://kimpga.com</item>
+        <item>https://scolkg.com</item>
+    </string-array>
+
+    <string-array name="coinNewsUrl">
+        <item>https://coinness.live/</item>
+        <item>https://coinmarketcal.com/en</item>
+        <item>https://www.coindalin.com</item>
+    </string-array>
+
 </resources>
