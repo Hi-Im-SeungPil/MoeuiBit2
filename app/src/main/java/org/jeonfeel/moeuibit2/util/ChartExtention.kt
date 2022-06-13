@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.util.Log
 import android.view.MotionEvent
 import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.ValueFormatter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
@@ -62,6 +66,12 @@ fun BarDataSet.initNegativeBarDataSet() {
 fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinDetailViewModel) {
     val chart = this@initCombinedChart
     chart.removeAllViews()
+
+    val canvasView = ChartCanvas(context)
+    chart.addView(canvasView)
+
+    var purchaseAveragePrice = -1.0f
+
     //chart
     chart.apply {
         description.isEnabled = false
@@ -151,7 +161,6 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         spaceTop = 400f
         axisMinimum = 0f
     }
-
     //right Axis
     val rightAxis = chart.axisRight
     rightAxis.apply {
@@ -162,12 +171,45 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         axisLineColor = Color.GRAY
         minWidth = 50f
         spaceBottom = 40f
+        CoroutineScope(Dispatchers.Main).launch {
+            val myCoin = coinDetailViewModel.getChartCoinPurchaseAverage()
+            myCoin?.let {
+                val purchaseAverage = it.purchasePrice.toFloat()
+                purchaseAveragePrice = purchaseAverage
+                val purchaseAverageLimitLine = LimitLine(purchaseAverage, "매수평균")
+                purchaseAverageLimitLine.labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
+                purchaseAverageLimitLine.lineColor = Color.parseColor("#2F9D27")
+                purchaseAverageLimitLine.textColor = Color.parseColor("#2F9D27")
+                addLimitLine(purchaseAverageLimitLine)
+                canvasView.purchaseAverageSetPosition(
+                    chart.getPosition(
+                        Entry(
+                            0f,
+                            purchaseAverage
+                        ), rightAxis.axisDependency
+                    ).y
+                )
+                canvasView.purchaseAverageSetPrice(
+                    Calculator.tradePriceCalculatorForChart(
+                        purchaseAverage
+                    )
+                )
+                Log.d(
+                    "purchaseAveragePrice", chart.getPosition(
+                        CandleEntry(
+                            0f,
+                            0f,
+                            0f,
+                            purchaseAverage,
+                            purchaseAverage
+                        ), axisRight.axisDependency
+                    ).y.toString()
+                )
+            }
+        }
     }
 
-    val canvasView = ChartCanvas(context)
-    chart.addView(canvasView)
     chart.setOnTouchListener { _, me ->
-
         if (coinDetailViewModel.loadingMoreChartData) {
             return@setOnTouchListener true
         }
@@ -178,7 +220,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
 
         val action = me!!.action
         val x = me.x
-        val y = me.y - 170f
+        val y = me.y - 160f
         if (action == MotionEvent.ACTION_DOWN) {
             val highlight = getHighlightByTouchPoint(x, y)
             val value = chart.getValuesByTouchPoint(
@@ -186,6 +228,20 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 y,
                 axisRight.axisDependency
             )
+
+            if (purchaseAveragePrice > -1.0f) {
+                canvasView.purchaseAverageSetPosition(
+                    chart.getPosition(
+                        CandleEntry(
+                            0f,
+                            0f,
+                            0f,
+                            purchaseAveragePrice,
+                            purchaseAveragePrice
+                        ), rightAxis.axisDependency
+                    ).y
+                )
+            }
 
             val verticalLine = LimitLine(value.x.roundToInt().toFloat())
             val horizontalLine = LimitLine(value.y.toFloat())
@@ -198,7 +254,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             }
             if (xAxis.limitLines.size != 0) {
                 xAxis.removeAllLimitLines()
-                rightAxis.removeAllLimitLines()
+                rightAxis.removeLimitLine(rightAxis.limitLines.last())
             }
             horizontalLine.apply {
                 lineColor = Color.BLACK
@@ -213,35 +269,50 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 if (chart.axisLeft.limitLines.isNotEmpty()) {
                     chart.axisLeft.removeAllLimitLines()
                 }
-                val highestVisibleCandle = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
+                val highestVisibleCandle =
+                    chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX))
+                        .first()
 
-                    val tradePrice = highestVisibleCandle.close
-                    val openPrice = highestVisibleCandle.open
-                    val color = if (tradePrice - openPrice >= 0.0) {
-                        Color.RED
-                    } else {
-                        Color.BLUE
-                    }
-                    chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
-                    val yp = chart.getPosition(
-                        CandleEntry(
-                            tradePrice,
-                            tradePrice,
-                            tradePrice,
-                            tradePrice,
-                            tradePrice
-                        ), rightAxis.axisDependency
-                    ).y
-                    canvasView.realTimeLastCandleClose(
-                        yp,
-                        Calculator.tradePriceCalculatorForChart(tradePrice),
-                        color
-                    )
+                val tradePrice = highestVisibleCandle.close
+                val openPrice = highestVisibleCandle.open
+                val color = if (tradePrice - openPrice >= 0.0) {
+                    Color.RED
+                } else {
+                    Color.BLUE
+                }
+                chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
+                val yp = chart.getPosition(
+                    CandleEntry(
+                        tradePrice,
+                        tradePrice,
+                        tradePrice,
+                        tradePrice,
+                        tradePrice
+                    ), rightAxis.axisDependency
+                ).y
+                canvasView.realTimeLastCandleClose(
+                    yp,
+                    Calculator.tradePriceCalculatorForChart(tradePrice),
+                    color
+                )
             }
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
             canvasView.actionDownInvalidate(y, text)
         } else if (action == MotionEvent.ACTION_MOVE) {
+            if (purchaseAveragePrice > -1.0f) {
+                canvasView.purchaseAverageSetPosition(
+                    chart.getPosition(
+                        CandleEntry(
+                            0f,
+                            0f,
+                            0f,
+                            purchaseAveragePrice,
+                            purchaseAveragePrice
+                        ), rightAxis.axisDependency
+                    ).y
+                )
+            }
             if (xAxis.limitLines.size != 0) {
                 val value = chart.getValuesByTouchPoint(
                     x,
@@ -261,33 +332,34 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     lineWidth = 0.5f
                 }
                 if (chart.candleData.xMax > highestVisibleX) {
-                    val highestVisibleCandle = chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX)).first()
+                    val highestVisibleCandle =
+                        chart.data.candleData.dataSets[0].getEntriesForXValue(round(chart.highestVisibleX))
+                            .first()
 
-                        val tradePrice = highestVisibleCandle.close
-                        val openPrice = highestVisibleCandle.open
-                        val color = if (tradePrice - openPrice >= 0.0) {
-                            Color.RED
-                        } else {
-                            Color.BLUE
-                        }
-                        chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
-                        val yp = chart.getPosition(
-                            CandleEntry(
-                                tradePrice,
-                                tradePrice,
-                                tradePrice,
-                                tradePrice,
-                                tradePrice
-                            ), rightAxis.axisDependency
-                        ).y
-                        canvasView.realTimeLastCandleClose(
-                            yp,
-                            Calculator.tradePriceCalculatorForChart(tradePrice),
-                            color
-                        )
-
+                    val tradePrice = highestVisibleCandle.close
+                    val openPrice = highestVisibleCandle.open
+                    val color = if (tradePrice - openPrice >= 0.0) {
+                        Color.RED
+                    } else {
+                        Color.BLUE
+                    }
+                    chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
+                    val yp = chart.getPosition(
+                        CandleEntry(
+                            0f,
+                            0f,
+                            0f,
+                            tradePrice,
+                            tradePrice
+                        ), rightAxis.axisDependency
+                    ).y
+                    canvasView.realTimeLastCandleClose(
+                        yp,
+                        Calculator.tradePriceCalculatorForChart(tradePrice),
+                        color
+                    )
                 }
-                rightAxis.limitLines[0] = horizontalLine
+                rightAxis.limitLines[rightAxis.limitLines.lastIndex] = horizontalLine
                 canvasView.actionMoveInvalidate(y, text)
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData && coinDetailViewModel.isUpdateChart) {

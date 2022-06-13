@@ -17,22 +17,20 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookAskModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookBidModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
 import javax.inject.Inject
 import kotlin.collections.set
 
@@ -332,6 +330,12 @@ class CoinDetailViewModel @Inject constructor(
     fun requestChartData(combinedChart: CombinedChart) {
         viewModelScope.launch {
             chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
+        }
+    }
+
+    suspend fun getChartCoinPurchaseAverage(): MyCoin? {
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
+            chartUseCase.getChartCoinPurchaseAverage(market)
         }
     }
 

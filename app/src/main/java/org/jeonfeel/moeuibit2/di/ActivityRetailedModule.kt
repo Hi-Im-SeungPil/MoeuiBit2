@@ -22,9 +22,10 @@ class ActivityRetailedModule {
     @Provides
     fun provideChartUseCase(
         remoteRepository: RemoteRepository,
-        xAxisValueFormatter: XAxisValueFormatter
+        xAxisValueFormatter: XAxisValueFormatter,
+        localRepository: LocalRepository
     ): ChartUseCase {
-        return ChartUseCase(remoteRepository, xAxisValueFormatter)
+        return ChartUseCase(remoteRepository, xAxisValueFormatter, localRepository)
     }
 
     @Provides

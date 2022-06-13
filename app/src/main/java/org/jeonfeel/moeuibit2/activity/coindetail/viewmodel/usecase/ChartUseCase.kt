@@ -10,7 +10,9 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.delay
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.util.GetMovingAverage
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_ADD
@@ -28,6 +30,7 @@ import javax.inject.Inject
 class ChartUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val xAxisValueFormatter: XAxisValueFormatter,
+    private val localRepository: LocalRepository
 ) : ViewModel() {
     private val gson = Gson()
     private var candleEntriesLastPosition = 0
@@ -203,7 +206,6 @@ class ChartUseCase @Inject constructor(
             val positiveBarDataSet = BarDataSet(tempPositiveBarEntries, "")
             val negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
             candleEntriesLastPosition = candleEntries.size - 1
-
             val candleDataSet = CandleDataSet(candleEntries, "")
             combinedChart.chartRefreshLoadMoreData(
                 candleDataSet,
@@ -211,7 +213,7 @@ class ChartUseCase @Inject constructor(
                 negativeBarDataSet,
                 getMovingAverage.createLineData(),
                 startPosition,
-                currentVisible
+                currentVisible,
             )
             dialogState.value = false
             loadingMoreChartData = false
@@ -414,4 +416,8 @@ class ChartUseCase @Inject constructor(
     }
 
     fun candleEntriesIsEmpty(): Boolean = candleEntries.isEmpty()
+
+    suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
+        return localRepository.getMyCoinDao().isInsert(market)
+    }
 }
