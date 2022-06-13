@@ -17,10 +17,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
@@ -333,11 +335,6 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun getChartCoinPurchaseAverage(): MyCoin? {
-        return withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
-            chartUseCase.getChartCoinPurchaseAverage(market)
-        }
-    }
 
     /**
      * Listener

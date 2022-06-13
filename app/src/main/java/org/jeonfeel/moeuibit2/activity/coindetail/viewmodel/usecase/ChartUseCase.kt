@@ -13,16 +13,12 @@ import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.util.GetMovingAverage
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_ADD
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_CANDLE
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.MINUTE_SELECT
-import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
-import org.jeonfeel.moeuibit2.util.chartRefreshLoadMoreData
-import org.jeonfeel.moeuibit2.util.chartRefreshSetting
-import org.jeonfeel.moeuibit2.util.initCanvas
+import org.jeonfeel.moeuibit2.util.*
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -50,6 +46,7 @@ class ChartUseCase @Inject constructor(
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val kstDateHashMap = HashMap<Int, String>()
     val accData = HashMap<Int, Double>()
+    var purchaseAveragePrice: Float? = null
 
     private val _candleUpdateMutableLiveData = MutableLiveData<Int>()
     val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData
@@ -67,6 +64,8 @@ class ChartUseCase @Inject constructor(
             remoteRepository.getMinuteCandleService(candleType, market)
         }
         if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
+            combinedChart.axisRight.removeAllLimitLines()
+            combinedChart.xAxis.removeAllLimitLines()
             val positiveBarEntries = ArrayList<BarEntry>()
             val negativeBarEntries = ArrayList<BarEntry>()
             candlePosition = 0f
@@ -108,7 +107,6 @@ class ChartUseCase @Inject constructor(
                             BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
                         )
                     }
-
                     kstDateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
                     accData[candlePosition.toInt()] = model.candleAccTradePrice
                     candlePosition += 1f
@@ -116,6 +114,10 @@ class ChartUseCase @Inject constructor(
                 }
             } else {
                 //TODO
+            }
+            val myCoin = getChartCoinPurchaseAverage(market)
+            myCoin?.let {
+                purchaseAveragePrice = it.purchasePrice.toFloat()
             }
             this@ChartUseCase.xAxisValueFormatter.setItem(kstDateHashMap)
             candlePosition -= 1f
@@ -125,7 +127,8 @@ class ChartUseCase @Inject constructor(
                 BarDataSet(positiveBarEntries, ""),
                 BarDataSet(negativeBarEntries, ""),
                 getMovingAverage.createLineData(),
-                this@ChartUseCase.xAxisValueFormatter
+                this@ChartUseCase.xAxisValueFormatter,
+                purchaseAveragePrice
             )
             isUpdateChart = true
             dialogState.value = false
