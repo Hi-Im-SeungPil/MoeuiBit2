@@ -34,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
+import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
@@ -87,7 +88,7 @@ fun CoinInfoContent(
     selectedButton: MutableState<Int>,
     context: Context,
     coinInfoHashMap: MutableState<HashMap<String, String>>,
-    flex: FlexWebView
+    flex: FlexWebView,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -197,14 +198,39 @@ fun CoinInfoContent(
             )
         }
 
-        AndroidView(
-            factory = {
-                flex
-            }, modifier = Modifier
+        if (selectedButton.value == -1) {
+            GlideImage(imageModel = R.drawable.img_default_wv, modifier = Modifier
                 .fillMaxHeight()
                 .wrapContentWidth()
-                .padding(10.dp, 0.dp)
-        )
+                .padding(10.dp, 0.dp,10.dp,10.dp))
+        } else if(selectedButton.value != -1 && flex.url != null) {
+            AndroidView(
+                factory = {
+                    flex
+                }, modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .padding(10.dp, 0.dp)
+            )
+        } else if(flex.url == null && selectedButton.value == 4) {
+            AndroidView(
+                factory = {
+                    flex
+                }, modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .padding(10.dp, 0.dp)
+            )
+        } else if(flex.url == null && selectedButton.value == 5) {
+            AndroidView(
+                factory = {
+                    flex
+                }, modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentWidth()
+                    .padding(10.dp, 0.dp)
+            )
+        }
     }
 }
 

@@ -328,23 +328,7 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMinimum(20f)
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            purchaseAveragePrice?.let {
-                val purchaseAverageLimitLine = LimitLine(it, "매수평균")
-                val purchaseAverageLimitLine2 =
-                    LimitLine(it, Calculator.tradePriceCalculatorForChart(purchaseAveragePrice))
-                purchaseAverageLimitLine.apply {
-                    labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
-                    textColor = Color.parseColor("#2F9D27")
-                    lineColor = Color.parseColor("#2F9D27")
-                }
-                purchaseAverageLimitLine2.apply {
-                    labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
-                    textColor = Color.parseColor("#2F9D27")
-                    lineColor = Color.parseColor("#2F9D27")
-                }
-                chart.axisRight.addLimitLine(purchaseAverageLimitLine)
-                chart.axisRight.addLimitLine(purchaseAverageLimitLine2)
-            }
+            addPurchaseLimitLine(purchaseAveragePrice)
             chart.zoom(4f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
         } else {
@@ -355,25 +339,30 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            purchaseAveragePrice?.let {
-                val purchaseAverageLimitLine = LimitLine(it, "매수평균")
-                val purchaseAverageLimitLine2 =
-                    LimitLine(it, Calculator.tradePriceCalculatorForChart(purchaseAveragePrice))
-                purchaseAverageLimitLine.apply {
-                    labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
-                    textColor = Color.parseColor("#2F9D27")
-                    lineColor = Color.parseColor("#2F9D27")
-                }
-                purchaseAverageLimitLine2.apply {
-                    labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
-                    textColor = Color.parseColor("#2F9D27")
-                    lineColor = Color.parseColor("#2F9D27")
-                }
-                chart.axisRight.addLimitLine(purchaseAverageLimitLine)
-                chart.axisRight.addLimitLine(purchaseAverageLimitLine2)
-            }
+            addPurchaseLimitLine(purchaseAveragePrice)
             chart.invalidate()
         }
+    }
+}
+
+fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?) {
+    val chart = this
+    purchaseAveragePrice?.let {
+        val purchaseAverageLimitLine = LimitLine(it, "매수평균")
+        val purchaseAverageLimitLine2 =
+            LimitLine(it, Calculator.tradePriceCalculatorForChart(purchaseAveragePrice))
+        purchaseAverageLimitLine.apply {
+            labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
+            textColor = Color.parseColor("#2F9D27")
+            lineColor = Color.parseColor("#2F9D27")
+        }
+        purchaseAverageLimitLine2.apply {
+            labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
+            textColor = Color.parseColor("#2F9D27")
+            lineColor = Color.parseColor("#2F9D27")
+        }
+        chart.axisRight.addLimitLine(purchaseAverageLimitLine)
+        chart.axisRight.addLimitLine(purchaseAverageLimitLine2)
     }
 }
 

@@ -13,6 +13,9 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
@@ -31,8 +34,10 @@ class MainActivity : ComponentActivity() {
     lateinit var networkMonitorUtil: NetworkMonitorUtil
     @Inject
     lateinit var permissionManager: PermissionManager
+    private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +49,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initActivity() {
+        auth = Firebase.auth
+        if(auth.currentUser == null) {
+            auth.signInAnonymously()
+        }
         startForActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == RESULT_OK) {
