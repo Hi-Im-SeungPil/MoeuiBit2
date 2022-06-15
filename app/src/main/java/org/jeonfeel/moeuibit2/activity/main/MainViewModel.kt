@@ -1,20 +1,23 @@
 package org.jeonfeel.moeuibit2.activity.main
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
@@ -572,5 +575,9 @@ class MainViewModel @Inject constructor(
                     isFavorite = isFavorite
                 )
         }
+    }
+
+    fun earnReward() {
+        localRepository.getUserDao().insert()
     }
 }

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.activity.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,12 +14,23 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.OnUserEarnedRewardListener
+import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.adId
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.manager.PermissionManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
@@ -29,7 +41,7 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkSt
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     @Inject
     lateinit var networkMonitorUtil: NetworkMonitorUtil
     @Inject
@@ -113,5 +125,28 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         networkMonitorUtil.unregister()
+    }
+
+    fun loadAd(context: Context) {
+        MobileAds.initialize(context){
+            RewardedInterstitialAd.load(context,
+                adId,
+                AdRequest.Builder().build(), object : RewardedInterstitialAdLoadCallback(){
+                override fun onAdLoaded(ad: RewardedInterstitialAd) {
+                    super.onAdLoaded(ad)
+                    ad.show(this@MainActivity,this@MainActivity)
+                }
+
+                override fun onAdFailedToLoad(p0: LoadAdError) {
+                    super.onAdFailedToLoad(p0)
+                }
+            })
+        }
+    }
+
+    override fun onUserEarnedReward(p0: RewardItem) {
+        CoroutineScope(Dispatchers.IO).launch {
+            mainViewModel.earnReward()
+        }
     }
 }

@@ -11,3 +11,5 @@ const val NETWORK_ERROR = -2
 const val SELECTED_KRW_MARKET = 1
 const val SELECTED_BTC_MARKET = 2
 const val SELECTED_FAVORITE = 3
+
+const val adId = "ca-app-pub-8481465476603755~9217250246"
