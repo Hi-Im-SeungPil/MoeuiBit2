@@ -480,7 +480,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 fontSize = 18.sp
             )
         }
-        AskBidDialog(visible = coinDetailViewModel.askBidDialogState, coinDetailViewModel = coinDetailViewModel)
+        TotalAmountDesignatedDialog(coinDetailViewModel)
     }
 }
 

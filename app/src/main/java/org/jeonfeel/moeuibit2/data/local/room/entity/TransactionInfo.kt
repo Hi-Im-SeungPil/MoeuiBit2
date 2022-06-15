@@ -15,5 +15,4 @@ class TransactionInfo(
     @JvmField
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
-
 }

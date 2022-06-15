@@ -11,6 +11,7 @@
         <item>OkHttp</item>
         <item>FlexWebView</item>
         <item>Landscapist</item>
+        <item>Balloon</item>
         <item>icon8</item>
     </string-array>
 
@@ -24,6 +25,7 @@
         <item>https://square.github.io/okhttp/</item>
         <item>https://github.com/Kyun-J/FlexHybridApp-Android</item>
         <item>https://github.com/skydoves/landscapist</item>
+        <item>https://github.com/skydoves/Balloon</item>
         <item>https://icons8.com/</item>
     </string-array>
 
@@ -37,6 +39,7 @@
         <item>Copyright 2014 Square, Inc.\nApache License 2.0</item>
         <item>Copyright © 2020, Kyun-Joo, Hwang All rights reserved.\nBSD-3-Clause license</item>
         <item>Designed and developed by 2020 skydoves (Jaewoong Eum)\nApache License 2.0</item>
+        <item>Copyright 2019 skydoves (Jaewoong Eum) \nApache License 2.0</item>
         <item>Thank you for providing free icons.</item>
     </string-array>
 

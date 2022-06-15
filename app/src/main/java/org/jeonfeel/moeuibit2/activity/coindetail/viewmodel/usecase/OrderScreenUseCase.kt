@@ -43,6 +43,7 @@ class OrderScreenUseCase @Inject constructor(
     val askQuantity = mutableStateOf("")
     val askBidDialogState = mutableStateOf(false)
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
+    val totalPriceDesignated = mutableStateOf("")
 
     suspend fun initOrderScreen(market: String) {
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {

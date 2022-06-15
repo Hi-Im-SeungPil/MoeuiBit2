@@ -174,6 +174,13 @@ class CoinDetailViewModel @Inject constructor(
             return orderScreenUseCase.askBidDialogState.value
         }
 
+    var totalPriceDesignated: String
+        set(value) {
+            orderScreenUseCase.totalPriceDesignated.value = value
+        }get() {
+            return orderScreenUseCase.totalPriceDesignated.value
+        }
+
     fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             orderScreenUseCase.bidRequest(market,koreanName,currentPrice,quantity,totalPrice)
