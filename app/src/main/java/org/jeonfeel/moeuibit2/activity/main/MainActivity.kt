@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.activity.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Observer
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
@@ -30,7 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.adId
+import org.jeonfeel.moeuibit2.constant.rewardFullScreenAdId
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.manager.PermissionManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
@@ -49,7 +51,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +81,15 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 it?.check()
             }
         initNetworkStateMonitor()
+        initObserver()
+    }
+
+    private fun initObserver() {
+        mainViewModel.adLiveData.observe(this, Observer {
+            if(it == 1) {
+                loadRewardFullScreenAd(this)
+            }
+        })
     }
 
     private fun initNetworkStateMonitor() {
@@ -127,18 +137,21 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         networkMonitorUtil.unregister()
     }
 
-    fun loadAd(context: Context) {
+    private fun loadRewardFullScreenAd(context: Context) {
         MobileAds.initialize(context){
             RewardedInterstitialAd.load(context,
-                adId,
+                rewardFullScreenAdId,
                 AdRequest.Builder().build(), object : RewardedInterstitialAdLoadCallback(){
                 override fun onAdLoaded(ad: RewardedInterstitialAd) {
                     super.onAdLoaded(ad)
                     ad.show(this@MainActivity,this@MainActivity)
+                    mainViewModel.adLoadingDialogState.value = false
                 }
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     super.onAdFailedToLoad(p0)
+                    Log.e("adLoadError",p0.message)
+                    mainViewModel.adLoadingDialogState.value = false
                 }
             })
         }

@@ -47,12 +47,17 @@ import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
+import org.jeonfeel.moeuibit2.ui.common.CommonDialog
+import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
+
+//TODO 광고 network, 예외처리
 
 @Composable
 fun PortfolioScreen(
@@ -69,14 +74,24 @@ fun PortfolioScreen(
     if (editHoldCoinDialogState.value) {
         EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
     }
+    CommonDialog(
+        dialogState = mainViewModel.adDialogState,
+        title = "KRW 충전",
+        content = "짧은 광고를 시청하시면 보상으로\n\n10,000,000KRW가 지급됩니다.\n\n광고를 시청하시겠습니까?",
+        leftButtonText = "취소",
+        rightButtonText = "확인",
+        leftButtonAction = { mainViewModel.adDialogState.value = false },
+        rightButtonAction = {
+            mainViewModel.updateAdLiveData()
+            mainViewModel.adDialogState.value = false
+        })
+    CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")
     if (mainViewModel.removeCoinCount.value == 1) {
-        Toast.makeText(context, "정리된 코인이 없습니다.", Toast.LENGTH_SHORT).show()
-    } else if(mainViewModel.removeCoinCount.value == -1) {
-        Toast.makeText(context, "네트워크 상태 오류입니다.", Toast.LENGTH_SHORT).show()
-    }else if (mainViewModel.removeCoinCount.value > 1) {
-        Toast.makeText(context,
-            "${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 정리되었습니다.",
-            Toast.LENGTH_SHORT).show()
+        context.showToast("정리된 코인이 없습니다.")
+    } else if (mainViewModel.removeCoinCount.value == -1) {
+        context.showToast("네트워크 상태 오류입니다.")
+    } else if (mainViewModel.removeCoinCount.value > 1) {
+        context.showToast("${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 정리되었습니다.")
     }
     OnLifecycleEvent { _, event ->
         when (event) {
@@ -86,11 +101,11 @@ fun PortfolioScreen(
                 UpBitPortfolioWebSocket.onPause()
             }
             Lifecycle.Event.ON_RESUME -> {
-                if(NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+                if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
                     mainViewModel.isPortfolioSocketRunning = true
                     mainViewModel.getUserHoldCoins()
                 } else {
-                    Toast.makeText(context, "인터넷 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                    context.showToast("인터넷 연결을 확인해 주세요.")
                 }
             }
             else -> {}
@@ -191,7 +206,10 @@ fun PortfolioMain(
                     modifier = Modifier
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .clickable {
+                            mainViewModel.adDialogState.value = true
+                        },
                     style = TextStyle(
                         color = Color.Black,
                         fontSize = 18.sp

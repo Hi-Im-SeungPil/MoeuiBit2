@@ -127,6 +127,7 @@ class OrderScreenUseCase @Inject constructor(
             userSeedMoney.value = userDao.all?.krw ?: 0L
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
+            localRepository.getTransactionInfoDao().insert(market,currentPrice,quantity,totalPrice,"bid",System.currentTimeMillis())
         } else {
             val preAveragePurchasePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
@@ -148,10 +149,11 @@ class OrderScreenUseCase @Inject constructor(
             userSeedMoney.value = userDao.all?.krw ?: 0L
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
+            localRepository.getTransactionInfoDao().insert(market,currentPrice,quantity,totalPrice,"bid",System.currentTimeMillis())
         }
     }
 
-    suspend fun askRequest(market:String, quantity: Double, totalPrice: Long) {
+    suspend fun askRequest(market:String, quantity: Double, totalPrice: Long,currentPrice: Double) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
 
@@ -166,5 +168,6 @@ class OrderScreenUseCase @Inject constructor(
         } else {
             userCoinQuantity.value = currentCoin?.quantity ?: 0.0
         }
+        localRepository.getTransactionInfoDao().insert(market,currentPrice,quantity,totalPrice,"ask",System.currentTimeMillis())
     }
 }

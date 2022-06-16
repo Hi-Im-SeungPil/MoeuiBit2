@@ -29,14 +29,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
-import org.jeonfeel.moeuibit2.ui.custom.AskBidDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import kotlin.math.round
 
 @Composable
@@ -449,7 +448,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                             } else {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     coinDetailViewModel.askRequest(
-                                        quantity.toDouble(), totalPrice.toLong()
+                                        quantity.toDouble(), totalPrice.toLong(),currentPrice.value
                                     ).join()
                                     Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
                                 }

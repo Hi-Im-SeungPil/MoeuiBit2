@@ -18,6 +18,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.coinImageUrl
 
 @Composable
 fun CoinDetailMain(
@@ -64,7 +65,7 @@ fun CoinDetailMain(
                         maxLines = 1)
                 }
             }
-            GlideImage(imageModel = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/$symbol.png",
+            GlideImage(imageModel = coinImageUrl.plus("$symbol.png"),
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
                     .weight(1f),

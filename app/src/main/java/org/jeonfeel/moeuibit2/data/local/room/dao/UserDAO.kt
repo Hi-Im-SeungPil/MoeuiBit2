@@ -12,23 +12,23 @@ interface UserDAO {
     val all: User?
 
     @Insert
-    fun insertAll(vararg users: User?)
+    suspend fun insertAll(vararg users: User?)
 
     @Delete
-    fun delete(user: User)
+    suspend fun delete(user: User)
 
     @Query("Insert into User values(10000000)")
-    fun insert()
+    suspend fun insert()
 
     @Query("UPDATE User SET krw = :money")
-    fun update(money: Long)
+    suspend fun update(money: Long)
 
     @Query("UPDATE User SET krw = krw + :money")
-    fun updatePlusMoney(money: Long)
+    suspend fun updatePlusMoney(money: Long)
 
     @Query("UPDATE User SET krw = krw - :money")
-    fun updateMinusMoney(money: Long)
+    suspend fun updateMinusMoney(money: Long)
 
     @Query("DELETE FROM User")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

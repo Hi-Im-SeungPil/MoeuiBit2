@@ -9,6 +9,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +32,7 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
 
 @Composable
@@ -40,7 +43,8 @@ fun TotalAmountDesignatedDialog(
 
         val userSeedMoney = Calculator.getDecimalFormat()
             .format(coinDetailViewModel.userSeedMoney - round(coinDetailViewModel.userSeedMoney * 0.0005).toLong())
-        val userCoinValuable = Calculator.getDecimalFormat().format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
+        val userCoinValuable = Calculator.getDecimalFormat()
+            .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
 
         Dialog(onDismissRequest = { coinDetailViewModel.askBidDialogState = false }) {
             Card(
@@ -67,7 +71,12 @@ fun TotalAmountDesignatedDialog(
                         )
                     )
 
-                    CustomTextField(modifier = Modifier.fillMaxWidth(),"0",18.sp,coinDetailViewModel)
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        "0",
+                        18.sp,
+                        coinDetailViewModel
+                    )
 
                     Row(
                         modifier = Modifier
@@ -138,36 +147,45 @@ private fun CustomTextField(
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
     BasicTextField(value = coinDetailViewModel.totalPriceDesignated, onValueChange = {
-        val result = it.replace(",","",false)
-        if(result.toLongOrNull() == null && it != "") {
+        if (it == "") {
             coinDetailViewModel.totalPriceDesignated = ""
-            Toast.makeText(context,"숫자만 입력 가능합니다.", Toast.LENGTH_SHORT).show()
         } else {
-            coinDetailViewModel.totalPriceDesignated = Calculator.getDecimalFormat().format(result.toLong())
+            val replaceIt = it.replace(",","")
+            if (replaceIt.toLongOrNull() != null) {
+                coinDetailViewModel.totalPriceDesignated = replaceIt
+            } else {
+                coinDetailViewModel.totalPriceDesignated = ""
+                context.showToast("숫자만 입력 가능합니다.")
+            }
         }
     }, singleLine = true,
-        textStyle = TextStyle(color = Color.Black,
-            fontSize = 17.sp, textAlign = TextAlign.End),
+        textStyle = TextStyle(
+            color = Color.Black,
+            fontSize = 17.sp, textAlign = TextAlign.End
+        ),
         modifier = modifier
             .clearFocusOnKeyboardDismiss()
             .padding(0.dp, 0.dp, 9.dp, 0.dp),
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number, imeAction = ImeAction.None),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.None
+        ),
         decorationBox = { innerTextField ->
-            Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f,true)) {
-                    if (coinDetailViewModel.totalPriceDesignated.isEmpty()) {
-                        Text(
-                            placeholderText,
-                            style = TextStyle(color = Color.Black,
-                                fontSize = fontSize,
-                                textAlign = TextAlign.End),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                Box(Modifier) {
+//                    if (coinDetailViewModel.totalPriceDesignated.isEmpty()) {
+//                        Text(
+//                            placeholderText,
+//                            style = TextStyle(
+//                                color = Color.Black,
+//                                fontSize = fontSize,
+//                                textAlign = TextAlign.End
+//                            ),
+//                            modifier = Modifier.fillMaxWidth()
+//                        )
+//                    }
                     innerTextField()
                 }
-            }
+
         })
 }

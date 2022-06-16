@@ -1,16 +1,12 @@
 package org.jeonfeel.moeuibit2.activity.main
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +70,11 @@ class MainViewModel @Inject constructor(
     val totalValuedAssets = mutableStateOf(0.0)
     val portfolioLoadingComplete = mutableStateOf(false)
     var removeCoinCount = mutableStateOf(0)
+
+    val adLoadingDialogState = mutableStateOf(false)
+    val adDialogState = mutableStateOf(false)
+    private val _adMutableLiveData = MutableLiveData<Int>()
+    val adLiveData : LiveData<Int> get() = _adMutableLiveData
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
@@ -577,7 +578,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun updateAdLiveData() {
+        adLoadingDialogState.value = true
+        _adMutableLiveData.value = 1
+    }
+
     fun earnReward() {
-        localRepository.getUserDao().insert()
+        viewModelScope.launch(Dispatchers.IO) {
+            localRepository.getUserDao().insert()
+        }
     }
 }

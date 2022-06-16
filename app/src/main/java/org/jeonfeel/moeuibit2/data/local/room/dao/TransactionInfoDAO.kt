@@ -7,7 +7,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 @Dao
 interface TransactionInfoDAO {
     @Query("INSERT INTO TransactionInfo values(null, :market,:price,:quantity,:transactionAmount,:transactionStatus,:transactionTime)")
-    fun insert(
+    suspend fun insert(
         market: String,
         price: Double,
         quantity: Double,
@@ -17,11 +17,11 @@ interface TransactionInfoDAO {
     )
 
     @Query("SELECT * FROM TransactionInfo where market=:market")
-    fun select(market: String?): List<TransactionInfo>
+    suspend fun select(market: String?): List<TransactionInfo>
 
     @Query("DELETE FROM TransactionInfo WHERE market=:market")
-    fun delete(market: String)
+    suspend fun delete(market: String)
 
     @Query("DELETE FROM TransactionInfo ")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

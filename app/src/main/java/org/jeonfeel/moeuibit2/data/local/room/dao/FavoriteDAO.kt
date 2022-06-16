@@ -10,14 +10,14 @@ interface FavoriteDAO {
     val all: List<Favorite?>?
 
     @Query("INSERT INTO Favorite values(:market)")
-    fun insert(market: String?)
+    suspend fun insert(market: String?)
 
     @Query("DELETE FROM Favorite WHERE market = :market ")
-    fun delete(market: String?)
+    suspend fun delete(market: String?)
 
     @Query("SELECT * FROM Favorite WHERE market = :market")
-    fun select(market: String?): Favorite?
+    suspend fun select(market: String?): Favorite?
 
     @Query("DELETE FROM Favorite ")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

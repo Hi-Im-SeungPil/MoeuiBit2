@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.util.showToast
 
 @Composable
 fun CoinDetailTopAppBar(
@@ -83,19 +84,10 @@ fun CoinDetailTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    coinDetailViewModel.localRepository.getUserDao().insert()
-                    coinDetailViewModel.userSeedMoney =
-                        coinDetailViewModel.localRepository.getUserDao().all?.krw ?: 0
-                }
-            }) {
-                Icon(Icons.Default.Clear, contentDescription = null, tint = Color.White)
-            }
             if (!coinDetailViewModel.favoriteMutableState.value) {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = true
-                    Toast.makeText(context, "관심 코인에 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                    context.showToast("관심 코인에 추가되었습니다.")
                 }) {
                     Icon(
                         painterResource(R.drawable.img_unfavorite),
@@ -106,7 +98,7 @@ fun CoinDetailTopAppBar(
             } else {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = false
-                    Toast.makeText(context, "관심 코인에서 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                    context.showToast("관심 코인에서 삭제되었습니다.")
                 }) {
                     Icon(
                         painterResource(R.drawable.img_favorite),
