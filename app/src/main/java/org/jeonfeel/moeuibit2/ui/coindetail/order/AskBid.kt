@@ -466,6 +466,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         }
         TextButton(
             onClick = {
+                coinDetailViewModel.totalPriceDesignated = ""
                 coinDetailViewModel.askBidDialogState = true
             }, modifier = Modifier
                 .padding(0.dp, 5.dp)
@@ -479,7 +480,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 fontSize = 18.sp
             )
         }
-        TotalAmountDesignatedDialog(coinDetailViewModel)
+        TotalAmountDesignatedDialog(coinDetailViewModel,coinDetailViewModel.currentTradePriceState)
     }
 }
 

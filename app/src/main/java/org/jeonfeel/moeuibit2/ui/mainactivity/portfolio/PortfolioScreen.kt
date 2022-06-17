@@ -77,12 +77,13 @@ fun PortfolioScreen(
     CommonDialog(
         dialogState = mainViewModel.adDialogState,
         title = "KRW 충전",
-        content = "짧은 광고를 시청하시면 보상으로\n\n10,000,000KRW가 지급됩니다.\n\n광고를 시청하시겠습니까?",
+        content = "짧은 광고를 시청하시면 보상으로\n\n10,000,000 KRW가 지급됩니다.\n\n광고를 시청하시겠습니까?",
         leftButtonText = "취소",
         rightButtonText = "확인",
         leftButtonAction = { mainViewModel.adDialogState.value = false },
         rightButtonAction = {
             mainViewModel.updateAdLiveData()
+//            mainViewModel.earnReward()
             mainViewModel.adDialogState.value = false
         })
     CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")

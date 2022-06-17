@@ -585,7 +585,23 @@ class MainViewModel @Inject constructor(
 
     fun earnReward() {
         viewModelScope.launch(Dispatchers.IO) {
-            localRepository.getUserDao().insert()
+            val userDao = localRepository.getUserDao()
+            if(userDao.all == null) {
+                userDao.insert()
+            } else {
+                userDao.updatePlusMoney(10000000)
+            }
+        }
+    }
+
+    fun errorReward() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userDao = localRepository.getUserDao()
+            if(userDao.all == null) {
+                userDao.errorInsert()
+            } else {
+                userDao.updatePlusMoney(1000000)
+            }
         }
     }
 }
