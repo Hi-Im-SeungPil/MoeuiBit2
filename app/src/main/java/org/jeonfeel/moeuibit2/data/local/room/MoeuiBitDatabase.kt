@@ -10,7 +10,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.*
 
 @Database(entities = [User::class, MyCoin::class, NotSigned::class, Favorite::class, TransactionInfo::class],
     version = 1)
-abstract class AppDatabase: RoomDatabase() {
+abstract class MoeuiBitDatabase: RoomDatabase() {
     abstract fun userDAO(): UserDAO
     abstract fun myCoinDAO(): MyCoinDAO
     abstract fun favoriteDAO(): FavoriteDAO

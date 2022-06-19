@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
@@ -28,6 +26,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -56,8 +55,6 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
-
-//TODO 광고 network, 예외처리
 
 @Composable
 fun PortfolioScreen(
@@ -135,7 +132,7 @@ fun PortfolioScreen(
                     )
                 )
                 IconButton(onClick = { editHoldCoinDialogState.value = true }) {
-                    Icon(Icons.Filled.Edit, contentDescription = null, tint = Color.Black)
+                    Icon(painterResource(id = R.drawable.img_eraser), contentDescription = null, tint = Color.Black, modifier = Modifier.size(30.dp))
                 }
             }
         }

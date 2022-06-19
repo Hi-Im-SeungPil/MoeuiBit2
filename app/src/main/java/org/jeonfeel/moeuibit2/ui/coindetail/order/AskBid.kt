@@ -50,15 +50,18 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             modifier = Modifier
                 .padding(10.dp, 0.dp)
                 .weight(1f)
-                .verticalScroll(scrollState)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                OrderScreenUserSeedMoney(coinDetailViewModel)
-                OrderScreenQuantity(coinDetailViewModel)
-                OrderScreenPrice(coinDetailViewModel)
-                OrderScreenTotalPrice(coinDetailViewModel)
-                OrderScreenButtons(coinDetailViewModel)
-                OrderScreenNotice()
+            if(coinDetailViewModel.askBidSelectedTab.value != 3) {
+                Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                    OrderScreenUserSeedMoney(coinDetailViewModel)
+                    OrderScreenQuantity(coinDetailViewModel)
+                    OrderScreenPrice(coinDetailViewModel)
+                    OrderScreenTotalPrice(coinDetailViewModel)
+                    OrderScreenButtons(coinDetailViewModel)
+                    OrderScreenNotice()
+                }
+            } else {
+                TransactionInfoLazyColumn(coinDetailViewModel)
             }
         }
     }
@@ -113,7 +116,10 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ) { selectedTab.value = 3 }
+            ) {
+                coinDetailViewModel.getTransactionInfoList()
+                selectedTab.value = 3
+            }
         ) {
             Text(
                 text = "거래내역",

@@ -1,9 +1,7 @@
 package org.jeonfeel.moeuibit2.activity.main
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -24,15 +22,14 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.manager.PermissionManager
@@ -81,9 +78,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                     }
                 }
             }
-        permissionManager.requestPermission().let {
-            it?.check()
-        }
+//        permissionManager.requestPermission().let {
+//            it?.check()
+//        }
         initNetworkStateMonitor()
         initObserver()
     }
@@ -142,29 +139,28 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     }
 
     private fun loadRewardVideoAd() {
-        MobileAds.initialize(this) {
-            RewardedInterstitialAd.load(
-                this,
-                rewardVideoAdId,
-                adRequest,
-                object : RewardedInterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                        super.onAdLoaded(ad)
-                        ad.show(this@MainActivity, this@MainActivity)
-                        mainViewModel.adLoadingDialogState.value = false
-                    }
+        RewardedAd.load(
+            this,
+            rewardVideoAdId,
+            adRequest,
+            object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    super.onAdLoaded(ad)
+                    ad.show(this@MainActivity, this@MainActivity)
+                    mainViewModel.adLoadingDialogState.value = false
+                }
 
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        super.onAdFailedToLoad(error)
-                        if (error.code == ERROR_CODE_NETWORK_ERROR || error.code == 0) {
-                            this@MainActivity.showToast("인터넷 상태를 확인해 주세요.")
-                            mainViewModel.adLoadingDialogState.value = false
-                        } else {
-                            loadRewardFullScreenAd()
-                        }
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    super.onAdFailedToLoad(error)
+                    if (error.code == ERROR_CODE_NETWORK_ERROR || error.code == 0) {
+                        this@MainActivity.showToast("인터넷 상태를 확인해 주세요.")
+                        mainViewModel.adLoadingDialogState.value = false
+                    } else {
+                        loadRewardFullScreenAd()
                     }
-                })
-        }
+                }
+            })
+
     }
 
     private fun loadRewardFullScreenAd() {
@@ -196,6 +192,8 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             override fun onAdLoaded(ad: InterstitialAd) {
                 super.onAdLoaded(ad)
                 ad.show(this@MainActivity)
+                mainViewModel.adLoadingDialogState.value = false
+                mainViewModel.earnReward()
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {

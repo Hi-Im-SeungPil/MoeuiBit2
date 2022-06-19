@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import org.jeonfeel.moeuibit2.data.local.room.AppDatabase
+import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import javax.inject.Singleton
 
@@ -16,18 +16,16 @@ import javax.inject.Singleton
 class LocalModule {
     @Singleton
     @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideAppDatabase(@ApplicationContext context: Context): MoeuiBitDatabase {
         return Room.databaseBuilder(context,
-            AppDatabase::class.java,
-            "AppDatabase")
-            .fallbackToDestructiveMigration()
-            .allowMainThreadQueries()
+            MoeuiBitDatabase::class.java,
+            "MoeuiBitDatabase")
             .build()
     }
 
     @Singleton
     @Provides
-    fun provideLocalRepository(appDatabase: AppDatabase): LocalRepository {
-        return LocalRepository(appDatabase)
+    fun provideLocalRepository(moeuiBitDatabase: MoeuiBitDatabase): LocalRepository {
+        return LocalRepository(moeuiBitDatabase)
     }
 }

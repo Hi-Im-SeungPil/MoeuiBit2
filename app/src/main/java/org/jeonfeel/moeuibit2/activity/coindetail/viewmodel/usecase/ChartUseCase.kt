@@ -392,23 +392,23 @@ class ChartUseCase @Inject constructor(
     }
 
     private fun beforeUpdateLineData() {
-        if(candleEntriesLastPosition >= 4) { // index 는 position -1
+        if(candleEntriesLastPosition >= 4 && getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1) > 0) { // index 는 position -1
             getMovingAverage.sumLine1 -= candleEntries[candleEntriesLastPosition].close
             getMovingAverage.sumLine1 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
         }
-        if(candleEntriesLastPosition >= 9) {
+        if(candleEntriesLastPosition >= 9 && getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1) > 0) {
             getMovingAverage.sumLine2 -= candleEntries[candleEntriesLastPosition].close
             getMovingAverage.sumLine2 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
         }
-        if(candleEntriesLastPosition >= 19) {
+        if(candleEntriesLastPosition >= 19 && getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1) > 0) {
             getMovingAverage.sumLine3 -= candleEntries[candleEntriesLastPosition].close
             getMovingAverage.sumLine3 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
         }
-        if(candleEntriesLastPosition >= 59) {
+        if(candleEntriesLastPosition >= 59 && getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)> 0) {
             getMovingAverage.sumLine4 -= candleEntries[candleEntriesLastPosition].close
             getMovingAverage.sumLine4 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
         }
-        if(candleEntriesLastPosition > 119) {
+        if(candleEntriesLastPosition > 119 && getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1) > 0) {
             getMovingAverage.sumLine5 -= candleEntries[candleEntriesLastPosition].close
             getMovingAverage.sumLine5 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
         }

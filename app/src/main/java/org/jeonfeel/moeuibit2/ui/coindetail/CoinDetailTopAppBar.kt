@@ -1,15 +1,14 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,11 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
@@ -38,7 +35,7 @@ fun CoinDetailTopAppBar(
     coinKoreanName: String,
     coinSymbol: String,
     warning: String,
-    coinDetailViewModel: CoinDetailViewModel = viewModel()
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     TopAppBar(
@@ -47,7 +44,8 @@ fun CoinDetailTopAppBar(
             Text(
                 if (warning == "CAUTION") {
                     buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = Color.Yellow, fontWeight = FontWeight.Bold)) {
+                        withStyle(style = SpanStyle(color = Color.Yellow,
+                            fontWeight = FontWeight.Bold)) {
                             append("[유의]")
                         }
                         append("${coinKoreanName}(${coinSymbol}/KRW)")
@@ -92,7 +90,8 @@ fun CoinDetailTopAppBar(
                     Icon(
                         painterResource(R.drawable.img_unfavorite),
                         contentDescription = null,
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             } else {
@@ -103,7 +102,8 @@ fun CoinDetailTopAppBar(
                     Icon(
                         painterResource(R.drawable.img_favorite),
                         contentDescription = null,
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }

@@ -74,7 +74,7 @@ class MainViewModel @Inject constructor(
     val adLoadingDialogState = mutableStateOf(false)
     val adDialogState = mutableStateOf(false)
     private val _adMutableLiveData = MutableLiveData<Int>()
-    val adLiveData : LiveData<Int> get() = _adMutableLiveData
+    val adLiveData: LiveData<Int> get() = _adMutableLiveData
 
     fun initViewModel() {
         if (krwExchangeModelMutableStateList.isEmpty()) {
@@ -486,7 +486,7 @@ class MainViewModel @Inject constructor(
                 delay(100L)
                 removeCoinCount.value = 0
             } else {
-                if(krwExchangeModelListPosition.isNotEmpty()) {
+                if (krwExchangeModelListPosition.isNotEmpty()) {
                     for (i in userHoldCoinList) {
                         if (krwExchangeModelListPosition[i!!.market] == null) {
                             localRepository.getFavoriteDao().delete(i.market)
@@ -533,6 +533,12 @@ class MainViewModel @Inject constructor(
             localRepository.getFavoriteDao().deleteAll()
             localRepository.getTransactionInfoDao().deleteAll()
             localRepository.getMyCoinDao().deleteAll()
+        }
+    }
+
+    fun resetTransactionInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            localRepository.getTransactionInfoDao().deleteAll()
         }
     }
 
@@ -586,7 +592,7 @@ class MainViewModel @Inject constructor(
     fun earnReward() {
         viewModelScope.launch(Dispatchers.IO) {
             val userDao = localRepository.getUserDao()
-            if(userDao.all == null) {
+            if (userDao.all == null) {
                 userDao.insert()
             } else {
                 userDao.updatePlusMoney(10000000)
@@ -597,7 +603,7 @@ class MainViewModel @Inject constructor(
     fun errorReward() {
         viewModelScope.launch(Dispatchers.IO) {
             val userDao = localRepository.getUserDao()
-            if(userDao.all == null) {
+            if (userDao.all == null) {
                 userDao.errorInsert()
             } else {
                 userDao.updatePlusMoney(1000000)

@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
@@ -23,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
@@ -51,6 +53,7 @@ class CoinDetailViewModel @Inject constructor(
     var koreanName = ""
 
     val gson = Gson()
+    val transactionInfoList = mutableStateListOf<TransactionInfo>()
     /**
      * coin info
      * */
@@ -339,6 +342,20 @@ class CoinDetailViewModel @Inject constructor(
     fun requestChartData(combinedChart: CombinedChart) {
         viewModelScope.launch {
             chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
+        }
+    }
+
+    /**
+     * transactionInfo
+     */
+
+    fun getTransactionInfoList() {
+        transactionInfoList.clear()
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = localRepository.getTransactionInfoDao().select(market)
+            for (i in list.indices) {
+                transactionInfoList.add(list[i])
+            }
         }
     }
 

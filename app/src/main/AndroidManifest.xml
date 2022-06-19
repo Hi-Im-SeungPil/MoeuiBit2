@@ -34,14 +34,13 @@
     </queries>
 
     <application
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon_moeui_bit"
         android:label="모의비트"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/icon_moeui_bit_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
         android:usesCleartextTraffic="true"
-        android:name=".MyApplication"
-        android:screenOrientation="portrait">
+        android:name=".MyApplication">
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
@@ -49,7 +48,8 @@
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
         <activity android:name="org.jeonfeel.moeuibit2.activity.main.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -57,9 +57,11 @@
         </activity>
 
         <activity android:name="org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity"
-            android:exported="true"/>
+            android:exported="true"
+            android:screenOrientation="portrait"/>
 
         <activity android:name="org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense"
-            android:exported="true"/>
+            android:exported="true"
+            android:screenOrientation="portrait"/>
     </application>
 </manifest>

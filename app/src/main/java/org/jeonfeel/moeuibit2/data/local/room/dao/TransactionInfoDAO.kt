@@ -10,7 +10,7 @@ interface TransactionInfoDAO {
     @Insert
     suspend fun insert(transactionInfo: TransactionInfo)
 
-    @Query("SELECT * FROM TransactionInfo where market=:market")
+    @Query("SELECT * FROM TransactionInfo where market=:market ORDER BY id DESC LIMIT 100")
     suspend fun select(market: String?): List<TransactionInfo>
 
     @Query("DELETE FROM TransactionInfo WHERE market=:market")

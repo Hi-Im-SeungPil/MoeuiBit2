@@ -30,6 +30,7 @@ import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constant.noticeBoard
 import org.jeonfeel.moeuibit2.constant.playStoreUrl
+import org.jeonfeel.moeuibit2.ui.common.CommonDialog
 
 @Composable
 fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
@@ -68,9 +69,20 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
     val resetDialogState = remember {
         mutableStateOf(false)
     }
-    if (resetDialogState.value) {
-        ResetDialog(mainViewModel, resetDialogState, context)
+    val transactionInfoDialogState = remember {
+        mutableStateOf(false)
     }
+    ResetDialog(mainViewModel, resetDialogState, context)
+    CommonDialog(dialogState = transactionInfoDialogState,
+        title = "거래내역 초기화",
+        content = "모든 코인의 거래 내역이 초기화됩니다\n\n초기화 하시겠습니까?",
+        leftButtonText = "취소",
+        rightButtonText = "확인",
+        leftButtonAction = { transactionInfoDialogState.value = false },
+        rightButtonAction = {
+            mainViewModel.resetTransactionInfo()
+            transactionInfoDialogState.value = false
+        })
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             SettingScreenLazyColumnItem("별점 주기(리뷰 작성)", clickAction = {
@@ -78,6 +90,9 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
             })
             SettingScreenLazyColumnItem(text = "공지사항", clickAction = {
                 moveNoticeBoard(context)
+            })
+            SettingScreenLazyColumnItem(text = "거래내역 초기화", clickAction = {
+                transactionInfoDialogState.value = true
             })
             SettingScreenLazyColumnItem(text = "앱 초기화", clickAction = {
                 resetDialogState.value = true
@@ -106,72 +121,74 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
 fun ResetDialog(
     mainViewModel: MainViewModel,
     resetDialogState: MutableState<Boolean>,
-    context: Context
+    context: Context,
 ) {
-    Dialog(onDismissRequest = {
-        resetDialogState.value = false
-    }) {
-        Card(
-            Modifier
-                .padding(20.dp, 0.dp)
-                .wrapContentSize()
-                .padding(0.dp, 20.dp)
-        ) {
-            Column(modifier = Modifier.wrapContentSize()) {
-                Text(
-                    text = stringResource(id = R.string.resetDialogTitle),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 20.dp, 0.dp, 0.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = stringResource(id = R.string.resetDialogContent),
-                    modifier = Modifier.padding(10.dp, 40.dp),
-                    fontSize = 17.sp
-                )
-                Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
-                Row {
+    if (resetDialogState.value) {
+        Dialog(onDismissRequest = {
+            resetDialogState.value = false
+        }) {
+            Card(
+                Modifier
+                    .padding(20.dp, 0.dp)
+                    .wrapContentSize()
+                    .padding(0.dp, 20.dp)
+            ) {
+                Column(modifier = Modifier.wrapContentSize()) {
                     Text(
-                        text = stringResource(id = R.string.commonCancel),
+                        text = stringResource(id = R.string.resetDialogTitle),
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                resetDialogState.value = false
-                            }
-                            .padding(0.dp, 10.dp),
-                        fontSize = 17.sp,
+                            .fillMaxWidth()
+                            .padding(0.dp, 20.dp, 0.dp, 0.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp,
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = "",
-                        fontSize = 17.sp,
-                        modifier = Modifier
-                            .width(1.dp)
-                            .border(1.dp, Color.LightGray)
-                            .padding(0.dp, 10.dp)
+                        text = stringResource(id = R.string.resetDialogContent),
+                        modifier = Modifier.padding(10.dp, 40.dp),
+                        fontSize = 17.sp
                     )
-                    Text(
-                        text = stringResource(id = R.string.commonAccept),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                resetAll(mainViewModel)
-                                Toast
-                                    .makeText(
-                                        context,
-                                        context.getString(R.string.resetDialogResetSuccess),
-                                        Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                                resetDialogState.value = false
-                            }
-                            .padding(0.dp, 10.dp),
-                        fontSize = 15.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
+                    Row {
+                        Text(
+                            text = stringResource(id = R.string.commonCancel),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    resetDialogState.value = false
+                                }
+                                .padding(0.dp, 10.dp),
+                            fontSize = 17.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "",
+                            fontSize = 17.sp,
+                            modifier = Modifier
+                                .width(1.dp)
+                                .border(1.dp, Color.LightGray)
+                                .padding(0.dp, 10.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.commonAccept),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    resetAll(mainViewModel)
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            context.getString(R.string.resetDialogResetSuccess),
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    resetDialogState.value = false
+                                }
+                                .padding(0.dp, 10.dp),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }
