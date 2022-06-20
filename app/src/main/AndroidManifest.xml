@@ -5,8 +5,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 
     <queries>
         <package android:name="com.dunamu.exchange" />
@@ -34,6 +33,7 @@
     </queries>
 
     <application
+        android:allowBackup="false"
         android:icon="@mipmap/icon_moeui_bit"
         android:label="모의비트"
         android:roundIcon="@mipmap/icon_moeui_bit_round"

@@ -1,5 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto
 
+import androidx.annotation.Keep
+
+@Keep
 data class UserHoldCoinDTO(
     var myCoinsKoreanName: String,
     var myCoinsSymbol: String,

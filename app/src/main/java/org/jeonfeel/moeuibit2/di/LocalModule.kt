@@ -20,6 +20,7 @@ class LocalModule {
         return Room.databaseBuilder(context,
             MoeuiBitDatabase::class.java,
             "MoeuiBitDatabase")
+            .addMigrations(MoeuiBitDatabase.migrations1_2)
             .build()
     }
 

@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.data.remote.retrofit.model
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.Stable
 
+@Keep
 data class KrwExchangeModel(
     @Stable
     val koreanName: String,

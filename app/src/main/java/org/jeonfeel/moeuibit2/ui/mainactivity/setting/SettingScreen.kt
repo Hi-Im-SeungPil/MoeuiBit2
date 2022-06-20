@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.ui.mainactivity.setting
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.view.Gravity
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -23,8 +27,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.skydoves.balloon.*
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense
@@ -34,6 +41,26 @@ import org.jeonfeel.moeuibit2.ui.common.CommonDialog
 
 @Composable
 fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val balloon = remember {
+        Balloon.Builder(context)
+            .setWidthRatio(1.0f)
+            .setHeight(BalloonSizeSpec.WRAP)
+            .setText("· 별점 5개는 사랑입니다 ♥\n\n· 업비트가 점검중일때는 앱이 동작하지 않습니다.")
+            .setTextColorResource(R.color.white)
+            .setTextGravity(Gravity.START)
+            .setTextSize(15f)
+            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+            .setArrowSize(10)
+            .setArrowPosition(0.5f)
+            .setPadding(12)
+            .setCornerRadius(8f)
+            .setBackgroundColorResource(R.color.C6799FF)
+            .setLifecycleOwner(lifecycleOwner)
+            .build()
+    }
+
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
@@ -41,19 +68,38 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
                     .fillMaxWidth(),
                 backgroundColor = colorResource(id = R.color.design_default_color_background),
             ) {
-                Text(
-                    text = "설정",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp, 0.dp, 0.dp, 0.dp)
-                        .fillMaxHeight()
-                        .wrapContentHeight(),
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
+                Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                    Text(
+                        text = "설정",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp, 0.dp, 0.dp, 0.dp)
+                            .fillMaxHeight()
+                            .wrapContentHeight()
+                            .weight(1f)
+                            .align(Alignment.CenterVertically),
+                        style = TextStyle(
+                            color = Color.Black,
+                            fontSize = 25.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
-                )
+                    AndroidView(
+                        factory = {
+                            ImageView(it).apply {
+                                val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
+                                setImageDrawable(drawable)
+                                setOnClickListener {
+                                    showAlignBottom(balloon)
+                                }
+                            }
+                        }, modifier = Modifier
+                            .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                            .align(Alignment.CenterVertically)
+                            .size(25.dp)
+                    )
+                }
+
             }
         }
     ) { contentPadding ->

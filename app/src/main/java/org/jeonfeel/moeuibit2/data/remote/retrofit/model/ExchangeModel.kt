@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.data.remote.retrofit.model
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class ExchangeModel(
     val market: String,
     @SerializedName("trade_price")

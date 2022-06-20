@@ -1,18 +1,13 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,14 +18,15 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,7 +35,6 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.util.showToast
@@ -211,7 +206,11 @@ fun TotalAmountDesignatedDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    val totalPrice = coinDetailViewModel.totalPriceDesignated.toLong()
+                                    val totalPrice = if(coinDetailViewModel.totalPriceDesignated.toLongOrNull() == null) {
+                                        0L
+                                    } else {
+                                        coinDetailViewModel.totalPriceDesignated.toLong()
+                                    }
                                     val localUserSeedMoney = coinDetailViewModel.userSeedMoney
                                     val quantity = String.format("%.8f",totalPrice / currentPrice).toDouble()
                                     Log.d("totalPriceDesignated","=> $totalPrice")

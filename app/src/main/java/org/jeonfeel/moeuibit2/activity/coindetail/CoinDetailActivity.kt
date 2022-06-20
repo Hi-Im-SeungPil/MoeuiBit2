@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.BuildConfig
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
@@ -19,13 +20,12 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 @AndroidEntryPoint
 class CoinDetailActivity : ComponentActivity() {
 
-    lateinit var coinKoreanName: String
-    private val networkMonitorUtil = NetworkMonitorUtil(this)
-    private lateinit var coinSymbol: String
+    private var coinKoreanName = ""
     private var openingPrice: Double = 0.0
     private var isFavorite = false
-    private var koreanName = ""
     private var warning = ""
+    private val networkMonitorUtil = NetworkMonitorUtil(this)
+    private lateinit var coinSymbol: String
     private val coinDetailViewModel: CoinDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

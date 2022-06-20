@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.listener
 
-import android.util.Log
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener

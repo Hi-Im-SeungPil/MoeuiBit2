@@ -12,7 +12,6 @@ import java.util.*
 object UpBitTickerWebSocket {
     private var krwMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
-    private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
     private val request = Request.Builder()
@@ -46,11 +45,6 @@ object UpBitTickerWebSocket {
     fun onPause() {
         socket.close(NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
-    }
-
-    fun exchangeScreenOnResume() {
-        requestKrwCoinList()
-        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     fun onFail() {

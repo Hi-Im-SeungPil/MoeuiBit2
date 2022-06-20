@@ -46,7 +46,7 @@ class ChartUseCase @Inject constructor(
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val kstDateHashMap = HashMap<Int, String>()
     val accData = HashMap<Int, Double>()
-    var purchaseAveragePrice: Float? = null
+    private var purchaseAveragePrice: Float? = null
 
     private val _candleUpdateMutableLiveData = MutableLiveData<Int>()
     val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData
@@ -420,7 +420,7 @@ class ChartUseCase @Inject constructor(
 
     fun candleEntriesIsEmpty(): Boolean = candleEntries.isEmpty()
 
-    suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
+    private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
         return localRepository.getMyCoinDao().isInsert(market)
     }
 }

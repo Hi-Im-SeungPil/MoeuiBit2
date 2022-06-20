@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.listener
 
-import android.util.Log
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -48,7 +47,6 @@ class UpBitCoinDetailWebSocketListener: WebSocketListener() {
         } else {
             UpBitCoinDetailWebSocket.onPause()
         }
-        Log.e("detail Socket", "Error => ${t.message}")
     }
 
     companion object{

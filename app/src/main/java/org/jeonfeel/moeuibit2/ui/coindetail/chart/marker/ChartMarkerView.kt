@@ -23,8 +23,8 @@ class ChartMarkerView constructor(
 ) : MarkerView(context, layoutResource) {
     private val binding: CandleInfoMarkerBinding =
         CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
-    var dateTime: String = ""
-    var acc: String = ""
+    private var dateTime: String = ""
+    private var acc: String = ""
 
     init {
         binding.linearMarker.visibility = View.VISIBLE

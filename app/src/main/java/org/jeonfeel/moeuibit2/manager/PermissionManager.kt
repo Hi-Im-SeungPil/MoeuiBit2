@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.DexterBuilder
 import com.karumi.dexter.MultiplePermissionsReport

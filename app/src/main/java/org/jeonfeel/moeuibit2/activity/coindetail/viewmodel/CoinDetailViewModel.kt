@@ -50,7 +50,7 @@ class CoinDetailViewModel @Inject constructor(
     var preClosingPrice = 0.0
     var maxOrderBookSize = 0.0
     var market = ""
-    var koreanName = ""
+    private var koreanName = ""
 
     val gson = Gson()
     val transactionInfoList = mutableStateListOf<TransactionInfo>()

@@ -1,5 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import android.content.Context
+import android.view.Gravity
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +28,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.showAlignTop
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,6 +52,8 @@ import kotlin.math.round
 @Composable
 fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,14 +64,18 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 .padding(10.dp, 0.dp)
                 .weight(1f)
         ) {
-            if(coinDetailViewModel.askBidSelectedTab.value != 3) {
-                Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+            if (coinDetailViewModel.askBidSelectedTab.value != 3) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
                     OrderScreenUserSeedMoney(coinDetailViewModel)
                     OrderScreenQuantity(coinDetailViewModel)
                     OrderScreenPrice(coinDetailViewModel)
                     OrderScreenTotalPrice(coinDetailViewModel)
                     OrderScreenButtons(coinDetailViewModel)
-                    OrderScreenNotice()
+                    OrderScreenNotice(context, lifecycleOwner)
                 }
             } else {
                 TransactionInfoLazyColumn(coinDetailViewModel)
@@ -138,7 +155,7 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
         fontSize = 15.sp
     )
     val textStyle = remember { mutableStateOf(textStyleBody1) }
-    var krwOrSymbol = ""
+    val krwOrSymbol: String
     var currentUserCoinValue = ""
     val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
         krwOrSymbol = "KRW"
@@ -394,11 +411,11 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         ) {
             TextButton(
                 onClick = {
-                          if(coinDetailViewModel.askBidSelectedTab.value == 1) {
-                              coinDetailViewModel.bidQuantity.value = ""
-                          } else {
-                              coinDetailViewModel.askQuantity.value = ""
-                          }
+                    if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                        coinDetailViewModel.bidQuantity.value = ""
+                    } else {
+                        coinDetailViewModel.askQuantity.value = ""
+                    }
                 }, modifier = Modifier
                     .padding(0.dp, 0.dp, 4.dp, 0.dp)
                     .weight(1f)
@@ -435,7 +452,9 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                             Toast.makeText(context, "네트워크 오류 입니다.", Toast.LENGTH_SHORT).show()
                         }
-                        coinDetailViewModel.askBidSelectedTab.value == 1 && userSeedMoney < totalPrice + round(totalPrice * 0.0005) -> {
+                        coinDetailViewModel.askBidSelectedTab.value == 1 && userSeedMoney < totalPrice + round(
+                            totalPrice * 0.0005
+                        ) -> {
                             Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 2 && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {
@@ -449,14 +468,16 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                         quantity.toDouble(),
                                         totalPrice.toLong()
                                     ).join()
-                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             } else {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     coinDetailViewModel.askRequest(
-                                        quantity.toDouble(), totalPrice.toLong(),currentPrice.value
+                                        quantity.toDouble(), totalPrice.toLong(), currentPrice.value
                                     ).join()
-                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             }
                         }
@@ -486,12 +507,29 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 fontSize = 18.sp
             )
         }
-        TotalAmountDesignatedDialog(coinDetailViewModel,coinDetailViewModel.currentTradePriceState)
+        TotalAmountDesignatedDialog(coinDetailViewModel, coinDetailViewModel.currentTradePriceState)
     }
 }
 
 @Composable
-fun OrderScreenNotice() {
+fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner) {
+    val balloon = remember {
+        Balloon.Builder(context)
+            .setWidthRatio(1.0f)
+            .setHeight(BalloonSizeSpec.WRAP)
+            .setText("· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다.")
+            .setTextColorResource(R.color.white)
+            .setTextGravity(Gravity.START)
+            .setTextSize(15f)
+            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+            .setArrowSize(10)
+            .setArrowPosition(0.5f)
+            .setPadding(12)
+            .setCornerRadius(8f)
+            .setBackgroundColorResource(R.color.C6799FF)
+            .setLifecycleOwner(lifecycleOwner)
+            .build()
+    }
     Column(
         modifier = Modifier
             .padding(0.dp, 10.dp, 0.dp, 0.dp)
@@ -529,6 +567,18 @@ fun OrderScreenNotice() {
                 style = TextStyle(color = Color.Gray)
             )
         }
+        AndroidView(factory = {
+            ImageView(it).apply {
+                val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
+                setImageDrawable(drawable)
+                setOnClickListener {
+                    showAlignTop(balloon)
+                }
+            }
+        }, modifier = Modifier
+            .padding(0.dp, 10.dp, 10.dp, 0.dp)
+            .size(20.dp)
+            .align(Alignment.End))
     }
 }
 

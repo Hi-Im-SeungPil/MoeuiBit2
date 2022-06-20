@@ -12,7 +12,6 @@ import java.util.*
 object UpBitPortfolioWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
 
-    private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
     private var krwMarkets = ""
     private val client = OkHttpClient()
     private val request = Request.Builder()

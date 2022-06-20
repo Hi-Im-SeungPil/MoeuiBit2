@@ -59,8 +59,7 @@ object Calculator {
 
     fun changePriceCalculator(changePrice: Double): String {
         val absChangePrice = abs(changePrice)
-        var result = ""
-        result = if (absChangePrice >= 100) {
+        val result: String = if (absChangePrice >= 100) {
             decimalFormat.format(round(changePrice).toInt())
         } else if (absChangePrice < 100 && absChangePrice >= 1) {
             String.format("%.2f", changePrice)
@@ -191,10 +190,6 @@ object Calculator {
         } else {
             String.format("%.4f", purchaseAverage)
         }
-    }
-
-    fun plusQuantity(currentQuantity: Double, preCoinQuantity: Double): Double {
-        return currentQuantity + preCoinQuantity
     }
 }
 

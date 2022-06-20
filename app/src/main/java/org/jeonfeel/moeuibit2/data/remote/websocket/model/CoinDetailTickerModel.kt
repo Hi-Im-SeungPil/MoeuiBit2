@@ -1,8 +1,10 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.model
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.Stable
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class CoinDetailTickerModel (
     @Stable
     @SerializedName("cd")

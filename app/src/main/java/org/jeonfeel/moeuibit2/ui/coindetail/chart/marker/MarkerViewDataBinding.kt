@@ -1,5 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.marker
 
+import androidx.annotation.Keep
+
+@Keep
 data class MarkerViewDataBinding(
     val dateTime: String,
     val highPrice: String,

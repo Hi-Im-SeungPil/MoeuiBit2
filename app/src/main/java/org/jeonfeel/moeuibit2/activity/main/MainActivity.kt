@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Observer
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdRequest.ERROR_CODE_NETWORK_ERROR
@@ -46,8 +45,8 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     @Inject
     lateinit var networkMonitorUtil: NetworkMonitorUtil
 
-    @Inject
-    lateinit var permissionManager: PermissionManager
+//    @Inject
+//    lateinit var permissionManager: PermissionManager
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
@@ -78,19 +77,17 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                     }
                 }
             }
-//        permissionManager.requestPermission().let {
-//            it?.check()
-//        }
+
         initNetworkStateMonitor()
         initObserver()
     }
 
     private fun initObserver() {
-        mainViewModel.adLiveData.observe(this, Observer {
+        mainViewModel.adLiveData.observe(this) {
             if (it == 1) {
                 loadRewardVideoAd()
             }
-        })
+        }
     }
 
     private fun initNetworkStateMonitor() {

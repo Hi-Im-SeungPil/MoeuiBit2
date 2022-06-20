@@ -12,7 +12,6 @@ import java.util.*
 
 object UpBitOrderBookWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
-    private val TAG = UpBitCoinDetailWebSocket::class.java.simpleName
 
     private val client = OkHttpClient()
     private val request = Request.Builder()

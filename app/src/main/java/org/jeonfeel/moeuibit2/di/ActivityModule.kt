@@ -2,8 +2,6 @@ package org.jeonfeel.moeuibit2.di
 
 import android.app.Activity
 import android.content.Context
-import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,8 +19,8 @@ class ActivityModule {
         return NetworkMonitorUtil(context)
     }
 
-    @Provides
-    fun providePermissionManager(activity: Activity): PermissionManager {
-        return PermissionManager(activity)
-    }
+//    @Provides
+//    fun providePermissionManager(activity: Activity): PermissionManager {
+//        return PermissionManager(activity)
+//    }
 }

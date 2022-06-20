@@ -26,6 +26,7 @@
     <color name="CFF4848">#FF4848</color>
     <color name="CBDBDBD">#BDBDBD</color>
     <color name="C26FFE400">#26FFE400</color>
+    <color name="C6799FF">#6799FF</color>
 
     <array name="pieChart_color">
         <item>#FFE400</item>

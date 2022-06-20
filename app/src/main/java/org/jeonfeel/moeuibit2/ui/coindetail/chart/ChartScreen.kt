@@ -23,17 +23,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.get
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.util.initCombinedChart
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 const val MINUTE_SELECT = 1
 const val DAY_SELECT = 2
