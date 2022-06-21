@@ -12,11 +12,11 @@ data class ChartModel(
     @SerializedName("opening_price")
     val openingPrice: Double,
     @SerializedName("high_price")
-    val highPrice :Double,
+    val highPrice: Double,
     @SerializedName("low_price")
-    val lowPrice :Double,
+    val lowPrice: Double,
     @SerializedName("trade_price")
-    val tradePrice :Double,
+    val tradePrice: Double,
     @SerializedName("candle_acc_trade_price")
     val candleAccTradePrice: Double,
     val timestamp: Long

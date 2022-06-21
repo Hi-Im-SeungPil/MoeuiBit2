@@ -22,7 +22,7 @@ interface UpBitService {
         @Query("market") market: String,
         @Query("count") count: String,
         @Query("to") time: String
-    ) : Response<JsonArray>
+    ): Response<JsonArray>
 
     @GET("https://api.upbit.com/v1/candles/{period}")
     suspend fun getOtherCandle(
@@ -30,5 +30,5 @@ interface UpBitService {
         @Query("market") market: String,
         @Query("count") count: String,
         @Query("to") time: String
-    ) : Response<JsonArray>
+    ): Response<JsonArray>
 }

@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.listener
 
-import android.util.Log
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -42,8 +41,7 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.d("orderbook onFailure",t.message.toString())
-        if(UpBitOrderBookWebSocket.retryCount <= 10) {
+        if (UpBitOrderBookWebSocket.retryCount <= 10) {
             UpBitOrderBookWebSocket.onFail()
         } else {
             UpBitOrderBookWebSocket.onPause()

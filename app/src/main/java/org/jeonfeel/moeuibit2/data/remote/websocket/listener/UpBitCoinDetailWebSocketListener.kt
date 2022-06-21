@@ -6,7 +6,7 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 
-class UpBitCoinDetailWebSocketListener: WebSocketListener() {
+class UpBitCoinDetailWebSocketListener : WebSocketListener() {
 
     private var messageListener: OnCoinDetailMessageReceiveListener? = null
 
@@ -42,17 +42,18 @@ class UpBitCoinDetailWebSocketListener: WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        if(UpBitCoinDetailWebSocket.retryCount <= 10) {
+        if (UpBitCoinDetailWebSocket.retryCount <= 10) {
             UpBitCoinDetailWebSocket.onFail()
         } else {
             UpBitCoinDetailWebSocket.onPause()
         }
     }
 
-    companion object{
+    companion object {
         const val NORMAL_CLOSURE_STATUS = 1000
     }
 }
+
 interface OnCoinDetailMessageReceiveListener {
     fun onCoinDetailMessageReceiveListener(tickerJsonObject: String)
 }

@@ -14,6 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class LocalModule {
+
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): MoeuiBitDatabase {

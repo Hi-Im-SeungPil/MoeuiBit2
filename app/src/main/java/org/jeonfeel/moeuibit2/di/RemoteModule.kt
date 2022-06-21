@@ -13,6 +13,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class RemoteModule {
+
     @Singleton
     @Provides
     fun provideUpBitRetrofit(): Retrofit {

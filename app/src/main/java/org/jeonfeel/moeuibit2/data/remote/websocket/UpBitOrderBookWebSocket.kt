@@ -46,7 +46,8 @@ object UpBitOrderBookWebSocket {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
             socket = client.newWebSocket(
                 request,
-                socketListener)
+                socketListener
+            )
             currentSocketState = SOCKET_IS_CONNECTED
         }
     }

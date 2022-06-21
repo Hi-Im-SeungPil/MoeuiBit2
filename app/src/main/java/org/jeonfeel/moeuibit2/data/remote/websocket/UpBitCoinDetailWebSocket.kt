@@ -34,7 +34,8 @@ object UpBitCoinDetailWebSocket {
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
             socket = client.newWebSocket(
-                request, socketListener)
+                request, socketListener
+            )
             currentSocketState = SOCKET_IS_CONNECTED
         }
     }

@@ -5,6 +5,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import retrofit2.Response
 
 class RemoteRepository(private val upBitService: UpBitService) {
+
     suspend fun getOrderBookService(market: String): Response<JsonArray> {
         return upBitService.getKrwOrderBook(market)
     }
@@ -24,5 +25,4 @@ class RemoteRepository(private val upBitService: UpBitService) {
     suspend fun getKrwTickerService(markets: String): Response<JsonArray> {
         return upBitService.getKrwTicker(markets)
     }
-
 }

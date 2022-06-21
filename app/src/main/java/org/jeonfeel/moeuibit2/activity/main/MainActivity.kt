@@ -31,7 +31,6 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.manager.PermissionManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
 import org.jeonfeel.moeuibit2.util.ConnectionType
@@ -185,7 +184,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
 
     private fun loadFullScreenAd() {
         InterstitialAd.load(this, fullScreenAdId, adRequest, object : InterstitialAdLoadCallback() {
-
             override fun onAdLoaded(ad: InterstitialAd) {
                 super.onAdLoaded(ad)
                 ad.show(this@MainActivity)

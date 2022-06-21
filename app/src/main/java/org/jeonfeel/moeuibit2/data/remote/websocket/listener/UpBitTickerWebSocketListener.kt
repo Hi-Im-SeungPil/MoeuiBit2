@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.listener
 
-import android.util.Log
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -24,7 +23,6 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Log.e("TAG", "Receiving $text")
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -44,8 +42,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Log.e("ticker Socket", "Error => ${t.message}")
-        if(UpBitTickerWebSocket.retryCount <= 10){
+        if (UpBitTickerWebSocket.retryCount <= 10) {
             UpBitTickerWebSocket.onFail()
         } else {
             UpBitTickerWebSocket.onPause()
