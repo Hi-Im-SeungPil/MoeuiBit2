@@ -32,11 +32,21 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            storeFile file("key.jks")
+            storePassword "454842as"
+            keyAlias "seungpil"
+            keyPassword "454842as"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

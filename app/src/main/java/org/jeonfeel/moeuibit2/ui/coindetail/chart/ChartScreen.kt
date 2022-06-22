@@ -98,18 +98,27 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                     val lastBar =
                                         if (combinedChart.barData.dataSets[0].getEntriesForXValue(
                                                 lastCandle.x
-                                            )
-                                                .isEmpty()
+                                            ).isEmpty()
                                         ) {
-                                            combinedChart.barData.dataSets[1].getEntriesForXValue(
-                                                lastCandle.x
-                                            )
-                                                .first()
+                                            try{
+                                                combinedChart.barData.dataSets[1].getEntriesForXValue(
+                                                    lastCandle.x
+                                                ).first()
+                                            }catch (e: Exception) {
+                                                combinedChart.barData.dataSets[0].getEntriesForXValue(
+                                                    lastCandle.x
+                                                ).first()
+                                            }
                                         } else {
-                                            combinedChart.barData.dataSets[0].getEntriesForXValue(
-                                                lastCandle.x
-                                            )
-                                                .first()
+                                            try {
+                                                combinedChart.barData.dataSets[0].getEntriesForXValue(
+                                                    lastCandle.x
+                                                ).first()
+                                            }catch(e: Exception){
+                                                combinedChart.barData.dataSets[1].getEntriesForXValue(
+                                                    lastCandle.x
+                                                ).first()
+                                            }
                                         }
                                     combinedChart.addAccAmountLimitLine(
                                         lastBar.x,

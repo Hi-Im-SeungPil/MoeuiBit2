@@ -43,6 +43,7 @@ object UpBitPortfolioWebSocket {
     }
 
     fun onPause() {
+        socket.cancel()
         socket.close(UpBitTickerWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
     }

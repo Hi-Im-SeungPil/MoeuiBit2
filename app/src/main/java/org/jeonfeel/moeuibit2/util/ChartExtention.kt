@@ -186,7 +186,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 rightAxis.axisDependency
             )
 
-            val verticalLine = LimitLine(value.x.roundToInt().toFloat())
+            val verticalLine = try {
+                LimitLine(value.x.roundToInt().toFloat())
+            }catch(e: Exception){
+                LimitLine(0f)
+            }
             val horizontalLine = LimitLine(value.y.toFloat())
             val text = Calculator.tradePriceCalculatorForChart(
                 value.y

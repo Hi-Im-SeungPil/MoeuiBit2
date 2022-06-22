@@ -41,9 +41,9 @@ object UpBitCoinDetailWebSocket {
     }
 
     fun onPause() {
+        socket.cancel()
         socket.close(UpBitCoinDetailWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
-        Log.d("onPause", "호출")
     }
 
     fun onFail() {

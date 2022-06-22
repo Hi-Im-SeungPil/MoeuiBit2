@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -26,10 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import kotlin.math.round
 
 @Composable
@@ -38,12 +40,24 @@ fun AskingPriceLazyColumn(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
+
     LazyColumn(modifier = modifier, state = scrollState) {
-        itemsIndexed(items = coinDetailViewModel.orderBookMutableStateList) { _, item ->
-            AskingPriceLazyColumnItem(item,
-                coinDetailViewModel.preClosingPrice,
-                coinDetailViewModel.currentTradePriceStateForOrderBook,
-                coinDetailViewModel.maxOrderBookSize)
+        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED) {
+            items(items = coinDetailViewModel.orderBookMutableStateList) { item ->
+                AskingPriceLazyColumnItem(
+                    item,
+                    coinDetailViewModel.preClosingPrice,
+                    coinDetailViewModel.currentTradePriceStateForOrderBook,
+                    coinDetailViewModel.maxOrderBookSize
+                )
+            }
+        } else {
+            items(15) {
+                EmptyAskingPriceLazyColumnItem(0)
+            }
+            items(15) {
+                EmptyAskingPriceLazyColumnItem(1)
+            }
         }
     }
 }
@@ -64,25 +78,31 @@ fun AskingPriceLazyColumnItem(
     val orderBookBlock = round(orderBook.size / maxOrderBookSize * 100)
     val orderBokBlockColor = getBlockColor(orderBook.state)
 
-    Row(modifier = borderModifier
-        .fillMaxWidth()
-        .height(40.dp)
-        .background(getOrderBookBackGround(orderBook.state))) {
+    Row(
+        modifier = borderModifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(getOrderBookBackGround(orderBook.state))
+    ) {
         Column(modifier = Modifier.weight(5f)) {
-            Text(text = price,
+            Text(
+                text = price,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 15.sp, color = textColor))
-            Text(text = rateResult,
+                style = TextStyle(fontSize = 15.sp, color = textColor)
+            )
+            Text(
+                text = rateResult,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 13.sp, color = textColor))
+                style = TextStyle(fontSize = 13.sp, color = textColor)
+            )
         }
         Box(modifier = Modifier
             .weight(3f)
@@ -99,17 +119,86 @@ fun AskingPriceLazyColumnItem(
                     )
                 }
             }) {
-            Box(modifier = Modifier
-                .fillMaxHeight()
-                .wrapContentHeight()
-                .height(20.dp)
-                .fillMaxWidth(1f * orderBookBlock.toFloat() / 100)
-                .background(orderBokBlockColor))
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentHeight()
+                    .height(20.dp)
+                    .fillMaxWidth(1f * orderBookBlock.toFloat() / 100)
+                    .background(orderBokBlockColor)
+            )
 
             val textStyleBody1 = MaterialTheme.typography.body1
             val textStyle = remember { mutableStateOf(textStyleBody1) }
             AutoSizeText(
                 text = orderBookSize, textStyle = textStyle.value,
+                modifier = Modifier
+                    .padding(2.dp, 0.dp, 0.5.dp, 0.dp)
+                    .fillMaxHeight()
+                    .wrapContentHeight()
+            )
+        }
+    }
+}
+
+@Composable
+fun EmptyAskingPriceLazyColumnItem(
+    orderBookState: Int,
+) {
+    val rateResult = ""
+    val orderBokBlockColor = getBlockColor(orderBookState)
+
+    Row(
+        modifier = Modifier
+            .border(0.5.dp, color = Color.White)
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(getOrderBookBackGround(orderBookState))
+    ) {
+        Column(modifier = Modifier.weight(5f)) {
+            Text(
+                text = "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .wrapContentHeight(),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 15.sp)
+            )
+            Text(
+                text = rateResult,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .wrapContentHeight(),
+                textAlign = TextAlign.Center,
+                style = TextStyle(fontSize = 13.sp)
+            )
+        }
+        Box(modifier = Modifier
+            .weight(3f)
+            .fillMaxHeight()
+            .drawWithContent {
+                drawContent()
+                clipRect {
+                    drawLine(
+                        brush = SolidColor(Color.White),
+                        strokeWidth = 10f,
+                        cap = StrokeCap.Square,
+                        start = Offset.Zero,
+                        end = Offset(y = size.height, x = 0f)
+                    )
+                }
+            }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentHeight()
+                    .height(20.dp)
+                    .background(orderBokBlockColor)
+            )
+
+            Spacer(
                 modifier = Modifier
                     .padding(2.dp, 0.dp, 0.5.dp, 0.dp)
                     .fillMaxHeight()

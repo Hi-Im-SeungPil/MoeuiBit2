@@ -59,8 +59,10 @@ class ChartUseCase @Inject constructor(
         isUpdateChart = false
         dialogState.value = true
         val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
+            delay(50L)
             remoteRepository.getOtherCandleService(candleType, market)
         } else {
+            delay(50L)
             remoteRepository.getMinuteCandleService(candleType, market)
         }
         if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {

@@ -95,8 +95,10 @@ class MainViewModel @Inject constructor(
             INTERNET_CONNECTION -> {
                 viewModelScope.launch {
                     val loadingJob = withTimeoutOrNull(9900L) {
-                        requestKrwMarketCode()
-                        requestKrwTicker(krwCoinListStringBuffer.toString())
+                        viewModelScope.launch {
+                            requestKrwMarketCode()
+                            requestKrwTicker(krwCoinListStringBuffer.toString())
+                        }.join()
                         createKrwExchangeModelList()
                         if (!isSocketRunning) {
                             isSocketRunning = true
@@ -124,6 +126,7 @@ class MainViewModel @Inject constructor(
 
     // get market, koreanName, englishName, warning
     private suspend fun requestKrwMarketCode() {
+        delay(50L)
         val resultMarketCode = remoteRepository.getMarketCodeService()
         if (resultMarketCode.isSuccessful) {
             try {
@@ -152,6 +155,7 @@ class MainViewModel @Inject constructor(
 
     // get market, tradePrice, signed_change_price, acc_trade_price_24h
     private suspend fun requestKrwTicker(markets: String) {
+        delay(50L)
         val resultKrwTicker =
             remoteRepository.getKrwTickerService(markets)
         if (resultKrwTicker.isSuccessful) {
@@ -369,7 +373,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun getUserHoldCoins() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             if (portfolioLoadingComplete.value) {
                 portfolioLoadingComplete.value = false
             }
@@ -378,7 +382,9 @@ class MainViewModel @Inject constructor(
             userHoldCoinsMarket = StringBuffer()
             userHoldCoinDtoListPositionHashMap.clear()
             tempUserHoldCoinDtoList.clear()
-            userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
+            viewModelScope.launch(Dispatchers.IO) {
+                userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
+            }.join()
             if (userHoldCoinList.isNotEmpty()) {
                 for (i in userHoldCoinList.indices) {
                     val userHoldCoin = userHoldCoinList[i]!!

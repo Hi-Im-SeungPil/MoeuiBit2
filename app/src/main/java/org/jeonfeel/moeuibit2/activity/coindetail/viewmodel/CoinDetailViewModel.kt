@@ -54,6 +54,7 @@ class CoinDetailViewModel @Inject constructor(
 
     val gson = Gson()
     val transactionInfoList = mutableStateListOf<TransactionInfo>()
+
     /**
      * coin info
      * */
@@ -125,7 +126,7 @@ class CoinDetailViewModel @Inject constructor(
 
     val askBidSelectedTab: MutableState<Int> get() = orderScreenUseCase.askBidSelectedTab
 
-    val askQuantity: MutableState<String> get()  = orderScreenUseCase.askQuantity
+    val askQuantity: MutableState<String> get() = orderScreenUseCase.askQuantity
 
     val bidQuantity: MutableState<String> get() = orderScreenUseCase.bidQuantity
 
@@ -180,19 +181,20 @@ class CoinDetailViewModel @Inject constructor(
     var totalPriceDesignated: String
         set(value) {
             orderScreenUseCase.totalPriceDesignated.value = value
-        }get() {
+        }
+        get() {
             return orderScreenUseCase.totalPriceDesignated.value
         }
 
     fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long): Job {
         return viewModelScope.launch(Dispatchers.IO) {
-            orderScreenUseCase.bidRequest(market,koreanName,currentPrice,quantity,totalPrice)
+            orderScreenUseCase.bidRequest(market, koreanName, currentPrice, quantity, totalPrice)
         }
     }
 
     fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double): Job {
         return viewModelScope.launch(Dispatchers.IO) {
-            orderScreenUseCase.askRequest(market,quantity,totalPrice,currentPrice)
+            orderScreenUseCase.askRequest(market, quantity, totalPrice, currentPrice)
         }
     }
 
@@ -378,27 +380,54 @@ class CoinDetailViewModel @Inject constructor(
             val modelOBj = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = modelOBj.getAsJsonArray("obu")
             val indices = modelJsonArray.size()
-            for (i in indices - 1 downTo 0) {
-                val orderBookAskModel =
-                    gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
-                orderBookMutableStateList[index] =
-                    CoinDetailOrderBookModel(
-                        orderBookAskModel.ask_price,
-                        orderBookAskModel.ask_size,
-                        0
+            if (orderBookMutableStateList.isNotEmpty()) {
+                for (i in indices - 1 downTo 0) {
+                    val orderBookAskModel =
+                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
+                    orderBookMutableStateList[index] =
+                        CoinDetailOrderBookModel(
+                            orderBookAskModel.ask_price,
+                            orderBookAskModel.ask_size,
+                            0
+                        )
+                    index++
+                }
+                for (i in 0 until indices) {
+                    val orderBookBidModel =
+                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
+                    orderBookMutableStateList[index] =
+                        CoinDetailOrderBookModel(
+                            orderBookBidModel.bid_price,
+                            orderBookBidModel.bid_size,
+                            1
+                        )
+                    index++
+                }
+            } else {
+                for (i in indices - 1 downTo 0) {
+                    val orderBookAskModel =
+                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
+                    orderBookMutableStateList.add(
+                        CoinDetailOrderBookModel(
+                            orderBookAskModel.ask_price,
+                            orderBookAskModel.ask_size,
+                            0
+                        )
                     )
-                index++
-            }
-            for (i in 0 until indices) {
-                val orderBookBidModel =
-                    gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
-                orderBookMutableStateList[index] =
-                    CoinDetailOrderBookModel(
-                        orderBookBidModel.bid_price,
-                        orderBookBidModel.bid_size,
-                        1
+                    index++
+                }
+                for (i in 0 until indices) {
+                    val orderBookBidModel =
+                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
+                    orderBookMutableStateList.add(
+                        CoinDetailOrderBookModel(
+                            orderBookBidModel.bid_price,
+                            orderBookBidModel.bid_size,
+                            1
+                        )
                     )
-                index++
+                    index++
+                }
             }
             maxOrderBookSize = orderBookMutableStateList.maxOf { it.size }
         }

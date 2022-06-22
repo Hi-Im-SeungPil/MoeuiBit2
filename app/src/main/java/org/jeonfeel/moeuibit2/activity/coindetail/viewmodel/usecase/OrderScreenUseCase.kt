@@ -1,10 +1,13 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookAskRetrofitModel
@@ -16,6 +19,8 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.Calculator
+import retrofit2.Response
+import java.lang.IllegalStateException
 import javax.inject.Inject
 import kotlin.math.round
 
@@ -44,9 +49,11 @@ class OrderScreenUseCase @Inject constructor(
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
             UpBitCoinDetailWebSocket.market = market
             UpBitOrderBookWebSocket.market = market
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-            initOrderBook(market)
-            UpBitOrderBookWebSocket.requestOrderBookList(market)
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(50L)
+                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                UpBitOrderBookWebSocket.requestOrderBookList(market)
+            }.join()
             localRepository.getUserDao().all.let {
                 userSeedMoney.value = it?.krw ?: 0L
             }
@@ -60,6 +67,7 @@ class OrderScreenUseCase @Inject constructor(
     }
 
     private suspend fun initOrderBook(market: String) {
+        delay(200L)
         val response = remoteRepository.getOrderBookService(market)
         if (response.isSuccessful) {
             val body = response.body()

@@ -33,6 +33,7 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onPause() {
+        socket.cancel()
         socket.close(UpBitOrderBookWebSocketListener.NORMAL_CLOSURE_STATUS, "onPause")
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
@@ -55,7 +56,6 @@ object UpBitOrderBookWebSocket {
     fun onFail() {
         currentSocketState = SOCKET_IS_NO_CONNECTION
         if (retryCount <= 10) {
-            Log.d("onfail", "호출")
             requestOrderBookList(market)
             retryCount++
         }
