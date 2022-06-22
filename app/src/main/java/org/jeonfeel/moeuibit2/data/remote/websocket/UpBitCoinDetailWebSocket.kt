@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
-import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
@@ -12,7 +11,7 @@ import java.util.*
 object UpBitCoinDetailWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
 
-    private val client = OkHttpClient()
+    private var client = OkHttpClient()
     private val request = Request.Builder()
         .url("wss://api.upbit.com/websocket/v1")
         .build()
@@ -33,11 +32,21 @@ object UpBitCoinDetailWebSocket {
 
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
+            try{
+                client.cache?.let {
+                    it.close()
+                }
+                client.connectionPool.evictAll()
+            }catch (e: Exception) {
+                client.dispatcher.executorService.shutdown()
+                client = OkHttpClient()
+            }
             socket = client.newWebSocket(
                 request, socketListener
             )
             currentSocketState = SOCKET_IS_CONNECTED
         }
+
     }
 
     fun onPause() {

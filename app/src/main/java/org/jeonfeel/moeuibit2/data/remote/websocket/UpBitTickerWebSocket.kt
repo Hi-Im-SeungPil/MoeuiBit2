@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
@@ -13,7 +14,7 @@ object UpBitTickerWebSocket {
     private var krwMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
 
-    private val client = OkHttpClient()
+    private var client = OkHttpClient()
     private val request = Request.Builder()
         .url("wss://api.upbit.com/websocket/v1")
         .build()
@@ -33,6 +34,17 @@ object UpBitTickerWebSocket {
 
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
+            try{
+                client.cache?.let {
+                    it.close()
+                }
+                client.connectionPool.evictAll()
+                Log.e("try","catch")
+            }catch (e: Exception) {
+                Log.e("catch","catch")
+                client.dispatcher.executorService.shutdown()
+                client = OkHttpClient()
+            }
             socket = client.newWebSocket(request, socketListener)
             currentSocketState = SOCKET_IS_CONNECTED
         }

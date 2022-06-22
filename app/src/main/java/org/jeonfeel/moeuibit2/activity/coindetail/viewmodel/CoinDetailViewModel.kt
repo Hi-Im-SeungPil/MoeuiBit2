@@ -43,7 +43,7 @@ class CoinDetailViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val chartUseCase: ChartUseCase,
     private val orderScreenUseCase: OrderScreenUseCase,
-    val localRepository: LocalRepository
+    val localRepository: LocalRepository,
 ) : ViewModel(), OnCoinDetailMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
 
@@ -82,14 +82,16 @@ class CoinDetailViewModel @Inject constructor(
         UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
     }
 
-    fun initOrderScreen() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
+    fun initOrderScreen(): Job {
+       return if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
+            viewModelScope.launch {
                 setCoinDetailWebSocketMessageListener()
                 setOrderBookWebSocketMessageListener()
                 orderScreenUseCase.initOrderScreen(market)
                 updateTicker()
-            } else {
+            }
+        } else {
+            viewModelScope.launch {
                 setCoinDetailWebSocketMessageListener()
                 setOrderBookWebSocketMessageListener()
                 UpBitCoinDetailWebSocket.requestCoinDetailData(market)
@@ -350,7 +352,6 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * transactionInfo
      */
-
     fun getTransactionInfoList() {
         transactionInfoList.clear()
         viewModelScope.launch(Dispatchers.IO) {
@@ -365,7 +366,6 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * Listener
      * */
-
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)

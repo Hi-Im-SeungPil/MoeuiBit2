@@ -80,7 +80,6 @@ fun PortfolioScreen(
         leftButtonAction = { mainViewModel.adDialogState.value = false },
         rightButtonAction = {
             mainViewModel.updateAdLiveData()
-//            mainViewModel.earnReward()
             mainViewModel.adDialogState.value = false
         })
     CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")

@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.custom
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +20,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.util.showToast
 
 @Composable
 fun OrderScreenQuantityTextField(
@@ -41,7 +41,9 @@ fun OrderScreenQuantityTextField(
     BasicTextField(value = value.value, onValueChange = {
         if(it.toDoubleOrNull() == null && it != "") {
             value.value = ""
-            Toast.makeText(context,"숫자만 입력 가능합니다.",Toast.LENGTH_SHORT).show()
+            context.showToast("숫자만 입력 가능합니다.")
+        } else if(coinDetailViewModel.currentTradePriceState == 0.0) {
+            context.showToast("네트워크 통신 오류입니다.")
         } else {
             value.value = it
         }

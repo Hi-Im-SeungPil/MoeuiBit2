@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.ui.coindetail.order
 import android.content.Context
 import android.view.Gravity
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -47,6 +46,7 @@ import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
+import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
 
 @Composable
@@ -282,17 +282,17 @@ fun OrderScreenQuantityDropDown(
             suggestions.forEach { label ->
                 DropdownMenuItem(onClick = {
                     expanded.value = false
-                    if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                    if (coinDetailViewModel.askBidSelectedTab.value == 1 && coinDetailViewModel.currentTradePriceState != 0.0) {
                         bidButtonText.value = label
-                        val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
-                            bidButtonText.value,
-                            coinDetailViewModel.userSeedMoney,
-                            coinDetailViewModel.currentTradePriceState
-                        )
-                        if (quantity.toDouble() != 0.0) {
-                            coinDetailViewModel.bidQuantity.value = quantity
-                        }
-                    } else if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+                            val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
+                                bidButtonText.value,
+                                coinDetailViewModel.userSeedMoney,
+                                coinDetailViewModel.currentTradePriceState
+                            )
+                            if (quantity.toDouble() != 0.0) {
+                                coinDetailViewModel.bidQuantity.value = quantity
+                            }
+                    } else if (coinDetailViewModel.askBidSelectedTab.value == 2 && coinDetailViewModel.currentTradePriceState != 0.0) {
                         askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
                             askButtonText.value,
@@ -440,25 +440,24 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     val userCoin = coinDetailViewModel.userCoinQuantity
                     when {
                         totalPrice.toLong() < 5000 -> {
-                            Toast.makeText(
-                                context,
-                                "주문 가능한 최소금액은 5,000KRW 입니다.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            context.showToast("주문 가능한 최소금액은 5,000KRW 입니다.")
+                        }
+                        currentPrice.value == 0.0 -> {
+                            context.showToast("네트워크 통신 오류입니다.")
                         }
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
-                            Toast.makeText(context, "네트워크 상태를 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                            context.showToast("네트워크 상태를 확인해 주세요.")
                         }
                         UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
-                            Toast.makeText(context, "네트워크 오류 입니다.", Toast.LENGTH_SHORT).show()
+                            context.showToast("네트워크 오류 입니다.")
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 1 && userSeedMoney < totalPrice + round(
                             totalPrice * 0.0005
                         ) -> {
-                            Toast.makeText(context, "주문 가능 금액이 부족합니다.", Toast.LENGTH_SHORT).show()
+                            context.showToast("주문 가능 금액이 부족합니다.")
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 2 && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {
-                            Toast.makeText(context, "매도 가능 수량이 부족합니다.", Toast.LENGTH_SHORT).show()
+                            context.showToast("매도 가능 수량이 부족합니다.")
                         }
                         else -> {
                             if (coinDetailViewModel.askBidSelectedTab.value == 1) {
@@ -468,16 +467,14 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                         quantity.toDouble(),
                                         totalPrice.toLong()
                                     ).join()
-                                    Toast.makeText(context, "매수주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    context.showToast("매수주문이 완료 되었습니다.")
                                 }
                             } else {
                                 CoroutineScope(Dispatchers.Main).launch {
                                     coinDetailViewModel.askRequest(
                                         quantity.toDouble(), totalPrice.toLong(), currentPrice.value
                                     ).join()
-                                    Toast.makeText(context, "매도주문이 완료 되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
+                                    context.showToast("매도주문이 완료 되었습니다.")
                                 }
                             }
                         }

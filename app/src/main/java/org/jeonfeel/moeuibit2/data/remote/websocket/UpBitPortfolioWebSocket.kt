@@ -13,7 +13,7 @@ object UpBitPortfolioWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
 
     private var krwMarkets = ""
-    private val client = OkHttpClient()
+    private var client = OkHttpClient()
     private val request = Request.Builder()
         .url("wss://api.upbit.com/websocket/v1")
         .build()
@@ -37,6 +37,15 @@ object UpBitPortfolioWebSocket {
 
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
+            try{
+                client.cache?.let {
+                    it.close()
+                }
+                client.connectionPool.evictAll()
+            }catch (e: Exception) {
+                client.dispatcher.executorService.shutdown()
+                client = OkHttpClient()
+            }
             socket = client.newWebSocket(request, socketListener)
             currentSocketState = SOCKET_IS_CONNECTED
         }

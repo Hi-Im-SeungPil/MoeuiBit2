@@ -40,9 +40,8 @@ fun AskingPriceLazyColumn(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
-
     LazyColumn(modifier = modifier, state = scrollState) {
-        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED) {
+        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.orderBookMutableStateList.size >= 30) {
             items(items = coinDetailViewModel.orderBookMutableStateList) { item ->
                 AskingPriceLazyColumnItem(
                     item,

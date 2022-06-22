@@ -32,7 +32,6 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
-        webSocket.cancel()
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {

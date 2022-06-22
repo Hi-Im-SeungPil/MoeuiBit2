@@ -6,16 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun CoinDetailScreen(
@@ -25,14 +26,18 @@ fun CoinDetailScreen(
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val detailScreenJob = remember{
+        coinDetailViewModel.initOrderScreen()
+    }
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
                 UpBitCoinDetailWebSocket.onPause()
                 UpBitOrderBookWebSocket.onPause()
+                detailScreenJob.cancel()
             }
             Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.initOrderScreen()
+                detailScreenJob.start()
             }
             else -> {}
         }

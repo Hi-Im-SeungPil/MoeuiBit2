@@ -1,13 +1,15 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
-import android.util.Log
+import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import dagger.hilt.android.scopes.ViewModelScoped
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookAskRetrofitModel
@@ -19,15 +21,13 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.Calculator
-import retrofit2.Response
-import java.lang.IllegalStateException
 import javax.inject.Inject
 import kotlin.math.round
 
 @ViewModelScoped
 class OrderScreenUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
 ) {
     val gson = Gson()
     var isTickerSocketRunning = true
@@ -45,24 +45,33 @@ class OrderScreenUseCase @Inject constructor(
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
     val totalPriceDesignated = mutableStateOf("")
 
-    suspend fun initOrderScreen(market: String) {
+    fun initOrderScreen(market: String) {
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
             UpBitCoinDetailWebSocket.market = market
             UpBitOrderBookWebSocket.market = market
             CoroutineScope(Dispatchers.Main).launch {
-                delay(50L)
-                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
-            }.join()
-            localRepository.getUserDao().all.let {
-                userSeedMoney.value = it?.krw ?: 0L
+                delay(200L)
+                android.os.Handler(Looper.getMainLooper()).post{
+                    UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+                }
             }
-            localRepository.getMyCoinDao().isInsert(market).let {
-                userCoinQuantity.value = it?.quantity ?: 0.0
+            CoroutineScope(Dispatchers.IO).launch {
+                localRepository.getUserDao().all.let {
+                    userSeedMoney.value = it?.krw ?: 0L
+                }
+                localRepository.getMyCoinDao().isInsert(market).let {
+                    userCoinQuantity.value = it?.quantity ?: 0.0
+                }
             }
         } else {
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-            UpBitOrderBookWebSocket.requestOrderBookList(market)
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(200L)
+                android.os.Handler(Looper.getMainLooper()).post{
+                    UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+                }
+            }
         }
     }
 
@@ -106,7 +115,13 @@ class OrderScreenUseCase @Inject constructor(
         }
     }
 
-    suspend fun bidRequest(market:String, koreanName: String, currentPrice: Double, quantity: Double, totalPrice: Long) {
+    suspend fun bidRequest(
+        market: String,
+        koreanName: String,
+        currentPrice: Double,
+        quantity: Double,
+        totalPrice: Long,
+    ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
         val symbol = market.substring(4)
@@ -130,7 +145,12 @@ class OrderScreenUseCase @Inject constructor(
             userSeedMoney.value = userDao.all?.krw ?: 0L
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
-            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,currentPrice,quantity,totalPrice,"bid",System.currentTimeMillis()))
+            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
+                currentPrice,
+                quantity,
+                totalPrice,
+                "bid",
+                System.currentTimeMillis()))
         } else {
             val preAveragePurchasePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
@@ -152,11 +172,21 @@ class OrderScreenUseCase @Inject constructor(
             userSeedMoney.value = userDao.all?.krw ?: 0L
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
-            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,currentPrice,quantity,totalPrice,"bid",System.currentTimeMillis()))
+            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
+                currentPrice,
+                quantity,
+                totalPrice,
+                "bid",
+                System.currentTimeMillis()))
         }
     }
 
-    suspend fun askRequest(market:String, quantity: Double, totalPrice: Long,currentPrice: Double) {
+    suspend fun askRequest(
+        market: String,
+        quantity: Double,
+        totalPrice: Long,
+        currentPrice: Double,
+    ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
 
@@ -171,6 +201,11 @@ class OrderScreenUseCase @Inject constructor(
         } else {
             userCoinQuantity.value = currentCoin?.quantity ?: 0.0
         }
-        localRepository.getTransactionInfoDao().insert(TransactionInfo(market,currentPrice,quantity,totalPrice,"ask",System.currentTimeMillis()))
+        localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
+            currentPrice,
+            quantity,
+            totalPrice,
+            "ask",
+            System.currentTimeMillis()))
     }
 }
