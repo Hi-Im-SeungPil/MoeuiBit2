@@ -3,10 +3,7 @@ package org.jeonfeel.moeuibit2.ui.mainactivity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -81,6 +78,7 @@ fun MainNavigation(
     navController: NavHostController,
     viewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
+    scaffoldState: ScaffoldState,
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
@@ -90,7 +88,7 @@ fun MainNavigation(
             CoinSiteScreen()
         }
         composable(MainBottomNavItem.Portfolio.screen_route){
-            PortfolioScreen(viewModel,startForActivityResult)
+            PortfolioScreen(viewModel,startForActivityResult,scaffoldState)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen(viewModel)

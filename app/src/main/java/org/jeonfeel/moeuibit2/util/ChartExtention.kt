@@ -185,19 +185,22 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 y,
                 rightAxis.axisDependency
             )
-
-            val verticalLine = try {
-                LimitLine(value.x.roundToInt().toFloat())
-            }catch(e: Exception){
-                LimitLine(0f)
+            val verticalLine = if (highlight != null) {
+                chart.highlightValue(highlight, true)
+                LimitLine(highlight.x)
+            } else {
+                try {
+                    LimitLine(value.x.roundToInt().toFloat())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    LimitLine(0f)
+                }
             }
+            
             val horizontalLine = LimitLine(value.y.toFloat())
             val text = Calculator.tradePriceCalculatorForChart(
                 value.y
             )
-            if (highlight != null) {
-                chart.highlightValue(highlight, true)
-            }
             if (xAxis.limitLines.size != 0) {
                 xAxis.removeAllLimitLines()
                 rightAxis.removeLimitLine(rightAxis.limitLines.last())
@@ -427,9 +430,17 @@ fun CombinedChart.addAccAmountLimitLine(
         chart.axisLeft.removeAllLimitLines()
     }
     val lastBar = if (chart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
-        chart.barData.dataSets[1].getEntriesForXValue(lastX).first()
+        try{
+            chart.barData.dataSets[1].getEntriesForXValue(lastX).first()
+        } catch (e: Exception) {
+            BarEntry(0f,1f)
+        }
     } else {
-        chart.barData.dataSets[0].getEntriesForXValue(lastX).first()
+        try{
+            chart.barData.dataSets[0].getEntriesForXValue(lastX).first()
+        }catch (e: Exception) {
+            BarEntry(0f,1f)
+        }
     }
     val barPrice = lastBar.y
     val lastBarLimitLine = LimitLine(

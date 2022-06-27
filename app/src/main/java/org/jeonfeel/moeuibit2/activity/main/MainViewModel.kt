@@ -374,72 +374,72 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getUserHoldCoins() {
-        viewModelScope.launch(Dispatchers.Main) {
-            if (portfolioLoadingComplete.value) {
-                portfolioLoadingComplete.value = false
-            }
-            var localTotalPurchase = 0.0
-            userHoldCoinDtoList.clear()
-            userHoldCoinsMarket = StringBuffer()
-            userHoldCoinDtoListPositionHashMap.clear()
-            tempUserHoldCoinDtoList.clear()
-            viewModelScope.launch(Dispatchers.IO) {
-                userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
-            }.join()
-            if (userHoldCoinList.isNotEmpty()) {
-                for (i in userHoldCoinList.indices) {
-                    val userHoldCoin = userHoldCoinList[i]!!
-                    val koreanName = krwCoinKoreanNameAndEngName[userHoldCoin.market]?.get(0) ?: ""
-                    val symbol = userHoldCoin.symbol
-                    val position = krwExchangeModelListPosition["KRW-".plus(symbol)] ?: 0
-                    val quantity = userHoldCoin.quantity
-                    val purchaseAverage = userHoldCoin.purchasePrice
-                    val openingPrice = krwExchangeModelList[position].opening_price
-                    val warning = krwExchangeModelList[position].warning
-                    val isFavorite = favoriteHashMap["KRW-".plus(symbol)]
-                    userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
-                    localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
-                    userHoldCoinsMarket.append(userHoldCoin.market).append(",")
-                    userHoldCoinDtoList.add(
-                        UserHoldCoinDTO(
-                            koreanName,
-                            symbol,
-                            quantity,
-                            purchaseAverage,
-                            openingPrice = openingPrice,
-                            warning = warning,
-                            isFavorite = isFavorite
-                        )
-                    )
-                    tempUserHoldCoinDtoList.add(
-                        UserHoldCoinDTO(
-                            koreanName,
-                            symbol,
-                            quantity,
-                            purchaseAverage,
-                            openingPrice = openingPrice,
-                            warning = warning,
-                            isFavorite = isFavorite
-                        )
-                    )
-                    userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
-                }
-                sortUserHoldCoin(-1)
-                userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
-                UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
-                totalPurchase.value = localTotalPurchase
-                UpBitPortfolioWebSocket.getListener()
-                    .setPortfolioMessageListener(this@MainViewModel)
-                UpBitPortfolioWebSocket.requestKrwCoinList()
-                updateUserHoldCoins()
-                portfolioLoadingComplete.value = true
-            } else {
-                totalValuedAssets.value = 0.0
-                totalPurchase.value = 0.0
-                portfolioLoadingComplete.value = true
-            }
+    suspend fun getUserHoldCoins() {
+        if (portfolioLoadingComplete.value) {
+            portfolioLoadingComplete.value = false
         }
+        isPortfolioSocketRunning = false
+        var localTotalPurchase = 0.0
+        userHoldCoinDtoList.clear()
+        viewModelScope.launch(Dispatchers.IO) {
+            userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
+        }.join()
+        userHoldCoinsMarket = StringBuffer()
+        userHoldCoinDtoListPositionHashMap.clear()
+        tempUserHoldCoinDtoList.clear()
+        if (userHoldCoinList.isNotEmpty()) {
+            for (i in userHoldCoinList.indices) {
+                val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
+                val koreanName = krwCoinKoreanNameAndEngName[userHoldCoin.market]?.get(0) ?: ""
+                val symbol = userHoldCoin.symbol
+                val position = krwExchangeModelListPosition[userHoldCoin.market] ?: 0
+                val quantity = userHoldCoin.quantity
+                val purchaseAverage = userHoldCoin.purchasePrice
+                val openingPrice = krwExchangeModelList[position].opening_price
+                val warning = krwExchangeModelList[position].warning
+                val isFavorite = favoriteHashMap["KRW-".plus(symbol)]
+                userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
+                localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
+                userHoldCoinsMarket.append(userHoldCoin.market).append(",")
+                userHoldCoinDtoList.add(
+                    UserHoldCoinDTO(
+                        koreanName,
+                        symbol,
+                        quantity,
+                        purchaseAverage,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite
+                    )
+                )
+                tempUserHoldCoinDtoList.add(
+                    UserHoldCoinDTO(
+                        koreanName,
+                        symbol,
+                        quantity,
+                        purchaseAverage,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite
+                    )
+                )
+                userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
+            }
+            sortUserHoldCoin(-1)
+            userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
+            UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
+            totalPurchase.value = localTotalPurchase
+            UpBitPortfolioWebSocket.getListener()
+                .setPortfolioMessageListener(this@MainViewModel)
+            UpBitPortfolioWebSocket.requestKrwCoinList()
+            updateUserHoldCoins()
+            portfolioLoadingComplete.value = true
+        } else {
+            totalValuedAssets.value = 0.0
+            totalPurchase.value = 0.0
+            portfolioLoadingComplete.value = true
+        }
+
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
@@ -501,16 +501,17 @@ class MainViewModel @Inject constructor(
                             localRepository.getMyCoinDao().delete(i.market)
                             localRepository.getTransactionInfoDao().delete(i.market)
                             count += 1
+                        } else if(i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                            localRepository.getMyCoinDao().delete(i.market)
+                            localRepository.getTransactionInfoDao().delete(i.market)
+                            count += 1
                         }
                     }
                     if (count > 1) {
                         isPortfolioSocketRunning = false
                         UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
                         UpBitPortfolioWebSocket.onPause()
-                        isPortfolioSocketRunning = true
                         getUserHoldCoins()
-                    } else {
-                        isPortfolioSocketRunning = true
                     }
                     removeCoinCount.value = count
                     delay(100L)
@@ -521,16 +522,23 @@ class MainViewModel @Inject constructor(
     }
 
     private fun updateUserHoldCoins() {
+        if(!isPortfolioSocketRunning) {
+            isPortfolioSocketRunning = !isPortfolioSocketRunning
+        }
         viewModelScope.launch(Dispatchers.Main) {
             while (isPortfolioSocketRunning) {
                 var tempTotalValuedAssets = 0.0
-                for (i in tempUserHoldCoinDtoList.indices) {
-                    val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
-                    userHoldCoinDtoList[i] = userHoldCoinDTO
-                    tempTotalValuedAssets += userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
+                try{
+                    for (i in tempUserHoldCoinDtoList.indices) {
+                        val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
+                        userHoldCoinDtoList[i] = userHoldCoinDTO
+                        tempTotalValuedAssets += userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
+                    }
+                    totalValuedAssets.value = tempTotalValuedAssets
+                    delay(300)
+                }catch (e:Exception) {
+                    delay(300)
                 }
-                totalValuedAssets.value = tempTotalValuedAssets
-                delay(300)
             }
         }
     }

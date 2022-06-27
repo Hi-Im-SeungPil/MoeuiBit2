@@ -1,13 +1,14 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,6 +54,9 @@ fun TotalAmountDesignatedDialog(
             .format(coinDetailViewModel.userSeedMoney - round(coinDetailViewModel.userSeedMoney * 0.0005).toLong())
         val userCoinValuable = Calculator.getDecimalFormat()
             .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
+        val interactionSource = remember {
+            MutableInteractionSource()
+        }
 
         Dialog(onDismissRequest = { coinDetailViewModel.askBidDialogState = false }) {
             Card(
@@ -176,7 +180,10 @@ fun TotalAmountDesignatedDialog(
                             .fillMaxWidth()
                             .background(Color.LightGray)
                             .padding(10.dp, 10.dp, 10.dp, 10.dp)
-                            .clickable { coinDetailViewModel.totalPriceDesignated = "" },
+                            .clickable(interactionSource = interactionSource,
+                                indication = null) {
+                                coinDetailViewModel.totalPriceDesignated = ""
+                            },
                         style = TextStyle(color = Color.White),
                         textAlign = TextAlign.Center
                     )
@@ -206,17 +213,22 @@ fun TotalAmountDesignatedDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    val totalPrice = if(coinDetailViewModel.totalPriceDesignated.toLongOrNull() == null) {
-                                        0L
-                                    } else {
-                                        coinDetailViewModel.totalPriceDesignated.toLong()
-                                    }
+                                    val totalPrice =
+                                        if (coinDetailViewModel.totalPriceDesignated.toLongOrNull() == null) {
+                                            0L
+                                        } else {
+                                            coinDetailViewModel.totalPriceDesignated.toLong()
+                                        }
                                     val localUserSeedMoney = coinDetailViewModel.userSeedMoney
-                                    val quantity = String.format("%.8f",totalPrice / currentPrice).toDouble()
-                                    Log.d("totalPriceDesignated","=> $totalPrice")
-                                    Log.d("localCurrentPrice","=> $currentPrice")
-                                    Log.d("quantity","=> $quantity")
+                                    val quantity =
+                                        String
+                                            .format("%.8f", totalPrice / currentPrice)
+                                            .toDouble()
+
                                     when {
+                                        currentPrice == 0.0 -> {
+                                            context.showToast("네트워크 통신 오류입니다.")
+                                        }
                                         totalPrice < 5000 -> {
                                             context.showToast("주문 가능한 최소금액은 5,000KRW 입니다.")
                                         }
@@ -226,7 +238,8 @@ fun TotalAmountDesignatedDialog(
                                         UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                                             context.showToast("네트워크 오류 입니다.")
                                         }
-                                        coinDetailViewModel.askBidSelectedTab.value == 1 && localUserSeedMoney < totalPrice + round(totalPrice * 0.0005) -> {
+                                        coinDetailViewModel.askBidSelectedTab.value == 1 && localUserSeedMoney < totalPrice + round(
+                                            totalPrice * 0.0005) -> {
                                             context.showToast("주문 가능 금액이 부족합니다.")
                                         }
                                         coinDetailViewModel.askBidSelectedTab.value == 2 && coinDetailViewModel.userCoinQuantity < quantity -> {
@@ -234,11 +247,19 @@ fun TotalAmountDesignatedDialog(
                                         }
                                         else -> {
                                             CoroutineScope(Dispatchers.Main).launch {
-                                                if(coinDetailViewModel.askBidSelectedTab.value == 1) {
-                                                    coinDetailViewModel.bidRequest(currentPrice,quantity,totalPrice).join()
+                                                if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+                                                    coinDetailViewModel
+                                                        .bidRequest(currentPrice,
+                                                            quantity,
+                                                            totalPrice)
+                                                        .join()
                                                     context.showToast("매수가 완료 되었습니다.")
-                                                } else if(coinDetailViewModel.askBidSelectedTab.value == 2) {
-                                                    coinDetailViewModel.askRequest(quantity,totalPrice,currentPrice).join()
+                                                } else if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+                                                    coinDetailViewModel
+                                                        .askRequest(quantity,
+                                                            totalPrice,
+                                                            currentPrice)
+                                                        .join()
                                                     context.showToast("매도가 완료 되었습니다.")
                                                 }
                                             }

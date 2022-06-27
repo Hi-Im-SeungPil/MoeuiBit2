@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
-import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -49,13 +48,8 @@ class OrderScreenUseCase @Inject constructor(
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
             UpBitCoinDetailWebSocket.market = market
             UpBitOrderBookWebSocket.market = market
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(200L)
-                android.os.Handler(Looper.getMainLooper()).post{
-                    UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                    UpBitOrderBookWebSocket.requestOrderBookList(market)
-                }
-            }
+            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+            UpBitOrderBookWebSocket.requestOrderBookList(market)
             CoroutineScope(Dispatchers.IO).launch {
                 localRepository.getUserDao().all.let {
                     userSeedMoney.value = it?.krw ?: 0L
@@ -65,13 +59,8 @@ class OrderScreenUseCase @Inject constructor(
                 }
             }
         } else {
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(200L)
-                android.os.Handler(Looper.getMainLooper()).post{
-                    UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                    UpBitOrderBookWebSocket.requestOrderBookList(market)
-                }
-            }
+            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+            UpBitOrderBookWebSocket.requestOrderBookList(market)
         }
     }
 

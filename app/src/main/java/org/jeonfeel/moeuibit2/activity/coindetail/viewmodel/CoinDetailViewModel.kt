@@ -82,21 +82,17 @@ class CoinDetailViewModel @Inject constructor(
         UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
     }
 
-    fun initOrderScreen(): Job {
-       return if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
-            viewModelScope.launch {
-                setCoinDetailWebSocketMessageListener()
-                setOrderBookWebSocketMessageListener()
-                orderScreenUseCase.initOrderScreen(market)
-                updateTicker()
-            }
+    fun initOrderScreen() {
+        if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
+            setCoinDetailWebSocketMessageListener()
+            setOrderBookWebSocketMessageListener()
+            orderScreenUseCase.initOrderScreen(market)
+            updateTicker()
         } else {
-            viewModelScope.launch {
-                setCoinDetailWebSocketMessageListener()
-                setOrderBookWebSocketMessageListener()
-                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
-            }
+            setCoinDetailWebSocketMessageListener()
+            setOrderBookWebSocketMessageListener()
+            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+//            UpBitOrderBookWebSocket.requestOrderBookList(market)
         }
     }
 

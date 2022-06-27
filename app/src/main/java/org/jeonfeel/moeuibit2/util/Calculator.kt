@@ -146,20 +146,24 @@ object Calculator {
         label: String,
         userCoinQuantity: Double,
     ): String {
-        return when (label) {
-            "최대" -> {
-                decimalDecimalFormat.format(userCoinQuantity)
+        return try{
+            when (label) {
+                "최대" -> {
+                    decimalDecimalFormat.format(userCoinQuantity)
+                }
+                "50%" -> {
+                    decimalDecimalFormat.format(userCoinQuantity * 0.5)
+                }
+                "25%" -> {
+                    decimalDecimalFormat.format(userCoinQuantity * 0.25)
+                }
+                "10%" -> {
+                    decimalDecimalFormat.format(userCoinQuantity * 0.1)
+                }
+                else -> "0"
             }
-            "50%" -> {
-                decimalDecimalFormat.format(userCoinQuantity * 0.5)
-            }
-            "25%" -> {
-                decimalDecimalFormat.format(userCoinQuantity * 0.25)
-            }
-            "10%" -> {
-                decimalDecimalFormat.format(userCoinQuantity * 0.1)
-            }
-            else -> "0"
+        } catch (e: Exception) {
+            "0"
         }
     }
 

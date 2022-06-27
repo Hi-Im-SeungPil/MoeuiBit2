@@ -105,19 +105,16 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                                     lastCandle.x
                                                 ).first()
                                             }catch (e: Exception) {
-                                                combinedChart.barData.dataSets[0].getEntriesForXValue(
-                                                    lastCandle.x
-                                                ).first()
+                                                CandleEntry(1f,1f,1f,1f,1f)
                                             }
                                         } else {
                                             try {
                                                 combinedChart.barData.dataSets[0].getEntriesForXValue(
                                                     lastCandle.x
                                                 ).first()
+
                                             }catch(e: Exception){
-                                                combinedChart.barData.dataSets[1].getEntriesForXValue(
-                                                    lastCandle.x
-                                                ).first()
+                                                CandleEntry(1f,1f,1f,1f,1f)
                                             }
                                         }
                                     combinedChart.addAccAmountLimitLine(

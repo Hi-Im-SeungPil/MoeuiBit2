@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
@@ -115,11 +116,13 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     @Composable
     fun MainScreen(viewModel: MainViewModel) {
         val navController = rememberNavController()
+        val scaffoldState = rememberScaffoldState()
         Scaffold(
+            scaffoldState = scaffoldState,
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                MainNavigation(navController, viewModel, startForActivityResult)
+                MainNavigation(navController, viewModel, startForActivityResult,scaffoldState)
             }
         }
     }

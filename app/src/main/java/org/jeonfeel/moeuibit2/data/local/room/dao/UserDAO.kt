@@ -20,7 +20,7 @@ interface UserDAO {
     @Query("Insert into User values(10000000)")
     suspend fun insert()
 
-    @Query("Insert into User values(10000000)")
+    @Query("Insert into User values(1000000)")
     suspend fun errorInsert()
 
     @Query("UPDATE User SET krw = :money")

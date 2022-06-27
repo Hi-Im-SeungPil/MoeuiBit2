@@ -231,9 +231,17 @@ class ChartUseCase @Inject constructor(
 
     fun updateCandleTicker(tradePrice: Double) {
         if (isUpdateChart && candleEntries.isNotEmpty()) {
-            beforeUpdateLineData()
+            try{
+                beforeUpdateLineData()
+            }catch (e: Exception) {
+                e.printStackTrace()
+            }
             candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-            updateLineData(1)
+            try{
+                updateLineData(1)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             _candleUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
         }
     }
@@ -273,7 +281,11 @@ class ChartUseCase @Inject constructor(
                         combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition,
                             model.candleAccTradePrice.toFloat()))
                     }
-                    updateLineData(2)
+                    try{
+                        updateLineData(2)
+                    }catch (e:Exception) {
+                        e.printStackTrace()
+                    }
                     combinedChart.barData.notifyDataChanged()
                     combinedChart.lineData.notifyDataChanged()
                     combinedChart.data.notifyDataChanged()

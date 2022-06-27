@@ -289,7 +289,8 @@ fun OrderScreenQuantityDropDown(
                                 coinDetailViewModel.userSeedMoney,
                                 coinDetailViewModel.currentTradePriceState
                             )
-                            if (quantity.toDouble() != 0.0) {
+                        val quantityResult = quantity.toDoubleOrNull()
+                            if (quantityResult != 0.0 && quantityResult != null) {
                                 coinDetailViewModel.bidQuantity.value = quantity
                             }
                     } else if (coinDetailViewModel.askBidSelectedTab.value == 2 && coinDetailViewModel.currentTradePriceState != 0.0) {
@@ -298,7 +299,8 @@ fun OrderScreenQuantityDropDown(
                             askButtonText.value,
                             coinDetailViewModel.userCoinQuantity
                         )
-                        if (quantity.toDouble() != 0.0) {
+                        val quantityResult = quantity.toDoubleOrNull()
+                        if (quantityResult != 0.0 && quantityResult != null) {
                             coinDetailViewModel.askQuantity.value = quantity
                         }
                     }
@@ -514,7 +516,7 @@ fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner) {
         Balloon.Builder(context)
             .setWidthRatio(1.0f)
             .setHeight(BalloonSizeSpec.WRAP)
-            .setText("· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다.")
+            .setText("· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다. ")
             .setTextColorResource(R.color.white)
             .setTextGravity(Gravity.START)
             .setTextSize(15f)

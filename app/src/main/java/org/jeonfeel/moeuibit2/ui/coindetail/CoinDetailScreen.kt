@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
@@ -26,18 +25,15 @@ fun CoinDetailScreen(
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val detailScreenJob = remember{
-        coinDetailViewModel.initOrderScreen()
-    }
+
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
                 UpBitCoinDetailWebSocket.onPause()
                 UpBitOrderBookWebSocket.onPause()
-                detailScreenJob.cancel()
             }
             Lifecycle.Event.ON_RESUME -> {
-                detailScreenJob.start()
+                coinDetailViewModel.initOrderScreen()
             }
             else -> {}
         }

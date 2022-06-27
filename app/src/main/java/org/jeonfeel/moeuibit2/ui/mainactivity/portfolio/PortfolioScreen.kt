@@ -38,6 +38,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
@@ -60,6 +64,7 @@ import kotlin.math.round
 fun PortfolioScreen(
     mainViewModel: MainViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>,
+    scaffoldState: ScaffoldState,
 ) {
     val context = LocalContext.current
     val dialogState = remember {
@@ -71,6 +76,27 @@ fun PortfolioScreen(
     if (editHoldCoinDialogState.value) {
         EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
     }
+    val secondExceptionHandler = remember{
+        CoroutineExceptionHandler{ coroutineContext, throwable ->
+            context.showToast("예상치 못한 오류가 계속 발생하고 있습니다.")
+        }
+    }
+    val firstExceptionHandler = remember {
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+            CoroutineScope(Dispatchers.Main).launch(secondExceptionHandler) {
+                val snackBarResult =
+                    scaffoldState.snackbarHostState.showSnackbar("예상치 못한 오류가 발생했습니다.",
+                        "재시도")
+                when (snackBarResult) {
+                    SnackbarResult.Dismissed -> {}
+                    SnackbarResult.ActionPerformed -> {
+                        mainViewModel.getUserHoldCoins()
+                    }
+                }
+            }
+        }
+    }
+
     CommonDialog(
         dialogState = mainViewModel.adDialogState,
         title = "KRW 충전",
@@ -83,6 +109,7 @@ fun PortfolioScreen(
             mainViewModel.adDialogState.value = false
         })
     CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")
+
     if (mainViewModel.removeCoinCount.value == 1) {
         context.showToast("정리된 코인이 없습니다.")
     } else if (mainViewModel.removeCoinCount.value == -1) {
@@ -90,6 +117,7 @@ fun PortfolioScreen(
     } else if (mainViewModel.removeCoinCount.value > 1) {
         context.showToast("${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 정리되었습니다.")
     }
+
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
@@ -99,8 +127,9 @@ fun PortfolioScreen(
             }
             Lifecycle.Event.ON_RESUME -> {
                 if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
-                    mainViewModel.isPortfolioSocketRunning = true
-                    mainViewModel.getUserHoldCoins()
+                    CoroutineScope(Dispatchers.Main).launch(firstExceptionHandler) {
+                        mainViewModel.getUserHoldCoins()
+                    }
                 } else {
                     context.showToast("인터넷 연결을 확인해 주세요.")
                 }
@@ -131,7 +160,10 @@ fun PortfolioScreen(
                     )
                 )
                 IconButton(onClick = { editHoldCoinDialogState.value = true }) {
-                    Icon(painterResource(id = R.drawable.img_eraser), contentDescription = null, tint = Color.Black, modifier = Modifier.size(30.dp))
+                    Icon(painterResource(id = R.drawable.img_eraser),
+                        contentDescription = null,
+                        tint = Color.Black,
+                        modifier = Modifier.size(30.dp))
                 }
             }
         }
@@ -981,7 +1013,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                     )
                 )
                 Text(
-                    text = "보유하고 있는 코인이 상장 폐지나 기타 사유로 거래가 불가능한 경우\n\n\"해당 코인들을 정리(삭제)합니다\"",
+                    text = "보유하고 있는 코인이 상장 폐지나 기타 사유로 혹은 버그발생으로 인해 거래가 불가능한 경우\n\n\"해당 코인들을 정리(삭제)합니다\"",
                     modifier = Modifier
                         .padding(10.dp, 10.dp, 10.dp, 20.dp)
                         .fillMaxWidth(),

@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_NO_CONNECTION
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitOrderBookWebSocketListener
 import java.util.*
@@ -12,7 +11,7 @@ import java.util.*
 object UpBitOrderBookWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
 
-    private var client = OkHttpClient()
+    private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true).build()
     private val request = Request.Builder()
         .url("wss://api.upbit.com/websocket/v1")
         .build()
@@ -32,7 +31,12 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onPause() {
-        socket.cancel()
+        try {
+            client.dispatcher.cancelAll()
+            client.connectionPool.evictAll()
+        }catch (e: Exception) {
+            e.printStackTrace()
+        }
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 
@@ -43,15 +47,6 @@ object UpBitOrderBookWebSocket {
 
     private fun socketRebuild() {
         if (currentSocketState != SOCKET_IS_CONNECTED) {
-            try{
-                client.cache?.let {
-                    it.close()
-                }
-                client.connectionPool.evictAll()
-            }catch (e: Exception) {
-                client.dispatcher.executorService.shutdown()
-                client = OkHttpClient()
-            }
             socket = client.newWebSocket(
                 request,
                 socketListener
@@ -61,10 +56,10 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onFail() {
-        currentSocketState = SOCKET_IS_NO_CONNECTION
-        if (retryCount <= 10) {
-            requestOrderBookList(market)
-            retryCount++
-        }
+//        currentSocketState = SOCKET_IS_NO_CONNECTION
+//        if (retryCount <= 10) {
+//            requestOrderBookList(market)
+//            retryCount++
+//        }
     }
 }
