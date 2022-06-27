@@ -3,6 +3,3 @@
 ***
 ## 설치
 https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2
-## 기대효과
-1. 실제 원화로 투자를 안해도 되니 위험부담이 없음.
-2. 코인 투자에 도움되는 사이트들을 모아놔서 실전투자에 들어가서도 도움이 많이 될것임.
