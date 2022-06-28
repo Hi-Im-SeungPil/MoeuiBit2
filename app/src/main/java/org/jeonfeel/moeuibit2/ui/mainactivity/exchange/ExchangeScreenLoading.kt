@@ -148,9 +148,3 @@ private val creditCardTheme = defaultShimmerTheme.copy(
     shaderColorStops = null,
     shimmerWidth = 400.dp,
 )
-
-@Composable
-@Preview
-fun LoadingLazyColumnItemp() {
-    LoadingLazyColumnItem()
-}

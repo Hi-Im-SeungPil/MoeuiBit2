@@ -1,6 +1,9 @@
-package org.jeonfeel.moeuibit2.util
+package org.jeonfeel.moeuibit2.util.calculator
 
 import android.util.Log
+import org.jeonfeel.moeuibit2.util.forthDecimal
+import org.jeonfeel.moeuibit2.util.percentFormat
+import org.jeonfeel.moeuibit2.util.secondDecimal
 import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.round
@@ -14,9 +17,9 @@ object Calculator {
         return if (tradePrice >= 100) {
             round(tradePrice).toLong().toString()
         } else if (tradePrice < 100 && tradePrice >= 1) {
-            String.format("%.2f", tradePrice)
+            tradePrice.secondDecimal()
         } else {
-            String.format("%.4f", tradePrice)
+            tradePrice.forthDecimal()
         }
     }
 
@@ -24,9 +27,9 @@ object Calculator {
         return if (tradePrice >= 100) {
             decimalFormat.format(round(tradePrice))
         } else if (tradePrice < 100 && tradePrice >= 1) {
-            String.format("%.2f", tradePrice)
+            tradePrice.secondDecimal()
         } else {
-            String.format("%.4f", tradePrice)
+            tradePrice.forthDecimal()
         }
     }
 
@@ -34,18 +37,14 @@ object Calculator {
         return if (tradePrice >= 100) {
             decimalFormat.format(round(tradePrice))
         } else if (tradePrice < 100 && tradePrice >= 1) {
-            String.format("%.2f", tradePrice)
+            tradePrice.secondDecimal()
         } else {
-            String.format("%.4f", tradePrice)
+            tradePrice.forthDecimal()
         }
     }
 
     fun signedChangeRateCalculator(signedChangeRate: Double): String {
-        return String.format("%.2f", signedChangeRate * 100)
-    }
-
-    fun accTradePrice24hCalculator(accTradePrice24h: Double): String {
-        return decimalFormat.format(round(accTradePrice24h * 0.000001))
+        return (signedChangeRate * 100).secondDecimal()
     }
 
     fun accTradePrice24hCalculatorForChart(accTradePrice24h: Double): String {
@@ -53,7 +52,7 @@ object Calculator {
         return if (decimalFormatResult != "0") {
             decimalFormatResult
         } else {
-            String.format("%.2f", accTradePrice24h * 0.000001)
+            (accTradePrice24h * 0.000001).secondDecimal()
         }
     }
 

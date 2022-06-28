@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.util.ConnectionType
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.util.showToast
 
 @AndroidEntryPoint
 class CoinDetailActivity : ComponentActivity() {
@@ -51,7 +52,7 @@ class CoinDetailActivity : ComponentActivity() {
                     if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
                         NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
                         coinDetailViewModel.isUpdateChart = false
-                        Toast.makeText(this, "인터넷 연결을 확인해 주세요.", Toast.LENGTH_SHORT).show()
+                        this.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
                     }
                 }
             }
@@ -70,13 +71,14 @@ class CoinDetailActivity : ComponentActivity() {
 
     private fun initActivity() {
         window.statusBarColor = this.getColor(R.color.C0F0F5C)
-        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars =
-            false
-        coinKoreanName = intent.getStringExtra("coinKoreanName") ?: ""
-        coinSymbol = intent.getStringExtra("coinSymbol") ?: ""
-        openingPrice = intent.getDoubleExtra("openingPrice", 0.0)
-        isFavorite = intent.getBooleanExtra("isFavorite", false)
-        warning = intent.getStringExtra("warning") ?: ""
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+        intent?.let {
+            coinKoreanName = it.getStringExtra("coinKoreanName") ?: ""
+            coinSymbol = it.getStringExtra("coinSymbol") ?: ""
+            openingPrice = it.getDoubleExtra("openingPrice", 0.0)
+            isFavorite = it.getBooleanExtra("isFavorite", false)
+            warning = it.getStringExtra("warning") ?: ""
+        }
         coinDetailViewModel.initViewModel("KRW-".plus(coinSymbol), openingPrice, isFavorite)
         initNetworkStateMonitor()
     }

@@ -18,12 +18,13 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
+import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
@@ -92,7 +93,6 @@ class CoinDetailViewModel @Inject constructor(
             setCoinDetailWebSocketMessageListener()
             setOrderBookWebSocketMessageListener()
             UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-//            UpBitOrderBookWebSocket.requestOrderBookList(market)
         }
     }
 
@@ -185,13 +185,13 @@ class CoinDetailViewModel @Inject constructor(
         }
 
     fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long): Job {
-        return viewModelScope.launch(Dispatchers.IO) {
+        return viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.bidRequest(market, koreanName, currentPrice, quantity, totalPrice)
         }
     }
 
     fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double): Job {
-        return viewModelScope.launch(Dispatchers.IO) {
+        return viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.askRequest(market, quantity, totalPrice, currentPrice)
         }
     }
@@ -348,13 +348,13 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * transactionInfo
      */
-    fun getTransactionInfoList() {
+    suspend fun getTransactionInfoList() {
         transactionInfoList.clear()
-        viewModelScope.launch(Dispatchers.IO) {
-            val list = localRepository.getTransactionInfoDao().select(market)
-            for (i in list.indices) {
-                transactionInfoList.add(list[i])
-            }
+        val job = viewModelScope.async(ioDispatcher) {
+            localRepository.getTransactionInfoDao().select(market)
+        }
+        for (i in job.await()) {
+            transactionInfoList.add(i)
         }
     }
 

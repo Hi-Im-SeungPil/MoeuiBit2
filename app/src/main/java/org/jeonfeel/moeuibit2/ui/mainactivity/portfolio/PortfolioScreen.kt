@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -54,10 +53,8 @@ import org.jeonfeel.moeuibit2.ui.common.CommonDialog
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
-import org.jeonfeel.moeuibit2.util.Calculator
-import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.util.*
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import kotlin.math.round
 
 @Composable
@@ -76,17 +73,19 @@ fun PortfolioScreen(
     if (editHoldCoinDialogState.value) {
         EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
     }
-    val secondExceptionHandler = remember{
-        CoroutineExceptionHandler{ coroutineContext, throwable ->
-            context.showToast("예상치 못한 오류가 계속 발생하고 있습니다.")
+    val secondExceptionHandler = remember {
+        CoroutineExceptionHandler { _, _ ->
+            context.showToast(context.getString(R.string.secondError))
         }
     }
     val firstExceptionHandler = remember {
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, _ ->
             CoroutineScope(Dispatchers.Main).launch(secondExceptionHandler) {
                 val snackBarResult =
-                    scaffoldState.snackbarHostState.showSnackbar("예상치 못한 오류가 발생했습니다.",
-                        "재시도")
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        context.getString(R.string.firstError),
+                        context.getString(R.string.retry)
+                    )
                 when (snackBarResult) {
                     SnackbarResult.Dismissed -> {}
                     SnackbarResult.ActionPerformed -> {
@@ -99,10 +98,10 @@ fun PortfolioScreen(
 
     CommonDialog(
         dialogState = mainViewModel.adDialogState,
-        title = "KRW 충전",
-        content = "짧은 광고를 시청하시면 보상으로\n\n10,000,000 KRW가 지급됩니다.\n\n광고를 시청하시겠습니까?",
-        leftButtonText = "취소",
-        rightButtonText = "확인",
+        title = stringResource(id = R.string.chargeMoney),
+        content = stringResource(id = R.string.adDialogContent),
+        leftButtonText = stringResource(id = R.string.commonCancel),
+        rightButtonText = stringResource(id = R.string.commonAccept),
         leftButtonAction = { mainViewModel.adDialogState.value = false },
         rightButtonAction = {
             mainViewModel.updateAdLiveData()
@@ -111,32 +110,33 @@ fun PortfolioScreen(
     CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")
 
     if (mainViewModel.removeCoinCount.value == 1) {
-        context.showToast("정리된 코인이 없습니다.")
+        context.showToast(stringResource(id = R.string.notRemovedCoin))
     } else if (mainViewModel.removeCoinCount.value == -1) {
-        context.showToast("네트워크 상태 오류입니다.")
+        context.showToast(stringResource(id = R.string.NETWORK_ERROR))
     } else if (mainViewModel.removeCoinCount.value > 1) {
-        context.showToast("${mainViewModel.removeCoinCount.value - 1} 종류의 코인이 정리되었습니다.")
+        context.showToast(
+            stringResource(
+                id = R.string.removedCoin,
+                mainViewModel.removeCoinCount.value - 1
+            )
+        )
     }
 
-    OnLifecycleEvent { _, event ->
-        when (event) {
-            Lifecycle.Event.ON_PAUSE -> {
-                mainViewModel.isPortfolioSocketRunning = false
-                UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-                UpBitPortfolioWebSocket.onPause()
-            }
-            Lifecycle.Event.ON_RESUME -> {
-                if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
-                    CoroutineScope(Dispatchers.Main).launch(firstExceptionHandler) {
-                        mainViewModel.getUserHoldCoins()
-                    }
-                } else {
-                    context.showToast("인터넷 연결을 확인해 주세요.")
+    AddLifecycleEvent(onPauseAction = {
+        mainViewModel.isPortfolioSocketRunning = false
+        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+        UpBitPortfolioWebSocket.onPause()
+    },
+        onResumeAction = {
+            if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+                CoroutineScope(Dispatchers.Main).launch(firstExceptionHandler) {
+                    mainViewModel.getUserHoldCoins()
                 }
+            } else {
+                context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
             }
-            else -> {}
         }
-    }
+    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -147,7 +147,7 @@ fun PortfolioScreen(
                 backgroundColor = colorResource(id = R.color.design_default_color_background)
             ) {
                 Text(
-                    text = "투자 내역",
+                    text = stringResource(id = R.string.investmentDetail),
                     modifier = Modifier
                         .padding(5.dp, 0.dp, 0.dp, 0.dp)
                         .weight(1f, true)
@@ -160,10 +160,12 @@ fun PortfolioScreen(
                     )
                 )
                 IconButton(onClick = { editHoldCoinDialogState.value = true }) {
-                    Icon(painterResource(id = R.drawable.img_eraser),
+                    Icon(
+                        painterResource(id = R.drawable.img_eraser),
                         contentDescription = null,
                         tint = Color.Black,
-                        modifier = Modifier.size(30.dp))
+                        modifier = Modifier.size(30.dp)
+                    )
                 }
             }
         }
@@ -197,10 +199,7 @@ fun PortfolioMain(
     val aReturn = if (mainViewModel.totalValuedAssets.value == 0.0) {
         "0"
     } else {
-        String.format(
-            "%.2f",
-            (mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value) / mainViewModel.totalPurchase.value * 100
-        )
+        ((mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value) / mainViewModel.totalPurchase.value * 100).secondDecimal()
     }
 
     Column(
@@ -213,7 +212,7 @@ fun PortfolioMain(
                 .wrapContentHeight()
         ) {
             Text(
-                text = "보유자산",
+                text = stringResource(id = R.string.holdings),
                 modifier = Modifier
                     .weight(1f, true)
                     .padding(8.dp, 20.dp, 0.dp, 20.dp)
@@ -231,7 +230,7 @@ fun PortfolioMain(
                 elevation = 4.dp,
             ) {
                 Text(
-                    text = "KRW 충전",
+                    text = stringResource(id = R.string.chargeMoney),
                     modifier = Modifier
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
@@ -264,20 +263,20 @@ fun PortfolioMain(
                 }
             }) {
             PortfolioMainItem(
-                text1 = "보유 KRW",
+                text1 = stringResource(id = R.string.userSeedMoney),
                 text2 = userSeedMoney,
-                "총매수",
+                stringResource(id = R.string.totalPurchaseValue),
                 totalPurchaseValue,
-                "총평가",
+                stringResource(id = R.string.totalValuedAssets),
                 totalValuedAssets,
                 round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
             )
             PortfolioMainItem(
-                text1 = "총 보유자산",
+                text1 = stringResource(id = R.string.totalHoldings),
                 text2 = totalHoldings,
-                "평가손익",
+                stringResource(id = R.string.valuationGainOrLoss),
                 valuationGainOrLoss,
-                "수익률",
+                stringResource(id = R.string.aReturn),
                 aReturn.plus("%"),
                 round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
             )
@@ -409,7 +408,7 @@ fun PortfolioPieChart(
                 .clickable { pieChartState.value = !pieChartState.value }
         ) {
             Text(
-                text = "보유자산 포트폴리오", modifier = Modifier
+                text = stringResource(id = R.string.holdingAssetsPortfolio), modifier = Modifier
                     .padding(8.dp, 8.dp, 0.dp, 8.dp)
                     .weight(1f, true)
                     .align(Alignment.CenterVertically), style = TextStyle(fontSize = 16.sp)
@@ -584,10 +583,7 @@ fun UserHoldCoinLazyColumn(
                     if (((currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).isNaN()) {
                         0
                     } else {
-                        String.format(
-                            "%.2f",
-                            (currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100
-                        )
+                        ((currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100).secondDecimal()
                     }
                 val color = if (valuationGainOrLoss > 0) {
                     Color.Red
@@ -715,7 +711,10 @@ fun UserHoldCoinLazyColumnItem(
                     .padding(8.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "평가손익", modifier = Modifier.wrapContentWidth())
+                    Text(
+                        text = stringResource(id = R.string.valuationGainOrLoss),
+                        modifier = Modifier.wrapContentWidth()
+                    )
                     PortfolioAutoSizeText(
                         text = valuationGainOrLoss,
                         modifier = Modifier
@@ -726,7 +725,10 @@ fun UserHoldCoinLazyColumnItem(
                     )
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(text = "수익률", modifier = Modifier.wrapContentWidth())
+                    Text(
+                        text = stringResource(id = R.string.aReturn),
+                        modifier = Modifier.wrapContentWidth()
+                    )
                     PortfolioAutoSizeText(
                         text = aReturn,
                         modifier = Modifier
@@ -743,8 +745,16 @@ fun UserHoldCoinLazyColumnItem(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            UserHoldCoinLazyColumnItemContent(coinQuantity, symbol, "보유수량")
-            UserHoldCoinLazyColumnItemContent(purchaseAverage, "KRW", "매수평균가")
+            UserHoldCoinLazyColumnItemContent(
+                coinQuantity,
+                symbol,
+                stringResource(id = R.string.holdingQuantity)
+            )
+            UserHoldCoinLazyColumnItemContent(
+                purchaseAverage,
+                "KRW",
+                stringResource(id = R.string.purchaseAverage)
+            )
         }
         Row(
             modifier = Modifier
@@ -752,8 +762,16 @@ fun UserHoldCoinLazyColumnItem(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            UserHoldCoinLazyColumnItemContent(evaluationAmount, "KRW", "평가금액")
-            UserHoldCoinLazyColumnItemContent(purchaseAmount, "KRW", "매수금액")
+            UserHoldCoinLazyColumnItemContent(
+                evaluationAmount,
+                "KRW",
+                stringResource(id = R.string.evaluationAmount)
+            )
+            UserHoldCoinLazyColumnItemContent(
+                purchaseAmount,
+                "KRW",
+                stringResource(id = R.string.purchaseAmount)
+            )
         }
     }
 }
@@ -800,14 +818,22 @@ private fun getTextColors(buttonNum: Int, textState: Int): List<Any> {
         1 -> {
             when (textState) {
                 0 -> {
-                    listOf("이름↓", Color.White, colorResource(id = R.color.C0F0F5C))
+                    listOf(
+                        stringResource(id = R.string.nameDown),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
                 }
                 1 -> {
-                    listOf("이름↑", Color.White, colorResource(id = R.color.C0F0F5C))
+                    listOf(
+                        stringResource(id = R.string.nameUp),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
                 }
                 else -> {
                     listOf(
-                        "이름↓↑",
+                        stringResource(id = R.string.nameUpDown),
                         Color.Black,
                         colorResource(id = R.color.design_default_color_background)
                     )
@@ -817,14 +843,22 @@ private fun getTextColors(buttonNum: Int, textState: Int): List<Any> {
         2 -> {
             when (textState) {
                 2 -> {
-                    listOf("수익률↓", Color.White, colorResource(id = R.color.C0F0F5C))
+                    listOf(
+                        stringResource(id = R.string.aReturnDown),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
                 }
                 3 -> {
-                    listOf("수익률↑", Color.White, colorResource(id = R.color.C0F0F5C))
+                    listOf(
+                        stringResource(id = R.string.aReturnUp),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
                 }
                 else -> {
                     listOf(
-                        "수익률↓↑",
+                        stringResource(id = R.string.aReturnUpDown),
                         Color.Black,
                         colorResource(id = R.color.design_default_color_background)
                     )
@@ -868,7 +902,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = koreanName.plus(" 주문"),
+                    text = koreanName.plus(stringResource(id = R.string.order)),
                     modifier = Modifier
                         .padding(0.dp, 20.dp)
                         .fillMaxWidth(),
@@ -882,7 +916,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                 )
                 Row {
                     Text(
-                        text = "현재가",
+                        text = stringResource(id = R.string.currentPrice),
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
@@ -914,17 +948,16 @@ fun UserHoldCoinLazyColumnItemDialog(
 
                 Row {
                     Text(
-                        text = "전일대비",
+                        text = stringResource(id = R.string.netChange),
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
                         style = TextStyle(fontSize = 18.sp)
                     )
                     Text(
-                        text = String.format(
-                            "%.2f",
-                            Calculator.orderBookRateCalculator(openingPrice, currentPrice)
-                        ).plus("%"),
+                        text =
+                        Calculator.orderBookRateCalculator(openingPrice, currentPrice)
+                            .secondDecimal().plus("%"),
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 20.dp, 40.dp)
                             .weight(1f, true),
@@ -938,7 +971,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                 Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
                 Row {
                     Text(
-                        text = "취소", modifier = Modifier
+                        text = stringResource(id = R.string.commonCancel), modifier = Modifier
                             .weight(1f)
                             .clickable {
                                 dialogState.value = false
@@ -956,7 +989,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .border(0.5.dp, Color.LightGray)
                             .padding(0.dp, 10.dp), fontSize = 18.sp
                     )
-                    Text(text = "이동",
+                    Text(text = stringResource(id = R.string.commonMove),
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
@@ -1000,7 +1033,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "보유 코인 정리",
+                    text = stringResource(id = R.string.clearCoin),
                     modifier = Modifier
                         .padding(0.dp, 20.dp)
                         .fillMaxWidth(),
@@ -1013,7 +1046,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                     )
                 )
                 Text(
-                    text = "보유하고 있는 코인이 상장 폐지나 기타 사유로 혹은 버그발생으로 인해 거래가 불가능한 경우\n\n\"해당 코인들을 정리(삭제)합니다\"",
+                    text = stringResource(id = R.string.cleanUpDialogContent),
                     modifier = Modifier
                         .padding(10.dp, 10.dp, 10.dp, 20.dp)
                         .fillMaxWidth(),
@@ -1090,7 +1123,7 @@ fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
 
 @Composable
 fun getReturnTextColor(colorStandard: Long, text5: String): Color {
-    return if (text5 == "수익률") {
+    return if (text5 == stringResource(id = R.string.aReturn)) {
         when {
             colorStandard < 0 -> {
                 Color.Blue

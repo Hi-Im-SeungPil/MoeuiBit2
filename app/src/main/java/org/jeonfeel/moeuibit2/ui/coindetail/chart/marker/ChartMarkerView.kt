@@ -12,7 +12,7 @@ import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 
 @SuppressLint("ViewConstructor")
 class ChartMarkerView constructor(

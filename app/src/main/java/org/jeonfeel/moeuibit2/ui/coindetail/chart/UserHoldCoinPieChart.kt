@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import com.github.mikephil.charting.charts.PieChart
@@ -10,8 +11,10 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.util.firstDecimal
 
 
+@SuppressLint("ViewConstructor")
 class UserHoldCoinPieChart(
     context: Context,
     private val userSeedMoney: Long,
@@ -24,9 +27,9 @@ class UserHoldCoinPieChart(
     private val colorArray = resources.obtainTypedArray(R.array.pieChart_color)
 
     init {
-        if(userSeedMoney != 0L || userHoldCoinList.isNotEmpty()) {
+        if (userSeedMoney != 0L || userHoldCoinList.isNotEmpty()) {
             drawPieChart()
-        } else if(userSeedMoney == 0L && userHoldCoinList.isEmpty()) {
+        } else if (userSeedMoney == 0L && userHoldCoinList.isEmpty()) {
             emptyPieChart()
         }
     }
@@ -46,8 +49,7 @@ class UserHoldCoinPieChart(
         }
 
         for (i in eachCoinAmountArray.indices) {
-            val labelString =
-                String.format("%.1f", (eachCoinAmountArray[i] / totalAssets.toFloat()) * 100)
+            val labelString = ((eachCoinAmountArray[i] / totalAssets.toFloat()) * 100).firstDecimal()
             val legendEntry = LegendEntry().apply {
                 label = symbolArray[i].plus(" $labelString%")
                 formColor = colors[i]
@@ -71,10 +73,10 @@ class UserHoldCoinPieChart(
         }
         val pieData = PieData(pieDataSet)
         pieData.setValueTextSize(10f)
-        pieData.setValueFormatter(object : ValueFormatter(){
+        pieData.setValueFormatter(object : ValueFormatter() {
             override fun getFormattedValue(value: Float): String {
-                return if(value >= 3f) {
-                    String.format("%.1f", value)
+                return if (value >= 3f) {
+                    value.firstDecimal()
                 } else {
                     ""
                 }
@@ -108,7 +110,7 @@ class UserHoldCoinPieChart(
         this.centerText = "보유하신 자산이\n존재하지 않습니다."
         val data: ArrayList<PieEntry> = ArrayList()
         data.add(PieEntry(1f))
-        val pieData = PieData(PieDataSet(data,"").apply {
+        val pieData = PieData(PieDataSet(data, "").apply {
             setColors(Color.TRANSPARENT)
             isHighlightEnabled = false
             valueTextColor = Color.parseColor("#FFFFFFFF")

@@ -29,7 +29,7 @@ import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.util.initCombinedChart

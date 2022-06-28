@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.mainactivity.exchange.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.showToast
 
 @Composable

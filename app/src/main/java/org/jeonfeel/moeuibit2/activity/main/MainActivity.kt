@@ -14,24 +14,16 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdRequest.ERROR_CODE_NETWORK_ERROR
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.OnUserEarnedRewardListener
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardItem
-import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.manager.AdMobManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainNavigation
 import org.jeonfeel.moeuibit2.util.ConnectionType
@@ -42,15 +34,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
-    @Inject
-    lateinit var networkMonitorUtil: NetworkMonitorUtil
-
-//    @Inject
-//    lateinit var permissionManager: PermissionManager
+    @Inject lateinit var networkMonitorUtil: NetworkMonitorUtil
+    @Inject lateinit var adMobManager: AdMobManager
     private lateinit var auth: FirebaseAuth
-    private val mainViewModel: MainViewModel by viewModels()
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
-    private val adRequest = AdRequest.Builder().build()
+    private val mainViewModel: MainViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +74,25 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     private fun initObserver() {
         mainViewModel.adLiveData.observe(this) {
             if (it == 1) {
-                loadRewardVideoAd()
+                adMobManager.loadRewardVideoAd(
+                    onAdLoaded = {
+                        mainViewModel.adLoadingDialogState.value = false
+                    },
+                    onAdFailedToLoad = {
+                        this@MainActivity.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
+                        mainViewModel.adLoadingDialogState.value = false
+                    },
+                    this@MainActivity,
+                    fullScreenOnAdLoad = {
+                        mainViewModel.adLoadingDialogState.value = false
+                        mainViewModel.earnReward()
+                    },
+                    fullScreenOnAdFailedToLoad = {
+                        this.showToast(this.getString(R.string.adLoadError))
+                        mainViewModel.errorReward()
+                        mainViewModel.adLoadingDialogState.value = false
+                    }
+                )
             }
         }
     }
@@ -122,7 +129,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                MainNavigation(navController, viewModel, startForActivityResult,scaffoldState)
+                MainNavigation(navController, viewModel, startForActivityResult, scaffoldState)
             }
         }
     }
@@ -135,77 +142,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     override fun onStop() {
         super.onStop()
         networkMonitorUtil.unregister()
-    }
-
-    private fun loadRewardVideoAd() {
-        RewardedAd.load(
-            this,
-            rewardVideoAdId,
-            adRequest,
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    super.onAdLoaded(ad)
-                    ad.show(this@MainActivity, this@MainActivity)
-                    mainViewModel.adLoadingDialogState.value = false
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    super.onAdFailedToLoad(error)
-                    if (error.code == ERROR_CODE_NETWORK_ERROR || error.code == 0) {
-                        this@MainActivity.showToast("인터넷 상태를 확인해 주세요.")
-                        mainViewModel.adLoadingDialogState.value = false
-                    } else {
-                        loadRewardFullScreenAd()
-                    }
-                }
-            })
-
-    }
-
-    private fun loadRewardFullScreenAd() {
-        MobileAds.initialize(this) {
-            RewardedInterstitialAd.load(this,
-                rewardFullScreenAdId, adRequest, object : RewardedInterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                        super.onAdLoaded(ad)
-                        ad.show(this@MainActivity, this@MainActivity)
-                        mainViewModel.adLoadingDialogState.value = false
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        super.onAdFailedToLoad(error)
-                        if (error.code == ERROR_CODE_NETWORK_ERROR || error.code == 0) {
-                            this@MainActivity.showToast("인터넷 상태를 확인해 주세요.")
-                            mainViewModel.adLoadingDialogState.value = false
-                        } else {
-                            loadFullScreenAd()
-                        }
-                    }
-                })
-        }
-    }
-
-    private fun loadFullScreenAd() {
-        InterstitialAd.load(this, fullScreenAdId, adRequest, object : InterstitialAdLoadCallback() {
-            override fun onAdLoaded(ad: InterstitialAd) {
-                super.onAdLoaded(ad)
-                ad.show(this@MainActivity)
-                mainViewModel.adLoadingDialogState.value = false
-                mainViewModel.earnReward()
-            }
-
-            override fun onAdFailedToLoad(error: LoadAdError) {
-                super.onAdFailedToLoad(error)
-                if (error.code == ERROR_CODE_NETWORK_ERROR || error.code == 0) {
-                    this@MainActivity.showToast("인터넷 상태를 확인해 주세요.")
-                    mainViewModel.adLoadingDialogState.value = false
-                } else {
-                    mainViewModel.errorReward()
-                    this@MainActivity.showToast("광고 로드 오류로 1,000,000 KRW가 지급됩니다.")
-                    mainViewModel.adLoadingDialogState.value = false
-                }
-            }
-        })
     }
 
     override fun onUserEarnedReward(p0: RewardItem) {

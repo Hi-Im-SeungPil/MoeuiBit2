@@ -14,6 +14,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import kotlin.math.round
 import kotlin.math.roundToInt
 

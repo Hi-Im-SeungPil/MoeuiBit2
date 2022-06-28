@@ -92,3 +92,10 @@ class NetworkMonitorUtil(context: Context) {
         }
     }
 }
+
+object OneTimeNetworkCheck {
+    fun networkCheck(context: Context): Network? {
+        val cm = context.getSystemService(ConnectivityManager::class.java)
+        return cm.activeNetwork
+    }
+}

@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,7 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.coinImageUrl
 
@@ -52,7 +53,7 @@ fun CoinDetailMain(
                     .fillMaxHeight()
                     .wrapContentHeight(Alignment.Bottom)
                 ) {
-                    Text(text = "전일대비", modifier = Modifier
+                    Text(text = stringResource(id = R.string.netChange), modifier = Modifier
                         .wrapContentWidth()
                         .padding(0.dp, 0.dp, 10.dp, 0.dp))
                     Text(text = curChangeRate.plus("%"),

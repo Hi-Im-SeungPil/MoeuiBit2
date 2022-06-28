@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import java.text.SimpleDateFormat
 import java.util.*
 

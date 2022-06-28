@@ -10,6 +10,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,7 @@ class OpenSourceLicense : ComponentActivity() {
                         backgroundColor = colorResource(id = R.color.design_default_color_background),
                     ) {
                         Text(
-                            text = "오픈소스 라이선스",
+                            text = stringResource(id = R.string.openSourceLicense),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(5.dp, 0.dp, 0.dp, 0.dp)

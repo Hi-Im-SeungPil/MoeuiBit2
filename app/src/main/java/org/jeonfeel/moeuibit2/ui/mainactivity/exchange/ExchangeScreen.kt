@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 
 @Composable
@@ -30,19 +31,16 @@ fun ExchangeScreen(
             0L
         }
 
-        OnLifecycleEvent { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_PAUSE -> {
-                    mainViewModel.isSocketRunning = false
-                    UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                    UpBitTickerWebSocket.onPause()
-                }
-                Lifecycle.Event.ON_RESUME -> {
-                    mainViewModel.initViewModel()
-                }
-                else -> {}
+        AddLifecycleEvent(
+            onPauseAction = {
+                mainViewModel.isSocketRunning = false
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                UpBitTickerWebSocket.onPause()
+            },
+            onResumeAction = {
+                mainViewModel.initViewModel()
             }
-        }
+        )
 
         BackHandler(true) {
             val curTime = System.currentTimeMillis()

@@ -36,7 +36,7 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.util.showToast
 import java.text.NumberFormat

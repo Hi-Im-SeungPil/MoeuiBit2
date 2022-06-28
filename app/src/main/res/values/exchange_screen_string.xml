@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noFavorite">등록된 관심코인이 없습니다.</string>
+    <string name="noSearchingCoin">일치하는 코인이 없습니다.</string>
+    <string name="million">백만</string>
+</resources>

@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ActivityContext
-import org.jeonfeel.moeuibit2.manager.PermissionManager
+import org.jeonfeel.moeuibit2.manager.AdMobManager
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 
 @Module
@@ -17,5 +17,10 @@ class ActivityModule {
     @Provides
     fun provideNetworkMonitorUtil(@ActivityContext context: Context): NetworkMonitorUtil {
         return NetworkMonitorUtil(context)
+    }
+
+    @Provides
+    fun provideAdMobManager(activity: Activity): AdMobManager {
+        return AdMobManager(activity)
     }
 }

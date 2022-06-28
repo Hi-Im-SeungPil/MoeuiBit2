@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="resetDialogTitle">앱 초기화</string>
+    <string name="resetDialogContent">보유자산, 거래내역이 모두 사라집니다.\n\n초기화 하시겠습니까?</string>
+    <string name="resetDialogResetSuccess">초기화 되었습니다.</string>
+    <string name="openSourceIntro">This app uses open source. Thank you very, very much for the open-source makers used to create this app.</string>
+    <string name="openSourceLicense">오픈소스 라이선스</string>
+</resources>

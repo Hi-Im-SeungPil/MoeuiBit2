@@ -31,7 +31,7 @@ import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import kotlin.math.round
 
 @Composable

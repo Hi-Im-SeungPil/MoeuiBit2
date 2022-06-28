@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="time">시간</string>
+    <string name="openPrice">시가</string>
+    <string name="highPrice">고가</string>
+    <string name="lowPrice">저가</string>
+    <string name="closePrice">종가</string>
+    <string name="tradeAmount">거래량</string>
+
+
+</resources>

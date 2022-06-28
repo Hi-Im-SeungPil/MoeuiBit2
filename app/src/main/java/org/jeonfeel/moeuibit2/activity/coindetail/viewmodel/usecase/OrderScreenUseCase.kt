@@ -3,23 +3,19 @@ package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookAskRetrofitModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CoinDetailOrderBookBidRetrofitModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import javax.inject.Inject
 import kotlin.math.round
 
@@ -50,7 +46,7 @@ class OrderScreenUseCase @Inject constructor(
             UpBitOrderBookWebSocket.market = market
             UpBitCoinDetailWebSocket.requestCoinDetailData(market)
             UpBitOrderBookWebSocket.requestOrderBookList(market)
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(ioDispatcher).launch {
                 localRepository.getUserDao().all.let {
                     userSeedMoney.value = it?.krw ?: 0L
                 }
@@ -61,46 +57,6 @@ class OrderScreenUseCase @Inject constructor(
         } else {
             UpBitCoinDetailWebSocket.requestCoinDetailData(market)
             UpBitOrderBookWebSocket.requestOrderBookList(market)
-        }
-    }
-
-    private suspend fun initOrderBook(market: String) {
-        delay(200L)
-        val response = remoteRepository.getOrderBookService(market)
-        if (response.isSuccessful) {
-            val body = response.body()
-            val a = body?.first() ?: JsonObject()
-            val modelOBj = gson.fromJson(a, JsonObject::class.java)
-            val modelJsonArray = modelOBj.getAsJsonArray("orderbook_units")
-            val indices = modelJsonArray.size()
-            for (i in indices - 1 downTo 0) {
-                val orderBookAskModel =
-                    gson.fromJson(
-                        modelJsonArray[i],
-                        CoinDetailOrderBookAskRetrofitModel::class.java
-                    )
-                orderBookMutableStateList.add(
-                    CoinDetailOrderBookModel(
-                        orderBookAskModel.ask_price,
-                        orderBookAskModel.ask_size,
-                        0
-                    )
-                )
-            }
-            for (i in 0 until indices) {
-                val orderBookBidModel =
-                    gson.fromJson(
-                        modelJsonArray[i],
-                        CoinDetailOrderBookBidRetrofitModel::class.java
-                    )
-                orderBookMutableStateList.add(
-                    CoinDetailOrderBookModel(
-                        orderBookBidModel.bid_price,
-                        orderBookBidModel.bid_size,
-                        1
-                    )
-                )
-            }
         }
     }
 

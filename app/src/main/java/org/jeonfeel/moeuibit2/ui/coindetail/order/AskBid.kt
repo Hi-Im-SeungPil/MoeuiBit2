@@ -41,10 +41,11 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.mainDispatcher
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
-import org.jeonfeel.moeuibit2.util.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
@@ -134,8 +135,10 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 interactionSource = interactionSource,
                 indication = null
             ) {
-                coinDetailViewModel.getTransactionInfoList()
-                selectedTab.value = 3
+                CoroutineScope(mainDispatcher).launch {
+                    coinDetailViewModel.getTransactionInfoList()
+                    selectedTab.value = 3
+                }
             }
         ) {
             Text(
