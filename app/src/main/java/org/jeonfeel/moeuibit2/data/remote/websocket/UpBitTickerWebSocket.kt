@@ -4,21 +4,22 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_ON_PAUSE
+import org.jeonfeel.moeuibit2.constant.tickerWebSocketMessage
+import org.jeonfeel.moeuibit2.constant.webSocketBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
 import java.util.*
 
 object UpBitTickerWebSocket {
+
     private var krwMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
-
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true).build()
     private val request = Request.Builder()
-        .url("wss://api.upbit.com/websocket/v1")
+        .url(webSocketBaseUrl)
         .build()
     private val socketListener = UpBitTickerWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
     var retryCount = 0
-
 
     fun getListener(): UpBitTickerWebSocketListener {
         return socketListener
@@ -26,8 +27,7 @@ object UpBitTickerWebSocket {
 
     fun requestKrwCoinList() {
         socketRebuild()
-        val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}]},{"format":"SIMPLE"}]""")
+        socket.send(tickerWebSocketMessage(krwMarkets))
     }
 
     private fun socketRebuild() {
@@ -42,22 +42,12 @@ object UpBitTickerWebSocket {
     }
 
     fun onPause() {
-        try{
+        try {
             client.dispatcher.cancelAll()
             client.connectionPool.evictAll()
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-
         currentSocketState = SOCKET_IS_ON_PAUSE
-
-    }
-
-    fun onFail() {
-//        currentSocketState = SOCKET_IS_NO_CONNECTION
-//        if (retryCount <= 10) {
-//            requestKrwCoinList()
-//            retryCount++
-//        }
     }
 }

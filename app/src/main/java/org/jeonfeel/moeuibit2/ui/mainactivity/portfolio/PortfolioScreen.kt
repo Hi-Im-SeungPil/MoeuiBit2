@@ -18,12 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -53,8 +48,12 @@ import org.jeonfeel.moeuibit2.ui.common.CommonDialog
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
-import org.jeonfeel.moeuibit2.util.*
+import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.secondDecimal
+import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
 
 @Composable
@@ -107,7 +106,7 @@ fun PortfolioScreen(
             mainViewModel.updateAdLiveData()
             mainViewModel.adDialogState.value = false
         })
-    CommonLoadingDialog(mainViewModel.adLoadingDialogState, "광고 로드중...")
+    CommonLoadingDialog(mainViewModel.adLoadingDialogState, stringResource(id = R.string.loadAd))
 
     if (mainViewModel.removeCoinCount.value == 1) {
         context.showToast(stringResource(id = R.string.notRemovedCoin))
@@ -245,23 +244,12 @@ fun PortfolioMain(
                 )
             }
         }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = 2f
-                    val y = size.height
-                    drawLine(
-                        brush = SolidColor(Color.DarkGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
+        ) {
             PortfolioMainItem(
                 text1 = stringResource(id = R.string.userSeedMoney),
                 text2 = userSeedMoney,
@@ -301,26 +289,12 @@ fun PortfolioMainSortButtons(
     orderByNameTextInfo: List<Any>,
     mainViewModel: MainViewModel,
     portfolioOrderState: MutableState<Int>,
-
     ) {
     Row(
         Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = 2f
-                    val y = size.height
-                    drawLine(
-                        brush = SolidColor(Color.DarkGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            }
+            .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
     ) {
         Text(
             text = orderByNameTextInfo[0] as String,
@@ -391,20 +365,7 @@ fun PortfolioPieChart(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .drawWithContent {
-                    drawContent()
-                    clipRect {
-                        val strokeWidth = 2f
-                        val y = size.height
-                        drawLine(
-                            brush = SolidColor(Color.Gray),
-                            strokeWidth = strokeWidth,
-                            cap = StrokeCap.Square,
-                            start = Offset.Zero.copy(y = y),
-                            end = Offset(x = size.width, y = y)
-                        )
-                    }
-                }
+                .drawUnderLine(lineColor = Color.Gray, strokeWidth = 2f)
                 .clickable { pieChartState.value = !pieChartState.value }
         ) {
             Text(
@@ -651,21 +612,7 @@ fun UserHoldCoinLazyColumnItem(
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
-        .drawWithContent
-        {
-            drawContent()
-            clipRect {
-                val strokeWidth = 2f
-                val y = size.height
-                drawLine(
-                    brush = SolidColor(Color.Gray),
-                    strokeWidth = strokeWidth,
-                    cap = StrokeCap.Square,
-                    start = Offset.Zero.copy(y = y),
-                    end = Offset(x = size.width, y = y)
-                )
-            }
-        }
+        .drawUnderLine(lineColor = Color.Gray, strokeWidth = 2f)
         .clickable {
             selectedCoinKoreanName.value = coinKoreanName
             dialogState.value = true
@@ -793,8 +740,8 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
                 .padding(0.dp, 0.dp, 0.dp, 2.dp)
         ) {
             AutoSizeText(
-                text = text1,
                 modifier = Modifier.weight(1f, true),
+                text = text1,
                 textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp)
             )
             Text(
@@ -1104,20 +1051,7 @@ fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp)
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = 2f
-                    val y = size.height
-                    drawLine(
-                        brush = SolidColor(Color.DarkGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            }
+            .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
     )
 }
 

@@ -35,6 +35,7 @@ class ChartUseCase @Inject constructor(
     private var firstCandleUtcTime = ""
     private var kstTime = ""
     private val getMovingAverage = GetMovingAverage(candleEntries)
+    private var purchaseAveragePrice: Float? = null
     var isUpdateChart = true
     var chartLastData = false
     var loadingMoreChartData = false
@@ -46,7 +47,6 @@ class ChartUseCase @Inject constructor(
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val kstDateHashMap = HashMap<Int, String>()
     val accData = HashMap<Int, Double>()
-    private var purchaseAveragePrice: Float? = null
 
     private val _candleUpdateMutableLiveData = MutableLiveData<Int>()
     val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData

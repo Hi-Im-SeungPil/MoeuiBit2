@@ -50,14 +50,13 @@ fun TotalAmountDesignatedDialog(
 ) {
     val context = LocalContext.current
     if (coinDetailViewModel.askBidDialogState) {
+        val interactionSource = remember {
+            MutableInteractionSource()
+        }
         val userSeedMoney = Calculator.getDecimalFormat()
             .format(coinDetailViewModel.userSeedMoney - round(coinDetailViewModel.userSeedMoney * 0.0005).toLong())
         val userCoinValuable = Calculator.getDecimalFormat()
             .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
-        val interactionSource = remember {
-            MutableInteractionSource()
-        }
-
         Dialog(onDismissRequest = { coinDetailViewModel.askBidDialogState = false }) {
             Card(
                 modifier = Modifier
@@ -93,8 +92,8 @@ fun TotalAmountDesignatedDialog(
                             style = TextStyle(fontSize = 18.sp)
                         )
                         AutoSizeText(
-                            text = if (coinDetailViewModel.askBidSelectedTab.value == 1) userSeedMoney else userCoinValuable,
                             modifier = Modifier.weight(1f, true),
+                            text = if (coinDetailViewModel.askBidSelectedTab.value == 1) userSeedMoney else userCoinValuable,
                             textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.End)
                         )
                         Text(

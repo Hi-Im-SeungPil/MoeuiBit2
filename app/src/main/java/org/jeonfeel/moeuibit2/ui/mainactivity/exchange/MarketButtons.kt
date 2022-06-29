@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +27,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constant.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 @Composable
 fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
@@ -34,20 +36,7 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = Stroke.DefaultMiter
-                    val y = size.height
-                    drawLine(
-                        brush = SolidColor(Color.DarkGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            }
+            .drawUnderLine(lineColor = Color.DarkGray)
     ) {
         Box(
             modifier = Modifier
@@ -63,7 +52,7 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
                 }
         ) {
             Text(
-                text = "원화",
+                text = stringResource(id = R.string.krw),
                 modifier = Modifier.fillMaxWidth()
                 ,style = TextStyle(
                     color = getTextColor(
@@ -87,7 +76,7 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
                 }
         ) {
             Text(
-                text = "관심",
+                text = stringResource(id = R.string.favorite),
                 modifier = Modifier.fillMaxWidth(),
                 style = TextStyle(
                     color = getTextColor(

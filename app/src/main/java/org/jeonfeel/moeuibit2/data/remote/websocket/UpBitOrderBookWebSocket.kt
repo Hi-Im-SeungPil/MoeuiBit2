@@ -4,16 +4,18 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_ON_PAUSE
+import org.jeonfeel.moeuibit2.constant.orderBookWebSocketMessage
+import org.jeonfeel.moeuibit2.constant.webSocketBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitOrderBookWebSocketListener
 import java.util.*
 
-
 object UpBitOrderBookWebSocket {
+
     var currentSocketState = SOCKET_IS_CONNECTED
 
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true).build()
     private val request = Request.Builder()
-        .url("wss://api.upbit.com/websocket/v1")
+        .url(webSocketBaseUrl)
         .build()
     private val socketListener = UpBitOrderBookWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
@@ -26,8 +28,17 @@ object UpBitOrderBookWebSocket {
 
     fun requestOrderBookList(market: String) {
         socketRebuild()
-        val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]""")
+        socket.send(orderBookWebSocketMessage(market))
+    }
+
+    private fun socketRebuild() {
+        if (currentSocketState != SOCKET_IS_CONNECTED) {
+            socket = client.newWebSocket(
+                request,
+                socketListener
+            )
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
     }
 
     fun onPause() {
@@ -43,23 +54,5 @@ object UpBitOrderBookWebSocket {
     fun onResume(market: String) {
         requestOrderBookList(market)
         currentSocketState = SOCKET_IS_CONNECTED
-    }
-
-    private fun socketRebuild() {
-        if (currentSocketState != SOCKET_IS_CONNECTED) {
-            socket = client.newWebSocket(
-                request,
-                socketListener
-            )
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
-    }
-
-    fun onFail() {
-//        currentSocketState = SOCKET_IS_NO_CONNECTION
-//        if (retryCount <= 10) {
-//            requestOrderBookList(market)
-//            retryCount++
-//        }
     }
 }

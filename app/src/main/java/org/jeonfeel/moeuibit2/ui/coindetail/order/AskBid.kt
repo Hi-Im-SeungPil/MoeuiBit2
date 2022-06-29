@@ -152,12 +152,6 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
 @Composable
 fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    val textStyleBody1 = MaterialTheme.typography.body1.copy(
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.End,
-        fontSize = 15.sp
-    )
-    val textStyle = remember { mutableStateOf(textStyleBody1) }
     val krwOrSymbol: String
     var currentUserCoinValue = ""
     val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
@@ -179,9 +173,13 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
         Row {
             Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
             AutoSizeText(
+                modifier = Modifier.weight(1f, true),
                 text = userSeedMoneyOrCoin,
-                textStyle = textStyle.value,
-                modifier = Modifier.weight(1f, true)
+                textStyle = MaterialTheme.typography.body1.copy(
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End,
+                    fontSize = 15.sp
+                )
             )
             Text(
                 text = "  ".plus(krwOrSymbol),
@@ -287,15 +285,15 @@ fun OrderScreenQuantityDropDown(
                     expanded.value = false
                     if (coinDetailViewModel.askBidSelectedTab.value == 1 && coinDetailViewModel.currentTradePriceState != 0.0) {
                         bidButtonText.value = label
-                            val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
-                                bidButtonText.value,
-                                coinDetailViewModel.userSeedMoney,
-                                coinDetailViewModel.currentTradePriceState
-                            )
+                        val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
+                            bidButtonText.value,
+                            coinDetailViewModel.userSeedMoney,
+                            coinDetailViewModel.currentTradePriceState
+                        )
                         val quantityResult = quantity.toDoubleOrNull()
-                            if (quantityResult != 0.0 && quantityResult != null) {
-                                coinDetailViewModel.bidQuantity.value = quantity
-                            }
+                        if (quantityResult != 0.0 && quantityResult != null) {
+                            coinDetailViewModel.bidQuantity.value = quantity
+                        }
                     } else if (coinDetailViewModel.askBidSelectedTab.value == 2 && coinDetailViewModel.currentTradePriceState != 0.0) {
                         askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
@@ -569,18 +567,20 @@ fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner) {
                 style = TextStyle(color = Color.Gray)
             )
         }
-        AndroidView(factory = {
-            ImageView(it).apply {
-                val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
-                setImageDrawable(drawable)
-                setOnClickListener {
-                    showAlignTop(balloon)
+        AndroidView(
+            factory = {
+                ImageView(it).apply {
+                    val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
+                    setImageDrawable(drawable)
+                    setOnClickListener {
+                        showAlignTop(balloon)
+                    }
                 }
-            }
-        }, modifier = Modifier
-            .padding(0.dp, 10.dp, 10.dp, 0.dp)
-            .size(20.dp)
-            .align(Alignment.End))
+            }, modifier = Modifier
+                .padding(0.dp, 10.dp, 10.dp, 0.dp)
+                .size(20.dp)
+                .align(Alignment.End)
+        )
     }
 }
 

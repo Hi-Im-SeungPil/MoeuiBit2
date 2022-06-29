@@ -24,7 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
-import org.jeonfeel.moeuibit2.constant.ioDispatcher
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
@@ -206,20 +206,20 @@ class CoinDetailViewModel @Inject constructor(
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val coinInfoHashMap = HashMap<String, String>()
-                    val homepage = snapshot.child("homepage").getValue(String::class.java) ?: ""
-                    val amount = snapshot.child("amount").getValue(String::class.java) ?: ""
-                    val twitter = snapshot.child("twitter").getValue(String::class.java) ?: ""
-                    val block = snapshot.child("block").getValue(String::class.java) ?: ""
-                    val info = snapshot.child("content").getValue(String::class.java) ?: ""
+                    val homepage = snapshot.child(INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
+                    val amount = snapshot.child(INFO_AMOUNT_KEY).getValue(String::class.java) ?: ""
+                    val twitter = snapshot.child(INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
+                    val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
+                    val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
 
                     if (homepage.isEmpty()) {
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     } else {
-                        coinInfoHashMap["homepage"] = homepage
-                        coinInfoHashMap["amount"] = amount
-                        coinInfoHashMap["twitter"] = twitter
-                        coinInfoHashMap["block"] = block
-                        coinInfoHashMap["info"] = info
+                        coinInfoHashMap[INFO_HOMEPAGE_KEY] = homepage
+                        coinInfoHashMap[INFO_AMOUNT_KEY] = amount
+                        coinInfoHashMap[INFO_TWITTER_KEY] = twitter
+                        coinInfoHashMap[INFO_BLOCK_KEY] = block
+                        coinInfoHashMap[INFO_INFO_KEY] = info
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     }
                     coinInfoDialog.value = false
@@ -227,7 +227,6 @@ class CoinDetailViewModel @Inject constructor(
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("firebase error", error.message)
                     coinInfoDialog.value = false
                 }
             })

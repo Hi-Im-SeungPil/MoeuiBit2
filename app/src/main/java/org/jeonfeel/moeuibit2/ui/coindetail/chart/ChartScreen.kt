@@ -334,10 +334,8 @@ fun MinuteButton(
     }, modifier = modifier
     ) {
         if (autoSizeText) {
-            val style = MaterialTheme.typography.body2.copy(color = Color.Black)
-            val textStyle = remember { mutableStateOf(style) }
             AutoSizeText(
-                text = minuteTextValue, textStyle = textStyle.value,
+                text = minuteTextValue, textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()

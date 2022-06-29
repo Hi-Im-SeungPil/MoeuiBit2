@@ -10,14 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.util.showToast
 
 @Composable
 fun ExchangeScreen(
@@ -42,18 +45,6 @@ fun ExchangeScreen(
             }
         )
 
-        BackHandler(true) {
-            val curTime = System.currentTimeMillis()
-            val gapTime = curTime - backBtnTime
-            if (gapTime in 0..2000) {
-                (context as MainActivity).finish()
-            } else {
-                backBtnTime = curTime
-                Toast.makeText(context, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-
         if (!mainViewModel.loading.value) {
             if (mainViewModel.errorState.value == INTERNET_CONNECTION) {
                 SearchBasicTextFieldResult(mainViewModel)
@@ -66,6 +57,16 @@ fun ExchangeScreen(
         } else {
             ExchangeScreenLoading()
         }
+
+        BackHandler(true) {
+            val curTime = System.currentTimeMillis()
+            val gapTime = curTime - backBtnTime
+            if (gapTime in 0..2000) {
+                (context as MainActivity).finish()
+            } else {
+                backBtnTime = curTime
+                context.showToast(context.getString(R.string.backPressText))
+            }
+        }
     }
 }
-

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.custom
 
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -11,12 +12,19 @@ import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun AutoSizeText(
-    text: String,
-    textStyle: TextStyle,
     modifier: Modifier = Modifier,
+    text: String,
+    textStyle: TextStyle? = null
 ) {
-    val scaledTextStyle = remember { mutableStateOf(textStyle) }
     val readyToDraw = remember { mutableStateOf(false) }
+    val rememberTextStyle = remember {
+        mutableStateOf(TextStyle())
+    }
+    if(textStyle != null) {
+        rememberTextStyle.value = textStyle
+    } else {
+        rememberTextStyle.value = MaterialTheme.typography.body1
+    }
 
     Text(
         text,
@@ -25,12 +33,12 @@ fun AutoSizeText(
                 drawContent()
             }
         },
-        style = scaledTextStyle.value,
+        style = rememberTextStyle.value,
         softWrap = false,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.didOverflowWidth) {
-                scaledTextStyle.value =
-                    scaledTextStyle.value.copy(fontSize = scaledTextStyle.value.fontSize * 0.9)
+                rememberTextStyle.value =
+                    rememberTextStyle.value.copy(fontSize = rememberTextStyle.value.fontSize * 0.9)
             } else {
                 readyToDraw.value = true
             }

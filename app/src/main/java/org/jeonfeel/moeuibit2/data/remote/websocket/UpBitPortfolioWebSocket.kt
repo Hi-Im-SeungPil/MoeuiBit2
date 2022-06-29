@@ -4,16 +4,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_ON_PAUSE
+import org.jeonfeel.moeuibit2.constant.tickerWebSocketMessage
+import org.jeonfeel.moeuibit2.constant.webSocketBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitPortfolioWebSocketListener
 import java.util.*
 
 object UpBitPortfolioWebSocket {
+
     var currentSocketState = SOCKET_IS_CONNECTED
 
     private var krwMarkets = ""
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true).build()
     private val request = Request.Builder()
-        .url("wss://api.upbit.com/websocket/v1")
+        .url(webSocketBaseUrl)
         .build()
     private val socketListener = UpBitPortfolioWebSocketListener()
     private var socket = client.newWebSocket(request, socketListener)
@@ -29,8 +32,7 @@ object UpBitPortfolioWebSocket {
 
     fun requestKrwCoinList() {
         socketRebuild()
-        val uuid = UUID.randomUUID().toString()
-        socket.send("""[{"ticket":"$uuid"},{"type":"ticker","codes":[${krwMarkets}]},{"format":"SIMPLE"}]""")
+        socket.send(tickerWebSocketMessage(krwMarkets))
     }
 
     private fun socketRebuild() {
@@ -48,9 +50,5 @@ object UpBitPortfolioWebSocket {
             e.printStackTrace()
         }
         currentSocketState = SOCKET_IS_ON_PAUSE
-    }
-
-    fun onFail() {
-
     }
 }

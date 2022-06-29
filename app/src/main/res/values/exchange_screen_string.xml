@@ -3,4 +3,9 @@
     <string name="noFavorite">등록된 관심코인이 없습니다.</string>
     <string name="noSearchingCoin">일치하는 코인이 없습니다.</string>
     <string name="million">백만</string>
+    <string name="exchangeCaution">[유]</string>
+    <string name="backPressText">\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.</string>
+    <string name="krw">원화</string>
+    <string name="favorite">관심</string>
+    <string name="textField">코인명/심볼 검색</string>
 </resources>

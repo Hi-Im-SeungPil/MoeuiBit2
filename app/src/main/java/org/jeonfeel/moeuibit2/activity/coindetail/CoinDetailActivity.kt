@@ -9,13 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.BuildConfig
-import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.util.ConnectionType
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.util.showToast
 
 @AndroidEntryPoint
@@ -36,6 +35,20 @@ class CoinDetailActivity : ComponentActivity() {
         setContent {
             CoinDetailActivityScreen()
         }
+    }
+
+    private fun initActivity() {
+        window.statusBarColor = this.getColor(R.color.C0F0F5C)
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+        intent?.let {
+            coinKoreanName = it.getStringExtra(INTENT_KOREAN_NAME) ?: ""
+            coinSymbol = it.getStringExtra(INTENT_COIN_SYMBOL) ?: ""
+            openingPrice = it.getDoubleExtra(INTENT_OPENING_PRICE, 0.0)
+            isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
+            warning = it.getStringExtra(INTENT_WARNING) ?: ""
+        }
+        coinDetailViewModel.initViewModel("KRW-".plus(coinSymbol), openingPrice, isFavorite)
+        initNetworkStateMonitor()
     }
 
     private fun initNetworkStateMonitor() {
@@ -67,20 +80,6 @@ class CoinDetailActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         networkMonitorUtil.unregister()
-    }
-
-    private fun initActivity() {
-        window.statusBarColor = this.getColor(R.color.C0F0F5C)
-        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
-        intent?.let {
-            coinKoreanName = it.getStringExtra("coinKoreanName") ?: ""
-            coinSymbol = it.getStringExtra("coinSymbol") ?: ""
-            openingPrice = it.getDoubleExtra("openingPrice", 0.0)
-            isFavorite = it.getBooleanExtra("isFavorite", false)
-            warning = it.getStringExtra("warning") ?: ""
-        }
-        coinDetailViewModel.initViewModel("KRW-".plus(coinSymbol), openingPrice, isFavorite)
-        initNetworkStateMonitor()
     }
 
     @Composable

@@ -48,7 +48,7 @@ fun ExchangeErrorScreen(mainViewModel: MainViewModel = viewModel()) {
 
                 TextButton(onClick = {
                     if (mainViewModel.preItemArray.isEmpty()) {
-                        mainViewModel.requestData()
+                        mainViewModel.initViewModel()
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
                             mainViewModel.errorState.value = currentNetworkState

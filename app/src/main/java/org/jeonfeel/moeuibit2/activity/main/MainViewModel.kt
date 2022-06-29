@@ -13,10 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
@@ -211,7 +208,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun updateExchange() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
             while (isSocketRunning) {
                 for (i in krwExchangeModelMutableStateList.indices) {
                     krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
@@ -231,7 +228,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun requestFavoriteData() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
             if (favoriteList.isNotEmpty()) {
                 for (i in favoriteList.indices)
@@ -242,12 +239,12 @@ class MainViewModel @Inject constructor(
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
         if (favoriteHashMap[market] == null && isFavorite) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(ioDispatcher) {
                 favoriteHashMap[market] = 0
                 localRepository.getFavoriteDao().insert(market)
             }
         } else if (favoriteHashMap[market] != null && !isFavorite) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(ioDispatcher) {
                 favoriteHashMap.remove(market)
                 localRepository.getFavoriteDao().delete(market)
             }
@@ -311,7 +308,6 @@ class MainViewModel @Inject constructor(
 
     fun sortList(sortStandard: Int) {
         isSocketRunning = false
-
         when (sortStandard) {
             0 -> {
                 krwExchangeModelList.sortByDescending { element ->
@@ -369,7 +365,7 @@ class MainViewModel @Inject constructor(
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     fun getUserSeedMoney() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
         }
     }
@@ -381,7 +377,7 @@ class MainViewModel @Inject constructor(
         isPortfolioSocketRunning = false
         var localTotalPurchase = 0.0
         userHoldCoinDtoList.clear()
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
         }.join()
         userHoldCoinsMarket = StringBuffer()
@@ -488,7 +484,7 @@ class MainViewModel @Inject constructor(
         var count = 1
         isPortfolioSocketRunning = false
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             if (UpBitPortfolioWebSocket.currentSocketState != SOCKET_IS_CONNECTED || currentNetworkState != INTERNET_CONNECTION) {
                 removeCoinCount.value = -1
                 delay(100L)
@@ -525,7 +521,7 @@ class MainViewModel @Inject constructor(
         if(!isPortfolioSocketRunning) {
             isPortfolioSocketRunning = !isPortfolioSocketRunning
         }
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
             while (isPortfolioSocketRunning) {
                 var tempTotalValuedAssets = 0.0
                 try{
@@ -544,7 +540,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun resetAll() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             localRepository.getUserDao().deleteAll()
             localRepository.getFavoriteDao().deleteAll()
             localRepository.getTransactionInfoDao().deleteAll()
@@ -553,7 +549,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun resetTransactionInfo() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             localRepository.getTransactionInfoDao().deleteAll()
         }
     }
@@ -606,23 +602,23 @@ class MainViewModel @Inject constructor(
     }
 
     fun earnReward() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {
                 userDao.insert()
             } else {
-                userDao.updatePlusMoney(10000000)
+                userDao.updatePlusMoney(10_000_000)
             }
         }
     }
 
     fun errorReward() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {
                 userDao.errorInsert()
             } else {
-                userDao.updatePlusMoney(1000000)
+                userDao.updatePlusMoney(1_000_000)
             }
         }
     }

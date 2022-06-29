@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -38,14 +40,19 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
+import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.util.moveUrl
 
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    CoinInfoProgressDialog(coinDetailViewModel)
+    CommonLoadingDialog(dialogState = coinDetailViewModel.coinInfoDialog, text = stringResource(id = R.string.coinInfoLoading))
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val coinInfoHashMap = remember {
         mutableStateOf(HashMap<String, String>())
     }
@@ -58,247 +65,23 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val selectedButton = remember {
         mutableStateOf(-1)
     }
-
-    OnLifecycleEvent { lifeCycleOwner, event ->
-        when (event) {
-            Lifecycle.Event.ON_STOP -> {
-                coinDetailViewModel.coinInfoLoading.value = false
+    AddLifecycleEvent(
+        onStopAction = {
+            coinDetailViewModel.coinInfoLoading.value = false
+        },
+        onStartAction = {
+            flex.initFlex()
+            coinDetailViewModel.getCoinInfo()
+            coinDetailViewModel.coinInfoLiveData.observe(lifecycleOwner) {
+                coinInfoHashMap.value = it
+                coinDetailViewModel.coinInfoDialog.value = false
             }
-            Lifecycle.Event.ON_START -> {
-                flex.initFlex()
-                coinDetailViewModel.getCoinInfo()
-                coinDetailViewModel.coinInfoLiveData.observe(lifeCycleOwner) {
-                    coinInfoHashMap.value = it
-                    coinDetailViewModel.coinInfoDialog.value = false
-                }
-            }
-            else -> {}
         }
-    }
+    )
+
     if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
-        CoinInfoContent(selected, selectedButton, context, coinInfoHashMap, flex)
+        CoinInfoContent(selected, selectedButton, coinInfoHashMap, flex)
     } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }
-}
-
-@Composable
-fun CoinInfoContent(
-    selected: MutableState<String>,
-    selectedButton: MutableState<Int>,
-    context: Context,
-    coinInfoHashMap: MutableState<HashMap<String, String>>,
-    flex: FlexWebView,
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-
-            Text(
-                text = "블럭조회",
-                fontSize = 14.sp,
-                style = TextStyle(
-                    color = Color.Blue,
-                    textDecoration = TextDecoration.Underline,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier
-                    .padding(0.dp, 4.dp)
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .clickable {
-                        selected.value = coinInfoHashMap.value["block"]!!
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                        context.startActivity(intent)
-                    }
-                    .padding(0.dp, 5.dp)
-            )
-
-            Text(
-                text = "홈페이지",
-                fontSize = 14.sp,
-                style = TextStyle(
-                    color = Color.Blue,
-                    textDecoration = TextDecoration.Underline,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier
-                    .padding(0.dp, 4.dp)
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .clickable {
-                        selected.value = coinInfoHashMap.value["homepage"]!!
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                        context.startActivity(intent)
-                    }
-                    .padding(0.dp, 5.dp)
-            )
-
-            Text(
-                text = "정보",
-                fontSize = 14.sp,
-                style = TextStyle(
-                    color = Color.Blue,
-                    textDecoration = TextDecoration.Underline,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier
-                    .padding(0.dp, 4.dp)
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .clickable {
-                        selected.value = coinInfoHashMap.value["info"]!!
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(selected.value))
-                        context.startActivity(intent)
-                    }
-                    .padding(0.dp, 5.dp)
-            )
-
-            Text(
-                text = "트위터",
-                fontSize = 14.sp,
-                modifier = getButtonModifier(selectedButton.value, 4)
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .clickable {
-                        selectedButton.value = 4
-                        selected.value = coinInfoHashMap.value["twitter"]!!
-                        flex.loadData(
-                            "<a class=\"twitter-timeline\" href=\"${selected.value}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>",
-                            "text/html; charset=utf-8",
-                            "UTF-8"
-                        )
-                    }
-                    .padding(0.dp, 5.dp),
-                style = TextStyle(
-                    color = getTextColor(selectedButton.value, 4),
-                    textAlign = TextAlign.Center
-                )
-            )
-
-            Text(
-                text = "시가총액",
-                fontSize = 14.sp,
-                style = TextStyle(
-                    color = getTextColor(selectedButton.value, 5),
-                    textAlign = TextAlign.Center
-                ),
-                modifier = getButtonModifier(selectedButton.value, 5)
-                    .weight(1f)
-                    .wrapContentHeight()
-                    .clickable {
-                        selectedButton.value = 5
-                        selected.value = coinInfoHashMap.value["amount"]!!
-                        flex.loadUrl(selected.value)
-                    }
-                    .padding(0.dp, 5.dp)
-            )
-        }
-
-        if (selectedButton.value == -1) {
-            GlideImage(imageModel = R.drawable.img_default_wv, modifier = Modifier
-                .fillMaxHeight()
-                .wrapContentWidth()
-                .padding(10.dp, 0.dp,10.dp,10.dp))
-        } else if(selectedButton.value != -1 && flex.url != null) {
-            AndroidView(
-                factory = {
-                    flex
-                }, modifier = Modifier
-                    .fillMaxHeight()
-                    .wrapContentWidth()
-                    .padding(10.dp, 0.dp)
-            )
-        } else if(flex.url == null && selectedButton.value == 4) {
-            AndroidView(
-                factory = {
-                    flex
-                }, modifier = Modifier
-                    .fillMaxHeight()
-                    .wrapContentWidth()
-                    .padding(10.dp, 0.dp)
-            )
-        } else if(flex.url == null && selectedButton.value == 5) {
-            AndroidView(
-                factory = {
-                    flex
-                }, modifier = Modifier
-                    .fillMaxHeight()
-                    .wrapContentWidth()
-                    .padding(10.dp, 0.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
-    return if (selectedButton == buttonId) {
-        Modifier
-            .padding(0.dp, 4.dp)
-            .border(1.dp, colorResource(id = R.color.C0F0F5C))
-    } else {
-        Modifier.padding(0.dp, 4.dp)
-    }
-}
-
-@Composable
-fun getTextColor(selectedButton: Int, buttonId: Int): Color {
-    return if (selectedButton == buttonId) {
-        colorResource(id = R.color.C0F0F5C)
-    } else {
-        Color.LightGray
-    }
-}
-
-@Composable
-fun CoinInfoProgressDialog(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    if (coinDetailViewModel.coinInfoDialog.value) {
-        Dialog(
-            onDismissRequest = { coinDetailViewModel.dialogState = false },
-            DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = false)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .background(colorResource(id = R.color.design_default_color_background))
-            ) {
-                Column {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(0.dp, 20.dp, 0.dp, 0.dp),
-                        color = colorResource(id = R.color.C0F0F5C)
-                    )
-                    Text(text = "코인정보 불러오는 중...", Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp))
-                }
-            }
-        }
-    }
-}
-
-fun FlexWebView.initFlex() {
-    val flex = this
-    flex.settings.setSupportMultipleWindows(true)
-    flex.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-    flex.settings.useWideViewPort = false
-    flex.settings.loadWithOverviewMode = true
-    flex.webChromeClient =
-        object : FlexWebChromeClient(CoinDetailActivity::class.java.newInstance()) {
-            override fun onCreateWindow(
-                view: WebView?,
-                dialog: Boolean,
-                userGesture: Boolean,
-                resultMsg: Message,
-            ): Boolean {
-                val newWebView = WebView(context)
-                val trans = resultMsg.obj as WebView.WebViewTransport
-                trans.webView = newWebView
-                resultMsg.sendToTarget()
-                return true
-            }
-        }
 }

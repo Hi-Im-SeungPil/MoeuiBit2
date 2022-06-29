@@ -22,6 +22,10 @@ fun Double.secondDecimal(): String {
     return String.format("%.2f", this)
 }
 
+fun Double.thirdDecimal(): String {
+    return String.format("%.3f", this)
+}
+
 fun Double.forthDecimal(): String {
     return String.format("%.4f", this)
 }

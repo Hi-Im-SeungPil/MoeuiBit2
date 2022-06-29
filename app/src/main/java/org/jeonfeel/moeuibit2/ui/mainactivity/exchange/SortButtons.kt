@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 @Composable
 fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
@@ -33,20 +34,7 @@ fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .drawWithContent {
-                drawContent()
-                clipRect {
-                    val strokeWidth = Stroke.DefaultMiter
-                    val y = size.height
-                    drawLine(
-                        brush = SolidColor(Color.DarkGray),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Square,
-                        start = Offset.Zero.copy(y = y),
-                        end = Offset(x = size.width, y = y)
-                    )
-                }
-            },
+            .drawUnderLine(lineColor = Color.DarkGray),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
