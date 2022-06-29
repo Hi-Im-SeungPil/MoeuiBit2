@@ -21,7 +21,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.manager.AdMobManager
 import org.jeonfeel.moeuibit2.ui.mainactivity.MainBottomNavigation
@@ -39,7 +41,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     private lateinit var auth: FirebaseAuth
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
     private val mainViewModel: MainViewModel by viewModels()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +67,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                     }
                 }
             }
-
         initNetworkStateMonitor()
         initObserver()
     }
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                         mainViewModel.errorState.value = NO_INTERNET_CONNECTION
                         UpBitTickerWebSocket.onPause()
                         UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                        mainViewModel.isSocketRunning = false
+                        mainViewModel.updateExchange = false
                     }
                 }
             }

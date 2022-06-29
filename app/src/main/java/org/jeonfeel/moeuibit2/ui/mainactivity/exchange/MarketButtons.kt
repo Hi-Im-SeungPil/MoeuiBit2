@@ -8,13 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -24,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.activity.main.MainViewModel
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 @Composable
@@ -47,8 +41,8 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
                     interactionSource = interactionSource,
                     indication = null
                 ) {
-                    mainViewModel.showFavorite.value = false
-                    mainViewModel.selectedMarket.value = SELECTED_KRW_MARKET
+                    mainViewModel.showFavoriteState.value = false
+                    mainViewModel.selectedMarketState.value = SELECTED_KRW_MARKET
                 }
         ) {
             Text(
@@ -71,8 +65,8 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
                     interactionSource = interactionSource,
                     indication = null
                 ) {
-                    mainViewModel.showFavorite.value = true
-                    mainViewModel.selectedMarket.value = SELECTED_FAVORITE
+                    mainViewModel.showFavoriteState.value = true
+                    mainViewModel.selectedMarketState.value = SELECTED_FAVORITE
                 }
         ) {
             Text(
@@ -107,7 +101,7 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
 
 @Composable
 fun getTextColor(mainViewModel: MainViewModel = viewModel(), buttonId: Int): Color {
-    return if (mainViewModel.selectedMarket.value == buttonId) {
+    return if (mainViewModel.selectedMarketState.value == buttonId) {
         colorResource(R.color.C0F0F5C)
     } else {
         Color.LightGray

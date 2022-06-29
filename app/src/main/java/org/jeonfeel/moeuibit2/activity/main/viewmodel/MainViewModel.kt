@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.activity.main
+package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,20 +9,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
-import org.jeonfeel.moeuibit2.constant.*
-import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
+import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
+import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
@@ -34,30 +30,11 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
-) : ViewModel(), OnTickerMessageReceiveListener, PortfolioOnTickerMessageReceiveListener {
+    private val exchangeUseCase: ExchangeUseCase,
+) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
 
-    private val gson = Gson()
-    val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
-    var isSocketRunning = false
+    val gson = Gson()
     var isPortfolioSocketRunning = false
-
-    private val krwTickerList: ArrayList<ExchangeModel> = arrayListOf()
-    private val krwMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
-    private val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
-    private val krwCoinListStringBuffer = StringBuffer()
-
-    private val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
-    val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    val preItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
-
-    private var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
-    val searchTextFieldValue = mutableStateOf("")
-    val errorState = mutableStateOf(INTERNET_CONNECTION)
-    val selectedButtonState = mutableStateOf(-1)
-    val loading = mutableStateOf(true)
-
-    val favoriteHashMap = HashMap<String, Int>()
-    var showFavorite = mutableStateOf(false)
 
     val userSeedMoney = mutableStateOf(0L)
     var userHoldCoinList = emptyList<MyCoin?>()
@@ -76,178 +53,42 @@ class MainViewModel @Inject constructor(
     private val _adMutableLiveData = MutableLiveData<Int>()
     val adLiveData: LiveData<Int> get() = _adMutableLiveData
 
-    fun initViewModel() {
-        if (krwExchangeModelMutableStateList.isEmpty()) {
-            requestData()
-            requestFavoriteData()
-        } else {
-            requestKrwCoinList()
-        }
-    }
 
     /**
-     * request data
+     * 거래소
      * */
+    var updateExchange: Boolean
+        get() = exchangeUseCase.updateExchange
+        set(value) {
+            exchangeUseCase.updateExchange = value
+        }
+    val selectedMarketState get() = exchangeUseCase.selectedMarketState
+    val errorState get() = exchangeUseCase.errorState
+    val searchTextFieldValueState get() = exchangeUseCase.searchTextFieldValueState
+    val showFavoriteState get() = exchangeUseCase.showFavoriteState
+    val selectedButtonState get() = exchangeUseCase.selectedButtonState
+    val loadingState get() = exchangeUseCase.loadingState
+    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
+    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
+    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
+    val preItemArray get() = exchangeUseCase.preItemArray
+    val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
+    val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition
+
     fun requestData() {
-        if (!loading.value) loading.value = true
-        when (currentNetworkState) {
-            INTERNET_CONNECTION -> {
-                viewModelScope.launch {
-                    val loadingJob = withTimeoutOrNull(9900L) {
-                        viewModelScope.launch {
-                            requestKrwMarketCode()
-                            requestKrwTicker(krwCoinListStringBuffer.toString())
-                        }.join()
-                        createKrwExchangeModelList()
-                        if (!isSocketRunning) {
-                            isSocketRunning = true
-                            updateExchange()
-                        }
-                        if (errorState.value != INTERNET_CONNECTION) {
-                            errorState.value = INTERNET_CONNECTION
-                        }
-                        loading.value = false
-                    }
-                    if (loadingJob == null) {
-                        errorState.value = NETWORK_ERROR
-                        loading.value = false
-                        isSocketRunning = false
-                    }
-                }
-            }
-            else -> {
-                loading.value = false
-                isSocketRunning = false
-                errorState.value = currentNetworkState
-            }
-        }
-    }
-
-    // get market, koreanName, englishName, warning
-    private suspend fun requestKrwMarketCode() {
-        delay(50L)
-        val resultMarketCode = remoteRepository.getMarketCodeService()
-        if (resultMarketCode.isSuccessful) {
-            try {
-                val indices = resultMarketCode.body()!!.size()
-                for (i in 0 until indices) {
-                    val krwMarketCode =
-                        gson.fromJson(resultMarketCode.body()!![i], MarketCodeModel::class.java)
-                    if (krwMarketCode.market.contains("KRW-")) {
-                        krwCoinListStringBuffer.append("${krwMarketCode.market},")
-                        krwMarketCodeList.add(krwMarketCode)
-                    }
-                }
-                krwCoinListStringBuffer.deleteCharAt(krwCoinListStringBuffer.lastIndex)
-                UpBitTickerWebSocket.setKrwMarkets(krwCoinListStringBuffer.toString())
-                val marketCodeIndices = krwMarketCodeList.size
-                for (i in 0 until marketCodeIndices) {
-                    krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
-                        listOf(krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                currentNetworkState = NETWORK_ERROR
-            }
-        }
-    }
-
-    // get market, tradePrice, signed_change_price, acc_trade_price_24h
-    private suspend fun requestKrwTicker(markets: String) {
-        delay(50L)
-        val resultKrwTicker =
-            remoteRepository.getKrwTickerService(markets)
-        if (resultKrwTicker.isSuccessful) {
-            try {
-                val indices = resultKrwTicker.body()!!.size()
-                for (i in 0 until indices) {
-                    val krwTicker =
-                        gson.fromJson(resultKrwTicker.body()!![i], ExchangeModel::class.java)
-                    krwTickerList.add(krwTicker)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                currentNetworkState = NETWORK_ERROR
-            }
-        }
-    }
-
-    private fun createKrwExchangeModelList() {
-        val indices = krwMarketCodeList.size
-        for (i in 0 until indices) {
-            val koreanName = krwMarketCodeList[i].korean_name
-            val englishName = krwMarketCodeList[i].english_name
-            val market = krwMarketCodeList[i].market
-            val tradePrice = krwTickerList[i].tradePrice
-            val signedChangeRate = krwTickerList[i].signedChangePrice
-            val accTradePrice24h = krwTickerList[i].accTradePrice24h
-            val symbol = market.substring(4)
-            val openingPrice = krwTickerList[i].preClosingPrice
-            val warning = krwMarketCodeList[i].market_warning
-            krwExchangeModelList.add(
-                KrwExchangeModel(
-                    koreanName,
-                    englishName,
-                    market,
-                    symbol,
-                    openingPrice,
-                    tradePrice,
-                    signedChangeRate,
-                    accTradePrice24h,
-                    warning
-                )
-            )
-        }
-        krwExchangeModelList.sortByDescending { it.accTradePrice24h }
-        for (i in krwExchangeModelList.indices) {
-            krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
-        }
-        krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
-        preItemArray.addAll(krwExchangeModelList)
-        requestKrwCoinList()
-    }
-
-    private fun updateExchange() {
         viewModelScope.launch {
-            while (isSocketRunning) {
-                for (i in krwExchangeModelMutableStateList.indices) {
-                    krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
-                }
-                delay(300)
+            if (krwExchangeModelMutableStateList.isEmpty()) {
+                viewModelScope.launch(ioDispatcher) {
+                    exchangeUseCase.requestData()
+                }.join()
             }
-        }
-    }
-
-    private fun requestKrwCoinList() {
-        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-        UpBitTickerWebSocket.requestKrwCoinList()
-        if (!isSocketRunning) {
-            isSocketRunning = true
-            updateExchange()
-        }
-    }
-
-    private fun requestFavoriteData() {
-        viewModelScope.launch(ioDispatcher) {
-            val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
-            if (favoriteList.isNotEmpty()) {
-                for (i in favoriteList.indices)
-                    favoriteHashMap[favoriteList[i]?.market ?: ""] = 0
-            }
+            exchangeUseCase.requestKrwCoinListToWebSocket()
         }
     }
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
-        if (favoriteHashMap[market] == null && isFavorite) {
-            viewModelScope.launch(ioDispatcher) {
-                favoriteHashMap[market] = 0
-                localRepository.getFavoriteDao().insert(market)
-            }
-        } else if (favoriteHashMap[market] != null && !isFavorite) {
-            viewModelScope.launch(ioDispatcher) {
-                favoriteHashMap.remove(market)
-                localRepository.getFavoriteDao().delete(market)
-            }
+        viewModelScope.launch((ioDispatcher)) {
+            exchangeUseCase.updateFavorite(market, isFavorite)
         }
     }
 
@@ -255,59 +96,66 @@ class MainViewModel @Inject constructor(
      * data sorting, filter
      * */
     fun getFilteredKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
-        return if (searchTextFieldValue.value.isEmpty() && !showFavorite.value) {
-            krwExchangeModelMutableStateList
-        } else if (searchTextFieldValue.value.isEmpty() && showFavorite.value) {
-            val favoriteList = SnapshotStateList<KrwExchangeModel>()
-            val tempArray = ArrayList<Int>()
-            for (i in favoriteHashMap) {
-                tempArray.add(krwExchangeModelListPosition[i.key]!!)
+        return when {
+            searchTextFieldValueState.value.isEmpty() && !showFavoriteState.value -> {
+                krwExchangeModelMutableStateList
             }
-            tempArray.sort()
-            for (i in tempArray) {
-                favoriteList.add(krwExchangeModelMutableStateList[i])
-            }
-            favoriteList
-        } else if (searchTextFieldValue.value.isNotEmpty() && !showFavorite.value) {
-            val resultList = SnapshotStateList<KrwExchangeModel>()
-            for (element in krwExchangeModelMutableStateList) {
-                if (
-                    element.koreanName.contains(searchTextFieldValue.value) ||
-                    element.EnglishName.uppercase()
-                        .contains(searchTextFieldValue.value.uppercase()) ||
-                    element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
-                ) {
-                    resultList.add(element)
+            searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
+                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempArray = ArrayList<Int>()
+                for (i in favoriteHashMap) {
+                    tempArray.add(krwExchangeModelListPosition[i.key]!!)
                 }
-            }
-            resultList
-        } else {
-            val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
-            val favoriteList = SnapshotStateList<KrwExchangeModel>()
-            val tempArray = ArrayList<Int>()
-            for (i in favoriteHashMap) {
-                tempArray.add(krwExchangeModelListPosition[i.key]!!)
-            }
-            tempArray.sort()
-            for (i in tempArray) {
-                tempFavoriteList.add(krwExchangeModelMutableStateList[i])
-            }
-            for (element in tempFavoriteList) {
-                if (
-                    element.koreanName.contains(searchTextFieldValue.value) ||
-                    element.EnglishName.uppercase()
-                        .contains(searchTextFieldValue.value.uppercase()) ||
-                    element.symbol.uppercase().contains(searchTextFieldValue.value.uppercase())
-                ) {
-                    favoriteList.add(element)
+                tempArray.sort()
+                for (i in tempArray) {
+                    favoriteList.add(krwExchangeModelMutableStateList[i])
                 }
+                favoriteList
             }
-            favoriteList
+            searchTextFieldValueState.value.isNotEmpty() && !showFavoriteState.value -> {
+                val resultList = SnapshotStateList<KrwExchangeModel>()
+                for (element in krwExchangeModelMutableStateList) {
+                    if (
+                        element.koreanName.contains(searchTextFieldValueState.value) ||
+                        element.EnglishName.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase()) ||
+                        element.symbol.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase())
+                    ) {
+                        resultList.add(element)
+                    }
+                }
+                resultList
+            }
+            else -> {
+                val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
+                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempArray = ArrayList<Int>()
+                for (i in favoriteHashMap) {
+                    tempArray.add(krwExchangeModelListPosition[i.key]!!)
+                }
+                tempArray.sort()
+                for (i in tempArray) {
+                    tempFavoriteList.add(krwExchangeModelMutableStateList[i])
+                }
+                for (element in tempFavoriteList) {
+                    if (
+                        element.koreanName.contains(searchTextFieldValueState.value) ||
+                        element.EnglishName.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase()) ||
+                        element.symbol.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase())
+                    ) {
+                        favoriteList.add(element)
+                    }
+                }
+                favoriteList
+            }
         }
     }
 
     fun sortList(sortStandard: Int) {
-        isSocketRunning = false
+        updateExchange = false
         when (sortStandard) {
             0 -> {
                 krwExchangeModelList.sortByDescending { element ->
@@ -360,7 +208,7 @@ class MainViewModel @Inject constructor(
             krwExchangeModelMutableStateList[i] =
                 krwExchangeModelList[i]
         }
-        isSocketRunning = true
+        updateExchange = true
     }
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
@@ -497,7 +345,7 @@ class MainViewModel @Inject constructor(
                             localRepository.getMyCoinDao().delete(i.market)
                             localRepository.getTransactionInfoDao().delete(i.market)
                             count += 1
-                        } else if(i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                        } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
                             localRepository.getMyCoinDao().delete(i.market)
                             localRepository.getTransactionInfoDao().delete(i.market)
                             count += 1
@@ -518,13 +366,13 @@ class MainViewModel @Inject constructor(
     }
 
     private fun updateUserHoldCoins() {
-        if(!isPortfolioSocketRunning) {
+        if (!isPortfolioSocketRunning) {
             isPortfolioSocketRunning = !isPortfolioSocketRunning
         }
         viewModelScope.launch {
             while (isPortfolioSocketRunning) {
                 var tempTotalValuedAssets = 0.0
-                try{
+                try {
                     for (i in tempUserHoldCoinDtoList.indices) {
                         val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
                         userHoldCoinDtoList[i] = userHoldCoinDTO
@@ -532,7 +380,7 @@ class MainViewModel @Inject constructor(
                     }
                     totalValuedAssets.value = tempTotalValuedAssets
                     delay(300)
-                }catch (e:Exception) {
+                } catch (e: Exception) {
                     delay(300)
                 }
             }
@@ -551,25 +399,6 @@ class MainViewModel @Inject constructor(
     fun resetTransactionInfo() {
         viewModelScope.launch(ioDispatcher) {
             localRepository.getTransactionInfoDao().deleteAll()
-        }
-    }
-
-    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        if (isSocketRunning) {
-            val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-            val position = krwExchangeModelListPosition[model.code] ?: -1
-            krwExchangeModelList[position] =
-                KrwExchangeModel(
-                    krwCoinKoreanNameAndEngName[model.code]!![0],
-                    krwCoinKoreanNameAndEngName[model.code]!![1],
-                    model.code,
-                    model.code.substring(4),
-                    model.preClosingPrice,
-                    model.tradePrice,
-                    model.signedChangeRate,
-                    model.accTradePrice24h,
-                    model.marketWarning
-                )
         }
     }
 

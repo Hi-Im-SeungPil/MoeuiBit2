@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NETWORK_ERROR
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
@@ -48,12 +48,12 @@ fun ExchangeErrorScreen(mainViewModel: MainViewModel = viewModel()) {
 
                 TextButton(onClick = {
                     if (mainViewModel.preItemArray.isEmpty()) {
-                        mainViewModel.initViewModel()
+                        mainViewModel.requestData()
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
                             mainViewModel.errorState.value = currentNetworkState
                             UpBitTickerWebSocket.onPause()
-                            mainViewModel.initViewModel()
+                            mainViewModel.requestData()
                         }
                     }
                 }) {

@@ -4,7 +4,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 
 class UpBitPortfolioWebSocketListener : WebSocketListener() {
 
@@ -18,7 +17,6 @@ class UpBitPortfolioWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        UpBitPortfolioWebSocket.retryCount = 0
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -42,11 +40,6 @@ class UpBitPortfolioWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        if (UpBitPortfolioWebSocket.retryCount <= 10) {
-            UpBitPortfolioWebSocket.onFail()
-        } else {
-            UpBitPortfolioWebSocket.onPause()
-        }
     }
 
     companion object {

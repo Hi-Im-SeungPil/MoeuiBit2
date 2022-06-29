@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.constant
 
 import kotlinx.coroutines.Dispatchers
+import java.time.Duration
 
 const val SOCKET_IS_CONNECTED = 0
 const val SOCKET_IS_NO_CONNECTION = -1
@@ -20,3 +21,4 @@ const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
 
 val ioDispatcher = Dispatchers.IO
 val mainDispatcher = Dispatchers.Main
+val timeOutDuration = Duration.ofMillis(10000L)

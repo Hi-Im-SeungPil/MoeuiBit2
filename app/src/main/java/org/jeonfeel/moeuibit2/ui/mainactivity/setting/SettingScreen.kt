@@ -33,7 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skydoves.balloon.*
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.main.MainViewModel
+import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constant.noticeBoard
 import org.jeonfeel.moeuibit2.constant.playStoreUrl

@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.jeonfeel.moeuibit2.constant.retrofitBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import retrofit2.Retrofit
@@ -18,7 +19,7 @@ class RemoteModule {
     @Provides
     fun provideUpBitRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.upbit.com/")
+            .baseUrl(retrofitBaseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
