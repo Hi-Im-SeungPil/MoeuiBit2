@@ -48,12 +48,12 @@ fun ExchangeErrorScreen(mainViewModel: MainViewModel = viewModel()) {
 
                 TextButton(onClick = {
                     if (mainViewModel.preItemArray.isEmpty()) {
-                        mainViewModel.requestData()
+                        mainViewModel.requestExchangeData()
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {
                             mainViewModel.errorState.value = currentNetworkState
                             UpBitTickerWebSocket.onPause()
-                            mainViewModel.requestData()
+                            mainViewModel.requestExchangeData()
                         }
                     }
                 }) {

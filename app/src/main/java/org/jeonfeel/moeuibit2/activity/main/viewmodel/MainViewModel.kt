@@ -1,5 +1,7 @@
 package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.defaultDispatcher
 import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
@@ -68,21 +71,24 @@ class MainViewModel @Inject constructor(
     val showFavoriteState get() = exchangeUseCase.showFavoriteState
     val selectedButtonState get() = exchangeUseCase.selectedButtonState
     val loadingState get() = exchangeUseCase.loadingState
-    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
-    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
-    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
     val preItemArray get() = exchangeUseCase.preItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition
+    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
+    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
+    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
 
-    fun requestData() {
+    fun requestExchangeData() {
         viewModelScope.launch {
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
-                    exchangeUseCase.requestData()
+                    exchangeUseCase.requestExchangeData()
                 }.join()
             }
-            exchangeUseCase.requestKrwCoinListToWebSocket()
+            Handler(Looper.getMainLooper()).post {
+                exchangeUseCase.requestKrwCoinListToWebSocket()
+            }
+            exchangeUseCase.updateExchange()
         }
     }
 
@@ -156,59 +162,59 @@ class MainViewModel @Inject constructor(
 
     fun sortList(sortStandard: Int) {
         updateExchange = false
-        when (sortStandard) {
-            0 -> {
-                krwExchangeModelList.sortByDescending { element ->
-                    element.tradePrice
+        viewModelScope.launch(defaultDispatcher) {
+            when (sortStandard) {
+                0 -> {
+                    krwExchangeModelList.sortByDescending { element ->
+                        element.tradePrice
+                    }
+                }
+                1 -> {
+                    krwExchangeModelList.sortBy { element ->
+                        element.tradePrice
+                    }
+                }
+                2 -> {
+                    krwExchangeModelList.sortByDescending { element ->
+                        element.signedChangeRate
+                    }
+                }
+                3 -> {
+                    krwExchangeModelList.sortBy { element ->
+                        element.signedChangeRate
+                    }
+                }
+                4 -> {
+                    krwExchangeModelList.sortByDescending { element ->
+                        element.accTradePrice24h
+                    }
+                }
+                5 -> {
+                    krwExchangeModelList.sortBy { element ->
+                        element.accTradePrice24h
+                    }
+                }
+                else -> {
+                    krwExchangeModelList.sortByDescending { element ->
+                        element.accTradePrice24h
+                    }
                 }
             }
-            1 -> {
-                krwExchangeModelList.sortBy { element ->
-                    element.tradePrice
-                }
+            for (i in preItemArray.indices) {
+                preItemArray[i] =
+                    krwExchangeModelList[i]
             }
-            2 -> {
-                krwExchangeModelList.sortByDescending { element ->
-                    element.signedChangeRate
-                }
-            }
-            3 -> {
-                krwExchangeModelList.sortBy { element ->
-                    element.signedChangeRate
-                }
-            }
-            4 -> {
-                krwExchangeModelList.sortByDescending { element ->
-                    element.accTradePrice24h
-                }
-            }
-            5 -> {
-                krwExchangeModelList.sortBy { element ->
-                    element.accTradePrice24h
-                }
-            }
-            else -> {
-                krwExchangeModelList.sortByDescending { element ->
-                    element.accTradePrice24h
-                }
-            }
-        }
 
-        for (i in preItemArray.indices) {
-            preItemArray[i] =
-                krwExchangeModelList[i]
-        }
+            for (i in krwExchangeModelList.indices) {
+                krwExchangeModelListPosition[krwExchangeModelList[i].market] =
+                    i
+            }
 
-        for (i in krwExchangeModelList.indices) {
-            krwExchangeModelListPosition[krwExchangeModelList[i].market] =
-                i
+            for (i in krwExchangeModelList.indices) {
+                krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+            }
+            updateExchange = true
         }
-
-        for (i in krwExchangeModelList.indices) {
-            krwExchangeModelMutableStateList[i] =
-                krwExchangeModelList[i]
-        }
-        updateExchange = true
     }
 
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ

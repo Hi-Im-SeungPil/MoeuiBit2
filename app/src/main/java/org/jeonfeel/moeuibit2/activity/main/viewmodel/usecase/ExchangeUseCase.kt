@@ -46,7 +46,7 @@ class ExchangeUseCase @Inject constructor(
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
 
-    suspend fun requestData() {
+    suspend fun requestExchangeData() {
         loadingState.value = true
         when (NetworkMonitorUtil.currentNetworkState) {
             INTERNET_CONNECTION -> {
@@ -164,9 +164,7 @@ class ExchangeUseCase @Inject constructor(
         }
     }
 
-    suspend fun requestKrwCoinListToWebSocket() {
-        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-        UpBitTickerWebSocket.requestKrwCoinList()
+    suspend fun updateExchange() {
         if (!updateExchange) updateExchange = true
         while (updateExchange) {
             for (i in krwExchangeModelMutableStateList.indices) {
@@ -174,6 +172,11 @@ class ExchangeUseCase @Inject constructor(
             }
             delay(300)
         }
+    }
+
+    fun requestKrwCoinListToWebSocket() {
+        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
+        UpBitTickerWebSocket.requestKrwCoinList()
     }
 
     private suspend fun requestFavoriteData() {

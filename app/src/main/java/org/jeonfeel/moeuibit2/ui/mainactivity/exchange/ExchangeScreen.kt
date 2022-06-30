@@ -34,7 +34,7 @@ fun ExchangeScreen(
                 UpBitTickerWebSocket.onPause()
             },
             onResumeAction = {
-                mainViewModel.requestData()
+                mainViewModel.requestExchangeData()
             }
         )
 
