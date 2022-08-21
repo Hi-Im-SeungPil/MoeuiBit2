@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.internal.wait
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitCoinDetailWebSocketListener
 
@@ -11,7 +12,7 @@ object UpBitCoinDetailWebSocket {
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
         .callTimeout(timeOutDuration)
-        .readTimeout(timeOutDuration)
+        .readTimeout(readTimeOutDuration)
         .writeTimeout(timeOutDuration)
         .build()
     private val request = Request.Builder().url(webSocketBaseUrl).build()

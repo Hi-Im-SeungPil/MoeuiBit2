@@ -22,4 +22,6 @@ const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
 
 val ioDispatcher = Dispatchers.IO
 val mainDispatcher = Dispatchers.Main
-val timeOutDuration = Duration.ofMillis(10000L)
+val defaultDispatcher = Dispatchers.Default
+val timeOutDuration: Duration = Duration.ofMillis(10000L)
+val readTimeOutDuration: Duration = Duration.ofMillis(30000L)

@@ -12,7 +12,7 @@ object UpBitTickerWebSocket {
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
         .callTimeout(timeOutDuration)
-        .readTimeout(timeOutDuration)
+        .readTimeout(readTimeOutDuration)
         .writeTimeout(timeOutDuration)
         .build()
     private val request = Request.Builder()
