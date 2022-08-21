@@ -9,7 +9,6 @@ import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
@@ -174,14 +173,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         if (coinDetailViewModel.minuteVisible) {
             coinDetailViewModel.minuteVisible = false
         }
-
         val action = me!!.action
         val x = me.x
         val y = me.y - 160f
 
         if (action == MotionEvent.ACTION_DOWN) {
             val highlight = getHighlightByTouchPoint(x, y)
-            val value = chart.getValuesByTouchPoint(
+            val valueByTouchPoint = chart.getValuesByTouchPoint(
                 x,
                 y,
                 rightAxis.axisDependency
@@ -191,16 +189,16 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 LimitLine(highlight.x)
             } else {
                 try {
-                    LimitLine(value.x.roundToInt().toFloat())
+                    LimitLine(valueByTouchPoint.x.roundToInt().toFloat())
                 } catch (e: Exception) {
                     e.printStackTrace()
                     LimitLine(0f)
                 }
             }
-            
-            val horizontalLine = LimitLine(value.y.toFloat())
+
+            val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
             val text = Calculator.tradePriceCalculatorForChart(
-                value.y
+                valueByTouchPoint.y
             )
             if (xAxis.limitLines.size != 0) {
                 xAxis.removeAllLimitLines()
@@ -247,14 +245,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             xAxis.addLimitLine(verticalLine)
             rightAxis.addLimitLine(horizontalLine)
         } else if (action == MotionEvent.ACTION_MOVE) {
-
             if (xAxis.limitLines.size != 0) {
-                val value = chart.getValuesByTouchPoint(
+                val valueByTouchPoint = chart.getValuesByTouchPoint(
                     x,
                     y,
                     rightAxis.axisDependency
                 )
-                val horizontalLine = LimitLine(value.y.toFloat())
+                val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
                 val text = Calculator.tradePriceCalculatorForChart(
                     chart.getValuesByTouchPoint(
                         x,
@@ -431,16 +428,16 @@ fun CombinedChart.addAccAmountLimitLine(
         chart.axisLeft.removeAllLimitLines()
     }
     val lastBar = if (chart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
-        try{
+        try {
             chart.barData.dataSets[1].getEntriesForXValue(lastX).first()
         } catch (e: Exception) {
-            BarEntry(0f,1f)
+            BarEntry(0f, 1f)
         }
     } else {
-        try{
+        try {
             chart.barData.dataSets[0].getEntriesForXValue(lastX).first()
-        }catch (e: Exception) {
-            BarEntry(0f,1f)
+        } catch (e: Exception) {
+            BarEntry(0f, 1f)
         }
     }
     val barPrice = lastBar.y
@@ -454,28 +451,4 @@ fun CombinedChart.addAccAmountLimitLine(
     lastBarLimitLine.textSize = 11f
     lastBarLimitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
     chart.axisLeft.addLimitLine(lastBarLimitLine)
-}
-
-class XAxisValueFormatter :
-    ValueFormatter() {
-    private var dateHashMap = HashMap<Int, String>()
-    override fun getFormattedValue(value: Float): String {
-        if (dateHashMap[value.toInt()] == null) {
-            return ""
-        } else if (dateHashMap[value.toInt()] != null) {
-            val fullyDate = dateHashMap[value.toInt()]!!.split("T").toTypedArray()
-            val date = fullyDate[0].split("-").toTypedArray()
-            val time = fullyDate[1].split(":").toTypedArray()
-            return date[1] + "-" + date[2] + " " + time[0] + ":" + time[1]
-        }
-        return ""
-    }
-
-    fun setItem(newDateHashMap: HashMap<Int, String>) {
-        this.dateHashMap = newDateHashMap
-    }
-
-    fun addItem(newDateString: String, position: Int) {
-        this.dateHashMap[position] = newDateString
-    }
 }

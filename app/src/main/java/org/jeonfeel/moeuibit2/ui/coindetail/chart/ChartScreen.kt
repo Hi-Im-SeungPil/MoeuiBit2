@@ -3,24 +3,21 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,10 +25,11 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.initCombinedChart
 
 const val MINUTE_SELECT = 1
@@ -52,7 +50,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         CombinedChart(context)
     }
 
-    ProgressDialog(coinDetailViewModel)
+    CommonLoadingDialog(dialogState = coinDetailViewModel.dialogState, text = stringResource(id = R.string.loading_chart))
     OnLifecycleEvent { lifeCycleOwner, event ->
         when (event) {
             Lifecycle.Event.ON_STOP -> {
@@ -335,7 +333,8 @@ fun MinuteButton(
     ) {
         if (autoSizeText) {
             AutoSizeText(
-                text = minuteTextValue, textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
+                text = minuteTextValue,
+                textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()
@@ -343,28 +342,6 @@ fun MinuteButton(
             )
         } else {
             Text(text = minuteTextValue, style = TextStyle(color = Color.Black, fontSize = 14.sp))
-        }
-    }
-}
-
-@Composable
-fun ProgressDialog(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    if (coinDetailViewModel.dialogState) {
-        Dialog(onDismissRequest = { coinDetailViewModel.dialogState = false },
-            DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = false)) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .background(colorResource(id = R.color.design_default_color_background))
-            ) {
-                Column {
-                    CircularProgressIndicator(modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(0.dp, 20.dp, 0.dp, 0.dp),
-                        color = colorResource(id = R.color.C0F0F5C))
-                    Text(text = "데이터 불러오는 중...", Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp))
-                }
-            }
         }
     }
 }

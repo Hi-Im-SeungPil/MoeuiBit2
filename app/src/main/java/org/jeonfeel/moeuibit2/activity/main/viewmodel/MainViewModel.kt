@@ -53,7 +53,6 @@ class MainViewModel @Inject constructor(
     private val _adMutableLiveData = MutableLiveData<Int>()
     val adLiveData: LiveData<Int> get() = _adMutableLiveData
 
-
     /**
      * 거래소
      * */
@@ -62,15 +61,15 @@ class MainViewModel @Inject constructor(
         set(value) {
             exchangeUseCase.updateExchange = value
         }
+    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
+    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
+    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
     val selectedMarketState get() = exchangeUseCase.selectedMarketState
     val errorState get() = exchangeUseCase.errorState
     val searchTextFieldValueState get() = exchangeUseCase.searchTextFieldValueState
     val showFavoriteState get() = exchangeUseCase.showFavoriteState
-    val selectedButtonState get() = exchangeUseCase.selectedButtonState
+    val selectedButtonState get() = exchangeUseCase.selectedButtonState // 정렬버튼
     val loadingState get() = exchangeUseCase.loadingState
-    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
-    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
-    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
     val preItemArray get() = exchangeUseCase.preItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition

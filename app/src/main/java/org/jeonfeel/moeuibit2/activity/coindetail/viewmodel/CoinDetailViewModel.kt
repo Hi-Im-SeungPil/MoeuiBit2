@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -283,12 +282,9 @@ class CoinDetailViewModel @Inject constructor(
             return chartUseCase.chartLastData
         }
 
-    var dialogState: Boolean
-        set(value) {
-            chartUseCase.dialogState.value = value
-        }
+    val dialogState: MutableState<Boolean>
         get() {
-            return chartUseCase.dialogState.value
+            return chartUseCase.dialogState
         }
 
     var candlePosition: Float

@@ -8,15 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 
 @Composable
 fun OrderScreen(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> UpBitOrderBookWebSocket.onPause()

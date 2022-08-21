@@ -26,46 +26,56 @@ import javax.inject.Inject
 class ChartUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val xAxisValueFormatter: XAxisValueFormatter,
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
 ) : ViewModel() {
     private val gson = Gson()
+    private val candleEntries = ArrayList<CandleEntry>()
+    private val movingAverage5 = GetMovingAverage2(5)
+    private val movingAverage10 = GetMovingAverage2(10)
+    private val movingAverage20 = GetMovingAverage2(20)
+    private val movingAverage60 = GetMovingAverage2(60)
+    private val movingAverage120 = GetMovingAverage2(120)
     private var candleEntriesLastPosition = 0
     private val chartData = ArrayList<ChartModel>()
-    private val candleEntries = ArrayList<CandleEntry>()
     private var firstCandleUtcTime = ""
-    private var kstTime = ""
-    private val getMovingAverage = GetMovingAverage(candleEntries)
-    private var purchaseAveragePrice: Float? = null
-    var isUpdateChart = true
-    var chartLastData = false
+    private var kstTime = "" // 캔들 / 바 / 라인 추가를 위한 kstTime
+    private var purchaseAveragePrice: Float? = null // 매수평균가
+    var isUpdateChart = true // 차트 작업있을 때 멈춤
+    var chartLastData = false // 더이상 불러올 과거 데이터가 없는지 FLAG값
     var loadingMoreChartData = false
-    var candlePosition = 0f
+    var candlePosition = 0f // 현재 캔들 포지션
     val candleType = mutableStateOf("1")
     val dialogState = mutableStateOf(false)
-    val minuteVisible = mutableStateOf(false)
-    val minuteText = mutableStateOf("1분")
+    val minuteVisible = mutableStateOf(false) // 분봉 메뉴
+    val minuteText = mutableStateOf("1분") // 분봉 텍스트
     val selectedButton = mutableStateOf(MINUTE_SELECT)
-    val kstDateHashMap = HashMap<Int, String>()
-    val accData = HashMap<Int, Double>()
+    val kstDateHashMap = HashMap<Int, String>() // XValueFommater
+    val accData = HashMap<Int, Double>() // 거래량
 
-    private val _candleUpdateMutableLiveData = MutableLiveData<Int>()
+    private val _candleUpdateMutableLiveData = MutableLiveData<Int>() //차트 업데이트인지 추가인지 판별
     val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData
 
+    /**
+     * 초기 차트 데이터 불러옴
+     */
     suspend fun requestChartData(
-        candleType: String = this.candleType.value,
+        candleType: String = this.candleType.value, //분봉인지, 일봉인지
         combinedChart: CombinedChart,
-        market: String,
+        market: String, // 어느 코인인지
     ) {
         isUpdateChart = false
         dialogState.value = true
         val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
-            delay(50L)
+            delay(100L)
             remoteRepository.getOtherCandleService(candleType, market)
         } else {
-            delay(50L)
+            delay(100L)
             remoteRepository.getMinuteCandleService(candleType, market)
         }
         if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
+            /**
+             * 차트 초기화
+             */
             combinedChart.axisRight.removeAllLimitLines()
             combinedChart.xAxis.removeAllLimitLines()
             val positiveBarEntries = ArrayList<BarEntry>()
@@ -75,9 +85,13 @@ class ChartUseCase @Inject constructor(
             chartData.clear()
             candleEntries.clear()
             kstDateHashMap.clear()
+            /**
+             * 차트 데이터 불러옴
+             */
             val chartModelList = response.body() ?: JsonArray()
             if (chartModelList.size() != 0) {
                 val indices = chartModelList.size()
+                // 과거 데이터 불러오기 위해
                 firstCandleUtcTime =
                     gson.fromJson(
                         chartModelList[indices - 1],
@@ -117,18 +131,22 @@ class ChartUseCase @Inject constructor(
             } else {
                 //TODO
             }
+            /**
+             * 현재 보유 코인인지 있으면 불러옴
+             */
             val myCoin = getChartCoinPurchaseAverage(market)
             myCoin?.let {
                 purchaseAveragePrice = it.purchasePrice.toFloat()
             }
             this@ChartUseCase.xAxisValueFormatter.setItem(kstDateHashMap)
             candlePosition -= 1f
+
             combinedChart.chartRefreshSetting(
                 candleEntries,
                 CandleDataSet(candleEntries, ""),
                 BarDataSet(positiveBarEntries, ""),
                 BarDataSet(negativeBarEntries, ""),
-                getMovingAverage.createLineData(),
+                createLineData(),
                 this@ChartUseCase.xAxisValueFormatter,
                 purchaseAveragePrice
             )
@@ -139,12 +157,15 @@ class ChartUseCase @Inject constructor(
         }
     }
 
+    /**
+     * 과거 데이터 불러옴
+     */
     suspend fun requestMoreData(
         candleType: String = this.candleType.value,
         combinedChart: CombinedChart,
         market: String,
     ) {
-        loadingMoreChartData = true
+        loadingMoreChartData = true // 차트 터치 중단
         val time = firstCandleUtcTime.replace("T", " ")
         if (!chartLastData) {
             dialogState.value = true
@@ -166,7 +187,6 @@ class ChartUseCase @Inject constructor(
             val negativeBarDataIndex = combinedChart.barData.dataSets[1].entryCount
             val tempPositiveBarDataSet = combinedChart.barData.dataSets[0]
             val tempNegativeBarDataSet = combinedChart.barData.dataSets[1]
-
             var tempCandlePosition = combinedChart.data.candleData.xMin - indices
             firstCandleUtcTime =
                 gson.fromJson(
@@ -216,7 +236,7 @@ class ChartUseCase @Inject constructor(
                 candleDataSet,
                 positiveBarDataSet,
                 negativeBarDataSet,
-                getMovingAverage.createLineData(),
+                createLineData(),
                 startPosition,
                 currentVisible,
             )
@@ -229,16 +249,14 @@ class ChartUseCase @Inject constructor(
         }
     }
 
+    /**
+     * 차트 업데이트
+     */
     fun updateCandleTicker(tradePrice: Double) {
         if (isUpdateChart && candleEntries.isNotEmpty()) {
-            try{
-                beforeUpdateLineData()
-            }catch (e: Exception) {
-                e.printStackTrace()
-            }
             candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-            try{
-                updateLineData(1)
+            try {
+                modifyLineData()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -246,6 +264,9 @@ class ChartUseCase @Inject constructor(
         }
     }
 
+    /**
+     * 차트 업데이터 BUT 레트로핏을 사용해서 업데이트한다. 웹소켓 문제 때문에..
+     */
     private suspend fun updateChart(combinedChart: CombinedChart, market: String) {
         while (isUpdateChart) {
             val response: Response<JsonArray> = if (candleType.value.toIntOrNull() == null) {
@@ -281,9 +302,9 @@ class ChartUseCase @Inject constructor(
                         combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition,
                             model.candleAccTradePrice.toFloat()))
                     }
-                    try{
-                        updateLineData(2)
-                    }catch (e:Exception) {
+                    try {
+                        addLineData()
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     combinedChart.barData.notifyDataChanged()
@@ -311,6 +332,9 @@ class ChartUseCase @Inject constructor(
         }
     }
 
+    /**
+     * bar chart 업데이트
+     */
     private fun updateBar(combinedChart: CombinedChart) {
         if (isUpdateChart) {
             val positiveBarLast =
@@ -343,89 +367,54 @@ class ChartUseCase @Inject constructor(
         }
     }
 
-    private fun updateLineData(chartState: Int) {
-        if (chartState == 1 && isUpdateChart) {
-            val line1LastIndex = getMovingAverage.line1Entries.lastIndex
-            val line2LastIndex = getMovingAverage.line2Entries.lastIndex
-            val line3LastIndex = getMovingAverage.line3Entries.lastIndex
-            val line4LastIndex = getMovingAverage.line4Entries.lastIndex
-            val line5LastIndex = getMovingAverage.line5Entries.lastIndex
-            if(line1LastIndex >= 0) {
-                getMovingAverage.sumLine1 += candleEntries[candleEntriesLastPosition].close
-                getMovingAverage.line1Entries[line1LastIndex] =
-                    Entry(candlePosition, getMovingAverage.sumLine1 / getMovingAverage.Line1)
-                getMovingAverage.sumLine1 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
-            }
-            if(line2LastIndex >= 0) {
-                getMovingAverage.sumLine2 += candleEntries[candleEntriesLastPosition].close
-                getMovingAverage.line2Entries[line2LastIndex] =
-                    Entry(candlePosition, getMovingAverage.sumLine2 / getMovingAverage.Line2)
-                getMovingAverage.sumLine2 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
-            }
-            if(line3LastIndex >= 0) {
-                getMovingAverage.sumLine3 += candleEntries[candleEntriesLastPosition].close
-                getMovingAverage.line3Entries[line3LastIndex] =
-                    Entry(candlePosition, getMovingAverage.sumLine3 / getMovingAverage.Line3)
-                getMovingAverage.sumLine3 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
-            }
-            if(line4LastIndex >= 0) {
-                getMovingAverage.sumLine4 += candleEntries[candleEntriesLastPosition].close
-                getMovingAverage.line4Entries[line4LastIndex] =
-                    Entry(candlePosition, getMovingAverage.sumLine4 / getMovingAverage.Line4)
-                getMovingAverage.sumLine4 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
-            }
-            if(line5LastIndex >= 0) {
-                getMovingAverage.sumLine5 += candleEntries[candleEntriesLastPosition].close
-                getMovingAverage.line5Entries[line5LastIndex] =
-                    Entry(candlePosition, getMovingAverage.sumLine5 / getMovingAverage.Line5)
-                getMovingAverage.sumLine5 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
-            }
-        } else if (chartState != 1 && !isUpdateChart) {
-            getMovingAverage.count++
-            getMovingAverage.sumLine1 += candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine2 += candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine3 += candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine4 += candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine5 += candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.line1Entries.add(Entry(candlePosition,
-                getMovingAverage.sumLine1 / getMovingAverage.Line1))
-            getMovingAverage.line2Entries.add(Entry(candlePosition,
-                getMovingAverage.sumLine2 / getMovingAverage.Line2))
-            getMovingAverage.line3Entries.add(Entry(candlePosition,
-                getMovingAverage.sumLine3 / getMovingAverage.Line3))
-            getMovingAverage.line4Entries.add(Entry(candlePosition,
-                getMovingAverage.sumLine4 / getMovingAverage.Line4))
-            getMovingAverage.line5Entries.add(Entry(candlePosition,
-                getMovingAverage.sumLine5 / getMovingAverage.Line5))
-            getMovingAverage.sumLine1 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
-            getMovingAverage.sumLine2 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
-            getMovingAverage.sumLine3 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
-            getMovingAverage.sumLine4 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
-            getMovingAverage.sumLine5 -= candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
+    /**
+     * 이동평균선 만든다
+     */
+    private fun createLineData(): LineData {
+        movingAverage5.createLineData(candleEntries)
+        movingAverage10.createLineData(candleEntries)
+        movingAverage20.createLineData(candleEntries)
+        movingAverage60.createLineData(candleEntries)
+        movingAverage120.createLineData(candleEntries)
+
+        val lineDataSet5 =
+            LineDataSet(movingAverage5.lineEntry, "").apply { defaultSet("#B3FF36FF") }
+        val lineDataSet10 =
+            LineDataSet(movingAverage10.lineEntry, "").apply { defaultSet("#B30000B7") }
+        val lineDataSet20 =
+            LineDataSet(movingAverage20.lineEntry, "").apply { defaultSet("#B3DBC000") }
+        val lineDataSet60 =
+            LineDataSet(movingAverage60.lineEntry, "").apply { defaultSet("#B3FF4848") }
+        val lineDataSet120 =
+            LineDataSet(movingAverage120.lineEntry, "").apply { defaultSet("#B3BDBDBD") }
+        val lineData = LineData()
+        lineData.apply {
+            addDataSet(lineDataSet5)
+            addDataSet(lineDataSet10)
+            addDataSet(lineDataSet20)
+            addDataSet(lineDataSet60)
+            addDataSet(lineDataSet120)
         }
+
+        return lineData
     }
 
-    private fun beforeUpdateLineData() {
-        if(candleEntriesLastPosition >= 4 && getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1) > 0) { // index 는 position -1
-            getMovingAverage.sumLine1 -= candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine1 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line1 - 1)].close
-        }
-        if(candleEntriesLastPosition >= 9 && getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1) > 0) {
-            getMovingAverage.sumLine2 -= candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine2 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line2 - 1)].close
-        }
-        if(candleEntriesLastPosition >= 19 && getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1) > 0) {
-            getMovingAverage.sumLine3 -= candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine3 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line3 - 1)].close
-        }
-        if(candleEntriesLastPosition >= 59 && getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)> 0) {
-            getMovingAverage.sumLine4 -= candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine4 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line4 - 1)].close
-        }
-        if(candleEntriesLastPosition > 119 && getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1) > 0) {
-            getMovingAverage.sumLine5 -= candleEntries[candleEntriesLastPosition].close
-            getMovingAverage.sumLine5 += candleEntries[getMovingAverage.count - 1 - (getMovingAverage.Line5 - 1)].close
-        }
+    private fun modifyLineData() {
+        val lastCandle = candleEntries.last()
+        movingAverage5.modifyLineData(lastCandle)
+        movingAverage10.modifyLineData(lastCandle)
+        movingAverage20.modifyLineData(lastCandle)
+        movingAverage60.modifyLineData(lastCandle)
+        movingAverage120.modifyLineData(lastCandle)
+    }
+
+    private fun addLineData() {
+        val lastCandle = candleEntries.last()
+        movingAverage5.addLineData(lastCandle)
+        movingAverage10.addLineData(lastCandle)
+        movingAverage20.addLineData(lastCandle)
+        movingAverage60.addLineData(lastCandle)
+        movingAverage120.addLineData(lastCandle)
     }
 
     fun getCandleEntryLast(): CandleEntry {
