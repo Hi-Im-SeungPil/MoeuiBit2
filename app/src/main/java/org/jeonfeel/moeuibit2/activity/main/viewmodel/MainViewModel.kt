@@ -76,9 +76,6 @@ class MainViewModel @Inject constructor(
     val preItemArray get() = exchangeUseCase.preItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition
-    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
-    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
-    private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
 
     fun requestExchangeData() {
         viewModelScope.launch {
