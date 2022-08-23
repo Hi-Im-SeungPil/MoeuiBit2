@@ -36,8 +36,8 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.showToast
 import java.text.NumberFormat
 import java.util.*
@@ -124,7 +124,7 @@ fun TotalAmountDesignatedDialog(
                                 .weight(1f, true),
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.End),
-                            visualTransformation = NumberCommaTransformation(),
+                            visualTransformation = NumbersCommaTransformation(),
                             colors = TextFieldDefaults.textFieldColors(
                                 focusedIndicatorColor = Color.Transparent,
                                 disabledIndicatorColor = Color.Transparent,
@@ -282,7 +282,7 @@ fun TotalAmountDesignatedDialog(
     }
 }
 
-class NumberCommaTransformation : VisualTransformation {
+class NumbersCommaTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         var result = AnnotatedString(text.text.toLongOrNull().formatWithComma())
         if (result.text == "입력") {

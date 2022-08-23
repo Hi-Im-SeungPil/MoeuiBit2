@@ -1,13 +1,15 @@
 package org.jeonfeel.moeuibit2.repository.remote
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
+import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import retrofit2.Response
 
-class RemoteRepository(private val upBitService: UpBitService) {
+class RemoteRepository(private val upBitService: UpBitService, private val usdtService: USDTService) {
 
     private fun <T> call(response: Response<T>): ApiResult<T> {
         return try {
@@ -56,6 +58,17 @@ class RemoteRepository(private val upBitService: UpBitService) {
             emit(ApiResult.loading())
             try {
                 emit(call(upBitService.getKrwTicker(markets)))
+            } catch (e: Exception) {
+                emit(ApiResult.error(e))
+            }
+        }
+    }
+
+    suspend fun getUSDTPrice(): Flow<ApiResult<JsonObject>> {
+        return flow {
+            emit(ApiResult.loading())
+            try {
+                emit(call(usdtService.getUSDTPrice()))
             } catch (e: Exception) {
                 emit(ApiResult.error(e))
             }

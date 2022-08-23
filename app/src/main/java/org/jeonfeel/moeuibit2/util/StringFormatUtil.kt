@@ -10,6 +10,10 @@ fun Long.commaFormat(): String {
     return commaFormat.format(this)
 }
 
+fun Int.commaFormat(): String {
+    return commaFormat.format(this)
+}
+
 fun Double.commaFormat(): String {
     return commaFormat.format(this)
 }

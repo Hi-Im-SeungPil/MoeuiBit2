@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.constant.retrofitBaseUrl
+import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import retrofit2.Retrofit
@@ -32,7 +33,13 @@ class RemoteModule {
 
     @Singleton
     @Provides
-    fun provideRemoteRepository(upBitService: UpBitService): RemoteRepository {
-        return RemoteRepository(upBitService)
+    fun provideUSDTPriceService(retrofit: Retrofit): USDTService {
+        return retrofit.create(USDTService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRemoteRepository(upBitService: UpBitService, usdtService: USDTService): RemoteRepository {
+        return RemoteRepository(upBitService, usdtService)
     }
 }

@@ -1,6 +1,6 @@
 package org.jeonfeel.moeuibit2.data.remote.retrofit
 
-data class ApiResult<T>(val status: Status,val data: T?,val message: String?) {
+data class ApiResult<T>(val status: Status, val data: T?, val message: String?) {
 
     enum class Status {
         LOADING,
@@ -9,7 +9,7 @@ data class ApiResult<T>(val status: Status,val data: T?,val message: String?) {
         NETWORK_ERROR
     }
 
-    companion object{
+    companion object {
         fun <T> success(data: T?): ApiResult<T> {
             return ApiResult(Status.SUCCESS, data, null)
         }
@@ -25,6 +25,5 @@ data class ApiResult<T>(val status: Status,val data: T?,val message: String?) {
         fun <T> loading(): ApiResult<T> {
             return ApiResult(Status.LOADING, null, null)
         }
-
     }
 }

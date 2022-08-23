@@ -6,13 +6,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import org.jeonfeel.moeuibit2.activity.kimp.viewmodel.KimpViewModel
 
 @Composable
-fun KimpScreen() {
-    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+fun KimpScreen(kimpViewModel: KimpViewModel = viewModel()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
         KimpScreenSpinner()
         KimpScreenSearchBasicTextField()
-        KimpMarketButtons()
+        KimpMarketButtons(kimpViewModel)
         KimpScreenSortButtons()
         KimpScreenLazyColumn()
     }

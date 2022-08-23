@@ -16,17 +16,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.kimp.KimpActivity
+import org.jeonfeel.moeuibit2.activity.kimp.viewmodel.KimpViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.constant.SELECTED_KIMP
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import org.jeonfeel.moeuibit2.util.commaFormat
 import org.jeonfeel.moeuibit2.util.intentActivity
 
 @Composable
-fun KimpMarketButtons() {
+fun KimpMarketButtons(kimpViewModel: KimpViewModel = viewModel()) {
     val interactionSource = remember { MutableInteractionSource() }
+    kimpViewModel.requestUSDTPrice()
+    val usdtPrice = kimpViewModel.usdtPrice.value
+    val usdtDate = kimpViewModel.date.value
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,7 +42,7 @@ fun KimpMarketButtons() {
     ) {
         KimpMarketButton(interactionSource, stringResource(id = R.string.krw), SELECTED_KRW_MARKET)
         KimpMarketButton(interactionSource, stringResource(id = R.string.btc), SELECTED_FAVORITE)
-        Text(text = "1 USD = 1330 KRW\n(2022.08.22)",
+        Text(text = "1 USD = ${usdtPrice.commaFormat()} KRW\n($usdtDate)",
             modifier = Modifier
                 .weight(2f)
                 .align(Alignment.CenterVertically),
