@@ -15,6 +15,7 @@ import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 
 @Composable
@@ -22,9 +23,10 @@ fun CoinDetailScreen(
     coinKoreanName: String,
     coinSymbol: String,
     warning: String,
-    coinDetailViewModel: CoinDetailViewModel = viewModel()
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val market = coinDetailViewModel.market
 
     OnLifecycleEvent { _, event ->
         when (event) {
@@ -39,9 +41,19 @@ fun CoinDetailScreen(
         }
     }
 
+    OneButtonCommonDialog(dialogState = coinDetailViewModel.errorDialogState,
+        title = "네트워크 오류",
+        content = "네트워크 연결 상태를 확인해 주세요.",
+        buttonText = "확인",
+        buttonAction = {
+
+            coinDetailViewModel.errorDialogState.value = false })
+
     Scaffold(
         topBar = {
-            CoinDetailTopAppBar(coinKoreanName = coinKoreanName, coinSymbol = coinSymbol, warning = warning)
+            CoinDetailTopAppBar(coinKoreanName = coinKoreanName,
+                coinSymbol = coinSymbol,
+                warning = warning)
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
@@ -49,11 +61,12 @@ fun CoinDetailScreen(
                 coinSymbol,
                 coinDetailViewModel)
         }
+
         BackHandler(true) {
             val intent = Intent()
-            intent.putExtra("market","KRW-".plus(coinSymbol))
-            intent.putExtra("isFavorite",coinDetailViewModel.favoriteMutableState.value)
-            (context as CoinDetailActivity).setResult(-1,intent)
+            intent.putExtra("market", market.plus(coinSymbol))
+            intent.putExtra("isFavorite", coinDetailViewModel.favoriteMutableState.value)
+            (context as CoinDetailActivity).setResult(-1, intent)
             (context).finish()
             context.overridePendingTransition(R.anim.none, R.anim.lazy_column_item_slide_right)
         }

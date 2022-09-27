@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,14 +41,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constant.mainDispatcher
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
+import org.jeonfeel.moeuibit2.util.*
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
-import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import kotlin.math.round
 
 @Composable
@@ -55,6 +58,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,12 +75,12 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    OrderScreenUserSeedMoney(coinDetailViewModel)
-                    OrderScreenQuantity(coinDetailViewModel)
-                    OrderScreenPrice(coinDetailViewModel)
-                    OrderScreenTotalPrice(coinDetailViewModel)
-                    OrderScreenButtons(coinDetailViewModel)
-                    OrderScreenNotice(context, lifecycleOwner)
+                    OrderScreenUserSeedMoney(coinDetailViewModel, marketState)
+                    OrderScreenQuantity(coinDetailViewModel, marketState)
+                    OrderScreenPrice(coinDetailViewModel, marketState)
+                    OrderScreenTotalPrice(coinDetailViewModel, marketState)
+                    OrderScreenButtons(coinDetailViewModel, marketState)
+                    OrderScreenNotice(context, lifecycleOwner, marketState)
                 }
             } else {
                 TransactionInfoLazyColumn(coinDetailViewModel)
@@ -105,7 +109,7 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 indication = null
             ) { selectedTab.value = 1 }) {
             Text(
-                text = "매수",
+                text = stringResource(id = R.string.ask),
                 modifier = Modifier.fillMaxWidth(),
                 style = getTabTextStyle(selectedTab.value, 1)
             )
@@ -121,7 +125,7 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             ) { selectedTab.value = 2 }
         ) {
             Text(
-                text = "매도",
+                text = stringResource(id = R.string.bid),
                 modifier = Modifier.fillMaxWidth(),
                 style = getTabTextStyle(selectedTab.value, 2)
             )
@@ -142,7 +146,7 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             }
         ) {
             Text(
-                text = "거래내역",
+                text = stringResource(id = R.string.tradHistory),
                 modifier = Modifier.fillMaxWidth(),
                 style = getTabTextStyle(selectedTab.value, 3)
             )
@@ -151,19 +155,34 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 }
 
 @Composable
-fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+fun OrderScreenUserSeedMoney(
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    marketState: Int,
+) {
+    val symbol = coinDetailViewModel.market.substring(4)
     val krwOrSymbol: String
+    val userCoin = coinDetailViewModel.userCoinQuantity
     var currentUserCoinValue = ""
-    val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
+    val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1 && marketState == SELECTED_KRW_MARKET) { // KRW 매수
         krwOrSymbol = "KRW"
-        Calculator.getDecimalFormat().format(coinDetailViewModel.userSeedMoney)
-    } else {
-        val userCoin = coinDetailViewModel.userCoinQuantity
-        currentUserCoinValue = Calculator.getDecimalFormat()
-            .format(round(coinDetailViewModel.currentTradePriceState * userCoin))
-        krwOrSymbol = coinDetailViewModel.market.substring(4)
-        Calculator.getDecimalDecimalFormat().format(userCoin)
+        coinDetailViewModel.userSeedMoney.commaFormat()
+    } else if(coinDetailViewModel.askBidSelectedTab.value == 2 && marketState == SELECTED_KRW_MARKET){ // KRW 매도
+        currentUserCoinValue = round(coinDetailViewModel.currentTradePriceState * userCoin).commaFormat()
+        krwOrSymbol = symbol
+        userCoin.eighthDecimal()
+    } else if(coinDetailViewModel.askBidSelectedTab.value == 1 && marketState == SELECTED_BTC_MARKET) { // BTC 매수
+        krwOrSymbol = "BTC"
+        if(coinDetailViewModel.btcQuantity.value == 0.0) {
+            "0"
+        } else {
+            coinDetailViewModel.btcQuantity.value.eighthDecimal()
+        }
+    } else { // BTC 매도
+        currentUserCoinValue = round(coinDetailViewModel.currentTradePriceState * userCoin).commaFormat()
+        krwOrSymbol = symbol
+        userCoin.eighthDecimal()
     }
+
     Column(
         modifier = Modifier
             .padding(0.dp, 10.dp)
@@ -201,7 +220,7 @@ fun OrderScreenUserSeedMoney(coinDetailViewModel: CoinDetailViewModel = viewMode
 }
 
 @Composable
-fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), marketState: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -215,7 +234,7 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel()) 
                 .wrapContentHeight()
         ) {
             Text(
-                text = "수량",
+                text = stringResource(id = R.string.quantity),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp),
@@ -314,7 +333,7 @@ fun OrderScreenQuantityDropDown(
 }
 
 @Composable
-fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel(), marketState: Int) {
     Row(
         modifier = Modifier
             .padding(0.dp, 5.dp)
@@ -324,18 +343,18 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             .wrapContentHeight()
     ) {
         Text(
-            text = "가격", modifier = Modifier
+            text = stringResource(id = R.string.price), modifier = Modifier
                 .wrapContentWidth()
                 .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = Calculator.tradePriceCalculatorForChart(coinDetailViewModel.currentTradePriceState),
+            text = CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentTradePriceState, marketState),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
             style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = "  KRW",
+            text = "  ".plus(EtcUtils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
@@ -345,7 +364,10 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 }
 
 @Composable
-fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+fun OrderScreenTotalPrice(
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    marketState: Int,
+) {
     Row(
         modifier = Modifier
             .padding(0.dp, 0.dp, 0.dp, 5.dp)
@@ -384,7 +406,7 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
             style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = "  KRW",
+            text = "  ".plus(EtcUtils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
@@ -394,7 +416,7 @@ fun OrderScreenTotalPrice(coinDetailViewModel: CoinDetailViewModel = viewModel()
 }
 
 @Composable
-fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
+fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), marketState: Int) {
     val buttonBackground = getButtonsBackground(coinDetailViewModel.askBidSelectedTab.value)
     val buttonText = getButtonsText(coinDetailViewModel.askBidSelectedTab.value)
     val currentPrice = remember {
@@ -425,7 +447,9 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     .background(color = Color.LightGray)
                     .fillMaxHeight()
             ) {
-                Text(text = "초기화", style = TextStyle(color = Color.White), fontSize = 18.sp)
+                Text(text = stringResource(id = R.string.reset),
+                    style = TextStyle(color = Color.White),
+                    fontSize = 18.sp)
             }
             TextButton(
                 onClick = {
@@ -446,13 +470,13 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                             context.showToast("주문 가능한 최소금액은 5,000KRW 입니다.")
                         }
                         currentPrice.value == 0.0 -> {
-                            context.showToast("네트워크 통신 오류입니다.")
+                            context.showToast(context.getString(R.string.NETWORK_ERROR))
                         }
                         OneTimeNetworkCheck.networkCheck(context) == null -> {
-                            context.showToast("네트워크 상태를 확인해 주세요.")
+                            context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
                         }
                         UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
-                            context.showToast("네트워크 오류 입니다.")
+                            context.showToast(context.getString(R.string.NETWORK_ERROR))
                         }
                         coinDetailViewModel.askBidSelectedTab.value == 1 && userSeedMoney < totalPrice + round(
                             totalPrice * 0.0005
@@ -512,12 +536,12 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 }
 
 @Composable
-fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner) {
+fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketState: Int) {
     val balloon = remember {
         Balloon.Builder(context)
             .setWidthRatio(1.0f)
             .setHeight(BalloonSizeSpec.WRAP)
-            .setText("· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다. ")
+            .setText(context.getString(R.string.askBidBalloonMessage))
             .setTextColorResource(R.color.white)
             .setTextGravity(Gravity.START)
             .setTextSize(15f)

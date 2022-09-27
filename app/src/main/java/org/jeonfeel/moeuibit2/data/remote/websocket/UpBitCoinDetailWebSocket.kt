@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.data.remote.websocket
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.internal.wait
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitCoinDetailWebSocketListener
 

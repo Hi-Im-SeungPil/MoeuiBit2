@@ -24,6 +24,7 @@ import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 @Composable
 fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
     val buttonState = mainViewModel.selectedButtonState
+    val marketState = mainViewModel.selectedMarketState
     Row(
         modifier = Modifier
             .fillMaxWidth()

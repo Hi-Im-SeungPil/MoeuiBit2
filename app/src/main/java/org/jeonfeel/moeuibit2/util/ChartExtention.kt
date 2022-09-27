@@ -11,9 +11,11 @@ import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -64,6 +66,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     val chart = this@initCombinedChart
     chart.removeAllViews()
     val canvasView = ChartCanvas(context)
+    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
     //chart
     chart.apply {
         description.isEnabled = false
@@ -80,7 +83,8 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             context,
             R.layout.candle_info_marker,
             coinDetailViewModel.kstDateHashMap,
-            coinDetailViewModel.accData
+            coinDetailViewModel.accData,
+            marketState
         )
         setPinchZoom(false)
         setDrawGridBackground(false)
@@ -155,13 +159,18 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     }
     //right Axis
     val rightAxis = chart.axisRight
+    val minWidth = if(marketState == SELECTED_BTC_MARKET) {
+        canvasView.getTextPaint().measureText("0.00000000")
+    } else {
+        50f
+    }
     rightAxis.apply {
         setLabelCount(5, true)
         textColor = Color.BLACK
         setDrawAxisLine(true)
         setDrawGridLines(false)
         axisLineColor = Color.GRAY
-        minWidth = 50f
+        this.minWidth = minWidth
         spaceBottom = 40f
     }
 
@@ -197,9 +206,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
             }
 
             val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
-            val text = Calculator.tradePriceCalculatorForChart(
-                valueByTouchPoint.y
-            )
+            val text = CurrentCalculator.tradePriceCalculator(valueByTouchPoint.y, marketState)
             if (xAxis.limitLines.size != 0) {
                 xAxis.removeAllLimitLines()
                 rightAxis.removeLimitLine(rightAxis.limitLines.last())
@@ -228,7 +235,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 } else {
                     Color.BLUE
                 }
-                chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color)
+                chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color, marketState)
                 val yp = chart.getPosition(
                     Entry(
                         0f,
@@ -237,7 +244,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 ).y
                 canvasView.realTimeLastCandleClose(
                     yp,
-                    Calculator.tradePriceCalculatorForChart(tradePrice),
+                    CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
                     color
                 )
             }
@@ -252,13 +259,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     rightAxis.axisDependency
                 )
                 val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
-                val text = Calculator.tradePriceCalculatorForChart(
-                    chart.getValuesByTouchPoint(
-                        x,
-                        y,
-                        axisRight.axisDependency
-                    ).y
-                )
+                val price = CurrentCalculator.tradePriceCalculator(chart.getValuesByTouchPoint(
+                    x,
+                    y,
+                    axisRight.axisDependency
+                ).y,marketState)
                 horizontalLine.apply {
                     lineColor = Color.BLACK
                     lineWidth = 0.5f
@@ -277,7 +282,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     }
                     chart.addAccAmountLimitLine(highestVisibleCandle.x,
                         coinDetailViewModel,
-                        color)
+                        color, marketState)
                     val yp = chart.getPosition(
                         Entry(
                             0f,
@@ -286,11 +291,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     ).y
                     canvasView.realTimeLastCandleClose(
                         yp,
-                        Calculator.tradePriceCalculatorForChart(tradePrice),
+                        CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
                         color
                     )
                 }
-                canvasView.actionMoveInvalidate(y, text)
+                canvasView.actionMoveInvalidate(y, price)
                 rightAxis.limitLines[rightAxis.limitLines.lastIndex] = horizontalLine
             }
         } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData && coinDetailViewModel.isUpdateChart) {
@@ -422,6 +427,7 @@ fun CombinedChart.addAccAmountLimitLine(
     lastX: Float,
     coinDetailViewModel: CoinDetailViewModel,
     color: Int,
+    marketState: Int
 ) {
     val chart = this
     if (chart.axisLeft.limitLines.isNotEmpty()) {
@@ -443,7 +449,7 @@ fun CombinedChart.addAccAmountLimitLine(
     val barPrice = lastBar.y
     val lastBarLimitLine = LimitLine(
         barPrice,
-        Calculator.accTradePrice24hCalculatorForChart(coinDetailViewModel.accData[lastX.toInt()]!!)
+        CurrentCalculator.accTradePrice24hCalculator(coinDetailViewModel.accData[lastX.toInt()]!!, marketState)
     )
     lastBarLimitLine.lineColor = color
     lastBarLimitLine.textColor = color

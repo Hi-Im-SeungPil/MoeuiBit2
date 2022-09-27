@@ -17,9 +17,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.coinImageUrl
+import org.jeonfeel.moeuibit2.util.EtcUtils
+import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
 @Composable
 fun CoinDetailMain(
@@ -27,7 +29,8 @@ fun CoinDetailMain(
     symbol: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val curTradePrice = getCurTradePriceTextFormat(currentPrice)
+    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice,marketState)
     val curChangeRate =
         Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate)
     val curChangePrice = Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price)

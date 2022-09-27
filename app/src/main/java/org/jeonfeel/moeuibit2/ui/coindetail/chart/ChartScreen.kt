@@ -27,9 +27,10 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.util.initCombinedChart
 
 const val MINUTE_SELECT = 1
@@ -69,6 +70,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
+                                val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
                                 val canvas = (combinedChart[0] as ChartCanvas)
                                 val lastCandle = coinDetailViewModel.candleEntryLast
                                 val tradePrice = lastCandle.close
@@ -89,7 +91,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                 ).y
                                 canvas.realTimeLastCandleClose(
                                     yp,
-                                    Calculator.tradePriceCalculatorForChart(tradePrice),
+                                    CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
                                     color
                                 )
                                 if (it == CHART_SET_ALL) {
@@ -118,7 +120,8 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                     combinedChart.addAccAmountLimitLine(
                                         lastBar.x,
                                         coinDetailViewModel,
-                                        color
+                                        color,
+                                        marketState
                                     )
                                 }
                             }

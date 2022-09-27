@@ -84,4 +84,8 @@ class ChartCanvas constructor(context: Context?) :
         this.lastCandlePriceRectPaint.color = color
         this.invalidate()
     }
+
+    fun getTextPaint(): Paint {
+        return textPaint
+    }
 }

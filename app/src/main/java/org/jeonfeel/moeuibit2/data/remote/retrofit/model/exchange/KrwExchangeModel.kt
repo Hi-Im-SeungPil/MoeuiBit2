@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.retrofit.model
+package org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange
 
 import androidx.annotation.Keep
 import androidx.compose.runtime.Stable

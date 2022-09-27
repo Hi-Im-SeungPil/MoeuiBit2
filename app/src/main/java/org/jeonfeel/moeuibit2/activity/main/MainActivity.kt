@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.activity.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -16,6 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -34,13 +39,20 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkSt
 import org.jeonfeel.moeuibit2.util.showToast
 import javax.inject.Inject
 
+const val APP_UPDATE_IMMEDIATE_CODE = 123
+const val APP_UPDATE_FLEXIBLE_CODE = 124
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
-    @Inject lateinit var networkMonitorUtil: NetworkMonitorUtil
-    @Inject lateinit var adMobManager: AdMobManager
+    @Inject
+    lateinit var networkMonitorUtil: NetworkMonitorUtil
+
+    @Inject
+    lateinit var adMobManager: AdMobManager
     private lateinit var auth: FirebaseAuth
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
     private val mainViewModel: MainViewModel by viewModels()
+    private var removeSplash = false // 스플래쉬 화면 지울건지
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +79,42 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                     }
                 }
             }
+        controlSplashScreen()
         initNetworkStateMonitor()
         initObserver()
+        checkUpdate()
+    }
+
+    private fun checkUpdate() {
+        val appUpdateManager = AppUpdateManagerFactory.create(this)
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.updatePriority() >= 4
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            ) {
+                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
+                    AppUpdateType.IMMEDIATE,
+                    this,
+                    APP_UPDATE_IMMEDIATE_CODE)
+
+            } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && appUpdateInfo.updatePriority() >= 2
+                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
+            ) {
+
+                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
+                    AppUpdateType.FLEXIBLE,
+                    this,
+                    APP_UPDATE_FLEXIBLE_CODE)
+            }
+            removeSplash = true
+        }.addOnFailureListener {
+            removeSplash = true
+        }.addOnCanceledListener {
+            removeSplash = true
+        }
     }
 
     private fun initObserver() {
@@ -146,5 +192,19 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
 
     override fun onUserEarnedReward(p0: RewardItem) {
         mainViewModel.earnReward()
+    }
+
+    private fun controlSplashScreen() {
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                return if (removeSplash) {
+                    content.viewTreeObserver.removeOnPreDrawListener(this)
+                    true
+                } else {
+                    false
+                }
+            }
+        })
     }
 }

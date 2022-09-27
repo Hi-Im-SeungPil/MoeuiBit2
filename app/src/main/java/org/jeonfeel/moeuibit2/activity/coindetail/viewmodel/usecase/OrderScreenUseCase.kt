@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constant.btcMarket
 import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -16,6 +17,8 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import kotlin.math.round
 
@@ -39,13 +42,21 @@ class OrderScreenUseCase @Inject constructor(
     val askBidDialogState = mutableStateOf(false)
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
     val totalPriceDesignated = mutableStateOf("")
+    val errorDialogState = mutableStateOf(false)
+    val btcQuantity = mutableStateOf(0.0)
 
     fun initOrderScreen(market: String) {
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
             UpBitCoinDetailWebSocket.market = market
             UpBitOrderBookWebSocket.market = market
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-            UpBitOrderBookWebSocket.requestOrderBookList(market)
+            try {
+                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                UpBitOrderBookWebSocket.requestOrderBookList(market)
+            } catch (e: UnknownHostException) {
+                errorDialogState.value = true
+            } catch (e: SocketTimeoutException) {
+                errorDialogState.value = true
+            }
             CoroutineScope(ioDispatcher).launch {
                 localRepository.getUserDao().all.let {
                     userSeedMoney.value = it?.krw ?: 0L
@@ -53,10 +64,19 @@ class OrderScreenUseCase @Inject constructor(
                 localRepository.getMyCoinDao().isInsert(market).let {
                     userCoinQuantity.value = it?.quantity ?: 0.0
                 }
+                localRepository.getMyCoinDao().isInsert(btcMarket).let{
+                    btcQuantity.value = it?.quantity ?: 0.0
+                }
             }
         } else {
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-            UpBitOrderBookWebSocket.requestOrderBookList(market)
+            try {
+                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+                UpBitOrderBookWebSocket.requestOrderBookList(market)
+            } catch (e: UnknownHostException) {
+                errorDialogState.value = true
+            } catch (e: SocketTimeoutException) {
+                errorDialogState.value = true
+            }
         }
     }
 

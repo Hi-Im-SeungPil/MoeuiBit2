@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -14,13 +15,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
-import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
-import org.jeonfeel.moeuibit2.constant.defaultDispatcher
-import org.jeonfeel.moeuibit2.constant.ioDispatcher
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
@@ -67,15 +65,21 @@ class MainViewModel @Inject constructor(
     private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
     private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
     private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
+    private val btcExchangeModelList get() = exchangeUseCase.btcExchangeModelList
+    private val btcExchangeModelMutableStateList get() = exchangeUseCase.btcExchangeModelMutableStateList
+    private val btcCoinKoreanNameAndEngName get() = exchangeUseCase.btcCoinKoreanNameAndEngName
     val selectedMarketState get() = exchangeUseCase.selectedMarketState
     val errorState get() = exchangeUseCase.errorState
     val searchTextFieldValueState get() = exchangeUseCase.searchTextFieldValueState
     val showFavoriteState get() = exchangeUseCase.showFavoriteState
     val selectedButtonState get() = exchangeUseCase.selectedButtonState // 정렬버튼
     val loadingState get() = exchangeUseCase.loadingState
-    val preItemArray get() = exchangeUseCase.preItemArray
+    val krwPreItemArray get() = exchangeUseCase.krwPreItemArray
+    val btcPreItemArray get() = exchangeUseCase.btcPreItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition
+    val btcExchangeModelListPosition get() = exchangeUseCase.btcExchangeModelListPosition
+    val btcTradePrice get() = exchangeUseCase.btcTradePrice
 
     fun requestExchangeData() {
         viewModelScope.launch {
@@ -85,10 +89,11 @@ class MainViewModel @Inject constructor(
                 }.join()
             }
             Handler(Looper.getMainLooper()).post {
-                exchangeUseCase.requestKrwCoinListToWebSocket()
+                exchangeUseCase.requestCoinListToWebSocket()
             }
             exchangeUseCase.updateExchange()
         }
+        Log.d("실행","실행")
     }
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
@@ -97,14 +102,30 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun requestCoinListToWebSocket() {
+        exchangeUseCase.requestCoinListToWebSocket()
+    }
+
     /**
      * data sorting, filter
      * */
-    fun getFilteredKrwCoinList(): SnapshotStateList<KrwExchangeModel> {
+    fun getFilteredCoinList(): SnapshotStateList<KrwExchangeModel> {
         return when {
+            //검색 X 관심코인 X
             searchTextFieldValueState.value.isEmpty() && !showFavoriteState.value -> {
-                krwExchangeModelMutableStateList
+                when (selectedMarketState.value) {
+                    SELECTED_KRW_MARKET -> {
+                        krwExchangeModelMutableStateList
+                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutableStateList
+                    }
+                    else -> {
+                        btcExchangeModelMutableStateList
+                    }
+                }
             }
+            // 검색 X 관심코인 O
             searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
                 val favoriteList = SnapshotStateList<KrwExchangeModel>()
                 val tempArray = ArrayList<Int>()
@@ -117,9 +138,21 @@ class MainViewModel @Inject constructor(
                 }
                 favoriteList
             }
+            // 검색 O 관심코인 X
             searchTextFieldValueState.value.isNotEmpty() && !showFavoriteState.value -> {
                 val resultList = SnapshotStateList<KrwExchangeModel>()
-                for (element in krwExchangeModelMutableStateList) {
+                val targetList = when (selectedMarketState.value) {
+                    SELECTED_KRW_MARKET -> {
+                        krwExchangeModelMutableStateList
+                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutableStateList
+                    }
+                    else -> {
+                        btcExchangeModelMutableStateList
+                    }
+                }
+                for (element in targetList) {
                     if (
                         element.koreanName.contains(searchTextFieldValueState.value) ||
                         element.EnglishName.uppercase()
@@ -132,6 +165,7 @@ class MainViewModel @Inject constructor(
                 }
                 resultList
             }
+            // 검색 O 관심코인 O
             else -> {
                 val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
                 val favoriteList = SnapshotStateList<KrwExchangeModel>()
@@ -159,58 +193,175 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun getFilteredBtcCoinList(): SnapshotStateList<KrwExchangeModel> {
+        return when {
+            //검색 X 관심코인 X
+            searchTextFieldValueState.value.isEmpty() && !showFavoriteState.value -> {
+                btcExchangeModelMutableStateList
+            }
+            // 검색 X 관심코인 O
+            searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
+                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempArray = ArrayList<Int>()
+                for (i in favoriteHashMap) {
+                    tempArray.add(btcExchangeModelListPosition[i.key]!!)
+                }
+                tempArray.sort()
+                for (i in tempArray) {
+                    favoriteList.add(btcExchangeModelMutableStateList[i])
+                }
+                favoriteList
+            }
+            // 검색 O 관심코인 O
+            searchTextFieldValueState.value.isNotEmpty() && !showFavoriteState.value -> {
+                val resultList = SnapshotStateList<KrwExchangeModel>()
+                for (element in btcExchangeModelMutableStateList) {
+                    if (
+                        element.koreanName.contains(searchTextFieldValueState.value) ||
+                        element.EnglishName.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase()) ||
+                        element.symbol.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase())
+                    ) {
+                        resultList.add(element)
+                    }
+                }
+                resultList
+            }
+            // 검색 O 관심코인 X
+            else -> {
+                val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
+                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempArray = ArrayList<Int>()
+                for (i in favoriteHashMap) {
+                    tempArray.add(btcExchangeModelListPosition[i.key]!!)
+                }
+                tempArray.sort()
+                for (i in tempArray) {
+                    tempFavoriteList.add(btcExchangeModelMutableStateList[i])
+                }
+                for (element in tempFavoriteList) {
+                    if (
+                        element.koreanName.contains(searchTextFieldValueState.value) ||
+                        element.EnglishName.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase()) ||
+                        element.symbol.uppercase()
+                            .contains(searchTextFieldValueState.value.uppercase())
+                    ) {
+                        favoriteList.add(element)
+                    }
+                }
+                favoriteList
+            }
+        }
+    }
+
     fun sortList(sortStandard: Int) {
         updateExchange = false
         viewModelScope.launch(defaultDispatcher) {
             when (sortStandard) {
                 0 -> {
-                    krwExchangeModelList.sortByDescending { element ->
-                        element.tradePrice
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortByDescending { element ->
+                            element.tradePrice
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortByDescending { element ->
+                            element.tradePrice
+                        }
                     }
                 }
                 1 -> {
-                    krwExchangeModelList.sortBy { element ->
-                        element.tradePrice
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortBy { element ->
+                            element.tradePrice
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortBy { element ->
+                            element.tradePrice
+                        }
                     }
                 }
                 2 -> {
-                    krwExchangeModelList.sortByDescending { element ->
-                        element.signedChangeRate
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortByDescending { element ->
+                            element.signedChangeRate
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortByDescending { element ->
+                            element.signedChangeRate
+                        }
                     }
                 }
                 3 -> {
-                    krwExchangeModelList.sortBy { element ->
-                        element.signedChangeRate
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortBy { element ->
+                            element.signedChangeRate
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortBy { element ->
+                            element.signedChangeRate
+                        }
                     }
                 }
                 4 -> {
-                    krwExchangeModelList.sortByDescending { element ->
-                        element.accTradePrice24h
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortByDescending { element ->
+                            element.accTradePrice24h
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortByDescending { element ->
+                            element.accTradePrice24h
+                        }
                     }
                 }
                 5 -> {
-                    krwExchangeModelList.sortBy { element ->
-                        element.accTradePrice24h
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortBy { element ->
+                            element.accTradePrice24h
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortBy { element ->
+                            element.accTradePrice24h
+                        }
                     }
                 }
                 else -> {
-                    krwExchangeModelList.sortByDescending { element ->
-                        element.accTradePrice24h
+                    if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                        krwExchangeModelList.sortByDescending { element ->
+                            element.accTradePrice24h
+                        }
+                    } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
+                        btcExchangeModelList.sortByDescending { element ->
+                            element.accTradePrice24h
+                        }
                     }
                 }
             }
-            for (i in preItemArray.indices) {
-                preItemArray[i] =
-                    krwExchangeModelList[i]
-            }
-
-            for (i in krwExchangeModelList.indices) {
-                krwExchangeModelListPosition[krwExchangeModelList[i].market] =
-                    i
-            }
-
-            for (i in krwExchangeModelList.indices) {
-                krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+            if (selectedMarketState.value == SELECTED_KRW_MARKET) {
+                for (i in krwPreItemArray.indices) {
+                    krwPreItemArray[i] =
+                        krwExchangeModelList[i]
+                }
+                for (i in krwExchangeModelList.indices) {
+                    krwExchangeModelListPosition[krwExchangeModelList[i].market] =
+                        i
+                }
+                for (i in krwExchangeModelList.indices) {
+                    krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+                }
+            } else if(selectedMarketState.value == SELECTED_BTC_MARKET) {
+                for (i in btcPreItemArray.indices) {
+                    btcPreItemArray[i] =
+                        btcExchangeModelList[i]
+                }
+                for (i in btcExchangeModelList.indices) {
+                    btcExchangeModelListPosition[btcExchangeModelList[i].market] =
+                        i
+                }
+                for (i in btcExchangeModelList.indices) {
+                    btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
+                }
             }
             updateExchange = true
         }

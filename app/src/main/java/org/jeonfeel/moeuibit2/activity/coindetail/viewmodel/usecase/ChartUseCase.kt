@@ -11,7 +11,7 @@ import com.google.gson.JsonArray
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.chart.ChartModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_ADD

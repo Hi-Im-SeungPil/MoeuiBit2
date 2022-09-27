@@ -11,18 +11,20 @@ import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
 @SuppressLint("ViewConstructor")
 class ChartMarkerView constructor(
     context: Context?,
     layoutResource: Int,
     private val dateHashMap: HashMap<Int, String>,
-    private val chartData: HashMap<Int, Double>
+    private val chartData: HashMap<Int, Double>,
+    private val marketState: Int
 ) : MarkerView(context, layoutResource) {
-    private val binding: CandleInfoMarkerBinding =
-        CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding: CandleInfoMarkerBinding = CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
     private var dateTime: String = ""
     private var acc: String = ""
 
@@ -33,13 +35,20 @@ class ChartMarkerView constructor(
     override fun refreshContent(e: Entry, highlight: Highlight) {
         try {
             if (e is CandleEntry) {
+
+                val accUnit = if(marketState == SELECTED_KRW_MARKET) {
+                    " 백만"
+                } else {
+                    ""
+                }
+
                 val splitDateTime = dateHashMap[e.x.toInt()].toString().split('T')
                 dateTime = splitDateTime[0].plus("  ${splitDateTime[1].slice(0 until 5)}")
-                acc = Calculator.accTradePrice24hCalculatorForChart(chartData[e.x.toInt()]!!)
-                val highPrice = Calculator.tradePriceCalculatorForChart(e.high)
-                val openPrice = Calculator.tradePriceCalculatorForChart(e.open)
-                val lowPrice = Calculator.tradePriceCalculatorForChart(e.low)
-                val closePrice = Calculator.tradePriceCalculatorForChart(e.close)
+                acc = CurrentCalculator.accTradePrice24hCalculator(chartData[e.x.toInt()]!!, marketState)
+                val highPrice = CurrentCalculator.tradePriceCalculator(e.high,marketState)
+                val openPrice = CurrentCalculator.tradePriceCalculator(e.open,marketState)
+                val lowPrice = CurrentCalculator.tradePriceCalculator(e.low,marketState)
+                val closePrice = CurrentCalculator.tradePriceCalculator(e.close,marketState)
                 val highPriceRate = Calculator.markerViewRateCalculator(e.open, e.high)
                 val lowPriceRate = Calculator.markerViewRateCalculator(e.open, e.low)
                 val closePriceRate = Calculator.markerViewRateCalculator(e.open, e.close)
@@ -75,7 +84,7 @@ class ChartMarkerView constructor(
                     "0.00%",
                     lowPriceRateString,
                     closePriceRateString,
-                    acc.plus(" 백만")
+                    acc.plus(accUnit)
                 )
                 with(binding) {
                     binding.candleInfo = candleInfo

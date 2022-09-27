@@ -10,19 +10,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 @Composable
-fun KimpScreenLazyColumnItem() {
+fun KimpScreenLazyColumnItem(market: String, koreanName: String) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(55.dp)
         .drawUnderLine(Color.Companion.Gray, strokeWidth = 3f)) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = "비트코인",
+            Text(text = koreanName,
                 Modifier
                     .weight(1f)
                     .fillMaxWidth()
@@ -30,7 +29,7 @@ fun KimpScreenLazyColumnItem() {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center)
-            Text(text = "BTC",
+            Text(text = market.substring(4),
                 Modifier
                     .weight(1f)
                     .fillMaxWidth(),
@@ -79,10 +78,4 @@ fun KimpScreenLazyColumnItem() {
                 .wrapContentHeight(),
             textAlign = TextAlign.Center)
     }
-}
-
-@Preview
-@Composable
-fun kimp() {
-    KimpScreenLazyColumnItem()
 }

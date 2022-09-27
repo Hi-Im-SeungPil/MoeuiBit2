@@ -47,7 +47,7 @@ fun ExchangeErrorScreen(mainViewModel: MainViewModel = viewModel()) {
                     style = TextStyle(color = Color.White, fontSize = 13.sp))
 
                 TextButton(onClick = {
-                    if (mainViewModel.preItemArray.isEmpty()) {
+                    if (mainViewModel.krwPreItemArray.isEmpty()) {
                         mainViewModel.requestExchangeData()
                     } else {
                         if (currentNetworkState == INTERNET_CONNECTION || currentNetworkState == NETWORK_ERROR) {

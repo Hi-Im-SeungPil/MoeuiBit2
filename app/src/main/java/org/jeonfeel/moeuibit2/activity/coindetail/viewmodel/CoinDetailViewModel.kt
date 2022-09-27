@@ -121,11 +121,15 @@ class CoinDetailViewModel @Inject constructor(
     val orderBookMutableStateList: SnapshotStateList<CoinDetailOrderBookModel>
         get() = orderScreenUseCase.orderBookMutableStateList
 
+    val errorDialogState: MutableState<Boolean> get() = orderScreenUseCase.errorDialogState
+
     val askBidSelectedTab: MutableState<Int> get() = orderScreenUseCase.askBidSelectedTab
 
     val askQuantity: MutableState<String> get() = orderScreenUseCase.askQuantity
 
     val bidQuantity: MutableState<String> get() = orderScreenUseCase.bidQuantity
+
+    val btcQuantity: MutableState<Double> get() = orderScreenUseCase.btcQuantity
 
     var currentTradePriceState: Double
         set(value) {

@@ -37,7 +37,7 @@ import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constant.noticeBoard
 import org.jeonfeel.moeuibit2.constant.playStoreUrl
-import org.jeonfeel.moeuibit2.ui.common.CommonDialog
+import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 
 @Composable
 fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
@@ -119,7 +119,7 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
         mutableStateOf(false)
     }
     ResetDialog(mainViewModel, resetDialogState, context)
-    CommonDialog(dialogState = transactionInfoDialogState,
+    TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = "거래내역 초기화",
         content = "모든 코인의 거래 내역이 초기화됩니다\n\n초기화 하시겠습니까?",
         leftButtonText = "취소",

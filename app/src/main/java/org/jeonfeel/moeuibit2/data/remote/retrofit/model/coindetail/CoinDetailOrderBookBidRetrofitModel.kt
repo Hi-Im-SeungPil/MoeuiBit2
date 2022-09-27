@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.retrofit.model
+package org.jeonfeel.moeuibit2.data.remote.retrofit.model.coindetail
 
 import androidx.annotation.Keep
 

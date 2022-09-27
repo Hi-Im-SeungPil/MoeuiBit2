@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
+import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.ActivityResultLauncher
@@ -14,6 +15,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
@@ -25,7 +28,6 @@ fun ExchangeScreen(
 ) {
     Column(Modifier.fillMaxSize()) {
         val context = LocalContext.current
-        var backBtnTime = remember { 0L }
 
         AddLifecycleEvent(
             onPauseAction = {
@@ -43,26 +45,53 @@ fun ExchangeScreen(
                 ExchangeScreenLoading()
             }
             false -> {
-                if (mainViewModel.errorState.value == INTERNET_CONNECTION) {
-                    SearchBasicTextFieldResult(mainViewModel)
-                    MarketButtons(mainViewModel)
-                    SortButtons(mainViewModel)
-                    ExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
-                } else {
-                    ExchangeErrorScreen(mainViewModel)
-                }
+                mainLazyColumn(mainViewModel,startForActivityResult)
             }
         }
+        mainBackHandler(context)
+    }
+}
 
-        BackHandler(true) {
-            val curTime = System.currentTimeMillis()
-            val gapTime = curTime - backBtnTime
-            if (gapTime in 0..2000) {
-                (context as MainActivity).finish()
-            } else {
-                backBtnTime = curTime
-                context.showToast(context.getString(R.string.backPressText))
+@Composable
+fun mainLazyColumn(
+    mainViewModel: MainViewModel,
+    startForActivityResult: ActivityResultLauncher<Intent>
+) {
+    if (mainViewModel.errorState.value == INTERNET_CONNECTION) {
+        SearchBasicTextFieldResult(mainViewModel)
+        MarketButtons(mainViewModel)
+        SortButtons(mainViewModel)
+        if(mainViewModel.selectedMarketState.value == SELECTED_KRW_MARKET) {
+            ExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+            if (UpBitTickerWebSocket.currentMarket != SELECTED_KRW_MARKET) {
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                UpBitTickerWebSocket.onPause()
+                mainViewModel.requestCoinListToWebSocket()
             }
+        } else if(mainViewModel.selectedMarketState.value == SELECTED_BTC_MARKET) {
+            BtcExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+            if (UpBitTickerWebSocket.currentMarket != SELECTED_BTC_MARKET) {
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                UpBitTickerWebSocket.onPause()
+                mainViewModel.requestCoinListToWebSocket()
+            }
+        }
+    } else {
+        ExchangeErrorScreen(mainViewModel)
+    }
+}
+
+@Composable
+fun mainBackHandler(context: Context) {
+    var backBtnTime = remember { 0L }
+    BackHandler(true) {
+        val curTime = System.currentTimeMillis()
+        val gapTime = curTime - backBtnTime
+        if (gapTime in 0..2000) {
+            (context as MainActivity).finish()
+        } else {
+            backBtnTime = curTime
+            context.showToast(context.getString(R.string.backPressText))
         }
     }
 }

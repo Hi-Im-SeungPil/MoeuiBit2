@@ -7,7 +7,9 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocke
 
 object UpBitTickerWebSocket {
 
+    var currentMarket = 0
     private var krwMarkets = ""
+    private var btcMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
@@ -25,9 +27,15 @@ object UpBitTickerWebSocket {
         return socketListener
     }
 
-    fun requestKrwCoinList() {
+    fun requestKrwCoinList(marketState: Int) {
         socketRebuild()
-        socket.send(tickerWebSocketMessage(krwMarkets))
+        if (marketState == SELECTED_KRW_MARKET) {
+            socket.send(tickerWebSocketMessage(krwMarkets))
+            currentMarket = SELECTED_KRW_MARKET
+        } else if (marketState == SELECTED_BTC_MARKET) {
+            socket.send(tickerWebSocketMessage(btcMarkets))
+            currentMarket = SELECTED_BTC_MARKET
+        }
     }
 
     private fun socketRebuild() {
@@ -37,8 +45,9 @@ object UpBitTickerWebSocket {
         }
     }
 
-    fun setKrwMarkets(markets: String) {
-        krwMarkets = markets
+    fun setMarkets(krwMarkets: String, btcMarkets: String) {
+        this.krwMarkets = krwMarkets
+        this.btcMarkets = btcMarkets
     }
 
     fun onPause() {

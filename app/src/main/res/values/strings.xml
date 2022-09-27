@@ -71,6 +71,13 @@
     <string name="nameUp">이름↑"</string>
     <string name="netChange">전일대비</string>
     <string name="loadAd">광고 로드중...</string>
+    <string name="ask">매수</string>
+    <string name="bid">매도</string>
+    <string name="tradHistory">거래내역</string>
+    <string name="quantity">수량</string>
+    <string name="possible">가능</string>
+    <string name="reset">초기화</string>
+    <string name="price">가격</string>
 
     <string name="resetDialogTitle">앱 초기화</string>
     <string name="resetDialogContent">보유자산, 거래내역이 모두 사라집니다.\n\n초기화 하시겠습니까?</string>
@@ -79,4 +86,5 @@
     <string name="openSourceLicense">오픈소스 라이선스</string>
 
     <string name="loading_chart">데이터 불러오는중...</string>
+    <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
 </resources>

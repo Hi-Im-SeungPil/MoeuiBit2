@@ -44,7 +44,7 @@ import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
-import org.jeonfeel.moeuibit2.ui.common.CommonDialog
+import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
@@ -95,7 +95,7 @@ fun PortfolioScreen(
         }
     }
 
-    CommonDialog(
+    TwoButtonCommonDialog(
         dialogState = mainViewModel.adDialogState,
         title = stringResource(id = R.string.chargeMoney),
         content = stringResource(id = R.string.adDialogContent),

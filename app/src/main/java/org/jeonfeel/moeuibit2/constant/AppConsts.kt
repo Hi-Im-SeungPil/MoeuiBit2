@@ -12,7 +12,7 @@ const val NO_INTERNET_CONNECTION = -1
 const val NETWORK_ERROR = -2
 
 const val SELECTED_KRW_MARKET = 1
-//const val SELECTED_BTC_MARKET = 2
+const val SELECTED_BTC_MARKET = 2
 const val SELECTED_FAVORITE = 3
 const val SELECTED_KIMP = 4
 
@@ -23,5 +23,7 @@ const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
 val ioDispatcher = Dispatchers.IO
 val mainDispatcher = Dispatchers.Main
 val defaultDispatcher = Dispatchers.Default
-val timeOutDuration: Duration = Duration.ofMillis(10000L)
-val readTimeOutDuration: Duration = Duration.ofMillis(30000L)
+val timeOutDuration: Duration = Duration.ofMillis(50000L)
+val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
+
+const val btcMarket = "KRW-BTC"

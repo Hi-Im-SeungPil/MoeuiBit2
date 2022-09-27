@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.content.Intent
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,13 +21,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.constant.*
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.KrwExchangeModel
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
-import org.jeonfeel.moeuibit2.util.calculator.ExchangeCalculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
+
 
 @Composable
 fun ExchangeScreenLazyColumnItem(
@@ -34,18 +38,46 @@ fun ExchangeScreenLazyColumnItem(
     preTradePrice: Double,
     isFavorite: Boolean,
     startForActivityResult: ActivityResultLauncher<Intent>,
+    btcPrice: Double = 0.0,
 ) {
     val context = LocalContext.current
+    val marketState = if (krwExchangeModel.market.startsWith("KRW-")) {
+        SELECTED_KRW_MARKET
+    } else if (krwExchangeModel.market.startsWith("BTC-")) {
+        SELECTED_BTC_MARKET
+    } else {
+        -999
+    }
     val koreanName = krwExchangeModel.koreanName
     val warning = krwExchangeModel.warning
     val symbol = krwExchangeModel.symbol
-    val openingPrice = krwExchangeModel.opening_price
     val signedChangeRate =
-        ExchangeCalculator.signedChangeRateCalculator(krwExchangeModel.signedChangeRate)
-    val curTradePrice = ExchangeCalculator.tradePriceCalculator(krwExchangeModel.tradePrice)
+        CurrentCalculator.signedChangeRateCalculator(krwExchangeModel.signedChangeRate)
+    val openingPrice = krwExchangeModel.opening_price
+    val curTradePrice =
+        CurrentCalculator.tradePriceCalculator(krwExchangeModel.tradePrice, marketState)
     val accTradePrice24h =
-        ExchangeCalculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h)
-    val formattedPreTradePrice = ExchangeCalculator.tradePriceCalculator(preTradePrice)
+        CurrentCalculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h,
+            marketState)
+    val formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(preTradePrice, marketState)
+    val btcToKrw = if (marketState == SELECTED_BTC_MARKET) {
+        CurrentCalculator.tradePriceCalculator(krwExchangeModel.tradePrice * btcPrice, SELECTED_KRW_MARKET)
+    } else {
+        ""
+    }
+    Log.e("btcToKRW", btcToKrw)
+    val market = if (krwExchangeModel.market.startsWith("KRW-")) {
+        "/KRW"
+    } else if (krwExchangeModel.market.startsWith("BTC-")) {
+        "/BTC"
+    } else {
+        ""
+    }
+    val unit = if (krwExchangeModel.market.startsWith("KRW-")) {
+        stringResource(id = R.string.million)
+    } else {
+        ""
+    }
     val rateTextColor = when {
         signedChangeRate.toFloat() > 0 -> {
             Color.Red
@@ -69,6 +101,7 @@ fun ExchangeScreenLazyColumnItem(
                     putExtra(INTENT_COIN_SYMBOL, symbol)
                     putExtra(INTENT_OPENING_PRICE, openingPrice)
                     putExtra(INTENT_IS_FAVORITE, isFavorite)
+                    putExtra(INTENT_MARKET_STATE,marketState)
                     putExtra(INTENT_WARNING, warning)
                 }
                 startForActivityResult.launch(intent)
@@ -79,6 +112,7 @@ fun ExchangeScreenLazyColumnItem(
             }
     ) {
 
+        // 코인명 심볼
         Column(
             Modifier
                 .weight(1f)
@@ -107,7 +141,7 @@ fun ExchangeScreenLazyColumnItem(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "${symbol}/KRW",
+                text = symbol.plus(market),
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -117,6 +151,7 @@ fun ExchangeScreenLazyColumnItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+        // 코인가격
         Box(
             modifier = Modifier
                 .padding(0.dp, 4.dp)
@@ -136,18 +171,9 @@ fun ExchangeScreenLazyColumnItem(
                 )
                 .weight(1f)
         ) {
-            Text(
-                text = curTradePrice,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .wrapContentHeight(),
-                style = TextStyle(
-                    textAlign = TextAlign.Center, color = rateTextColor
-                )
-            )
+            tradePrice(tradePrice = curTradePrice, textColor = rateTextColor, btcToKrw)
         }
-
+        // 코인 변동률
         Text(
             text = signedChangeRate
                 .plus("%"),
@@ -159,15 +185,63 @@ fun ExchangeScreenLazyColumnItem(
                 textAlign = TextAlign.Center, color = rateTextColor
             )
         )
-
+        // 거래대금
         Text(
-            text = accTradePrice24h
-                .plus(stringResource(id = R.string.million)),
+            text = accTradePrice24h.plus(unit),
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .wrapContentHeight(),
             style = TextStyle(textAlign = TextAlign.Center)
         )
+    }
+}
+
+@Composable
+fun tradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
+    Log.e("btcToKRW2", btcToKrw)
+    if (btcToKrw.isEmpty()) {
+        Text(
+            text = tradePrice,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .wrapContentHeight(),
+            style = TextStyle(
+                textAlign = TextAlign.Center, color = textColor
+            )
+        )
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = tradePrice,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .wrapContentHeight(),
+                style = TextStyle(
+                    textAlign = TextAlign.Center, color = textColor
+                )
+            )
+//            Text(
+//                text = btcToKrw,
+//                maxLines = 1,
+//                modifier = Modifier0.
+//                    .weight(1f)
+//                    .fillMaxWidth()
+//                    .fillMaxHeight(),
+//                style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray),
+//                overflow = TextOverflow.Ellipsis
+//            )
+            AutoSizeText(modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .fillMaxHeight(),text = btcToKrw.plus(" KRW"),
+            TextStyle(color = Color.Gray, fontSize = 13.sp, textAlign = TextAlign.End))
+        }
+
     }
 }

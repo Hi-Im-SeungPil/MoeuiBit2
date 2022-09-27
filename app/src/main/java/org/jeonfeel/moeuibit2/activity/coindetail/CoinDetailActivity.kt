@@ -1,20 +1,18 @@
 package org.jeonfeel.moeuibit2.activity.coindetail
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
-import org.jeonfeel.moeuibit2.BuildConfig
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.util.ConnectionType
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.util.showToast
 
 @AndroidEntryPoint
@@ -24,6 +22,7 @@ class CoinDetailActivity : ComponentActivity() {
     private var openingPrice: Double = 0.0
     private var isFavorite = false
     private var warning = ""
+    private var marketState = -999
     private val networkMonitorUtil = NetworkMonitorUtil(this)
     private lateinit var coinSymbol: String
     private val coinDetailViewModel: CoinDetailViewModel by viewModels()
@@ -46,8 +45,14 @@ class CoinDetailActivity : ComponentActivity() {
             openingPrice = it.getDoubleExtra(INTENT_OPENING_PRICE, 0.0)
             isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
             warning = it.getStringExtra(INTENT_WARNING) ?: ""
+            marketState = it.getIntExtra(INTENT_MARKET_STATE,-999)
         }
-        coinDetailViewModel.initViewModel("KRW-".plus(coinSymbol), openingPrice, isFavorite)
+        val market = if (marketState == SELECTED_BTC_MARKET) {
+            "BTC-"
+        } else {
+            "KRW-"
+        }
+        coinDetailViewModel.initViewModel(market.plus(coinSymbol), openingPrice, isFavorite)
         initNetworkStateMonitor()
     }
 
