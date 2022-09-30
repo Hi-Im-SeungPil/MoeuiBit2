@@ -44,14 +44,20 @@ class OrderScreenUseCase @Inject constructor(
     val totalPriceDesignated = mutableStateOf("")
     val errorDialogState = mutableStateOf(false)
     val btcQuantity = mutableStateOf(0.0)
+    val currentBTCPrice = mutableStateOf(0.0)
 
     fun initOrderScreen(market: String) {
+        val requestMarket = if (market.startsWith("BTC-")) {
+             market.plus(",KRW-BTC")
+        } else {
+            market
+        }
         if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
-            UpBitCoinDetailWebSocket.market = market
-            UpBitOrderBookWebSocket.market = market
+            UpBitCoinDetailWebSocket.market = requestMarket
+            UpBitOrderBookWebSocket.market = requestMarket
             try {
-                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
+                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                UpBitOrderBookWebSocket.requestOrderBookList(requestMarket)
             } catch (e: UnknownHostException) {
                 errorDialogState.value = true
             } catch (e: SocketTimeoutException) {
@@ -70,8 +76,8 @@ class OrderScreenUseCase @Inject constructor(
             }
         } else {
             try {
-                UpBitCoinDetailWebSocket.requestCoinDetailData(market)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
+                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                UpBitOrderBookWebSocket.requestOrderBookList(requestMarket)
             } catch (e: UnknownHostException) {
                 errorDialogState.value = true
             } catch (e: SocketTimeoutException) {

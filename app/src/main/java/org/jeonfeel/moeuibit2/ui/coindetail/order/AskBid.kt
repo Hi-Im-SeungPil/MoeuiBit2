@@ -41,10 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
-import org.jeonfeel.moeuibit2.constant.mainDispatcher
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
@@ -69,7 +66,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 .padding(10.dp, 0.dp)
                 .weight(1f)
         ) {
-            if (coinDetailViewModel.askBidSelectedTab.value != 3) {
+            if (coinDetailViewModel.askBidSelectedTab.value != ASK_BID_SCREEN_TRANSACTION_TAB) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -89,6 +86,9 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     }
 }
 
+/**
+ * 매수, 매도, 거래내역 버튼들
+ */
 @Composable
 fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val selectedTab = coinDetailViewModel.askBidSelectedTab
@@ -100,38 +100,38 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             .height(40.dp)
     ) {
         Box(modifier = Modifier
-            .background(getTabBackGround(selectedTab.value, 1))
+            .background(getTabBackGround(selectedTab.value, ASK_BID_SCREEN_ASK_TAB))
             .weight(1f)
             .fillMaxHeight()
             .wrapContentHeight()
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ) { selectedTab.value = 1 }) {
+            ) { selectedTab.value = ASK_BID_SCREEN_ASK_TAB }) {
             Text(
                 text = stringResource(id = R.string.ask),
                 modifier = Modifier.fillMaxWidth(),
-                style = getTabTextStyle(selectedTab.value, 1)
+                style = getTabTextStyle(selectedTab.value, ASK_BID_SCREEN_ASK_TAB)
             )
         }
         Box(modifier = Modifier
-            .background(getTabBackGround(selectedTab.value, 2))
+            .background(getTabBackGround(selectedTab.value, ASK_BID_SCREEN_BID_TAB))
             .weight(1f)
             .fillMaxHeight()
             .wrapContentHeight()
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ) { selectedTab.value = 2 }
+            ) { selectedTab.value = ASK_BID_SCREEN_BID_TAB }
         ) {
             Text(
                 text = stringResource(id = R.string.bid),
                 modifier = Modifier.fillMaxWidth(),
-                style = getTabTextStyle(selectedTab.value, 2)
+                style = getTabTextStyle(selectedTab.value, ASK_BID_SCREEN_BID_TAB)
             )
         }
         Box(modifier = Modifier
-            .background(getTabBackGround(selectedTab.value, 3))
+            .background(getTabBackGround(selectedTab.value, ASK_BID_SCREEN_TRANSACTION_TAB))
             .weight(1f)
             .fillMaxHeight()
             .wrapContentHeight()
@@ -148,40 +148,55 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             Text(
                 text = stringResource(id = R.string.tradHistory),
                 modifier = Modifier.fillMaxWidth(),
-                style = getTabTextStyle(selectedTab.value, 3)
+                style = getTabTextStyle(selectedTab.value, ASK_BID_SCREEN_TRANSACTION_TAB)
             )
         }
     }
 }
 
+/**
+ * 유저가 할 수 있는 매수, 매도 수량
+ */
 @Composable
 fun OrderScreenUserSeedMoney(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     marketState: Int,
 ) {
-    val symbol = coinDetailViewModel.market.substring(4)
-    val krwOrSymbol: String
-    val userCoin = coinDetailViewModel.userCoinQuantity
-    var currentUserCoinValue = ""
-    val userSeedMoneyOrCoin = if (coinDetailViewModel.askBidSelectedTab.value == 1 && marketState == SELECTED_KRW_MARKET) { // KRW 매수
-        krwOrSymbol = "KRW"
-        coinDetailViewModel.userSeedMoney.commaFormat()
-    } else if(coinDetailViewModel.askBidSelectedTab.value == 2 && marketState == SELECTED_KRW_MARKET){ // KRW 매도
-        currentUserCoinValue = round(coinDetailViewModel.currentTradePriceState * userCoin).commaFormat()
-        krwOrSymbol = symbol
-        userCoin.eighthDecimal()
-    } else if(coinDetailViewModel.askBidSelectedTab.value == 1 && marketState == SELECTED_BTC_MARKET) { // BTC 매수
-        krwOrSymbol = "BTC"
-        if(coinDetailViewModel.btcQuantity.value == 0.0) {
-            "0"
-        } else {
-            coinDetailViewModel.btcQuantity.value.eighthDecimal()
+    val askBidSelectedTab = coinDetailViewModel.askBidSelectedTab // 매수인지 매도인지
+    val symbol = coinDetailViewModel.market.substring(4) // 심볼
+    val krwOrSymbol: String // 환산 심볼인지 krw인지
+    val userCoin = coinDetailViewModel.userCoinQuantity // 유저코인 수량
+    val currentTradePriceState = coinDetailViewModel.currentTradePriceState // krw일 때 코인 krw가격
+    val currentBTCPrice = coinDetailViewModel.currentBTCPrice // 현재 btc krw 가격
+    val currentBTCCoinPrice =
+        CurrentCalculator.tradePriceCalculator(currentBTCPrice.value * coinDetailViewModel.btcQuantity.value, // btc 가격 * 수량
+            SELECTED_KRW_MARKET)
+    var currentUserCoinValue = "" // 유저 보유 코인 총가격
+
+    val userSeedMoneyOrCoin =
+        if (askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && marketState == SELECTED_KRW_MARKET) { // KRW 매수
+            krwOrSymbol = "KRW"
+            coinDetailViewModel.userSeedMoney.commaFormat()
+
+        } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_KRW_MARKET) { // KRW 매도
+            currentUserCoinValue = round(currentTradePriceState * userCoin).commaFormat()
+            krwOrSymbol = symbol
+            userCoin.eighthDecimal()
+
+        } else if (askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && marketState == SELECTED_BTC_MARKET) { // BTC 매수
+            krwOrSymbol = "BTC"
+            if (coinDetailViewModel.btcQuantity.value == 0.0) {
+                "0"
+            } else {
+                coinDetailViewModel.btcQuantity.value.eighthDecimal()
+            }
+
+        } else { // BTC 매도
+            currentUserCoinValue =
+                round(currentTradePriceState * userCoin * currentBTCPrice.value).commaFormat()
+            krwOrSymbol = symbol
+            userCoin.eighthDecimal()
         }
-    } else { // BTC 매도
-        currentUserCoinValue = round(coinDetailViewModel.currentTradePriceState * userCoin).commaFormat()
-        krwOrSymbol = symbol
-        userCoin.eighthDecimal()
-    }
 
     Column(
         modifier = Modifier
@@ -207,9 +222,19 @@ fun OrderScreenUserSeedMoney(
                 textAlign = TextAlign.End
             )
         }
-        if (coinDetailViewModel.askBidSelectedTab.value == 2) {
+
+        // 코인 현재 KRW 가격
+        if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB || marketState == SELECTED_BTC_MARKET && askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
             Text(
                 text = "= $currentUserCoinValue  KRW",
+                modifier = Modifier
+                    .padding(0.dp, 2.dp)
+                    .align(Alignment.End),
+                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+            )
+        } else if (askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && marketState == SELECTED_BTC_MARKET) {
+            Text(
+                text = "= $currentBTCCoinPrice  KRW",
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
@@ -348,7 +373,8 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel(), mar
                 .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentTradePriceState, marketState),
+            text = CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentTradePriceState,
+                marketState),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
             style = TextStyle(fontSize = 15.sp)
@@ -434,6 +460,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                 .fillMaxWidth()
                 .height(40.dp)
         ) {
+            // 초기화 버튼
             TextButton(
                 onClick = {
                     if (coinDetailViewModel.askBidSelectedTab.value == 1) {

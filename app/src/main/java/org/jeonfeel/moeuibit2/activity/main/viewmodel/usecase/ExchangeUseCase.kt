@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -9,8 +8,8 @@ import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.ExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.KrwExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -32,7 +31,7 @@ class ExchangeUseCase @Inject constructor(
     val showFavoriteState = mutableStateOf(false)
     val selectedMarketState = mutableStateOf(SELECTED_KRW_MARKET)
     val errorState = mutableStateOf(INTERNET_CONNECTION)
-    val selectedButtonState = mutableStateOf(-1)
+    val sortButtonState = mutableStateOf(-1)
     val searchTextFieldValueState = mutableStateOf("")
     val btcTradePrice = mutableStateOf(0.0)
 
@@ -42,15 +41,15 @@ class ExchangeUseCase @Inject constructor(
     private val btcMarketListStringBuffer = StringBuffer()
     val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
     val btcCoinKoreanNameAndEngName = HashMap<String, List<String>>()
-    val krwExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
-    val btcExchangeModelList: ArrayList<KrwExchangeModel> = arrayListOf()
-    val krwPreItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
-    val btcPreItemArray: ArrayList<KrwExchangeModel> = arrayListOf()
+    val commonExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    val btcExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
+    val btcPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     val favoriteHashMap = HashMap<String, Int>()
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     val btcExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var krwExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
-    var btcExchangeModelMutableStateList = mutableStateListOf<KrwExchangeModel>()
+    var commonExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+    var btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
 
     suspend fun requestExchangeData() {
         loadingState.value = true
@@ -148,8 +147,8 @@ class ExchangeUseCase @Inject constructor(
                                 val accTradePrice24h = krwTicker.accTradePrice24h
                                 val openingPrice = krwTicker.preClosingPrice
                                 val symbol = market.substring(4)
-                                krwExchangeModelList.add(
-                                    KrwExchangeModel(
+                                commonExchangeModelList.add(
+                                    CommonExchangeModel(
                                         koreanName,
                                         englishName,
                                         market,
@@ -161,16 +160,15 @@ class ExchangeUseCase @Inject constructor(
                                         warning
                                     )
                                 )
-                                Log.e("krw", symbol)
                             }
-                            krwExchangeModelList.sortByDescending { model ->
+                            commonExchangeModelList.sortByDescending { model ->
                                 model.accTradePrice24h
                             }
-                            for (i in krwExchangeModelList.indices) {
-                                krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
+                            for (i in commonExchangeModelList.indices) {
+                                krwExchangeModelListPosition[commonExchangeModelList[i].market] = i
                             }
-                            krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
-                            krwPreItemArray.addAll(krwExchangeModelList)
+                            commonExchangeModelMutableStateList.addAll(commonExchangeModelList)
+                            krwPreItemArray.addAll(commonExchangeModelList)
                         } else {
                             errorState.value = NETWORK_ERROR
                         }
@@ -217,7 +215,7 @@ class ExchangeUseCase @Inject constructor(
                                 val openingPrice = btcTicker.preClosingPrice
                                 val symbol = market.substring(4)
                                 btcExchangeModelList.add(
-                                    KrwExchangeModel(
+                                    CommonExchangeModel(
                                         koreanName,
                                         englishName,
                                         market,
@@ -229,7 +227,6 @@ class ExchangeUseCase @Inject constructor(
                                         warning
                                     )
                                 )
-                                Log.e("btc", symbol)
                             }
                             btcExchangeModelList.sortByDescending { model ->
                                 model.accTradePrice24h
@@ -264,8 +261,8 @@ class ExchangeUseCase @Inject constructor(
         if (!updateExchange) updateExchange = true
         while (updateExchange) {
             if (selectedMarketState.value == SELECTED_KRW_MARKET) {
-                for (i in krwExchangeModelMutableStateList.indices) {
-                    krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+                for (i in commonExchangeModelMutableStateList.indices) {
+                    commonExchangeModelMutableStateList[i] = commonExchangeModelList[i]
                 }
             } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
                 for (i in btcExchangeModelMutableStateList.indices) {
@@ -319,15 +316,13 @@ class ExchangeUseCase @Inject constructor(
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-        Log.d(model.code, model.code)
         if (updateExchange && model.code.startsWith("KRW-")) {
             if (selectedMarketState.value != SELECTED_KRW_MARKET && model.code == "KRW-BTC") {
                 btcTradePrice.value = model.tradePrice
-                Log.e("btcPrice", btcTradePrice.value.toString())
             } else {
                 val position = krwExchangeModelListPosition[model.code] ?: -1
-                krwExchangeModelList[position] =
-                    KrwExchangeModel(
+                commonExchangeModelList[position] =
+                    CommonExchangeModel(
                         krwCoinKoreanNameAndEngName[model.code]!![0],
                         krwCoinKoreanNameAndEngName[model.code]!![1],
                         model.code,
@@ -342,7 +337,7 @@ class ExchangeUseCase @Inject constructor(
         } else if (updateExchange && model.code.startsWith("BTC-")) {
             val position = btcExchangeModelListPosition[model.code] ?: -1
             btcExchangeModelList[position] =
-                KrwExchangeModel(
+                CommonExchangeModel(
                     btcCoinKoreanNameAndEngName[model.code]!![0],
                     btcCoinKoreanNameAndEngName[model.code]!![1],
                     model.code,

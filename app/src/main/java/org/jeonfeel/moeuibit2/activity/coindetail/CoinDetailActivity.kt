@@ -36,6 +36,9 @@ class CoinDetailActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * 초기화
+     */
     private fun initActivity() {
         window.statusBarColor = this.getColor(R.color.C0F0F5C)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
@@ -56,6 +59,9 @@ class CoinDetailActivity : ComponentActivity() {
         initNetworkStateMonitor()
     }
 
+    /**
+     * 네트워크 모니터링
+     */
     private fun initNetworkStateMonitor() {
         networkMonitorUtil.result = { isAvailable, type ->
             when (isAvailable) {

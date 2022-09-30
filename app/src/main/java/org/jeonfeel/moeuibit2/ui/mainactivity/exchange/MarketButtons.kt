@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,7 +48,6 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
             mainViewModel,
             stringResource(id = R.string.favorite),
             SELECTED_FAVORITE)
-//        MarketButton(interactionSource,mainViewModel, stringResource(id = R.string.kimp), SELECTED_KIMP)
         Surface(
             modifier = Modifier
                 .weight(1f)
@@ -61,6 +59,9 @@ fun MarketButtons(mainViewModel: MainViewModel = viewModel()) {
     }
 }
 
+/**
+ * 원화 btc 관심 버튼 동작.
+ */
 @Composable
 fun RowScope.MarketButton(
     interactionSource: MutableInteractionSource,
@@ -68,7 +69,6 @@ fun RowScope.MarketButton(
     text: String,
     buttonId: Int,
 ) {
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .weight(1f)
@@ -78,12 +78,9 @@ fun RowScope.MarketButton(
                 interactionSource = interactionSource,
                 indication = null
             ) {
-//                if(buttonId == SELECTED_KIMP) {
-//                       context.intentActivity(KimpActivity::class.java)
-//                } else {
                 mainViewModel.showFavoriteState.value = buttonId == SELECTED_FAVORITE
                 mainViewModel.selectedMarketState.value = buttonId
-//                }
+                mainViewModel.sortList(mainViewModel.sortButtonState.value)
             }
     ) {
         Text(
@@ -99,6 +96,9 @@ fun RowScope.MarketButton(
     }
 }
 
+/**
+ * 라디오 버튼 기능.
+ */
 @Composable
 fun getTextColor(mainViewModel: MainViewModel = viewModel(), buttonId: Int): Color {
     return if (mainViewModel.selectedMarketState.value == buttonId) {

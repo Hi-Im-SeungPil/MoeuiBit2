@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookMod
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import javax.inject.Inject
 import kotlin.collections.set
 
@@ -50,6 +52,7 @@ class CoinDetailViewModel @Inject constructor(
     var preClosingPrice = 0.0
     var maxOrderBookSize = 0.0
     var market = ""
+    private var marketState = -1
     private var koreanName = ""
 
     val gson = Gson()
@@ -72,6 +75,8 @@ class CoinDetailViewModel @Inject constructor(
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
+        this.marketState = EtcUtils.getSelectedMarket(market)
+        Log.e("tradPrice1", marketState.toString())
     }
 
     private fun setCoinDetailWebSocketMessageListener() {
@@ -110,6 +115,15 @@ class CoinDetailViewModel @Inject constructor(
      * orderScreen
      * */
 
+    val orderBookMutableStateList: SnapshotStateList<CoinDetailOrderBookModel>
+        get() = orderScreenUseCase.orderBookMutableStateList
+    val errorDialogState: MutableState<Boolean> get() = orderScreenUseCase.errorDialogState
+    val askBidSelectedTab: MutableState<Int> get() = orderScreenUseCase.askBidSelectedTab
+    val askQuantity: MutableState<String> get() = orderScreenUseCase.askQuantity
+    val bidQuantity: MutableState<String> get() = orderScreenUseCase.bidQuantity
+    val btcQuantity: MutableState<Double> get() = orderScreenUseCase.btcQuantity
+    val currentBTCPrice: MutableState<Double> get() = orderScreenUseCase.currentBTCPrice
+
     private var isTickerSocketRunning: Boolean
         set(value) {
             orderScreenUseCase.isTickerSocketRunning = value
@@ -117,19 +131,6 @@ class CoinDetailViewModel @Inject constructor(
         get() {
             return orderScreenUseCase.isTickerSocketRunning
         }
-
-    val orderBookMutableStateList: SnapshotStateList<CoinDetailOrderBookModel>
-        get() = orderScreenUseCase.orderBookMutableStateList
-
-    val errorDialogState: MutableState<Boolean> get() = orderScreenUseCase.errorDialogState
-
-    val askBidSelectedTab: MutableState<Int> get() = orderScreenUseCase.askBidSelectedTab
-
-    val askQuantity: MutableState<String> get() = orderScreenUseCase.askQuantity
-
-    val bidQuantity: MutableState<String> get() = orderScreenUseCase.bidQuantity
-
-    val btcQuantity: MutableState<Double> get() = orderScreenUseCase.btcQuantity
 
     var currentTradePriceState: Double
         set(value) {
@@ -364,8 +365,14 @@ class CoinDetailViewModel @Inject constructor(
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
-            coinDetailModel = model
-            currentTradePriceStateForOrderBook = coinDetailModel.tradePrice
+            Log.e("tradPrice1", model.code)
+            if (marketState == SELECTED_BTC_MARKET && model.code.startsWith("KRW-")) {
+                Log.e("tradPrice", model.tradePrice.toString())
+                currentBTCPrice.value = model.tradePrice
+            } else {
+                coinDetailModel = model
+                currentTradePriceStateForOrderBook = coinDetailModel.tradePrice
+            }
         }
     }
 

@@ -63,6 +63,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         }
     }
 
+    /**
+     * 초기화
+     */
     private fun initActivity() {
         auth = Firebase.auth
         if (auth.currentUser == null) {
@@ -85,6 +88,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         checkUpdate()
     }
 
+    /**
+     * 스토어 업데이트 확인 로직 (인앱 업데이트)
+     */
     private fun checkUpdate() {
         val appUpdateManager = AppUpdateManagerFactory.create(this)
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
@@ -117,6 +123,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         }
     }
 
+    /**
+     * 광고 옵저버
+     */
     private fun initObserver() {
         mainViewModel.adLiveData.observe(this) {
             if (it == 1) {
@@ -143,6 +152,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         }
     }
 
+    /**
+     * 네트워크 연결상태 모니터링
+     */
     private fun initNetworkStateMonitor() {
         networkMonitorUtil.result = { isAvailable, type ->
             when (isAvailable) {

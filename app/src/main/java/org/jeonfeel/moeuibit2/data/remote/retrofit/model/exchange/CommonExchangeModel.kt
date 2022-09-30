@@ -4,7 +4,7 @@ import androidx.annotation.Keep
 import androidx.compose.runtime.Stable
 
 @Keep
-data class KrwExchangeModel(
+data class CommonExchangeModel(
     @Stable
     val koreanName: String,
     @Stable

@@ -19,11 +19,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+
+enum class SortButtons{
+    SortPriceButton, SortRateButton, SortAmountButton
+}
 
 @Composable
 fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
-    val buttonState = mainViewModel.selectedButtonState
+    val sortButtonState = mainViewModel.sortButtonState
     val marketState = mainViewModel.selectedMarketState
     Row(
         modifier = Modifier
@@ -36,16 +41,16 @@ fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
             modifier = Modifier
                 .weight(1f), text = ""
         )
-        SortButton(1, buttonState, mainViewModel)
-        SortButton(2, buttonState, mainViewModel)
-        SortButton(3, buttonState, mainViewModel)
+        SortButton(SortButtons.SortPriceButton, sortButtonState, mainViewModel)
+        SortButton(SortButtons.SortRateButton, sortButtonState, mainViewModel)
+        SortButton(SortButtons.SortAmountButton, sortButtonState, mainViewModel)
     }
 }
 
 @Composable
 private fun RowScope.SortButton(
-    buttonNum: Int,
-    buttonState: MutableState<Int>,
+    buttonId: SortButtons,
+    sortButtonState: MutableState<Int>,
     mainViewModel: MainViewModel,
 ) {
     val buttonText = remember {
@@ -58,15 +63,15 @@ private fun RowScope.SortButton(
         mutableStateOf(Color.White)
     }
 
-    when (buttonNum) {
-        1 -> {
-            when (buttonState.value) {
-                0 -> {
+    when (buttonId) {
+        SortButtons.SortPriceButton -> {
+            when (sortButtonState.value) {
+                SORT_PRICE_DEC -> {
                     buttonText.value = "현재가↓"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
-                1 -> {
+                SORT_PRICE_ASC -> {
                     buttonText.value = "현재가↑"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
@@ -78,14 +83,14 @@ private fun RowScope.SortButton(
                 }
             }
         }
-        2 -> {
-            when (buttonState.value) {
-                2 -> {
+        SortButtons.SortRateButton -> {
+            when (sortButtonState.value) {
+                SORT_RATE_DEC-> {
                     buttonText.value = "전일대비↓"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
-                3 -> {
+                SORT_RATE_ASC -> {
                     buttonText.value = "전일대비↑"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
@@ -97,14 +102,14 @@ private fun RowScope.SortButton(
                 }
             }
         }
-        3 -> {
-            when (buttonState.value) {
-                4 -> {
+        SortButtons.SortAmountButton -> {
+            when (sortButtonState.value) {
+                SORT_AMOUNT_DEC -> {
                     buttonText.value = "거래량↓"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
-                5 -> {
+                SORT_AMOUNT_ASC -> {
                     buttonText.value = "거래량↑"
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
@@ -117,57 +122,58 @@ private fun RowScope.SortButton(
             }
         }
     }
+
     Text(text = buttonText.value,
         modifier = Modifier
             .weight(1f)
             .clickable {
-                when (buttonNum) {
-                    1 -> {
+                when (buttonId) {
+                    SortButtons.SortPriceButton -> {
                         if (mainViewModel.updateExchange) {
                             when {
-                                buttonState.value != 0 && buttonState.value != 1 -> {
-                                    buttonState.value = 0
+                                sortButtonState.value != SORT_PRICE_DEC && sortButtonState.value != SORT_PRICE_ASC -> {
+                                    sortButtonState.value = SORT_PRICE_DEC
                                 }
-                                buttonState.value == 0 -> {
-                                    buttonState.value = 1
+                                sortButtonState.value == SORT_PRICE_DEC -> {
+                                    sortButtonState.value = SORT_PRICE_ASC
                                 }
                                 else -> {
-                                    buttonState.value = -1
+                                    sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(sortButtonState.value)
                         }
                     }
-                    2 -> {
+                    SortButtons.SortRateButton -> {
                         if (mainViewModel.updateExchange) {
                             when {
-                                buttonState.value != 2 && buttonState.value != 3 -> {
-                                    buttonState.value = 2
+                                sortButtonState.value != SORT_RATE_DEC && sortButtonState.value != SORT_RATE_ASC -> {
+                                    sortButtonState.value = SORT_RATE_DEC
                                 }
-                                buttonState.value == 2 -> {
-                                    buttonState.value = 3
+                                sortButtonState.value == SORT_RATE_DEC -> {
+                                    sortButtonState.value = SORT_RATE_ASC
                                 }
                                 else -> {
-                                    buttonState.value = -1
+                                    sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(sortButtonState.value)
                         }
                     }
-                    3 -> {
+                    SortButtons.SortAmountButton -> {
                         if (mainViewModel.updateExchange) {
                             when {
-                                buttonState.value != 4 && buttonState.value != 5 -> {
-                                    buttonState.value = 4
+                                sortButtonState.value != SORT_AMOUNT_DEC && sortButtonState.value != SORT_AMOUNT_ASC -> {
+                                    sortButtonState.value = SORT_AMOUNT_DEC
                                 }
-                                buttonState.value == 4 -> {
-                                    buttonState.value = 5
+                                sortButtonState.value == SORT_AMOUNT_DEC -> {
+                                    sortButtonState.value = SORT_AMOUNT_ASC
                                 }
                                 else -> {
-                                    buttonState.value = -1
+                                    sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(buttonState.value)
+                            mainViewModel.sortList(sortButtonState.value)
                         }
                     }
                 }

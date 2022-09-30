@@ -99,7 +99,6 @@ class RemoteRepository(
         return flow {
             emit(ApiResult.loading())
             try {
-                Log.e("hello","hello")
                 emit(call(binanceService.getExchangeInfo()))
             } catch (e: Exception) {
                 emit(ApiResult.error(e))

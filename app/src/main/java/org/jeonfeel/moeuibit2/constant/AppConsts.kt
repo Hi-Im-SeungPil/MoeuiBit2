@@ -3,6 +3,16 @@ package org.jeonfeel.moeuibit2.constant
 import kotlinx.coroutines.Dispatchers
 import java.time.Duration
 
+val ioDispatcher = Dispatchers.IO
+val mainDispatcher = Dispatchers.Main
+val defaultDispatcher = Dispatchers.Default
+val timeOutDuration: Duration = Duration.ofMillis(50000L)
+val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
+
+const val rewardFullScreenAdId = "ca-app-pub-8481465476603755/3905762551"
+const val rewardVideoAdId = "ca-app-pub-8481465476603755/3753512134"
+const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
+
 const val SOCKET_IS_CONNECTED = 0
 const val SOCKET_IS_NO_CONNECTION = -1
 const val SOCKET_IS_ON_PAUSE = -2
@@ -16,14 +26,16 @@ const val SELECTED_BTC_MARKET = 2
 const val SELECTED_FAVORITE = 3
 const val SELECTED_KIMP = 4
 
-const val rewardFullScreenAdId = "ca-app-pub-8481465476603755/3905762551"
-const val rewardVideoAdId = "ca-app-pub-8481465476603755/3753512134"
-const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
-
-val ioDispatcher = Dispatchers.IO
-val mainDispatcher = Dispatchers.Main
-val defaultDispatcher = Dispatchers.Default
-val timeOutDuration: Duration = Duration.ofMillis(50000L)
-val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
-
 const val btcMarket = "KRW-BTC"
+
+const val SORT_DEFAULT = -1
+const val SORT_PRICE_DEC = 0
+const val SORT_PRICE_ASC = 1
+const val SORT_RATE_DEC = 2
+const val SORT_RATE_ASC = 3
+const val SORT_AMOUNT_DEC = 4
+const val SORT_AMOUNT_ASC = 5
+
+const val ASK_BID_SCREEN_ASK_TAB = 1
+const val ASK_BID_SCREEN_BID_TAB = 2
+const val ASK_BID_SCREEN_TRANSACTION_TAB = 3

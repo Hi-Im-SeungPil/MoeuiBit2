@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -17,7 +16,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
@@ -62,24 +61,24 @@ class MainViewModel @Inject constructor(
         set(value) {
             exchangeUseCase.updateExchange = value
         }
-    private val krwExchangeModelList get() = exchangeUseCase.krwExchangeModelList
-    private val krwExchangeModelMutableStateList get() = exchangeUseCase.krwExchangeModelMutableStateList
+    private val krwExchangeModelList get() = exchangeUseCase.commonExchangeModelList
+    private val krwExchangeModelMutableStateList get() = exchangeUseCase.commonExchangeModelMutableStateList
     private val krwCoinKoreanNameAndEngName get() = exchangeUseCase.krwCoinKoreanNameAndEngName
     private val btcExchangeModelList get() = exchangeUseCase.btcExchangeModelList
     private val btcExchangeModelMutableStateList get() = exchangeUseCase.btcExchangeModelMutableStateList
     private val btcCoinKoreanNameAndEngName get() = exchangeUseCase.btcCoinKoreanNameAndEngName
     val selectedMarketState get() = exchangeUseCase.selectedMarketState
-    val errorState get() = exchangeUseCase.errorState
-    val searchTextFieldValueState get() = exchangeUseCase.searchTextFieldValueState
+    val errorState get() = exchangeUseCase.errorState // error화면 노출
+    val searchTextFieldValueState get() = exchangeUseCase.searchTextFieldValueState // value가 바뀔때마다 검색 되야하니까
     val showFavoriteState get() = exchangeUseCase.showFavoriteState
-    val selectedButtonState get() = exchangeUseCase.selectedButtonState // 정렬버튼
-    val loadingState get() = exchangeUseCase.loadingState
-    val krwPreItemArray get() = exchangeUseCase.krwPreItemArray
-    val btcPreItemArray get() = exchangeUseCase.btcPreItemArray
+    val sortButtonState get() = exchangeUseCase.sortButtonState // 정렬버튼
+    val loadingState get() = exchangeUseCase.loadingState // 로딩 state
+    val krwPreItemArray get() = exchangeUseCase.krwPreItemArray // 원화 이전 거래소 정보
+    val btcPreItemArray get() = exchangeUseCase.btcPreItemArray // BTC 이전 거래소 정보
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
-    val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition
-    val btcExchangeModelListPosition get() = exchangeUseCase.btcExchangeModelListPosition
-    val btcTradePrice get() = exchangeUseCase.btcTradePrice
+    val krwExchangeModelListPosition get() = exchangeUseCase.krwExchangeModelListPosition // 원화 코인 정렬 포지션
+    val btcExchangeModelListPosition get() = exchangeUseCase.btcExchangeModelListPosition // BTC 코인 정렬 포지션
+    val btcTradePrice get() = exchangeUseCase.btcTradePrice // BTC 코인 원화가격 때문에
 
     fun requestExchangeData() {
         viewModelScope.launch {
@@ -93,7 +92,6 @@ class MainViewModel @Inject constructor(
             }
             exchangeUseCase.updateExchange()
         }
-        Log.d("실행","실행")
     }
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
@@ -109,7 +107,7 @@ class MainViewModel @Inject constructor(
     /**
      * data sorting, filter
      * */
-    fun getFilteredCoinList(): SnapshotStateList<KrwExchangeModel> {
+    fun getFilteredCoinList(): SnapshotStateList<CommonExchangeModel> {
         return when {
             //검색 X 관심코인 X
             searchTextFieldValueState.value.isEmpty() && !showFavoriteState.value -> {
@@ -127,7 +125,7 @@ class MainViewModel @Inject constructor(
             }
             // 검색 X 관심코인 O
             searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
-                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val favoriteList = SnapshotStateList<CommonExchangeModel>()
                 val tempArray = ArrayList<Int>()
                 for (i in favoriteHashMap) {
                     tempArray.add(krwExchangeModelListPosition[i.key]!!)
@@ -140,7 +138,7 @@ class MainViewModel @Inject constructor(
             }
             // 검색 O 관심코인 X
             searchTextFieldValueState.value.isNotEmpty() && !showFavoriteState.value -> {
-                val resultList = SnapshotStateList<KrwExchangeModel>()
+                val resultList = SnapshotStateList<CommonExchangeModel>()
                 val targetList = when (selectedMarketState.value) {
                     SELECTED_KRW_MARKET -> {
                         krwExchangeModelMutableStateList
@@ -167,8 +165,8 @@ class MainViewModel @Inject constructor(
             }
             // 검색 O 관심코인 O
             else -> {
-                val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
-                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempFavoriteList = SnapshotStateList<CommonExchangeModel>()
+                val favoriteList = SnapshotStateList<CommonExchangeModel>()
                 val tempArray = ArrayList<Int>()
                 for (i in favoriteHashMap) {
                     tempArray.add(krwExchangeModelListPosition[i.key]!!)
@@ -193,7 +191,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getFilteredBtcCoinList(): SnapshotStateList<KrwExchangeModel> {
+    fun getFilteredBtcCoinList(): SnapshotStateList<CommonExchangeModel> {
         return when {
             //검색 X 관심코인 X
             searchTextFieldValueState.value.isEmpty() && !showFavoriteState.value -> {
@@ -201,7 +199,7 @@ class MainViewModel @Inject constructor(
             }
             // 검색 X 관심코인 O
             searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
-                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val favoriteList = SnapshotStateList<CommonExchangeModel>()
                 val tempArray = ArrayList<Int>()
                 for (i in favoriteHashMap) {
                     tempArray.add(btcExchangeModelListPosition[i.key]!!)
@@ -214,7 +212,7 @@ class MainViewModel @Inject constructor(
             }
             // 검색 O 관심코인 O
             searchTextFieldValueState.value.isNotEmpty() && !showFavoriteState.value -> {
-                val resultList = SnapshotStateList<KrwExchangeModel>()
+                val resultList = SnapshotStateList<CommonExchangeModel>()
                 for (element in btcExchangeModelMutableStateList) {
                     if (
                         element.koreanName.contains(searchTextFieldValueState.value) ||
@@ -230,8 +228,8 @@ class MainViewModel @Inject constructor(
             }
             // 검색 O 관심코인 X
             else -> {
-                val tempFavoriteList = SnapshotStateList<KrwExchangeModel>()
-                val favoriteList = SnapshotStateList<KrwExchangeModel>()
+                val tempFavoriteList = SnapshotStateList<CommonExchangeModel>()
+                val favoriteList = SnapshotStateList<CommonExchangeModel>()
                 val tempArray = ArrayList<Int>()
                 for (i in favoriteHashMap) {
                     tempArray.add(btcExchangeModelListPosition[i.key]!!)
@@ -260,7 +258,7 @@ class MainViewModel @Inject constructor(
         updateExchange = false
         viewModelScope.launch(defaultDispatcher) {
             when (sortStandard) {
-                0 -> {
+                SORT_PRICE_DEC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortByDescending { element ->
                             element.tradePrice
@@ -271,7 +269,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                1 -> {
+                SORT_PRICE_ASC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortBy { element ->
                             element.tradePrice
@@ -282,7 +280,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                2 -> {
+                SORT_RATE_DEC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortByDescending { element ->
                             element.signedChangeRate
@@ -293,7 +291,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                3 -> {
+                SORT_RATE_ASC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortBy { element ->
                             element.signedChangeRate
@@ -304,7 +302,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                4 -> {
+                SORT_AMOUNT_DEC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortByDescending { element ->
                             element.accTradePrice24h
@@ -315,7 +313,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
-                5 -> {
+                SORT_AMOUNT_ASC -> {
                     if (selectedMarketState.value == SELECTED_KRW_MARKET) {
                         krwExchangeModelList.sortBy { element ->
                             element.accTradePrice24h

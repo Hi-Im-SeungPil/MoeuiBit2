@@ -19,6 +19,9 @@ class AdMobManager(private val activity: Activity) {
 
     private val adRequest = AdRequest.Builder().build()
 
+    /**
+     * 보상형 전면광고
+     */
     fun loadRewardVideoAd(
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
@@ -52,6 +55,9 @@ class AdMobManager(private val activity: Activity) {
             })
     }
 
+    /**
+     * 보상형 광고
+     */
     private fun loadRewardFullScreenAd(
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
@@ -84,6 +90,9 @@ class AdMobManager(private val activity: Activity) {
         }
     }
 
+    /**
+     * 전면광고
+     */
     private fun loadFullScreenAd(
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,

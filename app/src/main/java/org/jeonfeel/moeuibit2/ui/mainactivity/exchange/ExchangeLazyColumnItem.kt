@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,7 +25,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.constant.*
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.KrwExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -34,46 +33,47 @@ import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
 @Composable
 fun ExchangeScreenLazyColumnItem(
-    krwExchangeModel: KrwExchangeModel,
+    commonExchangeModel: CommonExchangeModel,
     preTradePrice: Double,
     isFavorite: Boolean,
     startForActivityResult: ActivityResultLauncher<Intent>,
     btcPrice: Double = 0.0,
 ) {
     val context = LocalContext.current
-    val marketState = if (krwExchangeModel.market.startsWith("KRW-")) {
+    val marketState = if (commonExchangeModel.market.startsWith("KRW-")) {
         SELECTED_KRW_MARKET
-    } else if (krwExchangeModel.market.startsWith("BTC-")) {
+    } else if (commonExchangeModel.market.startsWith("BTC-")) {
         SELECTED_BTC_MARKET
     } else {
         -999
     }
-    val koreanName = krwExchangeModel.koreanName
-    val warning = krwExchangeModel.warning
-    val symbol = krwExchangeModel.symbol
+    val koreanName = commonExchangeModel.koreanName
+    val warning = commonExchangeModel.warning
+    val symbol = commonExchangeModel.symbol
     val signedChangeRate =
-        CurrentCalculator.signedChangeRateCalculator(krwExchangeModel.signedChangeRate)
-    val openingPrice = krwExchangeModel.opening_price
+        CurrentCalculator.signedChangeRateCalculator(commonExchangeModel.signedChangeRate)
+    val openingPrice = commonExchangeModel.opening_price
     val curTradePrice =
-        CurrentCalculator.tradePriceCalculator(krwExchangeModel.tradePrice, marketState)
+        CurrentCalculator.tradePriceCalculator(commonExchangeModel.tradePrice, marketState)
     val accTradePrice24h =
-        CurrentCalculator.accTradePrice24hCalculator(krwExchangeModel.accTradePrice24h,
+        CurrentCalculator.accTradePrice24hCalculator(commonExchangeModel.accTradePrice24h,
             marketState)
     val formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(preTradePrice, marketState)
     val btcToKrw = if (marketState == SELECTED_BTC_MARKET) {
-        CurrentCalculator.tradePriceCalculator(krwExchangeModel.tradePrice * btcPrice, SELECTED_KRW_MARKET)
+        CurrentCalculator.tradePriceCalculator(commonExchangeModel.tradePrice * btcPrice, SELECTED_KRW_MARKET)
     } else {
         ""
     }
-    Log.e("btcToKRW", btcToKrw)
-    val market = if (krwExchangeModel.market.startsWith("KRW-")) {
+
+    val market = if (commonExchangeModel.market.startsWith("KRW-")) {
         "/KRW"
-    } else if (krwExchangeModel.market.startsWith("BTC-")) {
+    } else if (commonExchangeModel.market.startsWith("BTC-")) {
         "/BTC"
     } else {
         ""
     }
-    val unit = if (krwExchangeModel.market.startsWith("KRW-")) {
+
+    val unit = if (commonExchangeModel.market.startsWith("KRW-")) {
         stringResource(id = R.string.million)
     } else {
         ""
@@ -199,7 +199,6 @@ fun ExchangeScreenLazyColumnItem(
 
 @Composable
 fun tradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
-    Log.e("btcToKRW2", btcToKrw)
     if (btcToKrw.isEmpty()) {
         Text(
             text = tradePrice,

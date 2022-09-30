@@ -39,22 +39,25 @@ import kotlin.math.round
 @Composable
 fun AskingPriceLazyColumn(
     modifier: Modifier,
-    coinDetailViewModel: CoinDetailViewModel = viewModel()
+    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
+    val preClosingPrice = coinDetailViewModel.preClosingPrice // 지난 가격
+    val currentTradePriceStateForOrderBook = coinDetailViewModel.currentTradePriceStateForOrderBook // 현재가격
+    val maxOrderBookSize = coinDetailViewModel.maxOrderBookSize // 벽돌
+    val market = coinDetailViewModel.market // krw 인지 btc 인지
+
     LazyColumn(modifier = modifier, state = scrollState) {
         if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.orderBookMutableStateList.size >= 30) {
             items(items = coinDetailViewModel.orderBookMutableStateList) { item ->
                 AskingPriceLazyColumnItem(
                     item,
-
-                    coinDetailViewModel.preClosingPrice,
-                    coinDetailViewModel.currentTradePriceStateForOrderBook,
-                    coinDetailViewModel.maxOrderBookSize,
-                    coinDetailViewModel.market
-                )
+                    preClosingPrice,
+                    currentTradePriceStateForOrderBook,
+                    maxOrderBookSize,
+                    market)
             }
-        } else {
+        } else { // 로딩 되지 않았을 때 빈 화면
             items(15) {
                 EmptyAskingPriceLazyColumnItem(0)
             }
@@ -71,7 +74,7 @@ fun AskingPriceLazyColumnItem(
     preClosingPrice: Double,
     currentTradePrice: Double,
     maxOrderBookSize: Double,
-    market: String
+    market: String,
 ) {
     val marketState = EtcUtils.getSelectedMarket(market)
     val price = CurrentCalculator.tradePriceCalculator(orderBook.price, marketState)
@@ -123,7 +126,9 @@ fun AskingPriceLazyColumnItem(
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
-                textStyle = TextStyle(fontSize = 15.sp, color = orderBookTextColor, textAlign = TextAlign.Center)
+                textStyle = TextStyle(fontSize = 15.sp,
+                    color = orderBookTextColor,
+                    textAlign = TextAlign.Center)
             )
             Text(
                 text = rateResult,
@@ -172,6 +177,9 @@ fun AskingPriceLazyColumnItem(
     }
 }
 
+/**
+ * 빈화면
+ */
 @Composable
 fun EmptyAskingPriceLazyColumnItem(
     orderBookState: Int,

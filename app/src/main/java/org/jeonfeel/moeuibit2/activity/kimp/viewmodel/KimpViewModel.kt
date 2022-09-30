@@ -91,7 +91,6 @@ class KimpViewModel @Inject constructor(
                 when (it.status) {
                     ApiResult.Status.LOADING -> {}
                     ApiResult.Status.SUCCESS -> {
-                        Log.e("hello",it.data.toString())
 //                        val data = it.data
 //                        if(data != null) {
 //                            val binanceSymbols = gson.fromJson(data.get("symbols"),BinanceSymbols::class.java)

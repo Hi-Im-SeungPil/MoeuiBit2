@@ -29,12 +29,12 @@ fun CoinDetailMain(
     symbol: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
-    val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice,marketState)
+    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market) // krw 인지 btc인지
+    val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice,marketState) // 현재가
     val curChangeRate =
-        Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate)
-    val curChangePrice = Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price)
-    val textColor = getTextColor(curChangeRate)
+        Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate) // 전일대비
+    val curChangePrice = Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price) // 전일대비 가격
+    val textColor = getTextColor(curChangeRate) // 전일대비, 전일대비 가격 색상
     val navController = rememberNavController()
 
     Column(modifier = Modifier
@@ -69,6 +69,7 @@ fun CoinDetailMain(
                         maxLines = 1)
                 }
             }
+            // 코인 상세화면 코인 이미지
             GlideImage(imageModel = coinImageUrl.plus("$symbol.png"),
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
@@ -77,11 +78,13 @@ fun CoinDetailMain(
             placeHolder = ImageBitmap.imageResource(R.drawable.img_glide_placeholder)
             )
         }
+        // 코인 상세화면 주문 ,차트 ,정보 버튼
         CoinDetailMainTabRow(navController = navController)
         TabRowMainNavigation(navController,coinDetailViewModel)
     }
 }
 
+// 전일대비에 따른 색상
 fun getTextColor(
     curChangeRate: String,
 ): Color {
@@ -96,13 +99,5 @@ fun getTextColor(
         else -> {
             Color.Black
         }
-    }
-}
-
-private fun getCurTradePriceTextFormat(curTradePrice: Double): String {
-    return if (curTradePrice >= 100.0) {
-        Calculator.getDecimalFormat().format(curTradePrice.toInt())
-    } else {
-        Calculator.tradePriceCalculator(curTradePrice)
     }
 }
