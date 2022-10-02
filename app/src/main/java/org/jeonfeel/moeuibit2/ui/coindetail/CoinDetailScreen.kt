@@ -8,11 +8,14 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
+import org.jeonfeel.moeuibit2.constant.INTENT_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
@@ -42,13 +45,12 @@ fun CoinDetailScreen(
     }
 
     OneButtonCommonDialog(dialogState = coinDetailViewModel.errorDialogState,
-        title = "네트워크 오류",
-        content = "네트워크 연결 상태를 확인해 주세요.",
-        buttonText = "확인",
+        title = stringResource(id = R.string.NETWORK_ERROR_TITLE),
+        content = stringResource(id = R.string.NO_INTERNET_CONNECTION),
+        buttonText = stringResource(id = R.string.confirm),
         buttonAction = {
-
-            coinDetailViewModel.errorDialogState.value = false })
-
+            coinDetailViewModel.errorDialogState.value = false
+        })
     Scaffold(
         topBar = {
             CoinDetailTopAppBar(coinKoreanName = coinKoreanName,
@@ -64,8 +66,8 @@ fun CoinDetailScreen(
 
         BackHandler(true) {
             val intent = Intent()
-            intent.putExtra("market", market.plus(coinSymbol))
-            intent.putExtra("isFavorite", coinDetailViewModel.favoriteMutableState.value)
+            intent.putExtra(INTENT_MARKET, market.plus(coinSymbol))
+            intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
             (context as CoinDetailActivity).setResult(-1, intent)
             (context).finish()
             context.overridePendingTransition(R.anim.none, R.anim.lazy_column_item_slide_right)

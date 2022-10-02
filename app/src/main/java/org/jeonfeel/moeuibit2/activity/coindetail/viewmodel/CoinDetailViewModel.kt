@@ -188,9 +188,20 @@ class CoinDetailViewModel @Inject constructor(
             return orderScreenUseCase.totalPriceDesignated.value
         }
 
-    fun bidRequest(currentPrice: Double, quantity: Double, totalPrice: Long): Job {
+    fun bidRequest(
+        currentPrice: Double,
+        quantity: Double,
+        totalPrice: Long = 0L,
+        btcTotalPrice: Double = 0.0,
+    ): Job {
         return viewModelScope.launch(ioDispatcher) {
-            orderScreenUseCase.bidRequest(market, koreanName, currentPrice, quantity, totalPrice)
+            orderScreenUseCase.bidRequest(market,
+                koreanName,
+                currentPrice,
+                quantity,
+                totalPrice,
+                btcTotalPrice,
+                marketState = marketState)
         }
     }
 
@@ -210,9 +221,11 @@ class CoinDetailViewModel @Inject constructor(
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val coinInfoHashMap = HashMap<String, String>()
-                    val homepage = snapshot.child(INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
+                    val homepage =
+                        snapshot.child(INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
                     val amount = snapshot.child(INFO_AMOUNT_KEY).getValue(String::class.java) ?: ""
-                    val twitter = snapshot.child(INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
+                    val twitter =
+                        snapshot.child(INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
                     val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
                     val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
 

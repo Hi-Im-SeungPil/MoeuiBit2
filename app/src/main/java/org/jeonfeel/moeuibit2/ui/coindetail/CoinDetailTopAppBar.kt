@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,6 +29,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.CAUTION
+import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
+import org.jeonfeel.moeuibit2.constant.INTENT_MARKET
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.showToast
 
 @Composable
@@ -38,21 +43,25 @@ fun CoinDetailTopAppBar(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val market = coinDetailViewModel.market
+    val marketState = EtcUtils.getSelectedMarket(market)
+    val unit = EtcUtils.getUnit(marketState)
+
     TopAppBar(
         backgroundColor = colorResource(id = R.color.C0F0F5C),
         title = {
             Text(
-                if (warning == "CAUTION") {
+                if (warning == CAUTION) {
                     buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color.Yellow,
                             fontWeight = FontWeight.Bold)) {
-                            append("[유의]")
+                            append(stringResource(id = R.string.CAUTION_KOREAN))
                         }
-                        append("${coinKoreanName}(${coinSymbol}/KRW)")
+                        append("${coinKoreanName}(${coinSymbol}/$unit)")
                     }
                 } else {
                     buildAnnotatedString {
-                        append("${coinKoreanName}(${coinSymbol}/KRW)")
+                        append("${coinKoreanName}(${coinSymbol}/$unit)")
                     }
                 },
                 style = TextStyle(
@@ -68,8 +77,8 @@ fun CoinDetailTopAppBar(
         navigationIcon = {
             IconButton(onClick = {
                 val intent = Intent()
-                intent.putExtra("market", "KRW-".plus(coinSymbol))
-                intent.putExtra("isFavorite", coinDetailViewModel.favoriteMutableState.value)
+                intent.putExtra(INTENT_MARKET, market.substring(0,3).plus(coinSymbol))
+                intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
                 (context as CoinDetailActivity).setResult(-1, intent)
                 (context).finish()
                 context.overridePendingTransition(R.anim.none, R.anim.lazy_column_item_slide_right)
@@ -85,7 +94,7 @@ fun CoinDetailTopAppBar(
             if (!coinDetailViewModel.favoriteMutableState.value) {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = true
-                    context.showToast("관심 코인에 추가되었습니다.")
+                    context.showToast(context.getString(R.string.favorite_insert_message))
                 }) {
                     Icon(
                         painterResource(R.drawable.img_unfavorite),
@@ -97,7 +106,7 @@ fun CoinDetailTopAppBar(
             } else {
                 IconButton(onClick = {
                     coinDetailViewModel.favoriteMutableState.value = false
-                    context.showToast("관심 코인에서 삭제되었습니다.")
+                    context.showToast(context.getString(R.string.favorite_remove_message))
                 }) {
                     Icon(
                         painterResource(R.drawable.img_favorite),

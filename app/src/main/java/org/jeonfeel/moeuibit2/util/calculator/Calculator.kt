@@ -1,8 +1,9 @@
 package org.jeonfeel.moeuibit2.util.calculator
 
 import android.util.Log
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.util.eighthDecimal
 import org.jeonfeel.moeuibit2.util.forthDecimal
-import org.jeonfeel.moeuibit2.util.percentFormat
 import org.jeonfeel.moeuibit2.util.secondDecimal
 import java.text.DecimalFormat
 import kotlin.math.abs
@@ -56,19 +57,25 @@ object Calculator {
         }
     }
 
-    fun changePriceCalculator(changePrice: Double): String {
+    fun changePriceCalculator(changePrice: Double, marketState: Int): String {
         val absChangePrice = abs(changePrice)
-        val result: String = if (absChangePrice >= 100) {
-            decimalFormat.format(round(changePrice).toInt())
-        } else if (absChangePrice < 100 && absChangePrice >= 1) {
-            String.format("%.2f", changePrice)
+
+        val result: String = if (marketState == SELECTED_KRW_MARKET) {
+            if (absChangePrice >= 100) {
+                decimalFormat.format(round(changePrice).toInt())
+            } else if (absChangePrice < 100 && absChangePrice >= 1) {
+                changePrice.secondDecimal()
+            } else {
+                changePrice.forthDecimal()
+            }
         } else {
-            String.format("%.4f", changePrice)
+            changePrice.eighthDecimal()
         }
 
         if (changePrice > 0.0) {
             return "+".plus(result)
         }
+
         return result
     }
 
@@ -98,23 +105,38 @@ object Calculator {
         return decimalDecimalFormat
     }
 
-    fun orderScreenTotalPriceCalculator(quantity: Double, tradePrice: Double): String {
+    fun orderScreenTotalPriceCalculator(quantity: Double, tradePrice: Double, marketState: Int): String {
         val result = round(quantity * tradePrice)
-        return if (result >= 100) {
-            decimalFormat.format(round(result).toLong())
-        } else if (result < 100 && result >= 1) {
-            String.format("%.2f", result)
+        return if(marketState == SELECTED_KRW_MARKET) {
+            if (result >= 100) {
+                decimalFormat.format(round(result).toLong())
+            } else if (result < 100 && result >= 1) {
+                result.secondDecimal()
+            } else {
+                result.forthDecimal()
+            }
         } else {
-            String.format("%.4f", result)
+            (quantity * tradePrice).eighthDecimal()
         }
     }
 
-    fun orderScreenBidTotalPriceCalculator(quantity: Double, tradePrice: Double): Double {
-        val result = round(quantity * tradePrice)
-        return if (result == 0.0) {
-            0.0
+    fun orderScreenBidTotalPriceCalculator(
+        quantity: Double,
+        tradePrice: Double,
+        marketState: Int,
+    ): Double {
+        return if (marketState == SELECTED_KRW_MARKET) {
+            if (quantity == 0.0 || tradePrice == 0.0) {
+                0.0
+            } else {
+                round(quantity * tradePrice)
+            }
         } else {
-            result
+            if (quantity == 0.0 || tradePrice == 0.0) {
+                0.0
+            } else {
+                (tradePrice * quantity).eighthDecimal().toDouble()
+            }
         }
     }
 
@@ -125,7 +147,7 @@ object Calculator {
     ): String {
         return when (label) {
             "최대" -> {
-                Log.d("bid1",(seedMoney - round(seedMoney * 0.0005)).toString())
+                Log.d("bid1", (seedMoney - round(seedMoney * 0.0005)).toString())
                 decimalDecimalFormat.format((seedMoney - round(seedMoney * 0.0005)) / tradePrice)
             }
             "50%" -> {
@@ -145,7 +167,7 @@ object Calculator {
         label: String,
         userCoinQuantity: Double,
     ): String {
-        return try{
+        return try {
             when (label) {
                 "최대" -> {
                     decimalDecimalFormat.format(userCoinQuantity)
@@ -172,13 +194,14 @@ object Calculator {
         preAveragePurchasePrice: Double,
         preCoinQuantity: Double,
     ): Double {
-        val result = ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
+        val result =
+            ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
         return if (result >= 100) {
             round(result)
         } else if (result < 100 && result >= 1) {
-            String.format("%.2f", result).toDouble()
+            result.secondDecimal().toDouble()
         } else {
-            String.format("%.4f", result).toDouble()
+            result.forthDecimal().toDouble()
         }
     }
 
@@ -187,11 +210,11 @@ object Calculator {
         return if (absPrice >= 100) {
             decimalFormat.format(round(purchaseAverage))
         } else if (absPrice < 100 && absPrice >= 1) {
-            String.format("%.2f", purchaseAverage)
-        } else if (absPrice == 0.0){
+            purchaseAverage.secondDecimal()
+        } else if (absPrice == 0.0) {
             "0"
         } else {
-            String.format("%.4f", purchaseAverage)
+            purchaseAverage.forthDecimal()
         }
     }
 }

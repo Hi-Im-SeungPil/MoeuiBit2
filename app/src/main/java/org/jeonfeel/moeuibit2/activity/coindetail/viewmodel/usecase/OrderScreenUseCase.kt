@@ -6,8 +6,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constant.btcMarket
-import org.jeonfeel.moeuibit2.constant.ioDispatcher
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
@@ -17,6 +16,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.eighthDecimal
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -47,8 +47,8 @@ class OrderScreenUseCase @Inject constructor(
     val currentBTCPrice = mutableStateOf(0.0)
 
     fun initOrderScreen(market: String) {
-        val requestMarket = if (market.startsWith("BTC-")) {
-             market.plus(",KRW-BTC")
+        val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
+            market.plus(",$BTC_MARKET")
         } else {
             market
         }
@@ -70,7 +70,7 @@ class OrderScreenUseCase @Inject constructor(
                 localRepository.getMyCoinDao().isInsert(market).let {
                     userCoinQuantity.value = it?.quantity ?: 0.0
                 }
-                localRepository.getMyCoinDao().isInsert(btcMarket).let{
+                localRepository.getMyCoinDao().isInsert(BTC_MARKET).let {
                     btcQuantity.value = it?.quantity ?: 0.0
                 }
             }
@@ -91,7 +91,9 @@ class OrderScreenUseCase @Inject constructor(
         koreanName: String,
         currentPrice: Double,
         quantity: Double,
-        totalPrice: Long,
+        totalPrice: Long = 0L,
+        btcTotalPrice: Double = 0.0,
+        marketState: Int,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -108,20 +110,29 @@ class OrderScreenUseCase @Inject constructor(
                     quantity
                 )
             )
-            if (totalPrice == (userSeedMoney.value - round(userSeedMoney.value * 0.0005)).toLong()) {
-                userDao.updateMinusMoney((totalPrice + round(userSeedMoney.value * 0.0005)).toLong())
+            if (marketState == SELECTED_KRW_MARKET) {
+                if (totalPrice == (userSeedMoney.value - round(userSeedMoney.value * 0.0005)).toLong()) {
+                    userDao.updateMinusMoney((totalPrice + round(userSeedMoney.value * 0.0005)).toLong())
+                } else {
+                    userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                }
+                userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                coinDao.updateMinusQuantity(BTC_MARKET,
+                    (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
-            userSeedMoney.value = userDao.all?.krw ?: 0L
+
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
-            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
-                currentPrice,
-                quantity,
-                totalPrice,
-                "bid",
-                System.currentTimeMillis()))
+            localRepository.getTransactionInfoDao().insert(
+                TransactionInfo(
+                    market,
+                    currentPrice,
+                    quantity,
+                    totalPrice,
+                    BID,
+                    System.currentTimeMillis()))
         } else {
             val preAveragePurchasePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
@@ -139,16 +150,24 @@ class OrderScreenUseCase @Inject constructor(
             }
 
             coinDao.updatePlusQuantity(market, quantity)
-            userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
-            userSeedMoney.value = userDao.all?.krw ?: 0L
+            if (marketState == SELECTED_KRW_MARKET) {
+                userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                userSeedMoney.value = userDao.all?.krw ?: 0L
+            } else {
+                coinDao.updateMinusQuantity(BTC_MARKET,
+                    (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+            }
+
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
-            localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
-                currentPrice,
-                quantity,
-                totalPrice,
-                "bid",
-                System.currentTimeMillis()))
+            localRepository.getTransactionInfoDao().insert(
+                TransactionInfo(
+                    market,
+                    currentPrice,
+                    quantity,
+                    totalPrice,
+                    BID,
+                    System.currentTimeMillis()))
         }
     }
 
@@ -172,11 +191,13 @@ class OrderScreenUseCase @Inject constructor(
         } else {
             userCoinQuantity.value = currentCoin?.quantity ?: 0.0
         }
-        localRepository.getTransactionInfoDao().insert(TransactionInfo(market,
-            currentPrice,
-            quantity,
-            totalPrice,
-            "ask",
-            System.currentTimeMillis()))
+        localRepository.getTransactionInfoDao().insert(
+            TransactionInfo(
+                market,
+                currentPrice,
+                quantity,
+                totalPrice,
+                ASK,
+                System.currentTimeMillis()))
     }
 }

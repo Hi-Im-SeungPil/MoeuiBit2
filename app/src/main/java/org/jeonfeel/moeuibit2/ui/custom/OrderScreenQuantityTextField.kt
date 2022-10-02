@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.ASK_BID_SCREEN_BID_TAB
 import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.showToast
 
@@ -32,7 +33,7 @@ fun OrderScreenQuantityTextField(
     coinDetailViewModel: CoinDetailViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val value = if(coinDetailViewModel.askBidSelectedTab.value == 1) {
+    val value = if(coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
         coinDetailViewModel.bidQuantity
     } else {
         coinDetailViewModel.askQuantity

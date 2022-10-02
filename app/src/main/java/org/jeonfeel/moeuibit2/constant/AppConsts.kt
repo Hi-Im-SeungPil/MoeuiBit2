@@ -26,7 +26,7 @@ const val SELECTED_BTC_MARKET = 2
 const val SELECTED_FAVORITE = 3
 const val SELECTED_KIMP = 4
 
-const val btcMarket = "KRW-BTC"
+const val BTC_MARKET = "KRW-BTC"
 
 const val SORT_DEFAULT = -1
 const val SORT_PRICE_DEC = 0
@@ -36,6 +36,15 @@ const val SORT_RATE_ASC = 3
 const val SORT_AMOUNT_DEC = 4
 const val SORT_AMOUNT_ASC = 5
 
-const val ASK_BID_SCREEN_ASK_TAB = 1
-const val ASK_BID_SCREEN_BID_TAB = 2
+const val ASK_BID_SCREEN_BID_TAB = 1
+const val ASK_BID_SCREEN_ASK_TAB = 2
 const val ASK_BID_SCREEN_TRANSACTION_TAB = 3
+
+const val COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER = "주문"
+const val COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART = "차트"
+const val COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO = "정보"
+const val CAUTION = "CAUTION"
+const val SYMBOL_KRW = "KRW"
+const val SYMBOL_BTC = "BTC"
+const val ASK = "ask"
+const val BID = "bid"

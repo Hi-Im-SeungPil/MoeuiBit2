@@ -65,15 +65,15 @@ fun ExchangeScreenLazyColumnItem(
         ""
     }
 
-    val market = if (commonExchangeModel.market.startsWith("KRW-")) {
-        "/KRW"
-    } else if (commonExchangeModel.market.startsWith("BTC-")) {
-        "/BTC"
+    val market = if (commonExchangeModel.market.startsWith(SYMBOL_KRW)) {
+        "/$SYMBOL_KRW"
+    } else if (commonExchangeModel.market.startsWith(SYMBOL_BTC)) {
+        "/$SYMBOL_BTC"
     } else {
         ""
     }
 
-    val unit = if (commonExchangeModel.market.startsWith("KRW-")) {
+    val unit = if (commonExchangeModel.market.startsWith(SYMBOL_KRW)) {
         stringResource(id = R.string.million)
     } else {
         ""
@@ -101,7 +101,7 @@ fun ExchangeScreenLazyColumnItem(
                     putExtra(INTENT_COIN_SYMBOL, symbol)
                     putExtra(INTENT_OPENING_PRICE, openingPrice)
                     putExtra(INTENT_IS_FAVORITE, isFavorite)
-                    putExtra(INTENT_MARKET_STATE,marketState)
+                    putExtra(INTENT_MARKET_STATE, marketState)
                     putExtra(INTENT_WARNING, warning)
                 }
                 startForActivityResult.launch(intent)
@@ -120,7 +120,7 @@ fun ExchangeScreenLazyColumnItem(
         ) {
             Text(
                 text = buildAnnotatedString {
-                    if (warning == "CAUTION") {
+                    if (warning == CAUTION) {
                         withStyle(
                             style = SpanStyle(
                                 color = Color.Magenta,
@@ -171,7 +171,7 @@ fun ExchangeScreenLazyColumnItem(
                 )
                 .weight(1f)
         ) {
-            tradePrice(tradePrice = curTradePrice, textColor = rateTextColor, btcToKrw)
+            TradePrice(tradePrice = curTradePrice, textColor = rateTextColor, btcToKrw)
         }
         // 코인 변동률
         Text(
@@ -198,7 +198,7 @@ fun ExchangeScreenLazyColumnItem(
 }
 
 @Composable
-fun tradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
+fun TradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
     if (btcToKrw.isEmpty()) {
         Text(
             text = tradePrice,
@@ -225,22 +225,18 @@ fun tradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
                     textAlign = TextAlign.Center, color = textColor
                 )
             )
-//            Text(
-//                text = btcToKrw,
-//                maxLines = 1,
-//                modifier = Modifier0.
-//                    .weight(1f)
-//                    .fillMaxWidth()
-//                    .fillMaxHeight(),
-//                style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray),
-//                overflow = TextOverflow.Ellipsis
-//            )
-            AutoSizeText(modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .fillMaxHeight(),text = btcToKrw.plus(" KRW"),
-            TextStyle(color = Color.Gray, fontSize = 13.sp, textAlign = TextAlign.End))
+            if (btcToKrw == "0.0000") {
+                Spacer(modifier =  Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .fillMaxHeight())
+            } else {
+                AutoSizeText(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .fillMaxHeight(),text = btcToKrw.plus(" $SYMBOL_KRW"),
+                    TextStyle(color = Color.Gray, fontSize = 13.sp, textAlign = TextAlign.End))
+            }
         }
-
     }
 }
