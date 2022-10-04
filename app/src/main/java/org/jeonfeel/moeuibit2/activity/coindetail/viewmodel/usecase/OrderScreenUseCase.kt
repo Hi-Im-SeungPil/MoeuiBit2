@@ -93,7 +93,7 @@ class OrderScreenUseCase @Inject constructor(
         quantity: Double,
         totalPrice: Long = 0L,
         btcTotalPrice: Double = 0.0,
-        marketState: Int,
+        marketState: Int
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -118,8 +118,12 @@ class OrderScreenUseCase @Inject constructor(
                 }
                 userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET,
-                    (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                if (btcQuantity.value - (btcTotalPrice + btcQuantity.value * 0.0025) < 0.00000001) {
+                    coinDao.delete(BTC_MARKET)
+                } else {
+                    coinDao.updateMinusQuantity(BTC_MARKET,
+                        (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                }
                 btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
 
@@ -140,7 +144,8 @@ class OrderScreenUseCase @Inject constructor(
                 currentPrice,
                 quantity,
                 preAveragePurchasePrice,
-                preCoinQuantity
+                preCoinQuantity,
+                marketState
             )
 
             if (purchaseAverage >= 100) {
@@ -154,8 +159,12 @@ class OrderScreenUseCase @Inject constructor(
                 userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET,
-                    (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                if (btcQuantity.value - (btcTotalPrice + btcQuantity.value * 0.0025) < 0.00000001) {
+                    coinDao.delete(BTC_MARKET)
+                } else {
+                    coinDao.updateMinusQuantity(BTC_MARKET,
+                        (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                }
             }
 
             bidQuantity.value = ""
@@ -174,15 +183,39 @@ class OrderScreenUseCase @Inject constructor(
     suspend fun askRequest(
         market: String,
         quantity: Double,
-        totalPrice: Long,
+        totalPrice: Long = 0,
+        btcTotalPrice: Double = 0.0,
         currentPrice: Double,
+        marketState: Int
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
 
         coinDao.updateMinusQuantity(market, quantity)
-        userDao.updatePlusMoney((totalPrice - round(totalPrice * 0.0005)).toLong())
-        userSeedMoney.value = userDao.all?.krw ?: 0L
+        if (marketState == SELECTED_KRW_MARKET) {
+            userDao.updatePlusMoney((totalPrice - round(totalPrice * 0.0005)).toLong())
+            userSeedMoney.value = userDao.all?.krw ?: 0L
+        } else {
+            val btc = coinDao.isInsert(BTC_MARKET)
+            if (btc == null) {
+                coinDao.insert(MyCoin(
+                    BTC_MARKET, currentBTCPrice.value, "비트코인", "BTC", (btcTotalPrice - btcTotalPrice * 0.0025)
+                ))
+            } else {
+                val preAveragePurchasePrice = btc.purchasePrice
+                val preCoinQuantity = btc.quantity
+                val purchaseAverage = Calculator.averagePurchasePriceCalculator(
+                    currentPrice,
+                    quantity,
+                    preAveragePurchasePrice,
+                    preCoinQuantity,
+                    marketState
+                )
+                coinDao.updatePurchasePrice(BTC_MARKET,purchaseAverage)
+                coinDao.updatePlusQuantity(BTC_MARKET, (btcTotalPrice - btcTotalPrice * 0.0025))
+            }
+        }
+        btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
         askQuantity.value = ""
         val currentCoin = coinDao.isInsert(market)
         if (currentCoin != null && currentCoin.quantity == 0.0) {

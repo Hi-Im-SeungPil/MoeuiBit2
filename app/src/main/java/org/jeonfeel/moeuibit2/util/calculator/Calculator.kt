@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.util.calculator
 
-import android.util.Log
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.util.eighthDecimal
 import org.jeonfeel.moeuibit2.util.forthDecimal
@@ -105,9 +104,13 @@ object Calculator {
         return decimalDecimalFormat
     }
 
-    fun orderScreenTotalPriceCalculator(quantity: Double, tradePrice: Double, marketState: Int): String {
+    fun orderScreenTotalPriceCalculator(
+        quantity: Double,
+        tradePrice: Double,
+        marketState: Int,
+    ): String {
         val result = round(quantity * tradePrice)
-        return if(marketState == SELECTED_KRW_MARKET) {
+        return if (marketState == SELECTED_KRW_MARKET) {
             if (result >= 100) {
                 decimalFormat.format(round(result).toLong())
             } else if (result < 100 && result >= 1) {
@@ -146,18 +149,40 @@ object Calculator {
         tradePrice: Double,
     ): String {
         return when (label) {
+                "최대" -> {
+                    decimalDecimalFormat.format((seedMoney - round(seedMoney * 0.0005)) / tradePrice)
+                }
+                "50%" -> {
+                    decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
+                }
+                "25%" -> {
+                    decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
+                }
+                "10%" -> {
+                    decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
+                }
+                else -> "0"
+            }
+
+    }
+
+    fun orderScreenSpinnerBidValueCalculatorForBTC(
+        label: String,
+        BTCQuantity: Double,
+        tradePrice: Double
+    ): String {
+        return when (label) {
             "최대" -> {
-                Log.d("bid1", (seedMoney - round(seedMoney * 0.0005)).toString())
-                decimalDecimalFormat.format((seedMoney - round(seedMoney * 0.0005)) / tradePrice)
+                decimalDecimalFormat.format((BTCQuantity - (BTCQuantity * 0.0025)) / tradePrice)
             }
             "50%" -> {
-                decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
+                decimalDecimalFormat.format((BTCQuantity * 0.5) / tradePrice)
             }
             "25%" -> {
-                decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
+                decimalDecimalFormat.format((BTCQuantity * 0.25) / tradePrice)
             }
             "10%" -> {
-                decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
+                decimalDecimalFormat.format((BTCQuantity * 0.1) / tradePrice)
             }
             else -> "0"
         }
@@ -193,15 +218,20 @@ object Calculator {
         currentQuantity: Double,
         preAveragePurchasePrice: Double,
         preCoinQuantity: Double,
+        marketState: Int
     ): Double {
         val result =
             ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
-        return if (result >= 100) {
-            round(result)
-        } else if (result < 100 && result >= 1) {
-            result.secondDecimal().toDouble()
+        return if(marketState == SELECTED_KRW_MARKET) {
+            if (result >= 100) {
+                round(result)
+            } else if (result < 100 && result >= 1) {
+                result.secondDecimal().toDouble()
+            } else {
+                result.forthDecimal().toDouble()
+            }
         } else {
-            result.forthDecimal().toDouble()
+            result.eighthDecimal() .toDouble()
         }
     }
 

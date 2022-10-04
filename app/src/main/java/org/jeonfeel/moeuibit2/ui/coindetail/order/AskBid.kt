@@ -192,7 +192,7 @@ fun OrderScreenUserSeedMoney(
 
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_BTC_MARKET) { // BTC 매수
             krwOrSymbol = SYMBOL_BTC
-            if (coinDetailViewModel.btcQuantity.value == 0.0) {
+            if (coinDetailViewModel.btcQuantity.value == 0.0 || coinDetailViewModel.btcQuantity.value < 0.00000001) {
                 "0"
             } else {
                 coinDetailViewModel.btcQuantity.value.eighthDecimal()
@@ -287,7 +287,7 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), 
                 coinDetailViewModel = coinDetailViewModel
             )
         }
-        OrderScreenQuantityDropDown(Modifier.weight(1f), coinDetailViewModel)
+        OrderScreenQuantityDropDown(Modifier.weight(1f), coinDetailViewModel, marketState)
     }
 }
 
@@ -295,6 +295,7 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), 
 fun OrderScreenQuantityDropDown(
     modifier: Modifier,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    marketState: Int
 ) {
     val bidButtonText = remember { mutableStateOf("가능") }
     val askButtonText = remember { mutableStateOf("가능") }
@@ -344,11 +345,19 @@ fun OrderScreenQuantityDropDown(
                     expanded.value = false
                     if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && coinDetailViewModel.currentTradePriceState != 0.0) {
                         bidButtonText.value = label
-                        val quantity = Calculator.orderScreenSpinnerBidValueCalculator(
-                            bidButtonText.value,
-                            coinDetailViewModel.userSeedMoney,
-                            coinDetailViewModel.currentTradePriceState
-                        )
+                        val quantity = if(marketState == SELECTED_KRW_MARKET) {
+                            Calculator.orderScreenSpinnerBidValueCalculator(
+                                bidButtonText.value,
+                                coinDetailViewModel.userSeedMoney,
+                                coinDetailViewModel.currentTradePriceState
+                            )
+                        } else {
+                            Calculator.orderScreenSpinnerBidValueCalculatorForBTC(
+                                bidButtonText.value,
+                                coinDetailViewModel.btcQuantity.value,
+                                coinDetailViewModel.currentTradePriceState
+                            )
+                        }
                         val quantityResult = quantity.toDoubleOrNull()
                         if (quantityResult != 0.0 && quantityResult != null) {
                             coinDetailViewModel.bidQuantity.value = quantity
@@ -356,9 +365,9 @@ fun OrderScreenQuantityDropDown(
                     } else if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.currentTradePriceState != 0.0) {
                         askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
-                            askButtonText.value,
-                            coinDetailViewModel.userCoinQuantity
-                        )
+                                askButtonText.value,
+                                coinDetailViewModel.userCoinQuantity
+                            )
                         val quantityResult = quantity.toDoubleOrNull()
                         if (quantityResult != 0.0 && quantityResult != null) {
                             coinDetailViewModel.askQuantity.value = quantity
@@ -587,7 +596,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                 } else {
                                     CoroutineScope(Dispatchers.Main).launch {
                                         coinDetailViewModel.askRequest(
-                                            quantity.toDouble(), totalPrice.toLong(), currentPrice.value
+                                            quantity.toDouble(), totalPrice.toLong(), currentPrice.value, btcTotalPrice = totalPrice
                                         ).join()
                                         context.showToast(context.getString(R.string.completeAskMessage))
                                     }

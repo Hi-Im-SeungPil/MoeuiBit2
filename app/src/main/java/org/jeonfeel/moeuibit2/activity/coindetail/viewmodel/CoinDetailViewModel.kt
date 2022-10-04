@@ -205,9 +205,9 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double): Job {
+    fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double, btcTotalPrice: Double = 0.0,): Job {
         return viewModelScope.launch(ioDispatcher) {
-            orderScreenUseCase.askRequest(market, quantity, totalPrice, currentPrice)
+            orderScreenUseCase.askRequest(market, quantity, totalPrice, btcTotalPrice, currentPrice, marketState)
         }
     }
 

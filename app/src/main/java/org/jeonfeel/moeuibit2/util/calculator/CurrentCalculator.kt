@@ -9,15 +9,19 @@ object CurrentCalculator {
 
     fun tradePriceCalculator(tradePrice: Double, marketState: Int): String {
         return if(marketState == SELECTED_KRW_MARKET) {
-            if (tradePrice >= 100) {
-                round(tradePrice).toLong().commaFormat()
-            } else if (tradePrice < 100 && tradePrice >= 1) {
-                tradePrice.secondDecimal()
+            if(tradePrice == 0.0 || tradePrice < 0.00000001) {
+                "0"
             } else {
-                tradePrice.forthDecimal()
+                if (tradePrice >= 100) {
+                    round(tradePrice).toLong().commaFormat()
+                } else if (tradePrice < 100 && tradePrice >= 1) {
+                    tradePrice.secondDecimal()
+                } else {
+                    tradePrice.forthDecimal()
+                }
             }
         } else if(marketState == SELECTED_BTC_MARKET) {
-            tradePrice.eighthDecimal()
+                tradePrice.eighthDecimal()
         } else {
             ""
         }
