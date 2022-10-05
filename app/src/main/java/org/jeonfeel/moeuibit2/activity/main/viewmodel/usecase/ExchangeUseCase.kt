@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -39,17 +40,24 @@ class ExchangeUseCase @Inject constructor(
     private val btcMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
     private val krwMarketListStringBuffer = StringBuffer()
     private val btcMarketListStringBuffer = StringBuffer()
-    val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
+
     val btcCoinKoreanNameAndEngName = HashMap<String, List<String>>()
-    val commonExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     val btcExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
-    val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     val btcPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
-    val favoriteHashMap = HashMap<String, Int>()
-    val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     val btcExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var commonExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
     var btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+
+    val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
+    val krwExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
+    val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
+    var krwExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+
+    val favoritePreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
+    val favoriteExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    val favoriteExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
+    var favoriteExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+    val favoriteHashMap = HashMap<String, Int>()
 
     suspend fun requestExchangeData() {
         loadingState.value = true
@@ -58,7 +66,6 @@ class ExchangeUseCase @Inject constructor(
                 requestMarketCode()
                 requestKrwTicker(krwMarketListStringBuffer.toString())
                 requestBtcTicker(btcMarketListStringBuffer.toString())
-                requestFavoriteData()
                 if (errorState.value != INTERNET_CONNECTION) {
                     errorState.value = INTERNET_CONNECTION
                 }
@@ -85,10 +92,10 @@ class ExchangeUseCase @Inject constructor(
                         val indices = data.size()
                         for (i in 0 until indices) {
                             val marketCode = gson.fromJson(data[i], MarketCodeModel::class.java)
-                            if (marketCode.market.startsWith("KRW-")) {
+                            if (marketCode.market.startsWith(SYMBOL_KRW)) {
                                 krwMarketListStringBuffer.append("${marketCode.market},")
                                 krwMarketCodeList.add(marketCode)
-                            } else if (marketCode.market.startsWith("BTC-")) {
+                            } else if (marketCode.market.startsWith(SYMBOL_BTC)) {
                                 btcMarketListStringBuffer.append("${marketCode.market},")
                                 btcMarketCodeList.add(marketCode)
                             }
@@ -96,7 +103,7 @@ class ExchangeUseCase @Inject constructor(
                         krwMarketListStringBuffer.deleteCharAt(krwMarketListStringBuffer.lastIndex)
                         btcMarketListStringBuffer.deleteCharAt(btcMarketListStringBuffer.lastIndex)
                         UpBitTickerWebSocket.setMarkets(krwMarketListStringBuffer.toString(),
-                            "$btcMarketListStringBuffer,KRW-BTC")
+                            "$btcMarketListStringBuffer,$BTC_MARKET")
                         for (i in krwMarketCodeList.indices) {
                             krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
                                 listOf(krwMarketCodeList[i].korean_name,
@@ -147,7 +154,7 @@ class ExchangeUseCase @Inject constructor(
                                 val accTradePrice24h = krwTicker.accTradePrice24h
                                 val openingPrice = krwTicker.preClosingPrice
                                 val symbol = market.substring(4)
-                                commonExchangeModelList.add(
+                                krwExchangeModelList.add(
                                     CommonExchangeModel(
                                         koreanName,
                                         englishName,
@@ -161,14 +168,14 @@ class ExchangeUseCase @Inject constructor(
                                     )
                                 )
                             }
-                            commonExchangeModelList.sortByDescending { model ->
+                            krwExchangeModelList.sortByDescending { model ->
                                 model.accTradePrice24h
                             }
-                            for (i in commonExchangeModelList.indices) {
-                                krwExchangeModelListPosition[commonExchangeModelList[i].market] = i
+                            for (i in krwExchangeModelList.indices) {
+                                krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
                             }
-                            commonExchangeModelMutableStateList.addAll(commonExchangeModelList)
-                            krwPreItemArray.addAll(commonExchangeModelList)
+                            krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+                            krwPreItemArray.addAll(krwExchangeModelList)
                         } else {
                             errorState.value = NETWORK_ERROR
                         }
@@ -261,8 +268,8 @@ class ExchangeUseCase @Inject constructor(
         if (!updateExchange) updateExchange = true
         while (updateExchange) {
             if (selectedMarketState.value == SELECTED_KRW_MARKET) {
-                for (i in commonExchangeModelMutableStateList.indices) {
-                    commonExchangeModelMutableStateList[i] = commonExchangeModelList[i]
+                for (i in krwExchangeModelMutableStateList.indices) {
+                    krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
                 }
             } else if (selectedMarketState.value == SELECTED_BTC_MARKET) {
                 for (i in btcExchangeModelMutableStateList.indices) {
@@ -284,26 +291,56 @@ class ExchangeUseCase @Inject constructor(
     /**
      * 관심코인 목록 가져오기
      */
-    private suspend fun requestFavoriteData() {
+    suspend fun requestFavoriteData() {
+        val count = 0
+        val favoriteMarketListStringBuffer = StringBuffer()
+        favoritePreItemArray.clear()
+        favoriteExchangeModelMutableStateList.clear()
+        favoriteExchangeModelList.clear()
+        favoriteExchangeModelListPosition.clear()
+        updateExchange = false
         val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
         if (favoriteList.isNotEmpty()) {
             for (i in favoriteList.indices) {
-                favoriteHashMap[favoriteList[i]?.market ?: ""] = 0
+                val market = favoriteList[i]?.market ?: ""
+                Log.e("favorite",market)
+                favoriteHashMap[market] = 0
+                if(market.startsWith(SYMBOL_KRW)) {
+                    val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
+                    favoritePreItemArray.add(model)
+                    favoriteExchangeModelMutableStateList.add(model)
+                    favoriteExchangeModelList.add(model)
+                    favoriteExchangeModelListPosition[market] = i
+                    favoriteMarketListStringBuffer.append("$market,")
+                } else {
+                    if(count == 0) {
+                        favoriteMarketListStringBuffer.append("$BTC_MARKET,")
+                    }
+                    val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
+                    favoritePreItemArray.add(model)
+                    favoriteExchangeModelMutableStateList.add(model)
+                    favoriteExchangeModelList.add(model)
+                    favoriteExchangeModelListPosition[market] = i
+                    favoriteMarketListStringBuffer.append("$market,")
+                }
             }
+            favoriteMarketListStringBuffer.deleteCharAt(favoriteMarketListStringBuffer.lastIndex)
+            UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
         }
+        updateExchange = true
     }
 
     /**
      * 사용자 관심코인 변경사항 업데이트
      */
     suspend fun updateFavorite(market: String, isFavorite: Boolean) {
+        Log.e("fafafafa",market)
         if (favoriteHashMap[market] == null && isFavorite) {
             favoriteHashMap[market] = 0
             try {
                 localRepository.getFavoriteDao().insert(market)
             } catch (e: Exception) {
-                localRepository.getFavoriteDao().delete(market)
-                localRepository.getFavoriteDao().insert(market)
+                e.printStackTrace()
             }
         } else if (favoriteHashMap[market] != null && !isFavorite) {
             favoriteHashMap.remove(market)
@@ -316,12 +353,12 @@ class ExchangeUseCase @Inject constructor(
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-        if (updateExchange && model.code.startsWith("KRW-")) {
-            if (selectedMarketState.value != SELECTED_KRW_MARKET && model.code == "KRW-BTC") {
+        if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
+            if (selectedMarketState.value != SELECTED_KRW_MARKET && model.code == BTC_MARKET) {
                 btcTradePrice.value = model.tradePrice
             } else {
                 val position = krwExchangeModelListPosition[model.code] ?: -1
-                commonExchangeModelList[position] =
+                krwExchangeModelList[position] =
                     CommonExchangeModel(
                         krwCoinKoreanNameAndEngName[model.code]!![0],
                         krwCoinKoreanNameAndEngName[model.code]!![1],
@@ -334,7 +371,7 @@ class ExchangeUseCase @Inject constructor(
                         model.marketWarning
                     )
             }
-        } else if (updateExchange && model.code.startsWith("BTC-")) {
+        } else if (updateExchange && model.code.startsWith(BTC_MARKET)) {
             val position = btcExchangeModelListPosition[model.code] ?: -1
             btcExchangeModelList[position] =
                 CommonExchangeModel(
@@ -348,6 +385,30 @@ class ExchangeUseCase @Inject constructor(
                     model.accTradePrice24h,
                     model.marketWarning
                 )
+        } else {
+            val position = favoriteExchangeModelListPosition[model.code] ?: -1
+            var koreanName = ""
+            var engName = ""
+            if(model.code.startsWith(SYMBOL_KRW)) {
+                koreanName = krwCoinKoreanNameAndEngName[model.code]!![0]
+                engName = krwCoinKoreanNameAndEngName[model.code]!![1]
+            } else {
+                koreanName = btcCoinKoreanNameAndEngName[model.code]!![0]
+                engName = btcCoinKoreanNameAndEngName[model.code]!![1]
+            }
+            favoriteExchangeModelList[position] =
+                CommonExchangeModel(
+                    koreanName,
+                    engName,
+                    model.code,
+                    model.code.substring(4),
+                    model.preClosingPrice,
+                    model.tradePrice,
+                    model.signedChangeRate,
+                    model.accTradePrice24h,
+                    model.marketWarning
+                )
         }
+        Log.e(model.code,model.code)
     }
 }

@@ -241,7 +241,7 @@ fun OrderScreenUserSeedMoney(
         // 코인 현재 KRW 가격
         if (askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB || marketState == SELECTED_BTC_MARKET && askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB) {
             Text(
-                text = "= $currentUserCoinValue  KRW",
+                text = "= $currentUserCoinValue  $SYMBOL_KRW",
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
@@ -249,7 +249,7 @@ fun OrderScreenUserSeedMoney(
             )
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_BTC_MARKET) {
             Text(
-                text = "= $currentBTCCoinPrice  KRW",
+                text = "= $currentBTCCoinPrice  $SYMBOL_KRW",
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),

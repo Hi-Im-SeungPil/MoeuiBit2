@@ -27,6 +27,8 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
+import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
+import org.jeonfeel.moeuibit2.constant.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -76,8 +78,8 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 if (it.resultCode == RESULT_OK) {
                     val resultData = it.data
                     if (resultData != null) {
-                        val isFavorite = resultData.getBooleanExtra("isFavorite", false)
-                        val market = resultData.getStringExtra("market") ?: ""
+                        val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
+                        val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
                         mainViewModel.updateFavorite(market, isFavorite)
                     }
                 }

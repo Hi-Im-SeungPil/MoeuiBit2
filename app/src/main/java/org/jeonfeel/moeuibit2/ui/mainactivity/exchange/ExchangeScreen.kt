@@ -11,12 +11,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.ioDispatcher
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
@@ -75,6 +78,14 @@ fun mainLazyColumn(
                 UpBitTickerWebSocket.onPause()
                 mainViewModel.requestCoinListToWebSocket()
             }
+        } else {
+            CoroutineScope(ioDispatcher).launch {
+                mainViewModel.requestFavoriteData().join()
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                UpBitTickerWebSocket.onPause()
+                mainViewModel.requestCoinListToWebSocket()
+            }
+            FavoriteExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
         }
     } else {
         ExchangeErrorScreen(mainViewModel)

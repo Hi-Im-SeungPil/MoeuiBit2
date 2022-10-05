@@ -19,7 +19,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 
 @Composable
-fun BtcExchangeScreenLazyColumn(
+fun FavoriteExchangeScreenLazyColumn(
     mainViewModel: MainViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
@@ -36,6 +36,17 @@ fun BtcExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
+        filteredExchangeList.isEmpty() -> {
+            Text(
+                text = stringResource(id = R.string.noFavorite),
+                modifier = Modifier
+                    .padding(0.dp, 20.dp, 0.dp, 0.dp)
+                    .fillMaxSize(),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
         else -> {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(
@@ -43,13 +54,13 @@ fun BtcExchangeScreenLazyColumn(
                 ) { _, coinListElement ->
                     ExchangeScreenLazyColumnItem(
                         coinListElement,
-                        mainViewModel.btcPreItemArray[mainViewModel.btcExchangeModelListPosition[coinListElement.market]
+                        mainViewModel.favoritePreItemArray[mainViewModel.favoriteExchangeModelListPosition[coinListElement.market]
                             ?: 0].tradePrice,
                         mainViewModel.favoriteHashMap[coinListElement.market] != null,
                         startForActivityResult,
                         mainViewModel.btcTradePrice.value
                     )
-                    mainViewModel.btcPreItemArray[mainViewModel.btcExchangeModelListPosition[coinListElement.market]
+                    mainViewModel.favoritePreItemArray[mainViewModel.favoriteExchangeModelListPosition[coinListElement.market]
                         ?: 0] = coinListElement
                 }
             }

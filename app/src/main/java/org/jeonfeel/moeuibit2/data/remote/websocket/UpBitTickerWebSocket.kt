@@ -10,6 +10,7 @@ object UpBitTickerWebSocket {
     var currentMarket = 0
     private var krwMarkets = ""
     private var btcMarkets = ""
+    private var favoriteMarkets = ""
     var currentSocketState = SOCKET_IS_CONNECTED
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
@@ -58,5 +59,9 @@ object UpBitTickerWebSocket {
             e.printStackTrace()
         }
         currentSocketState = SOCKET_IS_ON_PAUSE
+    }
+
+    fun setFavoriteMarkets(markets: String) {
+        this.favoriteMarkets = markets
     }
 }

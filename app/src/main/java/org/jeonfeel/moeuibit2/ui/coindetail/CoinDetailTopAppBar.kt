@@ -77,7 +77,7 @@ fun CoinDetailTopAppBar(
         navigationIcon = {
             IconButton(onClick = {
                 val intent = Intent()
-                intent.putExtra(INTENT_MARKET, market.substring(0,3).plus(coinSymbol))
+                intent.putExtra(INTENT_MARKET, market.substring(0,4).plus(coinSymbol))
                 intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
                 (context as CoinDetailActivity).setResult(-1, intent)
                 (context).finish()

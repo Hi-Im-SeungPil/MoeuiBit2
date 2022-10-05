@@ -66,7 +66,7 @@ fun CoinDetailScreen(
 
         BackHandler(true) {
             val intent = Intent()
-            intent.putExtra(INTENT_MARKET, market.plus(coinSymbol))
+            intent.putExtra(INTENT_MARKET, market.substring(0,4).plus(coinSymbol))
             intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
             (context as CoinDetailActivity).setResult(-1, intent)
             (context).finish()

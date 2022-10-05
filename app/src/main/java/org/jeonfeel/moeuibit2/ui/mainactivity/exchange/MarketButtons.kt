@@ -78,7 +78,6 @@ fun RowScope.MarketButton(
                 interactionSource = interactionSource,
                 indication = null
             ) {
-                mainViewModel.showFavoriteState.value = buttonId == SELECTED_FAVORITE
                 mainViewModel.selectedMarketState.value = buttonId
                 mainViewModel.sortList(mainViewModel.sortButtonState.value)
             }
