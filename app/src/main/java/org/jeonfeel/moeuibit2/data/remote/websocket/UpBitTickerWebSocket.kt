@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
+import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.*
@@ -30,12 +31,20 @@ object UpBitTickerWebSocket {
 
     fun requestKrwCoinList(marketState: Int) {
         socketRebuild()
-        if (marketState == SELECTED_KRW_MARKET) {
-            socket.send(tickerWebSocketMessage(krwMarkets))
-            currentMarket = SELECTED_KRW_MARKET
-        } else if (marketState == SELECTED_BTC_MARKET) {
-            socket.send(tickerWebSocketMessage(btcMarkets))
-            currentMarket = SELECTED_BTC_MARKET
+        when (marketState) {
+            SELECTED_KRW_MARKET -> {
+                socket.send(tickerWebSocketMessage(krwMarkets))
+                currentMarket = SELECTED_KRW_MARKET
+            }
+            SELECTED_BTC_MARKET -> {
+                socket.send(tickerWebSocketMessage(btcMarkets))
+                currentMarket = SELECTED_BTC_MARKET
+            }
+            SELECTED_FAVORITE -> {
+                Log.e("????", favoriteMarkets)
+                socket.send(tickerWebSocketMessage(favoriteMarkets))
+                currentMarket = SELECTED_FAVORITE
+            }
         }
     }
 
@@ -63,5 +72,6 @@ object UpBitTickerWebSocket {
 
     fun setFavoriteMarkets(markets: String) {
         this.favoriteMarkets = markets
+        Log.e("????2", markets)
     }
 }

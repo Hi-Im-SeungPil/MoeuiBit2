@@ -57,6 +57,7 @@ class MainViewModel @Inject constructor(
     /**
      * 거래소
      * */
+    val loadingFavorite get() = exchangeUseCase.loadingFavorite
     var updateExchange: Boolean
         get() = exchangeUseCase.updateExchange
         set(value) {
@@ -90,6 +91,7 @@ class MainViewModel @Inject constructor(
 
     fun requestExchangeData() {
         viewModelScope.launch {
+            delay(650L)
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
                     exchangeUseCase.requestExchangeData()
@@ -104,7 +106,7 @@ class MainViewModel @Inject constructor(
 
     fun updateFavorite(market: String, isFavorite: Boolean) {
         viewModelScope.launch((ioDispatcher)) {
-            exchangeUseCase.updateFavorite(market, isFavorite)
+            exchangeUseCase.updateFavorite(market, isFavorite, viewModelScope)
         }
     }
 
@@ -131,20 +133,6 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-            // 검색 X 관심코인 O
-//            searchTextFieldValueState.value.isEmpty() && showFavoriteState.value -> {
-//                val favoriteList = SnapshotStateList<CommonExchangeModel>()
-//                val tempArray = ArrayList<Int>()
-//                for (i in favoriteHashMap) {
-//                    tempArray.add(krwExchangeModelListPosition[i.key]!!)
-//                }
-//                tempArray.sort()
-//                for (i in tempArray) {
-//                    favoriteList.add(krwExchangeModelMutableStateList[i])
-//                }
-//                favoriteList
-//            }
-            // 검색 O 관심코인 X
             else -> {
                 val resultList = SnapshotStateList<CommonExchangeModel>()
                 val targetList = when (selectedMarketState.value) {
@@ -171,214 +159,13 @@ class MainViewModel @Inject constructor(
                 }
                 resultList
             }
-            // 검색 O 관심코인 O
-//            else -> {
-//                val tempFavoriteList = SnapshotStateList<CommonExchangeModel>()
-//                val favoriteList = SnapshotStateList<CommonExchangeModel>()
-//                val tempArray = ArrayList<Int>()
-//                for (i in favoriteHashMap) {
-//                    tempArray.add(krwExchangeModelListPosition[i.key]!!)
-//                }
-//                tempArray.sort()
-//                for (i in tempArray) {
-//                    tempFavoriteList.add(krwExchangeModelMutableStateList[i])
-//                }
-//                for (element in tempFavoriteList) {
-//                    if (
-//                        element.koreanName.contains(searchTextFieldValueState.value) ||
-//                        element.EnglishName.uppercase()
-//                            .contains(searchTextFieldValueState.value.uppercase()) ||
-//                        element.symbol.uppercase()
-//                            .contains(searchTextFieldValueState.value.uppercase())
-//                    ) {
-//                        favoriteList.add(element)
-//                    }
-//                }
-//                favoriteList
-//            }
         }
     }
 
-    fun sortList(sortStandard: Int) {
+    fun sortList() {
         updateExchange = false
         viewModelScope.launch(defaultDispatcher) {
-            when (sortStandard) {
-                SORT_PRICE_DEC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.tradePrice
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.tradePrice
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                element.tradePrice
-                            }
-                        }
-                    }
-                }
-                SORT_PRICE_ASC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.tradePrice
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.tradePrice
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                element.tradePrice
-                            }
-                        }
-                    }
-                }
-                SORT_RATE_DEC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                    }
-                }
-                SORT_RATE_ASC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                    }
-                }
-                SORT_AMOUNT_DEC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                    }
-                }
-                SORT_AMOUNT_ASC -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                    }
-                }
-                else -> {
-                    when (selectedMarketState.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                    }
-                }
-            }
-            when (selectedMarketState.value) {
-                SELECTED_KRW_MARKET -> {
-                    for (i in krwPreItemArray.indices) {
-                        krwPreItemArray[i] =
-                            krwExchangeModelList[i]
-                    }
-                    for (i in krwExchangeModelList.indices) {
-                        krwExchangeModelListPosition[krwExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in krwExchangeModelList.indices) {
-                        krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
-                    }
-                }
-                SELECTED_BTC_MARKET -> {
-                    for (i in btcPreItemArray.indices) {
-                        btcPreItemArray[i] =
-                            btcExchangeModelList[i]
-                    }
-                    for (i in btcExchangeModelList.indices) {
-                        btcExchangeModelListPosition[btcExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in btcExchangeModelList.indices) {
-                        btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
-                    }
-                }
-                else -> {
-                    for (i in favoritePreItemArray.indices) {
-                        favoritePreItemArray[i] =
-                            favoriteExchangeModelList[i]
-                    }
-                    for (i in favoriteExchangeModelList.indices) {
-                        favoriteExchangeModelListPosition[favoriteExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in favoriteExchangeModelList.indices) {
-                        favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
-                    }
-                }
-            }
-            updateExchange = true
+            exchangeUseCase.sortList()
         }
     }
 

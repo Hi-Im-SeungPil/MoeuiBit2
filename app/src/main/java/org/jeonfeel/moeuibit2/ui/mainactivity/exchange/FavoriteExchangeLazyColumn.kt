@@ -36,7 +36,7 @@ fun FavoriteExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
-        filteredExchangeList.isEmpty() -> {
+        filteredExchangeList.isEmpty() && mainViewModel.loadingFavorite -> {
             Text(
                 text = stringResource(id = R.string.noFavorite),
                 modifier = Modifier

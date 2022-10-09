@@ -141,7 +141,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(sortButtonState.value)
+                            mainViewModel.sortList()
                         }
                     }
                     SortButtons.SortRateButton -> {
@@ -157,7 +157,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(sortButtonState.value)
+                            mainViewModel.sortList()
                         }
                     }
                     SortButtons.SortAmountButton -> {
@@ -173,7 +173,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList(sortButtonState.value)
+                            mainViewModel.sortList()
                         }
                     }
                 }

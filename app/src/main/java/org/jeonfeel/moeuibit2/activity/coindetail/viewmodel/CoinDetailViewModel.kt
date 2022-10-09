@@ -89,10 +89,12 @@ class CoinDetailViewModel @Inject constructor(
 
     fun initOrderScreen() {
         if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
-            setCoinDetailWebSocketMessageListener()
-            setOrderBookWebSocketMessageListener()
-            orderScreenUseCase.initOrderScreen(market)
-            updateTicker()
+            viewModelScope.launch {
+                setCoinDetailWebSocketMessageListener()
+                setOrderBookWebSocketMessageListener()
+                orderScreenUseCase.initOrderScreen(market)
+                updateTicker()
+            }
         } else {
             setCoinDetailWebSocketMessageListener()
             setOrderBookWebSocketMessageListener()
@@ -123,6 +125,7 @@ class CoinDetailViewModel @Inject constructor(
     val bidQuantity: MutableState<String> get() = orderScreenUseCase.bidQuantity
     val btcQuantity: MutableState<Double> get() = orderScreenUseCase.btcQuantity
     val currentBTCPrice: MutableState<Double> get() = orderScreenUseCase.currentBTCPrice
+    val orderScreenLoadingState get() = orderScreenUseCase.orderScreenLoadingState
 
     private var isTickerSocketRunning: Boolean
         set(value) {
@@ -240,7 +243,6 @@ class CoinDetailViewModel @Inject constructor(
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     }
                     coinInfoDialog.value = false
-                    coinInfoLoading.value = true
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -379,7 +381,7 @@ class CoinDetailViewModel @Inject constructor(
         if (isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             Log.e("tradPrice1", model.code)
-            if (marketState == SELECTED_BTC_MARKET && model.code.startsWith("KRW-")) {
+            if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
                 Log.e("tradPrice", model.tradePrice.toString())
                 currentBTCPrice.value = model.tradePrice
             } else {

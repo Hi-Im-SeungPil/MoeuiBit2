@@ -16,10 +16,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
-import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.ioDispatcher
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
@@ -78,14 +75,16 @@ fun mainLazyColumn(
                 UpBitTickerWebSocket.onPause()
                 mainViewModel.requestCoinListToWebSocket()
             }
-        } else {
-            CoroutineScope(ioDispatcher).launch {
-                mainViewModel.requestFavoriteData().join()
-                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                UpBitTickerWebSocket.onPause()
-                mainViewModel.requestCoinListToWebSocket()
-            }
+        }
+        else {
             FavoriteExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+            CoroutineScope(ioDispatcher).launch {
+                if (UpBitTickerWebSocket.currentMarket != SELECTED_FAVORITE) {
+                    UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                    UpBitTickerWebSocket.onPause()
+                    mainViewModel.requestFavoriteData()
+                }
+            }
         }
     } else {
         ExchangeErrorScreen(mainViewModel)

@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.content.Intent
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
 
@@ -40,13 +42,7 @@ fun ExchangeScreenLazyColumnItem(
     btcPrice: Double = 0.0,
 ) {
     val context = LocalContext.current
-    val marketState = if (commonExchangeModel.market.startsWith("KRW-")) {
-        SELECTED_KRW_MARKET
-    } else if (commonExchangeModel.market.startsWith("BTC-")) {
-        SELECTED_BTC_MARKET
-    } else {
-        -999
-    }
+    val marketState = EtcUtils.getSelectedMarket(commonExchangeModel.market)
     val koreanName = commonExchangeModel.koreanName
     val warning = commonExchangeModel.warning
     val symbol = commonExchangeModel.symbol
@@ -60,6 +56,7 @@ fun ExchangeScreenLazyColumnItem(
             marketState)
     val formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(preTradePrice, marketState)
     val btcToKrw = if (marketState == SELECTED_BTC_MARKET) {
+        Log.e("btc",btcPrice.toString())
         CurrentCalculator.tradePriceCalculator(commonExchangeModel.tradePrice * btcPrice, SELECTED_KRW_MARKET)
     } else {
         ""
@@ -78,6 +75,7 @@ fun ExchangeScreenLazyColumnItem(
     } else {
         ""
     }
+
     val rateTextColor = when {
         signedChangeRate.toFloat() > 0 -> {
             Color.Red

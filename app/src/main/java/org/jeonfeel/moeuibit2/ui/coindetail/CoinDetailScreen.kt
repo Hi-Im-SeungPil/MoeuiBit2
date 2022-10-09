@@ -18,6 +18,7 @@ import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constant.INTENT_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 
@@ -30,6 +31,9 @@ fun CoinDetailScreen(
 ) {
     val context = LocalContext.current
     val market = coinDetailViewModel.market
+    if(coinDetailViewModel.orderScreenLoadingState.value) {
+        CommonLoadingDialog(dialogState = coinDetailViewModel.orderScreenLoadingState, text = "로딩중 입니다...")
+    }
 
     OnLifecycleEvent { _, event ->
         when (event) {

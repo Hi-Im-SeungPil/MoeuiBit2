@@ -1,11 +1,12 @@
 package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
 import dagger.hilt.android.scopes.ViewModelScoped
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -33,6 +34,7 @@ class OrderScreenUseCase @Inject constructor(
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
+    val orderScreenLoadingState = mutableStateOf(true)
 
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
@@ -46,7 +48,8 @@ class OrderScreenUseCase @Inject constructor(
     val btcQuantity = mutableStateOf(0.0)
     val currentBTCPrice = mutableStateOf(0.0)
 
-    fun initOrderScreen(market: String) {
+    suspend fun initOrderScreen(market: String) {
+        delay(700L)
         val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
             market.plus(",$BTC_MARKET")
         } else {
@@ -56,34 +59,39 @@ class OrderScreenUseCase @Inject constructor(
             UpBitCoinDetailWebSocket.market = requestMarket
             UpBitOrderBookWebSocket.market = requestMarket
             try {
-                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
-                UpBitOrderBookWebSocket.requestOrderBookList(requestMarket)
+                Handler(Looper.getMainLooper()).post {
+                    UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+                }
             } catch (e: UnknownHostException) {
                 errorDialogState.value = true
             } catch (e: SocketTimeoutException) {
                 errorDialogState.value = true
             }
-            CoroutineScope(ioDispatcher).launch {
-                localRepository.getUserDao().all.let {
-                    userSeedMoney.value = it?.krw ?: 0L
-                }
-                localRepository.getMyCoinDao().isInsert(market).let {
-                    userCoinQuantity.value = it?.quantity ?: 0.0
-                }
-                localRepository.getMyCoinDao().isInsert(BTC_MARKET).let {
-                    btcQuantity.value = it?.quantity ?: 0.0
-                }
+
+            localRepository.getUserDao().all.let {
+                userSeedMoney.value = it?.krw ?: 0L
             }
+            localRepository.getMyCoinDao().isInsert(market).let {
+                userCoinQuantity.value = it?.quantity ?: 0.0
+            }
+            localRepository.getMyCoinDao().isInsert(BTC_MARKET).let {
+                btcQuantity.value = it?.quantity ?: 0.0
+            }
+
         } else {
             try {
-                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
-                UpBitOrderBookWebSocket.requestOrderBookList(requestMarket)
+                Handler(Looper.getMainLooper()).post {
+                    UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+                }
             } catch (e: UnknownHostException) {
                 errorDialogState.value = true
             } catch (e: SocketTimeoutException) {
                 errorDialogState.value = true
             }
         }
+        orderScreenLoadingState.value = false
     }
 
     suspend fun bidRequest(
@@ -93,7 +101,7 @@ class OrderScreenUseCase @Inject constructor(
         quantity: Double,
         totalPrice: Long = 0L,
         btcTotalPrice: Double = 0.0,
-        marketState: Int
+        marketState: Int,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -186,7 +194,7 @@ class OrderScreenUseCase @Inject constructor(
         totalPrice: Long = 0,
         btcTotalPrice: Double = 0.0,
         currentPrice: Double,
-        marketState: Int
+        marketState: Int,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -199,7 +207,11 @@ class OrderScreenUseCase @Inject constructor(
             val btc = coinDao.isInsert(BTC_MARKET)
             if (btc == null) {
                 coinDao.insert(MyCoin(
-                    BTC_MARKET, currentBTCPrice.value, "비트코인", "BTC", (btcTotalPrice - btcTotalPrice * 0.0025)
+                    BTC_MARKET,
+                    currentBTCPrice.value,
+                    "비트코인",
+                    "BTC",
+                    (btcTotalPrice - btcTotalPrice * 0.0025)
                 ))
             } else {
                 val preAveragePurchasePrice = btc.purchasePrice
@@ -211,7 +223,7 @@ class OrderScreenUseCase @Inject constructor(
                     preCoinQuantity,
                     marketState
                 )
-                coinDao.updatePurchasePrice(BTC_MARKET,purchaseAverage)
+                coinDao.updatePurchasePrice(BTC_MARKET, purchaseAverage)
                 coinDao.updatePlusQuantity(BTC_MARKET, (btcTotalPrice - btcTotalPrice * 0.0025))
             }
         }

@@ -79,7 +79,10 @@ fun RowScope.MarketButton(
                 indication = null
             ) {
                 mainViewModel.selectedMarketState.value = buttonId
-                mainViewModel.sortList(mainViewModel.sortButtonState.value)
+//                if(buttonId == SELECTED_FAVORITE) {
+//                    mainViewModel.sortButtonState.value = -1
+//                }
+                mainViewModel.sortList()
             }
     ) {
         Text(
