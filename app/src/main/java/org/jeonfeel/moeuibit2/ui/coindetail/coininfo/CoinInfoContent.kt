@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
 import android.os.Message
+import android.util.Log
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.foundation.border
@@ -42,6 +43,7 @@ fun CoinInfoContent(
                 .wrapContentHeight()
         ) {
             val context = LocalContext.current
+            Log.e("info",coinInfoHashMap.value[INFO_TWITTER_KEY]!!)
             MoveUrlText(text = stringResource(id = R.string.block), clickAction = {
                 selected.value = coinInfoHashMap.value[INFO_BLOCK_KEY]!!
                 context.moveUrl(selected.value)

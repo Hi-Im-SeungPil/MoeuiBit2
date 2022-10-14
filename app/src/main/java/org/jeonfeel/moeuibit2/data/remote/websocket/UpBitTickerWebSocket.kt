@@ -41,7 +41,6 @@ object UpBitTickerWebSocket {
                 currentMarket = SELECTED_BTC_MARKET
             }
             SELECTED_FAVORITE -> {
-                Log.e("????", favoriteMarkets)
                 socket.send(tickerWebSocketMessage(favoriteMarkets))
                 currentMarket = SELECTED_FAVORITE
             }

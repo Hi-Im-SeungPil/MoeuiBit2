@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -55,41 +56,27 @@ class OrderScreenUseCase @Inject constructor(
         } else {
             market
         }
-        if (currentTradePriceState.value == 0.0 && orderBookMutableStateList.isEmpty()) {
-            UpBitCoinDetailWebSocket.market = requestMarket
-            UpBitOrderBookWebSocket.market = requestMarket
-            try {
-                Handler(Looper.getMainLooper()).post {
-                    UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
-                    UpBitOrderBookWebSocket.requestOrderBookList(market)
-                }
-            } catch (e: UnknownHostException) {
-                errorDialogState.value = true
-            } catch (e: SocketTimeoutException) {
-                errorDialogState.value = true
+        UpBitCoinDetailWebSocket.market = requestMarket
+        UpBitOrderBookWebSocket.market = market
+        try {
+            Handler(Looper.getMainLooper()).post {
+                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                UpBitOrderBookWebSocket.requestOrderBookList(market)
             }
-
-            localRepository.getUserDao().all.let {
-                userSeedMoney.value = it?.krw ?: 0L
-            }
-            localRepository.getMyCoinDao().isInsert(market).let {
-                userCoinQuantity.value = it?.quantity ?: 0.0
-            }
-            localRepository.getMyCoinDao().isInsert(BTC_MARKET).let {
-                btcQuantity.value = it?.quantity ?: 0.0
-            }
-
-        } else {
-            try {
-                Handler(Looper.getMainLooper()).post {
-                    UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
-                    UpBitOrderBookWebSocket.requestOrderBookList(market)
-                }
-            } catch (e: UnknownHostException) {
-                errorDialogState.value = true
-            } catch (e: SocketTimeoutException) {
-                errorDialogState.value = true
-            }
+        } catch (e: UnknownHostException) {
+            errorDialogState.value = true
+        } catch (e: SocketTimeoutException) {
+            errorDialogState.value = true
+        }
+        Log.e("userseed", localRepository.getUserDao().all?.krw.toString())
+        localRepository.getUserDao().all.let {
+            userSeedMoney.value = it?.krw ?: 0L
+        }
+        localRepository.getMyCoinDao().isInsert(market).let {
+            userCoinQuantity.value = it?.quantity ?: 0.0
+        }
+        localRepository.getMyCoinDao().isInsert(BTC_MARKET).let {
+            btcQuantity.value = it?.quantity ?: 0.0
         }
         orderScreenLoadingState.value = false
     }
@@ -173,6 +160,7 @@ class OrderScreenUseCase @Inject constructor(
                     coinDao.updateMinusQuantity(BTC_MARKET,
                         (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
                 }
+                btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
 
             bidQuantity.value = ""
@@ -210,15 +198,15 @@ class OrderScreenUseCase @Inject constructor(
                     BTC_MARKET,
                     currentBTCPrice.value,
                     "비트코인",
-                    "BTC",
+                    SYMBOL_BTC,
                     (btcTotalPrice - btcTotalPrice * 0.0025)
                 ))
             } else {
                 val preAveragePurchasePrice = btc.purchasePrice
                 val preCoinQuantity = btc.quantity
                 val purchaseAverage = Calculator.averagePurchasePriceCalculator(
-                    currentPrice,
-                    quantity,
+                    currentBTCPrice.value,
+                    (btcTotalPrice - btcTotalPrice * 0.0025),
                     preAveragePurchasePrice,
                     preCoinQuantity,
                     marketState
@@ -230,7 +218,7 @@ class OrderScreenUseCase @Inject constructor(
         btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
         askQuantity.value = ""
         val currentCoin = coinDao.isInsert(market)
-        if (currentCoin != null && currentCoin.quantity == 0.0) {
+        if (currentCoin != null && currentCoin.quantity.eighthDecimal().toDouble() <= 0.0) {
             coinDao.delete(market)
             userCoinQuantity.value = 0.0
         } else {

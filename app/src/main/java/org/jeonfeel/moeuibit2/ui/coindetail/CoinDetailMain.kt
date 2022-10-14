@@ -11,6 +11,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +36,8 @@ fun CoinDetailMain(
     val curChangeRate =
         Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate) // 전일대비
     val curChangePrice =
-        Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price,marketState) // 전일대비 가격
+        Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price,
+            marketState) // 전일대비 가격
     val textColor = getTextColor(curChangeRate) // 전일대비, 전일대비 가격 색상
     val navController = rememberNavController()
 
@@ -66,9 +68,11 @@ fun CoinDetailMain(
                         maxLines = 1)
                     Text(text = curChangePrice,
                         modifier = Modifier.weight(1f),
-                        style = TextStyle(color = textColor),
+                        style = TextStyle(color = textColor,
+                            textAlign = TextAlign.Start),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
+                        overflow = TextOverflow.Visible
+                    )
                 }
             }
             // 코인 상세화면 코인 이미지

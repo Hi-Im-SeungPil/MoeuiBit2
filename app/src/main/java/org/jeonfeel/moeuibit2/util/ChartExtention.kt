@@ -14,7 +14,6 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -313,6 +312,7 @@ fun CombinedChart.chartRefreshSetting(
     lineData: LineData,
     valueFormatter: XAxisValueFormatter,
     purchaseAveragePrice: Float?,
+    marketState: Int
 ) {
     if (candleDataSet.entryCount > 0 && positiveBarDataSet.entryCount >= 0 && negativeBarDataSet.entryCount >= 0) {
         val chart = this
@@ -338,7 +338,7 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMinimum(20f)
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            addPurchaseLimitLine(purchaseAveragePrice)
+            addPurchaseLimitLine(purchaseAveragePrice,marketState)
             chart.zoom(4f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
         } else {
@@ -349,18 +349,18 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            addPurchaseLimitLine(purchaseAveragePrice)
+            addPurchaseLimitLine(purchaseAveragePrice,marketState)
             chart.invalidate()
         }
     }
 }
 
-fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?) {
+fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?,marketState: Int) {
     val chart = this
     purchaseAveragePrice?.let {
         val purchaseAverageLimitLine = LimitLine(it, "매수평균")
         val purchaseAverageLimitLine2 =
-            LimitLine(it, Calculator.tradePriceCalculatorForChart(purchaseAveragePrice))
+            LimitLine(it, CurrentCalculator.tradePriceCalculator(purchaseAveragePrice,marketState))
         purchaseAverageLimitLine.apply {
             labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
             textColor = Color.parseColor("#2F9D27")

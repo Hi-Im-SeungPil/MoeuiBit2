@@ -28,6 +28,7 @@ fun AutoSizeText(
             }
         },
         style = rememberTextStyle.value!!,
+        color = rememberTextStyle.value!!.color,
         softWrap = false,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.didOverflowWidth) {

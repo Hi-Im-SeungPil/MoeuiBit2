@@ -178,7 +178,7 @@ fun OrderScreenUserSeedMoney(
             krwOrSymbol = SYMBOL_KRW
             coinDetailViewModel.userSeedMoney.commaFormat()
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && marketState == SELECTED_KRW_MARKET) { // KRW 매도
-            currentUserCoinValue = if(userCoin == 0.0) {
+            currentUserCoinValue = if (userCoin == 0.0) {
                 "0"
             } else {
                 round(currentTradePriceState * userCoin).commaFormat()
@@ -199,7 +199,7 @@ fun OrderScreenUserSeedMoney(
             }
 
         } else { // BTC 매도
-            currentUserCoinValue = if(userCoin == 0.0) {
+            currentUserCoinValue = if (userCoin == 0.0) {
                 "0"
             } else {
                 round(currentTradePriceState * userCoin * currentBTCPrice.value).commaFormat()
@@ -295,7 +295,7 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), 
 fun OrderScreenQuantityDropDown(
     modifier: Modifier,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
-    marketState: Int
+    marketState: Int,
 ) {
     val bidButtonText = remember { mutableStateOf("가능") }
     val askButtonText = remember { mutableStateOf("가능") }
@@ -345,7 +345,7 @@ fun OrderScreenQuantityDropDown(
                     expanded.value = false
                     if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && coinDetailViewModel.currentTradePriceState != 0.0) {
                         bidButtonText.value = label
-                        val quantity = if(marketState == SELECTED_KRW_MARKET) {
+                        val quantity = if (marketState == SELECTED_KRW_MARKET) {
                             Calculator.orderScreenSpinnerBidValueCalculator(
                                 bidButtonText.value,
                                 coinDetailViewModel.userSeedMoney,
@@ -365,9 +365,9 @@ fun OrderScreenQuantityDropDown(
                     } else if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.currentTradePriceState != 0.0) {
                         askButtonText.value = label
                         val quantity = Calculator.orderScreenSpinnerAskValueCalculator(
-                                askButtonText.value,
-                                coinDetailViewModel.userCoinQuantity
-                            )
+                            askButtonText.value,
+                            coinDetailViewModel.userCoinQuantity
+                        )
                         val quantityResult = quantity.toDoubleOrNull()
                         if (quantityResult != 0.0 && quantityResult != null) {
                             coinDetailViewModel.askQuantity.value = quantity
@@ -418,52 +418,74 @@ fun OrderScreenTotalPrice(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     marketState: Int,
 ) {
-    Row(
-        modifier = Modifier
-            .padding(0.dp, 0.dp, 0.dp, 5.dp)
-            .fillMaxWidth()
-            .height(35.dp)
-            .border(0.7.dp, Color.LightGray)
-            .wrapContentHeight()
-    ) {
-        Text(
-            text = "총액", modifier = Modifier
-                .wrapContentWidth()
-                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
-        )
-        Text(
-            text = if (coinDetailViewModel.askBidSelectedTab.value == 1) {
-                if (coinDetailViewModel.bidQuantity.value.isEmpty()) {
-                    "0"
-                } else {
-                    Calculator.orderScreenTotalPriceCalculator(
-                        coinDetailViewModel.bidQuantity.value.toDouble(),
-                        coinDetailViewModel.currentTradePriceState,
-                        marketState
-                    )
-                }
-            } else {
-                if (coinDetailViewModel.askQuantity.value.isEmpty()) {
-                    "0"
-                } else {
-                    Calculator.orderScreenTotalPriceCalculator(
-                        coinDetailViewModel.askQuantity.value.toDouble(),
-                        coinDetailViewModel.currentTradePriceState,
-                        marketState
-                    )
-                }
-            },
-            modifier = Modifier.weight(1f, true),
-            textAlign = TextAlign.End,
-            style = TextStyle(fontSize = 15.sp)
-        )
-        Text(
-            text = "  ".plus(EtcUtils.getUnit(marketState)),
+    val selectedMarket = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    val totalPrice = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
+        if (coinDetailViewModel.bidQuantity.value.isEmpty()) {
+            "0"
+        } else {
+            Calculator.orderScreenTotalPriceCalculator(
+                coinDetailViewModel.bidQuantity.value.toDouble(),
+                coinDetailViewModel.currentTradePriceState,
+                marketState
+            )
+        }
+    } else {
+        if (coinDetailViewModel.askQuantity.value.isEmpty()) {
+            "0"
+        } else {
+            Calculator.orderScreenTotalPriceCalculator(
+                coinDetailViewModel.askQuantity.value.toDouble(),
+                coinDetailViewModel.currentTradePriceState,
+                marketState
+            )
+        }
+    }
+    val totalPriceBtcToKrw = if(marketState == SELECTED_BTC_MARKET) {
+        CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentBTCPrice.value * totalPrice.toDouble(),
+            SELECTED_KRW_MARKET)
+    } else {
+        "0"
+    }
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()) {
+        Row(
             modifier = Modifier
-                .wrapContentWidth()
-                .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        )
+                .padding(0.dp, 0.dp, 0.dp, 5.dp)
+                .fillMaxWidth()
+                .height(35.dp)
+                .border(0.7.dp, Color.LightGray)
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = "총액", modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
+            )
+            Text(
+                text = totalPrice,
+                modifier = Modifier.weight(1f, true),
+                textAlign = TextAlign.End,
+                style = TextStyle(fontSize = 15.sp)
+            )
+            Text(
+                text = "  ".plus(EtcUtils.getUnit(marketState)),
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(0.dp, 0.dp, 8.dp, 0.dp),
+                style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            )
+        }
+        if (selectedMarket == SELECTED_BTC_MARKET) {
+            Text(
+                text = "= $totalPriceBtcToKrw  $SYMBOL_KRW",
+                modifier = Modifier
+                    .padding(5.dp, 2.dp)
+                    .align(Alignment.End),
+                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+            )
+        }
     }
 }
 
@@ -537,10 +559,12 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                             totalPrice.toLong() < 5000 -> {
                                 context.showToast(context.getString(R.string.notMinimumOrderMessage))
                             }
-                            selectedTab == ASK_BID_SCREEN_BID_TAB && userSeedMoney < totalPrice + round(totalPrice * 0.0005) -> {
+                            selectedTab == ASK_BID_SCREEN_BID_TAB && userSeedMoney < totalPrice + round(
+                                totalPrice * 0.0005) -> {
                                 context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                             }
-                            selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {
+                            selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin.eighthDecimal()
+                                .toDouble() < coinDetailViewModel.askQuantity.value.toDouble() -> {
                                 context.showToast(context.getString(R.string.youHaveNoCoinMessage))
                             }
                             else -> {
@@ -556,7 +580,9 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                 } else {
                                     CoroutineScope(Dispatchers.Main).launch {
                                         coinDetailViewModel.askRequest(
-                                            quantity.toDouble(), totalPrice.toLong(), currentPrice.value
+                                            quantity.toDouble(),
+                                            totalPrice.toLong(),
+                                            currentPrice.value
                                         ).join()
                                         context.showToast(context.getString(R.string.completeAskMessage))
                                     }
@@ -577,10 +603,12 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                             totalPrice < 0.0005 -> {
                                 context.showToast(context.getString(R.string.notMinimumOrderBtcMessage))
                             }
-                            selectedTab == ASK_BID_SCREEN_BID_TAB && userBtcCoin.value < totalPrice + (totalPrice * 0.0025) -> {
+                            selectedTab == ASK_BID_SCREEN_BID_TAB && userBtcCoin.value.eighthDecimal()
+                                .toDouble() < totalPrice + (totalPrice * 0.0025) -> {
                                 context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                             }
-                            selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin < coinDetailViewModel.askQuantity.value.toDouble() -> {
+                            selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin.eighthDecimal()
+                                .toDouble() < coinDetailViewModel.askQuantity.value.toDouble() -> {
                                 context.showToast(context.getString(R.string.youHaveNoCoinMessage))
                             }
                             else -> {
@@ -596,7 +624,10 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                 } else {
                                     CoroutineScope(Dispatchers.Main).launch {
                                         coinDetailViewModel.askRequest(
-                                            quantity.toDouble(), totalPrice.toLong(), currentPrice.value, btcTotalPrice = totalPrice
+                                            quantity.toDouble(),
+                                            totalPrice.toLong(),
+                                            currentPrice.value,
+                                            btcTotalPrice = totalPrice
                                         ).join()
                                         context.showToast(context.getString(R.string.completeAskMessage))
                                     }

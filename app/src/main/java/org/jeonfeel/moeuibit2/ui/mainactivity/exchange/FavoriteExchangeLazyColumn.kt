@@ -24,6 +24,7 @@ fun FavoriteExchangeScreenLazyColumn(
     startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
     val filteredExchangeList = mainViewModel.getFilteredCoinList()
+//    val filteredExchangeList = emptyList<CommonExchangeModel>()
     when {
         filteredExchangeList.isEmpty() && mainViewModel.searchTextFieldValueState.value.isNotEmpty() -> {
             Text(
@@ -36,7 +37,7 @@ fun FavoriteExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
-        filteredExchangeList.isEmpty() && mainViewModel.loadingFavorite -> {
+        filteredExchangeList.isEmpty() && !mainViewModel.loadingFavorite.value -> {
             Text(
                 text = stringResource(id = R.string.noFavorite),
                 modifier = Modifier

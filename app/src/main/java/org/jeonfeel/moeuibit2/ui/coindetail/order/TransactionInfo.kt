@@ -17,13 +17,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.constant.BID
+import org.jeonfeel.moeuibit2.util.EtcUtils
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.util.eighthDecimal
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd kk:mm", Locale("ko", "KR"))
+    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
     val transactionInfoList = coinDetailViewModel.transactionInfoList
     if (transactionInfoList.isEmpty()) {
         Text(text = "거래내역이 없습니다.",
@@ -36,19 +40,20 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(transactionInfoList) { _, item ->
-                val askBidText = if (item.transactionStatus == "bid") {
+                val askBidText = if (item.transactionStatus == BID) {
                     "매수"
                 } else {
                     "매도"
                 }
-                val totalPrice = Calculator.tradePriceCalculatorForChart(item.quantity * item.price)
-                val priceText = Calculator.tradePriceCalculatorForChart(item.price)
+                val totalPrice =
+                    CurrentCalculator.tradePriceCalculator(item.quantity * item.price, marketState)
+                val priceText = CurrentCalculator.tradePriceCalculator(item.price, marketState)
                 val time = dateFormat.format(Date(item.transactionTime))
                 TransactionInfoLazyColumnItem(askBidText = askBidText,
                     market = item.market,
                     time = time,
                     price = priceText,
-                    quantity = item.quantity.toString(),
+                    quantity = item.quantity.eighthDecimal(),
                     totalPrice = totalPrice)
             }
         }

@@ -148,7 +148,8 @@ class ChartUseCase @Inject constructor(
                 BarDataSet(negativeBarEntries, ""),
                 createLineData(),
                 this@ChartUseCase.xAxisValueFormatter,
-                purchaseAveragePrice
+                purchaseAveragePrice,
+                EtcUtils.getSelectedMarket(market)
             )
             isUpdateChart = true
             dialogState.value = false

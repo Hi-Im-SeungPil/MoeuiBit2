@@ -32,10 +32,9 @@ class ExchangeUseCase @Inject constructor(
 
     private val gson = Gson()
     var updateExchange = false
-    var loadingFavorite = false
-
+    val loadingFavorite = mutableStateOf(true)
     val loadingState = mutableStateOf(true)
-    val showFavoriteState = mutableStateOf(false)
+
     val selectedMarketState = mutableStateOf(SELECTED_KRW_MARKET)
     val errorState = mutableStateOf(INTERNET_CONNECTION)
     val sortButtonState = mutableStateOf(-1)
@@ -346,8 +345,8 @@ class ExchangeUseCase @Inject constructor(
         Handler(Looper.getMainLooper()).post {
             requestCoinListToWebSocket()
         }
+        loadingFavorite.value = false
         updateExchange()
-        loadingFavorite = true
     }
 
     /**

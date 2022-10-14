@@ -76,7 +76,7 @@ class CoinDetailViewModel @Inject constructor(
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
         this.marketState = EtcUtils.getSelectedMarket(market)
-        Log.e("tradPrice1", marketState.toString())
+        Log.e("marketState => ", marketState.toString())
     }
 
     private fun setCoinDetailWebSocketMessageListener() {
@@ -89,7 +89,7 @@ class CoinDetailViewModel @Inject constructor(
 
     fun initOrderScreen() {
         if (orderScreenUseCase.currentTradePriceState.value == 0.0 && orderScreenUseCase.orderBookMutableStateList.isEmpty()) {
-            viewModelScope.launch {
+            viewModelScope.launch(ioDispatcher) {
                 setCoinDetailWebSocketMessageListener()
                 setOrderBookWebSocketMessageListener()
                 orderScreenUseCase.initOrderScreen(market)
@@ -232,6 +232,7 @@ class CoinDetailViewModel @Inject constructor(
                     val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
                     val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
 
+                    Log.e("infos","$homepage, $amount, $twitter, $block, $info")
                     if (homepage.isEmpty()) {
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     } else {
@@ -243,6 +244,7 @@ class CoinDetailViewModel @Inject constructor(
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     }
                     coinInfoDialog.value = false
+                    coinInfoLoading.value = true
                 }
 
                 override fun onCancelled(error: DatabaseError) {
