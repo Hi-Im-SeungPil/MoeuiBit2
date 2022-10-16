@@ -41,9 +41,9 @@ fun SortButtons(mainViewModel: MainViewModel = viewModel()) {
             modifier = Modifier
                 .weight(1f), text = ""
         )
-        SortButton(SortButtons.SortPriceButton, sortButtonState, mainViewModel)
-        SortButton(SortButtons.SortRateButton, sortButtonState, mainViewModel)
-        SortButton(SortButtons.SortAmountButton, sortButtonState, mainViewModel)
+        SortButton(SortButtons.SortPriceButton, sortButtonState, mainViewModel, marketState)
+        SortButton(SortButtons.SortRateButton, sortButtonState, mainViewModel, marketState)
+        SortButton(SortButtons.SortAmountButton, sortButtonState, mainViewModel, marketState)
     }
 }
 
@@ -52,6 +52,7 @@ private fun RowScope.SortButton(
     buttonId: SortButtons,
     sortButtonState: MutableState<Int>,
     mainViewModel: MainViewModel,
+    marketState: MutableState<Int>
 ) {
     val buttonText = remember {
         mutableStateOf("")
@@ -141,7 +142,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList()
+                            mainViewModel.sortList(marketState.value)
                         }
                     }
                     SortButtons.SortRateButton -> {
@@ -157,7 +158,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList()
+                            mainViewModel.sortList(marketState.value)
                         }
                     }
                     SortButtons.SortAmountButton -> {
@@ -173,7 +174,7 @@ private fun RowScope.SortButton(
                                     sortButtonState.value = SORT_DEFAULT
                                 }
                             }
-                            mainViewModel.sortList()
+                            mainViewModel.sortList(marketState.value)
                         }
                     }
                 }

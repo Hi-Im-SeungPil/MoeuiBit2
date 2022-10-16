@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -11,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
@@ -75,8 +75,8 @@ class MainViewModel @Inject constructor(
     val btcPreItemArray get() = exchangeUseCase.btcPreItemArray // BTC 이전 거래소 정보
     val btcExchangeModelListPosition get() = exchangeUseCase.btcExchangeModelListPosition // BTC 코인 정렬 포지션
 
-    private val favoriteExchangeModelList get() = exchangeUseCase.favoriteExchangeModelList
-    private val favoriteExchangeModelMutableStateList get() = exchangeUseCase.favoriteExchangeModelMutableStateList
+    val favoriteExchangeModelList get() = exchangeUseCase.favoriteExchangeModelList
+    val favoriteExchangeModelMutableStateList get() = exchangeUseCase.favoriteExchangeModelMutableStateList
     val favoritePreItemArray get() = exchangeUseCase.favoritePreItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val favoriteExchangeModelListPosition get() = exchangeUseCase.favoriteExchangeModelListPosition
@@ -92,6 +92,7 @@ class MainViewModel @Inject constructor(
     fun requestExchangeData() {
         viewModelScope.launch {
             delay(650L)
+            Log.e("start","startttt")
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
                     exchangeUseCase.requestExchangeData()
@@ -100,6 +101,7 @@ class MainViewModel @Inject constructor(
             Handler(Looper.getMainLooper()).post {
                 exchangeUseCase.requestCoinListToWebSocket()
             }
+            Log.e("start","startttt2")
             exchangeUseCase.updateExchange()
         }
     }
@@ -162,16 +164,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun sortList() {
+    fun sortList(marketState: Int) {
         updateExchange = false
         viewModelScope.launch(defaultDispatcher) {
-            exchangeUseCase.sortList()
+            exchangeUseCase.sortList(marketState = marketState)
         }
     }
 
-    fun requestFavoriteData (): Job {
-        return viewModelScope.launch(ioDispatcher) {
-            exchangeUseCase.requestFavoriteData()
+    fun requestFavoriteData(selectedMarketState: Int) {
+        viewModelScope.launch(ioDispatcher) {
+            exchangeUseCase.requestFavoriteData(selectedMarketState)
         }
     }
 

@@ -10,8 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
@@ -20,35 +23,34 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeScreen(
     mainViewModel: MainViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
-    Column(Modifier.fillMaxSize()) {
-        val context = LocalContext.current
+    val context = LocalContext.current
+    val pagerState = rememberPagerState()
 
-        AddLifecycleEvent(
-            onPauseAction = {
-                mainViewModel.updateExchange = false
-                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                UpBitTickerWebSocket.onPause()
-            },
-            onResumeAction = {
-                mainViewModel.requestExchangeData()
-            }
-        )
-
-        when (mainViewModel.loadingState.value) {
-            true -> {
-                ExchangeScreenLoading()
-            }
-            false -> {
-                mainLazyColumn(mainViewModel, startForActivityResult)
-            }
+    AddLifecycleEvent(
+        onPauseAction = {
+            mainViewModel.updateExchange = false
+            UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+            UpBitTickerWebSocket.onPause()
+        },
+        onResumeAction = {
+            mainViewModel.requestExchangeData()
         }
-        mainBackHandler(context)
+    )
+    when (mainViewModel.loadingState.value) {
+        true -> {
+            ExchangeScreenLoading()
+        }
+        false -> {
+            mainLazyColumn(mainViewModel, startForActivityResult, pagerState)
+        }
     }
+    mainBackHandler(context)
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -56,13 +58,23 @@ fun ExchangeScreen(
 fun mainLazyColumn(
     mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
+    pagerState: PagerState,
 ) {
+    val tabTitleList = listOf(
+        stringResource(id = R.string.krw),
+        stringResource(id = R.string.btc),
+        stringResource(id = R.string.favorite),
+    )
 
-    if (mainViewModel.errorState.value == INTERNET_CONNECTION) {
-        SearchBasicTextFieldResult(mainViewModel)
-        marketButtons2(mainViewModel,startForActivityResult)
-    } else {
-        ExchangeErrorScreen(mainViewModel)
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (mainViewModel.errorState.value == INTERNET_CONNECTION) {
+            SearchBasicTextFieldResult(mainViewModel)
+            marketButtons(mainViewModel, pagerState, tabTitleList)
+            SortButtons(mainViewModel)
+            ExchangePager(tabTitleList, pagerState, mainViewModel, startForActivityResult)
+        } else {
+            ExchangeErrorScreen(mainViewModel)
+        }
     }
 }
 

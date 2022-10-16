@@ -151,8 +151,8 @@ dependencies {
     implementation("com.google.android.play:app-update-ktx:2.0.0")
 
     // accompanist viewPager
-    implementation "com.google.accompanist:accompanist-pager:0.25.1"
-    implementation "com.google.accompanist:accompanist-pager-indicators:0.25.1"
+    implementation "com.google.accompanist:accompanist-pager:0.26.5-rc"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.26.5-rc"
 }
 repositories {
     mavenCentral()

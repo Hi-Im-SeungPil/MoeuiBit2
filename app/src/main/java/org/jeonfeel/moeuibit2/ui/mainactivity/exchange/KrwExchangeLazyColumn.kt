@@ -25,17 +25,6 @@ fun ExchangeScreenLazyColumn(
 ) {
     val filteredExchangeList = mainViewModel.getFilteredCoinList()
     when {
-//        filteredExchangeList.isEmpty() && mainViewModel.showFavoriteState.value -> {
-//            Text(
-//                text = stringResource(id = R.string.noFavorite),
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .wrapContentHeight(),
-//                fontSize = 20.sp,
-//                fontWeight = FontWeight.Bold,
-//                textAlign = TextAlign.Center
-//            )
-//        }
         filteredExchangeList.isEmpty() && mainViewModel.searchTextFieldValueState.value.isNotEmpty() -> {
             Text(
                 text = stringResource(id = R.string.noSearchingCoin),

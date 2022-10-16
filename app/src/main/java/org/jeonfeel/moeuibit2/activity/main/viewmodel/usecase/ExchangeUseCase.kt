@@ -306,13 +306,11 @@ class ExchangeUseCase @Inject constructor(
     /**
      * 관심코인 목록 가져오기
      */
-    suspend fun requestFavoriteData() {
+    suspend fun requestFavoriteData(selectedMarketState: Int) {
         val favoriteMarketListStringBuffer = StringBuffer()
         favoritePreItemArray.clear()
-        favoriteExchangeModelMutableStateList.clear()
         favoriteExchangeModelList.clear()
-        favoriteExchangeModelListPosition.clear()
-        updateExchange = false
+        favoriteExchangeModelMutableStateList.clear()
         val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
         if (favoriteList.isNotEmpty()) {
             for (i in favoriteList.indices) {
@@ -341,12 +339,8 @@ class ExchangeUseCase @Inject constructor(
                 UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
             }
         }
-        sortList()
-        Handler(Looper.getMainLooper()).post {
-            requestCoinListToWebSocket()
-        }
+        sortList(selectedMarketState)
         loadingFavorite.value = false
-        updateExchange()
     }
 
     /**
@@ -371,13 +365,19 @@ class ExchangeUseCase @Inject constructor(
                 viewModelScope.launch(ioDispatcher) {
                     UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
                     UpBitTickerWebSocket.onPause()
-                    requestFavoriteData()
+                    requestFavoriteData(SELECTED_FAVORITE)
+                    Handler(Looper.getMainLooper()).post {
+                        requestCoinListToWebSocket()
+                    }
+                    updateExchange()
                 }
             }
         }
     }
 
-    suspend fun sortList() {
+    suspend fun sortList(marketState: Int) {
+        this.selectedMarketState.value = marketState
+        Log.e("selectedMarketState",this.selectedMarketState.value.toString())
         when (sortButtonState.value) {
             SORT_PRICE_DEC -> {
                 when (selectedMarketState.value) {
