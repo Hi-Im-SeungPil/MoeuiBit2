@@ -267,8 +267,11 @@ class ExchangeUseCase @Inject constructor(
      * 거래소 화면 업데이트
      */
     suspend fun updateExchange() {
+        Log.e("updateExchange1","")
         if (!updateExchange) updateExchange = true
+        Log.e("updateExchange2",updateExchange.toString())
         while (updateExchange) {
+            Log.e("updateExchange3",updateExchange.toString())
             when (selectedMarketState.value) {
                 SELECTED_KRW_MARKET -> {
                     for (i in krwExchangeModelMutableStateList.indices) {
@@ -340,7 +343,9 @@ class ExchangeUseCase @Inject constructor(
             }
         }
         sortList(selectedMarketState)
-        loadingFavorite.value = false
+        Handler(Looper.getMainLooper()).post {
+            loadingFavorite.value = false
+        }
     }
 
     /**

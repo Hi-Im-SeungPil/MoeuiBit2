@@ -19,6 +19,9 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constant.SELECTED_FAVORITE
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.showToast
@@ -71,7 +74,22 @@ fun mainLazyColumn(
             SearchBasicTextFieldResult(mainViewModel)
             marketButtons(mainViewModel, pagerState, tabTitleList)
             SortButtons(mainViewModel)
-            ExchangePager(tabTitleList, pagerState, mainViewModel, startForActivityResult)
+            when (mainViewModel.selectedMarketState.value) {
+                SELECTED_KRW_MARKET -> {
+                    ExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+                    mainViewModel.marketChangeAction(SELECTED_KRW_MARKET)
+                }
+                SELECTED_BTC_MARKET -> {
+                    BtcExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+                    mainViewModel.marketChangeAction(SELECTED_BTC_MARKET)
+                }
+                else -> {
+                    if (!mainViewModel.loadingFavorite.value) {
+                        FavoriteExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
+                    }
+                    mainViewModel.marketChangeAction(SELECTED_FAVORITE)
+                }
+            }
         } else {
             ExchangeErrorScreen(mainViewModel)
         }

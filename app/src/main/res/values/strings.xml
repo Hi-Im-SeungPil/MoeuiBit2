@@ -71,8 +71,8 @@
     <string name="nameUp">이름↑"</string>
     <string name="netChange">전일대비</string>
     <string name="loadAd">광고 로드중...</string>
-    <string name="ask">매수</string>
-    <string name="bid">매도</string>
+    <string name="ask">매도</string>
+    <string name="bid">매수</string>
     <string name="tradHistory">거래내역</string>
     <string name="quantity">수량</string>
     <string name="possible">가능</string>

@@ -109,7 +109,7 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 indication = null
             ) { selectedTab.value = ASK_BID_SCREEN_BID_TAB }) {
             Text(
-                text = stringResource(id = R.string.ask),
+                text = stringResource(id = R.string.bid),
                 modifier = Modifier.fillMaxWidth(),
                 style = getTabTextStyle(selectedTab.value, ASK_BID_SCREEN_BID_TAB)
             )
@@ -125,7 +125,7 @@ fun OrderScreenTabs(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             ) { selectedTab.value = ASK_BID_SCREEN_ASK_TAB }
         ) {
             Text(
-                text = stringResource(id = R.string.bid),
+                text = stringResource(id = R.string.ask),
                 modifier = Modifier.fillMaxWidth(),
                 style = getTabTextStyle(selectedTab.value, ASK_BID_SCREEN_ASK_TAB)
             )
@@ -660,7 +660,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                 fontSize = 18.sp
             )
         }
-        TotalAmountDesignatedDialog(coinDetailViewModel, coinDetailViewModel.currentTradePriceState)
+        TotalAmountDesignatedDialog(coinDetailViewModel)
     }
 }
 
@@ -773,8 +773,8 @@ fun getButtonsBackground(selectedTab: Int): Color {
 @Composable
 fun getButtonsText(selectedTab: Int): String {
     return if (selectedTab == 1) {
-        stringResource(id = R.string.ask)
-    } else {
         stringResource(id = R.string.bid)
+    } else {
+        stringResource(id = R.string.ask)
     }
 }

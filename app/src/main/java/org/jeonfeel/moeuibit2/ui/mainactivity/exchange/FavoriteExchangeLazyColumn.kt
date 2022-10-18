@@ -49,20 +49,22 @@ fun FavoriteExchangeScreenLazyColumn(
             )
         }
         else -> {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                itemsIndexed(
-                    items = filteredExchangeList
-                ) { _, coinListElement ->
-                    ExchangeScreenLazyColumnItem(
-                        coinListElement,
+            if(filteredExchangeList.size != 0) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    itemsIndexed(
+                        items = filteredExchangeList
+                    ) { _, coinListElement ->
+                        ExchangeScreenLazyColumnItem(
+                            coinListElement,
+                            mainViewModel.favoritePreItemArray[mainViewModel.favoriteExchangeModelListPosition[coinListElement.market]
+                                ?: 0].tradePrice,
+                            mainViewModel.favoriteHashMap[coinListElement.market] != null,
+                            startForActivityResult,
+                            mainViewModel.btcTradePrice.value
+                        )
                         mainViewModel.favoritePreItemArray[mainViewModel.favoriteExchangeModelListPosition[coinListElement.market]
-                            ?: 0].tradePrice,
-                        mainViewModel.favoriteHashMap[coinListElement.market] != null,
-                        startForActivityResult,
-                        mainViewModel.btcTradePrice.value
-                    )
-                    mainViewModel.favoritePreItemArray[mainViewModel.favoriteExchangeModelListPosition[coinListElement.market]
-                        ?: 0] = coinListElement
+                            ?: 0] = coinListElement
+                    }
                 }
             }
         }

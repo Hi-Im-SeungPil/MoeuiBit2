@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
@@ -33,7 +32,7 @@ import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 fun marketButtons(
     mainViewModel: MainViewModel,
     pagerState: PagerState,
-    tabTitleList: List<String>
+    tabTitleList: List<String>,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -66,15 +65,11 @@ fun marketButtons(
                         },
                         selectedContentColor = colorResource(R.color.C0F0F5C),
                         unselectedContentColor = Color.LightGray,
-                        selected = pagerState.currentPage == index,
+                        selected = mainViewModel.selectedMarketState.value == index,
                         onClick = {
                             if (mainViewModel.selectedMarketState.value != index) {
-                                Log.e("tabActive","tabActive")
-                                coroutineScope.launch {
-                                    mainViewModel.updateExchange = false
-                                    mainViewModel.selectedMarketState.value = index
-                                    pagerState.scrollToPage(index)
-                                }
+                                Log.e("tabActive", "tabActive")
+                                mainViewModel.selectedMarketState.value = index
                             }
                         },
                     )

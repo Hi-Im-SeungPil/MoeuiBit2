@@ -20,6 +20,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
@@ -92,16 +93,13 @@ class MainViewModel @Inject constructor(
     fun requestExchangeData() {
         viewModelScope.launch {
             delay(650L)
-            Log.e("start","startttt")
+            Log.e("start", "startttt")
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
                     exchangeUseCase.requestExchangeData()
                 }.join()
             }
-            Handler(Looper.getMainLooper()).post {
-                exchangeUseCase.requestCoinListToWebSocket()
-            }
-            Log.e("start","startttt2")
+            requestCoinListToWebSocket()
             exchangeUseCase.updateExchange()
         }
     }
@@ -112,8 +110,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun requestCoinListToWebSocket() {
-        exchangeUseCase.requestCoinListToWebSocket()
+    private fun requestCoinListToWebSocket() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            exchangeUseCase.requestCoinListToWebSocket()
+        },650L)
     }
 
     /**
@@ -171,9 +171,23 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun requestFavoriteData(selectedMarketState: Int) {
+    private fun requestFavoriteData(selectedMarketState: Int) {
         viewModelScope.launch(ioDispatcher) {
             exchangeUseCase.requestFavoriteData(selectedMarketState)
+        }
+    }
+
+    fun marketChangeAction(marketState: Int) {
+        if (UpBitTickerWebSocket.currentMarket != marketState) {
+            if (marketState == SELECTED_FAVORITE) {
+                requestFavoriteData(marketState)
+            }
+            UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+            UpBitTickerWebSocket.onPause()
+            if (marketState != SELECTED_FAVORITE) {
+                sortList(marketState)
+            }
+            requestCoinListToWebSocket()
         }
     }
 

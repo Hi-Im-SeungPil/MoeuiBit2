@@ -218,7 +218,9 @@ class OrderScreenUseCase @Inject constructor(
         btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
         askQuantity.value = ""
         val currentCoin = coinDao.isInsert(market)
-        if (currentCoin != null && currentCoin.quantity.eighthDecimal().toDouble() <= 0.0) {
+        if (currentCoin != null && marketState == SELECTED_KRW_MARKET && round(currentCoin.quantity * currentPrice) <= 0.0
+            || currentCoin != null && marketState == SELECTED_BTC_MARKET && round(currentCoin.quantity * currentPrice * currentBTCPrice.value) <= 0.0
+        ) {
             coinDao.delete(market)
             userCoinQuantity.value = 0.0
         } else {

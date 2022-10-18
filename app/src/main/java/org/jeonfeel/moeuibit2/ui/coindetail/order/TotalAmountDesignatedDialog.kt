@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,34 +30,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.eighthDecimal
 import org.jeonfeel.moeuibit2.util.showToast
 import java.text.NumberFormat
 import java.util.*
 import kotlin.math.round
+import kotlin.math.roundToLong
 
 @Composable
 fun TotalAmountDesignatedDialog(
     coinDetailViewModel: CoinDetailViewModel,
-    currentPrice: Double,
 ) {
     val context = LocalContext.current
     if (coinDetailViewModel.askBidDialogState) {
         val interactionSource = remember {
             MutableInteractionSource()
         }
-        val userSeedMoney = Calculator.getDecimalFormat()
-            .format(coinDetailViewModel.userSeedMoney - round(coinDetailViewModel.userSeedMoney * 0.0005).toLong())
-        val userCoinValuable = Calculator.getDecimalFormat()
-            .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
+        val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+        val userSeedMoney = if (marketState == SELECTED_KRW_MARKET) {
+            Calculator.getDecimalFormat()
+                .format(coinDetailViewModel.userSeedMoney - round(coinDetailViewModel.userSeedMoney * 0.0005).toLong())
+        } else {
+            val btcPrice =
+                (coinDetailViewModel.btcQuantity.value * coinDetailViewModel.currentBTCPrice.value).toLong()
+            Calculator.getDecimalFormat()
+                .format(btcPrice - round(btcPrice * 0.00025).toLong())
+        }
+
+        val userCoinValuable = if (marketState == SELECTED_KRW_MARKET) {
+            Calculator.getDecimalFormat()
+                .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
+        } else {
+            Calculator.getDecimalFormat()
+                .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState * coinDetailViewModel.currentBTCPrice.value))
+        }
+
+
         Dialog(onDismissRequest = { coinDetailViewModel.askBidDialogState = false }) {
             Card(
                 modifier = Modifier
@@ -69,7 +87,7 @@ fun TotalAmountDesignatedDialog(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = if (coinDetailViewModel.askBidSelectedTab.value == 1) "총액 지정 매수" else "총액 지정 매도",
+                        text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) "총액 지정 매수" else "총액 지정 매도",
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .fillMaxWidth(),
@@ -93,11 +111,11 @@ fun TotalAmountDesignatedDialog(
                         )
                         AutoSizeText(
                             modifier = Modifier.weight(1f, true),
-                            text = if (coinDetailViewModel.askBidSelectedTab.value == 1) userSeedMoney else userCoinValuable,
+                            text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) userSeedMoney else userCoinValuable,
                             textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.End)
                         )
                         Text(
-                            text = " KRW",
+                            text = " $SYMBOL_KRW",
                             style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         )
                     }
@@ -133,7 +151,7 @@ fun TotalAmountDesignatedDialog(
                             )
                         )
                         Text(
-                            text = " KRW",
+                            text = " $SYMBOL_KRW",
                             style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold),
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
@@ -173,7 +191,7 @@ fun TotalAmountDesignatedDialog(
                         }
                     }
                     Text(
-                        text = "초기화",
+                        text = stringResource(id = R.string.reset),
                         modifier = Modifier
                             .padding(10.dp, 0.dp, 10.dp, 25.dp)
                             .fillMaxWidth()
@@ -208,63 +226,131 @@ fun TotalAmountDesignatedDialog(
                                 .border(0.5.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = 18.sp
                         )
-                        Text(text = if (coinDetailViewModel.askBidSelectedTab.value == 1) "매수" else "매도",
+                        Text(text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB)
+                            stringResource(id = R.string.bid)
+                        else
+                            stringResource(id = R.string.ask),
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    val totalPrice =
-                                        if (coinDetailViewModel.totalPriceDesignated.toLongOrNull() == null) {
-                                            0L
-                                        } else {
-                                            coinDetailViewModel.totalPriceDesignated.toLong()
-                                        }
-                                    val localUserSeedMoney = coinDetailViewModel.userSeedMoney
-                                    val quantity =
-                                        String
-                                            .format("%.8f", totalPrice / currentPrice)
-                                            .toDouble()
+                                    val currentPrice = coinDetailViewModel.currentTradePriceState
+                                    val selectedTab = coinDetailViewModel.askBidSelectedTab.value
+                                    val userCoin = coinDetailViewModel.userCoinQuantity
 
-                                    when {
-                                        currentPrice == 0.0 -> {
-                                            context.showToast("네트워크 통신 오류입니다.")
+                                    if (marketState == SELECTED_KRW_MARKET) {
+                                        val localUserSeedMoney = coinDetailViewModel.userSeedMoney
+                                        val totalPrice =
+                                            coinDetailViewModel.totalPriceDesignated.toLong()
+                                        val quantity =
+                                            (totalPrice / currentPrice)
+                                                .eighthDecimal()
+                                                .toDouble()
+                                        when {
+                                            currentPrice == 0.0 -> {
+                                                context.showToast(context.getString(R.string.NETWORK_ERROR))
+                                            }
+                                            OneTimeNetworkCheck.networkCheck(context) == null -> {
+                                                context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
+                                            }
+                                            UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                                                context.showToast(context.getString(R.string.NETWORK_ERROR))
+                                            }
+                                            totalPrice < 5000 -> {
+                                                context.showToast(context.getString(R.string.notMinimumOrderMessage))
+                                            }
+                                            selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < totalPrice + round(
+                                                totalPrice * 0.0005).toLong() -> {
+                                                context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
+                                            }
+                                            selectedTab == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.totalPriceDesignated.toLong() > (userCoin * currentPrice).roundToLong() -> {
+                                                context.showToast(context.getString(R.string.youHaveNoCoinMessage))
+                                            }
+                                            else -> {
+                                                if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
+                                                    CoroutineScope(mainDispatcher).launch {
+                                                        coinDetailViewModel
+                                                            .bidRequest(
+                                                                currentPrice,
+                                                                quantity,
+                                                                totalPrice
+                                                            )
+                                                            .join()
+                                                        context.showToast(context.getString(R.string.completeBidMessage))
+                                                    }
+                                                } else {
+                                                    CoroutineScope(mainDispatcher).launch {
+                                                        coinDetailViewModel
+                                                            .askRequest(
+                                                                quantity,
+                                                                totalPrice,
+                                                                currentPrice
+                                                            )
+                                                            .join()
+                                                        context.showToast(context.getString(R.string.completeAskMessage))
+                                                    }
+                                                }
+                                            }
                                         }
-                                        totalPrice < 5000 -> {
-                                            context.showToast("주문 가능한 최소금액은 5,000KRW 입니다.")
-                                        }
-                                        OneTimeNetworkCheck.networkCheck(context) == null -> {
-                                            context.showToast("네트워크 상태를 확인해 주세요.")
-                                        }
-                                        UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
-                                            context.showToast("네트워크 오류 입니다.")
-                                        }
-                                        coinDetailViewModel.askBidSelectedTab.value == 1 && localUserSeedMoney < totalPrice + round(
-                                            totalPrice * 0.0005) -> {
-                                            context.showToast("주문 가능 금액이 부족합니다.")
-                                        }
-                                        coinDetailViewModel.askBidSelectedTab.value == 2 && coinDetailViewModel.userCoinQuantity < quantity -> {
-                                            context.showToast("매도 가능 수량이 부족합니다.")
-                                        }
-                                        else -> {
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                if (coinDetailViewModel.askBidSelectedTab.value == 1) {
-                                                    coinDetailViewModel
-                                                        .bidRequest(currentPrice,
-                                                            quantity,
-                                                            totalPrice)
-                                                        .join()
-                                                    context.showToast("매수가 완료 되었습니다.")
-                                                } else if (coinDetailViewModel.askBidSelectedTab.value == 2) {
-                                                    coinDetailViewModel
-                                                        .askRequest(quantity,
-                                                            totalPrice,
-                                                            currentPrice)
-                                                        .join()
-                                                    context.showToast("매도가 완료 되었습니다.")
+                                    } else {
+                                        val totalPrice =
+                                            (coinDetailViewModel.totalPriceDesignated.toLong() / coinDetailViewModel.currentBTCPrice.value)
+                                                .eighthDecimal()
+                                                .toDouble()
+                                        val localUserSeedMoney =
+                                            (coinDetailViewModel.btcQuantity.value * coinDetailViewModel.currentBTCPrice.value).roundToLong()
+                                        val currentBtcPrice = coinDetailViewModel.currentBTCPrice.value
+                                        val quantity =
+                                            (totalPrice / currentPrice)
+                                                .eighthDecimal()
+                                                .toDouble()
+                                        Log.e("priceprice",(userCoin * currentPrice * currentBtcPrice).toLong().toString())
+                                        when {
+                                            currentPrice == 0.0 -> {
+                                                context.showToast(context.getString(R.string.NETWORK_ERROR))
+                                            }
+                                            OneTimeNetworkCheck.networkCheck(context) == null -> {
+                                                context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
+                                            }
+                                            UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                                                context.showToast(context.getString(R.string.NETWORK_ERROR))
+                                            }
+                                            totalPrice < 0.0005 -> {
+                                                context.showToast(context.getString(R.string.notMinimumOrderBtcMessage))
+                                            }
+                                            selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < totalPrice + (totalPrice * 0.0025).toLong() -> {
+                                                context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
+                                            }
+                                            selectedTab == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.totalPriceDesignated.toLong() >
+                                                    (userCoin * currentPrice * currentBtcPrice).roundToLong() -> {
+                                                context.showToast(context.getString(R.string.youHaveNoCoinMessage))
+                                            }
+                                            else -> {
+                                                if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
+                                                    CoroutineScope(mainDispatcher).launch {
+                                                        coinDetailViewModel
+                                                            .bidRequest(
+                                                                currentPrice,
+                                                                quantity,
+                                                                btcTotalPrice = totalPrice
+                                                            )
+                                                            .join()
+                                                        context.showToast(context.getString(R.string.completeBidMessage))
+                                                    }
+                                                } else {
+                                                    CoroutineScope(mainDispatcher).launch {
+                                                        coinDetailViewModel
+                                                            .askRequest(
+                                                                quantity,
+                                                                totalPrice.toLong(),
+                                                                currentPrice,
+                                                                btcTotalPrice = totalPrice
+                                                            ).join()
+                                                        context.showToast(context.getString(R.string.completeAskMessage))
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-
                                     coinDetailViewModel.askBidDialogState = false
                                 }
                                 .background(if (coinDetailViewModel.askBidSelectedTab.value == 1) Color.Red else Color.Blue)
