@@ -573,7 +573,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                         coinDetailViewModel.bidRequest(
                                             currentPrice.value,
                                             quantity.toDouble(),
-                                            totalPrice.toLong()
+                                            totalPrice.toLong(),
                                         ).join()
                                         context.showToast(context.getString(R.string.completeBidMessage))
                                     }
@@ -590,6 +590,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                             }
                         }
                     } else {
+                        val currentBtcPrice = coinDetailViewModel.currentBTCPrice.value
                         when {
                             currentPrice.value == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -617,7 +618,8 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                         coinDetailViewModel.bidRequest(
                                             currentPrice.value,
                                             quantity.toDouble(),
-                                            btcTotalPrice = totalPrice
+                                            btcTotalPrice = totalPrice,
+                                            currentBtcPrice = currentBtcPrice
                                         ).join()
                                         context.showToast(context.getString(R.string.completeBidMessage))
                                     }

@@ -196,15 +196,18 @@ class CoinDetailViewModel @Inject constructor(
         quantity: Double,
         totalPrice: Long = 0L,
         btcTotalPrice: Double = 0.0,
+        currentBtcPrice: Double = 0.0
     ): Job {
         return viewModelScope.launch(ioDispatcher) {
-            orderScreenUseCase.bidRequest(market,
+            orderScreenUseCase.bidRequest(
+                market,
                 koreanName,
                 currentPrice,
                 quantity,
                 totalPrice,
                 btcTotalPrice,
-                marketState = marketState)
+                marketState = marketState,
+                currentBtcPrice)
         }
     }
 

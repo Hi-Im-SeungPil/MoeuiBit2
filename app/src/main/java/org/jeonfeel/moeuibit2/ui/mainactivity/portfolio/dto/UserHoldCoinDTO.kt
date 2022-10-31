@@ -11,5 +11,7 @@ data class UserHoldCoinDTO(
     var currentPrice: Double = myCoinsBuyingAverage,
     var openingPrice: Double,
     var warning: String,
-    var isFavorite: Int? = null
+    var isFavorite: Int? = null,
+    var market: String,
+    var purchaseAverageBtcPrice: Double = 0.0
 )

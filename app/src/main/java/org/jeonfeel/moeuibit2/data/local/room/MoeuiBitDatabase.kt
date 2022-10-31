@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.local.room
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
@@ -13,7 +12,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.*
 
 @Database(
     entities = [User::class, MyCoin::class, NotSigned::class, Favorite::class, TransactionInfo::class],
-    version = 2
+    version = 3
 )
 abstract class MoeuiBitDatabase : RoomDatabase() {
     abstract fun userDAO(): UserDAO
@@ -22,7 +21,7 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
     abstract fun transactionInfoDAO(): TransactionInfoDAO
 
     companion object {
-        val migrations1_2 = object : Migration(1, 2) {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.version = 2
                 database.execSQL(
@@ -63,6 +62,12 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE MyCoin_New RENAME TO MyCoin")
                 database.execSQL("ALTER TABLE TransactionInfo_new RENAME TO TransactionInfo")
 
+            }
+        }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.version = 3
+                database.execSQL("ALTER TABLE MyCoin ADD COLUMN PurchaseAverageBtcPrice REAL NOT NULL DEFAULT 0.0")
             }
         }
     }

@@ -43,6 +43,42 @@ object CurrentCalculator {
         }
     }
 
+    fun tradePriceCalculatorNoStringFormat(tradePrice: Double, marketState: Int): Double {
+        return if(marketState == SELECTED_KRW_MARKET) {
+            if(tradePrice == 0.0 || tradePrice < 0.00000001) {
+                0.0
+            } else {
+                if (tradePrice >= 100) {
+                    round(tradePrice)
+                } else if (tradePrice < 100 && tradePrice >= 1) {
+                    tradePrice.secondDecimal().toDouble()
+                } else {
+                    tradePrice.forthDecimal().toDouble()
+                }
+            }
+        } else if(marketState == SELECTED_BTC_MARKET) {
+            tradePrice.eighthDecimal().toDouble()
+        } else {
+            -1.0
+        }
+    }
+
+    fun tradePriceCalculatorNumber(tradePrice: Float, marketState: Int) {
+//        return if(marketState == SELECTED_KRW_MARKET) {
+//            if (tradePrice >= 100) {
+//                round(tradePrice).toLong().commaFormat()
+//            } else if (tradePrice < 100 && tradePrice >= 1) {
+//                tradePrice.secondDecimal()
+//            } else {
+//                tradePrice.forthDecimal()
+//            }
+//        } else if(marketState == SELECTED_BTC_MARKET) {
+//
+//        } else {
+//            -1
+//        }
+    }
+
     fun signedChangeRateCalculator(signedChangeRate: Double): String {
         return (signedChangeRate * 100).secondDecimal()
     }

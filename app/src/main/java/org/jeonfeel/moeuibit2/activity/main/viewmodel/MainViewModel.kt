@@ -25,6 +25,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMe
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import javax.inject.Inject
 
@@ -211,19 +212,43 @@ class MainViewModel @Inject constructor(
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()
         tempUserHoldCoinDtoList.clear()
+        btcTradePrice.value = krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice ?: 0.0
         if (userHoldCoinList.isNotEmpty()) {
             for (i in userHoldCoinList.indices) {
                 val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
-                val koreanName = krwCoinKoreanNameAndEngName[userHoldCoin.market]?.get(0) ?: ""
+                val marketState = EtcUtils.getSelectedMarket(userHoldCoin.market)
+                val market = userHoldCoin.market
                 val symbol = userHoldCoin.symbol
-                val position = krwExchangeModelListPosition[userHoldCoin.market] ?: 0
+                val isFavorite = favoriteHashMap[market]
                 val quantity = userHoldCoin.quantity
                 val purchaseAverage = userHoldCoin.purchasePrice
-                val openingPrice = krwExchangeModelList[position].opening_price
-                val warning = krwExchangeModelList[position].warning
-                val isFavorite = favoriteHashMap["KRW-".plus(symbol)]
-                userHoldCoinHashMap["KRW-".plus(symbol)] = userHoldCoin
-                localTotalPurchase += (userHoldCoin.quantity * userHoldCoin.purchasePrice)
+                val purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
+                val position = if(marketState == SELECTED_KRW_MARKET) {
+                    krwExchangeModelListPosition[market] ?: 0
+                } else {
+                    btcExchangeModelListPosition[market] ?: 0
+                }
+                val openingPrice =if(marketState == SELECTED_KRW_MARKET) {
+                    krwExchangeModelList[position].opening_price
+                } else {
+                    btcExchangeModelList[position].opening_price
+                }
+                val warning = if(marketState == SELECTED_KRW_MARKET) {
+                    krwExchangeModelList[position].warning
+                } else {
+                    btcExchangeModelList[position].warning
+                }
+                val koreanName = if(marketState == SELECTED_KRW_MARKET) {
+                    krwCoinKoreanNameAndEngName[market]?.get(0) ?: ""
+                } else {
+                    btcCoinKoreanNameAndEngName[market]?.get(0) ?: ""
+                }
+                userHoldCoinHashMap[market] = userHoldCoin
+                localTotalPurchase = if(marketState == SELECTED_KRW_MARKET) {
+                    localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
+                } else {
+                    localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.PurchaseAverageBtcPrice)
+                }
                 userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                 userHoldCoinDtoList.add(
                     UserHoldCoinDTO(
@@ -233,7 +258,9 @@ class MainViewModel @Inject constructor(
                         purchaseAverage,
                         openingPrice = openingPrice,
                         warning = warning,
-                        isFavorite = isFavorite
+                        isFavorite = isFavorite,
+                        market = market,
+                        purchaseAverageBtcPrice = purchaseAverageBtcPrice
                     )
                 )
                 tempUserHoldCoinDtoList.add(
@@ -244,13 +271,19 @@ class MainViewModel @Inject constructor(
                         purchaseAverage,
                         openingPrice = openingPrice,
                         warning = warning,
-                        isFavorite = isFavorite
+                        isFavorite = isFavorite,
+                        market = market,
+                        purchaseAverageBtcPrice = purchaseAverageBtcPrice
                     )
                 )
                 userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
             }
             sortUserHoldCoin(-1)
-            userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
+            if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
+                userHoldCoinsMarket.append(BTC_MARKET)
+            } else {
+                userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
+            }
             UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
             totalPurchase.value = localTotalPurchase
             UpBitPortfolioWebSocket.getListener()
@@ -263,7 +296,6 @@ class MainViewModel @Inject constructor(
             totalPurchase.value = 0.0
             portfolioLoadingComplete.value = true
         }
-
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
@@ -297,7 +329,7 @@ class MainViewModel @Inject constructor(
         }
 
         for (i in tempUserHoldCoinDtoList.indices) {
-            userHoldCoinDtoListPositionHashMap["KRW-".plus(tempUserHoldCoinDtoList[i].myCoinsSymbol)] =
+            userHoldCoinDtoListPositionHashMap[tempUserHoldCoinDtoList[i].market] =
                 i
         }
 
@@ -356,7 +388,11 @@ class MainViewModel @Inject constructor(
                     for (i in tempUserHoldCoinDtoList.indices) {
                         val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
                         userHoldCoinDtoList[i] = userHoldCoinDTO
-                        tempTotalValuedAssets += userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
+                        tempTotalValuedAssets = if(userHoldCoinDTO.market.startsWith(SYMBOL_KRW)) {
+                            tempTotalValuedAssets + userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
+                        } else {
+                            tempTotalValuedAssets + (userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity * btcTradePrice.value)
+                        }
                     }
                     totalValuedAssets.value = tempTotalValuedAssets
                     delay(300)
@@ -385,23 +421,56 @@ class MainViewModel @Inject constructor(
     override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
         if (isPortfolioSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-            val tickerListPosition = krwExchangeModelListPosition[model.code] ?: 0
-            val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
-            val userHoldCoin = userHoldCoinHashMap[model.code]!!
-            val openingPrice = krwExchangeModelList[tickerListPosition].opening_price
-            val warning = model.marketWarning
-            val isFavorite = favoriteHashMap[model.code]
-            tempUserHoldCoinDtoList[position] =
-                UserHoldCoinDTO(
-                    krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
-                    userHoldCoin.symbol,
-                    userHoldCoin.quantity,
-                    userHoldCoin.purchasePrice,
-                    model.tradePrice,
-                    openingPrice = openingPrice,
-                    warning = warning,
-                    isFavorite = isFavorite
-                )
+            if (model.code.startsWith(SYMBOL_KRW)) {
+                if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
+                    btcTradePrice.value = model.tradePrice
+                    Log.e("btcPort",btcTradePrice.value.toString())
+                    return
+                } else if(model.code == BTC_MARKET) {
+                    btcTradePrice.value = model.tradePrice
+                }
+                val tickerListPosition = krwExchangeModelListPosition[model.code] ?: 0
+                val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
+                val userHoldCoin = userHoldCoinHashMap[model.code]!!
+                val openingPrice = krwExchangeModelList[tickerListPosition].opening_price
+                val warning = model.marketWarning
+                val isFavorite = favoriteHashMap[model.code]
+                val market = krwExchangeModelList[tickerListPosition].market
+                tempUserHoldCoinDtoList[position] =
+                    UserHoldCoinDTO(
+                        krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        userHoldCoin.symbol,
+                        userHoldCoin.quantity,
+                        userHoldCoin.purchasePrice,
+                        model.tradePrice,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite,
+                        market = market
+                    )
+            } else {
+                val tickerListPosition = btcExchangeModelListPosition[model.code] ?: 0
+                val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
+                val userHoldCoin = userHoldCoinHashMap[model.code]!!
+                val openingPrice = btcExchangeModelList[tickerListPosition].opening_price
+                val warning = model.marketWarning
+                val isFavorite = favoriteHashMap[model.code]
+                val market = btcExchangeModelList[tickerListPosition].market
+                val purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
+                tempUserHoldCoinDtoList[position] =
+                    UserHoldCoinDTO(
+                        btcCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        userHoldCoin.symbol,
+                        userHoldCoin.quantity,
+                        userHoldCoin.purchasePrice,
+                        model.tradePrice,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite,
+                        market = market,
+                        purchaseAverageBtcPrice = purchaseAverageBtcPrice
+                    )
+            }
         }
     }
 

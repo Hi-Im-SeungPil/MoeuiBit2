@@ -35,4 +35,7 @@ interface MyCoinDAO {
 
     @Query("DELETE FROM MyCoin ")
     suspend fun deleteAll()
+
+    @Query("UPDATE MYCOIN SET purchaseAverageBtcPrice = :price WHERE market = :market")
+    suspend fun updatePurchaseAverageBtcPrice(market:String?, price: Double?)
 }

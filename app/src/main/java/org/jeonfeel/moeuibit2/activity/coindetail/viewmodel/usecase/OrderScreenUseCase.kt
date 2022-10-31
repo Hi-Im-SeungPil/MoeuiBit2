@@ -18,6 +18,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.Calculator.averagePurchasePriceCalculator
 import org.jeonfeel.moeuibit2.util.eighthDecimal
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -89,6 +90,7 @@ class OrderScreenUseCase @Inject constructor(
         totalPrice: Long = 0L,
         btcTotalPrice: Double = 0.0,
         marketState: Int,
+        currentBtcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -96,16 +98,16 @@ class OrderScreenUseCase @Inject constructor(
         val myCoin: MyCoin? = coinDao.isInsert(market)
 
         if (myCoin == null) {
-            coinDao.insert(
-                MyCoin(
-                    market,
-                    currentPrice,
-                    koreanName,
-                    symbol,
-                    quantity
-                )
-            )
             if (marketState == SELECTED_KRW_MARKET) {
+                coinDao.insert(
+                    MyCoin(
+                        market,
+                        currentPrice,
+                        koreanName,
+                        symbol,
+                        quantity
+                    )
+                )
                 if (totalPrice == (userSeedMoney.value - round(userSeedMoney.value * 0.0005)).toLong()) {
                     userDao.updateMinusMoney((totalPrice + round(userSeedMoney.value * 0.0005)).toLong())
                 } else {
@@ -113,6 +115,16 @@ class OrderScreenUseCase @Inject constructor(
                 }
                 userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
+                coinDao.insert(
+                    MyCoin(
+                        market,
+                        currentPrice,
+                        koreanName,
+                        symbol,
+                        quantity,
+                        currentBtcPrice
+                    )
+                )
                 if (btcQuantity.value - (btcTotalPrice + btcQuantity.value * 0.0025) < 0.00000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
@@ -133,14 +145,22 @@ class OrderScreenUseCase @Inject constructor(
                     BID,
                     System.currentTimeMillis()))
         } else {
-            val preAveragePurchasePrice = myCoin.purchasePrice
+            val prePurchaseAveragePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
+            val prePurchaseAverageBtcPrice = myCoin.PurchaseAverageBtcPrice
             val purchaseAverage = Calculator.averagePurchasePriceCalculator(
                 currentPrice,
                 quantity,
-                preAveragePurchasePrice,
+                prePurchaseAveragePrice,
                 preCoinQuantity,
                 marketState
+            )
+            val purchaseAverageBtcPrice = averagePurchasePriceCalculator(
+                currentBtcPrice,
+                quantity * currentPrice,
+                prePurchaseAverageBtcPrice,
+                preCoinQuantity * prePurchaseAveragePrice,
+                SELECTED_KRW_MARKET
             )
 
             if (purchaseAverage >= 100) {
@@ -160,6 +180,7 @@ class OrderScreenUseCase @Inject constructor(
                     coinDao.updateMinusQuantity(BTC_MARKET,
                         (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
                 }
+                coinDao.updatePurchaseAverageBtcPrice(market,purchaseAverageBtcPrice)
                 btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
 
