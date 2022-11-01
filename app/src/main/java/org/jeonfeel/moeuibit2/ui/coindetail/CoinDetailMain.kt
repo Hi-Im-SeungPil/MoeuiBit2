@@ -12,7 +12,6 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +20,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.coinImageUrl
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -66,13 +66,18 @@ fun CoinDetailMain(
                         modifier = Modifier.weight(1f),
                         style = TextStyle(color = textColor),
                         maxLines = 1)
-                    Text(text = curChangePrice,
+                    AutoSizeText(text = curChangePrice,
                         modifier = Modifier.weight(1f),
-                        style = TextStyle(color = textColor,
-                            textAlign = TextAlign.Start),
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible
+                        textStyle = TextStyle(textAlign = TextAlign.Start, fontSize = 13.sp),
+                        color = textColor
                     )
+//                    Text(text = curChangePrice,
+//                        modifier = Modifier.weight(1f),
+//                        style = TextStyle(color = textColor,
+//                            textAlign = TextAlign.Start),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Visible
+//                    )
                 }
             }
             // 코인 상세화면 코인 이미지

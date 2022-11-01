@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 @Composable
@@ -110,7 +109,7 @@ fun UserHoldCoinLazyColumnItem(
                         text = stringResource(id = R.string.valuationGainOrLoss),
                         modifier = Modifier.wrapContentWidth()
                     )
-                    PortfolioAutoSizeText(
+                    AutoSizeText(
                         text = valuationGainOrLoss,
                         modifier = Modifier
                             .padding(0.dp, 0.dp, 0.dp, 4.dp)
@@ -124,7 +123,7 @@ fun UserHoldCoinLazyColumnItem(
                         text = stringResource(id = R.string.aReturn),
                         modifier = Modifier.wrapContentWidth()
                     )
-                    PortfolioAutoSizeText(
+                    AutoSizeText(
                         text = aReturn,
                         modifier = Modifier
                             .fillMaxWidth()

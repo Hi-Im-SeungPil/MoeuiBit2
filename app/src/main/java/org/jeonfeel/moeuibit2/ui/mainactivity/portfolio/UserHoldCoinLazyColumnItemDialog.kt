@@ -26,6 +26,7 @@ import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.util.secondDecimal
 
 /**
@@ -51,6 +52,7 @@ fun UserHoldCoinLazyColumnItemDialog(
     } else {
         Color.Black
     }
+
     Dialog(onDismissRequest = {}) {
         Card(
             modifier = Modifier
@@ -84,7 +86,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         style = TextStyle(fontSize = 18.sp)
                     )
                     Text(
-                        text = Calculator.tradePriceCalculatorForChart(currentPrice),
+                        text = CurrentCalculator.tradePriceCalculator(currentPrice,marketState),
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .weight(1f, true),

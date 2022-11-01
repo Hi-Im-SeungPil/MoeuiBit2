@@ -127,8 +127,8 @@ fun AskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textStyle = TextStyle(fontSize = 15.sp,
-                    color = orderBookTextColor,
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center),
+                color = orderBookTextColor
             )
             Text(
                 text = rateResult,

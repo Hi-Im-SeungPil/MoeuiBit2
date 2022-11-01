@@ -7,13 +7,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun AutoSizeText(
     modifier: Modifier = Modifier,
     text: String,
-    textStyle: TextStyle? = MaterialTheme.typography.body1
+    textStyle: TextStyle? = MaterialTheme.typography.body1,
+    color: Color = Color.Black
 ) {
     val readyToDraw = remember { mutableStateOf(false) }
     val rememberTextStyle = remember {
@@ -27,8 +29,7 @@ fun AutoSizeText(
                 drawContent()
             }
         },
-        style = rememberTextStyle.value!!,
-        color = rememberTextStyle.value!!.color,
+        style = rememberTextStyle.value!!.copy(color = color),
         softWrap = false,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.didOverflowWidth) {

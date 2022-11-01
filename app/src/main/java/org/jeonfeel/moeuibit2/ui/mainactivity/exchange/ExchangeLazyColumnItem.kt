@@ -233,7 +233,9 @@ fun TradePrice(tradePrice: String, textColor: Color, btcToKrw: String = "") {
                     .weight(1f)
                     .fillMaxWidth()
                     .fillMaxHeight(),text = btcToKrw.plus(" $SYMBOL_KRW"),
-                    TextStyle(color = Color.Gray, fontSize = 13.sp, textAlign = TextAlign.End))
+                    TextStyle(fontSize = 13.sp, textAlign = TextAlign.End),
+                    color = Color.Gray
+                )
             }
         }
     }

@@ -114,7 +114,7 @@ class MainViewModel @Inject constructor(
     private fun requestCoinListToWebSocket() {
         Handler(Looper.getMainLooper()).postDelayed({
             exchangeUseCase.requestCoinListToWebSocket()
-        },650L)
+        }, 650L)
     }
 
     /**
@@ -212,7 +212,8 @@ class MainViewModel @Inject constructor(
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()
         tempUserHoldCoinDtoList.clear()
-        btcTradePrice.value = krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice ?: 0.0
+        btcTradePrice.value =
+            krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice ?: 0.0
         if (userHoldCoinList.isNotEmpty()) {
             for (i in userHoldCoinList.indices) {
                 val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
@@ -223,28 +224,28 @@ class MainViewModel @Inject constructor(
                 val quantity = userHoldCoin.quantity
                 val purchaseAverage = userHoldCoin.purchasePrice
                 val purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
-                val position = if(marketState == SELECTED_KRW_MARKET) {
+                val position = if (marketState == SELECTED_KRW_MARKET) {
                     krwExchangeModelListPosition[market] ?: 0
                 } else {
                     btcExchangeModelListPosition[market] ?: 0
                 }
-                val openingPrice =if(marketState == SELECTED_KRW_MARKET) {
+                val openingPrice = if (marketState == SELECTED_KRW_MARKET) {
                     krwExchangeModelList[position].opening_price
                 } else {
                     btcExchangeModelList[position].opening_price
                 }
-                val warning = if(marketState == SELECTED_KRW_MARKET) {
+                val warning = if (marketState == SELECTED_KRW_MARKET) {
                     krwExchangeModelList[position].warning
                 } else {
                     btcExchangeModelList[position].warning
                 }
-                val koreanName = if(marketState == SELECTED_KRW_MARKET) {
+                val koreanName = if (marketState == SELECTED_KRW_MARKET) {
                     krwCoinKoreanNameAndEngName[market]?.get(0) ?: ""
                 } else {
                     btcCoinKoreanNameAndEngName[market]?.get(0) ?: ""
                 }
                 userHoldCoinHashMap[market] = userHoldCoin
-                localTotalPurchase = if(marketState == SELECTED_KRW_MARKET) {
+                localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
                     localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                 } else {
                     localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.PurchaseAverageBtcPrice)
@@ -352,15 +353,28 @@ class MainViewModel @Inject constructor(
             } else {
                 if (krwExchangeModelListPosition.isNotEmpty()) {
                     for (i in userHoldCoinList) {
-                        if (krwExchangeModelListPosition[i!!.market] == null) {
-                            localRepository.getFavoriteDao().delete(i.market)
-                            localRepository.getMyCoinDao().delete(i.market)
-                            localRepository.getTransactionInfoDao().delete(i.market)
-                            count += 1
-                        } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
-                            localRepository.getMyCoinDao().delete(i.market)
-                            localRepository.getTransactionInfoDao().delete(i.market)
-                            count += 1
+                        if (i!!.market.startsWith(SYMBOL_KRW)) {
+                            if (krwExchangeModelListPosition[i.market] == null) {
+                                localRepository.getFavoriteDao().delete(i.market)
+                                localRepository.getMyCoinDao().delete(i.market)
+                                localRepository.getTransactionInfoDao().delete(i.market)
+                                count += 1
+                            } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                                localRepository.getMyCoinDao().delete(i.market)
+                                localRepository.getTransactionInfoDao().delete(i.market)
+                                count += 1
+                            }
+                        }else {
+                            if (btcExchangeModelListPosition[i.market] == null) {
+                                localRepository.getFavoriteDao().delete(i.market)
+                                localRepository.getMyCoinDao().delete(i.market)
+                                localRepository.getTransactionInfoDao().delete(i.market)
+                                count += 1
+                            } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                                localRepository.getMyCoinDao().delete(i.market)
+                                localRepository.getTransactionInfoDao().delete(i.market)
+                                count += 1
+                            }
                         }
                     }
                     if (count > 1) {
@@ -388,7 +402,7 @@ class MainViewModel @Inject constructor(
                     for (i in tempUserHoldCoinDtoList.indices) {
                         val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
                         userHoldCoinDtoList[i] = userHoldCoinDTO
-                        tempTotalValuedAssets = if(userHoldCoinDTO.market.startsWith(SYMBOL_KRW)) {
+                        tempTotalValuedAssets = if (userHoldCoinDTO.market.startsWith(SYMBOL_KRW)) {
                             tempTotalValuedAssets + userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
                         } else {
                             tempTotalValuedAssets + (userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity * btcTradePrice.value)
@@ -424,9 +438,9 @@ class MainViewModel @Inject constructor(
             if (model.code.startsWith(SYMBOL_KRW)) {
                 if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                     btcTradePrice.value = model.tradePrice
-                    Log.e("btcPort",btcTradePrice.value.toString())
+                    Log.e("btcPort", btcTradePrice.value.toString())
                     return
-                } else if(model.code == BTC_MARKET) {
+                } else if (model.code == BTC_MARKET) {
                     btcTradePrice.value = model.tradePrice
                 }
                 val tickerListPosition = krwExchangeModelListPosition[model.code] ?: 0
@@ -487,6 +501,13 @@ class MainViewModel @Inject constructor(
             } else {
                 userDao.updatePlusMoney(10_000_000)
             }
+        }
+    }
+
+    fun test() {
+        viewModelScope.launch(ioDispatcher) {
+            val userDao = localRepository.getUserDao()
+            userDao.updatePlusMoney(10_000_000_0000)
         }
     }
 

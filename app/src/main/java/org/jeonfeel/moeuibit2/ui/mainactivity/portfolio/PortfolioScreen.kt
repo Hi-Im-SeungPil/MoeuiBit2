@@ -35,7 +35,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
-import org.jeonfeel.moeuibit2.ui.custom.PortfolioAutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
@@ -221,7 +221,29 @@ fun PortfolioMain(
                         .align(Alignment.CenterVertically)
                         .padding(8.dp)
                         .clickable {
-                            mainViewModel.adDialogState.value = true
+//                            mainViewModel.adDialogState.value = true
+                            mainViewModel.earnReward()
+                        },
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 18.sp
+                    )
+                )
+            }
+            Card(
+                modifier = Modifier
+                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
+                    .wrapContentWidth(),
+                elevation = 4.dp,
+            ) {
+                Text(
+                    text = "테스트 10조 충전 버튼",
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .align(Alignment.CenterVertically)
+                        .padding(8.dp)
+                        .clickable {
+                            mainViewModel.test()
                         },
                     style = TextStyle(
                         color = Color.Black,
@@ -297,19 +319,40 @@ fun RowScope.PortfolioMainItem(
                 fontSize = 18.sp,
             )
         )
-
-        PortfolioAutoSizeText(
+        AutoSizeText(
             text = text2,
             modifier = Modifier
                 .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .wrapContentHeight()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .wrapContentHeight(),
             textStyle = TextStyle(
-                color = Color.Black,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
         )
+//        Text(
+//            text = text2,
+//            modifier = Modifier
+//                .padding(8.dp, 5.dp, 8.dp, 0.dp)
+//                .wrapContentHeight()
+//                .fillMaxWidth(),
+//            style = TextStyle(
+//                fontSize = 22.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//        )
+//        PortfolioAutoSizeText(
+//            text = text2,
+//            modifier = Modifier
+//                .padding(8.dp, 5.dp, 8.dp, 0.dp)
+//                .wrapContentHeight()
+//                .fillMaxWidth(),
+//            textStyle = TextStyle(
+//                color = Color.Black,
+//                fontSize = 22.sp,
+//                fontWeight = FontWeight.Bold
+//            )
+//        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -327,7 +370,7 @@ fun RowScope.PortfolioMainItem(
                     fontSize = 14.sp,
                 )
             )
-            PortfolioAutoSizeText(
+            AutoSizeText(
                 text = text4,
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
@@ -335,7 +378,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentHeight(),
                 textStyle = TextStyle(
                     fontSize = 14.sp,
-                    textAlign = TextAlign.End
+                    textAlign = TextAlign.End,
                 ),
                 color = textColor
             )
@@ -356,7 +399,7 @@ fun RowScope.PortfolioMainItem(
                     fontSize = 14.sp,
                 )
             )
-            PortfolioAutoSizeText(
+            AutoSizeText(
                 text = text6,
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
