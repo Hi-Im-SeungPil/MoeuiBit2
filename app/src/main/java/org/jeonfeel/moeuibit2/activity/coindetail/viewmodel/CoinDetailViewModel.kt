@@ -126,6 +126,7 @@ class CoinDetailViewModel @Inject constructor(
     val btcQuantity: MutableState<Double> get() = orderScreenUseCase.btcQuantity
     val currentBTCPrice: MutableState<Double> get() = orderScreenUseCase.currentBTCPrice
     val orderScreenLoadingState get() = orderScreenUseCase.orderScreenLoadingState
+    val krwBidFee: MutableState<Int> get() = orderScreenUseCase.krwBidFee
 
     private var isTickerSocketRunning: Boolean
         set(value) {
@@ -214,6 +215,12 @@ class CoinDetailViewModel @Inject constructor(
     fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double, btcTotalPrice: Double = 0.0,): Job {
         return viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.askRequest(market, quantity, totalPrice, btcTotalPrice, currentPrice, marketState)
+        }
+    }
+
+    fun adjustFee(){
+        viewModelScope.launch(ioDispatcher) {
+            orderScreenUseCase.adjustFee()
         }
     }
 

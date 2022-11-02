@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -77,7 +78,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     OrderScreenPrice(coinDetailViewModel, marketState)
                     OrderScreenTotalPrice(coinDetailViewModel, marketState)
                     OrderScreenButtons(coinDetailViewModel, marketState)
-                    OrderScreenNotice(context, lifecycleOwner, marketState)
+                    OrderScreenNotice(context, lifecycleOwner, marketState,coinDetailViewModel)
                 }
             } else {
                 TransactionInfoLazyColumn(coinDetailViewModel)
@@ -440,7 +441,7 @@ fun OrderScreenTotalPrice(
             )
         }
     }
-    val totalPriceBtcToKrw = if(marketState == SELECTED_BTC_MARKET) {
+    val totalPriceBtcToKrw = if (marketState == SELECTED_BTC_MARKET) {
         CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentBTCPrice.value * totalPrice.toDouble(),
             SELECTED_KRW_MARKET)
     } else {
@@ -667,7 +668,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
 }
 
 @Composable
-fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketState: Int) {
+fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketState: Int, coinDetailViewModel: CoinDetailViewModel) {
     val texts = EtcUtils.getCoinDetailScreenInfo(marketState)
     val balloon = remember {
         Balloon.Builder(context)
@@ -709,18 +710,25 @@ fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketSt
             Modifier
                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
                 .fillMaxWidth()
+                .wrapContentHeight()
         ) {
             Text(
                 text = stringResource(id = R.string.fee),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
                 textAlign = TextAlign.Start,
                 style = TextStyle(color = Color.Gray)
             )
             Text(
-                text = texts[1],
-                modifier = Modifier.weight(1f),
+                text = coinDetailViewModel.krwBidFee.value.toString(),
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
                 textAlign = TextAlign.End,
                 style = TextStyle(color = Color.Gray)
+            )
+            Image(painter = painterResource(id = R.drawable.ic_baseline_tune_24),
+                contentDescription = null,
+                modifier = Modifier.padding(start = 3.dp).size(25.dp).align(Alignment.CenterVertically).clickable {
+                    coinDetailViewModel.adjustFee()
+                }
             )
         }
         AndroidView(
@@ -733,8 +741,8 @@ fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketSt
                     }
                 }
             }, modifier = Modifier
-                .padding(0.dp, 10.dp, 10.dp, 0.dp)
-                .size(20.dp)
+                .padding(0.dp, 10.dp, 0.dp, 0.dp)
+                .size(25.dp)
                 .align(Alignment.End)
         )
     }

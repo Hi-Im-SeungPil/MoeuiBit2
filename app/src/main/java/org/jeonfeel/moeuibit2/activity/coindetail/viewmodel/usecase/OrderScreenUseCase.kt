@@ -15,6 +15,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
+import org.jeonfeel.moeuibit2.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
@@ -29,6 +30,7 @@ import kotlin.math.round
 class OrderScreenUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
+    private val preferenceManager: PreferenceManager
 ) {
     val gson = Gson()
     var isTickerSocketRunning = true
@@ -49,6 +51,10 @@ class OrderScreenUseCase @Inject constructor(
     val errorDialogState = mutableStateOf(false)
     val btcQuantity = mutableStateOf(0.0)
     val currentBTCPrice = mutableStateOf(0.0)
+    val krwBidFee = mutableStateOf(-1)
+    val krwAskFee = mutableStateOf(-1)
+    val btcBidFee = mutableStateOf(-1)
+    val btcAskFee = mutableStateOf(-1)
 
     suspend fun initOrderScreen(market: String) {
         delay(700L)
@@ -255,5 +261,11 @@ class OrderScreenUseCase @Inject constructor(
                 totalPrice,
                 ASK,
                 System.currentTimeMillis()))
+    }
+
+    suspend fun adjustFee() {
+        preferenceManager.setValue(PREF_KEY_KRW_BID_FEE,30, completeAction = {
+            krwBidFee.value = preferenceManager.getInt(PREF_KEY_KRW_BID_FEE)
+        })
     }
 }

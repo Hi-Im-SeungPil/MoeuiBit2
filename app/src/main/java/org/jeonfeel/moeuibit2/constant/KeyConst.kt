@@ -7,3 +7,5 @@ const val INTENT_IS_FAVORITE = "isFavorite"
 const val INTENT_WARNING = "warning"
 const val INTENT_MARKET_STATE = "marketState"
 const val INTENT_MARKET = "market"
+
+const val PREF_KEY_KRW_BID_FEE = "krwBidFee"

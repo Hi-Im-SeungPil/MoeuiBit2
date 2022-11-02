@@ -10,6 +10,7 @@ val timeOutDuration: Duration = Duration.ofMillis(50000L)
 val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
 
 const val ROOM_DATABASE_NAME = "MoeuiBitDatabase"
+const val PREFRENCE_NAME = "MoeuiBitPrefrence"
 const val rewardFullScreenAdId = "ca-app-pub-8481465476603755/3905762551"
 const val rewardVideoAdId = "ca-app-pub-8481465476603755/3753512134"
 const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"

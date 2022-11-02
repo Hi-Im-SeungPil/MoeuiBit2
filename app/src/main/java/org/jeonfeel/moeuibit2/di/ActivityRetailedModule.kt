@@ -7,6 +7,7 @@ import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
+import org.jeonfeel.moeuibit2.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
@@ -32,9 +33,10 @@ class ActivityRetailedModule {
     @Provides
     fun provideOrderScreenUseCase(
         remoteRepository: RemoteRepository,
-        localRepository: LocalRepository
+        localRepository: LocalRepository,
+        prefrenceManager: PreferenceManager
     ): OrderScreenUseCase {
-        return OrderScreenUseCase(remoteRepository, localRepository)
+        return OrderScreenUseCase(remoteRepository, localRepository,prefrenceManager)
     }
 
     @Provides

@@ -86,7 +86,7 @@
     <string name="openSourceLicense">오픈소스 라이선스</string>
 
     <string name="loading_chart">데이터 불러오는중...</string>
-    <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
+    <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· 모의투자가 너무 쉽다고 느껴지시면 위의 수수료 조정 버튼으로 수수료를 조정해 보세요!\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
     <string name="favorite_insert_message">관심 코인에 추가되었습니다.</string>
     <string name="favorite_remove_message">관심 코인에서 삭제되었습니다.</string>
     <string name="CAUTION_KOREAN">[유의]</string>
