@@ -57,6 +57,8 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    AdjustFeeDialog(dialogState = coinDetailViewModel.isShowAdjustFeeDialog,
+        coinDetailViewModel.feeStateList)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,7 +80,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     OrderScreenPrice(coinDetailViewModel, marketState)
                     OrderScreenTotalPrice(coinDetailViewModel, marketState)
                     OrderScreenButtons(coinDetailViewModel, marketState)
-                    OrderScreenNotice(context, lifecycleOwner, marketState,coinDetailViewModel)
+                    OrderScreenNotice(context, lifecycleOwner, marketState, coinDetailViewModel)
                 }
             } else {
                 TransactionInfoLazyColumn(coinDetailViewModel)
@@ -668,7 +670,12 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
 }
 
 @Composable
-fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketState: Int, coinDetailViewModel: CoinDetailViewModel) {
+fun OrderScreenNotice(
+    context: Context,
+    lifecycleOwner: LifecycleOwner,
+    marketState: Int,
+    coinDetailViewModel: CoinDetailViewModel,
+) {
     val texts = EtcUtils.getCoinDetailScreenInfo(marketState)
     val balloon = remember {
         Balloon.Builder(context)
@@ -714,21 +721,29 @@ fun OrderScreenNotice(context: Context, lifecycleOwner: LifecycleOwner, marketSt
         ) {
             Text(
                 text = stringResource(id = R.string.fee),
-                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically),
                 textAlign = TextAlign.Start,
                 style = TextStyle(color = Color.Gray)
             )
             Text(
                 text = coinDetailViewModel.krwBidFee.value.toString(),
-                modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .weight(1f)
+                    .align(Alignment.CenterVertically),
                 textAlign = TextAlign.End,
                 style = TextStyle(color = Color.Gray)
             )
             Image(painter = painterResource(id = R.drawable.ic_baseline_tune_24),
                 contentDescription = null,
-                modifier = Modifier.padding(start = 3.dp).size(25.dp).align(Alignment.CenterVertically).clickable {
-                    coinDetailViewModel.adjustFee()
-                }
+                modifier = Modifier
+                    .padding(start = 3.dp)
+                    .size(25.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable {
+                        coinDetailViewModel.isShowAdjustFeeDialog.value = true
+                    }
             )
         }
         AndroidView(

@@ -71,13 +71,6 @@ fun CoinDetailMain(
                         textStyle = TextStyle(textAlign = TextAlign.Start, fontSize = 13.sp),
                         color = textColor
                     )
-//                    Text(text = curChangePrice,
-//                        modifier = Modifier.weight(1f),
-//                        style = TextStyle(color = textColor,
-//                            textAlign = TextAlign.Start),
-//                        maxLines = 1,
-//                        overflow = TextOverflow.Visible
-//                    )
                 }
             }
             // 코인 상세화면 코인 이미지

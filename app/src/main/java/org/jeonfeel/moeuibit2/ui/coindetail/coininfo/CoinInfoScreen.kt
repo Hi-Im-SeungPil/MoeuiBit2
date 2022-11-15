@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 @Composable
 fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     CommonLoadingDialog(dialogState = coinDetailViewModel.coinInfoDialog, text = stringResource(id = R.string.coinInfoLoading))
+    CommonLoadingDialog(dialogState = coinDetailViewModel.webViewLoading, text = "페이지 로드중...")
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val coinInfoHashMap = remember {
@@ -38,17 +39,20 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
             coinDetailViewModel.coinInfoLoading.value = false
         },
         onStartAction = {
-            flex.initFlex()
+            flex.initFlex(coinDetailViewModel.webViewLoading)
             coinDetailViewModel.getCoinInfo()
             coinDetailViewModel.coinInfoLiveData.observe(lifecycleOwner) {
                 coinInfoHashMap.value = it
                 coinDetailViewModel.coinInfoDialog.value = false
             }
+//            Log.e("currentUrl", coinDetailViewModel.webViewState.content.toString())
+//            Log.e("currentUrl2", selectedButton.value.toString())
+//            Log.e("currentUrl3", coinDetailViewModel.webViewState.content.toString())
         }
     )
 
     if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
-        CoinInfoContent(selected, selectedButton, coinInfoHashMap, flex)
+        CoinInfoContent(selected, selectedButton, coinInfoHashMap, flex, coinDetailViewModel.webViewLoading)
     } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }

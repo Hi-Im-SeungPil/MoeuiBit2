@@ -29,11 +29,9 @@ fun CoinDetailScreen(
     warning: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
+    CommonLoadingDialog(dialogState = coinDetailViewModel.orderScreenLoadingState, text = "로딩중 입니다...")
     val context = LocalContext.current
     val market = coinDetailViewModel.market
-    if(coinDetailViewModel.orderScreenLoadingState.value) {
-        CommonLoadingDialog(dialogState = coinDetailViewModel.orderScreenLoadingState, text = "로딩중 입니다...")
-    }
 
     OnLifecycleEvent { _, event ->
         when (event) {

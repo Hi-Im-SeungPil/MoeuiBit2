@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +24,6 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
@@ -51,7 +49,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         CombinedChart(context)
     }
 
-    CommonLoadingDialog(dialogState = coinDetailViewModel.dialogState, text = stringResource(id = R.string.loading_chart))
+//    CommonLoadingDialog(dialogState = coinDetailViewModel.dialogState, text = stringResource(id = R.string.loading_chart))
     OnLifecycleEvent { lifeCycleOwner, event ->
         when (event) {
             Lifecycle.Event.ON_STOP -> {

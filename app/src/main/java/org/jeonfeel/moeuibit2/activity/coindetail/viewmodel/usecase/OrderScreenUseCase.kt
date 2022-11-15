@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -51,6 +52,8 @@ class OrderScreenUseCase @Inject constructor(
     val errorDialogState = mutableStateOf(false)
     val btcQuantity = mutableStateOf(0.0)
     val currentBTCPrice = mutableStateOf(0.0)
+    val isShowAdjustFeeDialog = mutableStateOf(false)
+    val feeStateList = mutableStateListOf<MutableState<Float>>()
     val krwBidFee = mutableStateOf(-1)
     val krwAskFee = mutableStateOf(-1)
     val btcBidFee = mutableStateOf(-1)

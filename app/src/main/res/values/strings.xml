@@ -99,4 +99,5 @@
     <string name="notMinimumOrderBtcMessage">주문 가능한 최소 금액은 0.0005 BTC 입니다.</string>
     <string name="youHaveNoMoneyMessage">주문 가능 금액이 부족합니다.</string>
     <string name="youHaveNoCoinMessage">매도 가능 수량이 부족합니다.</string>
+    <string name="save">저장</string>
 </resources>

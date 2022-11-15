@@ -60,7 +60,7 @@ fun TwoButtonCommonDialog(
                             .fillMaxWidth(),
                         style = TextStyle(fontSize = 18.sp)
                     )
-                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
+                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
                         Text(
                             text = leftButtonText, modifier = Modifier
@@ -77,7 +77,7 @@ fun TwoButtonCommonDialog(
                         )
                         Text(
                             text = "", modifier = Modifier
-                                .width(0.5.dp)
+                                .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = 18.sp
                         )

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -55,7 +56,6 @@ fun UserHoldCoinLazyColumn(
                 val openingPrice = item.openingPrice
                 val warning = item.warning
                 val isFavorite = item.isFavorite
-                val koreanName = item.myCoinsKoreanName
                 val symbol = item.myCoinsSymbol
                 val currentPrice = item.currentPrice
                 val purchaseAmount =
@@ -68,6 +68,11 @@ fun UserHoldCoinLazyColumn(
                 val coinQuantity = item.myCoinsQuantity.eighthDecimal()
                 val btcPrice = mainViewModel.btcTradePrice.value
                 val purchaseAverageBtcPrice = item.purchaseAverageBtcPrice
+                val koreanName = if(marketState == SELECTED_KRW_MARKET) {
+                    item.myCoinsKoreanName
+                } else {
+                    "[$SYMBOL_BTC] ".plus(item.myCoinsKoreanName)
+                }
                 val aReturn =
                     if (marketState == SELECTED_KRW_MARKET) {
                         val tempAReturn =
