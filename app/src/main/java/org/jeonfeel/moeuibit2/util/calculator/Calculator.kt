@@ -6,6 +6,7 @@ import org.jeonfeel.moeuibit2.util.forthDecimal
 import org.jeonfeel.moeuibit2.util.secondDecimal
 import java.text.DecimalFormat
 import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.math.round
 
 object Calculator {
@@ -109,10 +110,10 @@ object Calculator {
         tradePrice: Double,
         marketState: Int,
     ): String {
-        val result = round(quantity * tradePrice)
+        val result = floor(quantity * tradePrice)
         return if (marketState == SELECTED_KRW_MARKET) {
             if (result >= 100) {
-                decimalFormat.format(round(result).toLong())
+                decimalFormat.format(result.toLong())
             } else if (result < 100 && result >= 1) {
                 result.secondDecimal()
             } else {
@@ -132,13 +133,13 @@ object Calculator {
             if (quantity == 0.0 || tradePrice == 0.0) {
                 0.0
             } else {
-                round(quantity * tradePrice)
+                floor(quantity * tradePrice)
             }
         } else {
             if (quantity == 0.0 || tradePrice == 0.0) {
                 0.0
             } else {
-                (tradePrice * quantity).eighthDecimal().toDouble()
+                floor(tradePrice * quantity * 100000000) * 0.00000001
             }
         }
     }
@@ -147,10 +148,12 @@ object Calculator {
         label: String,
         seedMoney: Long,
         tradePrice: Double,
+        fee: Float
     ): String {
         return when (label) {
                 "최대" -> {
-                    decimalDecimalFormat.format((seedMoney - round(seedMoney * 0.0005)) / tradePrice)
+                    val first = (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
+                    decimalDecimalFormat.format((first))
                 }
                 "50%" -> {
                     decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
@@ -169,11 +172,13 @@ object Calculator {
     fun orderScreenSpinnerBidValueCalculatorForBTC(
         label: String,
         BTCQuantity: Double,
-        tradePrice: Double
+        tradePrice: Double,
+        fee: Float
     ): String {
         return when (label) {
             "최대" -> {
-                decimalDecimalFormat.format((BTCQuantity - (BTCQuantity * 0.0025)) / tradePrice)
+                val first = (BTCQuantity / (tradePrice + (tradePrice * ((fee + 0.00001) * 0.01))))
+                decimalDecimalFormat.format(first)
             }
             "50%" -> {
                 decimalDecimalFormat.format((BTCQuantity * 0.5) / tradePrice)
@@ -238,7 +243,7 @@ object Calculator {
     fun valuationGainOrLossDecimal(purchaseAverage: Double): String {
         val absPrice = abs(purchaseAverage)
         return if (absPrice >= 100) {
-            decimalFormat.format(round(purchaseAverage))
+            decimalFormat.format(floor(purchaseAverage))
         } else if (absPrice < 100 && absPrice >= 1) {
             purchaseAverage.secondDecimal()
         } else if (absPrice == 0.0) {

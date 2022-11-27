@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,6 +8,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +19,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -28,7 +31,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
@@ -39,22 +44,29 @@ import org.jeonfeel.moeuibit2.util.showToast
 fun AdjustFeeDialog(
     dialogState: MutableState<Boolean>,
     feeStateList: SnapshotStateList<MutableState<Float>>,
+    coinDetailViewModel: CoinDetailViewModel,
 ) {
     val context = LocalContext.current
-    val krwBidFeeState: MutableState<String> = remember {
-        mutableStateOf("")
-    }
-    val krwAskFeeState: MutableState<String> = remember {
-        mutableStateOf("")
-    }
-    val btcBidFeeState: MutableState<String> = remember {
-        mutableStateOf("")
-    }
-    val btcAskFeeState: MutableState<String> = remember {
-        mutableStateOf("")
-    }
     if (dialogState.value) {
-        Dialog(onDismissRequest = { dialogState.value = false }) {
+        val scrollState = rememberScrollState()
+        val krwBidFeeState: MutableState<String> = remember {
+            mutableStateOf(feeStateList[0].value.toString())
+        }
+        val krwAskFeeState: MutableState<String> = remember {
+            mutableStateOf(feeStateList[1].value.toString())
+        }
+        val btcBidFeeState: MutableState<String> = remember {
+            mutableStateOf(feeStateList[2].value.toString())
+        }
+        val btcAskFeeState: MutableState<String> = remember {
+            mutableStateOf(feeStateList[3].value.toString())
+        }
+        Dialog(onDismissRequest = { dialogState.value = false },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
             Card(
                 modifier = Modifier
                     .padding(20.dp, 0.dp)
@@ -66,7 +78,7 @@ fun AdjustFeeDialog(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "수수료 조정",
+                        text = stringResource(id = R.string.adjustFee),
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .fillMaxWidth(),
@@ -78,38 +90,39 @@ fun AdjustFeeDialog(
                             fontWeight = FontWeight.Bold
                         )
                     )
-                    AdjustFeeDialogContent(
-                        feeState = feeStateList[0],
-                        textFieldState = krwBidFeeState,
-                        subTitle = "KRW 매수",
-                        closedFloatingPointRange = 0.05f..90f,
-                        lastContent = false,
-                        marketState = SELECTED_KRW_MARKET
-                    )
-                    AdjustFeeDialogContent(
-                        feeState = feeStateList[1],
-                        textFieldState = krwAskFeeState,
-                        subTitle = "KRW 매도",
-                        closedFloatingPointRange = 0.05f..90f,
-                        lastContent = false,
-                        marketState = SELECTED_KRW_MARKET
-                    )
-                    AdjustFeeDialogContent(
-                        feeState = feeStateList[2],
-                        textFieldState = btcBidFeeState,
-                        subTitle = "BTC 매수",
-                        closedFloatingPointRange = 0.25f..90f,
-                        lastContent = false,
-                        marketState = SELECTED_BTC_MARKET
-                    )
-                    AdjustFeeDialogContent(
-                        feeState = feeStateList[3],
-                        textFieldState = btcAskFeeState,
-                        subTitle = "BTC 매도",
-                        closedFloatingPointRange = 0.25f..90f,
-                        lastContent = true,
-                        marketState = SELECTED_BTC_MARKET
-                    )
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                        .verticalScroll(scrollState)) {
+                        AdjustFeeDialogContent(
+                            feeState = feeStateList[0],
+                            textFieldState = krwBidFeeState,
+                            subTitle = stringResource(id = R.string.krwBid),
+                            closedFloatingPointRange = 0.05f..50f,
+                            marketState = SELECTED_KRW_MARKET
+                        )
+                        AdjustFeeDialogContent(
+                            feeState = feeStateList[1],
+                            textFieldState = krwAskFeeState,
+                            subTitle = stringResource(id = R.string.krwAsk),
+                            closedFloatingPointRange = 0.05f..50f,
+                            marketState = SELECTED_KRW_MARKET
+                        )
+                        AdjustFeeDialogContent(
+                            feeState = feeStateList[2],
+                            textFieldState = btcBidFeeState,
+                            subTitle = stringResource(id = R.string.btcBid),
+                            closedFloatingPointRange = 0.25f..50f,
+                            marketState = SELECTED_BTC_MARKET
+                        )
+                        AdjustFeeDialogContent(
+                            feeState = feeStateList[3],
+                            textFieldState = btcAskFeeState,
+                            subTitle = stringResource(id = R.string.btcAsk),
+                            closedFloatingPointRange = 0.25f..50f,
+                            marketState = SELECTED_BTC_MARKET
+                        )
+                    }
 
                     Divider(modifier = Modifier
                         .fillMaxWidth(), color = Color.LightGray, thickness = 1.dp)
@@ -119,7 +132,8 @@ fun AdjustFeeDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-//                                    leftButtonAction()
+                                    coinDetailViewModel.initAdjustFee()
+                                    dialogState.value = false
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
@@ -138,7 +152,24 @@ fun AdjustFeeDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-//                                    rightButtonAction()
+                                    if (krwBidFeeState.value.isNotEmpty()
+                                        && krwAskFeeState.value.isNotEmpty()
+                                        && btcAskFeeState.value.isNotEmpty()
+                                        && btcBidFeeState.value.isNotEmpty()
+                                    ) {
+                                        if (krwBidFeeState.value.toFloat() >= 0.05
+                                            && krwAskFeeState.value.toFloat() >= 0.05
+                                            && btcBidFeeState.value.toFloat() >= 0.25
+                                            && btcAskFeeState.value.toFloat() >= 0.25
+                                        ) {
+                                            coinDetailViewModel.adjustFee()
+                                            dialogState.value = false
+                                        } else {
+                                            context.showToast(context.getString(R.string.feeMinMessage))
+                                        }
+                                    } else {
+                                        context.showToast(context.getString(R.string.inputNotEmptyMessage))
+                                    }
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
@@ -155,105 +186,116 @@ fun AdjustFeeDialog(
 }
 
 @Composable
-fun AdjustFeeDialogContent(
+fun ColumnScope.AdjustFeeDialogContent(
     feeState: MutableState<Float>,
     textFieldState: MutableState<String>,
     subTitle: String,
     closedFloatingPointRange: ClosedFloatingPointRange<Float>,
-    lastContent: Boolean,
     marketState: Int,
 ) {
     val context = LocalContext.current
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 15.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .border(width = 0.7.dp, color = colorResource(id = R.color.C0F0F5C))
-            .padding(vertical = 8.dp)
-    ) {
-        Text(text = subTitle,
-            modifier = Modifier.padding(horizontal = 10.dp),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold)
-        BasicTextField(value = textFieldState.value, onValueChange = {
-            if (it.toDoubleOrNull() == null) {
-                if (it.isEmpty()) {
-                    textFieldState.value = it
-                    feeState.value = 0.0f
-                } else {
-                    context.showToast("숫자만 입력 가능합니다.")
-                }
+    val doneState = remember {
+        mutableStateOf(true)
+    }
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .weight(1f)) {
+        Row(
+            modifier = Modifier
+                .wrapContentHeight()
+                .padding(horizontal = 15.dp)
+                .border(width = 0.7.dp, color = colorResource(id = R.color.C0F0F5C))
+                .padding(vertical = 8.dp)
+        ) {
+            if (doneState.value) {
+                Image(imageVector = Icons.Filled.Done,
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(Color.Green),
+                    modifier = Modifier.padding(start = 8.dp))
             } else {
-                val itToFloat = it.toFloat()
-                if (itToFloat <= 90f) {
-                    if (!it.contains(".") || it.substring(it.indexOf(".")).length < 4) {
-                        if(marketState == SELECTED_KRW_MARKET) {
-                            if (it.length >= 4 && itToFloat < closedFloatingPointRange.start) {
-                                context.showToast("최소 수수료 미만 입력 불가.")
-                                textFieldState.value = closedFloatingPointRange.start.toString()
-                                feeState.value = closedFloatingPointRange.start
+                Image(imageVector = Icons.Filled.Close,
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(Color.Red),
+                    modifier = Modifier.padding(start = 8.dp))
+            }
+            Text(text = subTitle,
+                modifier = Modifier.padding(horizontal = 10.dp),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold)
+            BasicTextField(value = textFieldState.value, onValueChange = {
+                if (it.toDoubleOrNull() == null) {
+                    if (it.isEmpty()) {
+                        textFieldState.value = it
+                        doneState.value = false
+                    } else {
+                        context.showToast(context.getString(R.string.onlyNumberMessage))
+                    }
+                } else {
+                    val itToFloat = it.toFloat()
+                    if (itToFloat <= 50f) {
+                        if (!it.contains(".") || it.substring(it.indexOf(".")).length < 4) {
+                            if (itToFloat < closedFloatingPointRange.start) {
+                                textFieldState.value = it
+                                doneState.value = false
+                                // 최소 수수료
                             } else {
                                 textFieldState.value = it
                                 feeState.value = itToFloat.secondDecimal().toFloat()
+                                doneState.value = true
                             }
                         } else {
-                            if (it.length >= 3 && itToFloat < closedFloatingPointRange.start) {
-                                context.showToast("최소 수수료 미만 입력 불가.")
-                                textFieldState.value = closedFloatingPointRange.start.toString()
-                                feeState.value = closedFloatingPointRange.start
-                            } else {
-                                textFieldState.value = it
-                                feeState.value = itToFloat.secondDecimal().toFloat()
-                            }
+                            context.showToast(context.getString(R.string.feeSecondDecimalMessage))
                         }
                     } else {
-                        context.showToast("소수점 둘째자리 까지 입력 가능.")
+                        context.showToast(context.getString(R.string.feeMaxMessage))
                     }
-                } else {
-                    context.showToast("90 보다 큰 퍼센트 입력 불가.")
                 }
-            }
-        }, singleLine = true,
-            textStyle = TextStyle(color = Color.Black,
-                fontSize = 17.sp, textAlign = TextAlign.Start),
-            modifier = Modifier
-                .weight(1f, true)
-                .clearFocusOnKeyboardDismiss()
-                .padding(0.dp, 0.dp, 9.dp, 0.dp),
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            decorationBox = { innerTextField ->
-                Row(modifier = Modifier.weight(1f, true),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.weight(1f, true)) {
-                        if (textFieldState.value.isEmpty()) {
-                            Text(
-                                "0",
-                                style = TextStyle(color = Color.Gray,
-                                    fontSize = 15.sp,
-                                    textAlign = TextAlign.Start),
-                                modifier = Modifier.fillMaxWidth()
-                            )
+            }, singleLine = true,
+                textStyle = TextStyle(color = Color.Black,
+                    fontSize = 17.sp, textAlign = TextAlign.Start),
+                modifier = Modifier
+                    .weight(1f, true)
+                    .clearFocusOnKeyboardDismiss()
+                    .padding(0.dp, 0.dp, 9.dp, 0.dp),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                decorationBox = { innerTextField ->
+                    Row(modifier = Modifier.weight(1f, true),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f, true)) {
+                            if (textFieldState.value.isEmpty()) {
+                                Text(
+                                    "0",
+                                    style = TextStyle(color = Color.Gray,
+                                        fontSize = 15.sp,
+                                        textAlign = TextAlign.Start),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            innerTextField()
                         }
-                        innerTextField()
                     }
-                }
-            })
+                })
+        }
+        if (!doneState.value && marketState == SELECTED_KRW_MARKET) {
+            Text(text = stringResource(id = R.string.krwMinimumMessage),
+                fontSize = 11.sp,
+                style = TextStyle(color = Color.Red),
+                modifier = Modifier.padding(start = 15.dp))
+        } else if (!doneState.value && marketState == SELECTED_BTC_MARKET) {
+            Text(text = stringResource(id = R.string.btcMinimumMessage),
+                fontSize = 11.sp,
+                style = TextStyle(color = Color.Red),
+                modifier = Modifier.padding(start = 15.dp))
+        }
+        Slider(value = feeState.value,
+            onValueChange = {
+                val result = it.secondDecimal()
+                feeState.value = result.toFloat()
+                textFieldState.value = result
+                doneState.value = true
+            },
+            valueRange = closedFloatingPointRange,
+            modifier = Modifier.padding(horizontal = 15.dp)
+        )
     }
-
-    Slider(value = feeState.value,
-        onValueChange = {
-            val result = it.secondDecimal()
-            feeState.value = result.toFloat()
-            textFieldState.value = result
-        },
-        valueRange = closedFloatingPointRange,
-        modifier = Modifier.padding(horizontal = 15.dp)
-    )
-
-//    if (!lastContent) {
-//        Divider(modifier = Modifier
-//            .padding(bottom = 15.dp)
-//            .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C), thickness = 1.dp)
-//    }
 }

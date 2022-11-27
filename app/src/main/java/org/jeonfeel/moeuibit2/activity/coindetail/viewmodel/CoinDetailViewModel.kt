@@ -11,8 +11,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
-import com.google.accompanist.web.WebContent
-import com.google.accompanist.web.WebViewState
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -68,12 +66,6 @@ class CoinDetailViewModel @Inject constructor(
     val coinInfoDialog = mutableStateOf(false)
     val coinInfoLoading = mutableStateOf(false)
     val webViewLoading = mutableStateOf(false)
-    val webViewState = WebViewState(
-        webContent = WebContent.Url(
-            url = "",
-            emptyMap()
-        )
-    )
 
     /**
      * favorite
@@ -85,6 +77,7 @@ class CoinDetailViewModel @Inject constructor(
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
         this.marketState = EtcUtils.getSelectedMarket(market)
+        orderScreenUseCase.initAdjustFee()
     }
 
     private fun setCoinDetailWebSocketMessageListener() {
@@ -139,7 +132,6 @@ class CoinDetailViewModel @Inject constructor(
     val orderScreenLoadingState get() = orderScreenUseCase.orderScreenLoadingState
     val isShowAdjustFeeDialog get() = orderScreenUseCase.isShowAdjustFeeDialog
     val feeStateList get() = orderScreenUseCase.feeStateList
-    val krwBidFee: MutableState<Int> get() = orderScreenUseCase.krwBidFee
 
     private var isTickerSocketRunning: Boolean
         set(value) {
@@ -235,6 +227,14 @@ class CoinDetailViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.adjustFee()
         }
+    }
+
+    fun initAdjustFee() {
+        orderScreenUseCase.initAdjustFee()
+    }
+
+    fun getFee(key: String): Float {
+        return orderScreenUseCase.getFee(key)
     }
 
     /**

@@ -2,8 +2,6 @@ package org.jeonfeel.moeuibit2.activity.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -18,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.ads.OnUserEarnedRewardListener
 import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
@@ -41,7 +40,7 @@ import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkSt
 import org.jeonfeel.moeuibit2.util.showToast
 import javax.inject.Inject
 
-const val APP_UPDATE_IMMEDIATE_CODE = 123
+const val APP_UPDATE_CODE = 123
 const val APP_UPDATE_FLEXIBLE_CODE = 124
 
 @AndroidEntryPoint
@@ -55,6 +54,9 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
     private val mainViewModel: MainViewModel by viewModels()
     private var removeSplash = false // 스플래쉬 화면 지울건지
+    private val appUpdateManager by lazy {
+        AppUpdateManagerFactory.create(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +86,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                     }
                 }
             }
-        controlSplashScreen()
         initNetworkStateMonitor()
         initObserver()
         checkUpdate()
@@ -94,7 +95,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
      * 스토어 업데이트 확인 로직 (인앱 업데이트)
      */
     private fun checkUpdate() {
-        val appUpdateManager = AppUpdateManagerFactory.create(this)
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
@@ -105,23 +105,29 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
                     AppUpdateType.IMMEDIATE,
                     this,
-                    APP_UPDATE_IMMEDIATE_CODE)
+                    APP_UPDATE_CODE)
 
             } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && appUpdateInfo.updatePriority() >= 2
                 && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
             ) {
-
                 appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
                     AppUpdateType.FLEXIBLE,
                     this,
-                    APP_UPDATE_FLEXIBLE_CODE)
+                    APP_UPDATE_CODE)
             }
-            removeSplash = true
         }.addOnFailureListener {
-            removeSplash = true
+
         }.addOnCanceledListener {
-            removeSplash = true
+
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == APP_UPDATE_CODE) {
+            if (resultCode != RESULT_OK) {
+                this.showToast("업데이트가 취소 되었습니다.")
+            }
         }
     }
 
@@ -197,6 +203,11 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     override fun onResume() {
         super.onResume()
         networkMonitorUtil.register()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+
+            }
+        }
     }
 
     override fun onStop() {
@@ -204,21 +215,11 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         networkMonitorUtil.unregister()
     }
 
-    override fun onUserEarnedReward(p0: RewardItem) {
-        mainViewModel.earnReward()
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
-    private fun controlSplashScreen() {
-        val content: View = findViewById(android.R.id.content)
-        content.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                return if (removeSplash) {
-                    content.viewTreeObserver.removeOnPreDrawListener(this)
-                    true
-                } else {
-                    false
-                }
-            }
-        })
+    override fun onUserEarnedReward(p0: RewardItem) {
+        mainViewModel.earnReward()
     }
 }

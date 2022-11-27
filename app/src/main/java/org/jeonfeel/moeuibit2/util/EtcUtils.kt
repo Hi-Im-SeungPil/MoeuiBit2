@@ -1,9 +1,6 @@
 package org.jeonfeel.moeuibit2.util
 
-import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
-import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.constant.*
 
 object EtcUtils {
 
@@ -24,11 +21,15 @@ object EtcUtils {
             SYMBOL_BTC
         }
 
-    fun getCoinDetailScreenInfo(marketState: Int): List<String> {
-        return if (marketState == SELECTED_KRW_MARKET) {
-            listOf("5000 $SYMBOL_KRW", "0.05%")
+    fun getCoinDetailScreenInfo(marketState: Int, selectedTab: Int): List<String> {
+        return if (marketState == SELECTED_KRW_MARKET && selectedTab == ASK_BID_SCREEN_BID_TAB) {
+            listOf("5000 $SYMBOL_KRW", "0")
+        } else if (marketState == SELECTED_KRW_MARKET && selectedTab == ASK_BID_SCREEN_ASK_TAB) {
+            listOf("5000 $SYMBOL_KRW", "1")
+        } else if(marketState == SELECTED_BTC_MARKET && selectedTab == ASK_BID_SCREEN_BID_TAB) {
+            listOf("0.0005 $SYMBOL_BTC", "2")
         } else {
-            listOf("0.0005 $SYMBOL_BTC", "0.25%")
+            listOf("0.0005 $SYMBOL_BTC", "3")
         }
     }
 }

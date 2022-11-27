@@ -101,30 +101,35 @@ fun UserHoldCoinLazyColumn(
                 } else {
                     (evaluationAmount * btcPrice) - (item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice)
                 }
+
                 val color = if (valuationGainOrLoss > 0) {
                     Color.Red
                 } else if (valuationGainOrLoss < 0) {
                     Color.Blue
                 } else {
                     Color.Black
+
                 }
                 val evaluationAmountFormat = if (marketState == SELECTED_KRW_MARKET) {
                     Calculator.getDecimalFormat().format(evaluationAmount)
                 } else {
                     Calculator.getDecimalFormat().format(evaluationAmount * btcPrice)
                 }
+
                 val purchasePrice = if (marketState == SELECTED_KRW_MARKET) {
                     CurrentCalculator.tradePriceCalculator(purchaseAverage, SELECTED_KRW_MARKET)
                 } else {
                     CurrentCalculator.tradePriceCalculator(purchaseAverage * purchaseAverageBtcPrice,
                         SELECTED_KRW_MARKET)
                 }
+
                 val purchaseAmountResult = if (marketState == SELECTED_KRW_MARKET) {
                     CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
                 } else {
                     CurrentCalculator.tradePriceCalculator(item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice,
                         SELECTED_KRW_MARKET)
                 }
+
                 val valuationGainOrLossResult =
                     Calculator.valuationGainOrLossDecimal(valuationGainOrLoss)
 

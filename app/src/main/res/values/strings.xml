@@ -5,14 +5,12 @@
     <string name="commonCancel">취소</string>
     <string name="commonMove">이동</string>
     <string name="commonAccept">확인</string>
-
     <string name="time">시간</string>
     <string name="openPrice">시가</string>
     <string name="highPrice">고가</string>
     <string name="lowPrice">저가</string>
     <string name="closePrice">종가</string>
     <string name="tradeAmount">거래량</string>
-
     <string name="block">블럭조회</string>
     <string name="homePage">홈페이지</string>
     <string name="info">정보</string>
@@ -20,7 +18,6 @@
     <string name="amount">시가총액</string>
     <string name="noInfo">코인 정보 준비중입니다...!</string>
     <string name="coinInfoLoading">코인정보 불러오는 중...</string>
-
     <string name="noFavorite">등록된 관심코인이 없습니다.</string>
     <string name="noSearchingCoin">일치하는 코인이 없습니다.</string>
     <string name="million">백만</string>
@@ -31,17 +28,14 @@
     <string name="btc">BTC</string>
     <string name="kimp">김프</string>
     <string name="textField">코인명/심볼 검색</string>
-
     <string name="firstError">예상치 못한 오류가 발생했습니다.</string>
     <string name="secondError">예상치 못한 오류가 계속 발생하고 있습니다.</string>
     <string name="retry">재시도</string>
-
     <string name="adDialogTitle">KRW 충전</string>
     <string name="adDialogContent">짧은 광고를 시청하시면 보상으로\n\n10,000,000 KRW가 지급됩니다.\n\n광고를 시청하시겠습니까?</string>
     <string name="confirm">확인</string>
     <string name="cancel">취소</string>
     <string name="adLoadError">광고 로드 오류로 1,000,000 KRW가 지급됩니다.</string>
-
     <string name="notRemovedCoin">정리된 코인이 없습니다.</string>
     <string name="networkError">네트워크 상태 오류입니다.</string>
     <string name="removedCoin">%1$d 종류의 코인이 정리되었습니다.</string>
@@ -78,13 +72,11 @@
     <string name="possible">가능</string>
     <string name="reset">초기화</string>
     <string name="price">가격</string>
-
     <string name="resetDialogTitle">앱 초기화</string>
     <string name="resetDialogContent">보유자산, 거래내역이 모두 사라집니다.\n\n초기화 하시겠습니까?</string>
     <string name="resetDialogResetSuccess">초기화 되었습니다.</string>
     <string name="openSourceIntro">This app uses open source. Thank you very, very much for the open-source makers used to create this app.</string>
     <string name="openSourceLicense">오픈소스 라이선스</string>
-
     <string name="loading_chart">데이터 불러오는중...</string>
     <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· 모의투자가 너무 쉽다고 느껴지시면 위의 수수료 조정 버튼으로 수수료를 조정해 보세요!\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
     <string name="favorite_insert_message">관심 코인에 추가되었습니다.</string>
@@ -100,4 +92,16 @@
     <string name="youHaveNoMoneyMessage">주문 가능 금액이 부족합니다.</string>
     <string name="youHaveNoCoinMessage">매도 가능 수량이 부족합니다.</string>
     <string name="save">저장</string>
+    <string name="krwMinimumMessage">최소 수수료 미만 설정은 불가능합니다. (0.05%)</string>
+    <string name="btcMinimumMessage">최소 수수료 미만 설정은 불가능합니다. (0.25%)</string>
+    <string name="feeSecondDecimalMessage">소수점 둘째자리 까지 입력 가능합니다.</string>
+    <string name="feeMaxMessage">50% 까지 입력 가능합니다</string>
+    <string name="feeMinMessage">최소 수수료 미만은 설정 불가능합니다.</string>
+    <string name="onlyNumberMessage">숫자만 입력 가능합니다.</string>
+    <string name="inputNotEmptyMessage">빈 곳 없이 입력해 주세요.</string>
+    <string name="krwBid">KRW 매수</string>
+    <string name="krwAsk">KRW 매도</string>
+    <string name="btcBid">BTC 매수</string>
+    <string name="btcAsk">BTC 매도</string>
+    <string name="adjustFee">수수료 조정</string>
 </resources>

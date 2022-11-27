@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,19 +18,18 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.Calculator.averagePurchasePriceCalculator
-import org.jeonfeel.moeuibit2.util.eighthDecimal
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
+import kotlin.math.floor
 import kotlin.math.round
 
 @ViewModelScoped
 class OrderScreenUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
 ) {
     val gson = Gson()
     var isTickerSocketRunning = true
@@ -54,10 +52,6 @@ class OrderScreenUseCase @Inject constructor(
     val currentBTCPrice = mutableStateOf(0.0)
     val isShowAdjustFeeDialog = mutableStateOf(false)
     val feeStateList = mutableStateListOf<MutableState<Float>>()
-    val krwBidFee = mutableStateOf(-1)
-    val krwAskFee = mutableStateOf(-1)
-    val btcBidFee = mutableStateOf(-1)
-    val btcAskFee = mutableStateOf(-1)
 
     suspend fun initOrderScreen(market: String) {
         delay(700L)
@@ -78,7 +72,6 @@ class OrderScreenUseCase @Inject constructor(
         } catch (e: SocketTimeoutException) {
             errorDialogState.value = true
         }
-        Log.e("userseed", localRepository.getUserDao().all?.krw.toString())
         localRepository.getUserDao().all.let {
             userSeedMoney.value = it?.krw ?: 0L
         }
@@ -108,6 +101,7 @@ class OrderScreenUseCase @Inject constructor(
 
         if (myCoin == null) {
             if (marketState == SELECTED_KRW_MARKET) {
+                val fee = preferenceManager.getFloat(PREF_KEY_KRW_BID_FEE)
                 coinDao.insert(
                     MyCoin(
                         market,
@@ -117,13 +111,10 @@ class OrderScreenUseCase @Inject constructor(
                         quantity
                     )
                 )
-                if (totalPrice == (userSeedMoney.value - round(userSeedMoney.value * 0.0005)).toLong()) {
-                    userDao.updateMinusMoney((totalPrice + round(userSeedMoney.value * 0.0005)).toLong())
-                } else {
-                    userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
-                }
+                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
+                val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_FEE)
                 coinDao.insert(
                     MyCoin(
                         market,
@@ -134,11 +125,12 @@ class OrderScreenUseCase @Inject constructor(
                         currentBtcPrice
                     )
                 )
-                if (btcQuantity.value - (btcTotalPrice + btcQuantity.value * 0.0025) < 0.00000001) {
+                if (btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
                     coinDao.updateMinusQuantity(BTC_MARKET,
-                        (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                        (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001))
+                    )
                 }
                 btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
@@ -152,12 +144,14 @@ class OrderScreenUseCase @Inject constructor(
                     quantity,
                     totalPrice,
                     BID,
-                    System.currentTimeMillis()))
+                    System.currentTimeMillis()
+                )
+            )
         } else {
             val prePurchaseAveragePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
             val prePurchaseAverageBtcPrice = myCoin.PurchaseAverageBtcPrice
-            val purchaseAverage = Calculator.averagePurchasePriceCalculator(
+            val purchaseAverage = averagePurchasePriceCalculator(
                 currentPrice,
                 quantity,
                 prePurchaseAveragePrice,
@@ -180,19 +174,22 @@ class OrderScreenUseCase @Inject constructor(
 
             coinDao.updatePlusQuantity(market, quantity)
             if (marketState == SELECTED_KRW_MARKET) {
-                userDao.updateMinusMoney((totalPrice + round(totalPrice * 0.0005)).toLong())
+                val fee = preferenceManager.getFloat(PREF_KEY_KRW_BID_FEE)
+                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
                 userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                if (btcQuantity.value - (btcTotalPrice + btcQuantity.value * 0.0025) < 0.00000001) {
+                val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_FEE)
+                if (btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
-                    coinDao.updateMinusQuantity(BTC_MARKET,
-                        (btcTotalPrice + btcQuantity.value * 0.0025).eighthDecimal().toDouble())
+                    coinDao.updateMinusQuantity(
+                        BTC_MARKET,
+                        (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001))
+                    )
                 }
-                coinDao.updatePurchaseAverageBtcPrice(market,purchaseAverageBtcPrice)
+                coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
                 btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
             }
-
             bidQuantity.value = ""
             userCoinQuantity.value = coinDao.isInsert(market)?.quantity ?: 0.0
             localRepository.getTransactionInfoDao().insert(
@@ -202,7 +199,9 @@ class OrderScreenUseCase @Inject constructor(
                     quantity,
                     totalPrice,
                     BID,
-                    System.currentTimeMillis()))
+                    System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -219,30 +218,35 @@ class OrderScreenUseCase @Inject constructor(
 
         coinDao.updateMinusQuantity(market, quantity)
         if (marketState == SELECTED_KRW_MARKET) {
-            userDao.updatePlusMoney((totalPrice - round(totalPrice * 0.0005)).toLong())
+            val fee = preferenceManager.getFloat(PREF_KEY_KRW_ASK_FEE)
+            userDao.updatePlusMoney((totalPrice - floor(totalPrice * (fee * 0.01))).toLong())
             userSeedMoney.value = userDao.all?.krw ?: 0L
         } else {
+            val fee = preferenceManager.getFloat(PREF_KEY_BTC_ASK_FEE)
             val btc = coinDao.isInsert(BTC_MARKET)
             if (btc == null) {
-                coinDao.insert(MyCoin(
-                    BTC_MARKET,
-                    currentBTCPrice.value,
-                    "비트코인",
-                    SYMBOL_BTC,
-                    (btcTotalPrice - btcTotalPrice * 0.0025)
-                ))
+                coinDao.insert(
+                    MyCoin(
+                        market = BTC_MARKET,
+                        purchasePrice = currentBTCPrice.value,
+                        koreanCoinName = "비트코인",
+                        symbol = SYMBOL_BTC,
+                        quantity = (btcTotalPrice - btcTotalPrice * (fee * 0.01))
+                    )
+                )
             } else {
                 val preAveragePurchasePrice = btc.purchasePrice
                 val preCoinQuantity = btc.quantity
-                val purchaseAverage = Calculator.averagePurchasePriceCalculator(
-                    currentBTCPrice.value,
-                    (btcTotalPrice - btcTotalPrice * 0.0025),
-                    preAveragePurchasePrice,
-                    preCoinQuantity,
-                    marketState
+                val purchaseAverage = averagePurchasePriceCalculator(
+                    currentPrice = currentBTCPrice.value,
+                    currentQuantity = (btcTotalPrice - btcTotalPrice * (fee * 0.01)),
+                    preAveragePurchasePrice = preAveragePurchasePrice,
+                    preCoinQuantity = preCoinQuantity,
+                    marketState = marketState
                 )
                 coinDao.updatePurchasePrice(BTC_MARKET, purchaseAverage)
-                coinDao.updatePlusQuantity(BTC_MARKET, (btcTotalPrice - btcTotalPrice * 0.0025))
+                coinDao.updatePlusQuantity(BTC_MARKET,
+                    (btcTotalPrice - btcTotalPrice * (fee * 0.01)))
             }
         }
         btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
@@ -266,9 +270,20 @@ class OrderScreenUseCase @Inject constructor(
                 System.currentTimeMillis()))
     }
 
+    fun initAdjustFee() {
+        for (i in PREF_KEY_FEE_LIST.indices) {
+            val fee = preferenceManager.getFloat(PREF_KEY_FEE_LIST[i])
+            feeStateList.add(mutableStateOf(fee))
+        }
+    }
+
     suspend fun adjustFee() {
-        preferenceManager.setValue(PREF_KEY_KRW_BID_FEE,30, completeAction = {
-            krwBidFee.value = preferenceManager.getInt(PREF_KEY_KRW_BID_FEE)
-        })
+        for (i in PREF_KEY_FEE_LIST.indices) {
+            preferenceManager.setValue(PREF_KEY_FEE_LIST[i], feeStateList[i].value)
+        }
+    }
+
+    fun getFee(key: String): Float {
+        return preferenceManager.getFloat(key)
     }
 }

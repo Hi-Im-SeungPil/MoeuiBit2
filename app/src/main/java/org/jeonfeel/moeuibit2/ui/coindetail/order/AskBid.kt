@@ -49,6 +49,7 @@ import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.util.*
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
+import kotlin.math.floor
 import kotlin.math.round
 
 @Composable
@@ -58,7 +59,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
     AdjustFeeDialog(dialogState = coinDetailViewModel.isShowAdjustFeeDialog,
-        coinDetailViewModel.feeStateList)
+        coinDetailViewModel.feeStateList,coinDetailViewModel)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -348,17 +349,21 @@ fun OrderScreenQuantityDropDown(
                     expanded.value = false
                     if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && coinDetailViewModel.currentTradePriceState != 0.0) {
                         bidButtonText.value = label
+                        val bidFee = coinDetailViewModel.getFee(PREF_KEY_KRW_BID_FEE)
                         val quantity = if (marketState == SELECTED_KRW_MARKET) {
                             Calculator.orderScreenSpinnerBidValueCalculator(
                                 bidButtonText.value,
                                 coinDetailViewModel.userSeedMoney,
-                                coinDetailViewModel.currentTradePriceState
+                                coinDetailViewModel.currentTradePriceState,
+                                bidFee
                             )
                         } else {
+                            val bidFee2 = coinDetailViewModel.getFee(PREF_KEY_BTC_BID_FEE)
                             Calculator.orderScreenSpinnerBidValueCalculatorForBTC(
                                 bidButtonText.value,
                                 coinDetailViewModel.btcQuantity.value,
-                                coinDetailViewModel.currentTradePriceState
+                                coinDetailViewModel.currentTradePriceState,
+                                bidFee2
                             )
                         }
                         val quantityResult = quantity.toDoubleOrNull()
@@ -500,7 +505,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
         mutableStateOf(0.0)
     }
     val context = LocalContext.current
-
+    TotalAmountDesignatedDialog(coinDetailViewModel)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -549,6 +554,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                     val selectedTab = coinDetailViewModel.askBidSelectedTab.value
                     val userBtcCoin = coinDetailViewModel.btcQuantity
                     if (marketState == SELECTED_KRW_MARKET) {
+                        val fee = coinDetailViewModel.getFee(PREF_KEY_KRW_BID_FEE)
                         when {
                             currentPrice.value == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -562,8 +568,8 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                             totalPrice.toLong() < 5000 -> {
                                 context.showToast(context.getString(R.string.notMinimumOrderMessage))
                             }
-                            selectedTab == ASK_BID_SCREEN_BID_TAB && userSeedMoney < totalPrice + round(
-                                totalPrice * 0.0005) -> {
+                            selectedTab == ASK_BID_SCREEN_BID_TAB && userSeedMoney < (totalPrice + floor(
+                                totalPrice * (fee * 0.01))) -> {
                                 context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                             }
                             selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin.eighthDecimal()
@@ -594,6 +600,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                         }
                     } else {
                         val currentBtcPrice = coinDetailViewModel.currentBTCPrice.value
+                        val fee = coinDetailViewModel.getFee(PREF_KEY_BTC_BID_FEE)
                         when {
                             currentPrice.value == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -608,7 +615,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                                 context.showToast(context.getString(R.string.notMinimumOrderBtcMessage))
                             }
                             selectedTab == ASK_BID_SCREEN_BID_TAB && userBtcCoin.value.eighthDecimal()
-                                .toDouble() < totalPrice + (totalPrice * 0.0025) -> {
+                                .toDouble() < totalPrice + (floor(totalPrice * (fee * 0.01) * 100000000) * 0.00000001) -> {
                                 context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                             }
                             selectedTab == ASK_BID_SCREEN_ASK_TAB && userCoin.eighthDecimal()
@@ -665,7 +672,6 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                 fontSize = 18.sp
             )
         }
-        TotalAmountDesignatedDialog(coinDetailViewModel)
     }
 }
 
@@ -674,9 +680,10 @@ fun OrderScreenNotice(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     marketState: Int,
-    coinDetailViewModel: CoinDetailViewModel,
+    coinDetailViewModel: CoinDetailViewModel
 ) {
-    val texts = EtcUtils.getCoinDetailScreenInfo(marketState)
+    val texts = EtcUtils.getCoinDetailScreenInfo(marketState,coinDetailViewModel.askBidSelectedTab.value)
+    val fee = coinDetailViewModel.feeStateList[texts[1].toInt()].value.toString()
     val balloon = remember {
         Balloon.Builder(context)
             .setWidthRatio(1.0f)
@@ -728,7 +735,7 @@ fun OrderScreenNotice(
                 style = TextStyle(color = Color.Gray)
             )
             Text(
-                text = coinDetailViewModel.krwBidFee.value.toString(),
+                text = fee.plus("%"),
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically),

@@ -9,3 +9,7 @@ const val INTENT_MARKET_STATE = "marketState"
 const val INTENT_MARKET = "market"
 
 const val PREF_KEY_KRW_BID_FEE = "krwBidFee"
+const val PREF_KEY_KRW_ASK_FEE = "krwAskFee"
+const val PREF_KEY_BTC_BID_FEE = "btcBidFee"
+const val PREF_KEY_BTC_ASK_FEE = "btcAskFee"
+val PREF_KEY_FEE_LIST = arrayOf(PREF_KEY_KRW_BID_FEE, PREF_KEY_KRW_ASK_FEE, PREF_KEY_BTC_BID_FEE, PREF_KEY_BTC_ASK_FEE)

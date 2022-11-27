@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
-import android.graphics.Bitmap
 import android.os.Message
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -25,8 +24,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
 import app.dvkyun.flexhybridand.FlexWebViewClient
-import com.google.accompanist.web.WebViewState
-import com.google.accompanist.web.rememberWebViewState
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
@@ -43,8 +40,6 @@ fun CoinInfoContent(
     webViewLoading: MutableState<Boolean>
 ) {
     val context = LocalContext.current
-    val state = rememberWebViewState(url = "")
-//    val moeuiBitWebView = MoeuiBitWebView(webViewState = webViewState)
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -64,10 +59,9 @@ fun CoinInfoContent(
                 context.moveUrl(selected.value)
             })
             LoadWebViewText(text = stringResource(id = R.string.twitter), clickAction = {
+                webViewLoading.value = true;
                 selectedButton.value = 4
                 selected.value = coinInfoHashMap.value[INFO_TWITTER_KEY]!!
-//                state.content = WebContent.Data(data = twitterUrl(selected.value))
-//                webViewState.content = WebContent.Data(data = twitterUrl(selected.value))
                 flex.loadData(
                     twitterUrl(selected.value),
                     "text/html; charset=utf-8",
@@ -75,16 +69,9 @@ fun CoinInfoContent(
                 )
             }, selectedButton = selectedButton, buttonId = 4)
             LoadWebViewText(text = stringResource(id = R.string.amount), clickAction = {
+                webViewLoading.value = true;
                 selectedButton.value = 5
                 selected.value = coinInfoHashMap.value[INFO_AMOUNT_KEY]!!
-//                state.content = WebContent.Url(
-//                    url = selected.value,
-//                    emptyMap()
-//                )
-//                webViewState.content = WebContent.Url(
-//                    url = selected.value,
-//                    emptyMap()
-//                )
                 flex.loadUrl(selected.value)
             }, selectedButton = selectedButton, buttonId = 5)
         }
@@ -97,17 +84,6 @@ fun CoinInfoContent(
                     .padding(10.dp, 0.dp, 10.dp, 10.dp)
             )
         }
-//        else {
-//            AndroidView(
-//                factory = {
-//                    Button(it)
-//                }, modifier = Modifier
-//                    .fillMaxHeight()
-//                    .wrapContentWidth()
-//                    .padding(10.dp, 0.dp)
-//                    .background(Color.Black)
-//            )
-//        }
         else if (selectedButton.value != -1 && flex.url != null
             || flex.url == null && selectedButton.value == 4
             || flex.url == null && selectedButton.value == 5) {
@@ -123,42 +99,6 @@ fun CoinInfoContent(
                 )
             }
         }
-//            WebView(
-//                state = state ,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .fillMaxHeight()
-//                    .background(Color.Black),
-//                client = AccompanistWebViewClient(),
-//                chromeClient = object: AccompanistWebChromeClient() {
-//                    override fun onCreateWindow(
-//                        view: WebView?,
-//                        dialog: Boolean,
-//                        userGesture: Boolean,
-//                        resultMsg: Message,
-//                    ): Boolean {
-//                        val newWebView = WebView(context)
-//                        val trans = resultMsg.obj as WebView.WebViewTransport
-//                        trans.webView = newWebView
-//                        resultMsg.sendToTarget()
-//                        return true
-//                    }
-//                },
-//                onCreated = {
-//                    with(it) {
-//                        settings.run {
-//                            javaScriptEnabled = true
-//                            layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-//                            useWideViewPort = false
-//                            loadWithOverviewMode = true
-//                            domStorageEnabled = true
-//                            setSupportMultipleWindows(true)
-//                           javaScriptCanOpenWindowsAutomatically = true
-//                            setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-//                        }
-//                    }
-//                }
-//            )
     }
 }
 
@@ -227,11 +167,6 @@ fun getTextColor(selectedButton: Int, buttonId: Int): Color {
     }
 }
 
-@Composable
-fun MoeuiBitWebView(webViewState: WebViewState) {
-
-}
-
 fun FlexWebView.initFlex(webViewLoading: MutableState<Boolean>) {
     val flex = this
     flex.settings.setSupportMultipleWindows(true)
@@ -254,10 +189,6 @@ fun FlexWebView.initFlex(webViewLoading: MutableState<Boolean>) {
             }
         }
     flex.webViewClient = object : FlexWebViewClient() {
-        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-            super.onPageStarted(view, url, favicon)
-            webViewLoading.value = true;
-        }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)

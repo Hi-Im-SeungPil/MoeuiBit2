@@ -1,6 +1,8 @@
 package org.jeonfeel.moeuibit2.manager
 
 import android.content.SharedPreferences
+import org.jeonfeel.moeuibit2.constant.PREF_KEY_KRW_ASK_FEE
+import org.jeonfeel.moeuibit2.constant.PREF_KEY_KRW_BID_FEE
 
 class PreferenceManager(private val prefrence: SharedPreferences) {
     fun getInt(key: String): Int {
@@ -20,7 +22,16 @@ class PreferenceManager(private val prefrence: SharedPreferences) {
     }
 
     fun getFloat(key: String): Float {
-        return prefrence.getFloat(key,-999f)
+        val result = prefrence.getFloat(key,-999f)
+        return if (result == -999f) {
+            if (key == PREF_KEY_KRW_ASK_FEE || key == PREF_KEY_KRW_BID_FEE) {
+                prefrence.getFloat(key,0.05f)
+            } else {
+                prefrence.getFloat(key,0.25f)
+            }
+        } else {
+            result
+        }
     }
 
     suspend fun setValue(key: String, value: Any, completeAction: (() -> Unit)? = null) = with(prefrence.edit()) {
