@@ -23,11 +23,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -36,6 +39,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
+import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.secondDecimal
 import org.jeonfeel.moeuibit2.util.showToast
@@ -197,6 +202,31 @@ fun ColumnScope.AdjustFeeDialogContent(
     val doneState = remember {
         mutableStateOf(true)
     }
+    val subTitleResult = buildAnnotatedString {
+        val splitTitle = subTitle.split(" ")
+        if (splitTitle[0].startsWith(SYMBOL_KRW)) {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(SYMBOL_KRW)
+            }
+        } else {
+            withStyle(style = SpanStyle(color = colorResource(id = R.color.teal_700),
+                fontWeight = FontWeight.Bold)) {
+                append(SYMBOL_BTC)
+            }
+        }
+        if (splitTitle[1] == (stringResource(id = R.string.bid))) {
+            withStyle(style = SpanStyle(color = Color.Red,
+                fontWeight = FontWeight.Bold)) {
+                append(" ".plus(stringResource(id = R.string.bid)))
+            }
+        } else {
+            withStyle(style = SpanStyle(color = Color.Blue,
+                fontWeight = FontWeight.Bold)) {
+                append(" ".plus(stringResource(id = R.string.ask)))
+            }
+        }
+    }
+
     Column(modifier = Modifier
         .fillMaxWidth()
         .weight(1f)) {
@@ -218,8 +248,8 @@ fun ColumnScope.AdjustFeeDialogContent(
                     colorFilter = ColorFilter.tint(Color.Red),
                     modifier = Modifier.padding(start = 8.dp))
             }
-            Text(text = subTitle,
-                modifier = Modifier.padding(horizontal = 10.dp),
+            Text(text = subTitleResult,
+                modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold)
             BasicTextField(value = textFieldState.value, onValueChange = {
@@ -256,6 +286,7 @@ fun ColumnScope.AdjustFeeDialogContent(
                 modifier = Modifier
                     .weight(1f, true)
                     .clearFocusOnKeyboardDismiss()
+                    .align(Alignment.CenterVertically)
                     .padding(0.dp, 0.dp, 9.dp, 0.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 decorationBox = { innerTextField ->
@@ -264,7 +295,7 @@ fun ColumnScope.AdjustFeeDialogContent(
                         Box(Modifier.weight(1f, true)) {
                             if (textFieldState.value.isEmpty()) {
                                 Text(
-                                    "0",
+                                    "입력",
                                     style = TextStyle(color = Color.Gray,
                                         fontSize = 15.sp,
                                         textAlign = TextAlign.Start),

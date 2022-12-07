@@ -23,7 +23,6 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.mainactivity.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
@@ -31,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val remoteRepository: RemoteRepository,
+//    private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository,
     private val exchangeUseCase: ExchangeUseCase,
 ) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
@@ -77,8 +76,7 @@ class MainViewModel @Inject constructor(
     val btcPreItemArray get() = exchangeUseCase.btcPreItemArray // BTC 이전 거래소 정보
     val btcExchangeModelListPosition get() = exchangeUseCase.btcExchangeModelListPosition // BTC 코인 정렬 포지션
 
-    val favoriteExchangeModelList get() = exchangeUseCase.favoriteExchangeModelList
-    val favoriteExchangeModelMutableStateList get() = exchangeUseCase.favoriteExchangeModelMutableStateList
+    private val favoriteExchangeModelMutableStateList get() = exchangeUseCase.favoriteExchangeModelMutableStateList
     val favoritePreItemArray get() = exchangeUseCase.favoritePreItemArray
     val favoriteHashMap get() = exchangeUseCase.favoriteHashMap
     val favoriteExchangeModelListPosition get() = exchangeUseCase.favoriteExchangeModelListPosition
@@ -213,7 +211,7 @@ class MainViewModel @Inject constructor(
         userHoldCoinDtoListPositionHashMap.clear()
         tempUserHoldCoinDtoList.clear()
         btcTradePrice.value =
-            krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice ?: 0.0
+            krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice
         if (userHoldCoinList.isNotEmpty()) {
             for (i in userHoldCoinList.indices) {
                 val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)

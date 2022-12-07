@@ -78,7 +78,7 @@
     <string name="openSourceIntro">This app uses open source. Thank you very, very much for the open-source makers used to create this app.</string>
     <string name="openSourceLicense">오픈소스 라이선스</string>
     <string name="loading_chart">데이터 불러오는중...</string>
-    <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· 모의투자가 너무 쉽다고 느껴지시면 위의 수수료 조정 버튼으로 수수료를 조정해 보세요!\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
+    <string name="askBidBalloonMessage">· 현재가격으로만 거래가 가능합니다.\n\n· KRW 마켓과 BTC 마켓간 시세차이로 인해 같은코인이어도 다른마켓에서는 거래가 불가능 합니다.\n\n· 모의투자가 너무 쉽다고 느껴지시면 수수료 조정 버튼으로 수수료를 조정해 보세요!\n\n· 상장폐지, 리브랜딩되는 코인들은 상태 변경 후 거래가 불가능합니다. 그전에 매도 하시는것을 권장합니다. \n\n· 네트워크 요청이 많을 시 잠시동안 연결이 되지않습니다. 이 문제는 잠시 기다리시거나 앱을 완전히 종료후 다시시작하시면 해결됩니다.</string>
     <string name="favorite_insert_message">관심 코인에 추가되었습니다.</string>
     <string name="favorite_remove_message">관심 코인에서 삭제되었습니다.</string>
     <string name="CAUTION_KOREAN">[유의]</string>
@@ -104,4 +104,7 @@
     <string name="btcBid">BTC 매수</string>
     <string name="btcAsk">BTC 매도</string>
     <string name="adjustFee">수수료 조정</string>
+    <string name="updateDialogTitle">모의비트 업데이트</string>
+    <string name="updateDialogMessage">스토어에 최신 버전이 존재합니다.더 나은 앱 서비스를 위해 모의비트를 업데이트 해주세요.</string>
+    <string name="updateFail">업데이트에 실패 하였습니다.</string>
 </resources>

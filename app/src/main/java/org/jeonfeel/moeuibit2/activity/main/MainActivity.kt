@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.activity.main
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -53,7 +54,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     private lateinit var auth: FirebaseAuth
     private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
     private val mainViewModel: MainViewModel by viewModels()
-    private var removeSplash = false // 스플래쉬 화면 지울건지
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
@@ -99,35 +99,18 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
 
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                && appUpdateInfo.updatePriority() >= 4
                 && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
-                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
-                    AppUpdateType.IMMEDIATE,
-                    this,
-                    APP_UPDATE_CODE)
-
+                requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                && appUpdateInfo.updatePriority() >= 2
                 && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
             ) {
-                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
-                    AppUpdateType.FLEXIBLE,
-                    this,
-                    APP_UPDATE_CODE)
+                requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }.addOnFailureListener {
-
+            this.showToast(this.getString(R.string.updateFail))
         }.addOnCanceledListener {
-
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == APP_UPDATE_CODE) {
-            if (resultCode != RESULT_OK) {
-                this.showToast("업데이트가 취소 되었습니다.")
-            }
+            this.showToast(this.getString(R.string.updateFail))
         }
     }
 
@@ -205,7 +188,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         networkMonitorUtil.register()
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
-
+                requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }
     }
@@ -217,6 +200,26 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
 
     override fun onDestroy() {
         super.onDestroy()
+    }
+
+    private fun requestUpdate(appUpdateInfo: AppUpdateInfo, appUpdateType: Int) {
+        AlertDialog.Builder(this)
+            .setTitle(this.getString(R.string.updateDialogTitle))
+            .setMessage(this.getString(R.string.updateDialogMessage))
+            .setPositiveButton(this.getString(R.string.confirm)) { dialog, _ ->
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    appUpdateType,
+                    this@MainActivity,
+                    APP_UPDATE_CODE
+                )
+                dialog?.dismiss()
+            }
+            .setNegativeButton(this.getString(R.string.cancel)
+            ) { dialog, _ -> dialog?.dismiss() }
+            .show()
+
+
     }
 
     override fun onUserEarnedReward(p0: RewardItem) {

@@ -357,6 +357,7 @@ class ExchangeUseCase @Inject constructor(
         viewModelScope: CoroutineScope,
     ) {
         if (favoriteHashMap[market] == null && isFavorite) {
+            Log.e("favorite", market)
             favoriteHashMap[market] = 0
             try {
                 localRepository.getFavoriteDao().insert(market)
@@ -364,8 +365,13 @@ class ExchangeUseCase @Inject constructor(
                 e.printStackTrace()
             }
         } else if (favoriteHashMap[market] != null && !isFavorite) {
+            Log.e("unfavorite", market)
             favoriteHashMap.remove(market)
-            localRepository.getFavoriteDao().delete(market)
+            try{
+                localRepository.getFavoriteDao().delete(market)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             if (selectedMarketState.value == SELECTED_FAVORITE) {
                 viewModelScope.launch(ioDispatcher) {
                     UpBitTickerWebSocket.getListener().setTickerMessageListener(null)

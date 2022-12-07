@@ -18,7 +18,8 @@ import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    CommonLoadingDialog(dialogState = coinDetailViewModel.coinInfoDialog, text = stringResource(id = R.string.coinInfoLoading))
+    CommonLoadingDialog(dialogState = coinDetailViewModel.coinInfoDialog,
+        text = stringResource(id = R.string.coinInfoLoading))
     CommonLoadingDialog(dialogState = coinDetailViewModel.webViewLoading, text = "페이지 로드중...")
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -52,7 +53,13 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     )
 
     if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
-        CoinInfoContent(selected, selectedButton, coinInfoHashMap, flex, coinDetailViewModel.webViewLoading)
+        CoinInfoContent(
+            selected = selected,
+            selectedButton = selectedButton,
+            coinInfoHashMap = coinInfoHashMap,
+            flex = flex,
+            webViewLoading = coinDetailViewModel.webViewLoading
+        )
     } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }

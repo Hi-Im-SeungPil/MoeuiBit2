@@ -273,7 +273,11 @@ class OrderScreenUseCase @Inject constructor(
     fun initAdjustFee() {
         for (i in PREF_KEY_FEE_LIST.indices) {
             val fee = preferenceManager.getFloat(PREF_KEY_FEE_LIST[i])
-            feeStateList.add(mutableStateOf(fee))
+            if(feeStateList.size <= 3) {
+                feeStateList.add(mutableStateOf(fee))
+            } else {
+                feeStateList[i] = mutableStateOf(fee)
+            }
         }
     }
 

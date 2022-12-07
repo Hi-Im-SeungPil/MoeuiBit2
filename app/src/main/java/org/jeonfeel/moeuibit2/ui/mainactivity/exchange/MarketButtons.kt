@@ -13,7 +13,6 @@ import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -34,7 +33,6 @@ fun marketButtons(
     pagerState: PagerState,
     tabTitleList: List<String>,
 ) {
-    val coroutineScope = rememberCoroutineScope()
 
     Row(Modifier
         .fillMaxWidth()

@@ -21,11 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
@@ -59,7 +59,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
     AdjustFeeDialog(dialogState = coinDetailViewModel.isShowAdjustFeeDialog,
-        coinDetailViewModel.feeStateList,coinDetailViewModel)
+        coinDetailViewModel.feeStateList, coinDetailViewModel)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -680,9 +680,10 @@ fun OrderScreenNotice(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     marketState: Int,
-    coinDetailViewModel: CoinDetailViewModel
+    coinDetailViewModel: CoinDetailViewModel,
 ) {
-    val texts = EtcUtils.getCoinDetailScreenInfo(marketState,coinDetailViewModel.askBidSelectedTab.value)
+    val texts =
+        EtcUtils.getCoinDetailScreenInfo(marketState, coinDetailViewModel.askBidSelectedTab.value)
     val fee = coinDetailViewModel.feeStateList[texts[1].toInt()].value.toString()
     val balloon = remember {
         Balloon.Builder(context)
@@ -742,31 +743,44 @@ fun OrderScreenNotice(
                 textAlign = TextAlign.End,
                 style = TextStyle(color = Color.Gray)
             )
-            Image(painter = painterResource(id = R.drawable.ic_baseline_tune_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 3.dp)
-                    .size(25.dp)
-                    .align(Alignment.CenterVertically)
-                    .clickable {
-                        coinDetailViewModel.isShowAdjustFeeDialog.value = true
-                    }
-            )
+//            Image(painter = painterResource(id = R.drawable.ic_baseline_tune_24),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .padding(start = 3.dp)
+//                    .size(25.dp)
+//                    .align(Alignment.CenterVertically)
+//                    .clickable {
+//                        coinDetailViewModel.isShowAdjustFeeDialog.value = true
+//                    }
+//            )
         }
-        AndroidView(
-            factory = {
-                ImageView(it).apply {
-                    val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
-                    setImageDrawable(drawable)
-                    setOnClickListener {
-                        showAlignTop(balloon)
+        Row(modifier = Modifier
+            .fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.End) {
+            Text(
+                text = "수수료 조정",
+                style = TextStyle(
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline
+                ),
+                modifier = Modifier.weight(1f).clickable {
+                    coinDetailViewModel.isShowAdjustFeeDialog.value = true
+                },
+                textAlign = TextAlign.Start
+            )
+            AndroidView(
+                modifier = Modifier.size(25.dp),
+                factory = {
+                    ImageView(it).apply {
+                        val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
+                        setImageDrawable(drawable)
+                        setOnClickListener {
+                            showAlignTop(balloon)
+                        }
                     }
                 }
-            }, modifier = Modifier
-                .padding(0.dp, 10.dp, 0.dp, 0.dp)
-                .size(25.dp)
-                .align(Alignment.End)
-        )
+            )
+        }
     }
 }
 

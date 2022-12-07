@@ -243,7 +243,7 @@ class CoinDetailViewModel @Inject constructor(
     fun getCoinInfo() {
         coinInfoDialog.value = true
         val mDatabase = FirebaseDatabase.getInstance().reference
-        mDatabase.child("coinInfo").child(market)
+        mDatabase.child("secondCoinInfo").child(market.substring(4))
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val coinInfoHashMap = HashMap<String, String>()

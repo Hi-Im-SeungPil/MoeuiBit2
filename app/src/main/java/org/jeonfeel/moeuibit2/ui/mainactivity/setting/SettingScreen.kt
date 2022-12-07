@@ -31,11 +31,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.skydoves.balloon.*
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.showAlignBottom
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense
-import org.jeonfeel.moeuibit2.constant.noticeBoard
 import org.jeonfeel.moeuibit2.constant.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 
@@ -131,11 +133,8 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
         })
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            SettingScreenLazyColumnItem("별점 주기(리뷰 작성)", clickAction = {
+            SettingScreenLazyColumnItem("리뷰 작성", clickAction = {
                 writeReviewAction(context)
-            })
-            SettingScreenLazyColumnItem(text = "공지사항", clickAction = {
-                moveNoticeBoard(context)
             })
             SettingScreenLazyColumnItem(text = "거래내역 초기화", clickAction = {
                 transactionInfoDialogState.value = true
@@ -243,11 +242,6 @@ fun ResetDialog(
 
 fun writeReviewAction(context: Context) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(playStoreUrl))
-    context.startActivity(intent)
-}
-
-fun moveNoticeBoard(context: Context) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(noticeBoard))
     context.startActivity(intent)
 }
 

@@ -63,22 +63,6 @@ object CurrentCalculator {
         }
     }
 
-    fun tradePriceCalculatorNumber(tradePrice: Float, marketState: Int) {
-//        return if(marketState == SELECTED_KRW_MARKET) {
-//            if (tradePrice >= 100) {
-//                round(tradePrice).toLong().commaFormat()
-//            } else if (tradePrice < 100 && tradePrice >= 1) {
-//                tradePrice.secondDecimal()
-//            } else {
-//                tradePrice.forthDecimal()
-//            }
-//        } else if(marketState == SELECTED_BTC_MARKET) {
-//
-//        } else {
-//            -1
-//        }
-    }
-
     fun signedChangeRateCalculator(signedChangeRate: Double): String {
         return (signedChangeRate * 100).secondDecimal()
     }

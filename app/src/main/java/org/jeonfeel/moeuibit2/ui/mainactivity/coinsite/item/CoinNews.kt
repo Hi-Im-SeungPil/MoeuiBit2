@@ -59,7 +59,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (i in 0 until 3) {
                     Column(modifier = Modifier
-                        .padding(5.dp,5.dp,5.dp,10.dp)
+                        .padding(5.dp, 5.dp, 5.dp, 10.dp)
                         .weight(1f)
                         .height(100.dp)
                         .clickable {
@@ -67,9 +67,30 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                         }) {
                         GlideImage(imageModel = coinInfoImageUrl[i],
                             modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
-                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = 15.sp)
+                        Text(text = titles[i],
+                            modifier = Modifier.fillMaxWidth(1f),
+                            textAlign = TextAlign.Center,
+                            fontSize = 15.sp)
                     }
                 }
+            }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier
+                    .padding(5.dp, 5.dp, 5.dp, 10.dp)
+                    .weight(1f)
+                    .height(100.dp)
+                    .clickable {
+                        moveUrlOrApp(context, coinInfoUrl[3], packageMap[titles[3]])
+                    }) {
+                    GlideImage(imageModel = coinInfoImageUrl[3],
+                        modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
+                    Text(text = titles[3],
+                        modifier = Modifier.fillMaxWidth(1f),
+                        textAlign = TextAlign.Center,
+                        fontSize = 15.sp)
+                }
+                Box(modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.weight(1f))
             }
             Divider(modifier = Modifier.fillMaxWidth(),
                 color = colorResource(id = R.color.C0F0F5C),
@@ -82,7 +103,8 @@ fun getCoinNewsImageArray(): Array<Int> {
     return arrayOf(
         R.drawable.img_coinness,
         R.drawable.img_coinmarket_cal,
-        R.drawable.img_codal
+        R.drawable.img_codal,
+        R.drawable.img_coin_desk
     )
 }
 
@@ -90,6 +112,7 @@ fun getCoinNewsPackageMap(): Map<String, String?> {
     return mapOf(
         "코인 니스" to "live.coinness",
         "코인 마켓 캘린더" to "com.coincal",
-        "코인달인" to null
+        "코인달인" to null,
+        "코인데스크" to null
     )
 }

@@ -150,7 +150,8 @@ fun TotalAmountDesignatedDialog(
                                 }
                             },
                             modifier = Modifier
-                                .weight(1f, true),
+                                .weight(1f, true)
+                                .align(Alignment.CenterVertically) ,
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.End),
                             visualTransformation = NumbersCommaTransformation(),
@@ -230,7 +231,7 @@ fun TotalAmountDesignatedDialog(
                         textAlign = TextAlign.Center
                     )
 
-                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
+                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
                         Text(
                             text = stringResource(id = R.string.commonCancel), modifier = Modifier
@@ -247,7 +248,7 @@ fun TotalAmountDesignatedDialog(
                         )
                         Text(
                             text = "", modifier = Modifier
-                                .width(0.5.dp)
+                                .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = 18.sp
                         )

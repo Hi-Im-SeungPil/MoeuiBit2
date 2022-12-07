@@ -35,7 +35,6 @@ fun CoinInfoContent(
     selected: MutableState<String>,
     selectedButton: MutableState<Int>,
     coinInfoHashMap: MutableState<HashMap<String, String>>,
-//    webViewState: WebViewState,
     flex: FlexWebView,
     webViewLoading: MutableState<Boolean>
 ) {
