@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.portfolio
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -88,7 +87,7 @@ fun UserHoldCoinLazyColumn(
                         val preCoinPrice = item.myCoinsBuyingAverage * item.purchaseAverageBtcPrice
                         val tempAReturn =
                             ((currentCoinPrice - preCoinPrice) / preCoinPrice * 100)
-                        Log.e("coin", "current => $currentCoinPrice, preCoin => $preCoinPrice, result => $tempAReturn")
+//                        Log.e("coin", "current => $currentCoinPrice, preCoin => $preCoinPrice, result => $tempAReturn")
                         if (tempAReturn.isNaN()) {
                             0
                         } else {

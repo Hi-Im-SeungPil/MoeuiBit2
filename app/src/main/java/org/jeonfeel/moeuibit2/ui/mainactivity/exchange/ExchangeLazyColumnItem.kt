@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
 import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,7 +55,7 @@ fun ExchangeScreenLazyColumnItem(
             marketState)
     val formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(preTradePrice, marketState)
     val btcToKrw = if (marketState == SELECTED_BTC_MARKET) {
-        Log.e("btc",btcPrice.toString())
+//        Log.e("btc",btcPrice.toString())
         CurrentCalculator.tradePriceCalculator(commonExchangeModel.tradePrice * btcPrice, SELECTED_KRW_MARKET)
     } else {
         ""

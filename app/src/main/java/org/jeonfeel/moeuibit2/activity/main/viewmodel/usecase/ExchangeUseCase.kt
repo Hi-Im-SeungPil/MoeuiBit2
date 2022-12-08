@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -22,7 +21,6 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageRece
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.util.eighthDecimal
 import javax.inject.Inject
 
 class ExchangeUseCase @Inject constructor(
@@ -267,11 +265,11 @@ class ExchangeUseCase @Inject constructor(
      * 거래소 화면 업데이트
      */
     suspend fun updateExchange() {
-        Log.e("updateExchange1","")
+//        Log.e("updateExchange1","")
         if (!updateExchange) updateExchange = true
-        Log.e("updateExchange2",updateExchange.toString())
+//        Log.e("updateExchange2",updateExchange.toString())
         while (updateExchange) {
-            Log.e("updateExchange3",updateExchange.toString())
+//            Log.e("updateExchange3",updateExchange.toString())
             when (selectedMarketState.value) {
                 SELECTED_KRW_MARKET -> {
                     for (i in krwExchangeModelMutableStateList.indices) {
@@ -281,16 +279,16 @@ class ExchangeUseCase @Inject constructor(
                 SELECTED_BTC_MARKET -> {
                     for (i in btcExchangeModelMutableStateList.indices) {
                         btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
-                        Log.e(btcExchangeModelList[i].market,
-                            btcExchangeModelList[i].tradePrice.eighthDecimal())
+//                        Log.e(btcExchangeModelList[i].market,
+//                            btcExchangeModelList[i].tradePrice.eighthDecimal())
                     }
                 }
                 SELECTED_FAVORITE -> {
                     for (i in favoriteExchangeModelMutableStateList.indices) {
                         favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
-                        Log.e("favoriteExchangeModel -> ", favoriteExchangeModelList[i].market)
-                        Log.e("favoriteExchangeModel -> ",
-                            favoriteExchangeModelList[i].tradePrice.toString())
+//                        Log.e("favoriteExchangeModel -> ", favoriteExchangeModelList[i].market)
+//                        Log.e("favoriteExchangeModel -> ",
+//                            favoriteExchangeModelList[i].tradePrice.toString())
                     }
                 }
             }
@@ -357,7 +355,7 @@ class ExchangeUseCase @Inject constructor(
         viewModelScope: CoroutineScope,
     ) {
         if (favoriteHashMap[market] == null && isFavorite) {
-            Log.e("favorite", market)
+//            Log.e("favorite", market)
             favoriteHashMap[market] = 0
             try {
                 localRepository.getFavoriteDao().insert(market)
@@ -365,7 +363,7 @@ class ExchangeUseCase @Inject constructor(
                 e.printStackTrace()
             }
         } else if (favoriteHashMap[market] != null && !isFavorite) {
-            Log.e("unfavorite", market)
+//            Log.e("unfavorite", market)
             favoriteHashMap.remove(market)
             try{
                 localRepository.getFavoriteDao().delete(market)
@@ -388,7 +386,7 @@ class ExchangeUseCase @Inject constructor(
 
     suspend fun sortList(marketState: Int) {
         this.selectedMarketState.value = marketState
-        Log.e("selectedMarketState",this.selectedMarketState.value.toString())
+//        Log.e("selectedMarketState",this.selectedMarketState.value.toString())
         when (sortButtonState.value) {
             SORT_PRICE_DEC -> {
                 when (selectedMarketState.value) {
@@ -597,8 +595,8 @@ class ExchangeUseCase @Inject constructor(
             if (selectedMarketState.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
                 btcTradePrice.value = model.tradePrice
             } else if (selectedMarketState.value == SELECTED_FAVORITE) {
-                Log.e("favorite_KRW", model.code)
-                Log.e("favoriteExchangeModel2 -> ", model.tradePrice.toString())
+//                Log.e("favorite_KRW", model.code)
+//                Log.e("favoriteExchangeModel2 -> ", model.tradePrice.toString())
                 if (model.code == BTC_MARKET) {
                     btcTradePrice.value = model.tradePrice
                     if (favoriteHashMap[BTC_MARKET] != null) {
@@ -648,8 +646,8 @@ class ExchangeUseCase @Inject constructor(
             }
         } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
             if (selectedMarketState.value == SELECTED_FAVORITE) {
-                Log.e("favorite_BTC", model.code)
-                Log.e("favoriteExchangeModel2 -> ", model.tradePrice.toString())
+//                Log.e("favorite_BTC", model.code)
+//                Log.e("favoriteExchangeModel2 -> ", model.tradePrice.toString())
                 val position = favoriteExchangeModelListPosition[model.code] ?: -1
                 favoriteExchangeModelList[position] =
                     CommonExchangeModel(
@@ -679,6 +677,6 @@ class ExchangeUseCase @Inject constructor(
                     )
             }
         }
-        Log.e(model.code, model.code)
+//        Log.e(model.code, model.code)
     }
 }

@@ -255,7 +255,7 @@ class CoinDetailViewModel @Inject constructor(
                     val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
                     val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
 
-                    Log.e("infos","$homepage, $amount, $twitter, $block, $info")
+//                    Log.e("infos","$homepage, $amount, $twitter, $block, $info")
                     if (homepage.isEmpty()) {
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     } else {
@@ -405,9 +405,9 @@ class CoinDetailViewModel @Inject constructor(
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
-            Log.e("tradPrice1", model.code)
+//            Log.e("tradPrice1", model.code)
             if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
-                Log.e("tradPrice", model.tradePrice.toString())
+//                Log.e("tradPrice", model.tradePrice.toString())
                 currentBTCPrice.value = model.tradePrice
             } else {
                 coinDetailModel = model

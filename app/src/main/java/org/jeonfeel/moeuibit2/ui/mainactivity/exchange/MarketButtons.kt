@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.mainactivity.exchange
 
-import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,7 +65,7 @@ fun marketButtons(
                         selected = mainViewModel.selectedMarketState.value == index,
                         onClick = {
                             if (mainViewModel.selectedMarketState.value != index) {
-                                Log.e("tabActive", "tabActive")
+//                                Log.e("tabActive", "tabActive")
                                 mainViewModel.selectedMarketState.value = index
                             }
                         },

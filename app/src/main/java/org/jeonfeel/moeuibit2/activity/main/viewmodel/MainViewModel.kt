@@ -92,7 +92,7 @@ class MainViewModel @Inject constructor(
     fun requestExchangeData() {
         viewModelScope.launch {
             delay(650L)
-            Log.e("start", "startttt")
+//            Log.e("start", "startttt")
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch(ioDispatcher) {
                     exchangeUseCase.requestExchangeData()
@@ -436,7 +436,7 @@ class MainViewModel @Inject constructor(
             if (model.code.startsWith(SYMBOL_KRW)) {
                 if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                     btcTradePrice.value = model.tradePrice
-                    Log.e("btcPort", btcTradePrice.value.toString())
+//                    Log.e("btcPort", btcTradePrice.value.toString())
                     return
                 } else if (model.code == BTC_MARKET) {
                     btcTradePrice.value = model.tradePrice

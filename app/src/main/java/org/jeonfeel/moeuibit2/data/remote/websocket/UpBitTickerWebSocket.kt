@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
-import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constant.*
@@ -71,6 +70,6 @@ object UpBitTickerWebSocket {
 
     fun setFavoriteMarkets(markets: String) {
         this.favoriteMarkets = markets
-        Log.e("????2", markets)
+//        Log.e("????2", markets)
     }
 }
