@@ -18,12 +18,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART
-import org.jeonfeel.moeuibit2.constant.COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO
-import org.jeonfeel.moeuibit2.constant.COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER
-import org.jeonfeel.moeuibit2.constant.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
@@ -37,14 +35,29 @@ sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: Strin
     object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
 }
 
+sealed class CoinDetailMainTabRowItemForEn(var title: String, var screen_route: String) {
+    object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER_FOR_EN, "order")
+    object Chart : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART_FOR_EN, "Chart")
+    object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO_FOR_EN, "CoinInfo")
+}
+
 @Composable
 fun CoinDetailMainTabRow(navController: NavController) {
     val tabState = remember { mutableStateOf(0) }
-    val items = listOf(
-        CoinDetailMainTabRowItem.Order,
-        CoinDetailMainTabRowItem.Chart,
-        CoinDetailMainTabRowItem.CoinInfo
-    )
+    val items = if(isKor) {
+        listOf(
+            CoinDetailMainTabRowItem.Order,
+            CoinDetailMainTabRowItem.Chart,
+            CoinDetailMainTabRowItem.CoinInfo
+        )
+    } else {
+        listOf(
+            CoinDetailMainTabRowItemForEn.Order,
+            CoinDetailMainTabRowItemForEn.Chart,
+            CoinDetailMainTabRowItemForEn.CoinInfo
+        )
+    }
+
 
     TabRow(
         selectedTabIndex = tabState.value,

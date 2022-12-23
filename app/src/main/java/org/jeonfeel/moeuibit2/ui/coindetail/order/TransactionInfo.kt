@@ -7,7 +7,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.BID
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.util.eighthDecimal
@@ -70,9 +71,9 @@ fun TransactionInfoLazyColumnItem(
     totalPrice: String,
 ) {
     val textColor = if (askBidText == "매수") {
-        Color.Red
+        increase_color
     } else {
-        Color.Blue
+        decrease_color
     }
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(

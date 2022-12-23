@@ -17,10 +17,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
+import org.jeonfeel.moeuibit2.MoeuiBit
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constant.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
+import org.jeonfeel.moeuibit2.ui.util.DpToSp
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -51,9 +56,23 @@ fun CoinDetailMain(
             Column(modifier = Modifier
                 .weight(2f)
                 .fillMaxHeight()) {
-                Text(text = curTradePrice,
-                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    style = TextStyle(color = textColor, fontSize = 27.sp))
+                Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
+                    Text(text = curTradePrice,
+                        style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27.dp)))
+                    if (!MoeuiBit.isKor && marketState == SELECTED_KRW_MARKET) {
+                        Text(text = "= \$ ${
+                            CurrentCalculator.krwToUsd(EtcUtils.removeComma(curTradePrice)
+                                .toDouble(),
+                                MoeuiBit.usdPrice)
+                        }",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Bottom),
+                            style = TextStyle(color = textColor,
+                                fontSize = DpToSp(dp = 13.dp),
+                                textAlign = TextAlign.End))
+                    }
+                }
                 Row(modifier = Modifier
                     .padding(20.dp, 0.dp, 0.dp, 10.dp)
                     .fillMaxHeight()
@@ -96,10 +115,10 @@ fun getTextColor(
     val curSignedChangeRate = curChangeRate.toDouble()
     return when {
         curSignedChangeRate > 0.0 -> {
-            Color.Red
+            increase_color
         }
         curSignedChangeRate < 0.0 -> {
-            Color.Blue
+            decrease_color
         }
         else -> {
             Color.Black

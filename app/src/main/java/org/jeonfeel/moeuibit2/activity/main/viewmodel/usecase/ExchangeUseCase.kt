@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
@@ -9,6 +10,7 @@ import com.google.gson.JsonArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.MoeuiBit.usdPrice
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
@@ -16,6 +18,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.CommonExchange
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.TickerModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.kimp.UsdtPriceModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
@@ -261,6 +264,24 @@ class ExchangeUseCase @Inject constructor(
         }
     }
 
+    suspend fun requestUSDTPrice() {
+        remoteRepository.getUSDTPrice().collect() {
+            when (it.status) {
+                ApiResult.Status.LOADING -> {}
+                ApiResult.Status.SUCCESS -> {
+                    val data = it.data
+                    if (data != null) {
+                        val model = gson.fromJson(data, UsdtPriceModel::class.java)
+                        usdPrice = model.krw
+                        Log.d("usdPrice => ", usdPrice.toString())
+                    }
+                }
+                ApiResult.Status.NETWORK_ERROR -> {usdPrice = 1285.0}
+                ApiResult.Status.API_ERROR -> {usdPrice = 1285.0}
+            }
+        }
+    }
+
     /**
      * 거래소 화면 업데이트
      */
@@ -365,7 +386,7 @@ class ExchangeUseCase @Inject constructor(
         } else if (favoriteHashMap[market] != null && !isFavorite) {
 //            Log.e("unfavorite", market)
             favoriteHashMap.remove(market)
-            try{
+            try {
                 localRepository.getFavoriteDao().delete(market)
             } catch (e: Exception) {
                 e.printStackTrace()

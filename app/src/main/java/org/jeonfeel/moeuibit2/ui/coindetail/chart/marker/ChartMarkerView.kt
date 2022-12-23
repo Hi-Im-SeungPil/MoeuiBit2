@@ -13,6 +13,8 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
+import org.jeonfeel.moeuibit2.ui.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.increase_candle_color
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
@@ -130,10 +132,10 @@ class ChartMarkerView constructor(
     private fun getTextColor(rate: Float): Int {
         return when {
             rate > 0.00 -> {
-                Color.RED
+                increase_candle_color
             }
             rate < 0.00 -> {
-                Color.BLUE
+                decrease_candle_color
             }
             else -> {
                 Color.BLACK

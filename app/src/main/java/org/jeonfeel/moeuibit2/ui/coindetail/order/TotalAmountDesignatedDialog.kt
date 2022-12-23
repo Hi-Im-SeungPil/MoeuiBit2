@@ -36,6 +36,8 @@ import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
@@ -398,7 +400,7 @@ fun TotalAmountDesignatedDialog(
                                         }
                                     }
                                 }
-                                .background(if (coinDetailViewModel.askBidSelectedTab.value == 1) Color.Red else Color.Blue)
+                                .background(if (coinDetailViewModel.askBidSelectedTab.value == 1) increase_color else decrease_color)
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.White,

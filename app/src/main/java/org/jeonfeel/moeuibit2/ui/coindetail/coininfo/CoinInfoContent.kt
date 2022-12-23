@@ -25,6 +25,7 @@ import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
 import app.dvkyun.flexhybridand.FlexWebViewClient
 import com.skydoves.landscapist.glide.GlideImage
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.constant.*
@@ -53,10 +54,12 @@ fun CoinInfoContent(
                 selected.value = coinInfoHashMap.value[INFO_HOMEPAGE_KEY]!!
                 context.moveUrl(selected.value)
             })
-            MoveUrlText(text = stringResource(id = R.string.info), clickAction = {
-                selected.value = coinInfoHashMap.value[INFO_INFO_KEY]!!
-                context.moveUrl(selected.value)
-            })
+            if (isKor) {
+                MoveUrlText(text = stringResource(id = R.string.info), clickAction = {
+                    selected.value = coinInfoHashMap.value[INFO_INFO_KEY]!!
+                    context.moveUrl(selected.value)
+                })
+            }
             LoadWebViewText(text = stringResource(id = R.string.twitter), clickAction = {
                 webViewLoading.value = true;
                 selectedButton.value = 4

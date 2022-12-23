@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.util.calculator
 
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.util.eighthDecimal
 import org.jeonfeel.moeuibit2.util.forthDecimal
@@ -60,7 +61,7 @@ object Calculator {
     fun changePriceCalculator(changePrice: Double, marketState: Int): String {
         val absChangePrice = abs(changePrice)
 
-        val result: String = if (marketState == SELECTED_KRW_MARKET) {
+        var result: String = if (marketState == SELECTED_KRW_MARKET) {
             if (absChangePrice >= 100) {
                 decimalFormat.format(round(changePrice).toInt())
             } else if (absChangePrice < 100 && absChangePrice >= 1) {
@@ -70,6 +71,9 @@ object Calculator {
             }
         } else {
             changePrice.eighthDecimal()
+        }
+        if (!isKor && marketState == SELECTED_KRW_MARKET) {
+            result = "₩".plus(result)
         }
 
         if (changePrice > 0.0) {
@@ -148,24 +152,30 @@ object Calculator {
         label: String,
         seedMoney: Long,
         tradePrice: Double,
-        fee: Float
+        fee: Float,
     ): String {
         return when (label) {
-                "최대" -> {
-                    val first = (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
-                    decimalDecimalFormat.format((first))
-                }
-                "50%" -> {
-                    decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
-                }
-                "25%" -> {
-                    decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
-                }
-                "10%" -> {
-                    decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
-                }
-                else -> "0"
+            "최대" -> {
+                val first =
+                    (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
+                decimalDecimalFormat.format((first))
             }
+            "Max" -> {
+                val first =
+                    (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
+                decimalDecimalFormat.format((first))
+            }
+            "50%" -> {
+                decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
+            }
+            "25%" -> {
+                decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
+            }
+            "10%" -> {
+                decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
+            }
+            else -> "0"
+        }
 
     }
 
@@ -173,10 +183,14 @@ object Calculator {
         label: String,
         BTCQuantity: Double,
         tradePrice: Double,
-        fee: Float
+        fee: Float,
     ): String {
         return when (label) {
             "최대" -> {
+                val first = (BTCQuantity / (tradePrice + (tradePrice * ((fee + 0.00001) * 0.01))))
+                decimalDecimalFormat.format(first)
+            }
+            "Max" -> {
                 val first = (BTCQuantity / (tradePrice + (tradePrice * ((fee + 0.00001) * 0.01))))
                 decimalDecimalFormat.format(first)
             }
@@ -202,6 +216,9 @@ object Calculator {
                 "최대" -> {
                     decimalDecimalFormat.format(userCoinQuantity)
                 }
+                "Max" -> {
+                    decimalDecimalFormat.format(userCoinQuantity)
+                }
                 "50%" -> {
                     decimalDecimalFormat.format(userCoinQuantity * 0.5)
                 }
@@ -223,11 +240,11 @@ object Calculator {
         currentQuantity: Double,
         preAveragePurchasePrice: Double,
         preCoinQuantity: Double,
-        marketState: Int
+        marketState: Int,
     ): Double {
         val result =
             ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
-        return if(marketState == SELECTED_KRW_MARKET) {
+        return if (marketState == SELECTED_KRW_MARKET) {
             if (result >= 100) {
                 round(result)
             } else if (result < 100 && result >= 1) {
@@ -236,7 +253,7 @@ object Calculator {
                 result.forthDecimal().toDouble()
             }
         } else {
-            result.eighthDecimal() .toDouble()
+            result.eighthDecimal().toDouble()
         }
     }
 

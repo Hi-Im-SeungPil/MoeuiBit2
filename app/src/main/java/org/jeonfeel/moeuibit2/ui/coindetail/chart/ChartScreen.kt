@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,9 +23,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.increase_candle_color
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
@@ -74,9 +78,9 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                 val tradePrice = lastCandle.close
                                 val openPrice = lastCandle.open
                                 val color = if (tradePrice - openPrice >= 0.0) {
-                                    android.graphics.Color.RED
+                                    increase_candle_color
                                 } else {
-                                    android.graphics.Color.BLUE
+                                    decrease_candle_color
                                 }
                                 val yp = combinedChart.getPosition(
                                     CandleEntry(
@@ -162,6 +166,9 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 )
             }
             if (coinDetailViewModel.selectedButton == DAY_SELECT) {
+
+
+
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
                     buttonModifier
@@ -169,13 +176,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "days",
-                    "일", DAY_SELECT)
+                    stringResource(id = R.string.day), DAY_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "days",
-                    "일", DAY_SELECT)
+                    stringResource(id = R.string.day), DAY_SELECT)
             }
 
             if (coinDetailViewModel.selectedButton == WEEK_SELECT) {
@@ -186,13 +193,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "weeks",
-                    "주", WEEK_SELECT)
+                    stringResource(id = R.string.week), WEEK_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "weeks",
-                    "주", WEEK_SELECT)
+                    stringResource(id = R.string.week), WEEK_SELECT)
             }
 
             if (coinDetailViewModel.selectedButton == MONTH_SELECT) {
@@ -203,13 +210,13 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                             colorResource(id = R.color.C0F0F5C))
                         .fillMaxHeight(),
                     "months",
-                    "월", MONTH_SELECT)
+                    stringResource(id = R.string.month), MONTH_SELECT)
             } else {
                 PeriodButton(coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "months",
-                    "월", MONTH_SELECT)
+                    stringResource(id = R.string.month), MONTH_SELECT)
             }
         }
 
@@ -236,49 +243,49 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         combinedChart,
                         modifier,
                         "1",
-                        "1분",
+                        stringResource(id = R.string.one_minute),
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "3",
-                        "3분",
+                        stringResource(id = R.string.three_minute),
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "5",
-                        "5분",
+                        stringResource(id = R.string.five_minute),
                         false)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "10",
-                        "10분",
+                        stringResource(id = R.string.ten_minute),
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "15",
-                        "15분",
+                        stringResource(id = R.string.fifteen_minute),
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "30",
-                        "30분",
+                        stringResource(id = R.string.thirty_minute),
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "60",
-                        "60분",
+                        stringResource(id = R.string.one_hour),
                         true)
                     MinuteButton(coinDetailViewModel,
                         combinedChart,
                         modifier,
                         "240",
-                        "240분",
+                        stringResource(id = R.string.four_hour),
                         true)
                 }
             }
@@ -305,7 +312,7 @@ fun PeriodButton(
         coinDetailViewModel.chartLastData = false
         coinDetailViewModel.candleType = candleType
         coinDetailViewModel.minuteVisible = false
-        coinDetailViewModel.minuteText = "분"
+        coinDetailViewModel.minuteText = if(isKor) "분" else "m,h"
         coinDetailViewModel.requestChartData(combinedChart)
         coinDetailViewModel.selectedButton = period
     }, modifier = modifier) {

@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import org.jeonfeel.moeuibit2.MoeuiBit
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.ui.mainactivity.coinsite.CoinSiteScreen
@@ -30,14 +31,30 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_rout
     object Setting : MainBottomNavItem("설정", R.drawable.img_setting, "setting")
 }
 
+sealed class MainBottomNavItemForEn(var title: String, var icon: Int, var screen_route: String) {
+    object Exchange : MainBottomNavItem("Exchange", R.drawable.img_exchange, "exchange")
+    object CoinSite : MainBottomNavItem("Web Site", R.drawable.img_internet, "site")
+    object Portfolio : MainBottomNavItem("Portfolio", R.drawable.img_report, "portfolio")
+    object Setting : MainBottomNavItem("Settings", R.drawable.img_setting, "setting")
+}
+
 @Composable
 fun MainBottomNavigation(navController: NavController) {
-    val items = listOf(
-        MainBottomNavItem.Exchange,
-        MainBottomNavItem.CoinSite,
-        MainBottomNavItem.Portfolio,
-        MainBottomNavItem.Setting
-    )
+    val items = if (MoeuiBit.isKor) {
+        listOf(
+            MainBottomNavItem.Exchange,
+            MainBottomNavItem.CoinSite,
+            MainBottomNavItem.Portfolio,
+            MainBottomNavItem.Setting
+        )
+    } else {
+        listOf(
+            MainBottomNavItemForEn.Exchange,
+            MainBottomNavItemForEn.CoinSite,
+            MainBottomNavItemForEn.Portfolio,
+            MainBottomNavItemForEn.Setting
+        )
+    }
     BottomNavigation(
         backgroundColor = colorResource(id = R.color.design_default_color_background)
     ) {

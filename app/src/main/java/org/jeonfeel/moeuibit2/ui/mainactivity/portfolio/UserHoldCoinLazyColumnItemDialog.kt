@@ -10,6 +10,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -21,13 +22,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import org.jeonfeel.moeuibit2.MoeuiBit
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
 import org.jeonfeel.moeuibit2.activity.main.MainActivity
 import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
+import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.util.secondDecimal
+import org.jeonfeel.moeuibit2.util.showToast
 
 /**
  * 포트폴리오 아이템 눌렀을 때 나오는 다이얼로그
@@ -36,6 +43,7 @@ import org.jeonfeel.moeuibit2.util.secondDecimal
 fun UserHoldCoinLazyColumnItemDialog(
     dialogState: MutableState<Boolean>,
     koreanName: String,
+    engName: String,
     currentPrice: Double,
     symbol: String,
     openingPrice: Double,
@@ -46,12 +54,17 @@ fun UserHoldCoinLazyColumnItemDialog(
 ) {
     val context = LocalContext.current
     val textColor = if (openingPrice < currentPrice) {
-        Color.Red
+        increase_color
     } else if (openingPrice > currentPrice) {
-        Color.Blue
+        decrease_color
     } else {
         Color.Black
     }
+    var name = if (isKor) koreanName else engName
+    if(name.startsWith("[BTC]")) {
+        name = name.substring(5)
+    }
+    val tradePrice = CurrentCalculator.tradePriceCalculator(currentPrice,marketState)
 
     Dialog(onDismissRequest = {}) {
         Card(
@@ -65,7 +78,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = koreanName.plus(stringResource(id = R.string.order)),
+                    text = name.plus(stringResource(id = R.string.order)),
                     modifier = Modifier
                         .padding(0.dp, 20.dp)
                         .fillMaxWidth(),
@@ -86,7 +99,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         style = TextStyle(fontSize = 18.sp)
                     )
                     Text(
-                        text = CurrentCalculator.tradePriceCalculator(currentPrice,marketState),
+                        text = tradePrice,
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .weight(1f, true),
@@ -97,7 +110,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         )
                     )
                     Text(
-                        text = "  $SYMBOL_KRW",
+                        text = if(marketState == SELECTED_KRW_MARKET)"  $SYMBOL_KRW" else "  $SYMBOL_BTC" ,
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 20.dp, 20.dp)
                             .wrapContentWidth(),
@@ -105,6 +118,22 @@ fun UserHoldCoinLazyColumnItemDialog(
                             color = Color.Black,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+                if (!isKor && marketState == SELECTED_KRW_MARKET) {
+                    Text(
+                        text = "= \$ ${
+                            CurrentCalculator.krwToUsd(EtcUtils.removeComma(tradePrice).toDouble(),
+                                MoeuiBit.usdPrice)
+                        }",
+                        modifier = Modifier
+                            .padding(0.dp, 3.dp, 20.dp, 20.dp)
+                            .align(Alignment.End),
+                        style = TextStyle(
+                            color = Color.Gray,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
                         )
                     )
                 }
@@ -156,18 +185,23 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
-                                val intent = Intent(context, CoinDetailActivity::class.java)
-                                intent.putExtra(INTENT_KOREAN_NAME, koreanName)
-                                intent.putExtra(INTENT_COIN_SYMBOL, symbol)
-                                intent.putExtra(INTENT_OPENING_PRICE, openingPrice)
-                                intent.putExtra(INTENT_IS_FAVORITE, isFavorite != null)
-                                intent.putExtra(INTENT_WARNING, warning)
-                                intent.putExtra(INTENT_MARKET_STATE,marketState)
-                                startForActivityResult.launch(intent)
-                                (context as MainActivity).overridePendingTransition(
-                                    R.anim.lazy_column_item_slide_left,
-                                    R.anim.none
-                                )
+                                if (!koreanName.isNullOrEmpty()) {
+                                    val intent = Intent(context, CoinDetailActivity::class.java)
+                                    intent.putExtra(INTENT_KOREAN_NAME, name)
+                                    intent.putExtra(INTENT_ENG_NAME,name)
+                                    intent.putExtra(INTENT_COIN_SYMBOL, symbol)
+                                    intent.putExtra(INTENT_OPENING_PRICE, openingPrice)
+                                    intent.putExtra(INTENT_IS_FAVORITE, isFavorite != null)
+                                    intent.putExtra(INTENT_WARNING, warning)
+                                    intent.putExtra(INTENT_MARKET_STATE, marketState)
+                                    startForActivityResult.launch(intent)
+                                    (context as MainActivity).overridePendingTransition(
+                                        R.anim.lazy_column_item_slide_left,
+                                        R.anim.none
+                                    )
+                                } else {
+                                    context.showToast(context.getString(R.string.doNotTradeMessage))
+                                }
                                 dialogState.value = false
                             }
                             .padding(0.dp, 10.dp),

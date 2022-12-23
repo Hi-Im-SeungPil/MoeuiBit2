@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.MoeuiBit
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
@@ -39,6 +40,7 @@ import org.jeonfeel.moeuibit2.util.ConnectionType
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.util.showToast
+import java.util.*
 import javax.inject.Inject
 
 const val APP_UPDATE_CODE = 123
@@ -52,11 +54,21 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     @Inject
     lateinit var adMobManager: AdMobManager
     private lateinit var auth: FirebaseAuth
-    private lateinit var startForActivityResult: ActivityResultLauncher<Intent>
     private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
+    private val startForActivityResult: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                val resultData = it.data
+                if (resultData != null) {
+                    val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
+                    val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
+                    mainViewModel.updateFavorite(market, isFavorite)
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,17 +87,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         if (auth.currentUser == null) {
             auth.signInAnonymously()
         }
-        startForActivityResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    val resultData = it.data
-                    if (resultData != null) {
-                        val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
-                        val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                        mainViewModel.updateFavorite(market, isFavorite)
-                    }
-                }
-            }
+        mainViewModel.requestUsdPrice()
         initNetworkStateMonitor()
         initObserver()
         checkUpdate()
@@ -99,11 +101,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
 
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-            ) {
-                requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
-            } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
             ) {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
@@ -191,6 +188,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }
+        getLocale()
     }
 
     override fun onStop() {
@@ -218,11 +216,13 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             .setNegativeButton(this.getString(R.string.cancel)
             ) { dialog, _ -> dialog?.dismiss() }
             .show()
-
-
     }
 
     override fun onUserEarnedReward(p0: RewardItem) {
         mainViewModel.earnReward()
+    }
+
+    private fun getLocale() {
+        MoeuiBit.isKor = Locale.getDefault().language == "ko"
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.View
+import org.jeonfeel.moeuibit2.ui.increase_candle_color
 
 @SuppressLint("ViewConstructor")
 class ChartCanvas constructor(context: Context?) :
@@ -58,7 +59,7 @@ class ChartCanvas constructor(context: Context?) :
         this.xPosition = x
         this.textMarginLeft = textMarginLeft
         selectPriceRectPaint.color = Color.parseColor("#004B00")
-        lastCandlePriceRectPaint.color = Color.RED
+        lastCandlePriceRectPaint.color = increase_candle_color
         textPaint.color = Color.WHITE
         textPaint.textSize = textSize
     }

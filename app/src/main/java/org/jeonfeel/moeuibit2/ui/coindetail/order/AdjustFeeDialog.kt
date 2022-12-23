@@ -41,6 +41,8 @@ import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
 import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
 import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.util.secondDecimal
 import org.jeonfeel.moeuibit2.util.showToast
@@ -215,12 +217,12 @@ fun ColumnScope.AdjustFeeDialogContent(
             }
         }
         if (splitTitle[1] == (stringResource(id = R.string.bid))) {
-            withStyle(style = SpanStyle(color = Color.Red,
+            withStyle(style = SpanStyle(color = increase_color,
                 fontWeight = FontWeight.Bold)) {
                 append(" ".plus(stringResource(id = R.string.bid)))
             }
         } else {
-            withStyle(style = SpanStyle(color = Color.Blue,
+            withStyle(style = SpanStyle(color = decrease_color,
                 fontWeight = FontWeight.Bold)) {
                 append(" ".plus(stringResource(id = R.string.ask)))
             }
@@ -310,12 +312,12 @@ fun ColumnScope.AdjustFeeDialogContent(
         if (!doneState.value && marketState == SELECTED_KRW_MARKET) {
             Text(text = stringResource(id = R.string.krwMinimumMessage),
                 fontSize = 11.sp,
-                style = TextStyle(color = Color.Red),
+                style = TextStyle(color = increase_color),
                 modifier = Modifier.padding(start = 15.dp))
         } else if (!doneState.value && marketState == SELECTED_BTC_MARKET) {
             Text(text = stringResource(id = R.string.btcMinimumMessage),
                 fontSize = 11.sp,
-                style = TextStyle(color = Color.Red),
+                style = TextStyle(color = increase_color),
                 modifier = Modifier.padding(start = 15.dp))
         }
         Slider(value = feeState.value,

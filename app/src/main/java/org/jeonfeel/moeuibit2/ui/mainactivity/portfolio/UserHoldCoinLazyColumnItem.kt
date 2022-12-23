@@ -17,14 +17,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jeonfeel.moeuibit2.MoeuiBit
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import org.jeonfeel.moeuibit2.util.EtcUtils.removeComma
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 
 @Composable
 fun UserHoldCoinLazyColumnItem(
     coinKoreanName: String,
+    coinEngName: String,
     symbol: String,
     valuationGainOrLoss: String,
     aReturn: String,
@@ -42,10 +47,12 @@ fun UserHoldCoinLazyColumnItem(
     selectedCoinKoreanName: MutableState<String>,
     dialogState: MutableState<Boolean>,
 ) {
+    val name = if (isKor) coinKoreanName else coinEngName
     if (dialogState.value && coinKoreanName == selectedCoinKoreanName.value) {
         UserHoldCoinLazyColumnItemDialog(
             dialogState,
-            coinKoreanName,
+            koreanName = coinKoreanName,
+            engName = coinEngName,
             currentPrice,
             symbol,
             openingPrice,
@@ -77,7 +84,7 @@ fun UserHoldCoinLazyColumnItem(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = coinKoreanName,
+                    text = name,
                     modifier = Modifier
                         .padding(0.dp, 0.dp, 0.dp, 1.dp)
                         .fillMaxWidth(),
@@ -104,19 +111,48 @@ fun UserHoldCoinLazyColumnItem(
                     .weight(1f)
                     .padding(8.dp)
             ) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = stringResource(id = R.string.valuationGainOrLoss),
-                        modifier = Modifier.wrapContentWidth()
-                    )
-                    AutoSizeText(
-                        text = valuationGainOrLoss,
-                        modifier = Modifier
-                            .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                            .weight(1f, true),
-                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
-                        color = color
-                    )
+                if (isKor) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = stringResource(id = R.string.valuationGainOrLoss),
+                            modifier = Modifier.wrapContentWidth()
+                        )
+                        AutoSizeText(
+                            text = valuationGainOrLoss,
+                            modifier = Modifier
+                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                                .weight(1f, true),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            color = color
+                        )
+                    }
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = stringResource(id = R.string.valuationGainOrLoss),
+                            style = TextStyle(textAlign = TextAlign.Center),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        AutoSizeText(
+                            text = valuationGainOrLoss,
+                            modifier = Modifier
+                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                                .fillMaxWidth(),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            color = color
+                        )
+                        AutoSizeText(
+                            text = "= \$ ${
+                                CurrentCalculator.krwToUsd(removeComma(valuationGainOrLoss).toDouble(),
+                                    MoeuiBit.usdPrice)
+                            }",
+                            modifier = Modifier
+                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                                .fillMaxWidth(),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            color = color
+                        )
+                    }
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
@@ -195,6 +231,17 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
                 text = "  ".plus(text2),
                 modifier = Modifier.wrapContentWidth(),
                 fontWeight = FontWeight.Bold
+            )
+        }
+        if (!isKor && text3 != stringResource(id = R.string.holdingQuantity)) {
+            Text(
+                text = "\$ ${
+                    CurrentCalculator.krwToUsd(removeComma(text1).toDouble(),
+                        MoeuiBit.usdPrice)
+                }",
+                modifier = Modifier.fillMaxWidth(),
+                style = TextStyle(color = Color.Gray),
+                textAlign = TextAlign.End
             )
         }
         Text(

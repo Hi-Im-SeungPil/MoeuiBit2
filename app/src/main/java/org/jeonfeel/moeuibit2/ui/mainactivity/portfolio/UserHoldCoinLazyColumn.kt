@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
 import org.jeonfeel.moeuibit2.util.EtcUtils
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -24,7 +26,7 @@ import org.jeonfeel.moeuibit2.util.secondDecimal
 fun UserHoldCoinLazyColumn(
     mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    dialogState: MutableState<Boolean>,
+    dialogState: MutableState<Boolean>
 ) {
     val portfolioOrderState = remember {
         mutableStateOf(-1)
@@ -72,6 +74,11 @@ fun UserHoldCoinLazyColumn(
                 } else {
                     "[$SYMBOL_BTC] ".plus(item.myCoinsKoreanName)
                 }
+                val engName = if(marketState == SELECTED_KRW_MARKET) {
+                    item.myCoinsEngName
+                } else {
+                    "[$SYMBOL_BTC] ".plus(item.myCoinsEngName)
+                }
                 val aReturn =
                     if (marketState == SELECTED_KRW_MARKET) {
                         val tempAReturn =
@@ -102,12 +109,11 @@ fun UserHoldCoinLazyColumn(
                 }
 
                 val color = if (valuationGainOrLoss > 0) {
-                    Color.Red
+                    increase_color
                 } else if (valuationGainOrLoss < 0) {
-                    Color.Blue
+                    decrease_color
                 } else {
                     Color.Black
-
                 }
                 val evaluationAmountFormat = if (marketState == SELECTED_KRW_MARKET) {
                     Calculator.getDecimalFormat().format(evaluationAmount)
@@ -134,6 +140,7 @@ fun UserHoldCoinLazyColumn(
 
                 UserHoldCoinLazyColumnItem(
                     koreanName,
+                    engName,
                     symbol,
                     valuationGainOrLossResult,
                     aReturn.toString().plus("%"),

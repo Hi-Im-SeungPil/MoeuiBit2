@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.activity.main.viewmodel
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -190,6 +189,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun requestUsdPrice() {
+        viewModelScope.launch {
+            exchangeUseCase.requestUSDTPrice()
+        }
+    }
+
     //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
     fun getUserSeedMoney() {
         viewModelScope.launch(ioDispatcher) {
@@ -242,6 +247,11 @@ class MainViewModel @Inject constructor(
                 } else {
                     btcCoinKoreanNameAndEngName[market]?.get(0) ?: ""
                 }
+                val engName = if (marketState == SELECTED_KRW_MARKET) {
+                    krwCoinKoreanNameAndEngName[market]?.get(1) ?: ""
+                } else {
+                    btcCoinKoreanNameAndEngName[market]?.get(1) ?: ""
+                }
                 userHoldCoinHashMap[market] = userHoldCoin
                 localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
                     localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
@@ -252,6 +262,7 @@ class MainViewModel @Inject constructor(
                 userHoldCoinDtoList.add(
                     UserHoldCoinDTO(
                         koreanName,
+                        engName,
                         symbol,
                         quantity,
                         purchaseAverage,
@@ -265,6 +276,7 @@ class MainViewModel @Inject constructor(
                 tempUserHoldCoinDtoList.add(
                     UserHoldCoinDTO(
                         koreanName,
+                        engName,
                         symbol,
                         quantity,
                         purchaseAverage,
@@ -451,6 +463,7 @@ class MainViewModel @Inject constructor(
                 tempUserHoldCoinDtoList[position] =
                     UserHoldCoinDTO(
                         krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        krwCoinKoreanNameAndEngName[model.code]?.get(1) ?: "",
                         userHoldCoin.symbol,
                         userHoldCoin.quantity,
                         userHoldCoin.purchasePrice,
@@ -472,6 +485,7 @@ class MainViewModel @Inject constructor(
                 tempUserHoldCoinDtoList[position] =
                     UserHoldCoinDTO(
                         btcCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        btcCoinKoreanNameAndEngName[model.code]?.get(1) ?: "",
                         userHoldCoin.symbol,
                         userHoldCoin.quantity,
                         userHoldCoin.purchasePrice,

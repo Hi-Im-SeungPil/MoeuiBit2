@@ -9,11 +9,16 @@ import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
+import org.jeonfeel.moeuibit2.ui.decrease_bar_color
+import org.jeonfeel.moeuibit2.ui.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.increase_bar_color
+import org.jeonfeel.moeuibit2.ui.increase_candle_color
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -25,9 +30,11 @@ fun CandleDataSet.initCandleDataSet() {
         axisDependency = YAxis.AxisDependency.RIGHT
         shadowColorSameAsCandle = true
         shadowWidth = 1f
-        decreasingColor = Color.parseColor("#E60100FF")
+//        decreasingColor = Color.parseColor("#E60100FF")
+        decreasingColor = decrease_candle_color
         decreasingPaintStyle = Paint.Style.FILL
-        increasingColor = Color.parseColor("#E6FF0000")
+//        increasingColor = Color.parseColor("#E6FF0000")
+        increasingColor = increase_candle_color
         increasingPaintStyle = Paint.Style.FILL
         neutralColor = Color.DKGRAY
         highLightColor = Color.BLACK
@@ -43,7 +50,7 @@ fun BarDataSet.initPositiveBarDataSet() {
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = Color.parseColor("#4DFF0000")
+        color = increase_bar_color
         setDrawIcons(false)
         setDrawValues(false)
     }
@@ -54,7 +61,7 @@ fun BarDataSet.initNegativeBarDataSet() {
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = Color.parseColor("#4D0100FF")
+        color = decrease_bar_color
         setDrawIcons(false)
         setDrawValues(false)
     }
@@ -93,7 +100,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     //legend
     chart.apply {
         val legendEntry1 = LegendEntry()
-        legendEntry1.label = "단순 MA"
+        legendEntry1.label = if(isKor) "단순 MA" else "MA"
         val legendEntry2 = LegendEntry().apply {
             label = "5"
             formColor = Color.parseColor("#B3FF36FF")
@@ -230,9 +237,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 val tradePrice = highestVisibleCandle.close
                 val openPrice = highestVisibleCandle.open
                 val color = if (tradePrice - openPrice >= 0.0) {
-                    Color.RED
+                    increase_candle_color
                 } else {
-                    Color.BLUE
+                    decrease_candle_color
                 }
                 chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color, marketState)
                 val yp = chart.getPosition(
@@ -275,9 +282,9 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     val tradePrice = highestVisibleCandle.close
                     val openPrice = highestVisibleCandle.open
                     val color = if (tradePrice - openPrice >= 0.0) {
-                        Color.RED
+                        increase_candle_color
                     } else {
-                        Color.BLUE
+                        decrease_candle_color
                     }
                     chart.addAccAmountLimitLine(highestVisibleCandle.x,
                         coinDetailViewModel,

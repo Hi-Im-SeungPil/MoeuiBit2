@@ -12,18 +12,25 @@ import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
+import org.jeonfeel.moeuibit2.MoeuiBit.usdPrice
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
+import org.jeonfeel.moeuibit2.ui.util.DpToSp
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import kotlin.math.round
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -65,14 +72,20 @@ fun marketButtons(
                         selected = mainViewModel.selectedMarketState.value == index,
                         onClick = {
                             if (mainViewModel.selectedMarketState.value != index) {
-//                                Log.e("tabActive", "tabActive")
                                 mainViewModel.selectedMarketState.value = index
                             }
                         },
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            if (isKor) {
+                Spacer(modifier = Modifier.weight(1f))
+            } else {
+                Text(text = "\$1 =\n${round(usdPrice).toInt()} KRW",
+                    fontSize = DpToSp(dp = 13.dp),
+                    style = TextStyle(textAlign = TextAlign.Center),
+                    modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
+            }
         }
     }
 }

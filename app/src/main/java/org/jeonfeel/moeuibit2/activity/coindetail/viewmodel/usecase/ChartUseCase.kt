@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.delay
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.chart.ChartModel
 import org.jeonfeel.moeuibit2.repository.local.LocalRepository
@@ -44,13 +45,14 @@ class ChartUseCase @Inject constructor(
     var chartLastData = false // 더이상 불러올 과거 데이터가 없는지 FLAG값
     var loadingMoreChartData = false
     var candlePosition = 0f // 현재 캔들 포지션
+
     val candleType = mutableStateOf("1")
     val dialogState = mutableStateOf(false)
     val minuteVisible = mutableStateOf(false) // 분봉 메뉴
-    val minuteText = mutableStateOf("1분") // 분봉 텍스트
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val kstDateHashMap = HashMap<Int, String>() // XValueFommater
     val accData = HashMap<Int, Double>() // 거래량
+    val minuteText = if(isKor) mutableStateOf("1분") else mutableStateOf("1m") // 분봉 텍스트
 
     private val _candleUpdateMutableLiveData = MutableLiveData<Int>() //차트 업데이트인지 추가인지 판별
     val candleUpdateLiveData: LiveData<Int> get() = _candleUpdateMutableLiveData

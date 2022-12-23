@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ fun SearchBasicTextFieldResult(mainViewModel: MainViewModel = viewModel()) {
                     tint = colorResource(id = R.color.C0F0F5C))
             }
         },
-        placeholderText = "코인명/심볼 검색",
+        placeholderText = stringResource(id = R.string.textFieldText),
         fontSize = 17.sp
     )
 }

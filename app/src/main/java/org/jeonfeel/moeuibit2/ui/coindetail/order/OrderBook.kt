@@ -16,17 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.ui.*
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 import org.jeonfeel.moeuibit2.util.EtcUtils
@@ -81,14 +80,18 @@ fun AskingPriceLazyColumnItem(
     val rate = Calculator.orderBookRateCalculator(preClosingPrice, orderBook.price)
     val rateResult = rate.secondDecimal().plus("%")
     val orderBookSize = orderBook.size.thirdDecimal()
-    val orderBookBlock = round(orderBook.size / maxOrderBookSize * 100)
+    val orderBookBlock = if(round(orderBook.size / maxOrderBookSize * 100).isNaN()) {
+        0
+    } else {
+        round(orderBook.size / maxOrderBookSize * 100)
+    }
 
     val orderBookTextColor = when {
         rate > 0.0 -> {
-            Color.Red
+            increase_color
         }
         rate < 0.0 -> {
-            Color.Blue
+            decrease_color
         }
         else -> {
             Color.Black
@@ -96,9 +99,9 @@ fun AskingPriceLazyColumnItem(
     }
 
     val orderBokBlockColor = if (orderBook.state == 0) {
-        colorResource(id = R.color.orderBookAskBlock)
+        decrease_order_book_block_color
     } else {
-        colorResource(id = R.color.orderBookBidBlock)
+        increase_order_book_block_color
     }
 
     val borderModifier = if (currentTradePrice == orderBook.price) {
@@ -108,9 +111,9 @@ fun AskingPriceLazyColumnItem(
     }
 
     val orderBookBackground = if (orderBook.state == 0) {
-        colorResource(id = R.color.orderBookAskBackground)
+        decrease_order_book_color
     } else {
-        colorResource(id = R.color.orderBookBidBackground)
+        increase_order_book_color
     }
 
     Row(
@@ -186,9 +189,9 @@ fun EmptyAskingPriceLazyColumnItem(
 ) {
     val rateResult = ""
     val orderBokBlockColor = if (orderBookState == 0) {
-        colorResource(id = R.color.orderBookAskBackground)
+        decrease_order_book_color
     } else {
-        colorResource(id = R.color.orderBookBidBackground)
+        increase_order_book_color
     }
 
     Row(

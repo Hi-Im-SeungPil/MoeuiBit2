@@ -12,14 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.util.DpToSp
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 
 enum class SortButtons{
@@ -68,17 +69,17 @@ private fun RowScope.SortButton(
         SortButtons.SortPriceButton -> {
             when (sortButtonState.value) {
                 SORT_PRICE_DEC -> {
-                    buttonText.value = "현재가↓"
+                    buttonText.value = stringResource(id = R.string.currentPriceSortDec)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 SORT_PRICE_ASC -> {
-                    buttonText.value = "현재가↑"
+                    buttonText.value = stringResource(id = R.string.currentPriceSort)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 else -> {
-                    buttonText.value = "현재가↓↑"
+                    buttonText.value = stringResource(id = R.string.currentPriceButton)
                     textColor.value = Color.Black
                     textBackground.value = Color.White
                 }
@@ -87,17 +88,17 @@ private fun RowScope.SortButton(
         SortButtons.SortRateButton -> {
             when (sortButtonState.value) {
                 SORT_RATE_DEC-> {
-                    buttonText.value = "전일대비↓"
+                    buttonText.value = stringResource(id = R.string.changeSortDec)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 SORT_RATE_ASC -> {
-                    buttonText.value = "전일대비↑"
+                    buttonText.value = stringResource(id = R.string.currentPriceSort)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 else -> {
-                    buttonText.value = "전일대비↓↑"
+                    buttonText.value = stringResource(id = R.string.change)
                     textColor.value = Color.Black
                     textBackground.value = Color.White
                 }
@@ -106,17 +107,17 @@ private fun RowScope.SortButton(
         SortButtons.SortAmountButton -> {
             when (sortButtonState.value) {
                 SORT_AMOUNT_DEC -> {
-                    buttonText.value = "거래량↓"
+                    buttonText.value = stringResource(id = R.string.volumeSortDec)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 SORT_AMOUNT_ASC -> {
-                    buttonText.value = "거래량↑"
+                    buttonText.value = stringResource(id = R.string.volumeSort)
                     textColor.value = Color.White
                     textBackground.value = colorResource(id = R.color.C0F0F5C)
                 }
                 else -> {
-                    buttonText.value = "거래량↓↑"
+                    buttonText.value = stringResource(id = R.string.volume)
                     textColor.value = Color.Black
                     textBackground.value = Color.White
                 }
@@ -182,5 +183,5 @@ private fun RowScope.SortButton(
             .align(Alignment.CenterVertically)
             .background(textBackground.value)
             .padding(0.dp, 7.dp),
-        style = TextStyle(color = textColor.value,fontSize = 13.sp, textAlign = TextAlign.Center))
+        style = TextStyle(color = textColor.value,fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.Center))
 }

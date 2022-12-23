@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import dagger.hilt.android.AndroidEntryPoint
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constant.*
@@ -19,6 +20,7 @@ import org.jeonfeel.moeuibit2.util.showToast
 class CoinDetailActivity : ComponentActivity() {
 
     private var coinKoreanName = ""
+    private var coinEngName = ""
     private var openingPrice: Double = 0.0
     private var isFavorite = false
     private var warning = ""
@@ -44,6 +46,7 @@ class CoinDetailActivity : ComponentActivity() {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
         intent?.let {
             coinKoreanName = it.getStringExtra(INTENT_KOREAN_NAME) ?: ""
+            coinEngName = it.getStringExtra(INTENT_ENG_NAME) ?: ""
             coinSymbol = it.getStringExtra(INTENT_COIN_SYMBOL) ?: ""
             openingPrice = it.getDoubleExtra(INTENT_OPENING_PRICE, 0.0)
             isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
@@ -95,6 +98,10 @@ class CoinDetailActivity : ComponentActivity() {
 
     @Composable
     fun CoinDetailActivityScreen() {
-        CoinDetailScreen(coinKoreanName, coinSymbol, warning, coinDetailViewModel)
+        if (isKor) {
+            CoinDetailScreen(coinKoreanName, coinSymbol, warning, coinDetailViewModel)
+        } else {
+            CoinDetailScreen(coinEngName, coinSymbol, warning, coinDetailViewModel)
+        }
     }
 }

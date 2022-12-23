@@ -74,19 +74,15 @@ fun mainLazyColumn(
             SearchBasicTextFieldResult(mainViewModel)
             marketButtons(mainViewModel, pagerState, tabTitleList)
             SortButtons(mainViewModel)
+            ExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
             when (mainViewModel.selectedMarketState.value) {
                 SELECTED_KRW_MARKET -> {
-                    ExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
                     mainViewModel.marketChangeAction(SELECTED_KRW_MARKET)
                 }
                 SELECTED_BTC_MARKET -> {
-                    BtcExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
                     mainViewModel.marketChangeAction(SELECTED_BTC_MARKET)
                 }
                 else -> {
-                    if (!mainViewModel.loadingFavorite.value) {
-                        FavoriteExchangeScreenLazyColumn(mainViewModel, startForActivityResult)
-                    }
                     mainViewModel.marketChangeAction(SELECTED_FAVORITE)
                 }
             }

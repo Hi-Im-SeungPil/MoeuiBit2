@@ -32,4 +32,13 @@ object EtcUtils {
             listOf("0.0005 $SYMBOL_BTC", "3")
         }
     }
+
+    fun removeComma(price: String): String {
+        val temp = price.split(",")
+        var krwPrice = ""
+        for(i in temp.indices) {
+            krwPrice += temp[i]
+        }
+        return krwPrice
+    }
 }

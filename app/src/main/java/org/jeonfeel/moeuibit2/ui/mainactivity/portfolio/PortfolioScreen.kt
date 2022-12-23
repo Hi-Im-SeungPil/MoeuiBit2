@@ -27,6 +27,8 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.MoeuiBit
+import org.jeonfeel.moeuibit2.MoeuiBit.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.activity.main.viewmodel.MainViewModel
 import org.jeonfeel.moeuibit2.constant.INTERNET_CONNECTION
@@ -36,10 +38,15 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
+import org.jeonfeel.moeuibit2.ui.util.DpToSp
 import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
 import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.util.EtcUtils.removeComma
 import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
+import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator.krwToUsd
 import org.jeonfeel.moeuibit2.util.secondDecimal
 import org.jeonfeel.moeuibit2.util.showToast
 import kotlin.math.round
@@ -175,7 +182,8 @@ fun PortfolioMain(
     mainViewModel.getUserSeedMoney()
     val totalValuedAssets = Calculator.getDecimalFormat()
         .format(round(mainViewModel.totalValuedAssets.value).toLong())
-    val totalPurchaseValue = Calculator.getDecimalFormat().format(round(mainViewModel.totalPurchase.value).toLong())
+    val totalPurchaseValue =
+        Calculator.getDecimalFormat().format(round(mainViewModel.totalPurchase.value).toLong())
     val userSeedMoney = Calculator.getDecimalFormat().format(mainViewModel.userSeedMoney.value)
     val totalHoldings = Calculator.getDecimalFormat()
         .format(round(mainViewModel.userSeedMoney.value + mainViewModel.totalValuedAssets.value).toLong())
@@ -258,24 +266,45 @@ fun PortfolioMain(
                 .wrapContentHeight()
                 .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
         ) {
-            PortfolioMainItem(
-                text1 = stringResource(id = R.string.userSeedMoney),
-                text2 = userSeedMoney,
-                stringResource(id = R.string.totalPurchaseValue),
-                totalPurchaseValue,
-                stringResource(id = R.string.totalValuedAssets),
-                totalValuedAssets,
-                round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-            )
-            PortfolioMainItem(
-                text1 = stringResource(id = R.string.totalHoldings),
-                text2 = totalHoldings,
-                stringResource(id = R.string.valuationGainOrLoss),
-                valuationGainOrLoss,
-                stringResource(id = R.string.aReturn),
-                aReturn.plus("%"),
-                round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-            )
+            if (isKor) {
+                PortfolioMainItem(
+                    text1 = stringResource(id = R.string.userSeedMoney),
+                    text2 = userSeedMoney,
+                    stringResource(id = R.string.totalPurchaseValue),
+                    totalPurchaseValue,
+                    stringResource(id = R.string.totalValuedAssets),
+                    totalValuedAssets,
+                    round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
+                )
+                PortfolioMainItem(
+                    text1 = stringResource(id = R.string.totalHoldings),
+                    text2 = totalHoldings,
+                    stringResource(id = R.string.valuationGainOrLoss),
+                    valuationGainOrLoss,
+                    stringResource(id = R.string.aReturn),
+                    aReturn.plus("%"),
+                    round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
+                )
+            } else {
+                PortfolioMainItemForEn(
+                    text1 = stringResource(id = R.string.userSeedMoney),
+                    text2 = userSeedMoney,
+                    text3 = stringResource(id = R.string.totalPurchaseValue),
+                    text4 = totalPurchaseValue,
+                    text5 = stringResource(id = R.string.totalValuedAssets),
+                    text6 = totalValuedAssets,
+                    colorStandard = round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
+                )
+                PortfolioMainItemForEn(
+                    text1 = stringResource(id = R.string.totalHoldings),
+                    text2 = totalHoldings,
+                    text3 = stringResource(id = R.string.valuationGainOrLoss),
+                    text4 = valuationGainOrLoss,
+                    text5 = stringResource(id = R.string.aReturn),
+                    text6 = aReturn.plus("%"),
+                    colorStandard = round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
+                )
+            }
         }
         PortfolioPieChart(
             pieChartState,
@@ -330,29 +359,6 @@ fun RowScope.PortfolioMainItem(
                 fontWeight = FontWeight.Bold
             )
         )
-//        Text(
-//            text = text2,
-//            modifier = Modifier
-//                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-//                .wrapContentHeight()
-//                .fillMaxWidth(),
-//            style = TextStyle(
-//                fontSize = 22.sp,
-//                fontWeight = FontWeight.Bold
-//            )
-//        )
-//        PortfolioAutoSizeText(
-//            text = text2,
-//            modifier = Modifier
-//                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-//                .wrapContentHeight()
-//                .fillMaxWidth(),
-//            textStyle = TextStyle(
-//                color = Color.Black,
-//                fontSize = 22.sp,
-//                fontWeight = FontWeight.Bold
-//            )
-//        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -411,6 +417,146 @@ fun RowScope.PortfolioMainItem(
                 ),
                 color = textColor
             )
+        }
+    }
+}
+
+@Composable
+fun RowScope.PortfolioMainItemForEn(
+    text1: String,
+    text2: String,
+    text3: String,
+    text4: String,
+    text5: String,
+    text6: String,
+    colorStandard: Long,
+) {
+    val textColor = getReturnTextColor(colorStandard, text5)
+    Column(
+        modifier = Modifier
+            .padding()
+            .wrapContentHeight()
+            .weight(2f, true)
+    ) {
+        Text(
+            text = text1,
+            modifier = Modifier
+                .padding(8.dp, 0.dp, 0.dp, 0.dp)
+                .wrapContentHeight()
+                .fillMaxWidth(),
+            style = TextStyle(
+                color = Color.Black,
+                fontSize = 18.sp,
+            )
+        )
+        AutoSizeText(
+            text = text2,
+            modifier = Modifier
+                .padding(8.dp, 5.dp, 8.dp, 0.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            textStyle = TextStyle(
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
+        AutoSizeText(
+            text = "= \$ ${krwToUsd(removeComma(text2).toDouble(), MoeuiBit.usdPrice)}",
+            modifier = Modifier
+                .padding(8.dp, 5.dp, 8.dp, 0.dp)
+                .wrapContentHeight(),
+            textStyle = TextStyle(
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            ),
+            color = Color.Gray
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 15.dp, 0.dp, 0.dp)
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = text3,
+                modifier = Modifier
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                    .wrapContentHeight()
+                    .fillMaxWidth(),
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = DpToSp(dp = 17.dp),
+                    textAlign = TextAlign.Center
+                )
+            )
+            AutoSizeText(
+                text = text4,
+                modifier = Modifier
+                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                textStyle = TextStyle(
+                    fontSize = DpToSp(dp = 15.dp),
+                    textAlign = TextAlign.End,
+                ),
+                color = textColor
+            )
+            AutoSizeText(
+                text = "= \$ ${krwToUsd(removeComma(text4).toDouble(), MoeuiBit.usdPrice)}",
+                modifier = Modifier
+                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                textStyle = TextStyle(
+                    fontSize = DpToSp(dp = 13.dp),
+                    textAlign = TextAlign.End
+                ),
+                color = if(text3 == stringResource(id = R.string.totalPurchaseValue)) Color.Gray else textColor
+            )
+        }
+        Column(
+            modifier = Modifier
+                .padding(0.dp, 8.dp, 0.dp, 25.dp)
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = text5,
+                modifier = Modifier
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
+                    .wrapContentHeight()
+                    .fillMaxWidth(),
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = DpToSp(dp = 17.dp),
+                    textAlign = TextAlign.Center
+                )
+            )
+            AutoSizeText(
+                text = text6,
+                modifier = Modifier
+                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                textStyle = TextStyle(
+                    fontSize = DpToSp(dp = 15.dp),
+                    textAlign = TextAlign.End
+                ),
+                color = textColor
+            )
+            if (text5 != stringResource(id = R.string.aReturn)) {
+                AutoSizeText(
+                    text = "= \$ ${krwToUsd(removeComma(text6).toDouble(), MoeuiBit.usdPrice)}",
+                    modifier = Modifier
+                        .padding(8.dp, 4.dp, 8.dp, 0.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    textStyle = TextStyle(
+                        fontSize = DpToSp(dp = 13.dp),
+                        textAlign = TextAlign.End
+                    ),
+                    color = Color.Gray
+                )
+            }
         }
     }
 }
@@ -494,10 +640,10 @@ fun getReturnTextColor(colorStandard: Long, text5: String): Color {
     return if (text5 == stringResource(id = R.string.aReturn)) {
         when {
             colorStandard < 0 -> {
-                Color.Blue
+                decrease_color
             }
             colorStandard > 0 -> {
-                Color.Red
+                increase_color
             }
             else -> {
                 Color.Black

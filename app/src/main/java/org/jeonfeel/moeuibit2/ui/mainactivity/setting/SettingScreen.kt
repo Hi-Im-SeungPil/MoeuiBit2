@@ -49,7 +49,7 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
         Balloon.Builder(context)
             .setWidthRatio(1.0f)
             .setHeight(BalloonSizeSpec.WRAP)
-            .setText("· 별점 5개는 사랑입니다 ♥\n\n· 업비트가 점검중일때는 앱이 동작하지 않습니다.")
+            .setText(context.getString(R.string.settings_message))
             .setTextColorResource(R.color.white)
             .setTextGravity(Gravity.START)
             .setTextSize(15f)
@@ -70,9 +70,11 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
                     .fillMaxWidth(),
                 backgroundColor = colorResource(id = R.color.design_default_color_background),
             ) {
-                Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()) {
                     Text(
-                        text = "설정",
+                        text = stringResource(id = R.string.setting),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(5.dp, 0.dp, 0.dp, 0.dp)
@@ -122,10 +124,10 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
     }
     ResetDialog(mainViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
-        title = "거래내역 초기화",
-        content = "모든 코인의 거래 내역이 초기화됩니다\n\n초기화 하시겠습니까?",
-        leftButtonText = "취소",
-        rightButtonText = "확인",
+        title = stringResource(id = R.string.init_title),
+        content = stringResource(id = R.string.init_message),
+        leftButtonText = stringResource(id = R.string.cancel),
+        rightButtonText = stringResource(id = R.string.confirm),
         leftButtonAction = { transactionInfoDialogState.value = false },
         rightButtonAction = {
             mainViewModel.resetTransactionInfo()
@@ -133,16 +135,16 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
         })
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            SettingScreenLazyColumnItem("리뷰 작성", clickAction = {
+            SettingScreenLazyColumnItem(stringResource(id = R.string.write_review), clickAction = {
                 writeReviewAction(context)
             })
-            SettingScreenLazyColumnItem(text = "거래내역 초기화", clickAction = {
+            SettingScreenLazyColumnItem(text = stringResource(id = R.string.init_title), clickAction = {
                 transactionInfoDialogState.value = true
             })
-            SettingScreenLazyColumnItem(text = "앱 초기화", clickAction = {
+            SettingScreenLazyColumnItem(text = stringResource(id = R.string.init_app), clickAction = {
                 resetDialogState.value = true
             })
-            SettingScreenLazyColumnItem(text = "오픈소스 라이선스", clickAction = {
+            SettingScreenLazyColumnItem(text = stringResource(id = R.string.open_source_license), clickAction = {
                 openLicense(context)
             })
         }

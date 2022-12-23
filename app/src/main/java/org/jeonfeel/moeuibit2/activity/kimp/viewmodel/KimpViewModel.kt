@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.activity.kimp.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -10,10 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.exchange.MarketCodeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.kimp.UsdtPriceModel
 import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class KimpViewModel @Inject constructor(
@@ -39,25 +36,6 @@ class KimpViewModel @Inject constructor(
     /**
      * usdt 정보 가져온다.
      */
-    fun requestUSDTPrice() {
-        viewModelScope.launch {
-            remoteRepository.getUSDTPrice().collect() {
-                when (it.status) {
-                    ApiResult.Status.LOADING -> {}
-                    ApiResult.Status.SUCCESS -> {
-                        val data = it.data
-                        if(data != null) {
-                            val model = gson.fromJson(data, UsdtPriceModel::class.java)
-                            usdtPrice.value = model.krw.roundToInt()
-                            date.value = model.date
-                        }
-                    }
-                    ApiResult.Status.NETWORK_ERROR -> {}
-                    ApiResult.Status.API_ERROR -> {}
-                }
-            }
-        }
-    }
 
     fun requestUpBitMarketList() {
         viewModelScope.launch {

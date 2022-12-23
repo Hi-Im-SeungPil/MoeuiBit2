@@ -3,7 +3,7 @@ package org.jeonfeel.moeuibit2.util
 import java.text.DecimalFormat
 
 val commaFormat = DecimalFormat("###,###")
-val decimalFormat = DecimalFormat("#.00000000")
+val decimalFormat = DecimalFormat("###,###.##")
 val percentFormat = DecimalFormat("0.00%")
 
 fun Long.commaFormat(): String {
@@ -12,6 +12,10 @@ fun Long.commaFormat(): String {
 
 fun Int.commaFormat(): String {
     return commaFormat.format(this)
+}
+
+fun Double.commaDecimalFormat(): String {
+    return decimalFormat.format(this)
 }
 
 fun Double.commaFormat(): String {
@@ -24,6 +28,10 @@ fun Double.firstDecimal(): String {
 
 fun Double.secondDecimal(): String {
     return String.format("%.2f", this)
+}
+
+fun Double.sixthDecimal(): String {
+    return String.format("%.6f", this)
 }
 
 fun Double.thirdDecimal(): String {

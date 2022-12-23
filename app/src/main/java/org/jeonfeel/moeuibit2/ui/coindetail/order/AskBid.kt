@@ -46,6 +46,8 @@ import org.jeonfeel.moeuibit2.constant.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
+import org.jeonfeel.moeuibit2.ui.decrease_color
+import org.jeonfeel.moeuibit2.ui.increase_color
 import org.jeonfeel.moeuibit2.util.*
 import org.jeonfeel.moeuibit2.util.calculator.Calculator
 import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
@@ -224,7 +226,7 @@ fun OrderScreenUserSeedMoney(
             .wrapContentHeight()
     ) {
         Row {
-            Text(text = "주문가능", modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
+            Text(text = stringResource(id = R.string.orderable), modifier = Modifier.wrapContentWidth(), fontSize = 13.sp)
             AutoSizeText(
                 modifier = Modifier.weight(1f, true),
                 text = userSeedMoneyOrCoin,
@@ -301,10 +303,12 @@ fun OrderScreenQuantityDropDown(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     marketState: Int,
 ) {
-    val bidButtonText = remember { mutableStateOf("가능") }
-    val askButtonText = remember { mutableStateOf("가능") }
+    val possible = stringResource(id = R.string.possible)
+    val max = stringResource(id = R.string.max)
+    val bidButtonText = remember { mutableStateOf(possible) }
+    val askButtonText = remember { mutableStateOf(possible) }
+    val suggestions = remember { listOf(max, "50%", "25%", "10%") }
     val expanded = remember { mutableStateOf(false) }
-    val suggestions = remember { listOf("최대", "50%", "25%", "10%") }
     val imageVector = if (expanded.value) {
         Icons.Filled.KeyboardArrowUp
     } else {
@@ -467,7 +471,7 @@ fun OrderScreenTotalPrice(
                 .wrapContentHeight()
         ) {
             Text(
-                text = "총액", modifier = Modifier
+                text = stringResource(id = R.string.total), modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
             )
@@ -667,7 +671,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                 .height(40.dp)
         ) {
             Text(
-                text = "총액 지정하여 ".plus(buttonText),
+                text = stringResource(id = R.string.designation).plus(" ").plus(buttonText),
                 style = TextStyle(color = Color.White),
                 fontSize = 18.sp
             )
@@ -755,17 +759,20 @@ fun OrderScreenNotice(
 //            )
         }
         Row(modifier = Modifier
-            .fillMaxWidth().padding(top = 10.dp),
+            .fillMaxWidth()
+            .padding(top = 10.dp),
             horizontalArrangement = Arrangement.End) {
             Text(
-                text = "수수료 조정",
+                text = stringResource(id = R.string.adjust_fee),
                 style = TextStyle(
                     color = Color.Blue,
                     textDecoration = TextDecoration.Underline
                 ),
-                modifier = Modifier.weight(1f).clickable {
-                    coinDetailViewModel.isShowAdjustFeeDialog.value = true
-                },
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        coinDetailViewModel.isShowAdjustFeeDialog.value = true
+                    },
                 textAlign = TextAlign.Start
             )
             AndroidView(
@@ -810,9 +817,11 @@ fun getTabBackGround(selectedTab: Int, tabNum: Int): Color {
 @Composable
 fun getButtonsBackground(selectedTab: Int): Color {
     return if (selectedTab == 1) {
-        colorResource(id = R.color.CEA3030)
+        increase_color
+//        colorResource(id = R.color.CEA3030)
     } else {
-        colorResource(id = R.color.C3048EA)
+        decrease_color
+//        colorResource(id = R.color.C3048EA)
     }
 }
 

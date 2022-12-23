@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.util.calculator
 import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.util.*
+import kotlin.math.abs
 import kotlin.math.round
 
 object CurrentCalculator {
@@ -79,5 +80,24 @@ object CurrentCalculator {
                 ""
             }
         }
+    }
+
+    fun krwToUsd(krw: Double,usd: Double): String {
+        return if (krw == 0.0) {
+            "0"
+        } else {
+            val tradePrice = krw / usd
+            val absTradePrice = abs(tradePrice)
+            if (absTradePrice >= 1000) {
+                tradePrice.secondDecimal().toDouble().commaDecimalFormat()
+            } else if (absTradePrice < 1000 && absTradePrice >= 1) {
+                tradePrice.secondDecimal()
+            } else if(absTradePrice < 1 && absTradePrice >= 0.0001 ){
+                tradePrice.sixthDecimal()
+            } else {
+                tradePrice.eighthDecimal()
+            }
+        }
+
     }
 }
