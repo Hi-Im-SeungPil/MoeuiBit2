@@ -4,13 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.ChartUseCase
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.usecase.OrderScreenUseCase
-import org.jeonfeel.moeuibit2.activity.main.viewmodel.usecase.ExchangeUseCase
-import org.jeonfeel.moeuibit2.manager.PreferenceManager
-import org.jeonfeel.moeuibit2.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.util.XAxisValueFormatter
+import org.jeonfeel.moeuibit2.ui.viewmodels.ChartUseCase
+import org.jeonfeel.moeuibit2.ui.viewmodels.OrderScreenUseCase
+import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeUseCase
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

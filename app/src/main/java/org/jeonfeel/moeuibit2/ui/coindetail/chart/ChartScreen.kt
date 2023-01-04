@@ -23,17 +23,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
-import org.jeonfeel.moeuibit2.MoeuiBit.isKor
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.decrease_candle_color
-import org.jeonfeel.moeuibit2.ui.increase_candle_color
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.util.addAccAmountLimitLine
-import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.util.initCombinedChart
+import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.utils.initCombinedChart
 
 const val MINUTE_SELECT = 1
 const val DAY_SELECT = 2
@@ -72,7 +72,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
-                                val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+                                val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
                                 val canvas = (combinedChart[0] as ChartCanvas)
                                 val lastCandle = coinDetailViewModel.candleEntryLast
                                 val tradePrice = lastCandle.close

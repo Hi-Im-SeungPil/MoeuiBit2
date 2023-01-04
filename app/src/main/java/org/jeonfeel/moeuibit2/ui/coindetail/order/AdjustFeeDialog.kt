@@ -36,16 +36,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.SELECTED_BTC_MARKET
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.SYMBOL_BTC
-import org.jeonfeel.moeuibit2.constant.SYMBOL_KRW
-import org.jeonfeel.moeuibit2.ui.decrease_color
-import org.jeonfeel.moeuibit2.ui.increase_color
-import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
-import org.jeonfeel.moeuibit2.util.secondDecimal
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
+import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.utils.secondDecimal
+import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun AdjustFeeDialog(

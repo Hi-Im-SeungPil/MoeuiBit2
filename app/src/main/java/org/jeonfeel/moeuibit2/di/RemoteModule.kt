@@ -4,11 +4,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.jeonfeel.moeuibit2.constant.retrofitBaseUrl
+import org.jeonfeel.moeuibit2.constants.retrofitBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
-import org.jeonfeel.moeuibit2.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton

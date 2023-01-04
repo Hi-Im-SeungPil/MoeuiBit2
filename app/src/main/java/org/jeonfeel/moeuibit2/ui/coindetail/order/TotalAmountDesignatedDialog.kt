@@ -32,17 +32,17 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.decrease_color
-import org.jeonfeel.moeuibit2.ui.increase_color
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.OneTimeNetworkCheck
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
-import org.jeonfeel.moeuibit2.util.eighthDecimal
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.OneTimeNetworkCheck
+import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
+import org.jeonfeel.moeuibit2.utils.showToast
 import java.text.NumberFormat
 import java.util.*
 import kotlin.math.round
@@ -57,7 +57,7 @@ fun TotalAmountDesignatedDialog(
         val interactionSource = remember {
             MutableInteractionSource()
         }
-        val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+        val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
         val userSeedMoney = if (marketState == SELECTED_KRW_MARKET) {
             Calculator.getDecimalFormat()
                 .format(coinDetailViewModel.userSeedMoney)

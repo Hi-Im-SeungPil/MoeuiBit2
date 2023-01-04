@@ -20,10 +20,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.ASK_BID_SCREEN_BID_TAB
-import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
+import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun OrderScreenQuantityTextField(

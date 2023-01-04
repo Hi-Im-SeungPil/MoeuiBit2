@@ -40,14 +40,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
         android:usesCleartextTraffic="true"
-        android:name=".MyApplication">
+        android:name=".MoeuiBitApp">
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
-        <activity android:name="org.jeonfeel.moeuibit2.activity.main.MainActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -56,11 +56,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity"
             android:exported="true"
             android:screenOrientation="portrait"/>
 
-        <activity android:name="org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.OpenSourceLicense"
             android:exported="true"
             android:screenOrientation="portrait"/>
 

@@ -27,13 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.CAUTION
-import org.jeonfeel.moeuibit2.constant.INTENT_IS_FAVORITE
-import org.jeonfeel.moeuibit2.constant.INTENT_MARKET
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.CAUTION
+import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
+import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun CoinDetailTopAppBar(
@@ -44,8 +44,8 @@ fun CoinDetailTopAppBar(
 ) {
     val context = LocalContext.current
     val market = coinDetailViewModel.market
-    val marketState = EtcUtils.getSelectedMarket(market)
-    val unit = EtcUtils.getUnit(marketState)
+    val marketState = Utils.getSelectedMarket(market)
+    val unit = Utils.getUnit(marketState)
 
     TopAppBar(
         backgroundColor = colorResource(id = R.color.C0F0F5C),

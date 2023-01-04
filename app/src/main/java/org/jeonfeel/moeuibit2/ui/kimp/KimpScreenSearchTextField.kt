@@ -16,7 +16,7 @@
 //import androidx.compose.ui.unit.dp
 //import androidx.compose.ui.unit.sp
 //import org.jeonfeel.moeuibit2.R
-//import org.jeonfeel.moeuibit2.ui.util.clearFocusOnKeyboardDismiss
+//import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
 //
 //@Composable
 //fun KimpScreenSearchBasicTextField() {

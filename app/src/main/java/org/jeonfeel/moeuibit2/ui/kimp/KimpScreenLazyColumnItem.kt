@@ -12,7 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
 
 @Composable
 fun KimpScreenLazyColumnItem(market: String, koreanName: String) {

@@ -21,18 +21,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
-import org.jeonfeel.moeuibit2.ui.*
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.util.drawUnderLine
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
-import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.util.secondDecimal
-import org.jeonfeel.moeuibit2.util.thirdDecimal
+import org.jeonfeel.moeuibit2.ui.theme.*
+import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.utils.secondDecimal
+import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import kotlin.math.round
 
 @Composable
@@ -75,7 +75,7 @@ fun AskingPriceLazyColumnItem(
     maxOrderBookSize: Double,
     market: String,
 ) {
-    val marketState = EtcUtils.getSelectedMarket(market)
+    val marketState = Utils.getSelectedMarket(market)
     val price = CurrentCalculator.tradePriceCalculator(orderBook.price, marketState)
     val rate = Calculator.orderBookRateCalculator(preClosingPrice, orderBook.price)
     val rateResult = rate.secondDecimal().plus("%")

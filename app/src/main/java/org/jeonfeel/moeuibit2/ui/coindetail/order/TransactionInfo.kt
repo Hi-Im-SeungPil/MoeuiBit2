@@ -15,20 +15,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.BID
-import org.jeonfeel.moeuibit2.ui.decrease_color
-import org.jeonfeel.moeuibit2.ui.increase_color
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.util.eighthDecimal
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.BID
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd kk:mm", Locale("ko", "KR"))
-    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
     val transactionInfoList = coinDetailViewModel.transactionInfoList
     if (transactionInfoList.isEmpty()) {
         Text(text = "거래내역이 없습니다.",

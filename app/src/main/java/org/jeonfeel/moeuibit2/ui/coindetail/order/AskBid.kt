@@ -41,16 +41,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
-import org.jeonfeel.moeuibit2.ui.decrease_color
-import org.jeonfeel.moeuibit2.ui.increase_color
-import org.jeonfeel.moeuibit2.util.*
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
-import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.utils.*
+import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -59,7 +59,7 @@ fun OrderScreenAskBid(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
     AdjustFeeDialog(dialogState = coinDetailViewModel.isShowAdjustFeeDialog,
         coinDetailViewModel.feeStateList, coinDetailViewModel)
     Column(
@@ -416,7 +416,7 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel(), mar
             style = TextStyle(fontSize = 15.sp)
         )
         Text(
-            text = "  ".plus(EtcUtils.getUnit(marketState)),
+            text = "  ".plus(Utils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
@@ -430,7 +430,7 @@ fun OrderScreenTotalPrice(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     marketState: Int,
 ) {
-    val selectedMarket = EtcUtils.getSelectedMarket(coinDetailViewModel.market)
+    val selectedMarket = Utils.getSelectedMarket(coinDetailViewModel.market)
     val totalPrice = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
         if (coinDetailViewModel.bidQuantity.value.isEmpty()) {
             "0"
@@ -482,7 +482,7 @@ fun OrderScreenTotalPrice(
                 style = TextStyle(fontSize = 15.sp)
             )
             Text(
-                text = "  ".plus(EtcUtils.getUnit(marketState)),
+                text = "  ".plus(Utils.getUnit(marketState)),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(0.dp, 0.dp, 8.dp, 0.dp),
@@ -687,7 +687,7 @@ fun OrderScreenNotice(
     coinDetailViewModel: CoinDetailViewModel,
 ) {
     val texts =
-        EtcUtils.getCoinDetailScreenInfo(marketState, coinDetailViewModel.askBidSelectedTab.value)
+        Utils.getCoinDetailScreenInfo(marketState, coinDetailViewModel.askBidSelectedTab.value)
     val fee = coinDetailViewModel.feeStateList[texts[1].toInt()].value.toString()
     val balloon = remember {
         Balloon.Builder(context)
@@ -747,16 +747,6 @@ fun OrderScreenNotice(
                 textAlign = TextAlign.End,
                 style = TextStyle(color = Color.Gray)
             )
-//            Image(painter = painterResource(id = R.drawable.ic_baseline_tune_24),
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .padding(start = 3.dp)
-//                    .size(25.dp)
-//                    .align(Alignment.CenterVertically)
-//                    .clickable {
-//                        coinDetailViewModel.isShowAdjustFeeDialog.value = true
-//                    }
-//            )
         }
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -818,10 +808,8 @@ fun getTabBackGround(selectedTab: Int, tabNum: Int): Color {
 fun getButtonsBackground(selectedTab: Int): Color {
     return if (selectedTab == 1) {
         increase_color
-//        colorResource(id = R.color.CEA3030)
     } else {
         decrease_color
-//        colorResource(id = R.color.C3048EA)
     }
 }
 

@@ -17,18 +17,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.skydoves.landscapist.glide.GlideImage
-import org.jeonfeel.moeuibit2.MoeuiBit
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.SELECTED_KRW_MARKET
-import org.jeonfeel.moeuibit2.constant.coinImageUrl
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.decrease_color
-import org.jeonfeel.moeuibit2.ui.increase_color
-import org.jeonfeel.moeuibit2.ui.util.DpToSp
-import org.jeonfeel.moeuibit2.util.EtcUtils
-import org.jeonfeel.moeuibit2.util.calculator.Calculator
-import org.jeonfeel.moeuibit2.util.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @Composable
 fun CoinDetailMain(
@@ -36,7 +36,7 @@ fun CoinDetailMain(
     symbol: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val marketState = EtcUtils.getSelectedMarket(coinDetailViewModel.market) // krw 인지 btc인지
+    val marketState = Utils.getSelectedMarket(coinDetailViewModel.market) // krw 인지 btc인지
     val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice, marketState) // 현재가
     val curChangeRate =
         Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate) // 전일대비
@@ -59,11 +59,11 @@ fun CoinDetailMain(
                 Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
                     Text(text = curTradePrice,
                         style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27.dp)))
-                    if (!MoeuiBit.isKor && marketState == SELECTED_KRW_MARKET) {
+                    if (!MoeuiBitDataStore.isKor && marketState == SELECTED_KRW_MARKET) {
                         Text(text = "= \$ ${
-                            CurrentCalculator.krwToUsd(EtcUtils.removeComma(curTradePrice)
+                            CurrentCalculator.krwToUsd(Utils.removeComma(curTradePrice)
                                 .toDouble(),
-                                MoeuiBit.usdPrice)
+                                MoeuiBitDataStore.usdPrice)
                         }",
                             modifier = Modifier
                                 .fillMaxWidth()

@@ -25,11 +25,11 @@ import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
 import app.dvkyun.flexhybridand.FlexWebViewClient
 import com.skydoves.landscapist.glide.GlideImage
-import org.jeonfeel.moeuibit2.MoeuiBit.isKor
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity
-import org.jeonfeel.moeuibit2.constant.*
-import org.jeonfeel.moeuibit2.util.moveUrl
+import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
+import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.utils.moveUrl
 
 @Composable
 fun CoinInfoContent(

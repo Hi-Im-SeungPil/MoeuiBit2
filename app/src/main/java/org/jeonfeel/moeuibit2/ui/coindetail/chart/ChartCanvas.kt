@@ -6,7 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.view.View
-import org.jeonfeel.moeuibit2.ui.increase_candle_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 
 @SuppressLint("ViewConstructor")
 class ChartCanvas constructor(context: Context?) :

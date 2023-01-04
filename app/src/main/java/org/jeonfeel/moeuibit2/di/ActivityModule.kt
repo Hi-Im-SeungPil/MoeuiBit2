@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ActivityContext
-import org.jeonfeel.moeuibit2.manager.AdMobManager
-import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
+import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
+import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 @Module
 @InstallIn(ActivityComponent::class)

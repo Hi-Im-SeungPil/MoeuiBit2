@@ -18,15 +18,15 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.jeonfeel.moeuibit2.MoeuiBit.isKor
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.constant.*
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
-import org.jeonfeel.moeuibit2.util.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.util.showToast
+import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
+import org.jeonfeel.moeuibit2.utils.showToast
 
 
 sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: String) {

@@ -10,9 +10,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.dvkyun.flexhybridand.FlexWebView
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.activity.coindetail.viewmodel.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
-import org.jeonfeel.moeuibit2.util.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 
 @SuppressLint("MutableCollectionMutableState")

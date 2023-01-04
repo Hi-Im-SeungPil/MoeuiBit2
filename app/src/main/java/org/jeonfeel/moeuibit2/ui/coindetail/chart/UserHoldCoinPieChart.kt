@@ -11,7 +11,7 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.util.firstDecimal
+import org.jeonfeel.moeuibit2.utils.firstDecimal
 
 
 @SuppressLint("ViewConstructor")
