@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.jeonfeel.moeuibit2"
     android:configChanges="orientation|screenSize">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 
     <queries>
         <package android:name="com.dunamu.exchange" />
@@ -15,85 +13,59 @@
         <package android:name="coinone.co.kr.official" />
         <package android:name="com.binance.dev" />
         <package android:name="com.bybit.app" />
+        <package android:name="com.korbit.exchange" />
         <package android:name="kr.co.gopax" />
+
         <package android:name="com.ddengle.app" />
         <package android:name="com.coinpan.coinpan" />
         <package android:name="mnet7.mobile" />
-        <package android:name="com.coinness" />
+        <package android:name="live.coinness" />
         <package android:name="com.cobak.android" />
         <package android:name="kr.blockchainhub.app" />
         <package android:name="com.dcinside.app" />
         <package android:name="com.fmkorea.m.fmk" />
+
         <package android:name="com.coinmarketcap.android" />
         <package android:name="com.coingecko.coingeckoapp" />
         <package android:name="com.crossangle.xangle" />
+
         <package android:name="com.coincal" />
     </queries>
 
     <application
         android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon_moeui_bit"
         android:label="모의비트"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/icon_moeui_bit_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
-        android:name=".GlobalApplication"
-        android:usesCleartextTraffic="true" >
+        android:usesCleartextTraffic="true"
+        android:name=".MyApplication">
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
-        <activity android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".Activitys.Activity_Login"
-            android:exported="true">
+        <activity android:name="org.jeonfeel.moeuibit2.activity.main.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".Activitys.Activity_coinDetails.Activity_coinDetails"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+        <activity android:name="org.jeonfeel.moeuibit2.activity.coindetail.CoinDetailActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name="org.jeonfeel.moeuibit2.activity.opensource.OpenSourceLicense"
+            android:exported="true"
+            android:screenOrientation="portrait"/>
 
-        <activity android:name=".Activitys.Activity_portfolio"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <!-- Redirect URI: "kakao{NATIVE_APP_KEY}://oauth" -->
-                <data android:host="oauth"
-                    android:scheme="kakao8c226fed49d9e2e4b2b3ea88a3b4cb52" />
-            </intent-filter>
-        </activity>
-
+<!--        <activity android:name="org.jeonfeel.moeuibit2.activity.kimp.KimpActivity"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait"/>-->
     </application>
-
 </manifest>

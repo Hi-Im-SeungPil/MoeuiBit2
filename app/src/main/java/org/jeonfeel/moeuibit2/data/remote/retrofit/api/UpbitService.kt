@@ -1,0 +1,34 @@
+package org.jeonfeel.moeuibit2.data.remote.retrofit.api
+
+import com.google.gson.JsonArray
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+interface UpBitService {
+    @GET("https://api.upbit.com/v1/market/all?isDetails=true")
+    suspend fun getMarketCode(): Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/ticker")
+    suspend fun getKrwTicker(@Query("markets") markets: String): Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/orderbook")
+    suspend fun getKrwOrderBook(@Query("markets") market: String): Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/candles/minutes/{minute}")
+    suspend fun getMinuteCandle(
+        @Path("minute") minute: String,
+        @Query("market") market: String,
+        @Query("count") count: String,
+        @Query("to") time: String
+    ): Response<JsonArray>
+
+    @GET("https://api.upbit.com/v1/candles/{period}")
+    suspend fun getOtherCandle(
+        @Path("period") period: String,
+        @Query("market") market: String,
+        @Query("count") count: String,
+        @Query("to") time: String
+    ): Response<JsonArray>
+}
