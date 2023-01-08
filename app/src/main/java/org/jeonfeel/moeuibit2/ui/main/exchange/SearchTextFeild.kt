@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
 
@@ -50,7 +51,7 @@ fun SearchBasicTextFieldResult() {
             }
         },
         placeholderText = stringResource(id = R.string.textFieldText),
-        fontSize = 17.sp
+        fontSize = DpToSp(17)
     )
 }
 
@@ -74,7 +75,7 @@ fun SearchBasic(
     }, singleLine = true,
         modifier = modifier.clearFocusOnKeyboardDismiss(),
         textStyle = TextStyle(color = colorResource(id = R.color.C0F0F5C),
-            fontSize = 17.sp),
+            fontSize = DpToSp(17)),
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {

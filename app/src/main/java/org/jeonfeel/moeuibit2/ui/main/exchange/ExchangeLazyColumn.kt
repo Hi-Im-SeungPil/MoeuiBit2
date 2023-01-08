@@ -38,7 +38,7 @@ fun ExchangeScreenLazyColumn(
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 0.dp, 0.dp)
                             .fillMaxSize(),
-                        fontSize = 20.sp,
+                        fontSize = DpToSp(20),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -70,7 +70,7 @@ fun ExchangeScreenLazyColumn(
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 0.dp, 0.dp)
                             .fillMaxSize(),
-                        fontSize = 20.sp,
+                        fontSize = DpToSp(20),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -103,7 +103,7 @@ fun ExchangeScreenLazyColumn(
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 0.dp, 0.dp)
                             .fillMaxSize(),
-                        fontSize = 20.sp,
+                        fontSize = DpToSp(20),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -114,7 +114,7 @@ fun ExchangeScreenLazyColumn(
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 0.dp, 0.dp)
                             .fillMaxSize(),
-                        fontSize = 20.sp,
+                        fontSize = DpToSp(20),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )

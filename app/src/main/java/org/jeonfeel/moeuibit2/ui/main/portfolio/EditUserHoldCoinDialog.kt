@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 
 @Composable
@@ -43,7 +44,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
                         textAlign = TextAlign.Center,
-                        fontSize = 25.sp,
+                        fontSize = DpToSp(25),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -52,7 +53,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                     modifier = Modifier
                         .padding(10.dp, 10.dp, 10.dp, 20.dp)
                         .fillMaxWidth(),
-                    style = TextStyle(fontSize = 18.sp)
+                    style = TextStyle(fontSize = DpToSp(18))
                 )
                 Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
                 Row {
@@ -65,7 +66,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.Center
                         )
                     )
@@ -73,7 +74,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                         text = "", modifier = Modifier
                             .width(0.5.dp)
                             .border(0.5.dp, Color.LightGray)
-                            .padding(0.dp, 10.dp), fontSize = 18.sp
+                            .padding(0.dp, 10.dp), fontSize = DpToSp(18)
                     )
                     Text(text = stringResource(id = R.string.commonAccept),
                         modifier = Modifier
@@ -85,7 +86,7 @@ fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableSta
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.Center
                         )
                     )

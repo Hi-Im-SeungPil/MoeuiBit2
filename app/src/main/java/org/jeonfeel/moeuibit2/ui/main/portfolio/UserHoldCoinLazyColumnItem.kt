@@ -23,6 +23,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore.usdPrice
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
 import org.jeonfeel.moeuibit2.utils.Utils.removeComma
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -91,7 +92,7 @@ fun UserHoldCoinLazyColumnItem(
                         .fillMaxWidth(),
                     style = TextStyle(
                         color = colorResource(id = R.color.C0F0F5C),
-                        fontSize = 17.sp,
+                        fontSize = DpToSp(17),
                         fontWeight = FontWeight.Bold,
                     ),
                     maxLines = 1,
@@ -102,7 +103,7 @@ fun UserHoldCoinLazyColumnItem(
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(
                         color = colorResource(id = R.color.C0F0F5C),
-                        fontSize = 17.sp
+                        fontSize = DpToSp(17)
                     ),
                     overflow = TextOverflow.Ellipsis
                 )
@@ -123,7 +124,7 @@ fun UserHoldCoinLazyColumnItem(
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .weight(1f, true),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15)),
                             color = color
                         )
                     }
@@ -139,7 +140,7 @@ fun UserHoldCoinLazyColumnItem(
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .fillMaxWidth(),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15)),
                             color = color
                         )
                         AutoSizeText(
@@ -150,7 +151,7 @@ fun UserHoldCoinLazyColumnItem(
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .fillMaxWidth(),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15)),
                             color = color
                         )
                     }
@@ -165,7 +166,7 @@ fun UserHoldCoinLazyColumnItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f, true),
-                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp),
+                        textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15)),
                         color = color
                     )
                 }
@@ -226,7 +227,7 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
             AutoSizeText(
                 modifier = Modifier.weight(1f, true),
                 text = text1,
-                textStyle = TextStyle(textAlign = TextAlign.End, fontSize = 15.sp)
+                textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15))
             )
             Text(
                 text = "  ".plus(text2),

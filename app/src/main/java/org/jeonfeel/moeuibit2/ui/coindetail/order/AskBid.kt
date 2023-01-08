@@ -45,6 +45,7 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
@@ -233,13 +234,13 @@ fun OrderScreenUserSeedMoney(
                 textStyle = MaterialTheme.typography.body1.copy(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.End,
-                    fontSize = 15.sp
+                    fontSize = DpToSp(15)
                 )
             )
             Text(
                 text = "  ".plus(krwOrSymbol),
                 modifier = Modifier.wrapContentWidth(),
-                fontWeight = FontWeight.Bold, fontSize = 15.sp,
+                fontWeight = FontWeight.Bold, fontSize = DpToSp(15),
                 textAlign = TextAlign.End
             )
         }
@@ -251,7 +252,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
             )
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_BTC_MARKET) {
             Text(
@@ -259,7 +260,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
             )
         }
     }
@@ -284,12 +285,12 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), 
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = 15.sp)
+                style = TextStyle(fontSize = DpToSp(15))
             )
             OrderScreenQuantityTextField(
                 modifier = Modifier.weight(1f, true),
                 placeholderText = "0",
-                fontSize = 15.sp,
+                fontSize = DpToSp(15),
                 coinDetailViewModel = coinDetailViewModel
             )
         }
@@ -406,21 +407,21 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel(), mar
         Text(
             text = stringResource(id = R.string.price), modifier = Modifier
                 .wrapContentWidth()
-                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
+                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15))
         )
         Text(
             text = CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentTradePriceState,
                 marketState),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
-            style = TextStyle(fontSize = 15.sp)
+            style = TextStyle(fontSize = DpToSp(15))
         )
         Text(
             text = "  ".plus(Utils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            style = TextStyle(fontSize = DpToSp(15), fontWeight = FontWeight.Bold)
         )
     }
 }
@@ -473,20 +474,20 @@ fun OrderScreenTotalPrice(
             Text(
                 text = stringResource(id = R.string.total), modifier = Modifier
                     .wrapContentWidth()
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = 15.sp)
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15))
             )
             Text(
                 text = totalPrice,
                 modifier = Modifier.weight(1f, true),
                 textAlign = TextAlign.End,
-                style = TextStyle(fontSize = 15.sp)
+                style = TextStyle(fontSize = DpToSp(15))
             )
             Text(
                 text = "  ".plus(Utils.getUnit(marketState)),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(0.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(fontSize = DpToSp(15), fontWeight = FontWeight.Bold)
             )
         }
         if (selectedMarket == SELECTED_BTC_MARKET) {
@@ -495,7 +496,7 @@ fun OrderScreenTotalPrice(
                 modifier = Modifier
                     .padding(5.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = 12.sp)
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
             )
         }
     }
@@ -536,7 +537,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
             ) {
                 Text(text = stringResource(id = R.string.reset),
                     style = TextStyle(color = Color.White),
-                    fontSize = 18.sp)
+                    fontSize = DpToSp(18))
             }
 
             // 매수 or 매도버튼
@@ -657,7 +658,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
                     .background(buttonBackground)
                     .fillMaxHeight()
             ) {
-                Text(text = buttonText, style = TextStyle(color = Color.White), fontSize = 18.sp)
+                Text(text = buttonText, style = TextStyle(color = Color.White), fontSize = DpToSp(18))
             }
         }
         TextButton(
@@ -673,7 +674,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel = viewModel(), m
             Text(
                 text = stringResource(id = R.string.designation).plus(" ").plus(buttonText),
                 style = TextStyle(color = Color.White),
-                fontSize = 18.sp
+                fontSize = DpToSp(18)
             )
         }
     }
@@ -787,11 +788,11 @@ fun getTabTextStyle(selectedTab: Int, tabNum: Int): TextStyle {
         TextStyle(
             color = colorResource(id = R.color.C0F0F5C),
             fontWeight = FontWeight.Bold,
-            fontSize = 15.sp,
+            fontSize = DpToSp(15),
             textAlign = TextAlign.Center
         )
     } else {
-        TextStyle(color = Color.Gray, fontSize = 15.sp, textAlign = TextAlign.Center)
+        TextStyle(color = Color.Gray, fontSize = DpToSp(15), textAlign = TextAlign.Center)
     }
 }
 

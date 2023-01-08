@@ -149,7 +149,7 @@ fun PortfolioScreen(
                         .wrapContentHeight(),
                     style = TextStyle(
                         color = Color.Black,
-                        fontSize = 25.sp,
+                        fontSize = DpToSp(25),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -213,7 +213,7 @@ fun PortfolioMain(
                     .wrapContentHeight(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 22.sp,
+                    fontSize = DpToSp(22),
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -235,7 +235,7 @@ fun PortfolioMain(
                         },
                     style = TextStyle(
                         color = Color.Black,
-                        fontSize = 18.sp
+                        fontSize = DpToSp(18)
                     )
                 )
             }
@@ -346,7 +346,7 @@ fun RowScope.PortfolioMainItem(
                 .fillMaxWidth(),
             style = TextStyle(
                 color = Color.Black,
-                fontSize = 18.sp,
+                fontSize = DpToSp(18),
             )
         )
         AutoSizeText(
@@ -356,7 +356,7 @@ fun RowScope.PortfolioMainItem(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = 22.sp,
+                fontSize = DpToSp(22),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -374,7 +374,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 14.sp,
+                    fontSize = DpToSp(14),
                 )
             )
             AutoSizeText(
@@ -384,7 +384,7 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = DpToSp(14),
                     textAlign = TextAlign.End,
                 ),
                 color = textColor
@@ -403,7 +403,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 14.sp,
+                    fontSize = DpToSp(14),
                 )
             )
             AutoSizeText(
@@ -413,7 +413,7 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = DpToSp(14),
                     textAlign = TextAlign.End
                 ),
                 color = textColor
@@ -447,7 +447,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .fillMaxWidth(),
             style = TextStyle(
                 color = Color.Black,
-                fontSize = 18.sp,
+                fontSize = DpToSp(18),
             )
         )
         AutoSizeText(
@@ -457,7 +457,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = 22.sp,
+                fontSize = DpToSp(22),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -467,7 +467,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .padding(8.dp, 5.dp, 8.dp, 0.dp)
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = 15.sp,
+                fontSize = DpToSp(15),
                 fontWeight = FontWeight.Bold
             ),
             color = Color.Gray
@@ -486,7 +486,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(dp = 17.dp),
+                    fontSize = DpToSp(dp = 17),
                     textAlign = TextAlign.Center
                 )
             )
@@ -497,7 +497,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15.dp),
+                    fontSize = DpToSp(dp = 15),
                     textAlign = TextAlign.End,
                 ),
                 color = textColor
@@ -509,7 +509,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 13.dp),
+                    fontSize = DpToSp(dp = 13),
                     textAlign = TextAlign.End
                 ),
                 color = if(text3 == stringResource(id = R.string.totalPurchaseValue)) Color.Gray else textColor
@@ -528,7 +528,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(dp = 17.dp),
+                    fontSize = DpToSp(dp = 17),
                     textAlign = TextAlign.Center
                 )
             )
@@ -539,7 +539,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15.dp),
+                    fontSize = DpToSp(dp = 15),
                     textAlign = TextAlign.End
                 ),
                 color = textColor
@@ -552,7 +552,7 @@ fun RowScope.PortfolioMainItemForEn(
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     textStyle = TextStyle(
-                        fontSize = DpToSp(dp = 13.dp),
+                        fontSize = DpToSp(dp = 13),
                         textAlign = TextAlign.End
                     ),
                     color = Color.Gray

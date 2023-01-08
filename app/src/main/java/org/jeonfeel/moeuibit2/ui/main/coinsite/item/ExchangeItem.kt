@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
 
 @Composable
@@ -41,7 +42,8 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                     .padding(10.dp, 5.dp, 0.dp, 5.dp)
                     .weight(1f, true)
                     .align(Alignment.CenterVertically),
-                fontSize = 20.sp)
+                fontSize = DpToSp(20)
+            )
             IconButton(onClick = { exchangeState.value = !exchangeState.value }) {
                 Icon(
                     if (exchangeState.value) {
@@ -68,7 +70,7 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                         }) {
                         GlideImage(imageModel = exchangeImageUrl[i],
                             modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
-                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = 15.sp)
+                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15))
                     }
                 }
             }
@@ -84,7 +86,7 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                     ) {
                         GlideImage(imageModel = exchangeImageUrl[i],
                             modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
-                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = 15.sp)
+                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15))
                     }
                 }
             }

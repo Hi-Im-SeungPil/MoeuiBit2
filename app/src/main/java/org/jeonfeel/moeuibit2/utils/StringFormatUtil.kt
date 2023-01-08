@@ -61,8 +61,3 @@ fun Float.forthDecimal(): String {
 fun Float.eighthDecimal(): String {
     return String.format("%.8f", this)
 }
-
-fun Float.nineDecimal(): String {
-    return String.format("%.9f", this)
-}
-

@@ -40,6 +40,7 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.activity.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 
 @Composable
 fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
@@ -84,7 +85,7 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
                             .align(Alignment.CenterVertically),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 25.sp,
+                            fontSize = DpToSp(25),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -160,7 +161,7 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
             .border(1.dp, Color.DarkGray)
             .clickable { clickAction() }
             .padding(10.dp, 10.dp),
-        style = TextStyle(fontSize = 25.sp)
+        style = TextStyle(fontSize = DpToSp(25))
     )
 }
 
@@ -187,13 +188,13 @@ fun ResetDialog(
                             .fillMaxWidth()
                             .padding(0.dp, 20.dp, 0.dp, 0.dp),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 25.sp,
+                        fontSize = DpToSp(25),
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(id = R.string.resetDialogContent),
                         modifier = Modifier.padding(10.dp, 40.dp),
-                        fontSize = 17.sp
+                        fontSize = DpToSp(17)
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
@@ -205,12 +206,12 @@ fun ResetDialog(
                                     resetDialogState.value = false
                                 }
                                 .padding(0.dp, 10.dp),
-                            fontSize = 17.sp,
+                            fontSize = DpToSp(17),
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = "",
-                            fontSize = 17.sp,
+                            fontSize = DpToSp(17),
                             modifier = Modifier
                                 .width(1.dp)
                                 .border(1.dp, Color.LightGray)
@@ -232,7 +233,7 @@ fun ResetDialog(
                                     resetDialogState.value = false
                                 }
                                 .padding(0.dp, 10.dp),
-                            fontSize = 15.sp,
+                            fontSize = DpToSp(15),
                             textAlign = TextAlign.Center
                         )
                     }

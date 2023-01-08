@@ -32,6 +32,7 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.CAUTION
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.showToast
 
@@ -66,7 +67,7 @@ fun CoinDetailTopAppBar(
                 },
                 style = TextStyle(
                     color = Color.White,
-                    fontSize = 17.sp,
+                    fontSize = DpToSp(dp = 25),
                     textAlign = TextAlign.Center
                 ),
                 modifier = Modifier.fillMaxWidth(1f),

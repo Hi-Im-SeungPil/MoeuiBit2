@@ -220,7 +220,7 @@ fun TradePrice(
                     .fillMaxWidth()
                     .fillMaxHeight(),
                     text = " $SYMBOL_USD ${CurrentCalculator.krwToUsd(doubleTradePrice, usdPrice)}",
-                    TextStyle(fontSize = DpToSp(13.dp), textAlign = TextAlign.Start),
+                    TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
                     color = Color.Gray
                 )
             }
@@ -251,7 +251,7 @@ fun TradePrice(
                         .weight(1f)
                         .fillMaxWidth()
                         .fillMaxHeight(), text = btcToKrw.plus(" $SYMBOL_KRW"),
-                        TextStyle(fontSize = DpToSp(13.dp), textAlign = TextAlign.End),
+                        TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.End),
                         color = Color.Gray
                     )
                 } else {
@@ -261,7 +261,7 @@ fun TradePrice(
                         .fillMaxHeight(), text = "\$ ${
                         CurrentCalculator.krwToUsd(removeComma(btcToKrw).toDouble(), usdPrice)
                     }",
-                        TextStyle(fontSize = DpToSp(13.dp), textAlign = TextAlign.Start),
+                        TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
                         color = Color.Gray
                     )
                 }
@@ -296,7 +296,7 @@ fun RowScope.volume(volume: String, doubleVolume: Double, market: String) {
                 .fillMaxWidth()
                 .fillMaxHeight(),
                 text = " $SYMBOL_USD ${CurrentCalculator.krwToUsd(tempDoubleVolume, usdPrice)}M",
-                TextStyle(fontSize = DpToSp(13.dp), textAlign = TextAlign.Start),
+                TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
                 color = Color.Gray
             )
         }

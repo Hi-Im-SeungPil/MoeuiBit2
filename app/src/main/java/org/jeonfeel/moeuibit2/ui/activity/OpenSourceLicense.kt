@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.setting.OpenSourceLicenseLazyColumn
 
 class OpenSourceLicense : ComponentActivity() {
@@ -39,7 +40,7 @@ class OpenSourceLicense : ComponentActivity() {
                                 .wrapContentHeight(),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 25.sp,
+                                fontSize = DpToSp(dp = 25),
                                 fontWeight = FontWeight.Bold
                             )
                         )

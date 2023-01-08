@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
 
 @Composable
@@ -50,7 +51,7 @@ fun PortfolioPieChart(
                 text = stringResource(id = R.string.holdingAssetsPortfolio), modifier = Modifier
                     .padding(8.dp, 8.dp, 0.dp, 8.dp)
                     .weight(1f, true)
-                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = 16.sp)
+                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = DpToSp(16))
             )
             Icon(
                 imageVector = imageVector.value,

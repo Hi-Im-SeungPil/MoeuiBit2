@@ -28,6 +28,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.activity.MainActivity
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -86,7 +87,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
                         textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
+                        fontSize = DpToSp(20),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -96,7 +97,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
-                        style = TextStyle(fontSize = 18.sp)
+                        style = TextStyle(fontSize = DpToSp(18))
                     )
                     Text(
                         text = tradePrice,
@@ -105,7 +106,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .weight(1f, true),
                         style = TextStyle(
                             color = textColor,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.End
                         )
                     )
@@ -116,7 +117,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .wrapContentWidth(),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -132,7 +133,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .align(Alignment.End),
                         style = TextStyle(
                             color = Color.Gray,
-                            fontSize = 16.sp,
+                            fontSize = DpToSp(16),
                             fontWeight = FontWeight.Bold,
                         )
                     )
@@ -144,7 +145,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
-                        style = TextStyle(fontSize = 18.sp)
+                        style = TextStyle(fontSize = DpToSp(18))
                     )
                     Text(
                         text =
@@ -155,7 +156,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .weight(1f, true),
                         style = TextStyle(
                             color = textColor,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.End
                         )
                     )
@@ -171,7 +172,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.Center
                         )
                     )
@@ -179,7 +180,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         text = "", modifier = Modifier
                             .width(0.5.dp)
                             .border(0.5.dp, Color.LightGray)
-                            .padding(0.dp, 10.dp), fontSize = 18.sp
+                            .padding(0.dp, 10.dp), fontSize = DpToSp(18)
                     )
                     Text(text = stringResource(id = R.string.commonMove),
                         modifier = Modifier
@@ -207,7 +208,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.Center
                         )
                     )

@@ -26,6 +26,7 @@ import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.*
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -129,7 +130,7 @@ fun AskingPriceLazyColumnItem(
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
-                textStyle = TextStyle(fontSize = 15.sp,
+                textStyle = TextStyle(fontSize = DpToSp(15),
                     textAlign = TextAlign.Center),
                 color = orderBookTextColor
             )
@@ -140,7 +141,7 @@ fun AskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 13.sp, color = orderBookTextColor)
+                style = TextStyle(fontSize = DpToSp(13), color = orderBookTextColor)
             )
         }
         Box(
@@ -209,7 +210,7 @@ fun EmptyAskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 15.sp)
+                style = TextStyle(fontSize = DpToSp(15))
             )
             Text(
                 text = rateResult,
@@ -218,7 +219,7 @@ fun EmptyAskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = 13.sp)
+                style = TextStyle(fontSize = DpToSp(13))
             )
         }
         Box(

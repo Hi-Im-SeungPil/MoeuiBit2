@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
 
 @Composable
@@ -40,7 +41,8 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                 .padding(10.dp, 5.dp, 0.dp, 5.dp)
                 .weight(1f, true)
                 .align(Alignment.CenterVertically),
-                fontSize = 20.sp)
+                fontSize = DpToSp(20)
+            )
             IconButton(onClick = { coinNewsState.value = !coinNewsState.value }) {
                 Icon(
                     if (coinNewsState.value) {
@@ -70,7 +72,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                         Text(text = titles[i],
                             modifier = Modifier.fillMaxWidth(1f),
                             textAlign = TextAlign.Center,
-                            fontSize = 15.sp)
+                            fontSize = DpToSp(15))
                     }
                 }
             }
@@ -87,7 +89,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                     Text(text = titles[3],
                         modifier = Modifier.fillMaxWidth(1f),
                         textAlign = TextAlign.Center,
-                        fontSize = 15.sp)
+                        fontSize = DpToSp(15))
                 }
                 Box(modifier = Modifier.weight(1f))
                 Box(modifier = Modifier.weight(1f))

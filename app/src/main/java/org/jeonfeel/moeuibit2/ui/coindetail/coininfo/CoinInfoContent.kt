@@ -29,6 +29,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.moveUrl
 
 @Composable
@@ -108,7 +109,7 @@ fun CoinInfoContent(
 fun RowScope.MoveUrlText(text: String, clickAction: () -> Unit) {
     Text(
         text = text,
-        fontSize = 14.sp,
+        fontSize = DpToSp(14),
         style = TextStyle(
             color = Color.Blue,
             textDecoration = TextDecoration.Underline,
@@ -134,7 +135,7 @@ fun RowScope.LoadWebViewText(
 ) {
     Text(
         text = text,
-        fontSize = 14.sp,
+        fontSize = DpToSp(14),
         style = TextStyle(
             color = getTextColor(selectedButton.value, buttonId),
             textAlign = TextAlign.Center

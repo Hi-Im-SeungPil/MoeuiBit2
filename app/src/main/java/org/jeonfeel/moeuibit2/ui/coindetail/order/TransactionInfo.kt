@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.BID
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -36,7 +37,7 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
                 .padding(0.dp, 15.dp, 0.dp, 0.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            fontSize = 18.sp,
+            fontSize = DpToSp(18),
             fontWeight = FontWeight.Bold)
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -89,14 +90,14 @@ fun TransactionInfoLazyColumnItem(
                     .wrapContentHeight(),
                 style = TextStyle(textAlign = TextAlign.Center,
                     color = textColor,
-                    fontSize = 18.sp,
+                    fontSize = DpToSp(18),
                     fontWeight = FontWeight.Bold)
             )
             Text(
                 text = market, modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight(),
-                style = TextStyle(fontSize = 18.sp,
+                style = TextStyle(fontSize = DpToSp(18),
                     fontWeight = FontWeight.Bold)
             )
         }

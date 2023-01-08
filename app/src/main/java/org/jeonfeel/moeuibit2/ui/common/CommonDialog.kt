@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 
 @Composable
 fun TwoButtonCommonDialog(
@@ -49,7 +50,7 @@ fun TwoButtonCommonDialog(
                         overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = 25.sp,
+                            fontSize = DpToSp(dp = 25),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -58,7 +59,7 @@ fun TwoButtonCommonDialog(
                         modifier = Modifier
                             .padding(10.dp, 10.dp, 10.dp, 20.dp)
                             .fillMaxWidth(),
-                        style = TextStyle(fontSize = 18.sp)
+                        style = TextStyle(fontSize = DpToSp(18))
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
@@ -71,7 +72,7 @@ fun TwoButtonCommonDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 18.sp,
+                                fontSize = DpToSp(dp = 18),
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -79,7 +80,7 @@ fun TwoButtonCommonDialog(
                             text = "", modifier = Modifier
                                 .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
-                                .padding(0.dp, 10.dp), fontSize = 18.sp
+                                .padding(0.dp, 10.dp), fontSize = DpToSp(18)
                         )
                         Text(text = rightButtonText,
                             modifier = Modifier
@@ -90,7 +91,7 @@ fun TwoButtonCommonDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 18.sp,
+                                fontSize = DpToSp(18),
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -130,7 +131,7 @@ fun OneButtonCommonDialog(
                         overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = 25.sp,
+                            fontSize = DpToSp(25),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -139,7 +140,7 @@ fun OneButtonCommonDialog(
                         modifier = Modifier
                             .padding(10.dp, 10.dp, 10.dp, 20.dp)
                             .fillMaxWidth(),
-                        style = TextStyle(fontSize = 18.sp)
+                        style = TextStyle(fontSize = DpToSp(18))
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
                     Text(
@@ -151,7 +152,7 @@ fun OneButtonCommonDialog(
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
                             color = Color.Black,
-                            fontSize = 18.sp,
+                            fontSize = DpToSp(18),
                             textAlign = TextAlign.Center
                         )
                     )

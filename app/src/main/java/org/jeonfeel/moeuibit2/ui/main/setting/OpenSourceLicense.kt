@@ -29,6 +29,7 @@ import org.jeonfeel.moeuibit2.constants.apache2
 import org.jeonfeel.moeuibit2.constants.bsd_2
 import org.jeonfeel.moeuibit2.constants.bsd_3
 import org.jeonfeel.moeuibit2.constants.mit
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 
 @Composable
 fun OpenSourceLicenseLazyColumn() {
@@ -73,7 +74,8 @@ fun OpenSourceLicenseLazyColumnItem(
         Text(text = openSourceName,
             modifier = Modifier.fillMaxWidth(),
             fontWeight = FontWeight.Bold,
-            fontSize = 17.sp)
+            fontSize = DpToSp(17)
+        )
 
         if(opensourceUrl.isNotEmpty()){
             Text(text = opensourceUrl,
@@ -82,14 +84,14 @@ fun OpenSourceLicenseLazyColumnItem(
                     .clickable {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(opensourceUrl)))
                     },
-                fontSize = 15.sp,
+                fontSize = DpToSp(15),
                 style = TextStyle(color = Color.Blue),
                 textDecoration = TextDecoration.Underline)
         }
 
         Text(text = openSourceLicense,
             modifier = Modifier.fillMaxWidth(),
-            fontSize = 15.sp)
+            fontSize = DpToSp(15))
     }
 }
 
@@ -112,6 +114,6 @@ fun Intro() {
                 }
             }
             .padding(10.dp, 10.dp, 10.dp, 10.dp),
-        style = TextStyle(fontSize = 15.sp))
+        style = TextStyle(fontSize = DpToSp(15)))
 }
 

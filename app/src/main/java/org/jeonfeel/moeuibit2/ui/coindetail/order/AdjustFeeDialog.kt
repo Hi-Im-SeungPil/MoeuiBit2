@@ -41,6 +41,7 @@ import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
@@ -93,7 +94,7 @@ fun AdjustFeeDialog(
                         overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = 25.sp,
+                            fontSize = DpToSp(25),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -145,7 +146,7 @@ fun AdjustFeeDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 18.sp,
+                                fontSize = DpToSp(18),
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -153,7 +154,7 @@ fun AdjustFeeDialog(
                             text = "", modifier = Modifier
                                 .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
-                                .padding(0.dp, 10.dp), fontSize = 18.sp
+                                .padding(0.dp, 10.dp), fontSize = DpToSp(18)
                         )
                         Text(text = stringResource(id = R.string.save),
                             modifier = Modifier
@@ -181,7 +182,7 @@ fun AdjustFeeDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 18.sp,
+                                fontSize = DpToSp(18),
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -252,7 +253,7 @@ fun ColumnScope.AdjustFeeDialogContent(
             }
             Text(text = subTitleResult,
                 modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
-                fontSize = 15.sp,
+                fontSize = DpToSp(15),
                 fontWeight = FontWeight.Bold)
             BasicTextField(value = textFieldState.value, onValueChange = {
                 if (it.toDoubleOrNull() == null) {
@@ -284,7 +285,7 @@ fun ColumnScope.AdjustFeeDialogContent(
                 }
             }, singleLine = true,
                 textStyle = TextStyle(color = Color.Black,
-                    fontSize = 17.sp, textAlign = TextAlign.Start),
+                    fontSize = DpToSp(17), textAlign = TextAlign.Start),
                 modifier = Modifier
                     .weight(1f, true)
                     .clearFocusOnKeyboardDismiss()
@@ -299,7 +300,7 @@ fun ColumnScope.AdjustFeeDialogContent(
                                 Text(
                                     "입력",
                                     style = TextStyle(color = Color.Gray,
-                                        fontSize = 15.sp,
+                                        fontSize = DpToSp(15),
                                         textAlign = TextAlign.Start),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -311,12 +312,12 @@ fun ColumnScope.AdjustFeeDialogContent(
         }
         if (!doneState.value && marketState == SELECTED_KRW_MARKET) {
             Text(text = stringResource(id = R.string.krwMinimumMessage),
-                fontSize = 11.sp,
+                fontSize = DpToSp(11),
                 style = TextStyle(color = increase_color),
                 modifier = Modifier.padding(start = 15.dp))
         } else if (!doneState.value && marketState == SELECTED_BTC_MARKET) {
             Text(text = stringResource(id = R.string.btcMinimumMessage),
-                fontSize = 11.sp,
+                fontSize = DpToSp(11),
                 style = TextStyle(color = increase_color),
                 modifier = Modifier.padding(start = 15.dp))
         }

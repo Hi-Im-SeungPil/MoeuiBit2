@@ -49,7 +49,7 @@ fun OrderScreenQuantityTextField(
         }
     }, singleLine = true,
         textStyle = TextStyle(color = Color.Black,
-            fontSize = 17.sp, textAlign = TextAlign.End),
+            fontSize = DpToSp(17), textAlign = TextAlign.End),
         modifier = modifier
             .clearFocusOnKeyboardDismiss()
             .padding(0.dp, 0.dp, 9.dp, 0.dp),

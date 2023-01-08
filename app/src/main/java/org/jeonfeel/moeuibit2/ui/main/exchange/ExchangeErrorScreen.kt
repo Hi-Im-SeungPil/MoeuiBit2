@@ -22,6 +22,8 @@ import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NETWORK_ERROR
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.custom.FontLightText
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 
 @Composable
@@ -34,27 +36,32 @@ fun ExchangeErrorScreen(
         else -> context.getString(R.string.NETWORK_ERROR)
     }
     Box(modifier = Modifier.fillMaxSize()) {
-        Card(modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp, 0.dp)
-            .height(50.dp)
-            .align(Alignment.Center),
-            backgroundColor = Color.Black) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .height(50.dp)
+                .align(Alignment.Center),
+            backgroundColor = Color.Black
+        ) {
             Row(modifier = Modifier.fillMaxSize()) {
-                Text(text = errorText,
-                    modifier = Modifier
+                FontLightText(
+                    text = errorText, modifier = Modifier
                         .weight(3f)
                         .fillMaxSize()
                         .wrapContentHeight(),
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(color = Color.White, fontSize = 13.sp))
-
+                    textStyle = TextStyle(color = Color.White, textAlign = TextAlign.Center),
+                    fontSize = 13
+                )
                 TextButton(onClick = {
                     checkErrorScreen()
                 }) {
-                    Text(text = context.getString(R.string.retry),
-                        style = TextStyle(color = colorResource(id = R.color.C0054FF),
-                            fontSize = 17.sp))
+                    FontLightText(
+                        text = context.getString(R.string.retry), textStyle = TextStyle(
+                            color = colorResource(id = R.color.C0054FF)
+                        ),
+                        fontSize = 17
+                    )
                 }
             }
         }

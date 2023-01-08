@@ -27,6 +27,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -349,7 +350,7 @@ fun MinuteButton(
                     .weight(1f)
             )
         } else {
-            Text(text = minuteTextValue, style = TextStyle(color = Color.Black, fontSize = 14.sp))
+            Text(text = minuteTextValue, style = TextStyle(color = Color.Black, fontSize = DpToSp(14)))
         }
     }
 }
