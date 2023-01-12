@@ -26,7 +26,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
@@ -37,7 +36,7 @@ import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.showAlignBottom
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.ui.activity.OpenSourceLicense
+import org.jeonfeel.moeuibit2.ui.activities.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp

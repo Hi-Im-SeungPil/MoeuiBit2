@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.activity
+package org.jeonfeel.moeuibit2.ui.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.setting.OpenSourceLicenseLazyColumn

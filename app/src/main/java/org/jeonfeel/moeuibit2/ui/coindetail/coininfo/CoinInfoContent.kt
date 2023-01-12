@@ -19,7 +19,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.dvkyun.flexhybridand.FlexWebChromeClient
 import app.dvkyun.flexhybridand.FlexWebView
@@ -27,7 +26,7 @@ import app.dvkyun.flexhybridand.FlexWebViewClient
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.moveUrl

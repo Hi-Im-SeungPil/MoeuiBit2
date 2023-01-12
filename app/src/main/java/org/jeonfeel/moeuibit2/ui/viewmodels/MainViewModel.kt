@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState

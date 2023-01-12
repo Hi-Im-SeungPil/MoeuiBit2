@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.activity//package org.jeonfeel.moeuibit2.activity.kimp
+package org.jeonfeel.moeuibit2.ui.activities//package org.jeonfeel.moeuibit2.activity.kimp
 //
 //import android.os.Bundle
 //import androidx.activity.ComponentActivity

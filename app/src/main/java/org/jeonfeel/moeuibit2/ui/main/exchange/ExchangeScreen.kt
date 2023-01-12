@@ -17,13 +17,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activity.MainActivity
+import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
@@ -47,12 +46,13 @@ fun ExchangeScreen(
     AddLifecycleEvent(
         onPauseAction = {
             exchangeViewModel.updateExchange = false
-            UpBitTickerWebSocket.getListener()
+            UpBitTickerWebSocket
+                .getListener()
                 .setTickerMessageListener(onTickerMessageReceiveListener = null)
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
-            exchangeViewModel.requestExchangeData()
+            exchangeViewModel.initExchangeData()
         }
     )
 
@@ -121,7 +121,15 @@ private fun Exchange(
                 isUpdateExchange = exchangeViewModel.updateExchange,
                 sortList = exchangeViewModel::sortList
             )
-            ExchangeScreenLazyColumn(startForActivityResult)
+            ExchangeScreenLazyColumn(
+                filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList(),
+                preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
+                textFieldValueState = exchangeViewModel.exchangeState.searchTextFieldValue,
+                favoriteHashMap = exchangeViewModel.favoriteHashMap,
+                loadingFavorite = exchangeViewModel.getFavoriteLoadingState(),
+                btcPrice = exchangeViewModel.exchangeState.btcPrice ,
+                startForActivityResult = startForActivityResult
+            )
             when (exchangeViewModel.exchangeState.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
                     exchangeViewModel.marketChangeAction(marketState = SELECTED_KRW_MARKET)

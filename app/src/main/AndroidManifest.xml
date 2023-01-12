@@ -47,7 +47,7 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8481465476603755~9217250246"/>
 
-        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.MainActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activities.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -56,11 +56,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity"
             android:exported="true"
             android:screenOrientation="portrait"/>
 
-        <activity android:name="org.jeonfeel.moeuibit2.ui.activity.OpenSourceLicense"
+        <activity android:name="org.jeonfeel.moeuibit2.ui.activities.OpenSourceLicense"
             android:exported="true"
             android:screenOrientation="portrait"/>
 

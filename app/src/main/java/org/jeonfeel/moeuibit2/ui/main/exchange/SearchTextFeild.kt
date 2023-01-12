@@ -24,38 +24,6 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
 
 @Composable
-fun SearchBasicTextFieldResult() {
-    SearchBasic(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(45.dp)
-            .clearFocusOnKeyboardDismiss(),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(25.dp),
-                tint = colorResource(id = R.color.C0F0F5C)
-            )
-        },
-        trailingIcon = {
-            IconButton(onClick = { it.invoke() }) {
-                Icon(Icons.Default.Close,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(25.dp),
-                    tint = colorResource(id = R.color.C0F0F5C))
-            }
-        },
-        placeholderText = stringResource(id = R.string.textFieldText),
-        fontSize = DpToSp(17)
-    )
-}
-
-@Composable
 fun SearchBasic(
     textFieldValueState: MutableState<String>,
     modifier: Modifier = Modifier,
@@ -66,12 +34,12 @@ fun SearchBasic(
 ) {
     val focusManager = LocalFocusManager.current
     val onClick = {
-        mainViewModel.searchTextFieldValueState.value = ""
+        textFieldValueState.value = ""
         focusManager.clearFocus(true)
     }
 
-    BasicTextField(value = mainViewModel.searchTextFieldValueState.value, onValueChange = {
-        mainViewModel.searchTextFieldValueState.value = it
+    BasicTextField(value = textFieldValueState.value, onValueChange = {
+        textFieldValueState.value = it
     }, singleLine = true,
         modifier = modifier.clearFocusOnKeyboardDismiss(),
         textStyle = TextStyle(color = colorResource(id = R.color.C0F0F5C),
@@ -82,7 +50,7 @@ fun SearchBasic(
                     leadingIcon()
                 }
                 Box(Modifier.weight(1f)) {
-                    if (mainViewModel.searchTextFieldValueState.value.isEmpty()) {
+                    if (textFieldValueState.value.isEmpty()) {
                         Text(
                             placeholderText,
                             style = LocalTextStyle.current.copy(
@@ -93,7 +61,7 @@ fun SearchBasic(
                     }
                     innerTextField()
                 }
-                if (trailingIcon != null && mainViewModel.searchTextFieldValueState.value.isNotEmpty()) {
+                if (trailingIcon != null && textFieldValueState.value.isNotEmpty()) {
                     trailingIcon(onClick = onClick)
                 }
             }

@@ -75,10 +75,10 @@ fun marketButtons(
                         },
                         selectedContentColor = colorResource(R.color.C0F0F5C),
                         unselectedContentColor = Color.LightGray,
-                        selected = mainViewModel.selectedMarketState.value == index,
+                        selected = selectedMarketState.value == index,
                         onClick = {
-                            if (mainViewModel.selectedMarketState.value != index) {
-                                mainViewModel.selectedMarketState.value = index
+                            if (selectedMarketState.value != index) {
+                                selectedMarketState.value = index
                             }
                         },
                     )

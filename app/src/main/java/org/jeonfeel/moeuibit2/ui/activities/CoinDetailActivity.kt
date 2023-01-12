@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.activity
+package org.jeonfeel.moeuibit2.ui.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

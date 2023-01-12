@@ -3,8 +3,10 @@ package org.jeonfeel.moeuibit2.ui.viewmodels
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -28,10 +30,10 @@ class ExchangeViewModelState {
     val loadingFavorite = mutableStateOf(true)
     val loadingExchange = mutableStateOf(true)
     val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
-    val error = mutableStateOf(INTERNET_CONNECTION) // base
+    val error = mutableStateOf(INTERNET_CONNECTION)
     val searchTextFieldValue = mutableStateOf("")
     val sortButton = mutableStateOf(-1)
-    val btcTradePrice = mutableStateOf(0.0)
+    val btcPrice = mutableStateOf(0.0)
 }
 
 class ExchangeViewModel(
@@ -46,18 +48,17 @@ class ExchangeViewModel(
     private val btcMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
     private val krwMarketListStringBuffer = StringBuffer()
     private val btcMarketListStringBuffer = StringBuffer()
+    val coinKrNameEngName = HashMap<String, Pair<String, String>>()
 
-    val btcCoinKoreanNameAndEngName = HashMap<String, List<String>>()
-    val btcExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
-    val btcPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
-    val btcExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
-
-    val krwCoinKoreanNameAndEngName = HashMap<String, List<String>>()
     val krwExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     var krwExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+
+    val btcExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    val btcPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
+    val btcExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
+    var btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
 
     val favoritePreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     val favoriteExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
@@ -65,22 +66,33 @@ class ExchangeViewModel(
     var favoriteExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
     val favoriteHashMap = HashMap<String, Int>()
 
-    fun requestExchangeData() {
+    fun initExchangeData() {
         viewModelScope.launch {
-            exchangeState.loadingExchange.value = true
-            when (NetworkMonitorUtil.currentNetworkState) {
-                INTERNET_CONNECTION -> {
-                    requestMarketCode()
-                    requestKrwTicker(krwMarketListStringBuffer.toString())
-                    requestBtcTicker(btcMarketListStringBuffer.toString())
-                    exchangeState.error.value = INTERNET_CONNECTION
-                    exchangeState.loadingExchange.value = false
-                }
-                else -> {
-                    exchangeState.loadingExchange.value = false
-                    updateExchange = false
-                    exchangeState.error.value = NetworkMonitorUtil.currentNetworkState
-                }
+            delay(650L)
+            if (krwExchangeModelMutableStateList.isEmpty()) {
+                viewModelScope.launch {
+                    requestExchangeData()
+                }.join()
+            }
+            requestCoinListToWebSocket()
+            updateExchange()
+        }
+    }
+
+    private suspend fun requestExchangeData() {
+        exchangeState.loadingExchange.value = true
+        when (NetworkMonitorUtil.currentNetworkState) {
+            INTERNET_CONNECTION -> {
+                requestMarketCode()
+                requestKrwTicker(krwMarketListStringBuffer.toString())
+                requestBtcTicker(btcMarketListStringBuffer.toString())
+                exchangeState.error.value = INTERNET_CONNECTION
+                exchangeState.loadingExchange.value = false
+            }
+            else -> {
+                exchangeState.loadingExchange.value = false
+                updateExchange = false
+                exchangeState.error.value = NetworkMonitorUtil.currentNetworkState
             }
         }
     }
@@ -114,18 +126,17 @@ class ExchangeViewModel(
                             "$btcMarketListStringBuffer,$BTC_MARKET"
                         )
                         for (i in krwMarketCodeList.indices) {
-                            krwCoinKoreanNameAndEngName[krwMarketCodeList[i].market] =
-                                listOf(
+                            coinKrNameEngName[krwMarketCodeList[i].market] =
+                                Pair(
                                     krwMarketCodeList[i].korean_name,
                                     krwMarketCodeList[i].english_name
                                 )
                         }
                         for (i in btcMarketCodeList.indices) {
-                            btcCoinKoreanNameAndEngName[btcMarketCodeList[i].market] =
-                                listOf(
-                                    btcMarketCodeList[i].korean_name,
-                                    btcMarketCodeList[i].english_name
-                                )
+                            coinKrNameEngName[btcMarketCodeList[i].market] = Pair(
+                                btcMarketCodeList[i].korean_name,
+                                btcMarketCodeList[i].english_name
+                            )
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -374,34 +385,38 @@ class ExchangeViewModel(
     /**
      * 사용자 관심코인 변경사항 업데이트
      */
-    suspend fun updateFavorite(
+    fun updateFavorite(
         market: String,
         isFavorite: Boolean,
         viewModelScope: CoroutineScope,
     ) {
-        if (favoriteHashMap[market] == null && isFavorite) {
-            favoriteHashMap[market] = 0
-            try {
-                localRepository.getFavoriteDao().insert(market)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        } else if (favoriteHashMap[market] != null && !isFavorite) {
-            favoriteHashMap.remove(market)
-            try {
-                localRepository.getFavoriteDao().delete(market)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-                viewModelScope.launch(ioDispatcher) {
-                    UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                    UpBitTickerWebSocket.onPause()
-                    requestFavoriteData(SELECTED_FAVORITE)
-                    Handler(Looper.getMainLooper()).post {
-                        requestCoinListToWebSocket()
+        viewModelScope.launch(ioDispatcher) {
+            when {
+                favoriteHashMap[market] == null && isFavorite -> {
+                    favoriteHashMap[market] = 0
+                    try {
+                        localRepository.getFavoriteDao().insert(market)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                    updateExchange()
+                }
+                favoriteHashMap[market] != null && !isFavorite -> {
+                    favoriteHashMap.remove(market)
+                    try {
+                        localRepository.getFavoriteDao().delete(market)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+
+                    if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+                        UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                        UpBitTickerWebSocket.onPause()
+                        requestFavoriteData(SELECTED_FAVORITE)
+                        Handler(Looper.getMainLooper()).post {
+                            requestCoinListToWebSocket()
+                        }
+                        updateExchange()
+                    }
                 }
             }
         }
@@ -440,7 +455,7 @@ class ExchangeViewModel(
                         else -> {
                             favoriteExchangeModelList.sortByDescending { element ->
                                 if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.tradePrice * exchangeState.btcTradePrice.value
+                                    element.tradePrice * exchangeState.btcPrice.value
                                 } else {
                                     element.tradePrice
                                 }
@@ -463,7 +478,7 @@ class ExchangeViewModel(
                         else -> {
                             favoriteExchangeModelList.sortBy { element ->
                                 if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.tradePrice * exchangeState.btcTradePrice.value
+                                    element.tradePrice * exchangeState.btcPrice.value
                                 } else {
                                     element.tradePrice
                                 }
@@ -524,7 +539,7 @@ class ExchangeViewModel(
                         else -> {
                             favoriteExchangeModelList.sortByDescending { element ->
                                 if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * exchangeState.btcTradePrice.value
+                                    element.accTradePrice24h * exchangeState.btcPrice.value
                                 } else {
                                     element.accTradePrice24h
                                 }
@@ -547,7 +562,7 @@ class ExchangeViewModel(
                         else -> {
                             favoriteExchangeModelList.sortBy { element ->
                                 if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * exchangeState.btcTradePrice.value
+                                    element.accTradePrice24h * exchangeState.btcPrice.value
                                 } else {
                                     element.accTradePrice24h
                                 }
@@ -570,7 +585,7 @@ class ExchangeViewModel(
                         else -> {
                             favoriteExchangeModelList.sortByDescending { element ->
                                 if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * exchangeState.btcTradePrice.value
+                                    element.accTradePrice24h * exchangeState.btcPrice.value
                                 } else {
                                     element.accTradePrice24h
                                 }
@@ -624,13 +639,90 @@ class ExchangeViewModel(
         }
     }
 
+    fun getFilteredCoinList(): SnapshotStateList<CommonExchangeModel> {
+        val textFieldValue = exchangeState.searchTextFieldValue
+        val selectedMarket = exchangeState.selectedMarket
+        return when {
+            //검색 X 관심코인 X
+            textFieldValue.value.isEmpty() -> {
+                when (selectedMarket.value) {
+                    SELECTED_KRW_MARKET -> {
+                        krwExchangeModelMutableStateList
+                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutableStateList
+                    }
+                    else -> {
+                        favoriteExchangeModelMutableStateList
+                    }
+                }
+            }
+            else -> {
+                val resultList = SnapshotStateList<CommonExchangeModel>()
+                val targetList = when (selectedMarket.value) {
+                    SELECTED_KRW_MARKET -> {
+                        krwExchangeModelMutableStateList
+                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutableStateList
+                    }
+                    else -> {
+                        favoriteExchangeModelMutableStateList
+                    }
+                }
+                for (element in targetList) {
+                    if (
+                        element.koreanName.contains(textFieldValue.value) ||
+                        element.EnglishName.uppercase()
+                            .contains(textFieldValue.value.uppercase()) ||
+                        element.symbol.uppercase()
+                            .contains(textFieldValue.value.uppercase())
+                    ) {
+                        resultList.add(element)
+                    }
+                }
+                resultList
+            }
+        }
+    }
+
     fun checkErrorScreen() {
         if (krwPreItemArray.isEmpty() || btcPreItemArray.isEmpty()) {
-            requestExchangeData()
+            initExchangeData()
         } else if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR) {
             exchangeState.error.value = NetworkMonitorUtil.currentNetworkState
             UpBitTickerWebSocket.onPause()
-            requestExchangeData()
+            initExchangeData()
+        }
+    }
+
+    fun getPreCoinListAndPosition(): Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>> {
+        return when (exchangeState.selectedMarket.value) {
+            SELECTED_KRW_MARKET -> {
+                Pair(krwPreItemArray, krwExchangeModelListPosition)
+            }
+            SELECTED_BTC_MARKET -> {
+                Pair(btcPreItemArray, btcExchangeModelListPosition)
+            }
+            else -> {
+                Pair(favoritePreItemArray, favoriteExchangeModelListPosition)
+            }
+        }
+    }
+
+    fun getFavoriteLoadingState(): MutableState<Boolean>? {
+        return if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+            exchangeState.loadingFavorite
+        } else {
+            null
+        }
+    }
+
+    fun getBtcPrice(): Double {
+        return if (exchangeState.selectedMarket.value == SELECTED_KRW_MARKET) {
+            exchangeState.btcPrice.value
+        } else {
+            0.0
         }
     }
 
@@ -639,91 +731,61 @@ class ExchangeViewModel(
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
-
-        // krw 코인 인 경우
+        val marketState = exchangeState.selectedMarket.value
+        var position = 0
+        var targetModelList: ArrayList<CommonExchangeModel>? = null
+        // krw 코인 일 때
         if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
-            // BTC 마켓 일떄 비트코인 가격 받아오기 위해
-            if (exchangeState.selectedMarket.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
-                exchangeState.btcTradePrice.value = model.tradePrice
-            } else if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-                // 관심목록 일때 비트코인 가격 받아오기 위해
-                if (model.code == BTC_MARKET) {
-                    exchangeState.btcTradePrice.value = model.tradePrice
-                    if (favoriteHashMap[BTC_MARKET] != null) {
-                        val position = favoriteExchangeModelListPosition[model.code] ?: -1
-                        favoriteExchangeModelList[position] =
-                            CommonExchangeModel(
-                                krwCoinKoreanNameAndEngName[model.code]!![0],
-                                krwCoinKoreanNameAndEngName[model.code]!![1],
-                                model.code,
-                                model.code.substring(4),
-                                model.preClosingPrice,
-                                model.tradePrice,
-                                model.signedChangeRate,
-                                model.accTradePrice24h,
-                                model.marketWarning
-                            )
-                    }
-                } else {
-                    val position = favoriteExchangeModelListPosition[model.code] ?: -1
-                    favoriteExchangeModelList[position] =
-                        CommonExchangeModel(
-                            krwCoinKoreanNameAndEngName[model.code]!![0],
-                            krwCoinKoreanNameAndEngName[model.code]!![1],
-                            model.code,
-                            model.code.substring(4),
-                            model.preClosingPrice,
-                            model.tradePrice,
-                            model.signedChangeRate,
-                            model.accTradePrice24h,
-                            model.marketWarning
-                        )
+            when {
+                // BTC 마켓 일떄 비트코인 가격 받아오기 위해
+                marketState == SELECTED_BTC_MARKET && model.code == BTC_MARKET -> {
+                    exchangeState.btcPrice.value = model.tradePrice
                 }
-            } else {
-                val position = krwExchangeModelListPosition[model.code] ?: -1
-                krwExchangeModelList[position] =
-                    CommonExchangeModel(
-                        krwCoinKoreanNameAndEngName[model.code]!![0],
-                        krwCoinKoreanNameAndEngName[model.code]!![1],
-                        model.code,
-                        model.code.substring(4),
-                        model.preClosingPrice,
-                        model.tradePrice,
-                        model.signedChangeRate,
-                        model.accTradePrice24h,
-                        model.marketWarning
-                    )
+                // 관심 코인 화면에서 비트코인 가격 받아올 때
+                marketState == SELECTED_FAVORITE && model.code == BTC_MARKET -> {
+                    exchangeState.btcPrice.value = model.tradePrice
+                    // 관심코인에 비트코인이 있을 시
+                    if (favoriteHashMap[BTC_MARKET] != null) {
+                        position = favoriteExchangeModelListPosition[model.code] ?: 0
+                        targetModelList = favoriteExchangeModelList
+                    }
+                }
+                // 관심코인일 때
+                marketState == SELECTED_FAVORITE -> {
+                    position = favoriteExchangeModelListPosition[model.code] ?: 0
+                    targetModelList = favoriteExchangeModelList
+                }
+                // krw 마켓 일 때
+                else -> {
+                    Log.e("test", model.code)
+                    position = krwExchangeModelListPosition[model.code] ?: 0
+                    targetModelList = krwExchangeModelList
+                }
             }
-        } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
-            if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-                val position = favoriteExchangeModelListPosition[model.code] ?: -1
-                favoriteExchangeModelList[position] =
-                    CommonExchangeModel(
-                        btcCoinKoreanNameAndEngName[model.code]!![0],
-                        btcCoinKoreanNameAndEngName[model.code]!![1],
-                        model.code,
-                        model.code.substring(4),
-                        model.preClosingPrice,
-                        model.tradePrice,
-                        model.signedChangeRate,
-                        model.accTradePrice24h,
-                        model.marketWarning
-                    )
-            } else {
-                val position = btcExchangeModelListPosition[model.code] ?: -1
-                btcExchangeModelList[position] =
-                    CommonExchangeModel(
-                        btcCoinKoreanNameAndEngName[model.code]!![0],
-                        btcCoinKoreanNameAndEngName[model.code]!![1],
-                        model.code,
-                        model.code.substring(4),
-                        model.preClosingPrice,
-                        model.tradePrice,
-                        model.signedChangeRate,
-                        model.accTradePrice24h,
-                        model.marketWarning
-                    )
+        } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) { // BTC 마켓 일 떄
+            position = btcExchangeModelListPosition[model.code] ?: 0
+            targetModelList = when (marketState) {
+                SELECTED_FAVORITE -> {
+                    favoriteExchangeModelList
+                }
+                else -> {
+                    btcExchangeModelList
+                }
             }
+        }
+
+        targetModelList?.let {
+            targetModelList[position] = CommonExchangeModel(
+                coinKrNameEngName[model.code]?.first ?: "",
+                coinKrNameEngName[model.code]?.second ?: "",
+                model.code,
+                model.code.substring(4),
+                model.preClosingPrice,
+                model.tradePrice,
+                model.signedChangeRate,
+                model.accTradePrice24h,
+                model.marketWarning
+            )
         }
     }
 
@@ -739,3 +801,137 @@ class ExchangeViewModel(
         }
     }
 }
+
+//            if (exchangeState.selectedMarket.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
+//
+//            } else if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+//                position = favoriteExchangeModelListPosition[model.code] ?: 0
+//                targetNameHashMap = krwCoinKoreanNameAndEngName
+//                targetModelList = favoriteExchangeModelList
+//                // 관심목록 일때 비트코인 가격 받아오기 위해
+//                if (model.code == BTC_MARKET) {
+//                    exchangeState.btcTradePrice.value = model.tradePrice
+//                    if (favoriteHashMap[BTC_MARKET] != null) {
+//                        position = favoriteExchangeModelListPosition[model.code] ?: 0
+//                        targetNameHashMap = btcCoinKoreanNameAndEngName
+//                        targetModelList = favoriteExchangeModelList
+//                    }
+//                } else {
+//                    position = favoriteExchangeModelListPosition[model.code] ?: -1
+//                    targetNameHashMap = krwCoinKoreanNameAndEngName
+//                    targetModelList = favoriteExchangeModelList
+//                }
+//            } else {
+//                position = krwExchangeModelListPosition[model.code] ?: -1
+//                targetNameHashMap = krwCoinKoreanNameAndEngName
+//                targetModelList = krwExchangeModelList
+//            }
+//        } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
+//            if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+//                position = btcExchangeModelListPosition[model.code] ?: -1
+//                targetNameHashMap = btcCoinKoreanNameAndEngName
+//                targetModelList = favoriteExchangeModelList
+//            } else {
+//                position = btcExchangeModelListPosition[model.code] ?: -1
+//                targetNameHashMap = btcCoinKoreanNameAndEngName
+//                targetModelList = btcExchangeModelList
+//            }
+//
+//            CommonExchangeModel(
+//                btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                model.code,
+//                model.code.substring(4),
+//                model.preClosingPrice,
+//                model.tradePrice,
+//                model.signedChangeRate,
+//                model.accTradePrice24h,
+//                model.marketWarning
+//            )
+
+//            // krw 코인 인 경우
+//            if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
+//                // BTC 마켓 일떄 비트코인 가격 받아오기 위해
+//                if (exchangeState.selectedMarket.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
+//                    exchangeState.btcTradePrice.value = model.tradePrice
+//                } else if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+//                    // 관심목록 일때 비트코인 가격 받아오기 위해
+//                    if (model.code == BTC_MARKET) {
+//                        exchangeState.btcTradePrice.value = model.tradePrice
+//                        if (favoriteHashMap[BTC_MARKET] != null) {
+//                            val position = favoriteExchangeModelListPosition[model.code] ?: -1
+//                            favoriteExchangeModelList[position] =
+//                                CommonExchangeModel(
+//                                    krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                                    krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                                    model.code,
+//                                    model.code.substring(4),
+//                                    model.preClosingPrice,
+//                                    model.tradePrice,
+//                                    model.signedChangeRate,
+//                                    model.accTradePrice24h,
+//                                    model.marketWarning
+//                                )
+//                        }
+//                    } else {
+//                        val position = favoriteExchangeModelListPosition[model.code] ?: -1
+//                        favoriteExchangeModelList[position] =
+//                            CommonExchangeModel(
+//                                krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                                krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                                model.code,
+//                                model.code.substring(4),
+//                                model.preClosingPrice,
+//                                model.tradePrice,
+//                                model.signedChangeRate,
+//                                model.accTradePrice24h,
+//                                model.marketWarning
+//                            )
+//                    }
+//                } else {
+//                    val position = krwExchangeModelListPosition[model.code] ?: -1
+//                    krwExchangeModelList[position] =
+//                        CommonExchangeModel(
+//                            krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                            krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                            model.code,
+//                            model.code.substring(4),
+//                            model.preClosingPrice,
+//                            model.tradePrice,
+//                            model.signedChangeRate,
+//                            model.accTradePrice24h,
+//                            model.marketWarning
+//                        )
+//                }
+//            } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
+//                if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
+//                    val position = favoriteExchangeModelListPosition[model.code] ?: -1
+//                    favoriteExchangeModelList[position] =
+//                        CommonExchangeModel(
+//                            btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                            btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                            model.code,
+//                            model.code.substring(4),
+//                            model.preClosingPrice,
+//                            model.tradePrice,
+//                            model.signedChangeRate,
+//                            model.accTradePrice24h,
+//                            model.marketWarning
+//                        )
+//                } else {
+//                    val position = btcExchangeModelListPosition[model.code] ?: -1
+//                    btcExchangeModelList[position] =
+//                        CommonExchangeModel(
+//                            btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
+//                            btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
+//                            model.code,
+//                            model.code.substring(4),
+//                            model.preClosingPrice,
+//                            model.tradePrice,
+//                            model.signedChangeRate,
+//                            model.accTradePrice24h,
+//                            model.marketWarning
+//                        )
+//                }
+//            }
+//        }

@@ -20,13 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
-import org.jeonfeel.moeuibit2.ui.activity.MainActivity
+import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color

@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET

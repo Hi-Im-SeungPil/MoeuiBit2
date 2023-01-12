@@ -24,10 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activity.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.CAUTION
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
