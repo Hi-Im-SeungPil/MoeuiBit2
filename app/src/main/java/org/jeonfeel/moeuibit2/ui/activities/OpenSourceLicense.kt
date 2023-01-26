@@ -39,7 +39,7 @@ class OpenSourceLicense : ComponentActivity() {
                                 .wrapContentHeight(),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = DpToSp(dp = 25),
+                                fontSize = DpToSp(dp = 25.dp),
                                 fontWeight = FontWeight.Bold
                             )
                         )

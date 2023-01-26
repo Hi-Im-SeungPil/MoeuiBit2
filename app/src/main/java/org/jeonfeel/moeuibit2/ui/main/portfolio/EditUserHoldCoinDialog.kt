@@ -21,75 +21,78 @@ import androidx.compose.ui.window.Dialog
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
 
 @Composable
-fun EditUserHoldCoinDialog(mainViewModel: MainViewModel, dialogState: MutableState<Boolean>) {
-    Dialog(onDismissRequest = { dialogState.value = false }) {
-        Card(
-            modifier = Modifier
-                .padding(20.dp, 0.dp)
-                .wrapContentSize()
-        ) {
-            Column(
-                Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
+fun EditUserHoldCoinDialog(dialogState: MutableState<Boolean>, editUserHoldCoin: () -> Unit) {
+    if (dialogState.value) {
+        Dialog(onDismissRequest = { dialogState.value = false }) {
+            Card(
+                modifier = Modifier
+                    .padding(20.dp, 0.dp)
+                    .wrapContentSize()
             ) {
-                Text(
-                    text = stringResource(id = R.string.clearCoin),
-                    modifier = Modifier
-                        .padding(0.dp, 20.dp)
-                        .fillMaxWidth(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        textAlign = TextAlign.Center,
-                        fontSize = DpToSp(25),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Text(
-                    text = stringResource(id = R.string.cleanUpDialogContent),
-                    modifier = Modifier
-                        .padding(10.dp, 10.dp, 10.dp, 20.dp)
-                        .fillMaxWidth(),
-                    style = TextStyle(fontSize = DpToSp(18))
-                )
-                Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
-                Row {
+                Column(
+                    Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                ) {
                     Text(
-                        text = stringResource(id = R.string.commonCancel), modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                dialogState.value = false
-                            }
-                            .padding(0.dp, 10.dp),
-                        style = TextStyle(
-                            color = Color.Black,
-                            fontSize = DpToSp(18),
-                            textAlign = TextAlign.Center
-                        )
-                    )
-                    Text(
-                        text = "", modifier = Modifier
-                            .width(0.5.dp)
-                            .border(0.5.dp, Color.LightGray)
-                            .padding(0.dp, 10.dp), fontSize = DpToSp(18)
-                    )
-                    Text(text = stringResource(id = R.string.commonAccept),
+                        text = stringResource(id = R.string.clearCoin),
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                mainViewModel.editUserHoldCoin()
-                                dialogState.value = false
-                            }
-                            .padding(0.dp, 10.dp),
+                            .padding(0.dp, 20.dp)
+                            .fillMaxWidth(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
-                            color = Color.Black,
-                            fontSize = DpToSp(18),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = DpToSp(25.dp),
+                            fontWeight = FontWeight.Bold
                         )
                     )
+                    Text(
+                        text = stringResource(id = R.string.cleanUpDialogContent),
+                        modifier = Modifier
+                            .padding(10.dp, 10.dp, 10.dp, 20.dp)
+                            .fillMaxWidth(),
+                        style = TextStyle(fontSize = DpToSp(18.dp))
+                    )
+                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
+                    Row {
+                        Text(
+                            text = stringResource(id = R.string.commonCancel), modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    dialogState.value = false
+                                }
+                                .padding(0.dp, 10.dp),
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontSize = DpToSp(18.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                        Text(
+                            text = "", modifier = Modifier
+                                .width(0.5.dp)
+                                .border(0.5.dp, Color.LightGray)
+                                .padding(0.dp, 10.dp), fontSize = DpToSp(18.dp)
+                        )
+                        Text(text = stringResource(id = R.string.commonAccept),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    editUserHoldCoin()
+                                    dialogState.value = false
+                                }
+                                .padding(0.dp, 10.dp),
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontSize = DpToSp(18.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    }
                 }
             }
         }

@@ -108,7 +108,7 @@ fun CoinInfoContent(
 fun RowScope.MoveUrlText(text: String, clickAction: () -> Unit) {
     Text(
         text = text,
-        fontSize = DpToSp(14),
+        fontSize = DpToSp(14.dp),
         style = TextStyle(
             color = Color.Blue,
             textDecoration = TextDecoration.Underline,
@@ -134,7 +134,7 @@ fun RowScope.LoadWebViewText(
 ) {
     Text(
         text = text,
-        fontSize = DpToSp(14),
+        fontSize = DpToSp(14.dp),
         style = TextStyle(
             color = getTextColor(selectedButton.value, buttonId),
             textAlign = TextAlign.Center

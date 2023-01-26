@@ -37,7 +37,7 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
                 .padding(0.dp, 15.dp, 0.dp, 0.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            fontSize = DpToSp(18),
+            fontSize = DpToSp(18.dp),
             fontWeight = FontWeight.Bold)
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -90,14 +90,14 @@ fun TransactionInfoLazyColumnItem(
                     .wrapContentHeight(),
                 style = TextStyle(textAlign = TextAlign.Center,
                     color = textColor,
-                    fontSize = DpToSp(18),
+                    fontSize = DpToSp(18.dp),
                     fontWeight = FontWeight.Bold)
             )
             Text(
                 text = market, modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight(),
-                style = TextStyle(fontSize = DpToSp(18),
+                style = TextStyle(fontSize = DpToSp(18.dp),
                     fontWeight = FontWeight.Bold)
             )
         }

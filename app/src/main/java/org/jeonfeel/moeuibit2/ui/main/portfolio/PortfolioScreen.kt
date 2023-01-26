@@ -21,7 +21,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -43,6 +42,7 @@ import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.Utils.removeComma
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
@@ -54,78 +54,40 @@ import kotlin.math.round
 
 @Composable
 fun PortfolioScreen(
-    mainViewModel: MainViewModel = viewModel(),
-    startForActivityResult: ActivityResultLauncher<Intent>,
-    scaffoldState: ScaffoldState,
+    portfolioViewModel: PortfolioViewModel = viewModel(),
+    startForActivityResult: ActivityResultLauncher<Intent>
 ) {
     val context = LocalContext.current
-    val dialogState = remember {
-        mutableStateOf(false)
-    }
-    val editHoldCoinDialogState = remember {
-        mutableStateOf(false)
-    }
-    if (editHoldCoinDialogState.value) {
-        EditUserHoldCoinDialog(mainViewModel = mainViewModel, dialogState = editHoldCoinDialogState)
-    }
-    val secondExceptionHandler = remember {
-        CoroutineExceptionHandler { _, _ ->
-            context.showToast(context.getString(R.string.secondError))
-        }
-    }
+    EditUserHoldCoinDialog(
+        dialogState = portfolioViewModel.state.editHoldCoinDialogState,
+        editUserHoldCoin = portfolioViewModel::editUserHoldCoin
+    )
     TwoButtonCommonDialog(
-        dialogState = mainViewModel.adDialogState,
+        dialogState = portfolioViewModel.state.adDialogState,
         title = stringResource(id = R.string.chargeMoney),
         content = stringResource(id = R.string.adDialogContent),
         leftButtonText = stringResource(id = R.string.commonCancel),
         rightButtonText = stringResource(id = R.string.commonAccept),
-        leftButtonAction = { mainViewModel.adDialogState.value = false },
+        leftButtonAction = { portfolioViewModel.state.adDialogState.value = false },
         rightButtonAction = {
-            mainViewModel.updateAdLiveData()
-            mainViewModel.adDialogState.value = false
+            portfolioViewModel.updateAdLiveData()
+            portfolioViewModel.state.adDialogState.value = false
         })
-    CommonLoadingDialog(mainViewModel.adLoadingDialogState, stringResource(id = R.string.loadAd))
-    val firstExceptionHandler = remember {
-        CoroutineExceptionHandler { _, _ ->
-            CoroutineScope(Dispatchers.Main).launch(secondExceptionHandler) {
-                val snackBarResult =
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        context.getString(R.string.firstError),
-                        context.getString(R.string.retry)
-                    )
-                when (snackBarResult) {
-                    SnackbarResult.Dismissed -> {}
-                    SnackbarResult.ActionPerformed -> {
-                        mainViewModel.getUserHoldCoins()
-                    }
-                }
-            }
-        }
-    }
+    CommonLoadingDialog(
+        portfolioViewModel.state.adLoadingDialogState,
+        stringResource(id = R.string.loadAd)
+    )
 
-    if (mainViewModel.removeCoinCount.value == 1) {
-        context.showToast(stringResource(id = R.string.notRemovedCoin))
-    } else if (mainViewModel.removeCoinCount.value == -1) {
-        context.showToast(stringResource(id = R.string.NETWORK_ERROR))
-    } else if (mainViewModel.removeCoinCount.value > 1) {
-        context.showToast(
-            stringResource(
-                id = R.string.removedCoin,
-                mainViewModel.removeCoinCount.value - 1
-            )
-        )
-    }
-
-    AddLifecycleEvent(onPauseAction = {
-        mainViewModel.isPortfolioSocketRunning = false
-        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-        UpBitPortfolioWebSocket.onPause()
-    },
+    AddLifecycleEvent(
+        onPauseAction = {
+            portfolioViewModel.isPortfolioSocketRunning = false
+            UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+            UpBitPortfolioWebSocket.onPause()
+        },
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
-                CoroutineScope(Dispatchers.Main).launch(firstExceptionHandler) {
-                    mainViewModel.getUserHoldCoins()
-                }
+                portfolioViewModel.getUserSeedMoney()
+                portfolioViewModel.getUserHoldCoins()
             } else {
                 context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
             }
@@ -149,11 +111,13 @@ fun PortfolioScreen(
                         .wrapContentHeight(),
                     style = TextStyle(
                         color = Color.Black,
-                        fontSize = DpToSp(25),
+                        fontSize = DpToSp(25.dp),
                         fontWeight = FontWeight.Bold
                     )
                 )
-                IconButton(onClick = { editHoldCoinDialogState.value = true }) {
+                IconButton(onClick = {
+                    portfolioViewModel.state.editHoldCoinDialogState.value = true
+                }) {
                     Icon(
                         painterResource(id = R.drawable.img_eraser),
                         contentDescription = null,
@@ -165,399 +129,21 @@ fun PortfolioScreen(
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            if (mainViewModel.portfolioLoadingComplete.value) {
-                UserHoldCoinLazyColumn(mainViewModel, startForActivityResult, dialogState)
-            }
-        }
-    }
-}
-
-@Composable
-fun PortfolioMain(
-    mainViewModel: MainViewModel = viewModel(),
-    portfolioOrderState: MutableState<Int>,
-    orderByNameTextInfo: List<Any>,
-    orderByRateTextInfo: List<Any>,
-    pieChartState: MutableState<Boolean>,
-) {
-    mainViewModel.getUserSeedMoney()
-    val totalValuedAssets = Calculator.getDecimalFormat()
-        .format(round(mainViewModel.totalValuedAssets.value).toLong())
-    val totalPurchaseValue =
-        Calculator.getDecimalFormat().format(round(mainViewModel.totalPurchase.value).toLong())
-    val userSeedMoney = Calculator.getDecimalFormat().format(mainViewModel.userSeedMoney.value)
-    val totalHoldings = Calculator.getDecimalFormat()
-        .format(round(mainViewModel.userSeedMoney.value + mainViewModel.totalValuedAssets.value).toLong())
-    val valuationGainOrLoss = Calculator.getDecimalFormat()
-        .format(round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong())
-    val aReturn = if (mainViewModel.totalValuedAssets.value == 0.0) {
-        "0"
-    } else {
-        ((mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value) / mainViewModel.totalPurchase.value * 100).secondDecimal()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = stringResource(id = R.string.holdings),
-                modifier = Modifier
-                    .weight(1f, true)
-                    .padding(8.dp, 20.dp, 0.dp, 20.dp)
-                    .wrapContentHeight(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(22),
-                    fontWeight = FontWeight.Bold
-                )
+            UserHoldCoinLazyColumn(
+                startForActivityResult = startForActivityResult,
+                columnItemDialogState = portfolioViewModel.state.dialogState,
+                portfolioOrderState = portfolioViewModel.state.portfolioOrderState,
+                totalValuedAssets = portfolioViewModel.state.totalValuedAssets,
+                totalPurchase = portfolioViewModel.state.totalPurchase,
+                userSeedMoney = portfolioViewModel.state.userSeedMoney,
+                adDialogState = portfolioViewModel.state.adDialogState,
+                pieChartState = portfolioViewModel.state.pieChartState,
+                userHoldCoinList = portfolioViewModel.userHoldCoinList,
+                earnReward = portfolioViewModel::earnReward,
+                userHoldCoinDTOList = portfolioViewModel.state.userHoldCoinDtoList,
+                selectedCoinKoreanName = portfolioViewModel.state.selectedCoinKoreanName,
+                btcTradePrice = portfolioViewModel.state.btcTradePrice
             )
-            Card(
-                modifier = Modifier
-                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
-                    .wrapContentWidth(),
-                elevation = 4.dp,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.chargeMoney),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .align(Alignment.CenterVertically)
-                        .padding(8.dp)
-                        .clickable {
-                            mainViewModel.adDialogState.value = true
-//                            mainViewModel.earnReward()
-                        },
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = DpToSp(18)
-                    )
-                )
-            }
-//            Card(
-//                modifier = Modifier
-//                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
-//                    .wrapContentWidth(),
-//                elevation = 4.dp,
-//            ) {
-//                Text(
-//                    text = "테스트 10조 충전 버튼",
-//                    modifier = Modifier
-//                        .wrapContentWidth()
-//                        .align(Alignment.CenterVertically)
-//                        .padding(8.dp)
-//                        .clickable {
-//                            mainViewModel.test()
-//                        },
-//                    style = TextStyle(
-//                        color = Color.Black,
-//                        fontSize = 18.sp
-//                    )
-//                )
-//            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
-        ) {
-            if (isKor) {
-                PortfolioMainItem(
-                    text1 = stringResource(id = R.string.userSeedMoney),
-                    text2 = userSeedMoney,
-                    stringResource(id = R.string.totalPurchaseValue),
-                    totalPurchaseValue,
-                    stringResource(id = R.string.totalValuedAssets),
-                    totalValuedAssets,
-                    round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-                )
-                PortfolioMainItem(
-                    text1 = stringResource(id = R.string.totalHoldings),
-                    text2 = totalHoldings,
-                    stringResource(id = R.string.valuationGainOrLoss),
-                    valuationGainOrLoss,
-                    stringResource(id = R.string.aReturn),
-                    aReturn.plus("%"),
-                    round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-                )
-            } else {
-                PortfolioMainItemForEn(
-                    text1 = stringResource(id = R.string.userSeedMoney),
-                    text2 = userSeedMoney,
-                    text3 = stringResource(id = R.string.totalPurchaseValue),
-                    text4 = totalPurchaseValue,
-                    text5 = stringResource(id = R.string.totalValuedAssets),
-                    text6 = totalValuedAssets,
-                    colorStandard = round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-                )
-                PortfolioMainItemForEn(
-                    text1 = stringResource(id = R.string.totalHoldings),
-                    text2 = totalHoldings,
-                    text3 = stringResource(id = R.string.valuationGainOrLoss),
-                    text4 = valuationGainOrLoss,
-                    text5 = stringResource(id = R.string.aReturn),
-                    text6 = aReturn.plus("%"),
-                    colorStandard = round(mainViewModel.totalValuedAssets.value - mainViewModel.totalPurchase.value).toLong()
-                )
-            }
-        }
-        PortfolioPieChart(
-            pieChartState,
-            mainViewModel.userSeedMoney,
-            mainViewModel.userHoldCoinList
-        )
-        PortfolioMainSortButtons(
-            orderByRateTextInfo,
-            orderByNameTextInfo,
-            mainViewModel,
-            portfolioOrderState
-        )
-    }
-}
-
-@Composable
-fun RowScope.PortfolioMainItem(
-    text1: String,
-    text2: String,
-    text3: String,
-    text4: String,
-    text5: String,
-    text6: String,
-    colorStandard: Long,
-) {
-    val textColor = getReturnTextColor(colorStandard, text5)
-    Column(
-        modifier = Modifier
-            .padding()
-            .wrapContentHeight()
-            .weight(2f, true)
-    ) {
-        Text(
-            text = text1,
-            modifier = Modifier
-                .padding(8.dp, 0.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            style = TextStyle(
-                color = Color.Black,
-                fontSize = DpToSp(18),
-            )
-        )
-        AutoSizeText(
-            text = text2,
-            modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            textStyle = TextStyle(
-                fontSize = DpToSp(22),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text3,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .wrapContentWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(14),
-                )
-            )
-            AutoSizeText(
-                text = text4,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .weight(1f, true)
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(14),
-                    textAlign = TextAlign.End,
-                ),
-                color = textColor
-            )
-        }
-        Row(
-            modifier = Modifier
-                .padding(0.dp, 8.dp, 0.dp, 25.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text5,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .wrapContentWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(14),
-                )
-            )
-            AutoSizeText(
-                text = text6,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .weight(1f, true)
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(14),
-                    textAlign = TextAlign.End
-                ),
-                color = textColor
-            )
-        }
-    }
-}
-
-@Composable
-fun RowScope.PortfolioMainItemForEn(
-    text1: String,
-    text2: String,
-    text3: String,
-    text4: String,
-    text5: String,
-    text6: String,
-    colorStandard: Long,
-) {
-    val textColor = getReturnTextColor(colorStandard, text5)
-    Column(
-        modifier = Modifier
-            .padding()
-            .wrapContentHeight()
-            .weight(2f, true)
-    ) {
-        Text(
-            text = text1,
-            modifier = Modifier
-                .padding(8.dp, 0.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            style = TextStyle(
-                color = Color.Black,
-                fontSize = DpToSp(18),
-            )
-        )
-        AutoSizeText(
-            text = text2,
-            modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            textStyle = TextStyle(
-                fontSize = DpToSp(22),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        AutoSizeText(
-            text = "= \$ ${krwToUsd(removeComma(text2).toDouble(), usdPrice)}",
-            modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .wrapContentHeight(),
-            textStyle = TextStyle(
-                fontSize = DpToSp(15),
-                fontWeight = FontWeight.Bold
-            ),
-            color = Color.Gray
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text3,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(dp = 17),
-                    textAlign = TextAlign.Center
-                )
-            )
-            AutoSizeText(
-                text = text4,
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15),
-                    textAlign = TextAlign.End,
-                ),
-                color = textColor
-            )
-            AutoSizeText(
-                text = "= \$ ${krwToUsd(removeComma(text4).toDouble(), usdPrice)}",
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 13),
-                    textAlign = TextAlign.End
-                ),
-                color = if(text3 == stringResource(id = R.string.totalPurchaseValue)) Color.Gray else textColor
-            )
-        }
-        Column(
-            modifier = Modifier
-                .padding(0.dp, 8.dp, 0.dp, 25.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text5,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(dp = 17),
-                    textAlign = TextAlign.Center
-                )
-            )
-            AutoSizeText(
-                text = text6,
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15),
-                    textAlign = TextAlign.End
-                ),
-                color = textColor
-            )
-            if (text5 != stringResource(id = R.string.aReturn)) {
-                AutoSizeText(
-                    text = "= \$ ${krwToUsd(removeComma(text6).toDouble(), usdPrice)}",
-                    modifier = Modifier
-                        .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    textStyle = TextStyle(
-                        fontSize = DpToSp(dp = 13),
-                        textAlign = TextAlign.End
-                    ),
-                    color = Color.Gray
-                )
-            }
         }
     }
 }

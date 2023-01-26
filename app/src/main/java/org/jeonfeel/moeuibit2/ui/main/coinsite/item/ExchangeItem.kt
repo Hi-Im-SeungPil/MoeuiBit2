@@ -42,7 +42,7 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                     .padding(10.dp, 5.dp, 0.dp, 5.dp)
                     .weight(1f, true)
                     .align(Alignment.CenterVertically),
-                fontSize = DpToSp(20)
+                fontSize = DpToSp(20.dp)
             )
             IconButton(onClick = { exchangeState.value = !exchangeState.value }) {
                 Icon(
@@ -70,7 +70,7 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                         }) {
                         GlideImage(imageModel = exchangeImageUrl[i],
                             modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
-                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15))
+                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15.dp))
                     }
                 }
             }
@@ -86,7 +86,7 @@ fun ExchangeItem(exchangeState: MutableState<Boolean>, context: Context) {
                     ) {
                         GlideImage(imageModel = exchangeImageUrl[i],
                             modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit)
-                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15))
+                        Text(text = titles[i],modifier = Modifier.fillMaxWidth(1f), textAlign = TextAlign.Center, fontSize = DpToSp(15.dp))
                     }
                 }
             }

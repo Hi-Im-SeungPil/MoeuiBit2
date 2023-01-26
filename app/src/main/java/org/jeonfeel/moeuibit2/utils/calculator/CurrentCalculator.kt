@@ -98,6 +98,13 @@ object CurrentCalculator {
                 tradePrice.eighthDecimal()
             }
         }
+    }
 
+    fun btcToKrw(price: Double, marketState: Int): String {
+        return if(marketState == SELECTED_BTC_MARKET) {
+            tradePriceCalculator(price, SELECTED_KRW_MARKET)
+        } else {
+            ""
+        }
     }
 }

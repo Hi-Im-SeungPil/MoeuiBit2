@@ -19,44 +19,30 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.menuTitleArray
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
-    object Exchange : MainBottomNavItem("거래소", R.drawable.img_exchange, "exchange")
-    object CoinSite : MainBottomNavItem("코인 사이트", R.drawable.img_internet, "site")
-    object Portfolio : MainBottomNavItem("투자 내역", R.drawable.img_report, "portfolio")
-    object Setting : MainBottomNavItem("설정", R.drawable.img_setting, "setting")
-}
-
-sealed class MainBottomNavItemForEn(var title: String, var icon: Int, var screen_route: String) {
-    object Exchange : MainBottomNavItem("Exchange", R.drawable.img_exchange, "exchange")
-    object CoinSite : MainBottomNavItem("Web Site", R.drawable.img_internet, "site")
-    object Portfolio : MainBottomNavItem("Portfolio", R.drawable.img_report, "portfolio")
-    object Setting : MainBottomNavItem("Settings", R.drawable.img_setting, "setting")
+    object Exchange : MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, "exchange")
+    object CoinSite : MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, "site")
+    object Portfolio : MainBottomNavItem(menuTitleArray[2], R.drawable.img_report, "portfolio")
+    object Setting : MainBottomNavItem(menuTitleArray[3], R.drawable.img_setting, "setting")
 }
 
 @Composable
 fun MainBottomNavigation(navController: NavController) {
-    val items = if (MoeuiBitDataStore.isKor) {
-        listOf(
-            MainBottomNavItem.Exchange,
-            MainBottomNavItem.CoinSite,
-            MainBottomNavItem.Portfolio,
-            MainBottomNavItem.Setting
-        )
-    } else {
-        listOf(
-            MainBottomNavItemForEn.Exchange,
-            MainBottomNavItemForEn.CoinSite,
-            MainBottomNavItemForEn.Portfolio,
-            MainBottomNavItemForEn.Setting
-        )
-    }
+    val items = listOf(
+        MainBottomNavItem.Exchange,
+        MainBottomNavItem.CoinSite,
+        MainBottomNavItem.Portfolio,
+        MainBottomNavItem.Setting
+    )
     BottomNavigation(
         backgroundColor = colorResource(id = R.color.design_default_color_background)
     ) {
@@ -65,9 +51,11 @@ fun MainBottomNavigation(navController: NavController) {
         items.forEach { item ->
             BottomNavigationItem(
                 icon = {
-                    Icon(painterResource(id = item.icon),
+                    Icon(
+                        painterResource(id = item.icon),
                         contentDescription = item.title,
-                        modifier = Modifier.fillMaxSize(0.4f))
+                        modifier = Modifier.fillMaxSize(0.4f)
+                    )
                 },
                 label = { Text(text = item.title) },
                 selectedContentColor = colorResource(id = R.color.C0F0F5C),
@@ -102,15 +90,24 @@ fun MainNavigation(
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
             val exchangeViewModel: ExchangeViewModel = viewModel(
-                factory = ExchangeViewModel.provideFactory(mainViewModel.remoteRepository,mainViewModel.localRepository)
+                factory = ExchangeViewModel.provideFactory(
+                    mainViewModel.remoteRepository,
+                    mainViewModel.localRepository
+                )
             )
-            ExchangeScreen(exchangeViewModel,startForActivityResult)
+            ExchangeScreen(exchangeViewModel, startForActivityResult)
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
             CoinSiteScreen()
         }
-        composable(MainBottomNavItem.Portfolio.screen_route){
-            PortfolioScreen(mainViewModel,startForActivityResult,scaffoldState)
+        composable(MainBottomNavItem.Portfolio.screen_route) {
+            val portfolioViewModel: PortfolioViewModel = viewModel(
+                factory = PortfolioViewModel.provideFactory(
+                    mainViewModel.remoteRepository,
+                    mainViewModel.localRepository
+                )
+            )
+            PortfolioScreen(portfolioViewModel, startForActivityResult, scaffoldState)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen(mainViewModel)

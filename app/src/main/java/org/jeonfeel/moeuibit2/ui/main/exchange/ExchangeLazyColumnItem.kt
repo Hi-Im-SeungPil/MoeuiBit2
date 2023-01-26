@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,57 +41,18 @@ import kotlin.math.round
 @Composable
 fun ExchangeScreenLazyColumnItem(
     commonExchangeModel: CommonExchangeModel,
-    preTradePrice: Double,
     isFavorite: Boolean,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    btcPrice: MutableState<Double>,
+    marketState: Int,
+    signedChangeRate: String,
+    curTradePrice: String,
+    accTradePrice24h: String,
+    formattedPreTradePrice: String,
+    btcToKrw: String,
+    unit: String,
 ) {
     val context = LocalContext.current
-    val selectedMarket = Utils.getSelectedMarket(commonExchangeModel.market)
-    val koreanName = commonExchangeModel.koreanName
-    val engName = commonExchangeModel.EnglishName
-    val warning = commonExchangeModel.warning
-    val symbol = commonExchangeModel.symbol
-    val signedChangeRate =
-        CurrentCalculator.signedChangeRateCalculator(commonExchangeModel.signedChangeRate)
-    val openingPrice = commonExchangeModel.opening_price
-    val curTradePrice =
-        CurrentCalculator.tradePriceCalculator(commonExchangeModel.tradePrice, selectedMarket)
-    val accTradePrice24h =
-        CurrentCalculator.accTradePrice24hCalculator(
-            commonExchangeModel.accTradePrice24h,
-            selectedMarket
-        )
-    val formattedPreTradePrice =
-        CurrentCalculator.tradePriceCalculator(preTradePrice, selectedMarket)
-    val btcToKrw = if (selectedMarket == SELECTED_BTC_MARKET) {
-        CurrentCalculator.tradePriceCalculator(
-            commonExchangeModel.tradePrice * btcPrice.value,
-            SELECTED_KRW_MARKET
-        )
-    } else {
-        ""
-    }
-
-    val market = if (commonExchangeModel.market.startsWith(SYMBOL_KRW)) {
-        "/$SYMBOL_KRW"
-    } else if (commonExchangeModel.market.startsWith(SYMBOL_BTC)) {
-        "/$SYMBOL_BTC"
-    } else {
-        ""
-    }
-
-    val rateTextColor = when {
-        signedChangeRate.toFloat() > 0 -> {
-            increase_color
-        }
-        signedChangeRate.toFloat() < 0 -> {
-            decrease_color
-        }
-        else -> {
-            Color.Black
-        }
-    }
+    val textColor = Utils.getIncreaseOrDecreaseColor(signedChangeRate.toFloat())
 
     Row(
         Modifier
@@ -101,13 +61,13 @@ fun ExchangeScreenLazyColumnItem(
             .drawUnderLine()
             .clickable {
                 val intent = Intent(context, CoinDetailActivity::class.java).apply {
-                    putExtra(INTENT_KOREAN_NAME, koreanName)
-                    putExtra(INTENT_ENG_NAME, engName)
-                    putExtra(INTENT_COIN_SYMBOL, symbol)
-                    putExtra(INTENT_OPENING_PRICE, openingPrice)
+                    putExtra(INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
+                    putExtra(INTENT_ENG_NAME, commonExchangeModel.EnglishName)
+                    putExtra(INTENT_COIN_SYMBOL, commonExchangeModel.symbol)
+                    putExtra(INTENT_OPENING_PRICE, commonExchangeModel.opening_price)
                     putExtra(INTENT_IS_FAVORITE, isFavorite)
-                    putExtra(INTENT_MARKET_STATE, selectedMarket)
-                    putExtra(INTENT_WARNING, warning)
+                    putExtra(INTENT_MARKET_STATE, marketState)
+                    putExtra(INTENT_WARNING, commonExchangeModel.warning)
                 }
                 startForActivityResult.launch(intent)
                 (context as MainActivity).overridePendingTransition(
@@ -125,7 +85,7 @@ fun ExchangeScreenLazyColumnItem(
         ) {
             Text(
                 text = buildAnnotatedString {
-                    if (warning == CAUTION) {
+                    if (commonExchangeModel.warning == CAUTION) {
                         withStyle(
                             style = SpanStyle(
                                 color = Color.Magenta,
@@ -135,7 +95,9 @@ fun ExchangeScreenLazyColumnItem(
                             append(context.getString(R.string.exchangeCaution))
                         }
                     }
-                    if (isKor) append(koreanName) else append(engName)
+                    if (isKor) append(commonExchangeModel.koreanName) else append(
+                        commonExchangeModel.EnglishName
+                    )
                 },
                 maxLines = 1,
                 modifier = Modifier
@@ -146,7 +108,7 @@ fun ExchangeScreenLazyColumnItem(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = symbol.plus(market),
+                text = "${commonExchangeModel.symbol}/$unit",
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -178,10 +140,10 @@ fun ExchangeScreenLazyColumnItem(
         ) {
             TradePrice(
                 tradePrice = curTradePrice,
-                textColor = rateTextColor,
+                textColor = textColor,
                 btcToKrw = btcToKrw,
                 doubleTradePrice = commonExchangeModel.tradePrice,
-                selectedMarket = selectedMarket
+                selectedMarket = marketState
             )
         }
         // 코인 변동률
@@ -193,7 +155,7 @@ fun ExchangeScreenLazyColumnItem(
                 .fillMaxHeight()
                 .wrapContentHeight(),
             style = TextStyle(
-                textAlign = TextAlign.Center, color = rateTextColor
+                textAlign = TextAlign.Center, color = textColor
             )
         )
         // 거래대금

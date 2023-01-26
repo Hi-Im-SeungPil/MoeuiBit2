@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @Composable
 fun ExchangeScreenLazyColumn(
@@ -60,12 +62,32 @@ fun ExchangeScreenLazyColumn(
                     val preCoinListPosition =
                         preCoinListAndPosition.second[coinListElement.market] ?: 0
                     val preCoinElement = preCoinListAndPosition.first[preCoinListPosition]
+                    val marketState = Utils.getSelectedMarket(coinListElement.market)
                     ExchangeScreenLazyColumnItem(
                         commonExchangeModel = coinListElement,
-                        preTradePrice = preCoinElement.tradePrice,
                         isFavorite = favoriteHashMap[coinListElement.market] != null,
                         startForActivityResult = startForActivityResult,
-                        btcPrice = btcPrice
+                        marketState = marketState,
+                        signedChangeRate = CurrentCalculator.signedChangeRateCalculator(
+                            coinListElement.signedChangeRate
+                        ),
+                        curTradePrice = CurrentCalculator.tradePriceCalculator(
+                            coinListElement.tradePrice,
+                            marketState
+                        ),
+                        accTradePrice24h = CurrentCalculator.accTradePrice24hCalculator(
+                            coinListElement.accTradePrice24h,
+                            marketState
+                        ),
+                        formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(
+                            preCoinElement.tradePrice,
+                            marketState
+                        ),
+                        btcToKrw = CurrentCalculator.btcToKrw(
+                            (coinListElement.tradePrice * btcPrice.value) ,
+                            marketState
+                        ),
+                        unit = Utils.getUnit(marketState),
                     )
                     preCoinListAndPosition.first[preCoinListPosition] = coinListElement
                 }

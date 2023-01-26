@@ -6,16 +6,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 
-val GmarketSans_light = FontFamily(
-    Font(R.font.gmarket_sans_light)
+val NotoSans_light = FontFamily(
+    Font(R.font.notosans_black)
 )
-val GmarketSans_medium = FontFamily(
-    Font(R.font.gmarket_sans_medium)
+val NotoSans_medium = FontFamily(
+    Font(R.font.notosans_medium)
 )
-val GmarketSans_bold = FontFamily(
-    Font(R.font.gmarket_sans_bold)
+val NotoSans_bold = FontFamily(
+    Font(R.font.notosans_bold)
 )
 
 @Composable
@@ -28,7 +29,7 @@ fun FontLightText(
     Text(
         text = text,
         modifier = modifier,
-        style = textStyle.copy(fontFamily = GmarketSans_light, fontSize = DpToSp(fontSize))
+        style = textStyle.copy(fontFamily = NotoSans_light, fontSize = DpToSp(fontSize.dp))
     )
 }
 
@@ -42,7 +43,7 @@ fun FontMediumText(
     Text(
         text = text,
         modifier = modifier,
-        style = textStyle.copy(fontFamily = GmarketSans_medium, fontSize = DpToSp(fontSize))
+        style = textStyle.copy(fontFamily = NotoSans_medium, fontSize = DpToSp(fontSize.dp))
     )
 }
 
@@ -56,6 +57,6 @@ fun FontBoldText(
     Text(
         text = text,
         modifier = modifier,
-        style = textStyle.copy(fontFamily = GmarketSans_bold, fontSize = DpToSp(fontSize))
+        style = textStyle.copy(fontFamily = NotoSans_bold, fontSize = DpToSp(fontSize.dp))
     )
 }

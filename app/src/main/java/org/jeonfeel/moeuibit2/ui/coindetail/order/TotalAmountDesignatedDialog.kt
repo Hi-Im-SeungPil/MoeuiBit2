@@ -101,7 +101,7 @@ fun TotalAmountDesignatedDialog(
                         overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = DpToSp(25),
+                            fontSize = DpToSp(25.dp),
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -113,16 +113,16 @@ fun TotalAmountDesignatedDialog(
                     ) {
                         Text(
                             text = "거래 가능",
-                            style = TextStyle(fontSize = DpToSp(18))
+                            style = TextStyle(fontSize = DpToSp(18.dp))
                         )
                         AutoSizeText(
                             modifier = Modifier.weight(1f, true),
                             text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) userSeedMoney else userCoinValuable,
-                            textStyle = TextStyle(fontSize = DpToSp(18), textAlign = TextAlign.End)
+                            textStyle = TextStyle(fontSize = DpToSp(18.dp), textAlign = TextAlign.End)
                         )
                         Text(
                             text = " $SYMBOL_KRW",
-                            style = TextStyle(fontSize = DpToSp(18), fontWeight = FontWeight.Bold)
+                            style = TextStyle(fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold)
                         )
                     }
 
@@ -156,7 +156,7 @@ fun TotalAmountDesignatedDialog(
                                 .weight(1f, true)
                                 .align(Alignment.CenterVertically) ,
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                            textStyle = TextStyle(fontSize = DpToSp(18), textAlign = TextAlign.End),
+                            textStyle = TextStyle(fontSize = DpToSp(18.dp), textAlign = TextAlign.End),
                             visualTransformation = NumbersCommaTransformation(),
                             colors = TextFieldDefaults.textFieldColors(
                                 focusedIndicatorColor = Color.Transparent,
@@ -167,7 +167,7 @@ fun TotalAmountDesignatedDialog(
                         )
                         Text(
                             text = " $SYMBOL_KRW",
-                            style = TextStyle(fontSize = DpToSp(18), fontWeight = FontWeight.Bold),
+                            style = TextStyle(fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold),
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
@@ -175,7 +175,7 @@ fun TotalAmountDesignatedDialog(
                     if(coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
                         Text(text = "지정금액 + 수수료 = ${Calculator.getDecimalFormat()
                             .format(round(krwFeeState.value))} ".plus(SYMBOL_KRW),
-                            style = TextStyle(color = Color.Gray, fontSize = DpToSp(15)),
+                            style = TextStyle(color = Color.Gray, fontSize = DpToSp(15.dp)),
                             modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 20.dp))
                     }
 
@@ -210,7 +210,7 @@ fun TotalAmountDesignatedDialog(
                             if (i != textArray.lastIndex) {
                                 Text(
                                     text = "",
-                                    style = TextStyle(color = Color.LightGray, fontSize = DpToSp(18)),
+                                    style = TextStyle(color = Color.LightGray, fontSize = DpToSp(18.dp)),
                                     modifier = Modifier
                                         .width(1.dp)
                                         .border(1.dp, color = Color.LightGray)
@@ -245,7 +245,7 @@ fun TotalAmountDesignatedDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = DpToSp(18),
+                                fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.Center
                             )
                         )
@@ -253,7 +253,7 @@ fun TotalAmountDesignatedDialog(
                             text = "", modifier = Modifier
                                 .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
-                                .padding(0.dp, 10.dp), fontSize = DpToSp(18)
+                                .padding(0.dp, 10.dp), fontSize = DpToSp(18.dp)
                         )
                         Text(text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB)
                             stringResource(id = R.string.bid)
@@ -405,7 +405,7 @@ fun TotalAmountDesignatedDialog(
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.White,
-                                fontSize = DpToSp(18),
+                                fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.Center
                             )
                         )

@@ -234,13 +234,13 @@ fun OrderScreenUserSeedMoney(
                 textStyle = MaterialTheme.typography.body1.copy(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.End,
-                    fontSize = DpToSp(15)
+                    fontSize = DpToSp(15.dp)
                 )
             )
             Text(
                 text = "  ".plus(krwOrSymbol),
                 modifier = Modifier.wrapContentWidth(),
-                fontWeight = FontWeight.Bold, fontSize = DpToSp(15),
+                fontWeight = FontWeight.Bold, fontSize = DpToSp(15.dp),
                 textAlign = TextAlign.End
             )
         }
@@ -252,7 +252,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
             )
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_BTC_MARKET) {
             Text(
@@ -260,7 +260,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
             )
         }
     }
@@ -285,12 +285,12 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel = viewModel(), 
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = DpToSp(15))
+                style = TextStyle(fontSize = DpToSp(15.dp))
             )
             OrderScreenQuantityTextField(
                 modifier = Modifier.weight(1f, true),
                 placeholderText = "0",
-                fontSize = DpToSp(15),
+                fontSize = DpToSp(15.dp),
                 coinDetailViewModel = coinDetailViewModel
             )
         }
@@ -407,21 +407,21 @@ fun OrderScreenPrice(coinDetailViewModel: CoinDetailViewModel = viewModel(), mar
         Text(
             text = stringResource(id = R.string.price), modifier = Modifier
                 .wrapContentWidth()
-                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15))
+                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15.dp))
         )
         Text(
             text = CurrentCalculator.tradePriceCalculator(coinDetailViewModel.currentTradePriceState,
                 marketState),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
-            style = TextStyle(fontSize = DpToSp(15))
+            style = TextStyle(fontSize = DpToSp(15.dp))
         )
         Text(
             text = "  ".plus(Utils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = DpToSp(15), fontWeight = FontWeight.Bold)
+            style = TextStyle(fontSize = DpToSp(15.dp), fontWeight = FontWeight.Bold)
         )
     }
 }

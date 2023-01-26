@@ -25,6 +25,8 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.chartMinuteArray
+import org.jeonfeel.moeuibit2.constants.chartMinuteStrArray
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
@@ -73,7 +75,8 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {
-                                val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
+                                val marketState =
+                                    Utils.getSelectedMarket(coinDetailViewModel.market)
                                 val canvas = (combinedChart[0] as ChartCanvas)
                                 val lastCandle = coinDetailViewModel.candleEntryLast
                                 val tradePrice = lastCandle.close
@@ -94,7 +97,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                 ).y
                                 canvas.realTimeLastCandleClose(
                                     yp,
-                                    CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
+                                    CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
                                     color
                                 )
                                 if (it == CHART_SET_ALL) {
@@ -103,12 +106,12 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                                 lastCandle.x
                                             ).isEmpty()
                                         ) {
-                                            try{
+                                            try {
                                                 combinedChart.barData.dataSets[1].getEntriesForXValue(
                                                     lastCandle.x
                                                 ).first()
-                                            }catch (e: Exception) {
-                                                CandleEntry(1f,1f,1f,1f,1f)
+                                            } catch (e: Exception) {
+                                                CandleEntry(1f, 1f, 1f, 1f, 1f)
                                             }
                                         } else {
                                             try {
@@ -116,8 +119,8 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                                                     lastCandle.x
                                                 ).first()
 
-                                            }catch(e: Exception){
-                                                CandleEntry(1f,1f,1f,1f,1f)
+                                            } catch (e: Exception) {
+                                                CandleEntry(1f, 1f, 1f, 1f, 1f)
                                             }
                                         }
                                     combinedChart.addAccAmountLimitLine(
@@ -155,69 +158,89 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 Color.LightGray
             }
 
-            TextButton(onClick = {
-                coinDetailViewModel.minuteVisible = !coinDetailViewModel.minuteVisible
-            }, modifier = if (coinDetailViewModel.selectedButton == MINUTE_SELECT)
-                buttonModifier
-                    .border(1.dp, colorResource(id = R.color.C0F0F5C))
-                    .fillMaxHeight()
-            else buttonModifier) {
-                Text(text = coinDetailViewModel.minuteText,
+            TextButton(
+                onClick = {
+                    coinDetailViewModel.minuteVisible = !coinDetailViewModel.minuteVisible
+                }, modifier = if (coinDetailViewModel.selectedButton == MINUTE_SELECT)
+                    buttonModifier
+                        .border(1.dp, colorResource(id = R.color.C0F0F5C))
+                        .fillMaxHeight()
+                else buttonModifier
+            ) {
+                Text(
+                    text = coinDetailViewModel.minuteText,
                     style = TextStyle(color = btnColor)
                 )
             }
             if (coinDetailViewModel.selectedButton == DAY_SELECT) {
 
 
-
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier
-                        .border(1.dp,
-                            colorResource(id = R.color.C0F0F5C))
+                        .border(
+                            1.dp,
+                            colorResource(id = R.color.C0F0F5C)
+                        )
                         .fillMaxHeight(),
                     "days",
-                    stringResource(id = R.string.day), DAY_SELECT)
+                    stringResource(id = R.string.day), DAY_SELECT
+                )
             } else {
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "days",
-                    stringResource(id = R.string.day), DAY_SELECT)
+                    stringResource(id = R.string.day), DAY_SELECT
+                )
             }
 
             if (coinDetailViewModel.selectedButton == WEEK_SELECT) {
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier
-                        .border(1.dp,
-                            colorResource(id = R.color.C0F0F5C))
+                        .border(
+                            1.dp,
+                            colorResource(id = R.color.C0F0F5C)
+                        )
                         .fillMaxHeight(),
                     "weeks",
-                    stringResource(id = R.string.week), WEEK_SELECT)
+                    stringResource(id = R.string.week), WEEK_SELECT
+                )
             } else {
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "weeks",
-                    stringResource(id = R.string.week), WEEK_SELECT)
+                    stringResource(id = R.string.week), WEEK_SELECT
+                )
             }
 
             if (coinDetailViewModel.selectedButton == MONTH_SELECT) {
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier
-                        .border(1.dp,
-                            colorResource(id = R.color.C0F0F5C))
+                        .border(
+                            1.dp,
+                            colorResource(id = R.color.C0F0F5C)
+                        )
                         .fillMaxHeight(),
                     "months",
-                    stringResource(id = R.string.month), MONTH_SELECT)
+                    stringResource(id = R.string.month), MONTH_SELECT
+                )
             } else {
-                PeriodButton(coinDetailViewModel,
+                PeriodButton(
+                    coinDetailViewModel,
                     combinedChart,
                     buttonModifier,
                     "months",
-                    stringResource(id = R.string.month), MONTH_SELECT)
+                    stringResource(id = R.string.month), MONTH_SELECT
+                )
             }
         }
 
@@ -235,59 +258,15 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                         .height(35.dp)
                         .align(Alignment.TopCenter)
                 ) {
-                    val modifier = Modifier
-                        .weight(1f)
-                        .background(Color.White)
-                        .border(0.5.dp, colorResource(id = R.color.C0F0F5C))
-                        .fillMaxHeight()
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "1",
-                        stringResource(id = R.string.one_minute),
-                        false)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "3",
-                        stringResource(id = R.string.three_minute),
-                        false)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "5",
-                        stringResource(id = R.string.five_minute),
-                        false)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "10",
-                        stringResource(id = R.string.ten_minute),
-                        true)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "15",
-                        stringResource(id = R.string.fifteen_minute),
-                        true)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "30",
-                        stringResource(id = R.string.thirty_minute),
-                        true)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "60",
-                        stringResource(id = R.string.one_hour),
-                        true)
-                    MinuteButton(coinDetailViewModel,
-                        combinedChart,
-                        modifier,
-                        "240",
-                        stringResource(id = R.string.four_hour),
-                        true)
+                    for (i in chartMinuteArray.indices) {
+                        MinuteButton(
+                            coinDetailViewModel = coinDetailViewModel,
+                            combinedChart = combinedChart,
+                            candleType = chartMinuteArray[i],
+                            minuteTextValue = chartMinuteStrArray[i],
+                            autoSizeText = false
+                        )
+                    }
                 }
             }
         }
@@ -313,32 +292,38 @@ fun PeriodButton(
         coinDetailViewModel.chartLastData = false
         coinDetailViewModel.candleType = candleType
         coinDetailViewModel.minuteVisible = false
-        coinDetailViewModel.minuteText = if(isKor) "분" else "m,h"
+        coinDetailViewModel.minuteText = if (isKor) "분" else "m,h"
         coinDetailViewModel.requestChartData(combinedChart)
         coinDetailViewModel.selectedButton = period
     }, modifier = modifier) {
-        Text(text = buttonText,
-            style = TextStyle(color = buttonColor))
+        Text(
+            text = buttonText,
+            style = TextStyle(color = buttonColor)
+        )
     }
 }
 
 @Composable
-fun MinuteButton(
+fun RowScope.MinuteButton(
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
     combinedChart: CombinedChart,
-    modifier: Modifier,
     candleType: String,
     minuteTextValue: String,
     autoSizeText: Boolean,
 ) {
-    TextButton(onClick = {
-        coinDetailViewModel.chartLastData = false
-        coinDetailViewModel.candleType = candleType
-        coinDetailViewModel.requestChartData(combinedChart)
-        coinDetailViewModel.minuteVisible = false
-        coinDetailViewModel.minuteText = minuteTextValue
-        coinDetailViewModel.selectedButton = MINUTE_SELECT
-    }, modifier = modifier
+    TextButton(
+        onClick = {
+            coinDetailViewModel.chartLastData = false
+            coinDetailViewModel.candleType = candleType
+            coinDetailViewModel.requestChartData(combinedChart)
+            coinDetailViewModel.minuteVisible = false
+            coinDetailViewModel.minuteText = minuteTextValue
+            coinDetailViewModel.selectedButton = MINUTE_SELECT
+        }, modifier = Modifier
+            .weight(1f)
+            .background(Color.White)
+            .border(0.5.dp, colorResource(id = R.color.C0F0F5C))
+            .fillMaxHeight()
     ) {
         if (autoSizeText) {
             AutoSizeText(
@@ -350,7 +335,10 @@ fun MinuteButton(
                     .weight(1f)
             )
         } else {
-            Text(text = minuteTextValue, style = TextStyle(color = Color.Black, fontSize = DpToSp(14)))
+            Text(
+                text = minuteTextValue,
+                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
+            )
         }
     }
 }

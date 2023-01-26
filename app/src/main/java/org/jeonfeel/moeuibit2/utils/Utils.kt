@@ -1,6 +1,9 @@
 package org.jeonfeel.moeuibit2.utils
 
+import androidx.compose.ui.graphics.Color
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_color
 
 object Utils {
 
@@ -26,7 +29,7 @@ object Utils {
             listOf("5000 $SYMBOL_KRW", "0")
         } else if (marketState == SELECTED_KRW_MARKET && selectedTab == ASK_BID_SCREEN_ASK_TAB) {
             listOf("5000 $SYMBOL_KRW", "1")
-        } else if(marketState == SELECTED_BTC_MARKET && selectedTab == ASK_BID_SCREEN_BID_TAB) {
+        } else if (marketState == SELECTED_BTC_MARKET && selectedTab == ASK_BID_SCREEN_BID_TAB) {
             listOf("0.0005 $SYMBOL_BTC", "2")
         } else {
             listOf("0.0005 $SYMBOL_BTC", "3")
@@ -36,9 +39,31 @@ object Utils {
     fun removeComma(price: String): String {
         val temp = price.split(",")
         var krwPrice = ""
-        for(i in temp.indices) {
+        for (i in temp.indices) {
             krwPrice += temp[i]
         }
         return krwPrice
+    }
+
+    fun getIncreaseOrDecreaseColor(value: Float): Color {
+        return when {
+            value > 0 -> {
+                increase_color
+            }
+            value < 0 -> {
+                decrease_color
+            }
+            else -> {
+                Color.Black
+            }
+        }
+    }
+
+    fun getPortfolioName(marketState: Int, name: String): String {
+        return if(marketState == SELECTED_BTC_MARKET) {
+            "[$SYMBOL_BTC] $name"
+        } else {
+            name
+        }
     }
 }

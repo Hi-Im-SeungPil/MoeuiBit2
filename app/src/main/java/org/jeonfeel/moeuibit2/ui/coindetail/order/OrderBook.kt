@@ -130,7 +130,7 @@ fun AskingPriceLazyColumnItem(
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
-                textStyle = TextStyle(fontSize = DpToSp(15),
+                textStyle = TextStyle(fontSize = DpToSp(15.dp),
                     textAlign = TextAlign.Center),
                 color = orderBookTextColor
             )
@@ -141,7 +141,7 @@ fun AskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = DpToSp(13), color = orderBookTextColor)
+                style = TextStyle(fontSize = DpToSp(13.dp), color = orderBookTextColor)
             )
         }
         Box(
@@ -210,7 +210,7 @@ fun EmptyAskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = DpToSp(15))
+                style = TextStyle(fontSize = DpToSp(15.dp))
             )
             Text(
                 text = rateResult,
@@ -219,7 +219,7 @@ fun EmptyAskingPriceLazyColumnItem(
                     .weight(1f)
                     .wrapContentHeight(),
                 textAlign = TextAlign.Center,
-                style = TextStyle(fontSize = DpToSp(13))
+                style = TextStyle(fontSize = DpToSp(13.dp))
             )
         }
         Box(

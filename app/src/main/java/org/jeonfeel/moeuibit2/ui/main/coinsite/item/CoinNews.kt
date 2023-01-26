@@ -41,7 +41,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                 .padding(10.dp, 5.dp, 0.dp, 5.dp)
                 .weight(1f, true)
                 .align(Alignment.CenterVertically),
-                fontSize = DpToSp(20)
+                fontSize = DpToSp(20.dp)
             )
             IconButton(onClick = { coinNewsState.value = !coinNewsState.value }) {
                 Icon(
@@ -72,7 +72,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                         Text(text = titles[i],
                             modifier = Modifier.fillMaxWidth(1f),
                             textAlign = TextAlign.Center,
-                            fontSize = DpToSp(15))
+                            fontSize = DpToSp(15.dp))
                     }
                 }
             }
@@ -89,7 +89,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                     Text(text = titles[3],
                         modifier = Modifier.fillMaxWidth(1f),
                         textAlign = TextAlign.Center,
-                        fontSize = DpToSp(15))
+                        fontSize = DpToSp(15.dp))
                 }
                 Box(modifier = Modifier.weight(1f))
                 Box(modifier = Modifier.weight(1f))

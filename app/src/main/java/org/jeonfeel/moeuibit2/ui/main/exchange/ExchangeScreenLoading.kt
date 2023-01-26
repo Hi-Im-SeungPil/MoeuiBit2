@@ -40,7 +40,7 @@ fun ExchangeScreenLoading() {
             Row(modifier = Modifier.fillMaxWidth().height(40.dp).padding(10.dp,0.dp,10.dp,10.dp)) {
                 Text(text = "", modifier = Modifier.padding(0.dp,5.dp,5.dp,5.dp).weight(1f).background(color = colorResource(id = R.color.CECECEC)).fillMaxHeight())
                 Text(text = "", modifier = Modifier.padding(5.dp,5.dp,0.dp,5.dp).weight(1f).background(color = colorResource(id = R.color.CECECEC)).fillMaxHeight())
-                Text(text = "", modifier = Modifier.weight(1f))
+                Text(text = "", modifier = Modifier.padding(5.dp,5.dp,0.dp,5.dp).weight(1f).background(color = colorResource(id = R.color.CECECEC)).fillMaxHeight())
                 Text(text = "", modifier = Modifier.weight(1f))
             }
 

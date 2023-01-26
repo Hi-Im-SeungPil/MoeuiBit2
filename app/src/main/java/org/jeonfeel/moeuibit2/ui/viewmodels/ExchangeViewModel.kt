@@ -24,6 +24,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 class ExchangeViewModelState {
@@ -39,8 +40,7 @@ class ExchangeViewModelState {
 class ExchangeViewModel(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository
-) : ViewModel(), OnTickerMessageReceiveListener {
-    private val gson = Gson()
+) : BaseViewModel(), OnTickerMessageReceiveListener {
     var updateExchange = false
     val exchangeState = ExchangeViewModelState()
 
@@ -801,137 +801,3 @@ class ExchangeViewModel(
         }
     }
 }
-
-//            if (exchangeState.selectedMarket.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
-//
-//            } else if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-//                position = favoriteExchangeModelListPosition[model.code] ?: 0
-//                targetNameHashMap = krwCoinKoreanNameAndEngName
-//                targetModelList = favoriteExchangeModelList
-//                // 관심목록 일때 비트코인 가격 받아오기 위해
-//                if (model.code == BTC_MARKET) {
-//                    exchangeState.btcTradePrice.value = model.tradePrice
-//                    if (favoriteHashMap[BTC_MARKET] != null) {
-//                        position = favoriteExchangeModelListPosition[model.code] ?: 0
-//                        targetNameHashMap = btcCoinKoreanNameAndEngName
-//                        targetModelList = favoriteExchangeModelList
-//                    }
-//                } else {
-//                    position = favoriteExchangeModelListPosition[model.code] ?: -1
-//                    targetNameHashMap = krwCoinKoreanNameAndEngName
-//                    targetModelList = favoriteExchangeModelList
-//                }
-//            } else {
-//                position = krwExchangeModelListPosition[model.code] ?: -1
-//                targetNameHashMap = krwCoinKoreanNameAndEngName
-//                targetModelList = krwExchangeModelList
-//            }
-//        } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
-//            if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-//                position = btcExchangeModelListPosition[model.code] ?: -1
-//                targetNameHashMap = btcCoinKoreanNameAndEngName
-//                targetModelList = favoriteExchangeModelList
-//            } else {
-//                position = btcExchangeModelListPosition[model.code] ?: -1
-//                targetNameHashMap = btcCoinKoreanNameAndEngName
-//                targetModelList = btcExchangeModelList
-//            }
-//
-//            CommonExchangeModel(
-//                btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                model.code,
-//                model.code.substring(4),
-//                model.preClosingPrice,
-//                model.tradePrice,
-//                model.signedChangeRate,
-//                model.accTradePrice24h,
-//                model.marketWarning
-//            )
-
-//            // krw 코인 인 경우
-//            if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
-//                // BTC 마켓 일떄 비트코인 가격 받아오기 위해
-//                if (exchangeState.selectedMarket.value == SELECTED_BTC_MARKET && model.code == BTC_MARKET) {
-//                    exchangeState.btcTradePrice.value = model.tradePrice
-//                } else if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-//                    // 관심목록 일때 비트코인 가격 받아오기 위해
-//                    if (model.code == BTC_MARKET) {
-//                        exchangeState.btcTradePrice.value = model.tradePrice
-//                        if (favoriteHashMap[BTC_MARKET] != null) {
-//                            val position = favoriteExchangeModelListPosition[model.code] ?: -1
-//                            favoriteExchangeModelList[position] =
-//                                CommonExchangeModel(
-//                                    krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                                    krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                                    model.code,
-//                                    model.code.substring(4),
-//                                    model.preClosingPrice,
-//                                    model.tradePrice,
-//                                    model.signedChangeRate,
-//                                    model.accTradePrice24h,
-//                                    model.marketWarning
-//                                )
-//                        }
-//                    } else {
-//                        val position = favoriteExchangeModelListPosition[model.code] ?: -1
-//                        favoriteExchangeModelList[position] =
-//                            CommonExchangeModel(
-//                                krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                                krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                                model.code,
-//                                model.code.substring(4),
-//                                model.preClosingPrice,
-//                                model.tradePrice,
-//                                model.signedChangeRate,
-//                                model.accTradePrice24h,
-//                                model.marketWarning
-//                            )
-//                    }
-//                } else {
-//                    val position = krwExchangeModelListPosition[model.code] ?: -1
-//                    krwExchangeModelList[position] =
-//                        CommonExchangeModel(
-//                            krwCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                            krwCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                            model.code,
-//                            model.code.substring(4),
-//                            model.preClosingPrice,
-//                            model.tradePrice,
-//                            model.signedChangeRate,
-//                            model.accTradePrice24h,
-//                            model.marketWarning
-//                        )
-//                }
-//            } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) {
-//                if (exchangeState.selectedMarket.value == SELECTED_FAVORITE) {
-//                    val position = favoriteExchangeModelListPosition[model.code] ?: -1
-//                    favoriteExchangeModelList[position] =
-//                        CommonExchangeModel(
-//                            btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                            btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                            model.code,
-//                            model.code.substring(4),
-//                            model.preClosingPrice,
-//                            model.tradePrice,
-//                            model.signedChangeRate,
-//                            model.accTradePrice24h,
-//                            model.marketWarning
-//                        )
-//                } else {
-//                    val position = btcExchangeModelListPosition[model.code] ?: -1
-//                    btcExchangeModelList[position] =
-//                        CommonExchangeModel(
-//                            btcCoinKoreanNameAndEngName[model.code]?.first ?: "",
-//                            btcCoinKoreanNameAndEngName[model.code]?.second ?: "",
-//                            model.code,
-//                            model.code.substring(4),
-//                            model.preClosingPrice,
-//                            model.tradePrice,
-//                            model.signedChangeRate,
-//                            model.accTradePrice24h,
-//                            model.marketWarning
-//                        )
-//                }
-//            }
-//        }

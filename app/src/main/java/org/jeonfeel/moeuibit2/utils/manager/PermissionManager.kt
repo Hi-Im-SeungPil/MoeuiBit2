@@ -13,7 +13,6 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
-
 class PermissionManager(private val activity: Activity) {
 
     private val permissionArray = mutableListOf(

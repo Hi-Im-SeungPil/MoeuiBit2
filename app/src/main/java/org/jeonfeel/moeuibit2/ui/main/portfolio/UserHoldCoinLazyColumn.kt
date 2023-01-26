@@ -9,11 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -24,61 +27,51 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 
 @Composable
 fun UserHoldCoinLazyColumn(
-    mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    dialogState: MutableState<Boolean>
+    columnItemDialogState: MutableState<Boolean>,
+    portfolioOrderState: MutableState<Int>,
+    totalValuedAssets: MutableState<Double>,
+    totalPurchase: MutableState<Double>,
+    userSeedMoney: MutableState<Long>,
+    adDialogState: MutableState<Boolean>,
+    pieChartState: MutableState<Boolean>,
+    userHoldCoinList: List<MyCoin?>,
+    earnReward: () -> Unit,
+    userHoldCoinDTOList: SnapshotStateList<UserHoldCoinDTO>,
+    selectedCoinKoreanName: MutableState<String>,
+    btcTradePrice: MutableState<Double>
 ) {
-    val portfolioOrderState = remember {
-        mutableStateOf(-1)
-    }
-    val selectedCoinKoreanName = remember {
-        mutableStateOf("")
-    }
-    val pieChartState = remember {
-        mutableStateOf(false)
-    }
-    val orderByNameTextInfo = getTextColors(buttonNum = 1, textState = portfolioOrderState.value)
-    val orderByRateTextInfo = getTextColors(buttonNum = 2, textState = portfolioOrderState.value)
-
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        val userHoldCoinDtoList = mainViewModel.userHoldCoinDtoList
         item {
             PortfolioMain(
-                mainViewModel,
-                portfolioOrderState,
-                orderByNameTextInfo,
-                orderByRateTextInfo,
-                pieChartState
+                portfolioOrderState = portfolioOrderState,
+                totalValuedAssets = totalValuedAssets,
+                totalPurchase = totalPurchase,
+                userSeedMoney = userSeedMoney,
+                orderByNameTextInfo = getTextColors(buttonNum = 1, textState = portfolioOrderState.value),
+                orderByRateTextInfo =  getTextColors(buttonNum = 2, textState = portfolioOrderState.value),
+                adDialogState = adDialogState,
+                pieChartState = pieChartState,
+                userHoldCoinList = userHoldCoinList,
+                earnReward = earnReward
             )
         }
-        itemsIndexed(items = userHoldCoinDtoList) { _, item ->
-            if (userHoldCoinDtoList.isNotEmpty()) {
+        itemsIndexed(items = userHoldCoinDTOList) { _, item ->
+            if (userHoldCoinDTOList.isNotEmpty()) {
                 val marketState = Utils.getSelectedMarket(item.market)
-                val openingPrice = item.openingPrice
-                val warning = item.warning
-                val isFavorite = item.isFavorite
-                val symbol = item.myCoinsSymbol
                 val currentPrice = item.currentPrice
                 val purchaseAmount =
-                    CurrentCalculator.tradePriceCalculatorNoStringFormat(item.myCoinsQuantity * item.myCoinsBuyingAverage,
-                        marketState)
+                    CurrentCalculator.tradePriceCalculatorNoStringFormat(
+                        item.myCoinsQuantity * item.myCoinsBuyingAverage,
+                        marketState
+                    )
                 val evaluationAmount =
-                    CurrentCalculator.tradePriceCalculatorNoStringFormat(item.myCoinsQuantity * currentPrice,
-                        marketState)
+                    CurrentCalculator.tradePriceCalculatorNoStringFormat(
+                        item.myCoinsQuantity * currentPrice,
+                        marketState
+                    )
                 val purchaseAverage = item.myCoinsBuyingAverage
-                val coinQuantity = item.myCoinsQuantity.eighthDecimal()
-                val btcPrice = mainViewModel.btcTradePrice.value
                 val purchaseAverageBtcPrice = item.purchaseAverageBtcPrice
-                val koreanName = if(marketState == SELECTED_KRW_MARKET) {
-                    item.myCoinsKoreanName
-                } else {
-                    "[$SYMBOL_BTC] ".plus(item.myCoinsKoreanName)
-                }
-                val engName = if(marketState == SELECTED_KRW_MARKET) {
-                    item.myCoinsEngName
-                } else {
-                    "[$SYMBOL_BTC] ".plus(item.myCoinsEngName)
-                }
                 val aReturn =
                     if (marketState == SELECTED_KRW_MARKET) {
                         val tempAReturn =
@@ -89,12 +82,10 @@ fun UserHoldCoinLazyColumn(
                             tempAReturn.secondDecimal()
                         }
                     } else {
-                        val localBtcPrice = mainViewModel.btcTradePrice.value
-                        val currentCoinPrice = currentPrice * localBtcPrice
+                        val currentCoinPrice = currentPrice * btcTradePrice.value
                         val preCoinPrice = item.myCoinsBuyingAverage * item.purchaseAverageBtcPrice
                         val tempAReturn =
                             ((currentCoinPrice - preCoinPrice) / preCoinPrice * 100)
-//                        Log.e("coin", "current => $currentCoinPrice, preCoin => $preCoinPrice, result => $tempAReturn")
                         if (tempAReturn.isNaN()) {
                             0
                         } else {
@@ -105,58 +96,62 @@ fun UserHoldCoinLazyColumn(
                 val valuationGainOrLoss = if (marketState == SELECTED_KRW_MARKET) {
                     evaluationAmount - purchaseAmount
                 } else {
-                    (evaluationAmount * btcPrice) - (item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice)
+                    (evaluationAmount * btcTradePrice.value) - (item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice)
                 }
 
-                val color = if (valuationGainOrLoss > 0) {
-                    increase_color
-                } else if (valuationGainOrLoss < 0) {
-                    decrease_color
-                } else {
-                    Color.Black
-                }
                 val evaluationAmountFormat = if (marketState == SELECTED_KRW_MARKET) {
                     Calculator.getDecimalFormat().format(evaluationAmount)
                 } else {
-                    Calculator.getDecimalFormat().format(evaluationAmount * btcPrice)
+                    Calculator.getDecimalFormat().format(evaluationAmount * btcTradePrice.value)
                 }
 
                 val purchasePrice = if (marketState == SELECTED_KRW_MARKET) {
                     CurrentCalculator.tradePriceCalculator(purchaseAverage, SELECTED_KRW_MARKET)
                 } else {
-                    CurrentCalculator.tradePriceCalculator(purchaseAverage * purchaseAverageBtcPrice,
-                        SELECTED_KRW_MARKET)
+                    CurrentCalculator.tradePriceCalculator(
+                        purchaseAverage * purchaseAverageBtcPrice,
+                        SELECTED_KRW_MARKET
+                    )
                 }
 
                 val purchaseAmountResult = if (marketState == SELECTED_KRW_MARKET) {
                     CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
                 } else {
-                    CurrentCalculator.tradePriceCalculator(item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice,
-                        SELECTED_KRW_MARKET)
+                    CurrentCalculator.tradePriceCalculator(
+                        item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice,
+                        SELECTED_KRW_MARKET
+                    )
                 }
 
-                val valuationGainOrLossResult =
-                    Calculator.valuationGainOrLossDecimal(valuationGainOrLoss)
-
                 UserHoldCoinLazyColumnItem(
-                    koreanName,
-                    engName,
-                    symbol,
-                    valuationGainOrLossResult,
-                    aReturn.toString().plus("%"),
-                    coinQuantity,
-                    purchasePrice,
-                    purchaseAmountResult,
-                    evaluationAmountFormat,
-                    color,
-                    openingPrice,
-                    warning,
-                    isFavorite,
-                    currentPrice,
-                    marketState,
-                    startForActivityResult,
-                    selectedCoinKoreanName,
-                    dialogState
+                    coinKoreanName = Utils.getPortfolioName(
+                        marketState = marketState,
+                        name = item.myCoinsKoreanName
+                    ),
+                    coinEngName = Utils.getPortfolioName(
+                        marketState = marketState,
+                        name = item.myCoinsEngName
+                    ),
+                    symbol = item.myCoinsSymbol,
+                    valuationGainOrLoss = Calculator.valuationGainOrLossDecimal(
+                        purchaseAverage = valuationGainOrLoss
+                    ),
+                    aReturn = aReturn.toString().plus("%"),
+                    coinQuantity = item.myCoinsQuantity.eighthDecimal(),
+                    purchaseAverage = purchasePrice,
+                    purchaseAmount = purchaseAmountResult,
+                    evaluationAmount = evaluationAmountFormat,
+                    color = Utils.getIncreaseOrDecreaseColor(
+                        value = valuationGainOrLoss.toFloat()
+                    ),
+                    openingPrice = item.openingPrice,
+                    warning = item.warning,
+                    isFavorite = item.isFavorite,
+                    currentPrice = item.currentPrice,
+                    marketState = marketState,
+                    startForActivityResult = startForActivityResult,
+                    selectedCoinKoreanName = selectedCoinKoreanName,
+                    dialogState = columnItemDialogState
                 )
             }
         }

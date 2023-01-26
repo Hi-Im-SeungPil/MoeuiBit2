@@ -58,7 +58,7 @@ fun CoinDetailMain(
                 .fillMaxHeight()) {
                 Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
                     Text(text = curTradePrice,
-                        style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27)))
+                        style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27.dp)))
                     if (!MoeuiBitDataStore.isKor && marketState == SELECTED_KRW_MARKET) {
                         Text(text = "= \$ ${
                             CurrentCalculator.krwToUsd(Utils.removeComma(curTradePrice)
@@ -69,7 +69,7 @@ fun CoinDetailMain(
                                 .fillMaxWidth()
                                 .align(Alignment.Bottom),
                             style = TextStyle(color = textColor,
-                                fontSize = DpToSp(dp = 13),
+                                fontSize = DpToSp(dp = 13.dp),
                                 textAlign = TextAlign.End))
                     }
                 }
@@ -87,7 +87,7 @@ fun CoinDetailMain(
                         maxLines = 1)
                     AutoSizeText(text = curChangePrice,
                         modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(textAlign = TextAlign.Start, fontSize = DpToSp(13)),
+                        textStyle = TextStyle(textAlign = TextAlign.Start, fontSize = DpToSp(13.dp)),
                         color = textColor
                     )
                 }

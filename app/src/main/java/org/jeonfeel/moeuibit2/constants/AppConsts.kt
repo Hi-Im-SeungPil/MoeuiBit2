@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.constants
 
 import kotlinx.coroutines.Dispatchers
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import java.time.Duration
 import java.util.*
 
@@ -61,7 +62,16 @@ const val webSocketBaseUrl = "wss://api.upbit.com/websocket/v1"
 const val playStoreUrl = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
 const val noticeBoard = "https://moeui-bit-announcement.tistory.com/"
 const val coinImageUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
+
 fun twitterUrl(href: String): String =
     "<a class=\"twitter-timeline\" href=\"${href}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"
 fun orderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
 fun tickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]},{"format":"SIMPLE"}]"""
+
+val chartMinuteArray = arrayOf("1","3","5","10","15","30","60","240")
+val chartMinuteStrArray = arrayOf("1분","3분","5분","10분","15분","30분","60분","240분")
+val menuTitleArray = if (MoeuiBitDataStore.isKor) {
+    arrayOf("거래소","코인사이트","투자내역","설정")
+} else {
+    arrayOf("Exchange","Web Site","Portfolio","Settings")
+}

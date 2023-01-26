@@ -35,6 +35,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
 
     val gson = Gson()
+
     var isPortfolioSocketRunning = false
 
     val userSeedMoney = mutableStateOf(0L)
@@ -497,11 +498,6 @@ class MainViewModel @Inject constructor(
                     )
             }
         }
-    }
-
-    fun updateAdLiveData() {
-        adLoadingDialogState.value = true
-        _adMutableLiveData.value = 1
     }
 
     fun earnReward() {

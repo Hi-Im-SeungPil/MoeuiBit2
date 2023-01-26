@@ -86,7 +86,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
                         textAlign = TextAlign.Center,
-                        fontSize = DpToSp(20),
+                        fontSize = DpToSp(20.dp),
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -96,7 +96,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
-                        style = TextStyle(fontSize = DpToSp(18))
+                        style = TextStyle(fontSize = DpToSp(18.dp))
                     )
                     Text(
                         text = tradePrice,
