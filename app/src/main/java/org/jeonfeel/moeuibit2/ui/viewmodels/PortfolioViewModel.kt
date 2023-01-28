@@ -9,7 +9,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
@@ -23,7 +25,6 @@ class PortfolioState {
     var totalPurchase = mutableStateOf(0.0)
     val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
     val totalValuedAssets = mutableStateOf(0.0)
-    val portfolioLoadingComplete = mutableStateOf(false)
     var removeCoinCount = mutableStateOf(0)
     val adLoadingDialogState = mutableStateOf(false)
     val adDialogState = mutableStateOf(false)
@@ -39,7 +40,7 @@ class PortfolioState {
 class PortfolioViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository
-) : BaseViewModel() {
+) : BaseViewModel(), PortfolioOnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()
     var userHoldCoinList = emptyList<MyCoin?>()
@@ -59,19 +60,8 @@ class PortfolioViewModel @Inject constructor(
 
     fun getUserHoldCoins() {
         viewModelScope.launch(ioDispatcher) {
-            if (portfolioLoadingComplete.value) {
-                portfolioLoadingComplete.value = false
-            }
-            isPortfolioSocketRunning = false
-            var localTotalPurchase = 0.0
-            userHoldCoinDtoList.clear()
-            viewModelScope.launch(ioDispatcher) {
-                userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
-            }.join()
-            userHoldCoinsMarket = StringBuffer()
-            userHoldCoinDtoListPositionHashMap.clear()
-            tempUserHoldCoinDtoList.clear()
-            btcTradePrice.value =
+            initPortfolio()
+            state.btcTradePrice.value =
                 krwExchangeModelList[krwExchangeModelListPosition[BTC_MARKET]!!].tradePrice
             if (userHoldCoinList.isNotEmpty()) {
                 for (i in userHoldCoinList.indices) {
@@ -115,13 +105,13 @@ class PortfolioViewModel @Inject constructor(
                         localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.PurchaseAverageBtcPrice)
                     }
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
-                    userHoldCoinDtoList.add(
+                    state.userHoldCoinDtoList.add(
                         UserHoldCoinDTO(
-                            koreanName,
-                            engName,
-                            symbol,
-                            quantity,
-                            purchaseAverage,
+                            myCoinsKoreanName = koreanName,
+                            myCoinsEngName = engName,
+                            myCoinsSymbol = symbol,
+                            myCoinsQuantity = quantity,
+                            myCoinsBuyingAverage = purchaseAverage,
                             openingPrice = openingPrice,
                             warning = warning,
                             isFavorite = isFavorite,
@@ -131,11 +121,11 @@ class PortfolioViewModel @Inject constructor(
                     )
                     tempUserHoldCoinDtoList.add(
                         UserHoldCoinDTO(
-                            koreanName,
-                            engName,
-                            symbol,
-                            quantity,
-                            purchaseAverage,
+                            myCoinsKoreanName = koreanName,
+                            myCoinsEngName = engName,
+                            myCoinsSymbol = symbol,
+                            myCoinsQuantity = quantity,
+                            myCoinsBuyingAverage = purchaseAverage,
                             openingPrice = openingPrice,
                             warning = warning,
                             isFavorite = isFavorite,
@@ -151,19 +141,28 @@ class PortfolioViewModel @Inject constructor(
                 } else {
                     userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
                 }
+                state.totalPurchase.value = localTotalPurchase
                 UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
-                totalPurchase.value = localTotalPurchase
-                UpBitPortfolioWebSocket.getListener()
-                    .setPortfolioMessageListener(this@MainViewModel)
+                UpBitPortfolioWebSocket
+                    .getListener()
+                    .setPortfolioMessageListener(this@PortfolioViewModel)
                 UpBitPortfolioWebSocket.requestKrwCoinList()
                 updateUserHoldCoins()
-                portfolioLoadingComplete.value = true
             } else {
-                totalValuedAssets.value = 0.0
-                totalPurchase.value = 0.0
-                portfolioLoadingComplete.value = true
+                state.totalValuedAssets.value = 0.0
+                state.totalPurchase.value = 0.0
             }
         }
+    }
+
+    private suspend fun initPortfolio() {
+        isPortfolioSocketRunning = false
+        var localTotalPurchase = 0.0
+        state.userHoldCoinDtoList.clear()
+        userHoldCoinsMarket = StringBuffer()
+        userHoldCoinDtoListPositionHashMap.clear()
+        tempUserHoldCoinDtoList.clear()
+        userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
@@ -202,7 +201,7 @@ class PortfolioViewModel @Inject constructor(
         }
 
         for (i in tempUserHoldCoinDtoList.indices) {
-            userHoldCoinDtoList[i] = tempUserHoldCoinDtoList[i]
+            state.userHoldCoinDtoList[i] = tempUserHoldCoinDtoList[i]
         }
 
         isPortfolioSocketRunning = true
@@ -214,54 +213,42 @@ class PortfolioViewModel @Inject constructor(
 
         viewModelScope.launch(ioDispatcher) {
             if (UpBitPortfolioWebSocket.currentSocketState != SOCKET_IS_CONNECTED || NetworkMonitorUtil.currentNetworkState != INTERNET_CONNECTION) {
-                removeCoinCount.value = -1
+                state.removeCoinCount.value = -1
                 delay(100L)
-                removeCoinCount.value = 0
+                state.removeCoinCount.value = 0
             } else {
-                if (krwExchangeModelListPosition.isNotEmpty()) {
-                    for (i in userHoldCoinList) {
-                        if (i!!.market.startsWith(SYMBOL_KRW)) {
-                            if (krwExchangeModelListPosition[i.market] == null) {
-                                localRepository.getFavoriteDao().delete(i.market)
-                                localRepository.getMyCoinDao().delete(i.market)
-                                localRepository.getTransactionInfoDao().delete(i.market)
-                                count += 1
-                            } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
-                                localRepository.getMyCoinDao().delete(i.market)
-                                localRepository.getTransactionInfoDao().delete(i.market)
-                                count += 1
-                            }
-                        } else {
-                            if (btcExchangeModelListPosition[i.market] == null) {
-                                localRepository.getFavoriteDao().delete(i.market)
-                                localRepository.getMyCoinDao().delete(i.market)
-                                localRepository.getTransactionInfoDao().delete(i.market)
-                                count += 1
-                            } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
-                                localRepository.getMyCoinDao().delete(i.market)
-                                localRepository.getTransactionInfoDao().delete(i.market)
-                                count += 1
-                            }
-                        }
+                for (i in userHoldCoinList) {
+                    val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
+                        krwExchangeModelListPosition
+                    } else {
+                        btcExchangeModelListPosition
                     }
-                    if (count > 1) {
-                        isPortfolioSocketRunning = false
-                        UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-                        UpBitPortfolioWebSocket.onPause()
-                        getUserHoldCoins()
+                    if (targetList[i.market] == null) {
+                        localRepository.getFavoriteDao().delete(i.market)
+                        localRepository.getMyCoinDao().delete(i.market)
+                        localRepository.getTransactionInfoDao().delete(i.market)
+                        count += 1
+                    } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                        localRepository.getMyCoinDao().delete(i.market)
+                        localRepository.getTransactionInfoDao().delete(i.market)
+                        count += 1
                     }
-                    state.removeCoinCount.value = count
-                    delay(100L)
-                    state.removeCoinCount.value = 0
                 }
+                if (count > 1) {
+                    isPortfolioSocketRunning = false
+                    UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
+                    UpBitPortfolioWebSocket.onPause()
+                    getUserHoldCoins()
+                }
+                state.removeCoinCount.value = count
+                delay(100L)
+                state.removeCoinCount.value = 0
             }
         }
     }
 
     private fun updateUserHoldCoins() {
-        if (!isPortfolioSocketRunning) {
-            isPortfolioSocketRunning = !isPortfolioSocketRunning
-        }
+        isPortfolioSocketRunning = true
         viewModelScope.launch {
             while (isPortfolioSocketRunning) {
                 var tempTotalValuedAssets = 0.0
@@ -296,6 +283,63 @@ class PortfolioViewModel @Inject constructor(
                 userDao.insert()
             } else {
                 userDao.updatePlusMoney(10_000_000)
+            }
+        }
+    }
+
+    override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
+        if (isPortfolioSocketRunning) {
+            val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
+            if (model.code.startsWith(SYMBOL_KRW)) {
+                if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
+                    state.btcTradePrice.value = model.tradePrice
+                    return
+                } else if (model.code == BTC_MARKET) {
+                    state.btcTradePrice.value = model.tradePrice
+                }
+                val tickerListPosition = krwExchangeModelListPosition[model.code] ?: 0
+                val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
+                val userHoldCoin = userHoldCoinHashMap[model.code]!!
+                val openingPrice = krwExchangeModelList[tickerListPosition].opening_price
+                val warning = model.marketWarning
+                val isFavorite = favoriteHashMap[model.code]
+                val market = krwExchangeModelList[tickerListPosition].market
+                tempUserHoldCoinDtoList[position] =
+                    UserHoldCoinDTO(
+                        krwCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        krwCoinKoreanNameAndEngName[model.code]?.get(1) ?: "",
+                        userHoldCoin.symbol,
+                        userHoldCoin.quantity,
+                        userHoldCoin.purchasePrice,
+                        model.tradePrice,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite,
+                        market = market
+                    )
+            } else {
+                val tickerListPosition = btcExchangeModelListPosition[model.code] ?: 0
+                val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
+                val userHoldCoin = userHoldCoinHashMap[model.code]!!
+                val openingPrice = btcExchangeModelList[tickerListPosition].opening_price
+                val warning = model.marketWarning
+                val isFavorite = favoriteHashMap[model.code]
+                val market = btcExchangeModelList[tickerListPosition].market
+                val purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
+                tempUserHoldCoinDtoList[position] =
+                    UserHoldCoinDTO(
+                        btcCoinKoreanNameAndEngName[model.code]?.get(0) ?: "",
+                        btcCoinKoreanNameAndEngName[model.code]?.get(1) ?: "",
+                        userHoldCoin.symbol,
+                        userHoldCoin.quantity,
+                        userHoldCoin.purchasePrice,
+                        model.tradePrice,
+                        openingPrice = openingPrice,
+                        warning = warning,
+                        isFavorite = isFavorite,
+                        market = market,
+                        purchaseAverageBtcPrice = purchaseAverageBtcPrice
+                    )
             }
         }
     }

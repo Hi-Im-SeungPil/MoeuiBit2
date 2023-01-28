@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
@@ -48,8 +50,14 @@ fun UserHoldCoinLazyColumn(
                 totalValuedAssets = totalValuedAssets,
                 totalPurchase = totalPurchase,
                 userSeedMoney = userSeedMoney,
-                orderByNameTextInfo = getTextColors(buttonNum = 1, textState = portfolioOrderState.value),
-                orderByRateTextInfo =  getTextColors(buttonNum = 2, textState = portfolioOrderState.value),
+                orderByNameTextInfo = getTextColors(
+                    button = PortfolioSortButton.BUTTON_NAME,
+                    textState = portfolioOrderState.value
+                ),
+                orderByRateTextInfo = getTextColors(
+                    button = PortfolioSortButton.BUTTON_RATE,
+                    textState = portfolioOrderState.value
+                ),
                 adDialogState = adDialogState,
                 pieChartState = pieChartState,
                 userHoldCoinList = userHoldCoinList,
@@ -155,5 +163,24 @@ fun UserHoldCoinLazyColumn(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun getReturnTextColor(colorStandard: Long, text5: String): Color {
+    return if (text5 == stringResource(id = R.string.aReturn)) {
+        when {
+            colorStandard < 0 -> {
+                decrease_color
+            }
+            colorStandard > 0 -> {
+                increase_color
+            }
+            else -> {
+                Color.Black
+            }
+        }
+    } else {
+        Color.Black
     }
 }

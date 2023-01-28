@@ -56,7 +56,7 @@ fun ExchangeScreen(
         }
     )
 
-    when (exchangeViewModel.exchangeState.loadingExchange.value) {
+    when (exchangeViewModel.state.loadingExchange.value) {
         true -> {
             ExchangeScreenLoading()
         }
@@ -79,9 +79,9 @@ private fun Exchange(
     pagerState: PagerState
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        if (exchangeViewModel.exchangeState.error.value == INTERNET_CONNECTION) {
+        if (exchangeViewModel.state.error.value == INTERNET_CONNECTION) {
             SearchBasic(
-                textFieldValueState = exchangeViewModel.exchangeState.searchTextFieldValue,
+                textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(45.dp)
@@ -112,25 +112,25 @@ private fun Exchange(
                 fontSize = DpToSp(dp = 17)
             )
             marketButtons(
-                selectedMarketState = exchangeViewModel.exchangeState.selectedMarket,
+                selectedMarketState = exchangeViewModel.state.selectedMarket,
                 pagerState
             )
             SortButtons(
-                sortButtonState = exchangeViewModel.exchangeState.sortButton,
-                selectedMarketState = exchangeViewModel.exchangeState.selectedMarket,
+                sortButtonState = exchangeViewModel.state.sortButton,
+                selectedMarketState = exchangeViewModel.state.selectedMarket,
                 isUpdateExchange = exchangeViewModel.updateExchange,
                 sortList = exchangeViewModel::sortList
             )
             ExchangeScreenLazyColumn(
                 filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList(),
                 preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
-                textFieldValueState = exchangeViewModel.exchangeState.searchTextFieldValue,
+                textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
                 favoriteHashMap = exchangeViewModel.favoriteHashMap,
                 loadingFavorite = exchangeViewModel.getFavoriteLoadingState(),
-                btcPrice = exchangeViewModel.exchangeState.btcPrice ,
+                btcPrice = exchangeViewModel.state.btcPrice ,
                 startForActivityResult = startForActivityResult
             )
-            when (exchangeViewModel.exchangeState.selectedMarket.value) {
+            when (exchangeViewModel.state.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
                     exchangeViewModel.marketChangeAction(marketState = SELECTED_KRW_MARKET)
                 }

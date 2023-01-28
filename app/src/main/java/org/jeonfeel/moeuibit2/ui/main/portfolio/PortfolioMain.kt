@@ -9,14 +9,17 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
@@ -25,6 +28,10 @@ import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import kotlin.math.round
+
+enum class PortfolioSortButton {
+    BUTTON_NAME,BUTTON_RATE
+}
 
 @Composable
 fun PortfolioMain(
@@ -434,4 +441,75 @@ fun RowScope.PortfolioMainItemForEn(
             }
         }
     }
+}
+
+@Composable
+fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
+    return when (button) {
+        PortfolioSortButton.BUTTON_NAME -> {
+            when (textState) {
+                0 -> {
+                    listOf(
+                        stringResource(id = R.string.nameDown),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
+                }
+                1 -> {
+                    listOf(
+                        stringResource(id = R.string.nameUp),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
+                }
+                else -> {
+                    listOf(
+                        stringResource(id = R.string.nameUpDown),
+                        Color.Black,
+                        colorResource(id = R.color.design_default_color_background)
+                    )
+                }
+            }
+        }
+        PortfolioSortButton.BUTTON_RATE -> {
+            when (textState) {
+                2 -> {
+                    listOf(
+                        stringResource(id = R.string.aReturnDown),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
+                }
+                3 -> {
+                    listOf(
+                        stringResource(id = R.string.aReturnUp),
+                        Color.White,
+                        colorResource(id = R.color.C0F0F5C)
+                    )
+                }
+                else -> {
+                    listOf(
+                        stringResource(id = R.string.aReturnUpDown),
+                        Color.Black,
+                        colorResource(id = R.color.design_default_color_background)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
+    AndroidView(
+        factory = {
+            UserHoldCoinPieChart(
+                it, userSeedMoney, userHoldCoinList
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
+    )
 }
