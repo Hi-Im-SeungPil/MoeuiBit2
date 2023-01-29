@@ -15,7 +15,7 @@ import org.jeonfeel.moeuibit2.constants.fullScreenAdId
 import org.jeonfeel.moeuibit2.constants.rewardFullScreenAdId
 import org.jeonfeel.moeuibit2.constants.rewardVideoAdId
 
-class AdMobManager(private val activity: Activity) {
+class AdMobManager() {
 
     private val adRequest = AdRequest.Builder().build()
 
@@ -23,6 +23,7 @@ class AdMobManager(private val activity: Activity) {
      * 보상형 전면광고
      */
     fun loadRewardVideoAd(
+        activity: Activity,
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
         rewardListener: OnUserEarnedRewardListener,
@@ -45,6 +46,7 @@ class AdMobManager(private val activity: Activity) {
                     if (error.code == AdRequest.ERROR_CODE_NETWORK_ERROR || error.code == 0) {
                         onAdFailedToLoad()
                     } else loadRewardFullScreenAd(
+                        activity = activity,
                         onAdLoaded = onAdLoaded,
                         onAdFailedToLoad = onAdFailedToLoad,
                         rewardListener = rewardListener,
@@ -59,6 +61,7 @@ class AdMobManager(private val activity: Activity) {
      * 보상형 광고
      */
     private fun loadRewardFullScreenAd(
+        activity: Activity,
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
         rewardListener: OnUserEarnedRewardListener,
@@ -80,6 +83,7 @@ class AdMobManager(private val activity: Activity) {
                             onAdFailedToLoad()
                         } else {
                             loadFullScreenAd(
+                                activity = activity,
                                 fullScreenOnAdLoad,
                                 fullScreenOnAdFailedToLoad,
                                 onAdFailedToLoad
@@ -94,6 +98,7 @@ class AdMobManager(private val activity: Activity) {
      * 전면광고
      */
     private fun loadFullScreenAd(
+        activity: Activity,
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
         networkErrorOnAdFailedToLoad: () -> Unit

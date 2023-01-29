@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 
 val NotoSans_light = FontFamily(
-    Font(R.font.notosans_black)
+    Font(R.font.notosans_light)
 )
 val NotoSans_medium = FontFamily(
     Font(R.font.notosans_medium)

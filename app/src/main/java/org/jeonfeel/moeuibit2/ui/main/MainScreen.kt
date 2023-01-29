@@ -103,11 +103,11 @@ fun MainNavigation(
         composable(MainBottomNavItem.Portfolio.screen_route) {
             val portfolioViewModel: PortfolioViewModel = viewModel(
                 factory = PortfolioViewModel.provideFactory(
-                    mainViewModel.remoteRepository,
+                    mainViewModel.adMobManager,
                     mainViewModel.localRepository
                 )
             )
-            PortfolioScreen(portfolioViewModel, startForActivityResult, scaffoldState)
+            PortfolioScreen(portfolioViewModel, startForActivityResult)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen(mainViewModel)

@@ -18,9 +18,4 @@ class ActivityModule {
     fun provideNetworkMonitorUtil(@ActivityContext context: Context): NetworkMonitorUtil {
         return NetworkMonitorUtil(context)
     }
-
-    @Provides
-    fun provideAdMobManager(activity: Activity): AdMobManager {
-        return AdMobManager(activity)
-    }
 }

@@ -25,12 +25,14 @@ import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
+import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val remoteRepository: RemoteRepository,
     val localRepository: LocalRepository,
+    val adMobManager: AdMobManager,
     private val exchangeUseCase: ExchangeUseCase,
 ) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
 

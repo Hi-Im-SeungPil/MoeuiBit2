@@ -20,9 +20,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
-import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.custom.*
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -30,7 +28,7 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 import kotlin.math.round
 
 enum class PortfolioSortButton {
-    BUTTON_NAME,BUTTON_RATE
+    BUTTON_NAME, BUTTON_RATE
 }
 
 @Composable
@@ -70,15 +68,15 @@ fun PortfolioMain(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            Text(
+            FontMediumText(
                 text = stringResource(id = R.string.holdings),
                 modifier = Modifier
                     .weight(1f, true)
                     .padding(8.dp, 20.dp, 0.dp, 20.dp)
                     .wrapContentHeight(),
-                style = TextStyle(
+                fontSize = 22,
+                textStyle = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(22.dp),
                     fontWeight = FontWeight.Bold
                 )
             )
@@ -88,19 +86,18 @@ fun PortfolioMain(
                     .wrapContentWidth(),
                 elevation = 4.dp,
             ) {
-                Text(
+                FontLightText(
                     text = stringResource(id = R.string.chargeMoney),
                     modifier = Modifier
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
-                        .padding(8.dp)
                         .clickable {
                             adDialogState.value = true
-                            earnReward()
+//                            earnReward()
                         },
-                    style = TextStyle(
+                    fontSize = 18,
+                    textStyle = TextStyle(
                         color = Color.Black,
-                        fontSize = DpToSp(18)
                     )
                 )
             }
@@ -178,12 +175,12 @@ fun PortfolioMain(
             userSeedMoney = userSeedMoney,
             userHoldCoinList = userHoldCoinList
         )
-        PortfolioMainSortButtons(
-            orderByNameTextInfo = orderByRateTextInfo,
-            orderByRateTextInfo = orderByNameTextInfo,
-            mainViewModel,
-            portfolioOrderState = portfolioOrderState
-        )
+//        PortfolioMainSortButtons(
+//            orderByNameTextInfo = orderByRateTextInfo,
+//            orderByRateTextInfo = orderByNameTextInfo,
+//            mainViewModel,
+//            portfolioOrderState = portfolioOrderState
+//        )
     }
 }
 

@@ -50,9 +50,6 @@ const val APP_UPDATE_FLEXIBLE_CODE = 124
 class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     @Inject
     lateinit var networkMonitorUtil: NetworkMonitorUtil
-
-    @Inject
-    lateinit var adMobManager: AdMobManager
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
@@ -89,7 +86,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         }
         mainViewModel.requestUsdPrice()
         initNetworkStateMonitor()
-        initObserver()
         checkUpdate()
     }
 
@@ -108,35 +104,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             this.showToast(this.getString(R.string.updateFail))
         }.addOnCanceledListener {
             this.showToast(this.getString(R.string.updateFail))
-        }
-    }
-
-    /**
-     * 광고 옵저버
-     */
-    private fun initObserver() {
-        mainViewModel.adLiveData.observe(this) {
-            if (it == 1) {
-                adMobManager.loadRewardVideoAd(
-                    onAdLoaded = {
-                        mainViewModel.adLoadingDialogState.value = false
-                    },
-                    onAdFailedToLoad = {
-                        this@MainActivity.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
-                        mainViewModel.adLoadingDialogState.value = false
-                    },
-                    this@MainActivity,
-                    fullScreenOnAdLoad = {
-                        mainViewModel.adLoadingDialogState.value = false
-                        mainViewModel.earnReward()
-                    },
-                    fullScreenOnAdFailedToLoad = {
-                        this.showToast(this.getString(R.string.adLoadError))
-                        mainViewModel.errorReward()
-                        mainViewModel.adLoadingDialogState.value = false
-                    }
-                )
-            }
         }
     }
 

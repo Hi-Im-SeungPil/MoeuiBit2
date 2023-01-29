@@ -47,7 +47,6 @@ class ExchangeViewModel(
     private val btcMarketCodeList: ArrayList<MarketCodeModel> = arrayListOf()
     private val krwMarketListStringBuffer = StringBuffer()
     private val btcMarketListStringBuffer = StringBuffer()
-    private val coinKrNameEngName = HashMap<String, Pair<String, String>>()
 
     private val krwExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     private val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
@@ -125,14 +124,14 @@ class ExchangeViewModel(
                             "$btcMarketListStringBuffer,$BTC_MARKET"
                         )
                         for (i in krwMarketCodeList.indices) {
-                            coinKrNameEngName[krwMarketCodeList[i].market] =
+                            MoeuiBitDataStore.coinName[krwMarketCodeList[i].market] =
                                 Pair(
                                     krwMarketCodeList[i].korean_name,
                                     krwMarketCodeList[i].english_name
                                 )
                         }
                         for (i in btcMarketCodeList.indices) {
-                            coinKrNameEngName[btcMarketCodeList[i].market] = Pair(
+                            MoeuiBitDataStore.coinName[btcMarketCodeList[i].market] = Pair(
                                 btcMarketCodeList[i].korean_name,
                                 btcMarketCodeList[i].english_name
                             )
@@ -168,26 +167,17 @@ class ExchangeViewModel(
                             for (i in 0 until indices) {
                                 val krwTicker = gson.fromJson(data[i], ExchangeModel::class.java)
                                 val krwMarketCodeModel = krwMarketCodeList[i]
-                                val koreanName = krwMarketCodeModel.korean_name
-                                val englishName = krwMarketCodeModel.english_name
-                                val market = krwMarketCodeModel.market
-                                val warning = krwMarketCodeModel.market_warning
-                                val tradePrice = krwTicker.tradePrice
-                                val signedChangeRate = krwTicker.signedChangePrice
-                                val accTradePrice24h = krwTicker.accTradePrice24h
-                                val openingPrice = krwTicker.preClosingPrice
-                                val symbol = market.substring(4)
                                 krwExchangeModelList.add(
                                     CommonExchangeModel(
-                                        koreanName,
-                                        englishName,
-                                        market,
-                                        symbol,
-                                        openingPrice,
-                                        tradePrice,
-                                        signedChangeRate,
-                                        accTradePrice24h,
-                                        warning
+                                        koreanName = krwMarketCodeModel.korean_name,
+                                        EnglishName = krwMarketCodeModel.english_name,
+                                        market = krwMarketCodeModel.market,
+                                        symbol = krwMarketCodeModel.market.substring(4),
+                                        opening_price = krwTicker.preClosingPrice,
+                                        tradePrice = krwTicker.tradePrice,
+                                        signedChangeRate = krwTicker.signedChangePrice,
+                                        accTradePrice24h = krwTicker.accTradePrice24h,
+                                        warning = krwMarketCodeModel.market_warning
                                     )
                                 )
                             }
@@ -305,7 +295,7 @@ class ExchangeViewModel(
     /**
      * 거래소 화면 업데이트
      */
-    suspend fun updateExchange() {
+    private suspend fun updateExchange() {
         if (!updateExchange) updateExchange = true
         while (updateExchange) {
             when (state.selectedMarket.value) {
@@ -332,7 +322,7 @@ class ExchangeViewModel(
     /**
      * 웹소켓에 실시간 정보 요청
      */
-    fun requestCoinListToWebSocket() {
+    private fun requestCoinListToWebSocket() {
         UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
         UpBitTickerWebSocket.requestKrwCoinList(state.selectedMarket.value)
     }
@@ -340,7 +330,7 @@ class ExchangeViewModel(
     /**
      * 관심코인 목록 가져오기
      */
-    fun requestFavoriteData(selectedMarketState: Int) {
+    private fun requestFavoriteData(selectedMarketState: Int) {
         viewModelScope.launch(ioDispatcher) {
             val favoriteMarketListStringBuffer = StringBuffer()
             favoritePreItemArray.clear()
@@ -689,7 +679,8 @@ class ExchangeViewModel(
         if (krwPreItemArray.isEmpty() || btcPreItemArray.isEmpty()) {
             initExchangeData()
         } else if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION
-            || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR) {
+            || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR
+        ) {
             state.error.value = NetworkMonitorUtil.currentNetworkState
             UpBitTickerWebSocket.onPause()
             initExchangeData()
@@ -776,15 +767,15 @@ class ExchangeViewModel(
 
         targetModelList?.let {
             targetModelList[position] = CommonExchangeModel(
-                coinKrNameEngName[model.code]?.first ?: "",
-                coinKrNameEngName[model.code]?.second ?: "",
-                model.code,
-                model.code.substring(4),
-                model.preClosingPrice,
-                model.tradePrice,
-                model.signedChangeRate,
-                model.accTradePrice24h,
-                model.marketWarning
+                koreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
+                EnglishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
+                market = model.code,
+                symbol = model.code.substring(4),
+                opening_price = model.preClosingPrice,
+                tradePrice = model.tradePrice,
+                signedChangeRate = model.signedChangeRate,
+                accTradePrice24h = model.accTradePrice24h,
+                warning = model.marketWarning
             )
         }
     }
@@ -799,5 +790,13 @@ class ExchangeViewModel(
                 return ExchangeViewModel(remoteRepository, localRepository) as T
             }
         }
+
+        const val SORT_DEFAULT = -1
+        const val SORT_PRICE_DEC = 0
+        const val SORT_PRICE_ASC = 1
+        const val SORT_RATE_DEC = 2
+        const val SORT_RATE_ASC = 3
+        const val SORT_AMOUNT_DEC = 4
+        const val SORT_AMOUNT_ASC = 5
     }
 }
