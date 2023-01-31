@@ -42,7 +42,8 @@ fun PortfolioMain(
     adDialogState: MutableState<Boolean>,
     pieChartState: MutableState<Boolean>,
     userHoldCoinList: List<MyCoin?>,
-    earnReward: () -> Unit
+    sortUserHoldCoin: (orderState: Int) -> Unit,
+    isPortfolioSocketRunning: MutableState<Boolean>
 ) {
     val calcTotalValuedAssets = Calculator.getDecimalFormat()
         .format(round(totalValuedAssets.value).toLong())
@@ -93,7 +94,6 @@ fun PortfolioMain(
                         .align(Alignment.CenterVertically)
                         .clickable {
                             adDialogState.value = true
-//                            earnReward()
                         },
                     fontSize = 18,
                     textStyle = TextStyle(
@@ -175,12 +175,13 @@ fun PortfolioMain(
             userSeedMoney = userSeedMoney,
             userHoldCoinList = userHoldCoinList
         )
-//        PortfolioMainSortButtons(
-//            orderByNameTextInfo = orderByRateTextInfo,
-//            orderByRateTextInfo = orderByNameTextInfo,
-//            mainViewModel,
-//            portfolioOrderState = portfolioOrderState
-//        )
+        PortfolioMainSortButtons(
+            orderByNameTextInfo = orderByNameTextInfo,
+            orderByRateTextInfo = orderByRateTextInfo,
+            isPortfolioSocketRunning = isPortfolioSocketRunning,
+            portfolioOrderState = portfolioOrderState,
+            sortUserHoldCoin = sortUserHoldCoin
+        )
     }
 }
 

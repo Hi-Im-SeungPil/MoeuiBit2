@@ -15,13 +15,15 @@ import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
 
 @Composable
 fun PortfolioMainSortButtons(
     orderByRateTextInfo: List<Any>,
     orderByNameTextInfo: List<Any>,
-    mainViewModel: MainViewModel,
+    isPortfolioSocketRunning: MutableState<Boolean>,
     portfolioOrderState: MutableState<Int>,
+    sortUserHoldCoin: (orderState: Int) -> Unit
 ) {
     Row(
         Modifier
@@ -36,15 +38,15 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByNameTextInfo[2] as Color)
                 .clickable {
-                    if (mainViewModel.isPortfolioSocketRunning) {
-                        if (portfolioOrderState.value != 0 && portfolioOrderState.value != 1) {
-                            portfolioOrderState.value = 0
-                        } else if (portfolioOrderState.value == 0) {
-                            portfolioOrderState.value = 1
+                    if (isPortfolioSocketRunning.value) {
+                        if (portfolioOrderState.value != PortfolioViewModel.SORT_NAME_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_NAME_ASC) {
+                            portfolioOrderState.value = PortfolioViewModel.SORT_NAME_DEC
+                        } else if (portfolioOrderState.value == PortfolioViewModel.SORT_NAME_DEC) {
+                            portfolioOrderState.value = PortfolioViewModel.SORT_NAME_ASC
                         } else {
-                            portfolioOrderState.value = -1
+                            portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
                         }
-                        mainViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        sortUserHoldCoin(portfolioOrderState.value)
                     }
                 }
                 .padding(0.dp, 8.dp),
@@ -59,15 +61,15 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByRateTextInfo[2] as Color)
                 .clickable {
-                    if (mainViewModel.isPortfolioSocketRunning) {
-                        if (portfolioOrderState.value != 2 && portfolioOrderState.value != 3) {
-                            portfolioOrderState.value = 2
-                        } else if (portfolioOrderState.value == 2) {
-                            portfolioOrderState.value = 3
+                    if (isPortfolioSocketRunning.value) {
+                        if (portfolioOrderState.value != PortfolioViewModel.SORT_RATE_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_RATE_ASC) {
+                            portfolioOrderState.value = PortfolioViewModel.SORT_RATE_DEC
+                        } else if (portfolioOrderState.value == PortfolioViewModel.SORT_RATE_DEC) {
+                            portfolioOrderState.value = PortfolioViewModel.SORT_RATE_ASC
                         } else {
-                            portfolioOrderState.value = -1
+                            portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
                         }
-                        mainViewModel.sortUserHoldCoin(portfolioOrderState.value)
+                        sortUserHoldCoin(portfolioOrderState.value)
                     }
                 }
                 .padding(0.dp, 8.dp),

@@ -54,7 +54,7 @@ fun PortfolioScreen(
 
     AddLifecycleEvent(
         onPauseAction = {
-            portfolioViewModel.isPortfolioSocketRunning = false
+            portfolioViewModel.state.isPortfolioSocketRunning.value = false
             UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
             UpBitPortfolioWebSocket.onPause()
         },
@@ -113,10 +113,11 @@ fun PortfolioScreen(
                 adDialogState = portfolioViewModel.state.adConfirmDialogState,
                 pieChartState = portfolioViewModel.state.pieChartState,
                 userHoldCoinList = portfolioViewModel.userHoldCoinList,
-                earnReward = portfolioViewModel::earnReward,
                 userHoldCoinDTOList = portfolioViewModel.state.userHoldCoinDtoList,
                 selectedCoinKoreanName = portfolioViewModel.state.selectedCoinKoreanName,
-                btcTradePrice = portfolioViewModel.state.btcTradePrice
+                btcTradePrice = portfolioViewModel.state.btcTradePrice,
+                isPortfolioSocketRunning = portfolioViewModel.state.isPortfolioSocketRunning,
+                sortUserHoldCoin = portfolioViewModel::sortUserHoldCoin
             )
         }
     }

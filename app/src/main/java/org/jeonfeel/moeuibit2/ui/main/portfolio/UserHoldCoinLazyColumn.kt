@@ -38,10 +38,11 @@ fun UserHoldCoinLazyColumn(
     adDialogState: MutableState<Boolean>,
     pieChartState: MutableState<Boolean>,
     userHoldCoinList: List<MyCoin?>,
-    earnReward: () -> Unit,
     userHoldCoinDTOList: SnapshotStateList<UserHoldCoinDTO>,
     selectedCoinKoreanName: MutableState<String>,
-    btcTradePrice: MutableState<Double>
+    btcTradePrice: MutableState<Double>,
+    isPortfolioSocketRunning: MutableState<Boolean>,
+    sortUserHoldCoin: (orderState: Int) -> Unit
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
@@ -61,7 +62,8 @@ fun UserHoldCoinLazyColumn(
                 adDialogState = adDialogState,
                 pieChartState = pieChartState,
                 userHoldCoinList = userHoldCoinList,
-                earnReward = earnReward
+                isPortfolioSocketRunning = isPortfolioSocketRunning,
+                sortUserHoldCoin = sortUserHoldCoin
             )
         }
         itemsIndexed(items = userHoldCoinDTOList) { _, item ->

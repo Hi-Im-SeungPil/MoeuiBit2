@@ -1,13 +1,11 @@
 package org.jeonfeel.moeuibit2.di
 
-import android.app.Activity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.ui.viewmodels.ChartUseCase
 import org.jeonfeel.moeuibit2.ui.viewmodels.OrderScreenUseCase
-import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeUseCase
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
@@ -39,14 +37,6 @@ class ActivityRetailedModule {
         prefrenceManager: PreferenceManager
     ): OrderScreenUseCase {
         return OrderScreenUseCase(remoteRepository, localRepository,prefrenceManager)
-    }
-
-    @Provides
-    fun provideExchangeUseCase(
-        remoteRepository: RemoteRepository,
-        localRepository: LocalRepository
-    ): ExchangeUseCase {
-        return ExchangeUseCase(localRepository,remoteRepository)
     }
 
     @Provides

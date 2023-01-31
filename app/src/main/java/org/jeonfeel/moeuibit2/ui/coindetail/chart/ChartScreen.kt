@@ -53,7 +53,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val context = LocalContext.current
     val applicationContext = context.applicationContext
     val combinedChart = remember {
-        CombinedChart(context)
+        MBitCombinedChart(context,null)
     }
 
 //    CommonLoadingDialog(dialogState = coinDetailViewModel.dialogState, text = stringResource(id = R.string.loading_chart))
@@ -64,14 +64,14 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 coinDetailViewModel.isUpdateChart = false
                 combinedChart.xAxis.valueFormatter = null
             }
+
             Lifecycle.Event.ON_START -> {
                 combinedChart.initCombinedChart(applicationContext, coinDetailViewModel)
                 coinDetailViewModel.requestChartData(combinedChart)
                 coinDetailViewModel.isUpdateChart = true
                 coinDetailViewModel.candleUpdateLiveData.observe(lifeCycleOwner) {
                     if (it == CHART_ADD) {
-                        combinedChart.xAxis.axisMaximum = combinedChart.xAxis.axisMaximum + 1f
-                        combinedChart.invalidate()
+//                        combinedChart.addCandle()
                     } else {
                         if (combinedChart.candleData != null) {
                             if (combinedChart.data.candleData.xMax <= combinedChart.highestVisibleX && !coinDetailViewModel.candleEntriesIsEmpty) {

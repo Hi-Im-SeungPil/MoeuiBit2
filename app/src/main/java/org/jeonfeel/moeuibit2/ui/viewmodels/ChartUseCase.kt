@@ -67,6 +67,7 @@ class ChartUseCase @Inject constructor(
     ) {
         isUpdateChart = false
         dialogState.value = true
+
         val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
             delay(100L)
             remoteRepository.getOtherCandleService(candleType, market)
@@ -74,19 +75,20 @@ class ChartUseCase @Inject constructor(
             delay(100L)
             remoteRepository.getMinuteCandleService(candleType, market)
         }
+
         if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
             /**
              * 차트 초기화
              */
             combinedChart.axisRight.removeAllLimitLines()
             combinedChart.xAxis.removeAllLimitLines()
-            val positiveBarEntries = ArrayList<BarEntry>()
-            val negativeBarEntries = ArrayList<BarEntry>()
             candlePosition = 0f
             candleEntriesLastPosition = 0
             chartData.clear()
             candleEntries.clear()
             kstDateHashMap.clear()
+            val positiveBarEntries = ArrayList<BarEntry>()
+            val negativeBarEntries = ArrayList<BarEntry>()
             /**
              * 차트 데이터 불러옴
              */
@@ -298,22 +300,22 @@ class ChartUseCase @Inject constructor(
                     xAxisValueFormatter.addItem(kstTime, candlePosition.toInt())
                     accData[candlePosition.toInt()] = model.candleAccTradePrice
 
-                    if (model.tradePrice - model.openingPrice >= 0.0) {
-                        combinedChart.barData.dataSets[0].addEntry(BarEntry(candlePosition,
-                            model.candleAccTradePrice.toFloat()))
-                    } else {
-                        combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition,
-                            model.candleAccTradePrice.toFloat()))
-                    }
-                    try {
-                        addLineData()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    combinedChart.barData.notifyDataChanged()
-                    combinedChart.lineData.notifyDataChanged()
-                    combinedChart.data.notifyDataChanged()
-                    combinedChart.notifyDataSetChanged()
+//                    if (model.tradePrice - model.openingPrice >= 0.0) {
+//                        combinedChart.barData.dataSets[0].addEntry(BarEntry(candlePosition,
+//                            model.candleAccTradePrice.toFloat()))
+//                    } else {
+//                        combinedChart.barData.dataSets[1].addEntry(BarEntry(candlePosition,
+//                            model.candleAccTradePrice.toFloat()))
+//                    }
+//                    try {
+//                        addLineData()
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
+//                    combinedChart.barData.notifyDataChanged()
+//                    combinedChart.lineData.notifyDataChanged()
+//                    combinedChart.data.notifyDataChanged()
+//                    combinedChart.notifyDataSetChanged()
                     _candleUpdateMutableLiveData.postValue(CHART_ADD)
                     isUpdateChart = true
                 } else {

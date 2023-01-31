@@ -96,47 +96,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         fitScreen()
     }
     //legend
-    chart.apply {
-        val legendEntry1 = LegendEntry()
-        legendEntry1.label = if(isKor) "단순 MA" else "MA"
-        val legendEntry2 = LegendEntry().apply {
-            label = "5"
-            formColor = Color.parseColor("#B3FF36FF")
-        }
-        val legendEntry3 = LegendEntry().apply {
-            label = "10"
-            formColor = Color.parseColor("#B30000B7")
-        }
-        val legendEntry4 = LegendEntry().apply {
-            label = "20"
-            formColor = Color.parseColor("#B3DBC000")
-        }
-        val legendEntry5 = LegendEntry().apply {
-            label = "60"
-            formColor = Color.parseColor("#B3FF4848")
-        }
-        val legendEntry6 = LegendEntry().apply {
-            label = "120"
-            formColor = Color.parseColor("#B3BDBDBD")
-        }
-        val legend = chart.legend
-        legend.setCustom(
-            arrayOf(
-                legendEntry1,
-                legendEntry2,
-                legendEntry3,
-                legendEntry4,
-                legendEntry5,
-                legendEntry6
-            )
-        )
-        legend.textColor = Color.BLACK
-        legend.isWordWrapEnabled = true
-        legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
-        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-        legend.orientation = Legend.LegendOrientation.HORIZONTAL
-        legend.setDrawInside(true)
-    }
+
     //bottom Axis
     val xAxis = chart.xAxis
     xAxis.apply {
@@ -163,7 +123,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
     }
     //right Axis
     val rightAxis = chart.axisRight
-    val minWidth = if(marketState == SELECTED_BTC_MARKET) {
+    val minWidth = if (marketState == SELECTED_BTC_MARKET) {
         canvasView.getTextPaint().measureText("0.00000000")
     } else {
         50f
@@ -239,7 +199,12 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 } else {
                     decrease_candle_color
                 }
-                chart.addAccAmountLimitLine(highestVisibleCandle.x, coinDetailViewModel, color, marketState)
+                chart.addAccAmountLimitLine(
+                    highestVisibleCandle.x,
+                    coinDetailViewModel,
+                    color,
+                    marketState
+                )
                 val yp = chart.getPosition(
                     Entry(
                         0f,
@@ -248,7 +213,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 ).y
                 canvasView.realTimeLastCandleClose(
                     yp,
-                    CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
+                    CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
                     color
                 )
             }
@@ -263,11 +228,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     rightAxis.axisDependency
                 )
                 val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
-                val price = CurrentCalculator.tradePriceCalculator(chart.getValuesByTouchPoint(
-                    x,
-                    y,
-                    axisRight.axisDependency
-                ).y,marketState)
+                val price = CurrentCalculator.tradePriceCalculator(
+                    chart.getValuesByTouchPoint(
+                        x,
+                        y,
+                        axisRight.axisDependency
+                    ).y, marketState
+                )
                 horizontalLine.apply {
                     lineColor = Color.BLACK
                     lineWidth = 0.5f
@@ -284,9 +251,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     } else {
                         decrease_candle_color
                     }
-                    chart.addAccAmountLimitLine(highestVisibleCandle.x,
+                    chart.addAccAmountLimitLine(
+                        highestVisibleCandle.x,
                         coinDetailViewModel,
-                        color, marketState)
+                        color, marketState
+                    )
                     val yp = chart.getPosition(
                         Entry(
                             0f,
@@ -295,7 +264,7 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     ).y
                     canvasView.realTimeLastCandleClose(
                         yp,
-                        CurrentCalculator.tradePriceCalculator(tradePrice,marketState),
+                        CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
                         color
                     )
                 }
@@ -343,7 +312,7 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMinimum(20f)
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            addPurchaseLimitLine(purchaseAveragePrice,marketState)
+            addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.zoom(4f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
         } else {
@@ -354,18 +323,18 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
             chart.data.notifyDataChanged()
             xAxis.valueFormatter = valueFormatter
-            addPurchaseLimitLine(purchaseAveragePrice,marketState)
+            addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.invalidate()
         }
     }
 }
 
-fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?,marketState: Int) {
+fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?, marketState: Int) {
     val chart = this
     purchaseAveragePrice?.let {
         val purchaseAverageLimitLine = LimitLine(it, "매수평균")
         val purchaseAverageLimitLine2 =
-            LimitLine(it, CurrentCalculator.tradePriceCalculator(purchaseAveragePrice,marketState))
+            LimitLine(it, CurrentCalculator.tradePriceCalculator(purchaseAveragePrice, marketState))
         purchaseAverageLimitLine.apply {
             labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
             textColor = Color.parseColor("#2F9D27")
@@ -454,7 +423,10 @@ fun CombinedChart.addAccAmountLimitLine(
     val barPrice = lastBar.y
     val lastBarLimitLine = LimitLine(
         barPrice,
-        CurrentCalculator.accTradePrice24hCalculator(coinDetailViewModel.accData[lastX.toInt()]!!, marketState)
+        CurrentCalculator.accTradePrice24hCalculator(
+            coinDetailViewModel.accData[lastX.toInt()]!!,
+            marketState
+        )
     )
     lastBarLimitLine.lineColor = color
     lastBarLimitLine.textColor = color

@@ -37,7 +37,7 @@ class PortfolioState {
     val selectedCoinKoreanName = mutableStateOf("")
     val pieChartState = mutableStateOf(false)
     val btcTradePrice = mutableStateOf(0.0)
-    val isAdShowState = mutableStateOf(false)
+    val isPortfolioSocketRunning = mutableStateOf(true)
 }
 
 @HiltViewModel
@@ -46,16 +46,11 @@ class PortfolioViewModel @Inject constructor(
     val adMobManager: AdMobManager
 ) : BaseViewModel(), PortfolioOnTickerMessageReceiveListener {
     val state = PortfolioState()
-    var isPortfolioSocketRunning = false
     var userHoldCoinsMarket = StringBuffer()
     var userHoldCoinList = emptyList<MyCoin?>()
     private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     private val userHoldCoinHashMap = HashMap<String, MyCoin>()
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-
-    private val _adMutableLiveData = MutableLiveData<Int>()
-    val adLiveData: LiveData<Int> get() = _adMutableLiveData
-    var isAdShow = false
 
     fun getUserSeedMoney() {
         viewModelScope.launch(ioDispatcher) {
@@ -120,8 +115,9 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun resetPortfolio() {
-        isPortfolioSocketRunning = false
+        state.isPortfolioSocketRunning.value = false
         state.userHoldCoinDtoList.clear()
+        state.portfolioOrderState.value = SORT_DEFAULT
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()
         tempUserHoldCoinDtoList.clear()
@@ -134,7 +130,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
-        isPortfolioSocketRunning = false
+        state.isPortfolioSocketRunning.value = false
         when (sortStandard) {
             SORT_NAME_DEC -> {
                 tempUserHoldCoinDtoList.sortByDescending { element ->
@@ -172,7 +168,7 @@ class PortfolioViewModel @Inject constructor(
             state.userHoldCoinDtoList[i] = tempUserHoldCoinDtoList[i]
         }
 
-        isPortfolioSocketRunning = true
+        state.isPortfolioSocketRunning.value = true
     }
 
     fun editUserHoldCoin() {
@@ -216,9 +212,9 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private fun updateUserHoldCoins() {
-        isPortfolioSocketRunning = true
+        state.isPortfolioSocketRunning.value = true
         viewModelScope.launch {
-            while (isPortfolioSocketRunning) {
+            while (state.isPortfolioSocketRunning.value) {
                 var tempTotalValuedAssets = 0.0
                 try {
                     for (i in tempUserHoldCoinDtoList.indices) {
@@ -263,11 +259,6 @@ class PortfolioViewModel @Inject constructor(
         )
     }
 
-    fun updateAdLiveData() {
-        state.adLoadingDialogState.value = true
-        _adMutableLiveData.value = 1
-    }
-
     fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
@@ -279,7 +270,7 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    fun errorReward() {
+    private fun errorReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {
@@ -291,7 +282,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
-        if (isPortfolioSocketRunning) {
+        if (state.isPortfolioSocketRunning.value) {
             val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
             if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                 state.btcTradePrice.value = model.tradePrice
