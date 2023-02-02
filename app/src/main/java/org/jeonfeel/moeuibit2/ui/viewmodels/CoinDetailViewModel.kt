@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
@@ -14,15 +13,16 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
@@ -33,28 +33,43 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookMod
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.MINUTE_SELECT
+import org.jeonfeel.moeuibit2.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.utils.Utils
 import javax.inject.Inject
 import kotlin.collections.set
+
+class CoinDetailState {
+    val favoriteMutableState = mutableStateOf(false)
+
+    // 코인 정보
+    val coinInfoDialog = mutableStateOf(false)
+    val coinInfoLoading = mutableStateOf(false)
+    val webViewLoading = mutableStateOf(false)
+
+    // 차트
+
+}
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val chartUseCase: ChartUseCase,
     private val orderScreenUseCase: OrderScreenUseCase,
+    val chart: Chart,
     val localRepository: LocalRepository,
-) : ViewModel(), OnCoinDetailMessageReceiveListener,
+) : BaseViewModel(),
+    OnCoinDetailMessageReceiveListener,
     OnOrderBookMessageReceiveListener {
-
+    var market = ""
     var preClosingPrice = 0.0
     var maxOrderBookSize = 0.0
-    var market = ""
     private var marketState = -1
-    private var koreanName = ""
+    private var name = ""
 
-    val gson = Gson()
     val transactionInfoList = mutableStateListOf<TransactionInfo>()
-
     /**
      * coin info
      * */
@@ -98,7 +113,7 @@ class CoinDetailViewModel @Inject constructor(
             setOrderBookWebSocketMessageListener()
             UpBitCoinDetailWebSocket.requestCoinDetailData(market)
         }
-        for(i in 0 until 4) {
+        for (i in 0 until 4) {
             feeStateList.add(mutableStateOf(0f))
         }
     }
@@ -204,23 +219,36 @@ class CoinDetailViewModel @Inject constructor(
         return viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.bidRequest(
                 market,
-                koreanName,
+                name,
                 currentPrice,
                 quantity,
                 totalPrice,
                 btcTotalPrice,
                 marketState = marketState,
-                currentBtcPrice)
+                currentBtcPrice
+            )
         }
     }
 
-    fun askRequest(quantity: Double, totalPrice: Long, currentPrice: Double, btcTotalPrice: Double = 0.0,): Job {
+    fun askRequest(
+        quantity: Double,
+        totalPrice: Long,
+        currentPrice: Double,
+        btcTotalPrice: Double = 0.0,
+    ): Job {
         return viewModelScope.launch(ioDispatcher) {
-            orderScreenUseCase.askRequest(market, quantity, totalPrice, btcTotalPrice, currentPrice, marketState)
+            orderScreenUseCase.askRequest(
+                market,
+                quantity,
+                totalPrice,
+                btcTotalPrice,
+                currentPrice,
+                marketState
+            )
         }
     }
 
-    fun adjustFee(){
+    fun adjustFee() {
         viewModelScope.launch(ioDispatcher) {
             orderScreenUseCase.adjustFee()
         }
@@ -276,84 +304,84 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * chartScreen
      * */
-    var minuteVisible: Boolean
-        set(value) {
-            chartUseCase.minuteVisible.value = value
-        }
-        get() {
-            return chartUseCase.minuteVisible.value
-        }
-
-    var loadingMoreChartData: Boolean
-        set(value) {
-            chartUseCase.loadingMoreChartData = value
-        }
-        get() {
-            return chartUseCase.loadingMoreChartData
-        }
-
-    var candleType: String
-        set(value) {
-            chartUseCase.candleType.value = value
-        }
-        get() {
-            return chartUseCase.candleType.value
-        }
-
-    var minuteText: String
-        set(value) {
-            chartUseCase.minuteText.value = value
-        }
-        get() {
-            return chartUseCase.minuteText.value
-        }
-
-    var selectedButton: Int
-        set(value) {
-            chartUseCase.selectedButton.value = value
-        }
-        get() {
-            return chartUseCase.selectedButton.value
-        }
-
-    var chartLastData: Boolean
-        set(value) {
-            chartUseCase.chartLastData = value
-        }
-        get() {
-            return chartUseCase.chartLastData
-        }
-
-    val dialogState: MutableState<Boolean>
-        get() {
-            return chartUseCase.dialogState
-        }
-
-    var candlePosition: Float
-        set(value) {
-            chartUseCase.candlePosition = value
-        }
-        get() {
-            return chartUseCase.candlePosition
-        }
-
-    var isUpdateChart: Boolean
-        set(value) {
-            chartUseCase.isUpdateChart = value
-        }
-        get() {
-            return chartUseCase.isUpdateChart
-        }
-
-    val accData: HashMap<Int, Double>
-        get() {
-            return chartUseCase.accData
-        }
-
-    val kstDateHashMap: HashMap<Int, String>
-        get() {
-            return chartUseCase.kstDateHashMap
-        }
+//    var minuteVisible: Boolean
+//        set(value) {
+//            chartUseCase.minuteVisible.value = value
+//        }
+//        get() {
+//            return chartUseCase.minuteVisible.value
+//        }
+//
+//    var loadingMoreChartData: Boolean
+//        set(value) {
+//            chartUseCase.loadingMoreChartData = value
+//        }
+//        get() {
+//            return chartUseCase.loadingMoreChartData
+//        }
+//
+//    var candleType: String
+//        set(value) {
+//            chartUseCase.candleType.value = value
+//        }
+//        get() {
+//            return chartUseCase.candleType.value
+//        }
+//
+//    var minuteText: String
+//        set(value) {
+//            chartUseCase.minuteText.value = value
+//        }
+//        get() {
+//            return chartUseCase.minuteText.value
+//        }
+//
+//    var selectedButton: Int
+//        set(value) {
+//            chartUseCase.selectedButton.value = value
+//        }
+//        get() {
+//            return chartUseCase.selectedButton.value
+//        }
+//
+//    var chartLastData: Boolean
+//        set(value) {
+//            chartUseCase.chartLastData = value
+//        }
+//        get() {
+//            return chartUseCase.chartLastData
+//        }
+//
+//    val dialogState: MutableState<Boolean>
+//        get() {
+//            return chartUseCase.dialogState
+//        }
+//
+//    var candlePosition: Float
+//        set(value) {
+//            chartUseCase.candlePosition = value
+//        }
+//        get() {
+//            return chartUseCase.candlePosition
+//        }
+//
+//    var isUpdateChart: Boolean
+//        set(value) {
+//            chartUseCase.isUpdateChart = value
+//        }
+//        get() {
+//            return chartUseCase.isUpdateChart
+//        }
+//
+//    val accData: HashMap<Int, Double>
+//        get() {
+//            return chartUseCase.accData
+//        }
+//
+//    val kstDateHashMap: HashMap<Int, String>
+//        get() {
+//            return chartUseCase.kstDateHashMap
+//        }
 
     val candleEntryLast: CandleEntry
         get() {
@@ -365,10 +393,10 @@ class CoinDetailViewModel @Inject constructor(
             return chartUseCase.candleEntriesIsEmpty()
         }
 
-    val candleUpdateLiveData: LiveData<Int>
-        get() {
-            return chartUseCase.candleUpdateLiveData
-        }
+//    val candleUpdateLiveData: LiveData<Int>
+//        get() {
+//            return chartUseCase.candleUpdateLiveData
+//        }
 
     fun requestMoreData(combinedChart: CombinedChart) {
         viewModelScope.launch {

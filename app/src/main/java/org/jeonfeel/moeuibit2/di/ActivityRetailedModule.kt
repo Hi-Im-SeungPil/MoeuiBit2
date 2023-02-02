@@ -9,6 +9,7 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.OrderScreenUseCase
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.Chart
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 
@@ -36,11 +37,19 @@ class ActivityRetailedModule {
         localRepository: LocalRepository,
         prefrenceManager: PreferenceManager
     ): OrderScreenUseCase {
-        return OrderScreenUseCase(remoteRepository, localRepository,prefrenceManager)
+        return OrderScreenUseCase(remoteRepository, localRepository, prefrenceManager)
     }
 
     @Provides
     fun provideAdMobManager(): AdMobManager {
         return AdMobManager()
+    }
+
+    @Provides
+    fun provideChart(
+        remoteRepository: RemoteRepository,
+        localRepository: LocalRepository
+    ): Chart {
+        return Chart(remoteRepository, localRepository)
     }
 }

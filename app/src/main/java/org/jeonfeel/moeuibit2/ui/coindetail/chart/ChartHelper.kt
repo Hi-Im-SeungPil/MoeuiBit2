@@ -3,22 +3,29 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.MotionEvent
-import com.github.mikephil.charting.charts.CombinedChart
+import androidx.compose.runtime.MutableState
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.LimitLine
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
+import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
-import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 class ChartHelper {
-    fun defaultChartSettings(combinedChart: CombinedChart) {
+    fun defaultChartSettings(
+        combinedChart: MBitCombinedChart,
+        chartCanvas: ChartCanvas,
+        marketState: Int,
+        requestOldData: suspend (String, String, Float, Float, IBarDataSet, IBarDataSet, Float) -> Unit
+    ) {
         combinedChart.apply {
             description.isEnabled = false
             isScaleYEnabled = false
@@ -64,11 +71,11 @@ class ChartHelper {
             setDrawAxisLine(true)
             setDrawGridLines(false)
             axisLineColor = Color.GRAY
-//            this.minWidth = if (marketState == SELECTED_BTC_MARKET) {
-//                canvasView.getTextPaint().measureText("0.00000000")
-//            } else {
-//                50f
-//            }
+            this.minWidth = if (marketState == SELECTED_BTC_MARKET) {
+                chartCanvas.getTextPaint().measureText("0.00000000")
+            } else {
+                50f
+            }
             spaceBottom = 40f
         }
 
@@ -113,150 +120,147 @@ class ChartHelper {
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
             legend.setDrawInside(true)
         }
+
+        chartCanvas.canvasInit(
+            textSize = combinedChart.rendererRightYAxis.paintAxisLabels.textSize,
+            textMarginLeft = combinedChart.axisRight.xOffset,
+            width = combinedChart.rendererRightYAxis
+                .paintAxisLabels
+                .measureText(combinedChart.axisRight.longestLabel.plus('0')),
+            x = combinedChart.measuredWidth - combinedChart.axisRight.getRequiredWidthSpace(
+                combinedChart.rendererRightYAxis.paintAxisLabels
+            )
+        )
+        combinedChart.addView(chartCanvas)
     }
+}
 
-    @SuppressLint("ClickableViewAccessibility")
-    fun setOnTouchListener(combinedChart: CombinedChart) {
+@SuppressLint("ClickableViewAccessibility")
+fun MBitCombinedChart.setMBitChartTouchListener(
+    isLoadingMoreData: MutableState<Boolean>,
+    minuteVisibility: MutableState<Boolean>,
+    isUpdateChart: MutableState<Boolean>,
+    marketState: Int
+) {
+    val rightAxis = this.axisRight
+    val xAxis = this.xAxis
+    val leftAxis = this.axisLeft
+    val chartCanvas = this.getChartCanvas()
 
-        val rightAxis = combinedChart.axisRight
-        val xAxis = combinedChart.xAxis
-
-        combinedChart.setOnTouchListener { _, me ->
-            if (coinDetailViewModel.loadingMoreChartData) {
-                return@setOnTouchListener true
-            }
-            if (coinDetailViewModel.minuteVisible) {
-                coinDetailViewModel.minuteVisible = false
-            }
-            val action = me?.action
+    this.setOnTouchListener { _, me ->
+        if (isLoadingMoreData.value) return@setOnTouchListener true
+        if (minuteVisibility.value) minuteVisibility.value = false
+        me?.let {
+            val action = me.action
             val x = me.x
             val y = me.y - 160f
-
-            if (action == MotionEvent.ACTION_DOWN) {
-                val highlight = combinedChart.getHighlightByTouchPoint(x, y)
-                val valueByTouchPoint = combinedChart.getValuesByTouchPoint(
-                    x,
-                    y,
-                    rightAxis.axisDependency
-                )
-                val verticalLine = if (highlight != null) {
-                    combinedChart.highlightValue(highlight, true)
+            val highlight = this.getHighlightByTouchPoint(x, y)
+            val valueByTouchPoint = this.getValuesByTouchPoint(
+                x,
+                y,
+                rightAxis.axisDependency
+            )
+            val verticalLine = try {
+                if (highlight != null) {
+                    this.highlightValue(highlight, true)
                     LimitLine(highlight.x)
                 } else {
-                    try {
-                        LimitLine(valueByTouchPoint.x.roundToInt().toFloat())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        LimitLine(0f)
-                    }
+                    LimitLine(valueByTouchPoint.x.roundToInt().toFloat())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                LimitLine(0f)
+            }.apply {
+                lineColor = Color.BLACK
+                lineWidth = 0.5f
+            }
+            val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat()).apply {
+                lineColor = Color.BLACK
+                lineWidth = 0.5f
+            }
+            val selectedPrice =
+                CurrentCalculator.tradePriceCalculator(valueByTouchPoint.y, marketState)
+            val highestVisibleCandle: CandleEntry? =
+                if (this.candleData.xMax > this.highestVisibleX) {
+                    this.data.candleData.dataSets[0].getEntriesForXValue(
+                        round(this.highestVisibleX)
+                    ).first()
+                } else {
+                    null
                 }
 
-                val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
-                val text = CurrentCalculator.tradePriceCalculator(valueByTouchPoint.y, marketState)
-                if (xAxis.limitLines.size != 0) {
+            /**
+             * 액션
+             */
+            when (action) {
+                MotionEvent.ACTION_DOWN -> {
                     xAxis.removeAllLimitLines()
                     rightAxis.removeLimitLine(rightAxis.limitLines.last())
-                }
-                horizontalLine.apply {
-                    lineColor = Color.BLACK
-                    lineWidth = 0.5f
-                }
-                verticalLine.apply {
-                    lineColor = Color.BLACK
-                    lineWidth = 0.5f
-                }
-
-                if (combinedChart.candleData.xMax > combinedChart.highestVisibleX) {
-                    if (combinedChart.axisLeft.limitLines.isNotEmpty()) {
-                        combinedChart.axisLeft.removeAllLimitLines()
-                    }
-                    val highestVisibleCandle =
-                        combinedChart.data.candleData.dataSets[0].getEntriesForXValue(round(combinedChart.highestVisibleX))
-                            .first()
-
-                    val tradePrice = highestVisibleCandle.close
-                    val openPrice = highestVisibleCandle.open
-                    val color = if (tradePrice - openPrice >= 0.0) {
-                        increase_candle_color
-                    } else {
-                        decrease_candle_color
-                    }
-                    combinedChart.addAccAmountLimitLine(
-                        highestVisibleCandle.x,
-                        coinDetailViewModel,
-                        color,
-                        marketState
-                    )
-                    val yp = combinedChart.getPosition(
-                        Entry(
-                            0f,
-                            tradePrice
-                        ), rightAxis.axisDependency
-                    ).y
-                    canvasView.realTimeLastCandleClose(
-                        yp,
-                        CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
-                        color
-                    )
-                }
-                canvasView.actionDownInvalidate(y, text)
-                xAxis.addLimitLine(verticalLine)
-                rightAxis.addLimitLine(horizontalLine)
-            } else if (action == MotionEvent.ACTION_MOVE) {
-                if (xAxis.limitLines.size != 0) {
-                    val valueByTouchPoint = combinedChart.getValuesByTouchPoint(
-                        x,
-                        y,
-                        rightAxis.axisDependency
-                    )
-                    val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat())
-                    val price = CurrentCalculator.tradePriceCalculator(
-                        combinedChart.getValuesByTouchPoint(
-                            x,
-                            y,
-                            rightAxis.axisDependency
-                        ).y, marketState
-                    )
-                    horizontalLine.apply {
-                        lineColor = Color.BLACK
-                        lineWidth = 0.5f
-                    }
-                    if (combinedChart.candleData.xMax > combinedChart.highestVisibleX) {
-                        val highestVisibleCandle =
-                            combinedChart.data.candleData.dataSets[0].getEntriesForXValue(round(combinedChart.highestVisibleX))
-                                .first()
-
+                    highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
-                        val color = if (tradePrice - openPrice >= 0.0) {
-                            increase_candle_color
-                        } else {
-                            decrease_candle_color
-                        }
-                        combinedChart.addAccAmountLimitLine(
-                            highestVisibleCandle.x,
-                            coinDetailViewModel,
-                            color, marketState
-                        )
-                        val yp = combinedChart.getPosition(
-                            Entry(
-                                0f,
-                                tradePrice
-                            ), rightAxis.axisDependency
+                        val color = if (tradePrice - openPrice >= 0.0) increase_candle_color
+                        else decrease_candle_color
+                        val yp = this.getPosition(
+                            Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
-                        canvasView.realTimeLastCandleClose(
+                        leftAxis.removeAllLimitLines()
+//                        this.addAccAmountLimitLine(
+//                            highestVisibleCandle.x,
+//                            coinDetailViewModel,
+//                            color,
+//                            marketState
+//                        )
+                        chartCanvas?.realTimeLastCandleClose(
                             yp,
                             CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
                             color
                         )
                     }
-                    canvasView.actionMoveInvalidate(y, price)
+                    chartCanvas?.actionDownInvalidate(y, selectedPrice)
+                    xAxis.addLimitLine(verticalLine)
+                    rightAxis.addLimitLine(horizontalLine)
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    highestVisibleCandle?.let {
+                        val tradePrice = highestVisibleCandle.close
+                        val openPrice = highestVisibleCandle.open
+                        val color = if (tradePrice - openPrice >= 0.0) increase_candle_color
+                        else decrease_candle_color
+                        val yp = this.getPosition(
+                            Entry(0f, tradePrice), rightAxis.axisDependency
+                        ).y
+//                        this.addAccAmountLimitLine(
+//                            highestVisibleCandle.x,
+//                            coinDetailViewModel,
+//                            color, marketState
+//                        )
+
+                        chartCanvas?.realTimeLastCandleClose(
+                            yp,
+                            CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
+                            color
+                        )
+                    }
+                    chartCanvas?.actionMoveInvalidate(y, selectedPrice)
                     rightAxis.limitLines[rightAxis.limitLines.lastIndex] = horizontalLine
                 }
-            } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData && coinDetailViewModel.isUpdateChart) {
-                coinDetailViewModel.requestMoreData(chart)
+
+                MotionEvent.ACTION_UP -> {
+                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isLoadingMoreData.value && !isUpdateChart.value) {
+                        requestOldData(
+                            market = "",
+                            startPosition = this.lowestVisibleX,
+                            currentVisible = this.visibleXRange,
+                            positiveBarDataSet = this.barData.dataSets[POSITIVE_BAR],
+                            negativeBarDataSet = this.barData.dataSets[NEGATIVE_BAR],
+                            candleXMin = this.data.candleData.xMin
+                        )
+                    }
+                }
             }
-            false
         }
+        false
     }
 }

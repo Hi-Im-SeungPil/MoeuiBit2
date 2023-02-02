@@ -75,3 +75,5 @@ val menuTitleArray = if (MoeuiBitDataStore.isKor) {
 } else {
     arrayOf("Exchange","Web Site","Portfolio","Settings")
 }
+val movingAverageLineArray = arrayOf(5,10,20,60,120)
+val movingAverageLineColorArray = arrayOf("#B3FF36FF","#B30000B7","#B3DBC000","#B3FF4848","#B3BDBDBD")
