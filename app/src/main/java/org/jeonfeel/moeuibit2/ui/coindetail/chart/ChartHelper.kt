@@ -12,19 +12,30 @@ import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
+import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
+import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
+import kotlin.reflect.KFunction6
 
 class ChartHelper {
     fun defaultChartSettings(
         combinedChart: MBitCombinedChart,
         chartCanvas: ChartCanvas,
         marketState: Int,
-        requestOldData: suspend (String, String, Float, Float, IBarDataSet, IBarDataSet, Float) -> Unit
+        requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
+        isUpdateChart: MutableState<Boolean>,
+        isLoadingMoreData: Boolean,
+        minuteVisibility: MutableState<Boolean>,
+        accData: HashMap<Int, Double>,
+        kstDateHashMap: HashMap<Int, String>
     ) {
         combinedChart.apply {
             description.isEnabled = false
@@ -41,6 +52,13 @@ class ChartHelper {
             setDrawGridBackground(false)
             setDrawBorders(false)
             fitScreen()
+            marker = ChartMarkerView(
+                context = context,
+                layoutResource = R.layout.candle_info_marker,
+                dateHashMap = kstDateHashMap,
+                chartData = accData,
+                marketState = marketState
+            )
         }
 
         combinedChart.xAxis.apply {
@@ -79,46 +97,30 @@ class ChartHelper {
             spaceBottom = 40f
         }
 
-        combinedChart.apply {
-            val legendEntry1 = LegendEntry()
-            legendEntry1.label = if (MoeuiBitDataStore.isKor) "단순 MA" else "MA"
-            val legendEntry2 = LegendEntry().apply {
-                label = "5"
-                formColor = Color.parseColor("#B3FF36FF")
+        val legendArray = ArrayList<LegendEntry>()
+        legendArray.add(
+            LegendEntry().apply {
+                label = if (MoeuiBitDataStore.isKor) "단순 MA" else "MA"
             }
-            val legendEntry3 = LegendEntry().apply {
-                label = "10"
-                formColor = Color.parseColor("#B30000B7")
-            }
-            val legendEntry4 = LegendEntry().apply {
-                label = "20"
-                formColor = Color.parseColor("#B3DBC000")
-            }
-            val legendEntry5 = LegendEntry().apply {
-                label = "60"
-                formColor = Color.parseColor("#B3FF4848")
-            }
-            val legendEntry6 = LegendEntry().apply {
-                label = "120"
-                formColor = Color.parseColor("#B3BDBDBD")
-            }
-            val legend = combinedChart.legend
-            legend.setCustom(
-                arrayOf(
-                    legendEntry1,
-                    legendEntry2,
-                    legendEntry3,
-                    legendEntry4,
-                    legendEntry5,
-                    legendEntry6
-                )
+        )
+        for (i in movingAverageLineArray.indices) {
+            legendArray.add(
+                LegendEntry().apply {
+                    label = movingAverageLineArray[i].toString()
+                    formColor = Color.parseColor(movingAverageLineColorArray[i])
+                }
             )
-            legend.textColor = Color.BLACK
-            legend.isWordWrapEnabled = true
-            legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
-            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
-            legend.orientation = Legend.LegendOrientation.HORIZONTAL
-            legend.setDrawInside(true)
+        }
+
+        combinedChart.legend.apply {
+            setCustom(legendArray)
+            textColor = Color.BLACK
+            isWordWrapEnabled = true
+            verticalAlignment = Legend.LegendVerticalAlignment.TOP
+            horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+            orientation = Legend.LegendOrientation.HORIZONTAL
+            xOffset = 10f
+            setDrawInside(true)
         }
 
         chartCanvas.canvasInit(
@@ -132,15 +134,25 @@ class ChartHelper {
             )
         )
         combinedChart.addView(chartCanvas)
+        combinedChart.setMBitChartTouchListener(
+            isLoadingMoreData = isLoadingMoreData,
+            isUpdateChart = isUpdateChart,
+            minuteVisibility = minuteVisibility,
+            marketState = marketState,
+            accData = accData,
+            requestOldData = requestOldData
+        )
     }
 }
 
 @SuppressLint("ClickableViewAccessibility")
 fun MBitCombinedChart.setMBitChartTouchListener(
-    isLoadingMoreData: MutableState<Boolean>,
+    isLoadingMoreData: Boolean,
     minuteVisibility: MutableState<Boolean>,
     isUpdateChart: MutableState<Boolean>,
-    marketState: Int
+    marketState: Int,
+    accData: HashMap<Int, Double>,
+    requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -148,7 +160,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     val chartCanvas = this.getChartCanvas()
 
     this.setOnTouchListener { _, me ->
-        if (isLoadingMoreData.value) return@setOnTouchListener true
+        if (isLoadingMoreData) return@setOnTouchListener true
         if (minuteVisibility.value) minuteVisibility.value = false
         me?.let {
             val action = me.action
@@ -205,12 +217,12 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                             Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
                         leftAxis.removeAllLimitLines()
-//                        this.addAccAmountLimitLine(
-//                            highestVisibleCandle.x,
-//                            coinDetailViewModel,
-//                            color,
-//                            marketState
-//                        )
+                        this.addAccAmountLimitLine(
+                            lastX = highestVisibleCandle.x,
+                            color = color,
+                            marketState = marketState,
+                            accData = accData
+                        )
                         chartCanvas?.realTimeLastCandleClose(
                             yp,
                             CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
@@ -231,11 +243,12 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         val yp = this.getPosition(
                             Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
-//                        this.addAccAmountLimitLine(
-//                            highestVisibleCandle.x,
-//                            coinDetailViewModel,
-//                            color, marketState
-//                        )
+                        this.addAccAmountLimitLine(
+                            lastX = highestVisibleCandle.x,
+                            color = color,
+                            marketState = marketState,
+                            accData = accData
+                        )
 
                         chartCanvas?.realTimeLastCandleClose(
                             yp,
@@ -248,14 +261,11 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isLoadingMoreData.value && !isUpdateChart.value) {
+                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isLoadingMoreData && !isUpdateChart.value) {
                         requestOldData(
-                            market = "",
-                            startPosition = this.lowestVisibleX,
-                            currentVisible = this.visibleXRange,
-                            positiveBarDataSet = this.barData.dataSets[POSITIVE_BAR],
-                            negativeBarDataSet = this.barData.dataSets[NEGATIVE_BAR],
-                            candleXMin = this.data.candleData.xMin
+                            this.barData.dataSets[POSITIVE_BAR],
+                            this.barData.dataSets[NEGATIVE_BAR],
+                            this.data.candleData.xMin
                         )
                     }
                 }

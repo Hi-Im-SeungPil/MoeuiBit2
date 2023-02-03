@@ -14,8 +14,9 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
+import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.chartRefreshSetting
+import org.jeonfeel.moeuibit2.utils.chartRefreshSettings
 
 class MBitCombinedChart(
     context: Context?
@@ -26,10 +27,26 @@ class MBitCombinedChart(
     private var marketState = 0
 
     fun initChart(
+        requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
         marketState: Int,
-        requestOldData: suspend (String, String, Float, Float, IBarDataSet, IBarDataSet, Float) -> Unit
+        isUpdateChart: MutableState<Boolean>,
+        isLoadingMoreData: Boolean,
+        minuteVisibility: MutableState<Boolean>,
+        accData: HashMap<Int, Double>,
+        kstDateHashMap: HashMap<Int, String>
     ) {
-        chartHelper.defaultChartSettings(this,chartCanvas,marketState,requestOldData)
+        this.marketState = marketState
+        chartHelper.defaultChartSettings(
+            combinedChart = this,
+            chartCanvas = chartCanvas,
+            marketState = marketState,
+            requestOldData = requestOldData,
+            isUpdateChart = isUpdateChart,
+            isLoadingMoreData = isLoadingMoreData,
+            minuteVisibility = minuteVisibility,
+            accData = accData,
+            kstDateHashMap = kstDateHashMap
+        )
     }
 
     fun chartAdd(model: ChartModel, candlePosition: Float, addLineData: () -> Unit) {
@@ -133,12 +150,12 @@ class MBitCombinedChart(
                     } catch (e: Exception) {
                         CandleEntry(1f, 1f, 1f, 1f, 1f)
                     }
-//                    this.addAccAmountLimitLine(
-//                        lastBar.x,
-//                        coinDetailViewModel,
-//                        color,
-//                        marketState
-//                    )
+                    this.addAccAmountLimitLine(
+                        lastX = lastBar.x,
+                        color = color,
+                        marketState = marketState,
+                        accData = accData
+                    )
                 }
             }
             this.apply {
@@ -151,14 +168,6 @@ class MBitCombinedChart(
         }
     }
 
-    fun getChartCanvas(): ChartCanvas? {
-        return chartCanvas
-    }
-
-    fun getChartXValueFormatter(): ValueFormatter? {
-        return this.xAxis.valueFormatter
-    }
-
     fun chartInit(
         candleEntries: ArrayList<CandleEntry>,
         candleDataSet: CandleDataSet,
@@ -167,15 +176,24 @@ class MBitCombinedChart(
         lineData: LineData,
         purchaseAveragePrice: Float? = null
     ) {
-        this.chartRefreshSetting(
+        this.chartRefreshSettings(
             candleEntries = candleEntries,
             candleDataSet = candleDataSet,
             positiveBarDataSet = positiveBarDataSet,
             negativeBarDataSet = negativeBarDataSet,
             lineData = lineData,
-            valueFormatter = getChartXValueFormatter() as XAxisValueFormatter,
-            purchaseAveragePrice = purchaseAveragePrice
+//            valueFormatter = getChartXValueFormatter() as XAxisValueFormatter,
+            purchaseAveragePrice = purchaseAveragePrice,
+            marketState = marketState
         )
+    }
+
+    fun getChartCanvas(): ChartCanvas? {
+        return chartCanvas
+    }
+
+    fun getChartXValueFormatter(): ValueFormatter? {
+        return this.xAxis.valueFormatter
     }
 
     private fun getTradePriceYPosition(tradePrice: Float): Float {

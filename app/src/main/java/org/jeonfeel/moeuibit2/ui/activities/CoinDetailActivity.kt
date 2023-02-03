@@ -78,7 +78,7 @@ class CoinDetailActivity : ComponentActivity() {
                 false -> {
                     if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
                         NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
-                        coinDetailViewModel.isUpdateChart = false
+                        coinDetailViewModel.chart.state.isUpdateChart.value = false
                         this.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
                     }
                 }

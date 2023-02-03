@@ -1,64 +1,64 @@
-//package org.jeonfeel.moeuibit2.ui.viewmodels
-//
-//import android.os.Handler
-//import android.os.Looper
-//import androidx.compose.runtime.mutableStateListOf
-//import androidx.compose.runtime.mutableStateOf
-//import androidx.compose.runtime.snapshots.SnapshotStateList
-//import androidx.lifecycle.LiveData
-//import androidx.lifecycle.MutableLiveData
-//import androidx.lifecycle.ViewModel
-//import androidx.lifecycle.viewModelScope
-//import com.google.gson.Gson
-//import dagger.hilt.android.lifecycle.HiltViewModel
-//import kotlinx.coroutines.delay
-//import kotlinx.coroutines.launch
-//import org.jeonfeel.moeuibit2.constants.*
-//import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-//import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
-//import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
-//import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
-//import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-//import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
-//import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-//import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
-//import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
-//import org.jeonfeel.moeuibit2.utils.Utils
-//import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
-//import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
-//import javax.inject.Inject
-//
-//@HiltViewModel
-//class MainViewModel @Inject constructor(
-//    val remoteRepository: RemoteRepository,
-//    val localRepository: LocalRepository,
-//    val adMobManager: AdMobManager,
-//) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
-//
-//    val gson = Gson()
-//
-//    var isPortfolioSocketRunning = false
-//
-//    val userSeedMoney = mutableStateOf(0L)
-//    var userHoldCoinList = emptyList<MyCoin?>()
-//    private val userHoldCoinHashMap = HashMap<String, MyCoin>()
-//    var totalPurchase = mutableStateOf(0.0)
-//    private var userHoldCoinsMarket = StringBuffer()
-//    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-//    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
-//    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
-//    val totalValuedAssets = mutableStateOf(0.0)
-//    val portfolioLoadingComplete = mutableStateOf(false)
-//    var removeCoinCount = mutableStateOf(0)
-//
-//    val adLoadingDialogState = mutableStateOf(false)
-//    val adDialogState = mutableStateOf(false)
-//    private val _adMutableLiveData = MutableLiveData<Int>()
-//    val adLiveData: LiveData<Int> get() = _adMutableLiveData
-//
-//    /**
-//     * 거래소
-//     * */
+package org.jeonfeel.moeuibit2.ui.viewmodels
+
+import android.os.Handler
+import android.os.Looper
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.TickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
+import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
+import javax.inject.Inject
+
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    val remoteRepository: RemoteRepository,
+    val localRepository: LocalRepository,
+    val adMobManager: AdMobManager,
+) : ViewModel(), PortfolioOnTickerMessageReceiveListener {
+
+    val gson = Gson()
+
+    var isPortfolioSocketRunning = false
+
+    val userSeedMoney = mutableStateOf(0L)
+    var userHoldCoinList = emptyList<MyCoin?>()
+    private val userHoldCoinHashMap = HashMap<String, MyCoin>()
+    var totalPurchase = mutableStateOf(0.0)
+    private var userHoldCoinsMarket = StringBuffer()
+    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
+    val totalValuedAssets = mutableStateOf(0.0)
+    val portfolioLoadingComplete = mutableStateOf(false)
+    var removeCoinCount = mutableStateOf(0)
+
+    val adLoadingDialogState = mutableStateOf(false)
+    val adDialogState = mutableStateOf(false)
+    private val _adMutableLiveData = MutableLiveData<Int>()
+    val adLiveData: LiveData<Int> get() = _adMutableLiveData
+
+    /**
+     * 거래소
+     * */
 //    val loadingFavorite get() = exchangeUseCase.loadingFavorite
 //    var updateExchange: Boolean
 //        get() = exchangeUseCase.updateExchange
@@ -114,10 +114,10 @@
 //            exchangeUseCase.requestCoinListToWebSocket()
 //        }, 650L)
 //    }
-//
-//    /**
-//     * data sorting, filter
-//     * */
+
+    /**
+     * data sorting, filter
+     * */
 //    fun getFilteredCoinList(): SnapshotStateList<CommonExchangeModel> {
 //        return when {
 //            //검색 X 관심코인 X
@@ -162,7 +162,7 @@
 //            }
 //        }
 //    }
-//
+
 //    fun sortList(marketState: Int) {
 //        updateExchange = false
 //        viewModelScope.launch(defaultDispatcher) {
@@ -175,7 +175,7 @@
 //            exchangeUseCase.requestFavoriteData(selectedMarketState)
 //        }
 //    }
-//
+
 //    fun marketChangeAction(marketState: Int) {
 //        if (UpBitTickerWebSocket.currentMarket != marketState) {
 //            if (marketState == SELECTED_FAVORITE) {
@@ -195,8 +195,8 @@
 //            exchangeUseCase.requestUSDTPrice()
 //        }
 //    }
-//
-//    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 //    fun getUserSeedMoney() {
 //        viewModelScope.launch(ioDispatcher) {
 //            userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
@@ -443,7 +443,7 @@
 //        }
 //    }
 //
-//    override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
+    override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
 //        if (isPortfolioSocketRunning) {
 //            val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
 //            if (model.code.startsWith(SYMBOL_KRW)) {
@@ -497,8 +497,8 @@
 //                        market = market,
 //                        purchaseAverageBtcPrice = purchaseAverageBtcPrice
 //                    )
-//            }
-//        }
+            }
+        }
 //    }
 //
 //    fun earnReward() {
@@ -529,4 +529,3 @@
 //            }
 //        }
 //    }
-//}

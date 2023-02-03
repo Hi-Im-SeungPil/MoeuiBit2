@@ -34,6 +34,7 @@ class Chart @Inject constructor(
     private val localRepository: LocalRepository
 ) {
     val state = ChartState()
+    var market = ""
     private val gson = Gson()
 
     var loadingMoreChartData = false
@@ -142,7 +143,7 @@ class Chart @Inject constructor(
             state.isUpdateChart.value = true
             state.loadingDialogState.value = false
             _chartUpdateMutableLiveData.value = CHART_INIT
-//            updateChart()
+            updateChart(market)
         }
     }
 
@@ -151,9 +152,6 @@ class Chart @Inject constructor(
      */
     suspend fun requestOldData(
         candleType: String = state.candleType.value,
-        market: String,
-        startPosition: Float,
-        currentVisible: Float,
         positiveBarDataSet: IBarDataSet,
         negativeBarDataSet: IBarDataSet,
         candleXMin: Float
@@ -207,7 +205,6 @@ class Chart @Inject constructor(
                 accData[tempCandlePosition.toInt()] = model.candleAccTradePrice
                 tempCandlePosition += 1f
             }
-//            xAxisValueFormatter.setItem(kstDateHashMap)
             tempCandleEntries.addAll(candleEntries)
             candleEntries.clear()
             candleEntries.addAll(tempCandleEntries)
@@ -221,16 +218,9 @@ class Chart @Inject constructor(
             this.negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
             this.candleDataSet = CandleDataSet(candleEntries, "")
             candleEntriesLastPosition = candleEntries.size - 1
-//            combinedChart.chartRefreshLoadMoreData(
-//                candleDataSet,
-//                positiveBarDataSet,
-//                negativeBarDataSet,
-//                createLineData(),
-//                startPosition,
-//                currentVisible,
-//            )
             state.loadingDialogState.value = false
             loadingMoreChartData = false
+            _chartUpdateMutableLiveData.value = CHART_OLD_DATA
         } else {
             chartLastData = true
             state.loadingDialogState.value = false
@@ -267,7 +257,6 @@ class Chart @Inject constructor(
                     candlePosition += 1f
                     candleEntriesLastPosition += 1
                     kstDateHashMap[candlePosition.toInt()] = kstTime
-//                    xAxisValueFormatter.addItem(kstTime, candlePosition.toInt())
                     accData[candlePosition.toInt()] = model.candleAccTradePrice
                     _chartUpdateMutableLiveData.postValue(CHART_ADD)
                     state.isUpdateChart.value = true
@@ -349,4 +338,7 @@ class Chart @Inject constructor(
     private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
         return localRepository.getMyCoinDao().isInsert(market)
     }
+
+    fun getLastCandleEntry() = candleEntries.last()
+    fun isCandleEntryEmpty() = candleEntries.isEmpty()
 }

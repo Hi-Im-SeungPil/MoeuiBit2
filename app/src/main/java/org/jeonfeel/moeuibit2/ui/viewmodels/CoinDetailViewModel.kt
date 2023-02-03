@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -19,10 +20,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
@@ -35,8 +34,6 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.Chart
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.MINUTE_SELECT
-import org.jeonfeel.moeuibit2.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.utils.Utils
 import javax.inject.Inject
 import kotlin.collections.set
@@ -70,6 +67,7 @@ class CoinDetailViewModel @Inject constructor(
     private var name = ""
 
     val transactionInfoList = mutableStateListOf<TransactionInfo>()
+
     /**
      * coin info
      * */
@@ -89,6 +87,7 @@ class CoinDetailViewModel @Inject constructor(
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
         this.marketState = Utils.getSelectedMarket(market)
+        chart.market = market
         orderScreenUseCase.initAdjustFee()
     }
 
@@ -123,7 +122,7 @@ class CoinDetailViewModel @Inject constructor(
             while (orderScreenUseCase.isTickerSocketRunning) {
                 val tradPrice = orderScreenUseCase.coinDetailModel.tradePrice
                 currentTradePriceState = tradPrice
-                chartUseCase.updateCandleTicker(tradPrice)
+                chart.updateCandleTicker(tradPrice)
                 delay(100)
             }
         }
@@ -304,6 +303,20 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * chartScreen
      * */
+
+    fun requestOldData(
+        positiveBarDataSet: IBarDataSet,
+        negativeBarDataSet: IBarDataSet,
+        candleXMin: Float
+    ) {
+        viewModelScope.launch {
+            chart.requestOldData(
+                positiveBarDataSet = positiveBarDataSet,
+                negativeBarDataSet = negativeBarDataSet,
+                candleXMin = candleXMin
+            )
+        }
+    }
 //    var minuteVisible: Boolean
 //        set(value) {
 //            chartUseCase.minuteVisible.value = value
@@ -404,9 +417,9 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun requestChartData(combinedChart: CombinedChart) {
+    fun requestChartData() {
         viewModelScope.launch {
-            chartUseCase.requestChartData(combinedChart = combinedChart, market = market)
+            chart.requestChartData(market = market)
         }
     }
 

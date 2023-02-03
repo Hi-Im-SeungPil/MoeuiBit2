@@ -130,7 +130,7 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
         rightButtonText = stringResource(id = R.string.confirm),
         leftButtonAction = { transactionInfoDialogState.value = false },
         rightButtonAction = {
-            mainViewModel.resetTransactionInfo()
+//            mainViewModel.resetTransactionInfo()
             transactionInfoDialogState.value = false
         })
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -248,7 +248,7 @@ fun writeReviewAction(context: Context) {
 }
 
 fun resetAll(mainViewModel: MainViewModel) {
-    mainViewModel.resetAll()
+//    mainViewModel.resetAll()
 }
 
 fun openLicense(context: Context) {

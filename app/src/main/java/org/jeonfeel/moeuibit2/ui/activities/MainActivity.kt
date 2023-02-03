@@ -27,15 +27,14 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
+import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.utils.ConnectionType
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
@@ -62,7 +61,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 if (resultData != null) {
                     val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
                     val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                    mainViewModel.updateFavorite(market, isFavorite)
+//                    mainViewModel.updateFavorite(market, isFavorite)
                 }
             }
         }
@@ -84,7 +83,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
         if (auth.currentUser == null) {
             auth.signInAnonymously()
         }
-        mainViewModel.requestUsdPrice()
+//        mainViewModel.requestUsdPrice()
         initNetworkStateMonitor()
         checkUpdate()
     }
@@ -123,10 +122,10 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 false -> {
                     if (currentNetworkState != NO_INTERNET_CONNECTION) {
                         currentNetworkState = NO_INTERNET_CONNECTION
-                        mainViewModel.errorState.value = NO_INTERNET_CONNECTION
+//                        mainViewModel.errorState.value = NO_INTERNET_CONNECTION
                         UpBitTickerWebSocket.onPause()
                         UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                        mainViewModel.updateExchange = false
+//                        mainViewModel.updateExchange = false
                     }
                 }
             }
@@ -186,7 +185,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
     }
 
     override fun onUserEarnedReward(p0: RewardItem) {
-        mainViewModel.earnReward()
+//        mainViewModel.earnReward()
     }
 
     private fun getLocale() {

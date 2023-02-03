@@ -16,6 +16,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
@@ -28,6 +29,7 @@ import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
+import org.jeonfeel.moeuibit2.utils.chartRefreshLoadMoreData
 
 const val MINUTE_SELECT = 1
 const val DAY_SELECT = 2
@@ -38,6 +40,7 @@ const val CHART_ADD = 1
 const val CHART_SET_CANDLE = 2
 const val CHART_SET_ALL = 3
 const val CHART_INIT = 4
+const val CHART_OLD_DATA = 5
 
 const val POSITIVE_BAR = 0
 const val NEGATIVE_BAR = 1
@@ -62,11 +65,18 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 combinedChart.xAxis.valueFormatter = null
             }
             Lifecycle.Event.ON_START -> {
-//                combinedChart.initCombinedChart(applicationContext, coinDetailViewModel)
-                combinedChart.initChart(coinDetailViewModel.chart::requestOldData)
+                combinedChart.initChart(
+                    coinDetailViewModel::requestOldData,
+                    marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+                    isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+                    isLoadingMoreData = coinDetailViewModel.chart.loadingMoreChartData,
+                    minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
+                    accData = coinDetailViewModel.chart.accData,
+                    kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                )
                 combinedChart.axisRight.removeAllLimitLines()
                 combinedChart.xAxis.removeAllLimitLines()
-                coinDetailViewModel.requestChartData(combinedChart)
+                coinDetailViewModel.requestChartData()
                 coinDetailViewModel.chart.state.isUpdateChart.value = true
             }
             else -> {}
@@ -76,37 +86,64 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     when (candleUpdateLiveData.value) {
         CHART_INIT -> {
             combinedChart.getChartXValueFormatter()?.let {
-                (it as XAxisValueFormatter).setItem(coinDetailViewModel.chart.kstDateHashMap)
-                combinedChart.chartInit(
-                    candleEntries = coinDetailViewModel.chart.candleEntries,
-                    candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                    positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                    negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                    lineData = coinDetailViewModel.chart.createLineData(),
-                    purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
-                )
+//                (it as XAxisValueFormatter).setItem(
+//                    newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+//                )
             }
+            combinedChart.chartInit(
+                candleEntries = coinDetailViewModel.chart.candleEntries,
+                candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                lineData = coinDetailViewModel.chart.createLineData(),
+                purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
+            )
         }
         CHART_ADD -> {
+            combinedChart.getChartXValueFormatter()?.let {
+                val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
+//                (it as XAxisValueFormatter).addItem(
+//                    newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition] ?: "",
+//                    position = candlePosition
+//                )
+            }
             combinedChart.chartAdd(
                 model = coinDetailViewModel.chart.addModel,
                 candlePosition = coinDetailViewModel.chart.candlePosition,
                 addLineData = coinDetailViewModel.chart::addLineData
             )
         }
-        else -> {
-            combinedChart.chartSet(
-                marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                lastCandleEntry = coinDetailViewModel.candleEntryLast,
-                candleEntriesIsEmpty = coinDetailViewModel.candleEntriesIsEmpty,
-                candleUpdateLiveDataValue = candleUpdateLiveData.value,
-                isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
-                accData = coinDetailViewModel.chart.accData,
-                candlePosition = coinDetailViewModel.chart.candlePosition,
+        CHART_OLD_DATA -> {
+//            combinedChart.getChartXValueFormatter()?.let {
+//                (it as XAxisValueFormatter).setItem(coinDetailViewModel.chart.kstDateHashMap)
+//            }
+            combinedChart.chartRefreshLoadMoreData(
+                candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                lineData = coinDetailViewModel.chart.createLineData(),
+                startPosition = combinedChart.lowestVisibleX,
+                currentVisible = combinedChart.visibleXRange
             )
+        }
+        else -> {
+            if (candleUpdateLiveData.value != -99 && !coinDetailViewModel.chart.isCandleEntryEmpty()) {
+                combinedChart.chartSet(
+                    marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+                    lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
+                    candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+                    candleUpdateLiveDataValue = candleUpdateLiveData.value,
+                    isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+                    accData = coinDetailViewModel.chart.accData,
+                    candlePosition = coinDetailViewModel.chart.candlePosition,
+                )
+            }
         }
     }
 
+    AndroidView(factory = {
+        combinedChart
+    }, modifier = Modifier.fillMaxSize())
     buttons()
 }
 
@@ -253,63 +290,63 @@ fun PeriodButton(
     buttonText: String,
     period: Int,
 ) {
-    val buttonColor = if (coinDetailViewModel.selectedButton == period) {
-        colorResource(id = R.color.C0F0F5C)
-    } else {
-        Color.LightGray
-    }
-
-    TextButton(onClick = {
-        coinDetailViewModel.chartLastData = false
-        coinDetailViewModel.candleType = candleType
-        coinDetailViewModel.minuteVisible = false
-        coinDetailViewModel.minuteText = if (isKor) "분" else "m,h"
-        coinDetailViewModel.requestChartData(combinedChart)
-        coinDetailViewModel.selectedButton = period
-    }, modifier = modifier) {
-        Text(
-            text = buttonText,
-            style = TextStyle(color = buttonColor)
-        )
-    }
-}
-
-@Composable
-fun RowScope.MinuteButton(
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
-    combinedChart: CombinedChart,
-    candleType: String,
-    minuteTextValue: String,
-    autoSizeText: Boolean,
-) {
-    TextButton(
-        onClick = {
-            coinDetailViewModel.chartLastData = false
-            coinDetailViewModel.candleType = candleType
-            coinDetailViewModel.requestChartData(combinedChart)
-            coinDetailViewModel.minuteVisible = false
-            coinDetailViewModel.minuteText = minuteTextValue
-            coinDetailViewModel.selectedButton = MINUTE_SELECT
-        }, modifier = Modifier
-            .weight(1f)
-            .background(Color.White)
-            .border(0.5.dp, colorResource(id = R.color.C0F0F5C))
-            .fillMaxHeight()
-    ) {
-        if (autoSizeText) {
-            AutoSizeText(
-                text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .wrapContentHeight()
-                    .weight(1f)
-            )
-        } else {
-            Text(
-                text = minuteTextValue,
-                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
-            )
-        }
-    }
+//    val buttonColor = if (coinDetailViewModel.selectedButton == period) {
+//        colorResource(id = R.color.C0F0F5C)
+//    } else {
+//        Color.LightGray
+//    }
+//
+//    TextButton(onClick = {
+//        coinDetailViewModel.chartLastData = false
+//        coinDetailViewModel.candleType = candleType
+//        coinDetailViewModel.minuteVisible = false
+//        coinDetailViewModel.minuteText = if (isKor) "분" else "m,h"
+//        coinDetailViewModel.requestChartData(combinedChart)
+//        coinDetailViewModel.selectedButton = period
+//    }, modifier = modifier) {
+//        Text(
+//            text = buttonText,
+//            style = TextStyle(color = buttonColor)
+//        )
+//    }
+//}
+//
+//@Composable
+//fun RowScope.MinuteButton(
+//    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+//    combinedChart: CombinedChart,
+//    candleType: String,
+//    minuteTextValue: String,
+//    autoSizeText: Boolean,
+//) {
+//    TextButton(
+//        onClick = {
+//            coinDetailViewModel.chartLastData = false
+//            coinDetailViewModel.candleType = candleType
+//            coinDetailViewModel.requestChartData(combinedChart)
+//            coinDetailViewModel.minuteVisible = false
+//            coinDetailViewModel.minuteText = minuteTextValue
+//            coinDetailViewModel.selectedButton = MINUTE_SELECT
+//        }, modifier = Modifier
+//            .weight(1f)
+//            .background(Color.White)
+//            .border(0.5.dp, colorResource(id = R.color.C0F0F5C))
+//            .fillMaxHeight()
+//    ) {
+//        if (autoSizeText) {
+//            AutoSizeText(
+//                text = minuteTextValue,
+//                textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
+//                modifier = Modifier
+//                    .fillMaxHeight()
+//                    .wrapContentHeight()
+//                    .weight(1f)
+//            )
+//        } else {
+//            Text(
+//                text = minuteTextValue,
+//                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
+//            )
+//        }
+//    }
 }

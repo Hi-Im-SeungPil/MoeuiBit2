@@ -143,12 +143,12 @@ class ChartUseCase @Inject constructor(
             this@ChartUseCase.xAxisValueFormatter.setItem(kstDateHashMap)
             candlePosition -= 1f
 
-            combinedChart.chartRefreshSetting(
+            combinedChart.chartRefreshSettings(
                 candleEntries,
                 CandleDataSet(candleEntries, ""),
                 BarDataSet(positiveBarEntries, ""),
                 BarDataSet(negativeBarEntries, ""),
-                createLineData(),
+                LineData(),
                 this@ChartUseCase.xAxisValueFormatter,
                 purchaseAveragePrice,
                 Utils.getSelectedMarket(market)
@@ -156,7 +156,7 @@ class ChartUseCase @Inject constructor(
             isUpdateChart = true
             dialogState.value = false
             combinedChart.initCanvas()
-            updateChart(combinedChart, market)
+//            updateChart(combinedChart, market)
         }
     }
 
@@ -239,7 +239,7 @@ class ChartUseCase @Inject constructor(
                 candleDataSet,
                 positiveBarDataSet,
                 negativeBarDataSet,
-                createLineData(),
+                LineData(),
                 startPosition,
                 currentVisible,
             )
@@ -320,34 +320,34 @@ class ChartUseCase @Inject constructor(
     /**
      * 이동평균선 만든다
      */
-    private fun createLineData(): LineData {
-        movingAverage5.createLineData(candleEntries)
-        movingAverage10.createLineData(candleEntries)
-        movingAverage20.createLineData(candleEntries)
-        movingAverage60.createLineData(candleEntries)
-        movingAverage120.createLineData(candleEntries)
+//    private fun createLineData(): LineData {
+//        movingAverage5.createLineData(candleEntries)
+//        movingAverage10.createLineData(candleEntries)
+//        movingAverage20.createLineData(candleEntries)
+//        movingAverage60.createLineData(candleEntries)
+//        movingAverage120.createLineData(candleEntries)
 
-        val lineDataSet5 =
-            LineDataSet(movingAverage5.lineEntry, "").apply { defaultSet() }
-        val lineDataSet10 =
-            LineDataSet(movingAverage10.lineEntry, "").apply { defaultSet() }
-        val lineDataSet20 =
-            LineDataSet(movingAverage20.lineEntry, "").apply { defaultSet() }
-        val lineDataSet60 =
-            LineDataSet(movingAverage60.lineEntry, "").apply { defaultSet() }
-        val lineDataSet120 =
-            LineDataSet(movingAverage120.lineEntry, "").apply { defaultSet() }
-        val lineData = LineData()
-        lineData.apply {
-            addDataSet(lineDataSet5)
-            addDataSet(lineDataSet10)
-            addDataSet(lineDataSet20)
-            addDataSet(lineDataSet60)
-            addDataSet(lineDataSet120)
-        }
+//        val lineDataSet5 =
+//            LineDataSet(movingAverage5.lineEntry, "").apply { defaultSet() }
+//        val lineDataSet10 =
+//            LineDataSet(movingAverage10.lineEntry, "").apply { defaultSet() }
+//        val lineDataSet20 =
+//            LineDataSet(movingAverage20.lineEntry, "").apply { defaultSet() }
+//        val lineDataSet60 =
+//            LineDataSet(movingAverage60.lineEntry, "").apply { defaultSet() }
+//        val lineDataSet120 =
+//            LineDataSet(movingAverage120.lineEntry, "").apply { defaultSet() }
+//        val lineData = LineData()
+//        lineData.apply {
+//            addDataSet(lineDataSet5)
+//            addDataSet(lineDataSet10)
+//            addDataSet(lineDataSet20)
+//            addDataSet(lineDataSet60)
+//            addDataSet(lineDataSet120)
+//        }
 
-        return lineData
-    }
+//        return lineData
+//    }
 
     private fun modifyLineData() {
         val lastCandle = candleEntries.last()

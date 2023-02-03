@@ -9,16 +9,13 @@ import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
-import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartCanvas
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.theme.decrease_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
+import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -83,13 +80,13 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
         isHighlightPerTapEnabled = false
         isHighlightPerDragEnabled = false
         legend.isEnabled = true
-        marker = ChartMarkerView(
-            context,
-            R.layout.candle_info_marker,
-            coinDetailViewModel.kstDateHashMap,
-            coinDetailViewModel.accData,
-            marketState
-        )
+//        marker = ChartMarkerView(
+//            context,
+//            R.layout.candle_info_marker,
+//            coinDetailViewModel.kstDateHashMap,
+//            coinDetailViewModel.accData,
+//            marketState
+//        )
         setPinchZoom(false)
         setDrawGridBackground(false)
         setDrawBorders(false)
@@ -140,12 +137,12 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
 
     chart.addView(canvasView)
     chart.setOnTouchListener { _, me ->
-        if (coinDetailViewModel.loadingMoreChartData) {
-            return@setOnTouchListener true
-        }
-        if (coinDetailViewModel.minuteVisible) {
-            coinDetailViewModel.minuteVisible = false
-        }
+//        if (coinDetailViewModel.loadingMoreChartData) {
+//            return@setOnTouchListener true
+//        }
+//        if (coinDetailViewModel.minuteVisible) {
+//            coinDetailViewModel.minuteVisible = false
+//        }
         val action = me!!.action
         val x = me.x
         val y = me.y - 160f
@@ -199,12 +196,12 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 } else {
                     decrease_candle_color
                 }
-                chart.addAccAmountLimitLine(
-                    highestVisibleCandle.x,
-                    coinDetailViewModel,
-                    color,
-                    marketState
-                )
+//                chart.addAccAmountLimitLine(
+//                    highestVisibleCandle.x,
+//                    coinDetailViewModel,
+//                    color,
+//                    marketState
+//                )
                 val yp = chart.getPosition(
                     Entry(
                         0f,
@@ -251,11 +248,11 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                     } else {
                         decrease_candle_color
                     }
-                    chart.addAccAmountLimitLine(
-                        highestVisibleCandle.x,
-                        coinDetailViewModel,
-                        color, marketState
-                    )
+//                    chart.addAccAmountLimitLine(
+//                        highestVisibleCandle.x,
+//                        coinDetailViewModel,
+//                        color, marketState
+//                    )
                     val yp = chart.getPosition(
                         Entry(
                             0f,
@@ -271,20 +268,20 @@ fun CombinedChart.initCombinedChart(context: Context, coinDetailViewModel: CoinD
                 canvasView.actionMoveInvalidate(y, price)
                 rightAxis.limitLines[rightAxis.limitLines.lastIndex] = horizontalLine
             }
-        } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f && !coinDetailViewModel.loadingMoreChartData && coinDetailViewModel.isUpdateChart) {
+        } else if (action == MotionEvent.ACTION_UP && chart.lowestVisibleX <= chart.data.candleData.xMin + 2f) {
             coinDetailViewModel.requestMoreData(chart)
         }
         false
     }
 }
 
-fun CombinedChart.chartRefreshSetting(
+fun CombinedChart.chartRefreshSettings(
     candleEntries: ArrayList<CandleEntry>,
     candleDataSet: CandleDataSet,
     positiveBarDataSet: BarDataSet,
     negativeBarDataSet: BarDataSet,
     lineData: LineData,
-    valueFormatter: XAxisValueFormatter,
+    valueFormatter: XAxisValueFormatter? = null,
     purchaseAveragePrice: Float?,
     marketState: Int
 ) {
@@ -311,7 +308,7 @@ fun CombinedChart.chartRefreshSetting(
             chart.fitScreen()
             chart.setVisibleXRangeMinimum(20f)
             chart.data.notifyDataChanged()
-            xAxis.valueFormatter = valueFormatter
+            xAxis?.valueFormatter = valueFormatter
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.zoom(4f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
@@ -322,7 +319,7 @@ fun CombinedChart.chartRefreshSetting(
             chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
             chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
             chart.data.notifyDataChanged()
-            xAxis.valueFormatter = valueFormatter
+            xAxis?.valueFormatter = valueFormatter
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.invalidate()
         }
@@ -399,9 +396,9 @@ fun CombinedChart.initCanvas() {
 
 fun CombinedChart.addAccAmountLimitLine(
     lastX: Float,
-    coinDetailViewModel: CoinDetailViewModel,
     color: Int,
-    marketState: Int
+    marketState: Int,
+    accData: HashMap<Int,Double>
 ) {
     val chart = this
     if (chart.axisLeft.limitLines.isNotEmpty()) {
@@ -424,14 +421,15 @@ fun CombinedChart.addAccAmountLimitLine(
     val lastBarLimitLine = LimitLine(
         barPrice,
         CurrentCalculator.accTradePrice24hCalculator(
-            coinDetailViewModel.accData[lastX.toInt()]!!,
+            accData[lastX.toInt()]!!,
             marketState
         )
-    )
-    lastBarLimitLine.lineColor = color
-    lastBarLimitLine.textColor = color
-    lastBarLimitLine.lineWidth = 0f
-    lastBarLimitLine.textSize = 11f
-    lastBarLimitLine.labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+    ).apply {
+        lineColor = color
+        textColor = color
+        lineWidth = 0f
+        textSize = 11f
+        labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+    }
     chart.axisLeft.addLimitLine(lastBarLimitLine)
 }
