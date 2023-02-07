@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
 import com.github.mikephil.charting.components.Legend
@@ -26,12 +27,14 @@ import kotlin.math.roundToInt
 import kotlin.reflect.KFunction6
 
 class ChartHelper {
+    /**
+     * 차트 초기 세팅
+     */
     fun defaultChartSettings(
         combinedChart: MBitCombinedChart,
-        chartCanvas: ChartCanvas,
         marketState: Int,
         requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
-        isLoadingMoreData: Boolean,
+        loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>
@@ -119,7 +122,7 @@ class ChartHelper {
         }
 
         combinedChart.setMBitChartTouchListener(
-            isLoadingMoreData = isLoadingMoreData,
+            loadingOldData = loadingOldData,
             minuteVisibility = minuteVisibility,
             marketState = marketState,
             accData = accData,
@@ -129,9 +132,12 @@ class ChartHelper {
     }
 }
 
+/**
+ * 차트 터치 리스터
+ */
 @SuppressLint("ClickableViewAccessibility")
 fun MBitCombinedChart.setMBitChartTouchListener(
-    isLoadingMoreData: Boolean,
+    loadingOldData: MutableState<Boolean>,
     minuteVisibility: MutableState<Boolean>,
     marketState: Int,
     accData: HashMap<Int, Double>,
@@ -143,7 +149,10 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     val chartCanvas = this.getChartCanvas()
 
     this.setOnTouchListener { _, me ->
-        if (isLoadingMoreData) return@setOnTouchListener true
+        if (loadingOldData.value) {
+            Log.e("return!!!!!!","")
+            return@setOnTouchListener true
+        }
         if (minuteVisibility.value) minuteVisibility.value = false
         me?.let {
             val action = me.action
@@ -247,6 +256,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
 
                 MotionEvent.ACTION_UP -> {
                     if (this.lowestVisibleX <= this.data.candleData.xMin + 2f) {
+                        loadingOldData.value = true
                         requestOldData(
                             this.barData.dataSets[POSITIVE_BAR],
                             this.barData.dataSets[NEGATIVE_BAR],

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,6 +28,7 @@ class ChartState() {
     val minuteVisible = mutableStateOf(false)
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val minuteText = if (MoeuiBitDataStore.isKor) mutableStateOf("1분") else mutableStateOf("1m")
+    val loadingOldData = mutableStateOf(false)
 }
 
 class Chart @Inject constructor(
@@ -37,7 +39,6 @@ class Chart @Inject constructor(
     var market = ""
     private val gson = Gson()
 
-    var loadingMoreChartData = false
     var chartLastData = false // 더이상 불러올 과거 데이터가 없는지 FLAG값
 
     val candleEntries = ArrayList<CandleEntry>()
@@ -156,76 +157,78 @@ class Chart @Inject constructor(
         negativeBarDataSet: IBarDataSet,
         candleXMin: Float
     ) {
-        loadingMoreChartData = true // 차트 터치 중단
-        val time = firstCandleUtcTime.replace("T", " ")
-        if (!chartLastData) {
-            state.loadingDialogState.value = true
-        }
-        val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
-            remoteRepository.getOtherCandleService(candleType, market, "200", time)
-        } else {
-            remoteRepository.getMinuteCandleService(candleType, market, "200", time)
-        }
-        if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
-            val chartModelList = response.body() ?: JsonArray()
-            val tempCandleEntries = ArrayList<CandleEntry>()
-            val tempPositiveBarEntries = ArrayList<BarEntry>()
-            val tempNegativeBarEntries = ArrayList<BarEntry>()
-            val chartModelListSize = chartModelList.size()
-            val positiveBarDataCount = positiveBarDataSet.entryCount
-            val negativeBarDataCount = negativeBarDataSet.entryCount
-            var tempCandlePosition = candleXMin - chartModelListSize
-            firstCandleUtcTime =
-                gson.fromJson(
-                    chartModelList[chartModelListSize - 1],
-                    ChartModel::class.java
-                ).candleDateTimeUtc
+        Log.e("hello?>","")
+//            state.loadingOldData.value = true // 차트 터치 중단
+            val time = firstCandleUtcTime.replace("T", " ")
+            if (!chartLastData) {
+                state.loadingDialogState.value = true
+            }
+            val response: Response<JsonArray> = if (candleType.toIntOrNull() == null) {
+                remoteRepository.getOtherCandleService(candleType, market, "200", time)
+            } else {
+                remoteRepository.getMinuteCandleService(candleType, market, "200", time)
+            }
+            if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
+                val chartModelList = response.body() ?: JsonArray()
+                val tempCandleEntries = ArrayList<CandleEntry>()
+                val tempPositiveBarEntries = ArrayList<BarEntry>()
+                val tempNegativeBarEntries = ArrayList<BarEntry>()
+                val chartModelListSize = chartModelList.size()
+                val positiveBarDataCount = positiveBarDataSet.entryCount
+                val negativeBarDataCount = negativeBarDataSet.entryCount
+                var tempCandlePosition = candleXMin - chartModelListSize
+                firstCandleUtcTime =
+                    gson.fromJson(
+                        chartModelList[chartModelListSize - 1],
+                        ChartModel::class.java
+                    ).candleDateTimeUtc
 
-            for (i in chartModelListSize - 1 downTo 0) {
-                val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
-                tempCandleEntries.add(
-                    CandleEntry(
-                        tempCandlePosition,
-                        model.highPrice.toFloat(),
-                        model.lowPrice.toFloat(),
-                        model.openingPrice.toFloat(),
-                        model.tradePrice.toFloat()
+                for (i in chartModelListSize - 1 downTo 0) {
+                    val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
+                    tempCandleEntries.add(
+                        CandleEntry(
+                            tempCandlePosition,
+                            model.highPrice.toFloat(),
+                            model.lowPrice.toFloat(),
+                            model.openingPrice.toFloat(),
+                            model.tradePrice.toFloat()
+                        )
                     )
-                )
-                if (model.tradePrice - model.openingPrice >= 0.0) {
-                    tempPositiveBarEntries.add(
-                        BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
-                    )
-                } else {
-                    tempNegativeBarEntries.add(
-                        BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
-                    )
+                    if (model.tradePrice - model.openingPrice >= 0.0) {
+                        tempPositiveBarEntries.add(
+                            BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
+                        )
+                    } else {
+                        tempNegativeBarEntries.add(
+                            BarEntry(tempCandlePosition, model.candleAccTradePrice.toFloat())
+                        )
+                    }
+                    kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
+                    accData[tempCandlePosition.toInt()] = model.candleAccTradePrice
+                    tempCandlePosition += 1f
                 }
-                kstDateHashMap[tempCandlePosition.toInt()] = model.candleDateTimeKst
-                accData[tempCandlePosition.toInt()] = model.candleAccTradePrice
-                tempCandlePosition += 1f
+                tempCandleEntries.addAll(candleEntries)
+                candleEntries.clear()
+                candleEntries.addAll(tempCandleEntries)
+                for (i in 0 until positiveBarDataCount) {
+                    tempPositiveBarEntries.add(positiveBarDataSet.getEntryForIndex(i))
+                }
+                for (i in 0 until negativeBarDataCount) {
+                    tempNegativeBarEntries.add(negativeBarDataSet.getEntryForIndex(i))
+                }
+                this.positiveBarDataSet = BarDataSet(tempPositiveBarEntries, "")
+                this.negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
+                this.candleDataSet = CandleDataSet(candleEntries, "")
+                candleEntriesLastPosition = candleEntries.size - 1
+                state.loadingDialogState.value = false
+                Log.e("hello?222222>","")
+                _chartUpdateMutableLiveData.value = CHART_OLD_DATA
+            } else {
+                Log.e("else!!!","")
+                chartLastData = true
+                state.loadingDialogState.value = false
+                state.loadingOldData.value = false
             }
-            tempCandleEntries.addAll(candleEntries)
-            candleEntries.clear()
-            candleEntries.addAll(tempCandleEntries)
-            for (i in 0 until positiveBarDataCount) {
-                tempPositiveBarEntries.add(positiveBarDataSet.getEntryForIndex(i))
-            }
-            for (i in 0 until negativeBarDataCount) {
-                tempNegativeBarEntries.add(negativeBarDataSet.getEntryForIndex(i))
-            }
-            this.positiveBarDataSet = BarDataSet(tempPositiveBarEntries, "")
-            this.negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
-            this.candleDataSet = CandleDataSet(candleEntries, "")
-            candleEntriesLastPosition = candleEntries.size - 1
-            state.loadingDialogState.value = false
-            loadingMoreChartData = false
-            _chartUpdateMutableLiveData.value = CHART_OLD_DATA
-        } else {
-            chartLastData = true
-            state.loadingDialogState.value = false
-            loadingMoreChartData = false
-        }
     }
 
     /**

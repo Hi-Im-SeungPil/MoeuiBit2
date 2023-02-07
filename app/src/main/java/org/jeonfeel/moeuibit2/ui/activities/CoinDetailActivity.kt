@@ -86,6 +86,8 @@ class CoinDetailActivity : ComponentActivity() {
         }
     }
 
+    fun initObserver() {}
+
     override fun onResume() {
         super.onResume()
         networkMonitorUtil.register()

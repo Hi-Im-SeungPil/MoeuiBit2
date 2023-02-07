@@ -235,14 +235,14 @@ class ChartUseCase @Inject constructor(
             val negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
             candleEntriesLastPosition = candleEntries.size - 1
             val candleDataSet = CandleDataSet(candleEntries, "")
-            combinedChart.chartRefreshLoadMoreData(
-                candleDataSet,
-                positiveBarDataSet,
-                negativeBarDataSet,
-                LineData(),
-                startPosition,
-                currentVisible,
-            )
+//            combinedChart.chartRefreshLoadMoreData(
+//                candleDataSet,
+//                positiveBarDataSet,
+//                negativeBarDataSet,
+//                LineData(),
+//                startPosition,
+//                currentVisible,
+//            )
             dialogState.value = false
             loadingMoreChartData = false
         } else {

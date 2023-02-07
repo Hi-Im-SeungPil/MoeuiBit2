@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Looper
 import android.view.MotionEvent
+import androidx.compose.runtime.MutableState
 import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
@@ -307,6 +309,7 @@ fun CombinedChart.chartRefreshSettings(
             xAxis.axisMinimum = chart.candleData.xMin - 3f
             chart.fitScreen()
             chart.setVisibleXRangeMinimum(20f)
+            chart.setVisibleXRangeMaximum(160f)
             chart.data.notifyDataChanged()
             xAxis?.valueFormatter = valueFormatter
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
@@ -354,6 +357,7 @@ fun CombinedChart.chartRefreshLoadMoreData(
     lineData: LineData,
     startPosition: Float,
     currentVisible: Float,
+    loadingOldData: MutableState<Boolean>
 ) {
     val chart = this
     candleDataSet.initCandleDataSet()
@@ -374,9 +378,10 @@ fun CombinedChart.chartRefreshLoadMoreData(
     chart.setVisibleXRangeMaximum(currentVisible)
     chart.data.notifyDataChanged()
     chart.setVisibleXRangeMinimum(20f)
-    chart.setVisibleXRangeMaximum(190f)
+    chart.setVisibleXRangeMaximum(160f)
     chart.notifyDataSetChanged()
     chart.moveViewToX(startPosition)
+    loadingOldData.value = false
 }
 
 

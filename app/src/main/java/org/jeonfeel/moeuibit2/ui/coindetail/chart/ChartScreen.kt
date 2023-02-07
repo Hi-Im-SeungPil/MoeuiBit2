@@ -1,34 +1,26 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.CombinedChart
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
-import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.chartRefreshLoadMoreData
 
 const val MINUTE_SELECT = 1
@@ -50,14 +42,14 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 
     val context = LocalContext.current
     val combinedChart = remember { MBitCombinedChart(context) }
-    val candleUpdateLiveData = coinDetailViewModel.chart.chartUpdateLiveData.observeAsState(-99)
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     CommonLoadingDialog(
         dialogState = coinDetailViewModel.chart.state.loadingDialogState,
         text = stringResource(id = R.string.loading_chart)
     )
 
-    OnLifecycleEvent { _, event ->
+    OnLifecycleEvent { a, event ->
         when (event) {
             Lifecycle.Event.ON_STOP -> {
                 coinDetailViewModel.chart.candlePosition = 0f
@@ -65,14 +57,6 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 combinedChart.xAxis.valueFormatter = null
             }
             Lifecycle.Event.ON_START -> {
-                combinedChart.initChart(
-                    coinDetailViewModel::requestOldData,
-                    marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                    isLoadingMoreData = coinDetailViewModel.chart.loadingMoreChartData,
-                    minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-                    accData = coinDetailViewModel.chart.accData,
-                    kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
-                )
                 combinedChart.axisRight.removeAllLimitLines()
                 combinedChart.xAxis.removeAllLimitLines()
                 coinDetailViewModel.requestChartData()
@@ -82,64 +66,143 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         }
     }
 
-    when (candleUpdateLiveData.value) {
-        CHART_INIT -> {
-            combinedChart.getChartXValueFormatter()?.let {
-//                (it as XAxisValueFormatter).setItem(
-//                    newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
-//                )
-            }
-            combinedChart.chartInit(
-                candleEntries = coinDetailViewModel.chart.candleEntries,
-                candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                lineData = coinDetailViewModel.chart.createLineData(),
-                purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
-            )
-            combinedChart.initCanvas()
-        }
-        CHART_ADD -> {
-            combinedChart.getChartXValueFormatter()?.let {
-                val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
-//                (it as XAxisValueFormatter).addItem(
-//                    newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition] ?: "",
-//                    position = candlePosition
-//                )
-            }
-            combinedChart.chartAdd(
-                model = coinDetailViewModel.chart.addModel,
-                candlePosition = coinDetailViewModel.chart.candlePosition,
-                addLineData = coinDetailViewModel.chart::addLineData
-            )
-        }
-        CHART_OLD_DATA -> {
-//            combinedChart.getChartXValueFormatter()?.let {
-//                (it as XAxisValueFormatter).setItem(coinDetailViewModel.chart.kstDateHashMap)
-//            }
-            combinedChart.chartRefreshLoadMoreData(
-                candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                lineData = coinDetailViewModel.chart.createLineData(),
-                startPosition = combinedChart.lowestVisibleX,
-                currentVisible = combinedChart.visibleXRange
-            )
-        }
-        else -> {
-            if (candleUpdateLiveData.value != -99 && !coinDetailViewModel.chart.isCandleEntryEmpty()) {
-                combinedChart.chartSet(
-                    marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                    lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
-                    candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
-                    candleUpdateLiveDataValue = candleUpdateLiveData.value,
-                    isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
-                    accData = coinDetailViewModel.chart.accData,
-                    candlePosition = coinDetailViewModel.chart.candlePosition,
-                )
+    LaunchedEffect(true) {
+        coinDetailViewModel.chart.chartUpdateLiveData.observe(
+            lifecycleOwner
+        ) {
+            Log.e("valuevvv => ",it.toString())
+            when (it) {
+                CHART_INIT -> {
+                    combinedChart.getChartXValueFormatter()?.setItem(
+                        newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                    )
+                    combinedChart.initChart(
+                        coinDetailViewModel::requestOldData,
+                        marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+                        loadingOldData = coinDetailViewModel.chart.state.loadingOldData,
+                        minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
+                        accData = coinDetailViewModel.chart.accData,
+                        kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                    )
+                    combinedChart.chartDataInit(
+                        candleEntries = coinDetailViewModel.chart.candleEntries,
+                        candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                        positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                        negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                        lineData = coinDetailViewModel.chart.createLineData(),
+                        purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
+                    )
+                    combinedChart.initCanvas()
+                }
+                CHART_ADD -> {
+                    combinedChart.getChartXValueFormatter()?.let {
+                        val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
+                        it.addItem(
+                            newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition]
+                                ?: "",
+                            position = candlePosition
+                        )
+                    }
+                    combinedChart.chartAdd(
+                        model = coinDetailViewModel.chart.addModel,
+                        candlePosition = coinDetailViewModel.chart.candlePosition,
+                        addLineData = coinDetailViewModel.chart::addLineData
+                    )
+                }
+                CHART_OLD_DATA -> {
+                    combinedChart.getChartXValueFormatter()
+                        ?.setItem(coinDetailViewModel.chart.kstDateHashMap)
+                    combinedChart.chartRefreshLoadMoreData(
+                        candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                        positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                        negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                        lineData = coinDetailViewModel.chart.createLineData(),
+                        startPosition = combinedChart.lowestVisibleX,
+                        currentVisible = combinedChart.visibleXRange,
+                        loadingOldData = coinDetailViewModel.chart.state.loadingOldData
+                    )
+                }
+                else -> {
+                    if (it != -99 && !coinDetailViewModel.chart.isCandleEntryEmpty()) {
+                        combinedChart.chartSet(
+                            marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+                            lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
+                            candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+                            candleUpdateLiveDataValue = it,
+                            isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+                            accData = coinDetailViewModel.chart.accData,
+                            candlePosition = coinDetailViewModel.chart.candlePosition,
+                        )
+                    }
+                }
             }
         }
     }
+
+//    Log.e("valuevvv => ",candleUpdateLiveData.value.toString())
+//    when (candleUpdateLiveData.value) {
+//        CHART_INIT -> {
+//            combinedChart.getChartXValueFormatter()?.setItem(
+//                newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+//            )
+//            combinedChart.initChart(
+//                coinDetailViewModel::requestOldData,
+//                marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+//                loadingOldData = coinDetailViewModel.chart.state.loadingOldData,
+//                minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
+//                accData = coinDetailViewModel.chart.accData,
+//                kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+//            )
+//            combinedChart.chartDataInit(
+//                candleEntries = coinDetailViewModel.chart.candleEntries,
+//                candleDataSet = coinDetailViewModel.chart.candleDataSet,
+//                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+//                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+//                lineData = coinDetailViewModel.chart.createLineData(),
+//                purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
+//            )
+//            combinedChart.initCanvas()
+//        }
+//        CHART_ADD -> {
+//            combinedChart.getChartXValueFormatter()?.let {
+//                val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
+//                it.addItem(
+//                    newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition] ?: "",
+//                    position = candlePosition
+//                )
+//            }
+//            combinedChart.chartAdd(
+//                model = coinDetailViewModel.chart.addModel,
+//                candlePosition = coinDetailViewModel.chart.candlePosition,
+//                addLineData = coinDetailViewModel.chart::addLineData
+//            )
+//        }
+//        CHART_OLD_DATA -> {
+//            combinedChart.getChartXValueFormatter()?.setItem(coinDetailViewModel.chart.kstDateHashMap)
+//            combinedChart.chartRefreshLoadMoreData(
+//                candleDataSet = coinDetailViewModel.chart.candleDataSet,
+//                positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+//                negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+//                lineData = coinDetailViewModel.chart.createLineData(),
+//                startPosition = combinedChart.lowestVisibleX,
+//                currentVisible = combinedChart.visibleXRange,
+//                loadingOldData = coinDetailViewModel.chart.state.loadingOldData
+//            )
+//        }
+//        else -> {
+//            if (candleUpdateLiveData.value != -99 && !coinDetailViewModel.chart.isCandleEntryEmpty()) {
+//                combinedChart.chartSet(
+//                    marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+//                    lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
+//                    candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+//                    candleUpdateLiveDataValue = candleUpdateLiveData.value,
+//                    isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+//                    accData = coinDetailViewModel.chart.accData,
+//                    candlePosition = coinDetailViewModel.chart.candlePosition,
+//                )
+//            }
+//        }
+//    }
 
     AndroidView(factory = {
         combinedChart

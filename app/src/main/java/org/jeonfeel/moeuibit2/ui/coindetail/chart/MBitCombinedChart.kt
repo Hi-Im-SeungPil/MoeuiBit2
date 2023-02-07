@@ -2,14 +2,12 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
-import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
@@ -25,12 +23,13 @@ class MBitCombinedChart(
 
     private val chartHelper = ChartHelper()
     private val chartCanvas = ChartCanvas(context)
+    private var xAxisValueFormatter: XAxisValueFormatter? = null
     private var marketState = 0
 
     fun initChart(
         requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
         marketState: Int,
-        isLoadingMoreData: Boolean,
+        loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>
@@ -38,18 +37,22 @@ class MBitCombinedChart(
         this.marketState = marketState
         this.removeAllViews()
         this.addView(chartCanvas)
+        xAxisValueFormatter = XAxisValueFormatter()
+        xAxisValueFormatter?.setItem(kstDateHashMap)
         chartHelper.defaultChartSettings(
             combinedChart = this,
-            chartCanvas = chartCanvas,
             marketState = marketState,
             requestOldData = requestOldData,
-            isLoadingMoreData = isLoadingMoreData,
+            loadingOldData = loadingOldData,
             minuteVisibility = minuteVisibility,
             accData = accData,
             kstDateHashMap = kstDateHashMap
         )
     }
 
+    /**
+     * 차트 컴포넌트 추가
+     */
     fun chartAdd(model: ChartModel, candlePosition: Float, addLineData: () -> Unit) {
         if (model.tradePrice - model.openingPrice >= 0.0) {
             this.barData.dataSets[POSITIVE_BAR].addEntry(
@@ -83,6 +86,9 @@ class MBitCombinedChart(
         }
     }
 
+    /**
+     * 차트 컴포넌트 세팅 (시간대 같을 때)
+     */
     fun chartSet(
         marketState: Int,
         lastCandleEntry: CandleEntry,
@@ -169,7 +175,10 @@ class MBitCombinedChart(
         }
     }
 
-    fun chartInit(
+    /**
+     * 차트 데이터 초기화
+     */
+    fun chartDataInit(
         candleEntries: ArrayList<CandleEntry>,
         candleDataSet: CandleDataSet,
         positiveBarDataSet: BarDataSet,
@@ -183,7 +192,7 @@ class MBitCombinedChart(
             positiveBarDataSet = positiveBarDataSet,
             negativeBarDataSet = negativeBarDataSet,
             lineData = lineData,
-//            valueFormatter = getChartXValueFormatter() as XAxisValueFormatter,
+            valueFormatter = xAxisValueFormatter,
             purchaseAveragePrice = purchaseAveragePrice,
             marketState = marketState
         )
@@ -193,10 +202,13 @@ class MBitCombinedChart(
         return chartCanvas
     }
 
-    fun getChartXValueFormatter(): ValueFormatter? {
-        return this.xAxis.valueFormatter
+    fun getChartXValueFormatter(): XAxisValueFormatter? {
+        return xAxisValueFormatter
     }
 
+    /**
+     * 캔버스 초기화
+     */
     fun initCanvas() {
         chartCanvas.canvasInit(
             textSize = this.rendererRightYAxis.paintAxisLabels.textSize,
@@ -210,6 +222,9 @@ class MBitCombinedChart(
         )
     }
 
+    /**
+     * 현재가 Y 포지션 가져오기
+     */
     private fun getTradePriceYPosition(tradePrice: Float): Float {
         return this.getPosition(
             CandleEntry(
