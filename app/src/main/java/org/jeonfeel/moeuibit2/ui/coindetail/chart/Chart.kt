@@ -261,8 +261,7 @@ class Chart @Inject constructor(
                     _chartUpdateMutableLiveData.postValue(CHART_ADD)
                     state.isUpdateChart.value = true
                 } else {
-                    val last = candleEntries.lastIndex
-                    candleEntries[last] =
+                    candleEntries[candleEntries.lastIndex] =
                         CandleEntry(
                             candlePosition,
                             model.highPrice.toFloat(),

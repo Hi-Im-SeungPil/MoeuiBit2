@@ -26,7 +26,8 @@ class ChartMarkerView constructor(
     private val chartData: HashMap<Int, Double>,
     private val marketState: Int
 ) : MarkerView(context, layoutResource) {
-    private val binding: CandleInfoMarkerBinding = CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding: CandleInfoMarkerBinding =
+        CandleInfoMarkerBinding.inflate(LayoutInflater.from(context), this, true)
     private var dateTime: String = ""
     private var acc: String = ""
 
@@ -38,7 +39,7 @@ class ChartMarkerView constructor(
         try {
             if (e is CandleEntry) {
 
-                val accUnit = if(marketState == SELECTED_KRW_MARKET) {
+                val accUnit = if (marketState == SELECTED_KRW_MARKET) {
                     " 백만"
                 } else {
                     ""
@@ -46,11 +47,14 @@ class ChartMarkerView constructor(
 
                 val splitDateTime = dateHashMap[e.x.toInt()].toString().split('T')
                 dateTime = splitDateTime[0].plus("  ${splitDateTime[1].slice(0 until 5)}")
-                acc = CurrentCalculator.accTradePrice24hCalculator(chartData[e.x.toInt()]!!, marketState)
-                val highPrice = CurrentCalculator.tradePriceCalculator(e.high,marketState)
-                val openPrice = CurrentCalculator.tradePriceCalculator(e.open,marketState)
-                val lowPrice = CurrentCalculator.tradePriceCalculator(e.low,marketState)
-                val closePrice = CurrentCalculator.tradePriceCalculator(e.close,marketState)
+                acc = CurrentCalculator.accTradePrice24hCalculator(
+                    chartData[e.x.toInt()]!!,
+                    marketState
+                )
+                val highPrice = CurrentCalculator.tradePriceCalculator(e.high, marketState)
+                val openPrice = CurrentCalculator.tradePriceCalculator(e.open, marketState)
+                val lowPrice = CurrentCalculator.tradePriceCalculator(e.low, marketState)
+                val closePrice = CurrentCalculator.tradePriceCalculator(e.close, marketState)
                 val highPriceRate = Calculator.markerViewRateCalculator(e.open, e.high)
                 val lowPriceRate = Calculator.markerViewRateCalculator(e.open, e.low)
                 val closePriceRate = Calculator.markerViewRateCalculator(e.open, e.close)

@@ -31,13 +31,19 @@ class ChartHelper {
         chartCanvas: ChartCanvas,
         marketState: Int,
         requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
-        isUpdateChart: MutableState<Boolean>,
         isLoadingMoreData: Boolean,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>
     ) {
         combinedChart.apply {
+            marker = ChartMarkerView(
+                context = context,
+                layoutResource = R.layout.candle_info_marker,
+                dateHashMap = kstDateHashMap,
+                chartData = accData,
+                marketState = marketState
+            )
             description.isEnabled = false
             isScaleYEnabled = false
             isDoubleTapToZoomEnabled = false
@@ -52,13 +58,6 @@ class ChartHelper {
             setDrawGridBackground(false)
             setDrawBorders(false)
             fitScreen()
-            marker = ChartMarkerView(
-                context = context,
-                layoutResource = R.layout.candle_info_marker,
-                dateHashMap = kstDateHashMap,
-                chartData = accData,
-                marketState = marketState
-            )
         }
 
         combinedChart.xAxis.apply {
@@ -84,16 +83,12 @@ class ChartHelper {
         }
 
         combinedChart.axisRight.apply {
+            this.minWidth = 50f
             setLabelCount(5, true)
             textColor = Color.BLACK
             setDrawAxisLine(true)
             setDrawGridLines(false)
             axisLineColor = Color.GRAY
-            this.minWidth = if (marketState == SELECTED_BTC_MARKET) {
-                chartCanvas.getTextPaint().measureText("0.00000000")
-            } else {
-                50f
-            }
             spaceBottom = 40f
         }
 
@@ -123,25 +118,14 @@ class ChartHelper {
             setDrawInside(true)
         }
 
-        chartCanvas.canvasInit(
-            textSize = combinedChart.rendererRightYAxis.paintAxisLabels.textSize,
-            textMarginLeft = combinedChart.axisRight.xOffset,
-            width = combinedChart.rendererRightYAxis
-                .paintAxisLabels
-                .measureText(combinedChart.axisRight.longestLabel.plus('0')),
-            x = combinedChart.measuredWidth - combinedChart.axisRight.getRequiredWidthSpace(
-                combinedChart.rendererRightYAxis.paintAxisLabels
-            )
-        )
-        combinedChart.addView(chartCanvas)
         combinedChart.setMBitChartTouchListener(
             isLoadingMoreData = isLoadingMoreData,
-            isUpdateChart = isUpdateChart,
             minuteVisibility = minuteVisibility,
             marketState = marketState,
             accData = accData,
             requestOldData = requestOldData
         )
+        combinedChart.invalidate()
     }
 }
 
@@ -149,7 +133,6 @@ class ChartHelper {
 fun MBitCombinedChart.setMBitChartTouchListener(
     isLoadingMoreData: Boolean,
     minuteVisibility: MutableState<Boolean>,
-    isUpdateChart: MutableState<Boolean>,
     marketState: Int,
     accData: HashMap<Int, Double>,
     requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit
@@ -166,26 +149,11 @@ fun MBitCombinedChart.setMBitChartTouchListener(
             val action = me.action
             val x = me.x
             val y = me.y - 160f
-            val highlight = this.getHighlightByTouchPoint(x, y)
             val valueByTouchPoint = this.getValuesByTouchPoint(
                 x,
                 y,
                 rightAxis.axisDependency
             )
-            val verticalLine = try {
-                if (highlight != null) {
-                    this.highlightValue(highlight, true)
-                    LimitLine(highlight.x)
-                } else {
-                    LimitLine(valueByTouchPoint.x.roundToInt().toFloat())
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                LimitLine(0f)
-            }.apply {
-                lineColor = Color.BLACK
-                lineWidth = 0.5f
-            }
             val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat()).apply {
                 lineColor = Color.BLACK
                 lineWidth = 0.5f
@@ -206,8 +174,25 @@ fun MBitCombinedChart.setMBitChartTouchListener(
              */
             when (action) {
                 MotionEvent.ACTION_DOWN -> {
+                    val highlight = this.getHighlightByTouchPoint(x, y)
+                    val verticalLine = try {
+                        if (highlight != null) {
+                            this.highlightValue(highlight, true)
+                            LimitLine(highlight.x)
+                        } else {
+                            LimitLine(valueByTouchPoint.x.roundToInt().toFloat())
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        LimitLine(0f)
+                    }.apply {
+                        lineColor = Color.BLACK
+                        lineWidth = 0.5f
+                    }
                     xAxis.removeAllLimitLines()
-                    rightAxis.removeLimitLine(rightAxis.limitLines.last())
+                    if (rightAxis.limitLines.isNotEmpty()) {
+                        rightAxis.removeLimitLine(rightAxis.limitLines.last())
+                    }
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
@@ -261,7 +246,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isLoadingMoreData && !isUpdateChart.value) {
+                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f) {
                         requestOldData(
                             this.barData.dataSets[POSITIVE_BAR],
                             this.barData.dataSets[NEGATIVE_BAR],

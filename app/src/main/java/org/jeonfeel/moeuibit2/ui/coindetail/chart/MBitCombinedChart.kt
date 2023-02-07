@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
+import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -29,19 +30,19 @@ class MBitCombinedChart(
     fun initChart(
         requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
         marketState: Int,
-        isUpdateChart: MutableState<Boolean>,
         isLoadingMoreData: Boolean,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>
     ) {
         this.marketState = marketState
+        this.removeAllViews()
+        this.addView(chartCanvas)
         chartHelper.defaultChartSettings(
             combinedChart = this,
             chartCanvas = chartCanvas,
             marketState = marketState,
             requestOldData = requestOldData,
-            isUpdateChart = isUpdateChart,
             isLoadingMoreData = isLoadingMoreData,
             minuteVisibility = minuteVisibility,
             accData = accData,
@@ -91,7 +92,7 @@ class MBitCombinedChart(
         accData: HashMap<Int, Double>,
         candlePosition: Float
     ) {
-        if (isUpdateChart.value) {
+        if (isUpdateChart.value && this.barData != null) {
             val positiveBarLast =
                 this.barData.dataSets[POSITIVE_BAR].getEntriesForXValue(candlePosition)
                     ?: emptyList()
@@ -194,6 +195,19 @@ class MBitCombinedChart(
 
     fun getChartXValueFormatter(): ValueFormatter? {
         return this.xAxis.valueFormatter
+    }
+
+    fun initCanvas() {
+        chartCanvas.canvasInit(
+            textSize = this.rendererRightYAxis.paintAxisLabels.textSize,
+            textMarginLeft = this.axisRight.xOffset,
+            width = this.rendererRightYAxis
+                .paintAxisLabels
+                .measureText(this.axisRight.longestLabel.plus('0')),
+            x = this.measuredWidth - this.axisRight.getRequiredWidthSpace(
+                this.rendererRightYAxis.paintAxisLabels
+            )
+        )
     }
 
     private fun getTradePriceYPosition(tradePrice: Float): Float {

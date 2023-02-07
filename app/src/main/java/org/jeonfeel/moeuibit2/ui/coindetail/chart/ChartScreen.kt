@@ -68,7 +68,6 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 combinedChart.initChart(
                     coinDetailViewModel::requestOldData,
                     marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                    isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
                     isLoadingMoreData = coinDetailViewModel.chart.loadingMoreChartData,
                     minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
                     accData = coinDetailViewModel.chart.accData,
@@ -98,6 +97,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                 lineData = coinDetailViewModel.chart.createLineData(),
                 purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
             )
+            combinedChart.initCanvas()
         }
         CHART_ADD -> {
             combinedChart.getChartXValueFormatter()?.let {
