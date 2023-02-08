@@ -32,7 +32,8 @@ class MBitCombinedChart(
         loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
-        kstDateHashMap: HashMap<Int, String>
+        kstDateHashMap: HashMap<Int, String>,
+        isChartLastData: MutableState<Boolean>
     ) {
         this.marketState = marketState
         this.removeAllViews()
@@ -44,6 +45,7 @@ class MBitCombinedChart(
             marketState = marketState,
             requestOldData = requestOldData,
             loadingOldData = loadingOldData,
+            isChartLastData = isChartLastData,
             minuteVisibility = minuteVisibility,
             accData = accData,
             kstDateHashMap = kstDateHashMap

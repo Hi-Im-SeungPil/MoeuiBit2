@@ -14,7 +14,6 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
@@ -24,7 +23,6 @@ import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
-import kotlin.reflect.KFunction6
 
 class ChartHelper {
     /**
@@ -37,7 +35,8 @@ class ChartHelper {
         loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
-        kstDateHashMap: HashMap<Int, String>
+        kstDateHashMap: HashMap<Int, String>,
+        isChartLastData: MutableState<Boolean>
     ) {
         combinedChart.apply {
             marker = ChartMarkerView(
@@ -126,7 +125,8 @@ class ChartHelper {
             minuteVisibility = minuteVisibility,
             marketState = marketState,
             accData = accData,
-            requestOldData = requestOldData
+            requestOldData = requestOldData,
+            isChartLastData = isChartLastData
         )
         combinedChart.invalidate()
     }
@@ -141,7 +141,8 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     minuteVisibility: MutableState<Boolean>,
     marketState: Int,
     accData: HashMap<Int, Double>,
-    requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit
+    requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
+    isChartLastData: MutableState<Boolean>
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -255,7 +256,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f) {
+                    if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isChartLastData.value) {
                         loadingOldData.value = true
                         requestOldData(
                             this.barData.dataSets[POSITIVE_BAR],

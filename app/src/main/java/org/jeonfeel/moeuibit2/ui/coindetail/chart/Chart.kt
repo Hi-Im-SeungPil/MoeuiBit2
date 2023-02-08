@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -29,6 +30,7 @@ class ChartState() {
     val selectedButton = mutableStateOf(MINUTE_SELECT)
     val minuteText = if (MoeuiBitDataStore.isKor) mutableStateOf("1분") else mutableStateOf("1m")
     val loadingOldData = mutableStateOf(false)
+    val isLastData = mutableStateOf(false) // 더이상 불러올 과거 데이터가 없는지 FLAG값
 }
 
 class Chart @Inject constructor(
@@ -39,7 +41,7 @@ class Chart @Inject constructor(
     var market = ""
     private val gson = Gson()
 
-    var chartLastData = false // 더이상 불러올 과거 데이터가 없는지 FLAG값
+    var chartLastData = false
 
     val candleEntries = ArrayList<CandleEntry>()
     private val movingAverage = ArrayList<GetMovingAverage>()
@@ -225,7 +227,7 @@ class Chart @Inject constructor(
                 _chartUpdateMutableLiveData.value = CHART_OLD_DATA
             } else {
                 Log.e("else!!!","")
-                chartLastData = true
+                state.isLastData.value = true
                 state.loadingDialogState.value = false
                 state.loadingOldData.value = false
             }
