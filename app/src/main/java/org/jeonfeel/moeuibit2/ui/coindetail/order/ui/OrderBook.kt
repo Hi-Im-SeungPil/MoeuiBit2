@@ -43,19 +43,21 @@ fun AskingPriceLazyColumn(
 ) {
     val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
     val preClosingPrice = coinDetailViewModel.preClosingPrice // 지난 가격
-    val currentTradePriceStateForOrderBook = coinDetailViewModel.currentTradePriceStateForOrderBook // 현재가격
-    val maxOrderBookSize = coinDetailViewModel.maxOrderBookSize // 벽돌
+    val currentTradePriceStateForOrderBook =
+        coinDetailViewModel.coinOrder.state.currentTradePriceStateForOrderBook // 현재가격
+    val maxOrderBookSize = coinDetailViewModel.coinOrder.maxOrderBookSize // 벽돌
     val market = coinDetailViewModel.market // krw 인지 btc 인지
 
     LazyColumn(modifier = modifier, state = scrollState) {
-        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.orderBookMutableStateList.size >= 30) {
-            items(items = coinDetailViewModel.orderBookMutableStateList) { item ->
+        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size >= 30) {
+            items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList) { item ->
                 AskingPriceLazyColumnItem(
-                    item,
-                    preClosingPrice,
-                    currentTradePriceStateForOrderBook,
-                    maxOrderBookSize,
-                    market)
+                    orderBook = item,
+                    preClosingPrice = preClosingPrice,
+                    currentTradePrice = currentTradePriceStateForOrderBook.value,
+                    maxOrderBookSize = maxOrderBookSize,
+                    market = market
+                )
             }
         } else { // 로딩 되지 않았을 때 빈 화면
             items(15) {
@@ -81,7 +83,7 @@ fun AskingPriceLazyColumnItem(
     val rate = Calculator.orderBookRateCalculator(preClosingPrice, orderBook.price)
     val rateResult = rate.secondDecimal().plus("%")
     val orderBookSize = orderBook.size.thirdDecimal()
-    val orderBookBlock = if(round(orderBook.size / maxOrderBookSize * 100).isNaN()) {
+    val orderBookBlock = if (round(orderBook.size / maxOrderBookSize * 100).isNaN()) {
         0
     } else {
         round(orderBook.size / maxOrderBookSize * 100)
@@ -130,8 +132,10 @@ fun AskingPriceLazyColumnItem(
                     .fillMaxWidth()
                     .weight(1f)
                     .wrapContentHeight(),
-                textStyle = TextStyle(fontSize = DpToSp(15.dp),
-                    textAlign = TextAlign.Center),
+                textStyle = TextStyle(
+                    fontSize = DpToSp(15.dp),
+                    textAlign = TextAlign.Center
+                ),
                 color = orderBookTextColor
             )
             Text(

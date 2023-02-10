@@ -1,25 +1,30 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.chart
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.components.LegendEntry
-import com.github.mikephil.charting.components.LimitLine
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.CandleEntry
-import com.github.mikephil.charting.data.Entry
+import androidx.core.view.get
+import com.github.mikephil.charting.charts.CombinedChart
+import com.github.mikephil.charting.components.*
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.ChartMarkerView
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.POSITIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.marker.ChartMarkerView
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.ChartCanvas
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
+import org.jeonfeel.moeuibit2.ui.theme.decrease_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.theme.increase_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
-import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
+import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -269,4 +274,207 @@ fun MBitCombinedChart.setMBitChartTouchListener(
         }
         false
     }
+}
+
+fun CandleDataSet.initCandleDataSet() {
+    val candleDataSet = this
+    candleDataSet.apply {
+        axisDependency = YAxis.AxisDependency.RIGHT
+        shadowColorSameAsCandle = true
+        shadowWidth = 1f
+        decreasingColor = decrease_candle_color
+        decreasingPaintStyle = Paint.Style.FILL
+        increasingColor = increase_candle_color
+        increasingPaintStyle = Paint.Style.FILL
+        neutralColor = Color.DKGRAY
+        highLightColor = Color.BLACK
+        setDrawHorizontalHighlightIndicator(false)
+        setDrawVerticalHighlightIndicator(false)
+        isHighlightEnabled = true
+        setDrawValues(false)
+    }
+}
+
+fun BarDataSet.initPositiveBarDataSet() {
+    val barDataSet = this
+    barDataSet.apply {
+        axisDependency = YAxis.AxisDependency.LEFT
+        isHighlightEnabled = false
+        color = increase_bar_color
+        setDrawIcons(false)
+        setDrawValues(false)
+    }
+}
+
+fun BarDataSet.initNegativeBarDataSet() {
+    val barDataSet = this
+    barDataSet.apply {
+        axisDependency = YAxis.AxisDependency.LEFT
+        isHighlightEnabled = false
+        color = decrease_bar_color
+        setDrawIcons(false)
+        setDrawValues(false)
+    }
+}
+
+fun CombinedChart.chartRefreshSettings(
+    candleEntries: ArrayList<CandleEntry>,
+    candleDataSet: CandleDataSet,
+    positiveBarDataSet: BarDataSet,
+    negativeBarDataSet: BarDataSet,
+    lineData: LineData,
+    valueFormatter: XAxisValueFormatter? = null,
+    purchaseAveragePrice: Float?,
+    marketState: Int
+) {
+    if (candleDataSet.entryCount > 0 && positiveBarDataSet.entryCount >= 0 && negativeBarDataSet.entryCount >= 0) {
+        val chart = this
+        val xAxis = chart.xAxis
+        candleDataSet.initCandleDataSet()
+        positiveBarDataSet.initPositiveBarDataSet()
+        negativeBarDataSet.initNegativeBarDataSet()
+
+        val candleData = CandleData(candleDataSet)
+        val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
+        val combinedData = CombinedData()
+        combinedData.setData(candleData)
+        combinedData.setData(barData)
+        combinedData.setData(lineData)
+        chart.data = combinedData
+
+        chart.candleData.notifyDataChanged()
+        chart.barData.notifyDataChanged()
+        if (candleEntries.size >= 20) {
+            xAxis.axisMaximum = chart.candleData.xMax + 3f
+            xAxis.axisMinimum = chart.candleData.xMin - 3f
+            chart.fitScreen()
+            chart.setVisibleXRangeMinimum(20f)
+            chart.setVisibleXRangeMaximum(160f)
+            chart.data.notifyDataChanged()
+            xAxis?.valueFormatter = valueFormatter
+            addPurchaseLimitLine(purchaseAveragePrice, marketState)
+            chart.zoom(4f, 0f, 0f, 0f)
+            chart.moveViewToX(candleEntries.size.toFloat())
+        } else {
+            xAxis.axisMaximum = chart.candleData.xMax
+            xAxis.axisMinimum = chart.candleData.xMin - 0.5f
+            chart.fitScreen()
+            chart.setVisibleXRangeMinimum(candleEntries.size.toFloat())
+            chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
+            chart.data.notifyDataChanged()
+            xAxis?.valueFormatter = valueFormatter
+            addPurchaseLimitLine(purchaseAveragePrice, marketState)
+            chart.invalidate()
+        }
+    }
+}
+
+fun CombinedChart.addPurchaseLimitLine(purchaseAveragePrice: Float?, marketState: Int) {
+    val chart = this
+    purchaseAveragePrice?.let {
+        val purchaseAverageLimitLine = LimitLine(it, "매수평균")
+        val purchaseAverageLimitLine2 =
+            LimitLine(it, CurrentCalculator.tradePriceCalculator(purchaseAveragePrice, marketState))
+        purchaseAverageLimitLine.apply {
+            labelPosition = LimitLine.LimitLabelPosition.LEFT_BOTTOM
+            textColor = Color.parseColor("#2F9D27")
+            lineColor = Color.parseColor("#2F9D27")
+        }
+        purchaseAverageLimitLine2.apply {
+            labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
+            textColor = Color.parseColor("#2F9D27")
+            lineColor = Color.parseColor("#2F9D27")
+        }
+        chart.axisRight.addLimitLine(purchaseAverageLimitLine)
+        chart.axisRight.addLimitLine(purchaseAverageLimitLine2)
+    }
+}
+
+fun CombinedChart.chartRefreshLoadMoreData(
+    candleDataSet: CandleDataSet,
+    positiveBarDataSet: BarDataSet,
+    negativeBarDataSet: BarDataSet,
+    lineData: LineData,
+    startPosition: Float,
+    currentVisible: Float,
+    loadingOldData: MutableState<Boolean>
+) {
+    val chart = this
+    candleDataSet.initCandleDataSet()
+    positiveBarDataSet.initPositiveBarDataSet()
+    negativeBarDataSet.initNegativeBarDataSet()
+
+    val candleData = CandleData(candleDataSet)
+    val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
+    val combinedData = CombinedData()
+    combinedData.setData(candleData)
+    combinedData.setData(barData)
+    combinedData.setData(lineData)
+    chart.data = combinedData
+    chart.data.notifyDataChanged()
+
+    chart.xAxis.axisMinimum = (chart.data.candleData.xMin - 3f)
+    chart.fitScreen()
+    chart.setVisibleXRangeMaximum(currentVisible)
+    chart.data.notifyDataChanged()
+    chart.setVisibleXRangeMinimum(20f)
+    chart.setVisibleXRangeMaximum(160f)
+    chart.notifyDataSetChanged()
+    chart.moveViewToX(startPosition)
+    loadingOldData.value = false
+}
+
+
+fun CombinedChart.initCanvas() {
+    val combinedChart = this
+    val canvasXPosition =
+        combinedChart.measuredWidth - combinedChart.axisRight.getRequiredWidthSpace(
+            combinedChart.rendererRightYAxis.paintAxisLabels
+        )
+    val length = combinedChart.rendererRightYAxis
+        .paintAxisLabels
+        .measureText(combinedChart.axisRight.longestLabel.plus('0'))
+    val textMarginLeft = combinedChart.axisRight.xOffset
+    val textSize = combinedChart.rendererRightYAxis.paintAxisLabels.textSize
+    (combinedChart[0] as ChartCanvas).canvasInit(textSize, textMarginLeft, length, canvasXPosition)
+}
+
+fun CombinedChart.addAccAmountLimitLine(
+    lastX: Float,
+    color: Int,
+    marketState: Int,
+    accData: HashMap<Int,Double>
+) {
+    val chart = this
+    if (chart.axisLeft.limitLines.isNotEmpty()) {
+        chart.axisLeft.removeAllLimitLines()
+    }
+    val lastBar = if (chart.barData.dataSets[0].getEntriesForXValue(lastX).isEmpty()) {
+        try {
+            chart.barData.dataSets[1].getEntriesForXValue(lastX).first()
+        } catch (e: Exception) {
+            BarEntry(0f, 1f)
+        }
+    } else {
+        try {
+            chart.barData.dataSets[0].getEntriesForXValue(lastX).first()
+        } catch (e: Exception) {
+            BarEntry(0f, 1f)
+        }
+    }
+    val barPrice = lastBar.y
+    val lastBarLimitLine = LimitLine(
+        barPrice,
+        CurrentCalculator.accTradePrice24hCalculator(
+            accData[lastX.toInt()]!!,
+            marketState
+        )
+    ).apply {
+        lineColor = color
+        textColor = color
+        lineWidth = 0f
+        textSize = 11f
+        labelPosition = LimitLine.LimitLabelPosition.RIGHT_TOP
+    }
+    chart.axisLeft.addLimitLine(lastBarLimitLine)
 }

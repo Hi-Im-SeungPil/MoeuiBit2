@@ -7,7 +7,7 @@
 
         <variable
             name="candleInfo"
-            type="org.jeonfeel.moeuibit2.ui.coindetail.chart.marker.MarkerViewDataBinding" />
+            type="org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.marker.MarkerViewDataBinding" />
     </data>
 
     <LinearLayout

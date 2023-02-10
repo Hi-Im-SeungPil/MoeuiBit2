@@ -23,13 +23,14 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.chartMinuteArray
 import org.jeonfeel.moeuibit2.constants.chartMinuteStrArray
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.chartRefreshLoadMoreData
 
 const val MINUTE_SELECT = 1
 const val DAY_SELECT = 2

@@ -9,11 +9,11 @@ const val INTENT_MARKET_STATE = "marketState"
 const val INTENT_MARKET = "market"
 const val INTENT_ENG_NAME = "coinEngName"
 
-const val PREF_KEY_KRW_BID_FEE = "krwBidFee"
-const val PREF_KEY_KRW_ASK_FEE = "krwAskFee"
-const val PREF_KEY_BTC_BID_FEE = "btcBidFee"
-const val PREF_KEY_BTC_ASK_FEE = "btcAskFee"
-val PREF_KEY_FEE_LIST = arrayOf(PREF_KEY_KRW_BID_FEE, PREF_KEY_KRW_ASK_FEE, PREF_KEY_BTC_BID_FEE, PREF_KEY_BTC_ASK_FEE)
+const val PREF_KEY_KRW_BID_COMMISSION = "krwBidFee"
+const val PREF_KEY_KRW_ASK_COMMISSION = "krwAskFee"
+const val PREF_KEY_BTC_BID_COMMISSION = "btcBidFee"
+const val PREF_KEY_BTC_ASK_COMMISSION = "btcAskFee"
+val PREF_KEY_FEE_LIST = arrayOf(PREF_KEY_KRW_BID_COMMISSION, PREF_KEY_KRW_ASK_COMMISSION, PREF_KEY_BTC_BID_COMMISSION, PREF_KEY_BTC_ASK_COMMISSION)
 
 const val INFO_BLOCK_KEY = "block"
 const val INFO_HOMEPAGE_KEY = "homepage"

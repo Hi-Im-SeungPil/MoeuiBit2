@@ -11,13 +11,14 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
 import org.jeonfeel.moeuibit2.utils.ConnectionType
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
 @AndroidEntryPoint
-class CoinDetailActivity : ComponentActivity() {
+class CoinDetailActivity :BaseActivity() {
 
     private var coinKoreanName = ""
     private var coinEngName = ""
@@ -25,7 +26,6 @@ class CoinDetailActivity : ComponentActivity() {
     private var isFavorite = false
     private var warning = ""
     private var marketState = -999
-    private val networkMonitorUtil = NetworkMonitorUtil(this)
     private lateinit var coinSymbol: String
     private val coinDetailViewModel: CoinDetailViewModel by viewModels()
 
@@ -59,43 +59,12 @@ class CoinDetailActivity : ComponentActivity() {
             "KRW-"
         }
         coinDetailViewModel.initViewModel(market.plus(coinSymbol), openingPrice, isFavorite)
-        initNetworkStateMonitor()
-    }
-
-    /**
-     * 네트워크 모니터링
-     */
-    private fun initNetworkStateMonitor() {
-        networkMonitorUtil.result = { isAvailable, type ->
-            when (isAvailable) {
-                true -> {
-                    if (type == ConnectionType.Wifi) {
-                        NetworkMonitorUtil.currentNetworkState = INTERNET_CONNECTION
-                    } else if (type == ConnectionType.Cellular) {
-                        NetworkMonitorUtil.currentNetworkState = INTERNET_CONNECTION
-                    }
-                }
-                false -> {
-                    if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                        NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
-                        coinDetailViewModel.chart.state.isUpdateChart.value = false
-                        this.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
-                    }
-                }
+        initNetworkStateMonitor(
+            noInternetAction = {
+                coinDetailViewModel.chart.state.isUpdateChart.value = false
+                this.showToast(this.getString(R.string.NO_INTERNET_CONNECTION))
             }
-        }
-    }
-
-    fun initObserver() {}
-
-    override fun onResume() {
-        super.onResume()
-        networkMonitorUtil.register()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        networkMonitorUtil.unregister()
+        )
     }
 
     @Composable

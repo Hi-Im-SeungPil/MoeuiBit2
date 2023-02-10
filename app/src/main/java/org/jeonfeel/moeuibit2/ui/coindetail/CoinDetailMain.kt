@@ -39,55 +39,61 @@ fun CoinDetailMain(
     val marketState = Utils.getSelectedMarket(coinDetailViewModel.market) // krw 인지 btc인지
     val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice, marketState) // 현재가
     val curChangeRate =
-        Calculator.signedChangeRateCalculator(coinDetailViewModel.coinDetailModel.signedChangeRate) // 전일대비
+        Calculator.signedChangeRateCalculator(coinDetailViewModel.coinOrder.coinDetailModel.signedChangeRate) // 전일대비
     val curChangePrice =
-        Calculator.changePriceCalculator(coinDetailViewModel.coinDetailModel.signed_change_price,
-            marketState) // 전일대비 가격
+        Calculator.changePriceCalculator(
+            coinDetailViewModel.coinOrder.coinDetailModel.signed_change_price,
+            marketState
+        ) // 전일대비 가격
     val textColor = getTextColor(curChangeRate) // 전일대비, 전일대비 가격 색상
     val navController = rememberNavController()
 
-    Column(modifier = Modifier
-        .padding(0.dp, 10.dp, 0.dp, 0.dp)
-        .fillMaxWidth()
-        .wrapContentHeight()) {
-        Row(modifier = Modifier
+    Column(
+        modifier = Modifier
+            .padding(0.dp, 10.dp, 0.dp, 0.dp)
             .fillMaxWidth()
-            .height(70.dp)) {
-            Column(modifier = Modifier
-                .weight(2f)
-                .fillMaxHeight()) {
-                Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
-                    Text(text = curTradePrice,
-                        style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27.dp)))
-                    if (!MoeuiBitDataStore.isKor && marketState == SELECTED_KRW_MARKET) {
-                        Text(text = "= \$ ${
-                            CurrentCalculator.krwToUsd(Utils.removeComma(curTradePrice)
-                                .toDouble(),
-                                MoeuiBitDataStore.usdPrice)
-                        }",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.Bottom),
-                            style = TextStyle(color = textColor,
-                                fontSize = DpToSp(dp = 13.dp),
-                                textAlign = TextAlign.End))
-                    }
-                }
-                Row(modifier = Modifier
-                    .padding(20.dp, 0.dp, 0.dp, 10.dp)
+            .wrapContentHeight()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(2f)
                     .fillMaxHeight()
-                    .wrapContentHeight(Alignment.Bottom)
+            ) {
+                Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
+                    Text(
+                        text = curTradePrice,
+                        style = TextStyle(color = textColor, fontSize = DpToSp(dp = 27.dp))
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(20.dp, 0.dp, 0.dp, 10.dp)
+                        .fillMaxHeight()
+                        .wrapContentHeight(Alignment.Bottom)
                 ) {
-                    Text(text = stringResource(id = R.string.netChange), modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(0.dp, 0.dp, 10.dp, 0.dp))
-                    Text(text = curChangeRate.plus("%"),
+                    Text(
+                        text = stringResource(id = R.string.netChange), modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                    )
+                    Text(
+                        text = curChangeRate.plus("%"),
                         modifier = Modifier.weight(1f),
                         style = TextStyle(color = textColor),
-                        maxLines = 1)
-                    AutoSizeText(text = curChangePrice,
+                        maxLines = 1
+                    )
+                    AutoSizeText(
+                        text = curChangePrice,
                         modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(textAlign = TextAlign.Start, fontSize = DpToSp(13.dp)),
+                        textStyle = TextStyle(
+                            textAlign = TextAlign.Start,
+                            fontSize = DpToSp(13.dp)
+                        ),
                         color = textColor
                     )
                 }
@@ -99,7 +105,7 @@ fun CoinDetailMain(
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
                     .weight(1f),
                 contentScale = ContentScale.FillHeight,
-                placeHolder = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
+                error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
             )
         }
         // 코인 상세화면 주문 ,차트 ,정보 버튼

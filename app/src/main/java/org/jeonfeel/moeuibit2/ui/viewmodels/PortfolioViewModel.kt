@@ -259,7 +259,7 @@ class PortfolioViewModel @Inject constructor(
         )
     }
 
-    fun earnReward() {
+    private fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {

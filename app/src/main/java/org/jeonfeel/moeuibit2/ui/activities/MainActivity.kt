@@ -32,12 +32,14 @@ import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.utils.ConnectionType
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.showToast
 import java.util.*
 import javax.inject.Inject
@@ -46,9 +48,7 @@ const val APP_UPDATE_CODE = 123
 const val APP_UPDATE_FLEXIBLE_CODE = 124
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
-    @Inject
-    lateinit var networkMonitorUtil: NetworkMonitorUtil
+class MainActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
@@ -84,7 +84,12 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             auth.signInAnonymously()
         }
 //        mainViewModel.requestUsdPrice()
-        initNetworkStateMonitor()
+        initNetworkStateMonitor(
+            noInternetAction = {
+                UpBitTickerWebSocket.onPause()
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+            }
+        )
         checkUpdate()
     }
 
@@ -103,32 +108,6 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             this.showToast(this.getString(R.string.updateFail))
         }.addOnCanceledListener {
             this.showToast(this.getString(R.string.updateFail))
-        }
-    }
-
-    /**
-     * 네트워크 연결상태 모니터링
-     */
-    private fun initNetworkStateMonitor() {
-        networkMonitorUtil.result = { isAvailable, type ->
-            when (isAvailable) {
-                true -> {
-                    if (type == ConnectionType.Wifi) {
-                        currentNetworkState = INTERNET_CONNECTION
-                    } else if (type == ConnectionType.Cellular) {
-                        currentNetworkState = INTERNET_CONNECTION
-                    }
-                }
-                false -> {
-                    if (currentNetworkState != NO_INTERNET_CONNECTION) {
-                        currentNetworkState = NO_INTERNET_CONNECTION
-//                        mainViewModel.errorState.value = NO_INTERNET_CONNECTION
-                        UpBitTickerWebSocket.onPause()
-                        UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-//                        mainViewModel.updateExchange = false
-                    }
-                }
-            }
         }
     }
 
@@ -154,7 +133,7 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }
-        getLocale()
+        Utils.getLocale()
     }
 
     override fun onStop() {
@@ -182,13 +161,5 @@ class MainActivity : ComponentActivity(), OnUserEarnedRewardListener {
             .setNegativeButton(this.getString(R.string.cancel)
             ) { dialog, _ -> dialog?.dismiss() }
             .show()
-    }
-
-    override fun onUserEarnedReward(p0: RewardItem) {
-//        mainViewModel.earnReward()
-    }
-
-    private fun getLocale() {
-        MoeuiBitDataStore.isKor = Locale.getDefault().language == "ko"
     }
 }

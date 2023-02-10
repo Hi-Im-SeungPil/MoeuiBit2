@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.chart
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
@@ -10,12 +10,14 @@ import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.ChartHelper
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.addAccAmountLimitLine
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshSettings
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
-import org.jeonfeel.moeuibit2.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.chartRefreshSettings
 
 class MBitCombinedChart(
     context: Context?

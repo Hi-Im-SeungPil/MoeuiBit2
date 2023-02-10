@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.chart
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 
 import android.annotation.SuppressLint
 import android.content.Context

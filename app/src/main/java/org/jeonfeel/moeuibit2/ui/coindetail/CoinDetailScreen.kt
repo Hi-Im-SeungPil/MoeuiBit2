@@ -29,9 +29,20 @@ fun CoinDetailScreen(
     warning: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    CommonLoadingDialog(dialogState = coinDetailViewModel.orderScreenLoadingState, text = "로딩중 입니다...")
     val context = LocalContext.current
     val market = coinDetailViewModel.market
+
+    CommonLoadingDialog(
+        dialogState = coinDetailViewModel.coinOrder.state.orderScreenLoadingState,
+        text = "로딩중 입니다..."
+    )
+    OneButtonCommonDialog(dialogState = coinDetailViewModel.coinOrder.state.errorDialogState,
+        title = stringResource(id = R.string.NETWORK_ERROR_TITLE),
+        content = stringResource(id = R.string.NO_INTERNET_CONNECTION),
+        buttonText = stringResource(id = R.string.confirm),
+        buttonAction = {
+            coinDetailViewModel.coinOrder.state.errorDialogState.value = false
+        })
 
     OnLifecycleEvent { _, event ->
         when (event) {
@@ -46,29 +57,26 @@ fun CoinDetailScreen(
         }
     }
 
-    OneButtonCommonDialog(dialogState = coinDetailViewModel.errorDialogState,
-        title = stringResource(id = R.string.NETWORK_ERROR_TITLE),
-        content = stringResource(id = R.string.NO_INTERNET_CONNECTION),
-        buttonText = stringResource(id = R.string.confirm),
-        buttonAction = {
-            coinDetailViewModel.errorDialogState.value = false
-        })
     Scaffold(
         topBar = {
-            CoinDetailTopAppBar(coinKoreanName = coinKoreanName,
+            CoinDetailTopAppBar(
+                coinKoreanName = coinKoreanName,
                 coinSymbol = coinSymbol,
-                warning = warning)
+                warning = warning
+            )
         },
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            CoinDetailMain(coinDetailViewModel.currentTradePriceState,
-                coinSymbol,
-                coinDetailViewModel)
+            CoinDetailMain(
+                currentPrice = coinDetailViewModel.coinOrder.state.currentTradePriceState.value,
+                symbol = coinSymbol,
+                coinDetailViewModel = coinDetailViewModel
+            )
         }
 
         BackHandler(true) {
             val intent = Intent()
-            intent.putExtra(INTENT_MARKET, market.substring(0,4).plus(coinSymbol))
+            intent.putExtra(INTENT_MARKET, market.substring(0, 4).plus(coinSymbol))
             intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
             (context as CoinDetailActivity).setResult(-1, intent)
             (context).finish()

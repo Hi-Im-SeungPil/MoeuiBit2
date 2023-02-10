@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jeonfeel.moeuibit2.R
@@ -49,25 +48,25 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
-fun AdjustFeeDialog(
+fun AdjustCommissionDialog(
     dialogState: MutableState<Boolean>,
-    feeStateList: SnapshotStateList<MutableState<Float>>,
+    commissionStateList: SnapshotStateList<MutableState<Float>>,
     coinDetailViewModel: CoinDetailViewModel,
 ) {
     val context = LocalContext.current
     if (dialogState.value) {
         val scrollState = rememberScrollState()
-        val krwBidFeeState: MutableState<String> = remember {
-            mutableStateOf(feeStateList[0].value.toString())
+        val krwBidCommissionState: MutableState<String> = remember {
+            mutableStateOf(commissionStateList[0].value.toString())
         }
-        val krwAskFeeState: MutableState<String> = remember {
-            mutableStateOf(feeStateList[1].value.toString())
+        val krwAskCommissionState: MutableState<String> = remember {
+            mutableStateOf(commissionStateList[1].value.toString())
         }
-        val btcBidFeeState: MutableState<String> = remember {
-            mutableStateOf(feeStateList[2].value.toString())
+        val btcBidCommissionState: MutableState<String> = remember {
+            mutableStateOf(commissionStateList[2].value.toString())
         }
-        val btcAskFeeState: MutableState<String> = remember {
-            mutableStateOf(feeStateList[3].value.toString())
+        val btcAskCommissionState: MutableState<String> = remember {
+            mutableStateOf(commissionStateList[3].value.toString())
         }
         Dialog(onDismissRequest = { dialogState.value = false },
             properties = DialogProperties(
@@ -102,30 +101,30 @@ fun AdjustFeeDialog(
                         .fillMaxWidth()
                         .height(400.dp)
                         .verticalScroll(scrollState)) {
-                        AdjustFeeDialogContent(
-                            feeState = feeStateList[0],
-                            textFieldState = krwBidFeeState,
+                        AdjustCommissionDialogContent(
+                            commissionState = commissionStateList[0],
+                            textFieldState = krwBidCommissionState,
                             subTitle = stringResource(id = R.string.krwBid),
                             closedFloatingPointRange = 0.05f..50f,
                             marketState = SELECTED_KRW_MARKET
                         )
-                        AdjustFeeDialogContent(
-                            feeState = feeStateList[1],
-                            textFieldState = krwAskFeeState,
+                        AdjustCommissionDialogContent(
+                            commissionState = commissionStateList[1],
+                            textFieldState = krwAskCommissionState,
                             subTitle = stringResource(id = R.string.krwAsk),
                             closedFloatingPointRange = 0.05f..50f,
                             marketState = SELECTED_KRW_MARKET
                         )
-                        AdjustFeeDialogContent(
-                            feeState = feeStateList[2],
-                            textFieldState = btcBidFeeState,
+                        AdjustCommissionDialogContent(
+                            commissionState = commissionStateList[2],
+                            textFieldState = btcBidCommissionState,
                             subTitle = stringResource(id = R.string.btcBid),
                             closedFloatingPointRange = 0.25f..50f,
                             marketState = SELECTED_BTC_MARKET
                         )
-                        AdjustFeeDialogContent(
-                            feeState = feeStateList[3],
-                            textFieldState = btcAskFeeState,
+                        AdjustCommissionDialogContent(
+                            commissionState = commissionStateList[3],
+                            textFieldState = btcAskCommissionState,
                             subTitle = stringResource(id = R.string.btcAsk),
                             closedFloatingPointRange = 0.25f..50f,
                             marketState = SELECTED_BTC_MARKET
@@ -140,7 +139,7 @@ fun AdjustFeeDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    coinDetailViewModel.initAdjustFee()
+                                    coinDetailViewModel.initAdjustCommission()
                                     dialogState.value = false
                                 }
                                 .padding(0.dp, 10.dp),
@@ -160,17 +159,17 @@ fun AdjustFeeDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    if (krwBidFeeState.value.isNotEmpty()
-                                        && krwAskFeeState.value.isNotEmpty()
-                                        && btcAskFeeState.value.isNotEmpty()
-                                        && btcBidFeeState.value.isNotEmpty()
+                                    if (krwBidCommissionState.value.isNotEmpty()
+                                        && krwAskCommissionState.value.isNotEmpty()
+                                        && btcAskCommissionState.value.isNotEmpty()
+                                        && btcBidCommissionState.value.isNotEmpty()
                                     ) {
-                                        if (krwBidFeeState.value.toFloat() >= 0.05
-                                            && krwAskFeeState.value.toFloat() >= 0.05
-                                            && btcBidFeeState.value.toFloat() >= 0.25
-                                            && btcAskFeeState.value.toFloat() >= 0.25
+                                        if (krwBidCommissionState.value.toFloat() >= 0.05
+                                            && krwAskCommissionState.value.toFloat() >= 0.05
+                                            && btcBidCommissionState.value.toFloat() >= 0.25
+                                            && btcAskCommissionState.value.toFloat() >= 0.25
                                         ) {
-                                            coinDetailViewModel.adjustFee()
+                                            coinDetailViewModel.adjustCommission()
                                             dialogState.value = false
                                         } else {
                                             context.showToast(context.getString(R.string.feeMinMessage))
@@ -194,8 +193,8 @@ fun AdjustFeeDialog(
 }
 
 @Composable
-fun ColumnScope.AdjustFeeDialogContent(
-    feeState: MutableState<Float>,
+fun ColumnScope.AdjustCommissionDialogContent(
+    commissionState: MutableState<Float>,
     textFieldState: MutableState<String>,
     subTitle: String,
     closedFloatingPointRange: ClosedFloatingPointRange<Float>,
@@ -273,7 +272,7 @@ fun ColumnScope.AdjustFeeDialogContent(
                                 // 최소 수수료
                             } else {
                                 textFieldState.value = it
-                                feeState.value = itToFloat.secondDecimal().toFloat()
+                                commissionState.value = itToFloat.secondDecimal().toFloat()
                                 doneState.value = true
                             }
                         } else {
@@ -321,10 +320,10 @@ fun ColumnScope.AdjustFeeDialogContent(
                 style = TextStyle(color = increase_color),
                 modifier = Modifier.padding(start = 15.dp))
         }
-        Slider(value = feeState.value,
+        Slider(value = commissionState.value,
             onValueChange = {
                 val result = it.secondDecimal()
-                feeState.value = result.toFloat()
+                commissionState.value = result.toFloat()
                 textFieldState.value = result
                 doneState.value = true
             },

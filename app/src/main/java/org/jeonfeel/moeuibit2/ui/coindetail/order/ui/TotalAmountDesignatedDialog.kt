@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,19 +28,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
-import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
@@ -48,40 +47,52 @@ import java.text.NumberFormat
 import java.util.*
 import kotlin.math.round
 import kotlin.math.roundToLong
+import kotlin.reflect.KFunction4
+import kotlin.reflect.KFunction5
 
 @Composable
 fun TotalAmountDesignatedDialog(
-    coinDetailViewModel: CoinDetailViewModel
+    askBidDialogState: MutableState<Boolean>,
+    userSeedMoney: MutableState<Long>,
+    btcQuantity: MutableState<Double>,
+    currentBTCPrice: MutableState<Double>,
+    userCoinQuantity: MutableState<Double>,
+    currentTradePriceState: MutableState<Double>,
+    askBidSelectedTab: MutableState<Int>,
+    totalPriceDesignated: MutableState<String>,
+    marketState: Int,
+    getCommission: (String) -> Float,
+    askRequest: KFunction4<Double, Long, Double, Double, Job>,
+    bidRequest: KFunction5<Double, Double, Long, Double, Double, Job>,
 ) {
     val context = LocalContext.current
-    if (coinDetailViewModel.askBidDialogState) {
+    if (askBidDialogState.value) {
         val interactionSource = remember {
             MutableInteractionSource()
         }
-        val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
-        val userSeedMoney = if (marketState == SELECTED_KRW_MARKET) {
+        val userSeedMoneyFormatting = if (marketState == SELECTED_KRW_MARKET) {
             Calculator.getDecimalFormat()
-                .format(coinDetailViewModel.userSeedMoney)
+                .format(userSeedMoney.value)
         } else {
             val btcPrice =
-                (coinDetailViewModel.btcQuantity.value * coinDetailViewModel.currentBTCPrice.value).toLong()
+                (btcQuantity.value * currentBTCPrice.value).toLong()
             Calculator.getDecimalFormat()
                 .format(btcPrice)
         }
 
         val userCoinValuable = if (marketState == SELECTED_KRW_MARKET) {
             Calculator.getDecimalFormat()
-                .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState))
+                .format(round(userCoinQuantity.value * currentTradePriceState.value))
         } else {
             Calculator.getDecimalFormat()
-                .format(round(coinDetailViewModel.userCoinQuantity * coinDetailViewModel.currentTradePriceState * coinDetailViewModel.currentBTCPrice.value))
+                .format(round(userCoinQuantity.value * currentTradePriceState.value * currentBTCPrice.value))
         }
-        val krwFeeState = remember{
+        val krwFeeState = remember {
             mutableStateOf(0.0)
         }
 
 
-        Dialog(onDismissRequest = { coinDetailViewModel.askBidDialogState = false }) {
+        Dialog(onDismissRequest = { askBidDialogState.value = false }) {
             Card(
                 modifier = Modifier
                     .padding(20.dp, 0.dp)
@@ -93,7 +104,7 @@ fun TotalAmountDesignatedDialog(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) "총액 지정 매수" else "총액 지정 매도",
+                        text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) "총액 지정 매수" else "총액 지정 매도",
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .fillMaxWidth(),
@@ -117,12 +128,18 @@ fun TotalAmountDesignatedDialog(
                         )
                         AutoSizeText(
                             modifier = Modifier.weight(1f, true),
-                            text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) userSeedMoney else userCoinValuable,
-                            textStyle = TextStyle(fontSize = DpToSp(18.dp), textAlign = TextAlign.End)
+                            text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) userSeedMoneyFormatting else userCoinValuable,
+                            textStyle = TextStyle(
+                                fontSize = DpToSp(18.dp),
+                                textAlign = TextAlign.End
+                            )
                         )
                         Text(
                             text = " $SYMBOL_KRW",
-                            style = TextStyle(fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold)
+                            style = TextStyle(
+                                fontSize = DpToSp(18.dp),
+                                fontWeight = FontWeight.Bold
+                            )
                         )
                     }
 
@@ -132,21 +149,22 @@ fun TotalAmountDesignatedDialog(
                             .fillMaxWidth()
                     ) {
                         TextField(
-                            value = coinDetailViewModel.totalPriceDesignated, onValueChange = {
+                            value = totalPriceDesignated.value, onValueChange = {
                                 if (it == "") {
-                                    coinDetailViewModel.totalPriceDesignated = ""
+                                    totalPriceDesignated.value = ""
                                     krwFeeState.value = 0.0
                                 } else {
                                     if (it.toLongOrNull() != null) {
-                                        coinDetailViewModel.totalPriceDesignated = it
+                                        totalPriceDesignated.value = it
                                         val bidFee = if (marketState == SELECTED_KRW_MARKET) {
-                                            coinDetailViewModel.getFee(PREF_KEY_KRW_BID_FEE)
+                                            getCommission(PREF_KEY_KRW_BID_COMMISSION)
                                         } else {
-                                            coinDetailViewModel.getFee(PREF_KEY_BTC_BID_FEE)
+                                            getCommission(PREF_KEY_BTC_BID_COMMISSION)
                                         }
-                                        krwFeeState.value = coinDetailViewModel.totalPriceDesignated.toDouble() + (coinDetailViewModel.totalPriceDesignated.toFloat() * (bidFee * 0.01))
+                                        krwFeeState.value =
+                                            totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
                                     } else {
-                                        coinDetailViewModel.totalPriceDesignated = ""
+                                        totalPriceDesignated.value = ""
                                         krwFeeState.value = 0.0
                                         context.showToast(context.getString(R.string.onlyNumberMessage))
                                     }
@@ -154,9 +172,12 @@ fun TotalAmountDesignatedDialog(
                             },
                             modifier = Modifier
                                 .weight(1f, true)
-                                .align(Alignment.CenterVertically) ,
+                                .align(Alignment.CenterVertically),
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                            textStyle = TextStyle(fontSize = DpToSp(18.dp), textAlign = TextAlign.End),
+                            textStyle = TextStyle(
+                                fontSize = DpToSp(18.dp),
+                                textAlign = TextAlign.End
+                            ),
                             visualTransformation = NumbersCommaTransformation(),
                             colors = TextFieldDefaults.textFieldColors(
                                 focusedIndicatorColor = Color.Transparent,
@@ -167,16 +188,23 @@ fun TotalAmountDesignatedDialog(
                         )
                         Text(
                             text = " $SYMBOL_KRW",
-                            style = TextStyle(fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold),
+                            style = TextStyle(
+                                fontSize = DpToSp(18.dp),
+                                fontWeight = FontWeight.Bold
+                            ),
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
 
-                    if(coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
-                        Text(text = "지정금액 + 수수료 = ${Calculator.getDecimalFormat()
-                            .format(round(krwFeeState.value))} ".plus(SYMBOL_KRW),
+                    if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
+                        Text(
+                            text = "지정금액 + 수수료 = ${
+                                Calculator.getDecimalFormat()
+                                    .format(round(krwFeeState.value))
+                            } ".plus(SYMBOL_KRW),
                             style = TextStyle(color = Color.Gray, fontSize = DpToSp(15.dp)),
-                            modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 20.dp))
+                            modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 20.dp)
+                        )
                     }
 
                     Row(
@@ -191,26 +219,30 @@ fun TotalAmountDesignatedDialog(
                                 text = textArray[i], modifier = Modifier
                                     .weight(1f)
                                     .clickable {
-                                        if (coinDetailViewModel.totalPriceDesignated.isEmpty()) {
-                                            coinDetailViewModel.totalPriceDesignated =
+                                        if (totalPriceDesignated.value.isEmpty()) {
+                                            totalPriceDesignated.value =
                                                 valueArray[i].toString()
                                         } else {
-                                            coinDetailViewModel.totalPriceDesignated =
-                                                (coinDetailViewModel.totalPriceDesignated.toLong() + valueArray[i]).toString()
+                                            totalPriceDesignated.value =
+                                                (totalPriceDesignated.value.toLong() + valueArray[i]).toString()
                                         }
                                         val bidFee = if (marketState == SELECTED_KRW_MARKET) {
-                                            coinDetailViewModel.getFee(PREF_KEY_KRW_BID_FEE)
+                                            getCommission(PREF_KEY_KRW_BID_COMMISSION)
                                         } else {
-                                            coinDetailViewModel.getFee(PREF_KEY_BTC_BID_FEE)
+                                            getCommission(PREF_KEY_BTC_BID_COMMISSION)
                                         }
-                                        krwFeeState.value = coinDetailViewModel.totalPriceDesignated.toDouble() + (coinDetailViewModel.totalPriceDesignated.toFloat() * (bidFee * 0.01))
+                                        krwFeeState.value =
+                                            totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
                                     },
                                 textAlign = TextAlign.Center
                             )
                             if (i != textArray.lastIndex) {
                                 Text(
                                     text = "",
-                                    style = TextStyle(color = Color.LightGray, fontSize = DpToSp(18.dp)),
+                                    style = TextStyle(
+                                        color = Color.LightGray,
+                                        fontSize = DpToSp(18.dp)
+                                    ),
                                     modifier = Modifier
                                         .width(1.dp)
                                         .border(1.dp, color = Color.LightGray)
@@ -225,9 +257,11 @@ fun TotalAmountDesignatedDialog(
                             .fillMaxWidth()
                             .background(Color.LightGray)
                             .padding(10.dp, 10.dp, 10.dp, 10.dp)
-                            .clickable(interactionSource = interactionSource,
-                                indication = null) {
-                                coinDetailViewModel.totalPriceDesignated = ""
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                totalPriceDesignated.value = ""
                                 krwFeeState.value = 0.0
                             },
                         style = TextStyle(color = Color.White),
@@ -240,7 +274,7 @@ fun TotalAmountDesignatedDialog(
                             text = stringResource(id = R.string.commonCancel), modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    coinDetailViewModel.askBidDialogState = false
+                                    askBidDialogState.value = false
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
@@ -255,33 +289,32 @@ fun TotalAmountDesignatedDialog(
                                 .border(0.5.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = DpToSp(18.dp)
                         )
-                        Text(text = if (coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB)
+                        Text(text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB)
                             stringResource(id = R.string.bid)
                         else
                             stringResource(id = R.string.ask),
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    if (coinDetailViewModel.totalPriceDesignated.isEmpty()) {
+                                    if (totalPriceDesignated.value.isEmpty()) {
                                         context.showToast("금액을 입력해 주세요.")
                                     } else {
                                         val currentPrice =
-                                            coinDetailViewModel.currentTradePriceState
+                                            currentTradePriceState.value
                                         val selectedTab =
-                                            coinDetailViewModel.askBidSelectedTab.value
-                                        val userCoin = coinDetailViewModel.userCoinQuantity
+                                            askBidSelectedTab.value
+                                        val userCoin = userCoinQuantity.value
 
                                         if (marketState == SELECTED_KRW_MARKET) {
                                             val localUserSeedMoney =
-                                                coinDetailViewModel.userSeedMoney
+                                                userSeedMoney.value
                                             val totalPrice =
-                                                coinDetailViewModel.totalPriceDesignated.toLong()
+                                                totalPriceDesignated.value.toLong()
                                             val quantity =
                                                 (totalPrice / currentPrice)
                                                     .eighthDecimal()
                                                     .toDouble()
-                                            val bidFee =
-                                                coinDetailViewModel.getFee(PREF_KEY_KRW_BID_FEE)
+                                            val bidCommission = getCommission(PREF_KEY_KRW_BID_COMMISSION)
                                             when {
                                                 currentPrice == 0.0 -> {
                                                     context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -296,49 +329,51 @@ fun TotalAmountDesignatedDialog(
                                                     context.showToast(context.getString(R.string.notMinimumOrderMessage))
                                                 }
                                                 selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < totalPrice + round(
-                                                    totalPrice * (bidFee * 0.01)).toLong() -> {
+                                                    totalPrice * (bidCommission * 0.01)
+                                                ).toLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                                                 }
-                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.totalPriceDesignated.toLong() > (userCoin * currentPrice).roundToLong() -> {
+                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && totalPriceDesignated.value.toLong() > (userCoin * currentPrice).roundToLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoCoinMessage))
                                                 }
                                                 else -> {
                                                     if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
                                                         CoroutineScope(mainDispatcher).launch {
-                                                            coinDetailViewModel
-                                                                .bidRequest(
-                                                                    currentPrice,
-                                                                    quantity,
-                                                                    totalPrice
-                                                                )
+                                                            bidRequest(
+                                                                currentPrice,
+                                                                quantity,
+                                                                totalPrice,
+                                                                0.0,
+                                                                0.0
+                                                            )
                                                                 .join()
                                                             context.showToast(context.getString(R.string.completeBidMessage))
-                                                            coinDetailViewModel.askBidDialogState = false
+                                                            askBidDialogState.value = false
                                                         }
                                                     } else {
                                                         CoroutineScope(mainDispatcher).launch {
-                                                            coinDetailViewModel
-                                                                .askRequest(
-                                                                    quantity,
-                                                                    totalPrice,
-                                                                    currentPrice
-                                                                )
+                                                            askRequest(
+                                                                quantity,
+                                                                totalPrice,
+                                                                currentPrice,
+                                                                0.0
+                                                            )
                                                                 .join()
                                                             context.showToast(context.getString(R.string.completeAskMessage))
-                                                            coinDetailViewModel.askBidDialogState = false
+                                                            askBidDialogState.value = false
                                                         }
                                                     }
                                                 }
                                             }
                                         } else {
-                                            val bidFee =
-                                                coinDetailViewModel.getFee(PREF_KEY_BTC_BID_FEE)
+                                            val bidCommission =
+                                                getCommission(PREF_KEY_BTC_BID_COMMISSION)
                                             val currentBtcPrice =
-                                                coinDetailViewModel.currentBTCPrice.value
+                                                currentBTCPrice.value
                                             val localUserSeedMoney =
-                                                (coinDetailViewModel.btcQuantity.value * currentBtcPrice).roundToLong()
+                                                (btcQuantity.value * currentBtcPrice).roundToLong()
                                             val totalPrice =
-                                                (coinDetailViewModel.totalPriceDesignated.toLong() / currentBtcPrice)
+                                                (totalPriceDesignated.value.toLong() / currentBtcPrice)
                                                     .eighthDecimal()
                                                     .toDouble()
                                             val quantity =
@@ -361,39 +396,38 @@ fun TotalAmountDesignatedDialog(
                                                 totalPrice < 0.0005 -> {
                                                     context.showToast(context.getString(R.string.notMinimumOrderBtcMessage))
                                                 }
-                                                selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < ((totalPrice + (totalPrice * (bidFee * 0.01))) * currentBtcPrice).toLong() -> {
+                                                selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < ((totalPrice + (totalPrice * (bidCommission * 0.01))) * currentBtcPrice).toLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                                                 }
-                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && coinDetailViewModel.totalPriceDesignated.toLong() >
+                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && totalPriceDesignated.value.toLong() >
                                                         (userCoin * currentPrice * currentBtcPrice).roundToLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoCoinMessage))
                                                 }
                                                 else -> {
                                                     if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
                                                         CoroutineScope(mainDispatcher).launch {
-                                                            coinDetailViewModel
-                                                                .bidRequest(
-                                                                    currentPrice,
-                                                                    quantity,
-                                                                    btcTotalPrice = totalPrice,
-                                                                    currentBtcPrice = currentBtcPrice
-                                                                )
+                                                            bidRequest(
+                                                                currentPrice,
+                                                                quantity,
+                                                                0L,
+                                                                totalPrice,
+                                                                currentBtcPrice
+                                                            )
                                                                 .join()
                                                             context.showToast(context.getString(R.string.completeBidMessage))
-                                                            coinDetailViewModel.askBidDialogState = false
+                                                            askBidDialogState.value = false
                                                         }
                                                     } else {
                                                         CoroutineScope(mainDispatcher).launch {
-                                                            coinDetailViewModel
-                                                                .askRequest(
-                                                                    quantity,
-                                                                    totalPrice.toLong(),
-                                                                    currentPrice,
-                                                                    btcTotalPrice = totalPrice
-                                                                )
+                                                            askRequest(
+                                                                quantity,
+                                                                totalPrice.toLong(),
+                                                                currentPrice,
+                                                                totalPrice
+                                                            )
                                                                 .join()
                                                             context.showToast(context.getString(R.string.completeAskMessage))
-                                                            coinDetailViewModel.askBidDialogState = false
+                                                            askBidDialogState.value = false
                                                         }
                                                     }
                                                 }
@@ -401,7 +435,7 @@ fun TotalAmountDesignatedDialog(
                                         }
                                     }
                                 }
-                                .background(if (coinDetailViewModel.askBidSelectedTab.value == 1) increase_color else decrease_color)
+                                .background(if (askBidSelectedTab.value == 1) increase_color else decrease_color)
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
                                 color = Color.White,

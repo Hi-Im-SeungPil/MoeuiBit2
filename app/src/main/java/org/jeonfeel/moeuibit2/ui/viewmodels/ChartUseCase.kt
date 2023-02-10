@@ -16,6 +16,8 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshSettings
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.initCanvas
 import org.jeonfeel.moeuibit2.utils.*
 import retrofit2.Response
 import javax.inject.Inject

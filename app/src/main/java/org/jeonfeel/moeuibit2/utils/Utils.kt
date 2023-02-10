@@ -1,9 +1,11 @@
 package org.jeonfeel.moeuibit2.utils
 
 import androidx.compose.ui.graphics.Color
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import java.util.*
 
 object Utils {
 
@@ -65,5 +67,9 @@ object Utils {
         } else {
             name
         }
+    }
+
+    fun getLocale() {
+        MoeuiBitDataStore.isKor = Locale.getDefault().language == "ko"
     }
 }

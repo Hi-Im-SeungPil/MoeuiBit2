@@ -4,12 +4,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import org.jeonfeel.moeuibit2.ui.viewmodels.ChartUseCase
-import org.jeonfeel.moeuibit2.ui.viewmodels.OrderScreenUseCase
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.order.CoinOrder
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 
@@ -23,24 +22,6 @@ class ActivityRetailedModule {
     }
 
     @Provides
-    fun provideChartUseCase(
-        remoteRepository: RemoteRepository,
-        xAxisValueFormatter: XAxisValueFormatter,
-        localRepository: LocalRepository
-    ): ChartUseCase {
-        return ChartUseCase(remoteRepository, xAxisValueFormatter, localRepository)
-    }
-
-    @Provides
-    fun provideOrderScreenUseCase(
-        remoteRepository: RemoteRepository,
-        localRepository: LocalRepository,
-        prefrenceManager: PreferenceManager
-    ): OrderScreenUseCase {
-        return OrderScreenUseCase(remoteRepository, localRepository, prefrenceManager)
-    }
-
-    @Provides
     fun provideAdMobManager(): AdMobManager {
         return AdMobManager()
     }
@@ -51,5 +32,16 @@ class ActivityRetailedModule {
         localRepository: LocalRepository
     ): Chart {
         return Chart(remoteRepository, localRepository)
+    }
+
+    @Provides
+    fun provideCoinOrder(
+        localRepository: LocalRepository,
+        prefrenceManager: PreferenceManager
+    ): CoinOrder {
+        return CoinOrder(
+            preferenceManager = prefrenceManager,
+            localRepository = localRepository
+        )
     }
 }

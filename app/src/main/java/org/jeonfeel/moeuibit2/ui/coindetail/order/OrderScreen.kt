@@ -20,7 +20,7 @@ fun OrderScreen(
         when (event) {
             Lifecycle.Event.ON_PAUSE -> UpBitOrderBookWebSocket.onPause()
             Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.setOrderBookWebSocketMessageListener()
+                coinDetailViewModel.coinOrder.setOrderBookWebSocketMessageListener()
                 UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
             }
             else -> {}

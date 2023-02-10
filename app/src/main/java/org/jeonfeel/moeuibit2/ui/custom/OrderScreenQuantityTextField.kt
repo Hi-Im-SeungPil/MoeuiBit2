@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,20 +30,23 @@ fun OrderScreenQuantityTextField(
     modifier: Modifier = Modifier,
     placeholderText: String = "Placeholder",
     fontSize: TextUnit = MaterialTheme.typography.body2.fontSize,
-    coinDetailViewModel: CoinDetailViewModel = viewModel()
+    askBidSelectedTab: MutableState<Int>,
+    bidQuantity: MutableState<String>,
+    askQuantity: MutableState<String>,
+    currentTradePriceState: MutableState<Double>
 ) {
     val context = LocalContext.current
-    val value = if(coinDetailViewModel.askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
-        coinDetailViewModel.bidQuantity
+    val value = if(askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
+        bidQuantity
     } else {
-        coinDetailViewModel.askQuantity
+        askQuantity
     }
 
     BasicTextField(value = value.value, onValueChange = {
         if(it.toDoubleOrNull() == null && it != "") {
             value.value = ""
             context.showToast("숫자만 입력 가능합니다.")
-        } else if(coinDetailViewModel.currentTradePriceState == 0.0) {
+        } else if(currentTradePriceState.value == 0.0) {
             context.showToast("네트워크 통신 오류입니다.")
         } else {
             value.value = it
