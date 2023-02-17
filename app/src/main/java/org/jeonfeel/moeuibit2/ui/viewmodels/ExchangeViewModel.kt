@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
+import javax.inject.Inject
 
 class ExchangeViewModelState {
     val loadingFavorite = mutableStateOf(true)
@@ -36,7 +38,8 @@ class ExchangeViewModelState {
     val btcPrice = mutableStateOf(0.0)
 }
 
-class ExchangeViewModel(
+@HiltViewModel
+class ExchangeViewModel @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
@@ -170,7 +173,7 @@ class ExchangeViewModel(
                                 krwExchangeModelList.add(
                                     CommonExchangeModel(
                                         koreanName = krwMarketCodeModel.korean_name,
-                                        EnglishName = krwMarketCodeModel.english_name,
+                                        englishName = krwMarketCodeModel.english_name,
                                         market = krwMarketCodeModel.market,
                                         symbol = krwMarketCodeModel.market.substring(4),
                                         opening_price = krwTicker.preClosingPrice,
@@ -232,15 +235,15 @@ class ExchangeViewModel(
                                 val symbol = market.substring(4)
                                 btcExchangeModelList.add(
                                     CommonExchangeModel(
-                                        koreanName,
-                                        englishName,
-                                        market,
-                                        symbol,
-                                        openingPrice,
-                                        tradePrice,
-                                        signedChangeRate,
-                                        accTradePrice24h,
-                                        warning
+                                        koreanName = koreanName,
+                                        englishName = englishName,
+                                        market = market,
+                                        symbol = symbol,
+                                        opening_price = openingPrice,
+                                        tradePrice = tradePrice,
+                                        signedChangeRate = signedChangeRate,
+                                        accTradePrice24h = accTradePrice24h,
+                                        warning = warning
                                     )
                                 )
                             }
@@ -662,7 +665,7 @@ class ExchangeViewModel(
                 for (element in targetList) {
                     if (
                         element.koreanName.contains(textFieldValue.value) ||
-                        element.EnglishName.uppercase()
+                        element.englishName.uppercase()
                             .contains(textFieldValue.value.uppercase()) ||
                         element.symbol.uppercase()
                             .contains(textFieldValue.value.uppercase())
@@ -768,7 +771,7 @@ class ExchangeViewModel(
         targetModelList?.let {
             targetModelList[position] = CommonExchangeModel(
                 koreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
-                EnglishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
+                englishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
                 market = model.code,
                 symbol = model.code.substring(4),
                 opening_price = model.preClosingPrice,

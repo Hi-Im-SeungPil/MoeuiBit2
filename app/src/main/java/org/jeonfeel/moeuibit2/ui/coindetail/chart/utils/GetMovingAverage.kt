@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.utils
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
 import android.graphics.Color
 import com.github.mikephil.charting.components.YAxis

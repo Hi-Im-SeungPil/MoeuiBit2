@@ -17,12 +17,10 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
-import org.jeonfeel.moeuibit2.utils.GetMovingAverage
-import org.jeonfeel.moeuibit2.utils.defaultSet
 import retrofit2.Response
 import javax.inject.Inject
 
-class ChartState() {
+class ChartState {
     val isUpdateChart = mutableStateOf(false)
     val candleType = mutableStateOf("1")
     val loadingDialogState = mutableStateOf(false)
@@ -221,10 +219,8 @@ class Chart @Inject constructor(
             this.candleDataSet = CandleDataSet(candleEntries, "")
             candleEntriesLastPosition = candleEntries.size - 1
             state.loadingDialogState.value = false
-            Log.e("hello?222222>", "")
             _chartUpdateMutableLiveData.value = CHART_OLD_DATA
         } else {
-            Log.e("else!!!", "")
             state.isLastData.value = true
             state.loadingDialogState.value = false
             state.loadingOldData.value = false
@@ -280,6 +276,9 @@ class Chart @Inject constructor(
         }
     }
 
+    /**
+     * 실시간 차트 업데이트
+     */
     fun updateCandleTicker(tradePrice: Double) {
         if (state.isUpdateChart.value && candleEntries.isNotEmpty()) {
             candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
@@ -315,6 +314,9 @@ class Chart @Inject constructor(
         return lineData
     }
 
+    /**
+     * 이평선 수정
+     */
     private fun modifyLineData() {
         val lastCandle = candleEntries.last()
         for (i in movingAverage) {
@@ -322,6 +324,9 @@ class Chart @Inject constructor(
         }
     }
 
+    /**
+     * 이평선 추가
+     */
     fun addLineData() {
         val lastCandle = candleEntries.last()
         for (i in movingAverage) {
@@ -329,6 +334,9 @@ class Chart @Inject constructor(
         }
     }
 
+    /**
+     * 차트 초기화
+     */
     private fun resetChartData() {
         candlePosition = 0f
         candleEntriesLastPosition = 0

@@ -23,6 +23,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.CoinOrder
 import org.jeonfeel.moeuibit2.utils.Utils
 import javax.inject.Inject
@@ -32,25 +33,13 @@ import kotlin.collections.set
 class CoinDetailViewModel @Inject constructor(
     val coinOrder: CoinOrder,
     val chart: Chart,
+    val coinInfo: CoinInfo
 ) : BaseViewModel(),
     OnCoinDetailMessageReceiveListener {
     private var name = ""
     private var marketState = -999
     var market = ""
     var preClosingPrice = 0.0
-
-    /**
-     * coin info
-     * */
-    private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String, String>>()
-    val coinInfoLiveData: LiveData<HashMap<String, String>> get() = _coinInfoMutableLiveData
-    val coinInfoDialog = mutableStateOf(false)
-    val coinInfoLoading = mutableStateOf(false)
-    val webViewLoading = mutableStateOf(false)
-
-    /**
-     * favorite
-     * */
     val favoriteMutableState = mutableStateOf(false)
 
     fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
@@ -66,6 +55,18 @@ class CoinDetailViewModel @Inject constructor(
         UpBitCoinDetailWebSocket.getListener().setTickerMessageListener(this)
     }
 
+    private fun updateTicker() {
+        viewModelScope.launch {
+            while (coinOrder.isTickerSocketRunning) {
+                val tradPrice = coinOrder.coinDetailModel.tradePrice
+                coinOrder.state.currentTradePriceState.value = tradPrice
+                chart.updateCandleTicker(tradPrice)
+                delay(100)
+            }
+        }
+    }
+
+    // 주문 화면
     fun initOrderScreen() {
         if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
@@ -84,21 +85,9 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    private fun updateTicker() {
-        viewModelScope.launch {
-            while (coinOrder.isTickerSocketRunning) {
-                val tradPrice = coinOrder.coinDetailModel.tradePrice
-                coinOrder.state.currentTradePriceState.value = tradPrice
-                chart.updateCandleTicker(tradPrice)
-                delay(100)
-            }
-        }
-    }
-
     /**
-     * orderScreen
-     * */
-
+     * 매수
+     */
     fun bidRequest(
         currentPrice: Double,
         quantity: Double,
@@ -120,6 +109,9 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 매도
+     */
     fun askRequest(
         quantity: Double,
         totalPrice: Long,
@@ -138,67 +130,44 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 수수료 조정
+     */
     fun adjustCommission() {
         viewModelScope.launch(ioDispatcher) {
             coinOrder.adjustCommission()
         }
     }
 
+    /**
+     * 수수료 조정 초기화
+     */
     fun initAdjustCommission() {
         coinOrder.initAdjustCommission()
     }
 
+    /**
+     * 수수료 얻어오기
+     */
     fun getCommission(key: String): Float {
         return coinOrder.getCommission(key)
     }
 
+    /**
+     * 거래내역 조회
+     */
     fun getTransactionInfoList() {
         viewModelScope.launch(ioDispatcher) {
             coinOrder.getTransactionInfoList(market)
         }
     }
 
-    /**
-     * coinInfo
-     * */
+    // 코인 정보 화면
     fun getCoinInfo() {
-        coinInfoDialog.value = true
-        val mDatabase = FirebaseDatabase.getInstance().reference
-        mDatabase.child("secondCoinInfo").child(market.substring(4))
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val coinInfoHashMap = HashMap<String, String>()
-                    val homepage =
-                        snapshot.child(INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
-                    val amount = snapshot.child(INFO_AMOUNT_KEY).getValue(String::class.java) ?: ""
-                    val twitter =
-                        snapshot.child(INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
-                    val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
-                    val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
-
-                    if (homepage.isEmpty()) {
-                        _coinInfoMutableLiveData.postValue(coinInfoHashMap)
-                    } else {
-                        coinInfoHashMap[INFO_HOMEPAGE_KEY] = homepage
-                        coinInfoHashMap[INFO_AMOUNT_KEY] = amount
-                        coinInfoHashMap[INFO_TWITTER_KEY] = twitter
-                        coinInfoHashMap[INFO_BLOCK_KEY] = block
-                        coinInfoHashMap[INFO_INFO_KEY] = info
-                        _coinInfoMutableLiveData.postValue(coinInfoHashMap)
-                    }
-                    coinInfoDialog.value = false
-                    coinInfoLoading.value = true
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    coinInfoDialog.value = false
-                }
-            })
+        coinInfo.getCoinInfo(market)
     }
 
-    /**
-     * chart
-     * */
+    // 차트 화면
     fun requestOldData(
         positiveBarDataSet: IBarDataSet,
         negativeBarDataSet: IBarDataSet,
@@ -219,6 +188,9 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 웹소켓 리스너
+     */
     override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
         if (coinOrder.isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)

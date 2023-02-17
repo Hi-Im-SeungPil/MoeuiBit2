@@ -191,7 +191,6 @@ fun FlexWebView.initFlex(webViewLoading: MutableState<Boolean>) {
             }
         }
     flex.webViewClient = object : FlexWebViewClient() {
-
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             webViewLoading.value = false;

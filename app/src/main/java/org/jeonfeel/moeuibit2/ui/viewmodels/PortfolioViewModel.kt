@@ -43,7 +43,7 @@ class PortfolioState {
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    val adMobManager: AdMobManager
+    private val adMobManager: AdMobManager
 ) : BaseViewModel(), PortfolioOnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()

@@ -8,7 +8,7 @@ data class CommonExchangeModel(
     @Stable
     val koreanName: String,
     @Stable
-    val EnglishName: String,
+    val englishName: String,
     @Stable
     val market: String,
     @Stable

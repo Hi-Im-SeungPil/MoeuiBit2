@@ -30,15 +30,18 @@ import java.util.*
 fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd kk:mm", Locale("ko", "KR"))
     val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
-    val transactionInfoList = coinDetailViewModel.transactionInfoList
+    coinDetailViewModel.getTransactionInfoList()
+    val transactionInfoList = coinDetailViewModel.coinOrder.state.transactionInfoList
     if (transactionInfoList.isEmpty()) {
-        Text(text = "거래내역이 없습니다.",
+        Text(
+            text = "거래내역이 없습니다.",
             modifier = Modifier
                 .padding(0.dp, 15.dp, 0.dp, 0.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontSize = DpToSp(18.dp),
-            fontWeight = FontWeight.Bold)
+            fontWeight = FontWeight.Bold
+        )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(transactionInfoList) { _, item ->
@@ -51,12 +54,14 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
                     CurrentCalculator.tradePriceCalculator(item.quantity * item.price, marketState)
                 val priceText = CurrentCalculator.tradePriceCalculator(item.price, marketState)
                 val time = dateFormat.format(Date(item.transactionTime))
-                TransactionInfoLazyColumnItem(askBidText = askBidText,
+                TransactionInfoLazyColumnItem(
+                    askBidText = askBidText,
                     market = item.market,
                     time = time,
                     price = priceText,
                     quantity = item.quantity.eighthDecimal(),
-                    totalPrice = totalPrice)
+                    totalPrice = totalPrice
+                )
             }
         }
     }
@@ -88,35 +93,45 @@ fun TransactionInfoLazyColumnItem(
                     .weight(1f, true)
                     .fillMaxHeight()
                     .wrapContentHeight(),
-                style = TextStyle(textAlign = TextAlign.Center,
+                style = TextStyle(
+                    textAlign = TextAlign.Center,
                     color = textColor,
                     fontSize = DpToSp(18.dp),
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             )
             Text(
                 text = market, modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight(),
-                style = TextStyle(fontSize = DpToSp(18.dp),
-                    fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    fontSize = DpToSp(18.dp),
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
-        Divider(modifier = Modifier
-            .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C))
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)
+        )
         ItemRow(title = "시간", content = time)
         ItemRow(title = "가격", content = price)
         ItemRow(title = "수량", content = quantity)
         ItemRow(title = "총액", content = totalPrice)
-        Divider(modifier = Modifier
-            .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C))
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)
+        )
     }
 }
 
 @Composable
 private fun ItemRow(title: String, content: String) {
-    Row(modifier = Modifier
-        .padding(0.dp, 3.dp)
-        .fillMaxSize()) {
+    Row(
+        modifier = Modifier
+            .padding(0.dp, 3.dp)
+            .fillMaxSize()
+    ) {
         Text(text = title)
         Text(text = content, modifier = Modifier.weight(1f, true), textAlign = TextAlign.End)
     }

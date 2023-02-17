@@ -833,7 +833,7 @@ fun OrderScreenNotice(
                 .wrapContentHeight()
         ) {
             Text(
-                text = stringResource(id = R.string.fee),
+                text = stringResource(id = R.string.commission),
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically),
@@ -856,7 +856,7 @@ fun OrderScreenNotice(
             horizontalArrangement = Arrangement.End
         ) {
             Text(
-                text = stringResource(id = R.string.adjust_fee),
+                text = stringResource(id = R.string.adjust_commission),
                 style = TextStyle(
                     color = Color.Blue,
                     textDecoration = TextDecoration.Underline

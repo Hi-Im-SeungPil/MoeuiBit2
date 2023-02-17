@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -14,13 +15,17 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
-
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    CommonLoadingDialog(dialogState = coinDetailViewModel.coinInfoDialog,
-        text = stringResource(id = R.string.coinInfoLoading))
-    CommonLoadingDialog(dialogState = coinDetailViewModel.webViewLoading, text = "페이지 로드중...")
+    CommonLoadingDialog(
+        dialogState = coinDetailViewModel.coinInfo.state.coinInfoDialog,
+        text = stringResource(id = R.string.coinInfoLoading)
+    )
+    CommonLoadingDialog(
+        dialogState = coinDetailViewModel.coinInfo.state.webViewLoading,
+        text = "페이지 로드중..."
+    )
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val coinInfoHashMap = remember {
@@ -35,32 +40,33 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     val selectedButton = remember {
         mutableStateOf(-1)
     }
+
     AddLifecycleEvent(
         onStopAction = {
-            coinDetailViewModel.coinInfoLoading.value = false
+            coinDetailViewModel.coinInfo.state.coinInfoLoading.value = false
         },
         onStartAction = {
-            flex.initFlex(coinDetailViewModel.webViewLoading)
+            flex.initFlex(coinDetailViewModel.coinInfo.state.webViewLoading)
             coinDetailViewModel.getCoinInfo()
-            coinDetailViewModel.coinInfoLiveData.observe(lifecycleOwner) {
-                coinInfoHashMap.value = it
-                coinDetailViewModel.coinInfoDialog.value = false
-            }
-//            Log.e("currentUrl", coinDetailViewModel.webViewState.content.toString())
-//            Log.e("currentUrl2", selectedButton.value.toString())
-//            Log.e("currentUrl3", coinDetailViewModel.webViewState.content.toString())
         }
     )
 
-    if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfoLoading.value) {
+    LaunchedEffect(true) {
+        coinDetailViewModel.coinInfo.coinInfoLiveData.observe(lifecycleOwner) {
+            coinInfoHashMap.value = it
+            coinDetailViewModel.coinInfo.state.coinInfoDialog.value = false
+        }
+    }
+
+    if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfo.state.coinInfoLoading.value) {
         CoinInfoContent(
             selected = selected,
             selectedButton = selectedButton,
             coinInfoHashMap = coinInfoHashMap,
             flex = flex,
-            webViewLoading = coinDetailViewModel.webViewLoading
+            webViewLoading = coinDetailViewModel.coinInfo.state.webViewLoading
         )
-    } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfoLoading.value) {
+    } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfo.state.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }
 }

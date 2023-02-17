@@ -85,7 +85,7 @@ fun AdjustCommissionDialog(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = stringResource(id = R.string.adjustFee),
+                        text = stringResource(id = R.string.adjustCommission),
                         modifier = Modifier
                             .padding(0.dp, 20.dp)
                             .fillMaxWidth(),
@@ -172,7 +172,7 @@ fun AdjustCommissionDialog(
                                             coinDetailViewModel.adjustCommission()
                                             dialogState.value = false
                                         } else {
-                                            context.showToast(context.getString(R.string.feeMinMessage))
+                                            context.showToast(context.getString(R.string.commissionMinMessage))
                                         }
                                     } else {
                                         context.showToast(context.getString(R.string.inputNotEmptyMessage))
@@ -276,10 +276,10 @@ fun ColumnScope.AdjustCommissionDialogContent(
                                 doneState.value = true
                             }
                         } else {
-                            context.showToast(context.getString(R.string.feeSecondDecimalMessage))
+                            context.showToast(context.getString(R.string.commissionSecondDecimalMessage))
                         }
                     } else {
-                        context.showToast(context.getString(R.string.feeMaxMessage))
+                        context.showToast(context.getString(R.string.commissionMaxMessage))
                     }
                 }
             }, singleLine = true,

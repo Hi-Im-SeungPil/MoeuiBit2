@@ -62,7 +62,7 @@ fun ExchangeScreenLazyColumnItem(
             .clickable {
                 val intent = Intent(context, CoinDetailActivity::class.java).apply {
                     putExtra(INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
-                    putExtra(INTENT_ENG_NAME, commonExchangeModel.EnglishName)
+                    putExtra(INTENT_ENG_NAME, commonExchangeModel.englishName)
                     putExtra(INTENT_COIN_SYMBOL, commonExchangeModel.symbol)
                     putExtra(INTENT_OPENING_PRICE, commonExchangeModel.opening_price)
                     putExtra(INTENT_IS_FAVORITE, isFavorite)
@@ -96,7 +96,7 @@ fun ExchangeScreenLazyColumnItem(
                         }
                     }
                     if (isKor) append(commonExchangeModel.koreanName) else append(
-                        commonExchangeModel.EnglishName
+                        commonExchangeModel.englishName
                     )
                 },
                 maxLines = 1,

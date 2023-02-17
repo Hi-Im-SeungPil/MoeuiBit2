@@ -19,7 +19,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.UserHoldCoinPieChart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.custom.*
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
