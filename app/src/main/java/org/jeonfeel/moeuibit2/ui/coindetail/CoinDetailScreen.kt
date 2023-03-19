@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
@@ -18,6 +19,7 @@ import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
@@ -47,11 +49,15 @@ fun CoinDetailScreen(
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
-                UpBitCoinDetailWebSocket.onPause()
-                UpBitOrderBookWebSocket.onPause()
+//                UpBitCoinDetailWebSocket.onPause()
+                UpBitTickerWebSocket.onPause()
+                Logger.d("coinDetailScreen on pause")
             }
             Lifecycle.Event.ON_RESUME -> {
+//                coinDetailViewModel.setCoinDetailWebSocketMessageListener()
+//                UpBitTickerWebSocket.requestCoinDetailTicker(coinDetailViewModel.market)
                 coinDetailViewModel.initOrderScreen()
+                Logger.d("coinDetailScreen on resume")
             }
             else -> {}
         }

@@ -22,11 +22,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
-import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
-import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
@@ -45,10 +42,11 @@ fun ExchangeScreen(
 
     AddLifecycleEvent(
         onPauseAction = {
-            exchangeViewModel.updateExchange = false
-            UpBitTickerWebSocket
-                .getListener()
-                .setTickerMessageListener(onTickerMessageReceiveListener = null)
+//            exchangeViewModel.updateExchange = false
+//            UpBitTickerWebSocket
+//                .getListener()
+//                .setTickerMessageListener(onTickerMessageReceiveListener = null)
+//            UpBitTickerWebSocket.onPause()
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {

@@ -9,7 +9,7 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
-import org.jeonfeel.moeuibit2.ui.coindetail.order.CoinOrder
+import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 

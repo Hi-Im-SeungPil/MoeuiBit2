@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
+package org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui
 
 import android.os.Message
 import android.webkit.WebSettings

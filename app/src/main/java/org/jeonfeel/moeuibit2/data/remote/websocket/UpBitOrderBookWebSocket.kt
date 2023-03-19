@@ -27,7 +27,7 @@ object UpBitOrderBookWebSocket {
     }
 
     fun requestOrderBookList(market: String) {
-        socketRebuild()
+//        socketRebuild()
         socket.send(orderBookWebSocketMessage(market))
     }
 
@@ -42,12 +42,13 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onPause() {
-        try {
-            client.dispatcher.cancelAll()
-            client.connectionPool.evictAll()
-        }catch (e: Exception) {
-            e.printStackTrace()
-        }
+//        try {
+//            client.dispatcher.cancelAll()
+//            client.connectionPool.evictAll()
+//        }catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+        socket.send("")
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 

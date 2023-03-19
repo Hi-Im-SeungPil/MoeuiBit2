@@ -1,15 +1,13 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.utils
 
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -60,7 +58,7 @@ class CoinOrder @Inject constructor(
     var maxOrderBookSize = 0.0
 
     suspend fun initOrderScreen(market: String) {
-        delay(700L)
+//        delay(700L)
 
         val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
             market.plus(",$BTC_MARKET")
@@ -76,8 +74,12 @@ class CoinOrder @Inject constructor(
             }
         } catch (e: UnknownHostException) {
             state.errorDialogState.value = true
+            Logger.e(e.message.toString())
         } catch (e: SocketTimeoutException) {
             state.errorDialogState.value = true
+            Logger.e(e.message.toString())
+        } catch (e: Exception) {
+            Logger.e(e.message.toString())
         }
 
         localRepository.getUserDao().all?.let {

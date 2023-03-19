@@ -69,7 +69,7 @@ class ExchangeViewModel @Inject constructor(
 
     fun initExchangeData() {
         viewModelScope.launch {
-            delay(650L)
+//            delay(650L)
             if (krwExchangeModelMutableStateList.isEmpty()) {
                 viewModelScope.launch {
                     requestExchangeData()
@@ -274,7 +274,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     suspend fun requestUSDTPrice() {
-        remoteRepository.getUSDTPrice().collect() {
+        remoteRepository.getUSDTPrice().collect {
             when (it.status) {
                 ApiResult.Status.LOADING -> {}
                 ApiResult.Status.SUCCESS -> {
@@ -751,7 +751,7 @@ class ExchangeViewModel @Inject constructor(
                 }
                 // krw 마켓 일 때
                 else -> {
-                    Log.e("test", model.code)
+//                    Log.e("test", model.code)
                     position = krwExchangeModelListPosition[model.code] ?: 0
                     targetModelList = krwExchangeModelList
                 }

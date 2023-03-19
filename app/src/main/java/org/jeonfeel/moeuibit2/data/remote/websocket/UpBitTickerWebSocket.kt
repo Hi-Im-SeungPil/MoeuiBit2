@@ -22,14 +22,13 @@ object UpBitTickerWebSocket {
         .url(webSocketBaseUrl)
         .build()
     private val socketListener = UpBitTickerWebSocketListener()
-    private var socket = client.newWebSocket(request, socketListener)
+    var socket = client.newWebSocket(request, socketListener)
 
     fun getListener(): UpBitTickerWebSocketListener {
         return socketListener
     }
 
     fun requestKrwCoinList(marketState: Int) {
-        socketRebuild()
         when (marketState) {
             SELECTED_KRW_MARKET -> {
                 socket.send(tickerWebSocketMessage(krwMarkets))
@@ -44,13 +43,7 @@ object UpBitTickerWebSocket {
                 currentMarket = SELECTED_FAVORITE
             }
         }
-    }
-
-    private fun socketRebuild() {
-        if (currentSocketState != SOCKET_IS_CONNECTED) {
-            socket = client.newWebSocket(request, socketListener)
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
+        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     fun setMarkets(krwMarkets: String, btcMarkets: String) {
@@ -58,18 +51,23 @@ object UpBitTickerWebSocket {
         this.btcMarkets = btcMarkets
     }
 
+    fun requestCoinDetailTicker(market: String) {
+        socket.send(tickerWebSocketMessage(market))
+        currentSocketState = SOCKET_IS_CONNECTED
+    }
+
     fun onPause() {
-        try {
-            client.dispatcher.cancelAll()
-            client.connectionPool.evictAll()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+//        try {
+//            client.dispatcher.cancelAll()
+//            client.connectionPool.evictAll()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+        socket.send(tickerWebSocketMessage(""))
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 
     fun setFavoriteMarkets(markets: String) {
         this.favoriteMarkets = markets
-//        Log.e("????2", markets)
     }
 }

@@ -1,33 +1,24 @@
 package org.jeonfeel.moeuibit2.ui.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
-import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
-import org.jeonfeel.moeuibit2.ui.coindetail.order.CoinOrder
+import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.utils.Utils
 import javax.inject.Inject
-import kotlin.collections.set
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
@@ -35,7 +26,7 @@ class CoinDetailViewModel @Inject constructor(
     val chart: Chart,
     val coinInfo: CoinInfo
 ) : BaseViewModel(),
-    OnCoinDetailMessageReceiveListener {
+    OnTickerMessageReceiveListener {
     private var name = ""
     private var marketState = -999
     var market = ""
@@ -51,8 +42,8 @@ class CoinDetailViewModel @Inject constructor(
         coinOrder.initAdjustCommission()
     }
 
-    private fun setCoinDetailWebSocketMessageListener() {
-        UpBitCoinDetailWebSocket.getListener().setTickerMessageListener(this)
+    fun setCoinDetailWebSocketMessageListener() {
+        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
     }
 
     private fun updateTicker() {
@@ -61,7 +52,7 @@ class CoinDetailViewModel @Inject constructor(
                 val tradPrice = coinOrder.coinDetailModel.tradePrice
                 coinOrder.state.currentTradePriceState.value = tradPrice
                 chart.updateCandleTicker(tradPrice)
-                delay(100)
+                delay(100L)
             }
         }
     }
@@ -71,14 +62,15 @@ class CoinDetailViewModel @Inject constructor(
         if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
                 setCoinDetailWebSocketMessageListener()
-                coinOrder.setOrderBookWebSocketMessageListener()
-                coinOrder.initOrderScreen(market)
+                UpBitTickerWebSocket.requestCoinDetailTicker(market)
+//                coinOrder.setOrderBookWebSocketMessageListener()
+//                coinOrder.initOrderScreen(market)
                 updateTicker()
             }
         } else {
             setCoinDetailWebSocketMessageListener()
-            coinOrder.setOrderBookWebSocketMessageListener()
-            UpBitCoinDetailWebSocket.requestCoinDetailData(market)
+            UpBitTickerWebSocket.requestCoinDetailTicker(market)
+//            coinOrder.setOrderBookWebSocketMessageListener()
         }
         for (i in 0 until 4) {
             coinOrder.state.commissionStateList.add(mutableStateOf(0f))
@@ -191,7 +183,7 @@ class CoinDetailViewModel @Inject constructor(
     /**
      * 웹소켓 리스너
      */
-    override fun onCoinDetailMessageReceiveListener(tickerJsonObject: String) {
+    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (coinOrder.isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {

@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.AskingPriceLazyColumn
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 
 @Composable
@@ -18,10 +19,14 @@ fun OrderScreen(
 ) {
     OnLifecycleEvent { _, event ->
         when (event) {
-            Lifecycle.Event.ON_PAUSE -> UpBitOrderBookWebSocket.onPause()
+            Lifecycle.Event.ON_PAUSE -> {
+//                UpBitOrderBookWebSocket.onPause()
+//                UpBitOrderBookWebSocket.onPause()
+            }
             Lifecycle.Event.ON_RESUME -> {
-                coinDetailViewModel.coinOrder.setOrderBookWebSocketMessageListener()
-                UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
+//                coinDetailViewModel.coinOrder.setOrderBookWebSocketMessageListener()
+//                UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
+//                UpBitOrderBookWebSocket.onResume(coinDetailViewModel.market)
             }
             else -> {}
         }
