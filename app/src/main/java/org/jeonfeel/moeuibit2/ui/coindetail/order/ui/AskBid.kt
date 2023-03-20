@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import android.view.Gravity
 import android.widget.ImageView
@@ -43,8 +43,9 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
-import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.TotalAmountDesignatedDialog
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.ui.coindetail.order.AdjustCommissionDialog
+import org.jeonfeel.moeuibit2.ui.coindetail.order.TransactionInfoLazyColumn
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
@@ -659,7 +660,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                             OneTimeNetworkCheck.networkCheck(context) == null -> {
                                 context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
                             }
-                            UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                            UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
                             }
                             totalPrice.toLong() < 5000 -> {
@@ -707,7 +708,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                             OneTimeNetworkCheck.networkCheck(context) == null -> {
                                 context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
                             }
-                            UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                            UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
                             }
                             totalPrice < 0.0005 -> {

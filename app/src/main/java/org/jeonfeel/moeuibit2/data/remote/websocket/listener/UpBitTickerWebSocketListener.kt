@@ -27,7 +27,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
         messageListener?.onTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
-        Logger.e(bytes.string(Charsets.UTF_8))
+//        Logger.e(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

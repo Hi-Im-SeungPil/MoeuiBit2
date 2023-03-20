@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -429,205 +430,207 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun sortList(marketState: Int) {
-        viewModelScope.launch(defaultDispatcher) {
-            state.selectedMarket.value = marketState
-            when (state.sortButton.value) {
-                SORT_PRICE_DEC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.tradePrice
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.tradePrice
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.tradePrice * state.btcPrice.value
-                                } else {
+        if (updateExchange) {
+            updateExchange = false
+            viewModelScope.launch(defaultDispatcher) {
+                Logger.e("call sortList")
+                state.selectedMarket.value = marketState
+                when (state.sortButton.value) {
+                    SORT_PRICE_DEC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortByDescending { element ->
                                     element.tradePrice
                                 }
                             }
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortByDescending { element ->
+//                                element.tradePrice
+//                            }
+                            }
+                            else -> {
+//                            favoriteExchangeModelList.sortByDescending { element ->
+//                                if (element.market.startsWith(SYMBOL_BTC)) {
+//                                    element.tradePrice * state.btcPrice.value
+//                                } else {
+//                                    element.tradePrice
+//                                }
+//                            }
+                            }
                         }
                     }
-                }
-                SORT_PRICE_ASC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.tradePrice
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.tradePrice
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.tradePrice * state.btcPrice.value
-                                } else {
+                    SORT_PRICE_ASC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortBy { element ->
                                     element.tradePrice
                                 }
                             }
-                        }
-                    }
-                }
-                SORT_RATE_DEC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortBy { element ->
+//                                element.tradePrice
+//                            }
                             }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                element.signedChangeRate
+                            else -> {
+//                            favoriteExchangeModelList.sortBy { element ->
+//                                if (element.market.startsWith(SYMBOL_BTC)) {
+//                                    element.tradePrice * state.btcPrice.value
+//                                } else {
+//                                    element.tradePrice
+//                                }
+//                            }
                             }
                         }
                     }
-                }
-                SORT_RATE_ASC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
+                    SORT_RATE_DEC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortByDescending { element ->
+                                    element.signedChangeRate
+                                }
                             }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortByDescending { element ->
+//                                element.signedChangeRate
+//                            }
                             }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                element.signedChangeRate
+                            else -> {
+//                            favoriteExchangeModelList.sortByDescending { element ->
+//                                element.signedChangeRate
+//                            }
                             }
                         }
                     }
-                }
-                SORT_AMOUNT_DEC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
+                    SORT_RATE_ASC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortBy { element ->
+                                    element.signedChangeRate
+                                }
+                            }
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortBy { element ->
+//                                element.signedChangeRate
+//                            }
+                            }
+                            else -> {
+//                            favoriteExchangeModelList.sortBy { element ->
+//                                element.signedChangeRate
+//                            }
                             }
                         }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * state.btcPrice.value
-                                } else {
+                    }
+                    SORT_AMOUNT_DEC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortByDescending { element ->
                                     element.accTradePrice24h
                                 }
                             }
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortByDescending { element ->
+//                                element.accTradePrice24h
+//                            }
+                            }
+                            else -> {
+//                            favoriteExchangeModelList.sortByDescending { element ->
+//                                if (element.market.startsWith(SYMBOL_BTC)) {
+//                                    element.accTradePrice24h * state.btcPrice.value
+//                                } else {
+//                                    element.accTradePrice24h
+//                                }
+//                            }
+                            }
                         }
                     }
-                }
-                SORT_AMOUNT_ASC -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortBy { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortBy { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortBy { element ->
-                                if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * state.btcPrice.value
-                                } else {
+                    SORT_AMOUNT_ASC -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortBy { element ->
                                     element.accTradePrice24h
                                 }
                             }
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortBy { element ->
+//                                element.accTradePrice24h
+//                            }
+                            }
+                            else -> {
+//                            favoriteExchangeModelList.sortBy { element ->
+//                                if (element.market.startsWith(SYMBOL_BTC)) {
+//                                    element.accTradePrice24h * state.btcPrice.value
+//                                } else {
+//                                    element.accTradePrice24h
+//                                }
+//                            }
+                            }
                         }
                     }
-                }
-                else -> {
-                    when (state.selectedMarket.value) {
-                        SELECTED_KRW_MARKET -> {
-                            krwExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        SELECTED_BTC_MARKET -> {
-                            btcExchangeModelList.sortByDescending { element ->
-                                element.accTradePrice24h
-                            }
-                        }
-                        else -> {
-                            favoriteExchangeModelList.sortByDescending { element ->
-                                if (element.market.startsWith(SYMBOL_BTC)) {
-                                    element.accTradePrice24h * state.btcPrice.value
-                                } else {
+                    else -> {
+                        when (state.selectedMarket.value) {
+                            SELECTED_KRW_MARKET -> {
+                                krwExchangeModelList.sortByDescending { element ->
                                     element.accTradePrice24h
                                 }
                             }
+                            SELECTED_BTC_MARKET -> {
+//                            btcExchangeModelList.sortByDescending { element ->
+//                                element.accTradePrice24h
+//                            }
+                            }
+                            else -> {
+//                            favoriteExchangeModelList.sortByDescending { element ->
+//                                if (element.market.startsWith(SYMBOL_BTC)) {
+//                                    element.accTradePrice24h * state.btcPrice.value
+//                                } else {
+//                                    element.accTradePrice24h
+//                                }
+//                            }
+                            }
                         }
                     }
                 }
+                when (state.selectedMarket.value) {
+                    SELECTED_KRW_MARKET -> {
+                        for (i in krwPreItemArray.indices) {
+                            krwPreItemArray[i] = krwExchangeModelList[i]
+                        }
+                        for (i in krwExchangeModelList.indices) {
+                            krwExchangeModelListPosition[krwExchangeModelList[i].market] =
+                                i
+                        }
+                        krwExchangeModelMutableStateList.clear()
+                        krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+                    }
+                    SELECTED_BTC_MARKET -> {
+                        for (i in btcPreItemArray.indices) {
+                            btcPreItemArray[i] =
+                                btcExchangeModelList[i]
+                        }
+                        for (i in btcExchangeModelList.indices) {
+                            btcExchangeModelListPosition[btcExchangeModelList[i].market] =
+                                i
+                        }
+                        for (i in btcExchangeModelList.indices) {
+                            btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
+                        }
+                    }
+                    else -> {
+                        for (i in favoritePreItemArray.indices) {
+                            favoritePreItemArray[i] =
+                                favoriteExchangeModelList[i]
+                        }
+                        for (i in favoriteExchangeModelList.indices) {
+                            favoriteExchangeModelListPosition[favoriteExchangeModelList[i].market] =
+                                i
+                        }
+                        for (i in favoriteExchangeModelList.indices) {
+                            favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
+                        }
+                    }
+                }
+                updateExchange = true
             }
-            when (state.selectedMarket.value) {
-                SELECTED_KRW_MARKET -> {
-                    for (i in krwPreItemArray.indices) {
-                        krwPreItemArray[i] =
-                            krwExchangeModelList[i]
-                    }
-                    for (i in krwExchangeModelList.indices) {
-                        krwExchangeModelListPosition[krwExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in krwExchangeModelList.indices) {
-                        krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
-                    }
-                }
-                SELECTED_BTC_MARKET -> {
-                    for (i in btcPreItemArray.indices) {
-                        btcPreItemArray[i] =
-                            btcExchangeModelList[i]
-                    }
-                    for (i in btcExchangeModelList.indices) {
-                        btcExchangeModelListPosition[btcExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in btcExchangeModelList.indices) {
-                        btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
-                    }
-                }
-                else -> {
-                    for (i in favoritePreItemArray.indices) {
-                        favoritePreItemArray[i] =
-                            favoriteExchangeModelList[i]
-                    }
-                    for (i in favoriteExchangeModelList.indices) {
-                        favoriteExchangeModelListPosition[favoriteExchangeModelList[i].market] =
-                            i
-                    }
-                    for (i in favoriteExchangeModelList.indices) {
-                        favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
-                    }
-                }
-            }
-            updateExchange = true
         }
     }
 

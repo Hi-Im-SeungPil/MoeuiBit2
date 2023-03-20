@@ -68,7 +68,7 @@ fun marketButtons(
                         text = {
                             Text(
                                 text = title,
-                                fontSize = DpToSp(17),
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                             )
@@ -88,7 +88,7 @@ fun marketButtons(
                 Spacer(modifier = Modifier.weight(1f))
             } else {
                 Text(text = "\$1 =\n${round(usdPrice).toInt()} KRW",
-                    fontSize = DpToSp(dp = 13),
+                    fontSize = 13.sp,
                     style = TextStyle(textAlign = TextAlign.Center),
                     modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
             }

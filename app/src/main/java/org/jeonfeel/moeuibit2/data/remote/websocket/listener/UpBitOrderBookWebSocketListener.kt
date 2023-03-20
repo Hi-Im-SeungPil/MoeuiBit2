@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket.listener
 
+import com.orhanobut.logger.Logger
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -25,6 +26,7 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
+        Logger.e(bytes.string(Charsets.UTF_8))
         messageListener?.onOrderBookMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 

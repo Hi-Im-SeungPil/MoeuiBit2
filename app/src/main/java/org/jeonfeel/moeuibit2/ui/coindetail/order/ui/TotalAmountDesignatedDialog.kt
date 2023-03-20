@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
@@ -322,7 +323,7 @@ fun TotalAmountDesignatedDialog(
                                                 OneTimeNetworkCheck.networkCheck(context) == null -> {
                                                     context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
                                                 }
-                                                UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                                                UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                                                     context.showToast(context.getString(R.string.NETWORK_ERROR))
                                                 }
                                                 totalPrice < 5000 -> {
@@ -390,7 +391,7 @@ fun TotalAmountDesignatedDialog(
                                                 OneTimeNetworkCheck.networkCheck(context) == null -> {
                                                     context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
                                                 }
-                                                UpBitCoinDetailWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
+                                                UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED -> {
                                                     context.showToast(context.getString(R.string.NETWORK_ERROR))
                                                 }
                                                 totalPrice < 0.0005 -> {

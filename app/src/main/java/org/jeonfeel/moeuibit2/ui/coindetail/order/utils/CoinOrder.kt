@@ -13,6 +13,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookAskModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookBidModel
@@ -45,6 +46,7 @@ class CoinOrderState {
     val showAdjustFeeDialog = mutableStateOf(false)
     val commissionStateList = mutableStateListOf<MutableState<Float>>()
     val transactionInfoList = mutableStateListOf<TransactionInfo>()
+    var maxOrderBookSize = mutableStateOf(0.0)
 }
 
 class CoinOrder @Inject constructor(
@@ -55,21 +57,18 @@ class CoinOrder @Inject constructor(
     var isTickerSocketRunning = true
     val state = CoinOrderState()
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
-    var maxOrderBookSize = 0.0
 
     suspend fun initOrderScreen(market: String) {
-//        delay(700L)
-
         val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
             market.plus(",$BTC_MARKET")
         } else {
             market
         }
-        UpBitCoinDetailWebSocket.market = requestMarket
+        UpBitTickerWebSocket.detailMarket = requestMarket
         UpBitOrderBookWebSocket.market = market
         try {
             Handler(Looper.getMainLooper()).post {
-                UpBitCoinDetailWebSocket.requestCoinDetailData(requestMarket)
+                UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
                 UpBitOrderBookWebSocket.requestOrderBookList(market)
             }
         } catch (e: UnknownHostException) {
@@ -91,12 +90,6 @@ class CoinOrder @Inject constructor(
         localRepository.getMyCoinDao().isInsert(BTC_MARKET)?.let {
             state.btcQuantity.value = it.quantity
         }
-
-        state.orderScreenLoadingState.value = false
-    }
-
-    fun setOrderBookWebSocketMessageListener() {
-        UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
     }
 
     suspend fun bidRequest(
@@ -323,6 +316,7 @@ class CoinOrder @Inject constructor(
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {
+        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
         if (isTickerSocketRunning) {
             var index = 0
             val model = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
@@ -377,7 +371,7 @@ class CoinOrder @Inject constructor(
                     index++
                 }
             }
-            maxOrderBookSize = state.orderBookMutableStateList.maxOf { it.size }
+            state.maxOrderBookSize.value = state.orderBookMutableStateList.maxOf { it.size }
         }
     }
 }

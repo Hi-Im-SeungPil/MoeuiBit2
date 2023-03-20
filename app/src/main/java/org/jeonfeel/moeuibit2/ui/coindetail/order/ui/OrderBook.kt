@@ -20,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
@@ -44,7 +45,7 @@ fun AskingPriceLazyColumn(
     val preClosingPrice = coinDetailViewModel.preClosingPrice // 지난 가격
     val currentTradePriceStateForOrderBook =
         coinDetailViewModel.coinOrder.state.currentTradePriceStateForOrderBook // 현재가격
-    val maxOrderBookSize = coinDetailViewModel.coinOrder.maxOrderBookSize // 벽돌
+    val maxOrderBookSize = coinDetailViewModel.coinOrder.state.maxOrderBookSize.value // 벽돌
     val market = coinDetailViewModel.market // krw 인지 btc 인지
 
     LazyColumn(modifier = modifier, state = scrollState) {
@@ -66,6 +67,7 @@ fun AskingPriceLazyColumn(
                 EmptyAskingPriceLazyColumnItem(1)
             }
         }
+        Logger.e("AskingPriceLazyColumn -> ${UpBitOrderBookWebSocket.currentSocketState}, ${coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size}")
     }
 }
 

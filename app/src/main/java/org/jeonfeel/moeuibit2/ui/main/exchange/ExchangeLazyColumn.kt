@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
@@ -38,7 +39,7 @@ fun ExchangeScreenLazyColumn(
                 modifier = Modifier
                     .padding(0.dp, 20.dp, 0.dp, 0.dp)
                     .fillMaxSize(),
-                fontSize = DpToSp(20),
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
@@ -49,7 +50,7 @@ fun ExchangeScreenLazyColumn(
                 modifier = Modifier
                     .padding(0.dp, 20.dp, 0.dp, 0.dp)
                     .fillMaxSize(),
-                fontSize = DpToSp(20),
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )

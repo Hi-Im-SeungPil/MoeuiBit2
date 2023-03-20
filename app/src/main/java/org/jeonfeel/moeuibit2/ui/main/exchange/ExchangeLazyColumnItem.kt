@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.usdPrice
 import org.jeonfeel.moeuibit2.R
@@ -193,7 +194,7 @@ fun TradePrice(
                         .fillMaxWidth()
                         .fillMaxHeight(),
                     text = " $SYMBOL_USD ${CurrentCalculator.krwToUsd(doubleTradePrice, usdPrice)}",
-                    TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
+                    TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
                     color = Color.Gray
                 )
             }
@@ -228,7 +229,7 @@ fun TradePrice(
                                 .weight(1f)
                                 .fillMaxWidth()
                                 .fillMaxHeight(), text = btcToKrw.plus(" $SYMBOL_KRW"),
-                            TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.End),
+                            TextStyle(fontSize = 13.sp, textAlign = TextAlign.End),
                             color = Color.Gray
                         )
                     }
@@ -240,7 +241,7 @@ fun TradePrice(
                             .fillMaxHeight(), text = "\$ ${
                             CurrentCalculator.krwToUsd(removeComma(btcToKrw).toDouble(), usdPrice)
                         }",
-                        TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
+                        TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
                         color = Color.Gray
                     )
                 }
@@ -276,7 +277,7 @@ fun RowScope.volume(volume: String, doubleVolume: Double, market: String) {
                     .fillMaxWidth()
                     .fillMaxHeight(),
                 text = " $SYMBOL_USD ${CurrentCalculator.krwToUsd(tempDoubleVolume, usdPrice)}M",
-                TextStyle(fontSize = DpToSp(13), textAlign = TextAlign.Start),
+                TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
                 color = Color.Gray
             )
         }

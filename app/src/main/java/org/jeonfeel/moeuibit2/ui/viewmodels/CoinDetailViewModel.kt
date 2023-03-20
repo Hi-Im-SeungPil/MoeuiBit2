@@ -8,9 +8,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
@@ -42,10 +40,6 @@ class CoinDetailViewModel @Inject constructor(
         coinOrder.initAdjustCommission()
     }
 
-    fun setCoinDetailWebSocketMessageListener() {
-        UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-    }
-
     private fun updateTicker() {
         viewModelScope.launch {
             while (coinOrder.isTickerSocketRunning) {
@@ -58,22 +52,25 @@ class CoinDetailViewModel @Inject constructor(
     }
 
     // 주문 화면
-    fun initOrderScreen() {
+    fun initCoinDetailScreen() {
         if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
-                setCoinDetailWebSocketMessageListener()
+                UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
                 UpBitTickerWebSocket.requestCoinDetailTicker(market)
-//                coinOrder.setOrderBookWebSocketMessageListener()
-//                coinOrder.initOrderScreen(market)
                 updateTicker()
             }
         } else {
-            setCoinDetailWebSocketMessageListener()
+            UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
             UpBitTickerWebSocket.requestCoinDetailTicker(market)
-//            coinOrder.setOrderBookWebSocketMessageListener()
         }
         for (i in 0 until 4) {
             coinOrder.state.commissionStateList.add(mutableStateOf(0f))
+        }
+    }
+
+    fun initOrderScreen() {
+        viewModelScope.launch(ioDispatcher) {
+            coinOrder.initOrderScreen(market)
         }
     }
 

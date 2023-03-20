@@ -27,33 +27,12 @@ object UpBitOrderBookWebSocket {
     }
 
     fun requestOrderBookList(market: String) {
-//        socketRebuild()
+        currentSocketState = SOCKET_IS_CONNECTED
         socket.send(orderBookWebSocketMessage(market))
     }
 
-    private fun socketRebuild() {
-        if (currentSocketState != SOCKET_IS_CONNECTED) {
-            socket = client.newWebSocket(
-                request,
-                socketListener
-            )
-            currentSocketState = SOCKET_IS_CONNECTED
-        }
-    }
-
     fun onPause() {
-//        try {
-//            client.dispatcher.cancelAll()
-//            client.connectionPool.evictAll()
-//        }catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-        socket.send("")
+        socket.send(orderBookWebSocketMessage(""))
         currentSocketState = SOCKET_IS_ON_PAUSE
-    }
-
-    fun onResume(market: String) {
-        requestOrderBookList(market)
-        currentSocketState = SOCKET_IS_CONNECTED
     }
 }

@@ -17,8 +17,6 @@ import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
@@ -56,7 +54,7 @@ fun CoinDetailScreen(
             Lifecycle.Event.ON_RESUME -> {
 //                coinDetailViewModel.setCoinDetailWebSocketMessageListener()
 //                UpBitTickerWebSocket.requestCoinDetailTicker(coinDetailViewModel.market)
-                coinDetailViewModel.initOrderScreen()
+                coinDetailViewModel.initCoinDetailScreen()
                 Logger.d("coinDetailScreen on resume")
             }
             else -> {}

@@ -107,7 +107,7 @@ private fun Exchange(
                     }
                 },
                 placeholderText = stringResource(id = R.string.textFieldText),
-                fontSize = DpToSp(dp = 17)
+                fontSize = DpToSp(dp = 17.dp)
             )
             marketButtons(
                 selectedMarketState = exchangeViewModel.state.selectedMarket,
