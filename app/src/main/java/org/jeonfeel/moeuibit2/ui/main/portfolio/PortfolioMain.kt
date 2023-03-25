@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -69,16 +70,16 @@ fun PortfolioMain(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            FontMediumText(
+            Text(
                 text = stringResource(id = R.string.holdings),
                 modifier = Modifier
                     .weight(1f, true)
                     .padding(8.dp, 20.dp, 0.dp, 20.dp)
                     .wrapContentHeight(),
-                fontSize = 22,
-                textStyle = TextStyle(
+                style = TextStyle(
                     color = Color.Black,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = DpToSp(dp = 22.dp)
                 )
             )
             Card(
@@ -87,17 +88,18 @@ fun PortfolioMain(
                     .wrapContentWidth(),
                 elevation = 4.dp,
             ) {
-                FontLightText(
+                Text(
                     text = stringResource(id = R.string.chargeMoney),
                     modifier = Modifier
+                        .padding(13.dp)
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
                         .clickable {
                             adDialogState.value = true
                         },
-                    fontSize = 18,
-                    textStyle = TextStyle(
+                    style = TextStyle(
                         color = Color.Black,
+                        fontSize = DpToSp(dp = 18.dp)
                     )
                 )
             }
@@ -210,7 +212,7 @@ fun RowScope.PortfolioMainItem(
                 .fillMaxWidth(),
             style = TextStyle(
                 color = Color.Black,
-                fontSize = DpToSp(18),
+                fontSize = DpToSp(18.dp),
             )
         )
         AutoSizeText(
@@ -220,7 +222,7 @@ fun RowScope.PortfolioMainItem(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = DpToSp(22),
+                fontSize = DpToSp(22.dp),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -238,7 +240,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(14),
+                    fontSize = DpToSp(14.dp),
                 )
             )
             AutoSizeText(
@@ -248,7 +250,7 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(14),
+                    fontSize = DpToSp(14.dp),
                     textAlign = TextAlign.End,
                 ),
                 color = textColor
@@ -267,7 +269,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(14),
+                    fontSize = DpToSp(14.dp),
                 )
             )
             AutoSizeText(
@@ -277,7 +279,7 @@ fun RowScope.PortfolioMainItem(
                     .weight(1f, true)
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(14),
+                    fontSize = DpToSp(14.dp),
                     textAlign = TextAlign.End
                 ),
                 color = textColor
@@ -311,7 +313,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .fillMaxWidth(),
             style = TextStyle(
                 color = Color.Black,
-                fontSize = DpToSp(18),
+                fontSize = DpToSp(18.dp),
             )
         )
         AutoSizeText(
@@ -321,7 +323,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = DpToSp(22),
+                fontSize = DpToSp(22.dp),
                 fontWeight = FontWeight.Bold
             )
         )
@@ -336,7 +338,7 @@ fun RowScope.PortfolioMainItemForEn(
                 .padding(8.dp, 5.dp, 8.dp, 0.dp)
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = DpToSp(15),
+                fontSize = DpToSp(15.dp),
                 fontWeight = FontWeight.Bold
             ),
             color = Color.Gray
@@ -355,7 +357,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(dp = 17),
+                    fontSize = DpToSp(dp = 17.dp),
                     textAlign = TextAlign.Center
                 )
             )
@@ -366,7 +368,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15),
+                    fontSize = DpToSp(dp = 15.dp),
                     textAlign = TextAlign.End,
                 ),
                 color = textColor
@@ -383,7 +385,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 13),
+                    fontSize = DpToSp(dp = 13.dp),
                     textAlign = TextAlign.End
                 ),
                 color = if (text3 == stringResource(id = R.string.totalPurchaseValue)) Color.Gray else textColor
@@ -402,7 +404,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth(),
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = DpToSp(dp = 17),
+                    fontSize = DpToSp(dp = 17.dp),
                     textAlign = TextAlign.Center
                 )
             )
@@ -413,7 +415,7 @@ fun RowScope.PortfolioMainItemForEn(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15),
+                    fontSize = DpToSp(dp = 15.dp),
                     textAlign = TextAlign.End
                 ),
                 color = textColor
@@ -431,7 +433,7 @@ fun RowScope.PortfolioMainItemForEn(
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     textStyle = TextStyle(
-                        fontSize = DpToSp(dp = 13),
+                        fontSize = DpToSp(dp = 13.dp),
                         textAlign = TextAlign.End
                     ),
                     color = Color.Gray

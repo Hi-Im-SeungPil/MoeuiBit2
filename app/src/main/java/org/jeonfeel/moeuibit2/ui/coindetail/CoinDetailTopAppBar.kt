@@ -66,7 +66,7 @@ fun CoinDetailTopAppBar(
                 },
                 style = TextStyle(
                     color = Color.White,
-                    fontSize = DpToSp(dp = 25.dp),
+                    fontSize = DpToSp(dp = 22.dp),
                     textAlign = TextAlign.Center
                 ),
                 modifier = Modifier.fillMaxWidth(1f),

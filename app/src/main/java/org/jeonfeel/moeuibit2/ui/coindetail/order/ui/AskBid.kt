@@ -549,20 +549,20 @@ fun OrderScreenTotalPrice(
             Text(
                 text = stringResource(id = R.string.total), modifier = Modifier
                     .wrapContentWidth()
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15))
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15.dp))
             )
             Text(
                 text = totalPrice,
                 modifier = Modifier.weight(1f, true),
                 textAlign = TextAlign.End,
-                style = TextStyle(fontSize = DpToSp(15))
+                style = TextStyle(fontSize = DpToSp(15.dp))
             )
             Text(
                 text = "  ".plus(Utils.getUnit(marketState)),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(0.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = DpToSp(15), fontWeight = FontWeight.Bold)
+                style = TextStyle(fontSize = DpToSp(15.dp), fontWeight = FontWeight.Bold)
             )
         }
         if (marketState == SELECTED_BTC_MARKET) {
@@ -571,7 +571,7 @@ fun OrderScreenTotalPrice(
                 modifier = Modifier
                     .padding(5.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12))
+                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
             )
         }
     }
@@ -627,7 +627,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                 Text(
                     text = stringResource(id = R.string.reset),
                     style = TextStyle(color = Color.White),
-                    fontSize = DpToSp(18)
+                    fontSize = DpToSp(18.dp)
                 )
             }
 
@@ -756,7 +756,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                 Text(
                     text = buttonText,
                     style = TextStyle(color = Color.White),
-                    fontSize = DpToSp(18)
+                    fontSize = DpToSp(18.dp)
                 )
             }
         }
@@ -773,7 +773,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
             Text(
                 text = stringResource(id = R.string.designation).plus(" ").plus(buttonText),
                 style = TextStyle(color = Color.White),
-                fontSize = DpToSp(18)
+                fontSize = DpToSp(18.dp)
             )
         }
     }
@@ -891,11 +891,11 @@ fun getTabTextStyle(selectedTab: Int, tabNum: Int): TextStyle {
         TextStyle(
             color = colorResource(id = R.color.C0F0F5C),
             fontWeight = FontWeight.Bold,
-            fontSize = DpToSp(15),
+            fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center
         )
     } else {
-        TextStyle(color = Color.Gray, fontSize = DpToSp(15), textAlign = TextAlign.Center)
+        TextStyle(color = Color.Gray, fontSize = DpToSp(15.dp), textAlign = TextAlign.Center)
     }
 }
 

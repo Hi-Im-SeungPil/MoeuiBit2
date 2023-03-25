@@ -24,6 +24,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
@@ -31,6 +32,7 @@ import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
@@ -143,6 +145,9 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Logger.e("Call onDestroy")
+        UpBitTickerWebSocket.socket.cancel()
+        UpBitOrderBookWebSocket.socket.cancel()
     }
 
     private fun requestUpdate(appUpdateInfo: AppUpdateInfo, appUpdateType: Int) {

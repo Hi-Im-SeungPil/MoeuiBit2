@@ -237,6 +237,7 @@ class Chart @Inject constructor(
             } else {
                 remoteRepository.getMinuteCandleService(state.candleType.value, market, "1")
             }
+
             if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
                 val newData = response.body()
                 val model = gson.fromJson(newData!!.first(), ChartModel::class.java)

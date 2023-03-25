@@ -51,7 +51,7 @@ fun PortfolioPieChart(
                 text = stringResource(id = R.string.holdingAssetsPortfolio), modifier = Modifier
                     .padding(8.dp, 8.dp, 0.dp, 8.dp)
                     .weight(1f, true)
-                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = DpToSp(16))
+                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = DpToSp(16.dp))
             )
             Icon(
                 imageVector = imageVector.value,

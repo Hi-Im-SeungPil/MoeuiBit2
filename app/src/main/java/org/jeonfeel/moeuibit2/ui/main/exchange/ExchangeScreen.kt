@@ -30,6 +30,7 @@ import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.showToast
+import kotlin.system.exitProcess
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -42,11 +43,6 @@ fun ExchangeScreen(
 
     AddLifecycleEvent(
         onPauseAction = {
-//            exchangeViewModel.updateExchange = false
-//            UpBitTickerWebSocket
-//                .getListener()
-//                .setTickerMessageListener(onTickerMessageReceiveListener = null)
-//            UpBitTickerWebSocket.onPause()
             exchangeViewModel.updateExchange = false
             UpBitTickerWebSocket.onPause()
         },
@@ -121,7 +117,7 @@ private fun Exchange(
                 sortList = exchangeViewModel::sortList
             )
             ExchangeScreenLazyColumn(
-                filteredExchangeCoinList = exchangeViewModel.tempCoinList,
+                filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList() ,
                 preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
                 favoriteHashMap = exchangeViewModel.favoriteHashMap,
@@ -155,7 +151,9 @@ private fun ExchangeBackHandler(context: Context) {
         val curTime = System.currentTimeMillis()
         val gapTime = curTime - backBtnTime
         if (gapTime in 0..2000) {
-            (context as MainActivity).finish()
+            (context as MainActivity).moveTaskToBack(true)
+            context.finishAndRemoveTask()
+            exitProcess(0)
         } else {
             backBtnTime = curTime
             context.showToast(context.getString(R.string.backPressText))

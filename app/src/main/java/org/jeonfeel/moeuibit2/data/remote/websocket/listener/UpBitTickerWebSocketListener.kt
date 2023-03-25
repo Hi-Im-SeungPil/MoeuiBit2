@@ -18,6 +18,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
+        Logger.d("UpBitTickerWebSocketListener on Open")
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -40,6 +41,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
+        Logger.d("UpBitTickerWebSocketListener on Failure")
     }
 
     companion object {

@@ -18,7 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -55,24 +54,22 @@ class ExchangeViewModel @Inject constructor(
     private val krwExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     private val krwPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     private val krwExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var krwExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+    val krwExchangeModelMutaleStateList = mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
     private val btcExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     private val btcPreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     private val btcExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+    val btcExchangeModelMutaleStateList = mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
     private val favoritePreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
     private val favoriteExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     private val favoriteExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
-    var favoriteExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
+    val favoriteExchangeModelMutaleStateList = mutableStateOf(mutableStateListOf<CommonExchangeModel>())
     val favoriteHashMap = HashMap<String, Int>()
-
-    val tempCoinList = mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
     fun initExchangeData() {
         viewModelScope.launch {
-            if (tempCoinList.value.isEmpty()) {
+            if (krwExchangeModelMutaleStateList.value.isEmpty()) {
                 viewModelScope.launch {
                     requestExchangeData()
                 }.join()
@@ -193,8 +190,9 @@ class ExchangeViewModel @Inject constructor(
                             for (i in krwExchangeModelList.indices) {
                                 krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
                             }
-                            krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
-                            tempCoinList.value = krwExchangeModelMutableStateList
+                            val tempList = mutableStateListOf<CommonExchangeModel>()
+                            tempList.addAll(krwExchangeModelList)
+                            krwExchangeModelMutaleStateList.value = tempList
                             krwPreItemArray.addAll(krwExchangeModelList)
                         } else {
                             state.error.value = NETWORK_ERROR
@@ -257,7 +255,9 @@ class ExchangeViewModel @Inject constructor(
                             for (i in btcExchangeModelList.indices) {
                                 btcExchangeModelListPosition[btcExchangeModelList[i].market] = i
                             }
-                            btcExchangeModelMutableStateList.addAll(btcExchangeModelList)
+                            val tempList = mutableStateListOf<CommonExchangeModel>()
+                            tempList.addAll(btcExchangeModelList)
+                            btcExchangeModelMutaleStateList.value = tempList
                             btcPreItemArray.addAll(btcExchangeModelList)
                         }
                     } catch (e: Exception) {
@@ -307,22 +307,19 @@ class ExchangeViewModel @Inject constructor(
         while (updateExchange) {
             when (state.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
-//                    for (i in krwExchangeModelMutableStateList.indices) {
-//                        krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
-//                    }
-                    val temp = SnapshotStateList<CommonExchangeModel>()
-                    temp.addAll(krwExchangeModelList)
-                    tempCoinList.value = temp
+                    val tempList = SnapshotStateList<CommonExchangeModel>()
+                    tempList.addAll(krwExchangeModelList)
+                    krwExchangeModelMutaleStateList.value = tempList
                 }
                 SELECTED_BTC_MARKET -> {
-                    for (i in btcExchangeModelMutableStateList.indices) {
-                        btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
-                    }
+                    val tempList = SnapshotStateList<CommonExchangeModel>()
+                    tempList.addAll(btcExchangeModelList)
+                    btcExchangeModelMutaleStateList.value = tempList
                 }
                 SELECTED_FAVORITE -> {
-                    for (i in favoriteExchangeModelMutableStateList.indices) {
-                        favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
-                    }
+                    val tempList = SnapshotStateList<CommonExchangeModel>()
+                    tempList.addAll(favoriteExchangeModelList)
+                    favoriteExchangeModelMutaleStateList.value = tempList
                 }
             }
             delay(300)
@@ -341,44 +338,44 @@ class ExchangeViewModel @Inject constructor(
      * 관심코인 목록 가져오기
      */
     private fun requestFavoriteData(selectedMarketState: Int) {
-        viewModelScope.launch(ioDispatcher) {
-            val favoriteMarketListStringBuffer = StringBuffer()
-            favoritePreItemArray.clear()
-            favoriteExchangeModelList.clear()
-            favoriteExchangeModelMutableStateList.clear()
-            val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
-            if (favoriteList.isNotEmpty()) {
-                for (i in favoriteList.indices) {
-                    val market = favoriteList[i]?.market ?: ""
-                    favoriteHashMap[market] = 0
-                    if (market.startsWith(SYMBOL_KRW)) {
-                        val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
-                        favoritePreItemArray.add(model)
-                        favoriteExchangeModelMutableStateList.add(model)
-                        favoriteExchangeModelList.add(model)
-                        favoriteExchangeModelListPosition[market] = i
-                        favoriteMarketListStringBuffer.append("$market,")
-                    } else {
-                        val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
-                        favoritePreItemArray.add(model)
-                        favoriteExchangeModelMutableStateList.add(model)
-                        favoriteExchangeModelList.add(model)
-                        favoriteExchangeModelListPosition[market] = i
-                        favoriteMarketListStringBuffer.append("$market,")
-                    }
-                }
-                favoriteMarketListStringBuffer.deleteCharAt(favoriteMarketListStringBuffer.lastIndex)
-                if (favoriteHashMap[BTC_MARKET] == null) {
-                    UpBitTickerWebSocket.setFavoriteMarkets("$favoriteMarketListStringBuffer,$BTC_MARKET")
-                } else {
-                    UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
-                }
-            }
-            sortList(selectedMarketState)
-            Handler(Looper.getMainLooper()).post {
-                state.loadingFavorite.value = false
-            }
-        }
+//        viewModelScope.launch(ioDispatcher) {
+//            val favoriteMarketListStringBuffer = StringBuffer()
+//            favoritePreItemArray.clear()
+//            favoriteExchangeModelList.clear()
+//            favoriteExchangeModelMutableStateList.clear()
+//            val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
+//            if (favoriteList.isNotEmpty()) {
+//                for (i in favoriteList.indices) {
+//                    val market = favoriteList[i]?.market ?: ""
+//                    favoriteHashMap[market] = 0
+//                    if (market.startsWith(SYMBOL_KRW)) {
+//                        val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
+//                        favoritePreItemArray.add(model)
+//                        favoriteExchangeModelMutableStateList.add(model)
+//                        favoriteExchangeModelList.add(model)
+//                        favoriteExchangeModelListPosition[market] = i
+//                        favoriteMarketListStringBuffer.append("$market,")
+//                    } else {
+//                        val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
+//                        favoritePreItemArray.add(model)
+//                        favoriteExchangeModelMutableStateList.add(model)
+//                        favoriteExchangeModelList.add(model)
+//                        favoriteExchangeModelListPosition[market] = i
+//                        favoriteMarketListStringBuffer.append("$market,")
+//                    }
+//                }
+//                favoriteMarketListStringBuffer.deleteCharAt(favoriteMarketListStringBuffer.lastIndex)
+//                if (favoriteHashMap[BTC_MARKET] == null) {
+//                    UpBitTickerWebSocket.setFavoriteMarkets("$favoriteMarketListStringBuffer,$BTC_MARKET")
+//                } else {
+//                    UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
+//                }
+//            }
+//            sortList(selectedMarketState)
+//            Handler(Looper.getMainLooper()).post {
+//                state.loadingFavorite.value = false
+//            }
+//        }
     }
 
     /**
@@ -450,9 +447,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortByDescending { element ->
-//                                element.tradePrice
-//                            }
+                            btcExchangeModelList.sortByDescending { element ->
+                                element.tradePrice
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortByDescending { element ->
@@ -473,9 +470,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortBy { element ->
-//                                element.tradePrice
-//                            }
+                            btcExchangeModelList.sortBy { element ->
+                                element.tradePrice
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortBy { element ->
@@ -496,9 +493,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortByDescending { element ->
-//                                element.signedChangeRate
-//                            }
+                            btcExchangeModelList.sortByDescending { element ->
+                                element.signedChangeRate
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortByDescending { element ->
@@ -515,9 +512,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortBy { element ->
-//                                element.signedChangeRate
-//                            }
+                            btcExchangeModelList.sortBy { element ->
+                                element.signedChangeRate
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortBy { element ->
@@ -534,9 +531,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortByDescending { element ->
-//                                element.accTradePrice24h
-//                            }
+                            btcExchangeModelList.sortByDescending { element ->
+                                element.accTradePrice24h
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortByDescending { element ->
@@ -557,9 +554,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortBy { element ->
-//                                element.accTradePrice24h
-//                            }
+                            btcExchangeModelList.sortBy { element ->
+                                element.accTradePrice24h
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortBy { element ->
@@ -580,9 +577,9 @@ class ExchangeViewModel @Inject constructor(
                                 }
                             }
                             SELECTED_BTC_MARKET -> {
-//                            btcExchangeModelList.sortByDescending { element ->
-//                                element.accTradePrice24h
-//                            }
+                            btcExchangeModelList.sortByDescending { element ->
+                                element.accTradePrice24h
+                            }
                             }
                             else -> {
 //                            favoriteExchangeModelList.sortByDescending { element ->
@@ -607,9 +604,9 @@ class ExchangeViewModel @Inject constructor(
                             krwExchangeModelListPosition[krwExchangeModelList[i].market] =
                                 i
                         }
-                        val temp = mutableStateListOf<CommonExchangeModel>()
-                        temp.addAll(krwExchangeModelList)
-                        tempCoinList.value = temp
+                        val tempList = mutableStateListOf<CommonExchangeModel>()
+                        tempList.addAll(krwExchangeModelList)
+                        krwExchangeModelMutaleStateList.value = tempList
                     }
                     SELECTED_BTC_MARKET -> {
                         for (i in btcPreItemArray.indices) {
@@ -620,9 +617,9 @@ class ExchangeViewModel @Inject constructor(
                             btcExchangeModelListPosition[btcExchangeModelList[i].market] =
                                 i
                         }
-                        for (i in btcExchangeModelList.indices) {
-                            btcExchangeModelMutableStateList[i] = btcExchangeModelList[i]
-                        }
+                        val tempList = mutableStateListOf<CommonExchangeModel>()
+                        tempList.addAll(btcExchangeModelList)
+                        btcExchangeModelMutaleStateList.value = tempList
                     }
                     else -> {
                         for (i in favoritePreItemArray.indices) {
@@ -634,7 +631,7 @@ class ExchangeViewModel @Inject constructor(
                                 i
                         }
                         for (i in favoriteExchangeModelList.indices) {
-                            favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
+//                            favoriteExchangeModelMutableStateList[i] = favoriteExchangeModelList[i]
                         }
                     }
                 }
@@ -651,31 +648,26 @@ class ExchangeViewModel @Inject constructor(
             textFieldValue.value.isEmpty() -> {
                 when (selectedMarket.value) {
                     SELECTED_KRW_MARKET -> {
-//                        krwExchangeModelMutableStateList
-                        tempCoinList.value
+                        krwExchangeModelMutaleStateList.value
                     }
-//                    SELECTED_BTC_MARKET -> {
-//                        btcExchangeModelMutableStateList
-//                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutaleStateList.value
+                    }
                     else -> {
-//                        favoriteExchangeModelMutableStateList
                         mutableStateListOf<CommonExchangeModel>()
                     }
                 }
             }
             else -> {
-//                val resultList = SnapshotStateList<CommonExchangeModel>()
                 val resultList = mutableStateListOf<CommonExchangeModel>()
                 val targetList = when (selectedMarket.value) {
                     SELECTED_KRW_MARKET -> {
-//                        krwExchangeModelMutableStateList
-                        tempCoinList.value
+                        krwExchangeModelMutaleStateList.value
                     }
-//                    SELECTED_BTC_MARKET -> {
-////                        btcExchangeModelMutableStateList
-//                    }
+                    SELECTED_BTC_MARKET -> {
+                        btcExchangeModelMutaleStateList.value
+                    }
                     else -> {
-//                        favoriteExchangeModelMutableStateList
                         arrayListOf()
                     }
                 }

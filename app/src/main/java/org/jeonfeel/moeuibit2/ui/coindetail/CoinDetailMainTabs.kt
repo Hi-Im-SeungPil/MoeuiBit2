@@ -70,13 +70,15 @@ fun CoinDetailMainTabRow(navController: NavController) {
                 selectedContentColor = colorResource(id = R.color.C0F0F5C),
                 unselectedContentColor = colorResource(id = R.color.CDCDCDC),
                 onClick = {
-                    tabState.value = index
-                    navController.navigate(tab.screen_route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+                    if (tabState.value != index) {
+                        tabState.value = index
+                        navController.navigate(tab.screen_route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
             )

@@ -40,6 +40,8 @@ class MBitCombinedChart(
         this.marketState = marketState
         this.removeAllViews()
         this.addView(chartCanvas)
+        this.axisRight.removeAllLimitLines()
+        this.xAxis.removeAllLimitLines()
         xAxisValueFormatter = XAxisValueFormatter()
         xAxisValueFormatter?.setItem(kstDateHashMap)
         chartHelper.defaultChartSettings(

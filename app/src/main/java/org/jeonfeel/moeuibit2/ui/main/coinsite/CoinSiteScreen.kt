@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +34,7 @@ fun CoinSiteTopAppBar() {
         backgroundColor = colorResource(id = R.color.design_default_color_background)
     ) {
         Text(
-            text = "코인 사이트",
+            text = stringResource(id = R.string.coinSite),
             modifier = Modifier
                 .padding(5.dp, 0.dp, 0.dp, 0.dp)
                 .weight(1f, true)
@@ -41,7 +42,7 @@ fun CoinSiteTopAppBar() {
                 .wrapContentHeight(),
             style = TextStyle(
                 color = Color.Black,
-                fontSize = DpToSp(25),
+                fontSize = DpToSp(25.dp),
                 fontWeight = FontWeight.Bold
             )
         )

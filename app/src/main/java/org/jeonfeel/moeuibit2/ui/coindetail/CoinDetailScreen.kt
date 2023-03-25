@@ -31,11 +31,6 @@ fun CoinDetailScreen(
 ) {
     val context = LocalContext.current
     val market = coinDetailViewModel.market
-
-    CommonLoadingDialog(
-        dialogState = coinDetailViewModel.coinOrder.state.orderScreenLoadingState,
-        text = "로딩중 입니다..."
-    )
     OneButtonCommonDialog(dialogState = coinDetailViewModel.coinOrder.state.errorDialogState,
         title = stringResource(id = R.string.NETWORK_ERROR_TITLE),
         content = stringResource(id = R.string.NO_INTERNET_CONNECTION),
@@ -47,13 +42,10 @@ fun CoinDetailScreen(
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
-//                UpBitCoinDetailWebSocket.onPause()
                 UpBitTickerWebSocket.onPause()
                 Logger.d("coinDetailScreen on pause")
             }
             Lifecycle.Event.ON_RESUME -> {
-//                coinDetailViewModel.setCoinDetailWebSocketMessageListener()
-//                UpBitTickerWebSocket.requestCoinDetailTicker(coinDetailViewModel.market)
                 coinDetailViewModel.initCoinDetailScreen()
                 Logger.d("coinDetailScreen on resume")
             }

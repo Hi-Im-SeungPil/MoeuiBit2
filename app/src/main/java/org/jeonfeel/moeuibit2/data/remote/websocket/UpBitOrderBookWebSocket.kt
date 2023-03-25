@@ -19,7 +19,7 @@ object UpBitOrderBookWebSocket {
         .url(webSocketBaseUrl)
         .build()
     private val socketListener = UpBitOrderBookWebSocketListener()
-    private var socket = client.newWebSocket(request, socketListener)
+    var socket = client.newWebSocket(request, socketListener)
     var market = ""
 
     fun getListener(): UpBitOrderBookWebSocketListener {

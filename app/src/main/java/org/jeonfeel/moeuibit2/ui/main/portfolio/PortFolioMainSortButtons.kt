@@ -50,7 +50,7 @@ fun PortfolioMainSortButtons(
                     }
                 }
                 .padding(0.dp, 8.dp),
-            fontSize = DpToSp(15),
+            fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center,
             style = TextStyle(color = orderByNameTextInfo[1] as Color)
         )
@@ -73,7 +73,7 @@ fun PortfolioMainSortButtons(
                     }
                 }
                 .padding(0.dp, 8.dp),
-            fontSize = DpToSp(15),
+            fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center,
             style = TextStyle(color = orderByRateTextInfo[1] as Color)
         )

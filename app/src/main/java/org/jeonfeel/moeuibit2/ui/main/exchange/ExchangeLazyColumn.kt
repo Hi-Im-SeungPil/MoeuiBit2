@@ -23,7 +23,7 @@ import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @Composable
 fun ExchangeScreenLazyColumn(
-    filteredExchangeCoinList: MutableState<SnapshotStateList<CommonExchangeModel>>,
+    filteredExchangeCoinList: SnapshotStateList<CommonExchangeModel>,
     preCoinListAndPosition: Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>>,
     textFieldValueState: MutableState<String>,
     favoriteHashMap: HashMap<String, Int>,
@@ -32,7 +32,7 @@ fun ExchangeScreenLazyColumn(
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
     when {
-        loadingFavorite != null && !loadingFavorite.value && filteredExchangeCoinList.value.isEmpty() -> {
+        loadingFavorite != null && !loadingFavorite.value && filteredExchangeCoinList.isEmpty() -> {
             Text(
                 text = stringResource(id = R.string.noFavorite),
                 modifier = Modifier
@@ -43,7 +43,7 @@ fun ExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
-        filteredExchangeCoinList.value.isEmpty() && textFieldValueState.value.isNotEmpty() -> {
+        filteredExchangeCoinList.isEmpty() && textFieldValueState.value.isNotEmpty() -> {
             Text(
                 text = stringResource(id = R.string.noSearchingCoin),
                 modifier = Modifier
@@ -57,7 +57,7 @@ fun ExchangeScreenLazyColumn(
         else -> {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(
-                    items = filteredExchangeCoinList.value
+                    items = filteredExchangeCoinList
                 ) { _, coinListElement ->
                     val preCoinListPosition =
                         preCoinListAndPosition.second[coinListElement.market] ?: 0
