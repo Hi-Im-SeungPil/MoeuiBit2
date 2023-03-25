@@ -47,6 +47,7 @@ fun ExchangeScreen(
 //                .getListener()
 //                .setTickerMessageListener(onTickerMessageReceiveListener = null)
 //            UpBitTickerWebSocket.onPause()
+            exchangeViewModel.updateExchange = false
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
@@ -120,7 +121,7 @@ private fun Exchange(
                 sortList = exchangeViewModel::sortList
             )
             ExchangeScreenLazyColumn(
-                filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList(),
+                filteredExchangeCoinList = exchangeViewModel.tempCoinList,
                 preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
                 favoriteHashMap = exchangeViewModel.favoriteHashMap,

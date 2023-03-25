@@ -49,8 +49,8 @@ fun AskingPriceLazyColumn(
     val market = coinDetailViewModel.market // krw 인지 btc 인지
 
     LazyColumn(modifier = modifier, state = scrollState) {
-        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size >= 30) {
-            items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList) { item ->
+        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size >= 30) {
+            items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value) { item ->
                 AskingPriceLazyColumnItem(
                     orderBook = item,
                     preClosingPrice = preClosingPrice,
@@ -67,7 +67,7 @@ fun AskingPriceLazyColumn(
                 EmptyAskingPriceLazyColumnItem(1)
             }
         }
-        Logger.e("AskingPriceLazyColumn -> ${UpBitOrderBookWebSocket.currentSocketState}, ${coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size}")
+//        Logger.e("AskingPriceLazyColumn -> ${UpBitOrderBookWebSocket.currentSocketState}, ${coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size}")
     }
 }
 

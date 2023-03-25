@@ -197,7 +197,7 @@ private fun RowScope.SortButton(
             .padding(0.dp, 7.dp),
         style = TextStyle(
             color = textColor.value,
-            fontSize = DpToSp(dp = 13),
+            fontSize = DpToSp(dp = 13.dp),
             textAlign = TextAlign.Center
         ))
 }

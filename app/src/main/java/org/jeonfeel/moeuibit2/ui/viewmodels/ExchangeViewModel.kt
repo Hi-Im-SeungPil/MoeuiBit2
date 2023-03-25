@@ -68,15 +68,17 @@ class ExchangeViewModel @Inject constructor(
     var favoriteExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
     val favoriteHashMap = HashMap<String, Int>()
 
+    val tempCoinList = mutableStateOf(mutableStateListOf<CommonExchangeModel>())
+
     fun initExchangeData() {
         viewModelScope.launch {
-//            delay(650L)
-            if (krwExchangeModelMutableStateList.isEmpty()) {
+            if (tempCoinList.value.isEmpty()) {
                 viewModelScope.launch {
                     requestExchangeData()
                 }.join()
             }
             requestCoinListToWebSocket()
+            // TODO 중복됨 변경 요망
             updateExchange()
         }
     }
@@ -192,6 +194,7 @@ class ExchangeViewModel @Inject constructor(
                                 krwExchangeModelListPosition[krwExchangeModelList[i].market] = i
                             }
                             krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+                            tempCoinList.value = krwExchangeModelMutableStateList
                             krwPreItemArray.addAll(krwExchangeModelList)
                         } else {
                             state.error.value = NETWORK_ERROR
@@ -304,9 +307,12 @@ class ExchangeViewModel @Inject constructor(
         while (updateExchange) {
             when (state.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
-                    for (i in krwExchangeModelMutableStateList.indices) {
-                        krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
-                    }
+//                    for (i in krwExchangeModelMutableStateList.indices) {
+//                        krwExchangeModelMutableStateList[i] = krwExchangeModelList[i]
+//                    }
+                    val temp = SnapshotStateList<CommonExchangeModel>()
+                    temp.addAll(krwExchangeModelList)
+                    tempCoinList.value = temp
                 }
                 SELECTED_BTC_MARKET -> {
                     for (i in btcExchangeModelMutableStateList.indices) {
@@ -592,15 +598,18 @@ class ExchangeViewModel @Inject constructor(
                 }
                 when (state.selectedMarket.value) {
                     SELECTED_KRW_MARKET -> {
+
                         for (i in krwPreItemArray.indices) {
                             krwPreItemArray[i] = krwExchangeModelList[i]
                         }
+
                         for (i in krwExchangeModelList.indices) {
                             krwExchangeModelListPosition[krwExchangeModelList[i].market] =
                                 i
                         }
-                        krwExchangeModelMutableStateList.clear()
-                        krwExchangeModelMutableStateList.addAll(krwExchangeModelList)
+                        val temp = mutableStateListOf<CommonExchangeModel>()
+                        temp.addAll(krwExchangeModelList)
+                        tempCoinList.value = temp
                     }
                     SELECTED_BTC_MARKET -> {
                         for (i in btcPreItemArray.indices) {
@@ -642,36 +651,39 @@ class ExchangeViewModel @Inject constructor(
             textFieldValue.value.isEmpty() -> {
                 when (selectedMarket.value) {
                     SELECTED_KRW_MARKET -> {
-                        krwExchangeModelMutableStateList
+//                        krwExchangeModelMutableStateList
+                        tempCoinList.value
                     }
-                    SELECTED_BTC_MARKET -> {
-                        btcExchangeModelMutableStateList
-                    }
+//                    SELECTED_BTC_MARKET -> {
+//                        btcExchangeModelMutableStateList
+//                    }
                     else -> {
-                        favoriteExchangeModelMutableStateList
+//                        favoriteExchangeModelMutableStateList
+                        mutableStateListOf<CommonExchangeModel>()
                     }
                 }
             }
             else -> {
-                val resultList = SnapshotStateList<CommonExchangeModel>()
+//                val resultList = SnapshotStateList<CommonExchangeModel>()
+                val resultList = mutableStateListOf<CommonExchangeModel>()
                 val targetList = when (selectedMarket.value) {
                     SELECTED_KRW_MARKET -> {
-                        krwExchangeModelMutableStateList
+//                        krwExchangeModelMutableStateList
+                        tempCoinList.value
                     }
-                    SELECTED_BTC_MARKET -> {
-                        btcExchangeModelMutableStateList
-                    }
+//                    SELECTED_BTC_MARKET -> {
+////                        btcExchangeModelMutableStateList
+//                    }
                     else -> {
-                        favoriteExchangeModelMutableStateList
+//                        favoriteExchangeModelMutableStateList
+                        arrayListOf()
                     }
                 }
                 for (element in targetList) {
                     if (
-                        element.koreanName.contains(textFieldValue.value) ||
-                        element.englishName.uppercase()
-                            .contains(textFieldValue.value.uppercase()) ||
-                        element.symbol.uppercase()
-                            .contains(textFieldValue.value.uppercase())
+                        element.koreanName.contains(textFieldValue.value)
+                        || element.englishName.uppercase().contains(textFieldValue.value.uppercase())
+                        || element.symbol.uppercase().contains(textFieldValue.value.uppercase())
                     ) {
                         resultList.add(element)
                     }

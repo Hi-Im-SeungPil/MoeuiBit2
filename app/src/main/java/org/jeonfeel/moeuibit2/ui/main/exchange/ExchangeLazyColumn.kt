@@ -18,13 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @Composable
 fun ExchangeScreenLazyColumn(
-    filteredExchangeCoinList: SnapshotStateList<CommonExchangeModel>,
+    filteredExchangeCoinList: MutableState<SnapshotStateList<CommonExchangeModel>>,
     preCoinListAndPosition: Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>>,
     textFieldValueState: MutableState<String>,
     favoriteHashMap: HashMap<String, Int>,
@@ -33,7 +32,7 @@ fun ExchangeScreenLazyColumn(
     startForActivityResult: ActivityResultLauncher<Intent>
 ) {
     when {
-        loadingFavorite != null && !loadingFavorite.value && filteredExchangeCoinList.isEmpty() -> {
+        loadingFavorite != null && !loadingFavorite.value && filteredExchangeCoinList.value.isEmpty() -> {
             Text(
                 text = stringResource(id = R.string.noFavorite),
                 modifier = Modifier
@@ -44,7 +43,7 @@ fun ExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
-        filteredExchangeCoinList.isEmpty() && textFieldValueState.value.isNotEmpty() -> {
+        filteredExchangeCoinList.value.isEmpty() && textFieldValueState.value.isNotEmpty() -> {
             Text(
                 text = stringResource(id = R.string.noSearchingCoin),
                 modifier = Modifier
@@ -58,7 +57,7 @@ fun ExchangeScreenLazyColumn(
         else -> {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 itemsIndexed(
-                    items = filteredExchangeCoinList
+                    items = filteredExchangeCoinList.value
                 ) { _, coinListElement ->
                     val preCoinListPosition =
                         preCoinListAndPosition.second[coinListElement.market] ?: 0

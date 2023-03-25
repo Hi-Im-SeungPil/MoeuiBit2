@@ -26,7 +26,7 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        Logger.e(bytes.string(Charsets.UTF_8))
+//        Logger.e(bytes.string(Charsets.UTF_8))
         messageListener?.onOrderBookMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 

@@ -46,9 +46,10 @@ fun marketButtons(
         stringResource(id = R.string.favorite),
     )
 
-    Row(Modifier
-        .fillMaxWidth()
-        .drawUnderLine(lineColor = Color.DarkGray)) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .drawUnderLine(lineColor = Color.DarkGray)) {
         CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
@@ -68,7 +69,7 @@ fun marketButtons(
                         text = {
                             Text(
                                 text = title,
-                                fontSize = 17.sp,
+                                fontSize = DpToSp(17.dp),
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                             )
@@ -88,9 +89,11 @@ fun marketButtons(
                 Spacer(modifier = Modifier.weight(1f))
             } else {
                 Text(text = "\$1 =\n${round(usdPrice).toInt()} KRW",
-                    fontSize = 13.sp,
+                    fontSize = DpToSp(dp = 13.dp),
                     style = TextStyle(textAlign = TextAlign.Center),
-                    modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically))
             }
         }
     }

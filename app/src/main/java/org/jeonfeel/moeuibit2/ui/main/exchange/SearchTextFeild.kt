@@ -43,7 +43,7 @@ fun SearchBasic(
     }, singleLine = true,
         modifier = modifier.clearFocusOnKeyboardDismiss(),
         textStyle = TextStyle(color = colorResource(id = R.color.C0F0F5C),
-            fontSize = DpToSp(17)),
+            fontSize = DpToSp(17.dp)),
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {

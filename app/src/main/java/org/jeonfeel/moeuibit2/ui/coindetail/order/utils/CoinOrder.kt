@@ -31,7 +31,7 @@ import kotlin.math.round
 class CoinOrderState {
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
-    val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
+    val orderBookMutableStateList = mutableStateOf(mutableStateListOf<CoinDetailOrderBookModel>())
     val orderScreenLoadingState = mutableStateOf(true)
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
@@ -57,6 +57,7 @@ class CoinOrder @Inject constructor(
     var isTickerSocketRunning = true
     val state = CoinOrderState()
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
+    var targetList = mutableStateListOf<CoinDetailOrderBookModel>()
 
     suspend fun initOrderScreen(market: String) {
         val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
@@ -90,6 +91,7 @@ class CoinOrder @Inject constructor(
         localRepository.getMyCoinDao().isInsert(BTC_MARKET)?.let {
             state.btcQuantity.value = it.quantity
         }
+        state.orderScreenLoadingState.value = false
     }
 
     suspend fun bidRequest(
@@ -310,68 +312,72 @@ class CoinOrder @Inject constructor(
     suspend fun getTransactionInfoList(market: String) {
         state.transactionInfoList.clear()
         val list = localRepository.getTransactionInfoDao().select(market)
-        for(i in list) {
+        for (i in list) {
             state.transactionInfoList.add(i)
         }
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {
-        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
+//        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
         if (isTickerSocketRunning) {
             var index = 0
             val model = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = model.getAsJsonArray("obu")
             val indices = modelJsonArray.size()
-            if (state.orderBookMutableStateList.isNotEmpty()) {
+            val temp = mutableStateListOf<CoinDetailOrderBookModel>()
+            val temp1 = ArrayList<CoinDetailOrderBookModel>()
+            val temp2 = ArrayList<CoinDetailOrderBookModel>()
+//            if (state.orderBookMutableStateList.value.isNotEmpty() && state.orderBookMutableStateList.value.size == 30) {
                 for (i in indices - 1 downTo 0) {
                     val orderBookAskModel =
                         gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
-                    state.orderBookMutableStateList[index] =
-                        CoinDetailOrderBookModel(
-                            orderBookAskModel.ask_price,
-                            orderBookAskModel.ask_size,
-                            0
-                        )
+                    temp1.add(CoinDetailOrderBookModel(
+                        orderBookAskModel.ask_price,
+                        orderBookAskModel.ask_size,
+                        0
+                    ))
                     index++
                 }
                 for (i in 0 until indices) {
                     val orderBookBidModel =
                         gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
-                    state.orderBookMutableStateList[index] =
-                        CoinDetailOrderBookModel(
-                            orderBookBidModel.bid_price,
-                            orderBookBidModel.bid_size,
-                            1
-                        )
+                    temp2.add(CoinDetailOrderBookModel(
+                        orderBookBidModel.bid_price,
+                        orderBookBidModel.bid_size,
+                        1
+                    ))
                     index++
                 }
-            } else {
-                for (i in indices - 1 downTo 0) {
-                    val orderBookAskModel =
-                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
-                    state.orderBookMutableStateList.add(
-                        CoinDetailOrderBookModel(
-                            orderBookAskModel.ask_price,
-                            orderBookAskModel.ask_size,
-                            0
-                        )
-                    )
-                    index++
-                }
-                for (i in 0 until indices) {
-                    val orderBookBidModel =
-                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
-                    state.orderBookMutableStateList.add(
-                        CoinDetailOrderBookModel(
-                            orderBookBidModel.bid_price,
-                            orderBookBidModel.bid_size,
-                            1
-                        )
-                    )
-                    index++
-                }
-            }
-            state.maxOrderBookSize.value = state.orderBookMutableStateList.maxOf { it.size }
+//            } else {
+//                for (i in indices - 1 downTo 0) {
+//                    val orderBookAskModel =
+//                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
+//                    temp.add(
+//                        CoinDetailOrderBookModel(
+//                            orderBookAskModel.ask_price,
+//                            orderBookAskModel.ask_size,
+//                            0
+//                        )
+//                    )
+//                    index++
+//                }
+//                for (i in 0 until indices) {
+//                    val orderBookBidModel =
+//                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
+//                    temp.add(
+//                        CoinDetailOrderBookModel(
+//                            orderBookBidModel.bid_price,
+//                            orderBookBidModel.bid_size,
+//                            1
+//                        )
+//                    )
+//                    index++
+//                }
+//            }
+            temp.addAll(temp1)
+            temp.addAll(temp2)
+            state.maxOrderBookSize.value = temp.maxOf { it.size }
+            state.orderBookMutableStateList.value = temp
         }
     }
 }

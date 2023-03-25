@@ -53,7 +53,7 @@ class CoinDetailViewModel @Inject constructor(
 
     // 주문 화면
     fun initCoinDetailScreen() {
-        if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
+        if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.value.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
                 UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
                 UpBitTickerWebSocket.requestCoinDetailTicker(market)
