@@ -52,14 +52,19 @@ object UpBitTickerWebSocket {
         this.btcMarkets = btcMarkets
     }
 
-    fun requestCoinDetailTicker(market: String) {
+    fun requestTicker(market: String) {
         currentSocketState = SOCKET_IS_CONNECTED
         socket.send(tickerWebSocketMessage(market))
     }
 
     fun onPause() {
-        socket.send(tickerWebSocketMessage(""))
+        socket.send(tickerWebSocketMessage("pause"))
         currentSocketState = SOCKET_IS_ON_PAUSE
+    }
+
+    fun rebuildSocket() {
+        socket.cancel()
+        socket = client.newWebSocket(request, socketListener)
     }
 
     fun setFavoriteMarkets(markets: String) {

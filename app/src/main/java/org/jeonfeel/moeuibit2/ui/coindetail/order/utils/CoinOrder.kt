@@ -57,7 +57,6 @@ class CoinOrder @Inject constructor(
     var isTickerSocketRunning = true
     val state = CoinOrderState()
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
-    var targetList = mutableStateListOf<CoinDetailOrderBookModel>()
 
     suspend fun initOrderScreen(market: String) {
         val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
@@ -318,16 +317,16 @@ class CoinOrder @Inject constructor(
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {
-//        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
+        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
         if (isTickerSocketRunning) {
             var index = 0
             val model = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = model.getAsJsonArray("obu")
-            val indices = modelJsonArray.size()
-            val temp = mutableStateListOf<CoinDetailOrderBookModel>()
-            val temp1 = ArrayList<CoinDetailOrderBookModel>()
-            val temp2 = ArrayList<CoinDetailOrderBookModel>()
-//            if (state.orderBookMutableStateList.value.isNotEmpty() && state.orderBookMutableStateList.value.size == 30) {
+            if (!modelJsonArray.isJsonNull) {
+                val indices = modelJsonArray.size()
+                val temp = mutableStateListOf<CoinDetailOrderBookModel>()
+                val temp1 = ArrayList<CoinDetailOrderBookModel>()
+                val temp2 = ArrayList<CoinDetailOrderBookModel>()
                 for (i in indices - 1 downTo 0) {
                     val orderBookAskModel =
                         gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
@@ -348,36 +347,11 @@ class CoinOrder @Inject constructor(
                     ))
                     index++
                 }
-//            } else {
-//                for (i in indices - 1 downTo 0) {
-//                    val orderBookAskModel =
-//                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
-//                    temp.add(
-//                        CoinDetailOrderBookModel(
-//                            orderBookAskModel.ask_price,
-//                            orderBookAskModel.ask_size,
-//                            0
-//                        )
-//                    )
-//                    index++
-//                }
-//                for (i in 0 until indices) {
-//                    val orderBookBidModel =
-//                        gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
-//                    temp.add(
-//                        CoinDetailOrderBookModel(
-//                            orderBookBidModel.bid_price,
-//                            orderBookBidModel.bid_size,
-//                            1
-//                        )
-//                    )
-//                    index++
-//                }
-//            }
-            temp.addAll(temp1)
-            temp.addAll(temp2)
-            state.maxOrderBookSize.value = temp.maxOf { it.size }
-            state.orderBookMutableStateList.value = temp
+                temp.addAll(temp1)
+                temp.addAll(temp2)
+                state.maxOrderBookSize.value = temp.maxOf { it.size }
+                state.orderBookMutableStateList.value = temp
+            }
         }
     }
 }

@@ -731,6 +731,7 @@ class ExchangeViewModel @Inject constructor(
      * 웹소켓 메세지
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
+        Logger.e("onticker")
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
         val marketState = state.selectedMarket.value
         var position = 0

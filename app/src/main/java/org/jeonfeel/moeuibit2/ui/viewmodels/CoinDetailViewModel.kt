@@ -30,6 +30,7 @@ class CoinDetailViewModel @Inject constructor(
     var market = ""
     var preClosingPrice = 0.0
     val favoriteMutableState = mutableStateOf(false)
+    private var isBTC = false
 
     fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
         this.market = market
@@ -38,6 +39,9 @@ class CoinDetailViewModel @Inject constructor(
         this.marketState = Utils.getSelectedMarket(market)
         chart.market = market
         coinOrder.initAdjustCommission()
+        if (market.startsWith("BTC")) {
+            isBTC = true
+        }
     }
 
     private fun updateTicker() {
@@ -56,12 +60,14 @@ class CoinDetailViewModel @Inject constructor(
         if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.value.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
                 UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
-                UpBitTickerWebSocket.requestCoinDetailTicker(market)
+                val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
+                UpBitTickerWebSocket.requestTicker(reqMarket)
                 updateTicker()
             }
         } else {
             UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-            UpBitTickerWebSocket.requestCoinDetailTicker(market)
+            val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
+            UpBitTickerWebSocket.requestTicker(reqMarket)
         }
         for (i in 0 until 4) {
             coinOrder.state.commissionStateList.add(mutableStateOf(0f))

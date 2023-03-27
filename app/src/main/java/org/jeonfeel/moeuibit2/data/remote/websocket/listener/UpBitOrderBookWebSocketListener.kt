@@ -41,7 +41,8 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Logger.d("UpBitOrderBookWebSocketListener on Failure")
+        Logger.e("UpBitTickerWebSocketListener on Failure}")
+        t.printStackTrace()
     }
 
     companion object {

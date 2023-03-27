@@ -32,7 +32,7 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onPause() {
-        socket.send(orderBookWebSocketMessage(""))
+        socket.send(orderBookWebSocketMessage("pause"))
         currentSocketState = SOCKET_IS_ON_PAUSE
     }
 }

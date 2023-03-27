@@ -5,6 +5,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 
 class UpBitTickerWebSocketListener : WebSocketListener() {
 
@@ -41,7 +42,9 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Logger.d("UpBitTickerWebSocketListener on Failure")
+        Logger.e("UpBitTickerWebSocketListener on Failure")
+        t.printStackTrace()
+        UpBitTickerWebSocket.rebuildSocket()
     }
 
     companion object {
@@ -51,4 +54,8 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
 interface OnTickerMessageReceiveListener {
     fun onTickerMessageReceiveListener(tickerJsonObject: String)
+}
+
+interface ClientRebuild {
+    fun rebuildWebSocket()
 }

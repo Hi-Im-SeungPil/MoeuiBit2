@@ -18,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
@@ -46,6 +47,7 @@ fun PortfolioScreen(
         rightButtonAction = {
             portfolioViewModel.showAd(context)
             portfolioViewModel.state.adConfirmDialogState.value = false
+            portfolioViewModel.state.adLoadingDialogState.value = true
         })
     CommonLoadingDialog(
         portfolioViewModel.state.adLoadingDialogState,
@@ -56,7 +58,7 @@ fun PortfolioScreen(
         onPauseAction = {
             portfolioViewModel.state.isPortfolioSocketRunning.value = false
             UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-            UpBitPortfolioWebSocket.onPause()
+            UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
@@ -113,7 +115,7 @@ fun PortfolioScreen(
                 adDialogState = portfolioViewModel.state.adConfirmDialogState,
                 pieChartState = portfolioViewModel.state.pieChartState,
                 userHoldCoinList = portfolioViewModel.userHoldCoinList,
-                userHoldCoinDTOList = portfolioViewModel.state.userHoldCoinDtoList,
+                userHoldCoinDTOList = portfolioViewModel.state.userHoldCoinDtoList.value,
                 selectedCoinKoreanName = portfolioViewModel.state.selectedCoinKoreanName,
                 btcTradePrice = portfolioViewModel.state.btcTradePrice,
                 isPortfolioSocketRunning = portfolioViewModel.state.isPortfolioSocketRunning,

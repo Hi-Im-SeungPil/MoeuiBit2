@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -12,8 +13,8 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.PortfolioTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
@@ -26,7 +27,9 @@ import javax.inject.Inject
 class PortfolioState {
     val userSeedMoney = mutableStateOf(0L)
     var totalPurchase = mutableStateOf(0.0)
-    val userHoldCoinDtoList = mutableStateListOf<UserHoldCoinDTO>()
+
+    //    val userHoldCoinDtoList =
+    val userHoldCoinDtoList = mutableStateOf(SnapshotStateList<UserHoldCoinDTO>())
     val totalValuedAssets = mutableStateOf(0.0)
     var removeCoinCount = mutableStateOf(0)
     val adLoadingDialogState = mutableStateOf(false)
@@ -44,7 +47,7 @@ class PortfolioState {
 class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val adMobManager: AdMobManager
-) : BaseViewModel(), PortfolioOnTickerMessageReceiveListener {
+) : BaseViewModel(), OnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()
     var userHoldCoinList = emptyList<MyCoin?>()
@@ -76,7 +79,7 @@ class PortfolioViewModel @Inject constructor(
                     }
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                     userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
-                    addUserHoldCoin(
+                    tempUserHoldCoinDtoList.add(
                         UserHoldCoinDTO(
                             myCoinsKoreanName = MoeuiBitDataStore.coinName[userHoldCoin.market]?.first
                                 ?: "",
@@ -94,6 +97,7 @@ class PortfolioViewModel @Inject constructor(
                         )
                     )
                 }
+                swapList()
                 sortUserHoldCoin(SORT_DEFAULT)
                 if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                     userHoldCoinsMarket.append(BTC_MARKET)
@@ -101,11 +105,10 @@ class PortfolioViewModel @Inject constructor(
                     userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
                 }
                 state.totalPurchase.value = localTotalPurchase
-                UpBitPortfolioWebSocket.setMarkets(userHoldCoinsMarket.toString())
-                UpBitPortfolioWebSocket
+                UpBitTickerWebSocket
                     .getListener()
-                    .setPortfolioMessageListener(this@PortfolioViewModel)
-                UpBitPortfolioWebSocket.requestKrwCoinList()
+                    .setTickerMessageListener(this@PortfolioViewModel)
+                UpBitTickerWebSocket.requestTicker(userHoldCoinsMarket.toString())
                 updateUserHoldCoins()
             } else {
                 state.totalValuedAssets.value = 0.0
@@ -116,7 +119,7 @@ class PortfolioViewModel @Inject constructor(
 
     private suspend fun resetPortfolio() {
         state.isPortfolioSocketRunning.value = false
-        state.userHoldCoinDtoList.clear()
+        state.userHoldCoinDtoList.value.clear()
         state.portfolioOrderState.value = SORT_DEFAULT
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()
@@ -124,51 +127,44 @@ class PortfolioViewModel @Inject constructor(
         userHoldCoinList = localRepository.getMyCoinDao().all ?: emptyList()
     }
 
-    private fun addUserHoldCoin(userHoldCoinDTO: UserHoldCoinDTO) {
-        tempUserHoldCoinDtoList.add(userHoldCoinDTO)
-        state.userHoldCoinDtoList.add(userHoldCoinDTO)
-    }
-
     fun sortUserHoldCoin(sortStandard: Int) {
         state.isPortfolioSocketRunning.value = false
-        when (sortStandard) {
-            SORT_NAME_DEC -> {
-                tempUserHoldCoinDtoList.sortByDescending { element ->
-                    element.myCoinsKoreanName
+        viewModelScope.launch(defaultDispatcher) {
+            when (sortStandard) {
+                SORT_NAME_DEC -> {
+                    tempUserHoldCoinDtoList.sortByDescending { element ->
+                        element.myCoinsKoreanName
+                    }
+                }
+                SORT_NAME_ASC -> {
+                    tempUserHoldCoinDtoList.sortBy { element ->
+                        element.myCoinsKoreanName
+                    }
+                }
+                SORT_RATE_ASC -> {
+                    tempUserHoldCoinDtoList.sortBy { element ->
+                        element.myCoinsBuyingAverage / element.currentPrice
+                    }
+                }
+                SORT_RATE_DEC -> {
+                    tempUserHoldCoinDtoList.sortByDescending { element ->
+                        element.myCoinsBuyingAverage / element.currentPrice
+                    }
+                }
+                else -> {
+                    tempUserHoldCoinDtoList.sortBy { element ->
+                        element.myCoinsKoreanName
+                    }
                 }
             }
-            SORT_NAME_ASC -> {
-                tempUserHoldCoinDtoList.sortBy { element ->
-                    element.myCoinsKoreanName
-                }
+            for (i in tempUserHoldCoinDtoList.indices) {
+                userHoldCoinDtoListPositionHashMap[tempUserHoldCoinDtoList[i].market] =
+                    i
             }
-            SORT_RATE_ASC -> {
-                tempUserHoldCoinDtoList.sortBy { element ->
-                    element.myCoinsBuyingAverage / element.currentPrice
-                }
-            }
-            SORT_RATE_DEC -> {
-                tempUserHoldCoinDtoList.sortByDescending { element ->
-                    element.myCoinsBuyingAverage / element.currentPrice
-                }
-            }
-            else -> {
-                tempUserHoldCoinDtoList.sortBy { element ->
-                    element.myCoinsKoreanName
-                }
-            }
-        }
+            swapList()
 
-        for (i in tempUserHoldCoinDtoList.indices) {
-            userHoldCoinDtoListPositionHashMap[tempUserHoldCoinDtoList[i].market] =
-                i
+            state.isPortfolioSocketRunning.value = true
         }
-
-        for (i in tempUserHoldCoinDtoList.indices) {
-            state.userHoldCoinDtoList[i] = tempUserHoldCoinDtoList[i]
-        }
-
-        state.isPortfolioSocketRunning.value = true
     }
 
     fun editUserHoldCoin() {
@@ -211,15 +207,15 @@ class PortfolioViewModel @Inject constructor(
 //        }
     }
 
-    private fun updateUserHoldCoins() {
+    private suspend fun updateUserHoldCoins() {
         state.isPortfolioSocketRunning.value = true
         viewModelScope.launch {
             while (state.isPortfolioSocketRunning.value) {
                 var tempTotalValuedAssets = 0.0
                 try {
+                    swapList()
                     for (i in tempUserHoldCoinDtoList.indices) {
                         val userHoldCoinDTO = tempUserHoldCoinDtoList[i]
-                        state.userHoldCoinDtoList[i] = userHoldCoinDTO
                         tempTotalValuedAssets = if (userHoldCoinDTO.market.startsWith(SYMBOL_KRW)) {
                             tempTotalValuedAssets + userHoldCoinDTO.currentPrice * userHoldCoinDTO.myCoinsQuantity
                         } else {
@@ -259,6 +255,12 @@ class PortfolioViewModel @Inject constructor(
         )
     }
 
+    fun swapList() {
+        val tempList = mutableStateListOf<UserHoldCoinDTO>()
+        tempList.addAll(tempUserHoldCoinDtoList)
+        state.userHoldCoinDtoList.value = tempList
+    }
+
     private fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
@@ -281,7 +283,7 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    override fun portfolioOnTickerMessageReceiveListener(tickerJsonObject: String) {
+    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (state.isPortfolioSocketRunning.value) {
             val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
             if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
