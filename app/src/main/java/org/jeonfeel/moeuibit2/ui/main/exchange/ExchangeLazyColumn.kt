@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -26,7 +27,6 @@ fun ExchangeScreenLazyColumn(
     filteredExchangeCoinList: SnapshotStateList<CommonExchangeModel>,
     preCoinListAndPosition: Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>>,
     textFieldValueState: MutableState<String>,
-    favoriteHashMap: HashMap<String, Int>,
     loadingFavorite: MutableState<Boolean>? = null,
     btcPrice: MutableState<Double>,
     startForActivityResult: ActivityResultLauncher<Intent>
@@ -65,7 +65,7 @@ fun ExchangeScreenLazyColumn(
                     val marketState = Utils.getSelectedMarket(coinListElement.market)
                     ExchangeScreenLazyColumnItem(
                         commonExchangeModel = coinListElement,
-                        isFavorite = favoriteHashMap[coinListElement.market] != null,
+                        isFavorite = MoeuiBitDataStore.favoriteHashMap[coinListElement.market] != null,
                         startForActivityResult = startForActivityResult,
                         marketState = marketState,
                         signedChangeRate = CurrentCalculator.signedChangeRateCalculator(

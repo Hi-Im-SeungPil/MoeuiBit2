@@ -120,7 +120,6 @@ private fun Exchange(
                 filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList() ,
                 preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
-                favoriteHashMap = exchangeViewModel.favoriteHashMap,
                 loadingFavorite = exchangeViewModel.getFavoriteLoadingState(),
                 btcPrice = exchangeViewModel.state.btcPrice ,
                 startForActivityResult = startForActivityResult

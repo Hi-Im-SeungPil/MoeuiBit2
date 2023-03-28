@@ -6,4 +6,5 @@ object MoeuiBitDataStore {
     var isKor = true
     var usdPrice = 1250.0
     val coinName = HashMap<String,Pair<String,String>>()
+    val favoriteHashMap = HashMap<String,Int>()
 }

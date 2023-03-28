@@ -26,14 +26,14 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
-import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
-import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
@@ -51,6 +51,8 @@ const val APP_UPDATE_FLEXIBLE_CODE = 124
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
+    @Inject
+    lateinit var localRepository: LocalRepository
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
@@ -63,7 +65,7 @@ class MainActivity : BaseActivity() {
                 if (resultData != null) {
                     val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
                     val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-//                    mainViewModel.updateFavorite(market, isFavorite)
+                    updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }
         }
@@ -163,8 +165,32 @@ class MainActivity : BaseActivity() {
                 )
                 dialog?.dismiss()
             }
-            .setNegativeButton(this.getString(R.string.cancel)
+            .setNegativeButton(
+                this.getString(R.string.cancel)
             ) { dialog, _ -> dialog?.dismiss() }
             .show()
+    }
+
+    private fun updateFavorite(market: String, isFavorite: Boolean) {
+        CoroutineScope(ioDispatcher).launch {
+            when {
+                MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
+                    MoeuiBitDataStore.favoriteHashMap[market] = 0
+                    try {
+                        localRepository.getFavoriteDao().insert(market)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
+                    MoeuiBitDataStore.favoriteHashMap.remove(market)
+                    try {
+                        localRepository.getFavoriteDao().delete(market)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
     }
 }

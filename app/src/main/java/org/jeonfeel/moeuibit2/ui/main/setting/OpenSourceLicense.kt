@@ -74,7 +74,7 @@ fun OpenSourceLicenseLazyColumnItem(
         Text(text = openSourceName,
             modifier = Modifier.fillMaxWidth(),
             fontWeight = FontWeight.Bold,
-            fontSize = DpToSp(17)
+            fontSize = DpToSp(17.dp)
         )
 
         if(opensourceUrl.isNotEmpty()){
@@ -84,14 +84,14 @@ fun OpenSourceLicenseLazyColumnItem(
                     .clickable {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(opensourceUrl)))
                     },
-                fontSize = DpToSp(15),
+                fontSize = DpToSp(15.dp),
                 style = TextStyle(color = Color.Blue),
                 textDecoration = TextDecoration.Underline)
         }
 
         Text(text = openSourceLicense,
             modifier = Modifier.fillMaxWidth(),
-            fontSize = DpToSp(15))
+            fontSize = DpToSp(15.dp))
     }
 }
 
@@ -114,6 +114,6 @@ fun Intro() {
                 }
             }
             .padding(10.dp, 10.dp, 10.dp, 10.dp),
-        style = TextStyle(fontSize = DpToSp(15)))
+        style = TextStyle(fontSize = DpToSp(15.dp)))
 }
 
