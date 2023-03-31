@@ -17,7 +17,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.menuTitleArray
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
@@ -85,17 +84,17 @@ fun MainNavigation(
     navController: NavHostController,
     mainViewModel: MainViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    scaffoldState: ScaffoldState,
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
             val exchangeViewModel: ExchangeViewModel = viewModel(
                 factory = ExchangeViewModel.provideFactory(
                     mainViewModel.remoteRepository,
-                    mainViewModel.localRepository
+                    mainViewModel.localRepository,
+                    mainViewModel.state.errorState
                 )
             )
-            ExchangeScreen(exchangeViewModel, startForActivityResult)
+            ExchangeScreen(exchangeViewModel, startForActivityResult, mainViewModel.state.errorState)
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
             CoinSiteScreen()

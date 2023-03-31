@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,11 +8,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
@@ -34,7 +34,7 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
     val transactionInfoList = coinDetailViewModel.coinOrder.state.transactionInfoList
     if (transactionInfoList.isEmpty()) {
         Text(
-            text = "거래내역이 없습니다.",
+            text = stringResource(id = R.string.empty_transaction_info),
             modifier = Modifier
                 .padding(0.dp, 15.dp, 0.dp, 0.dp)
                 .fillMaxWidth(),
@@ -46,9 +46,9 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(transactionInfoList) { _, item ->
                 val askBidText = if (item.transactionStatus == BID) {
-                    "매수"
+                    stringResource(id = R.string.bid)
                 } else {
-                    "매도"
+                    stringResource(id = R.string.ask)
                 }
                 val totalPrice =
                     CurrentCalculator.tradePriceCalculator(item.quantity * item.price, marketState)
@@ -114,10 +114,10 @@ fun TransactionInfoLazyColumnItem(
             modifier = Modifier
                 .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)
         )
-        ItemRow(title = "시간", content = time)
-        ItemRow(title = "가격", content = price)
-        ItemRow(title = "수량", content = quantity)
-        ItemRow(title = "총액", content = totalPrice)
+        ItemRow(title = stringResource(id = R.string.time), content = time)
+        ItemRow(title = stringResource(id = R.string.price), content = price)
+        ItemRow(title = stringResource(id = R.string.quantity), content = quantity)
+        ItemRow(title = stringResource(id = R.string.total), content = totalPrice)
         Divider(
             modifier = Modifier
                 .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)

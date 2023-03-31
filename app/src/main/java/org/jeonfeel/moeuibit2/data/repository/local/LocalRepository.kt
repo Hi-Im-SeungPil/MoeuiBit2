@@ -8,7 +8,7 @@ import org.jeonfeel.moeuibit2.data.local.room.dao.UserDAO
 
 class LocalRepository(private val moeuiBitDatabase: MoeuiBitDatabase) {
 
-    fun getFavoriteDao(): FavoriteDAO {
+    suspend fun getFavoriteDao(): FavoriteDAO {
         return moeuiBitDatabase.favoriteDAO()
     }
 

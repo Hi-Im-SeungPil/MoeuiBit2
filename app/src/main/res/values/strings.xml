@@ -145,4 +145,5 @@
     <string name="write_review">리뷰 작성</string>
     <string name="init_app">앱 초기화</string>
     <string name="open_source_license">오픈소스 라이선스</string>
+    <string name="empty_transaction_info">거래내역이 없습니다.</string>
 </resources>

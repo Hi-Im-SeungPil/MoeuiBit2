@@ -43,8 +43,7 @@ class PortfolioState {
     val isPortfolioSocketRunning = mutableStateOf(true)
 }
 
-@HiltViewModel
-class PortfolioViewModel @Inject constructor(
+class PortfolioViewModel constructor(
     private val localRepository: LocalRepository,
     private val adMobManager: AdMobManager
 ) : BaseViewModel(), OnTickerMessageReceiveListener {

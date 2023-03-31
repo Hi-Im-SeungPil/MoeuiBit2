@@ -94,15 +94,4 @@ class RemoteRepository(
             }
         }
     }
-
-    suspend fun getBinanceExchangeInfo(): Flow<ApiResult<JsonObject>> {
-        return flow {
-            emit(ApiResult.loading())
-            try {
-                emit(call(binanceService.getExchangeInfo()))
-            } catch (e: Exception) {
-                emit(ApiResult.error(e))
-            }
-        }
-    }
 }

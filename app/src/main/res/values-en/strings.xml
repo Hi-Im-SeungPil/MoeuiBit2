@@ -145,4 +145,5 @@
     <string name="write_review">Create a review</string>
     <string name="init_app">Initialize the app</string>
     <string name="open_source_license">Opensource License</string>
+    <string name="empty_transaction_info">No transaction details.</string>
 </resources>

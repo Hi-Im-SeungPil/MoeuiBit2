@@ -13,12 +13,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.local.room.dao.FavoriteDAO
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.*
@@ -40,10 +40,10 @@ class ExchangeViewModelState {
     val btcPrice = mutableStateOf(0.0)
 }
 
-@HiltViewModel
-class ExchangeViewModel @Inject constructor(
+class ExchangeViewModel constructor(
     private val remoteRepository: RemoteRepository,
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
+    private val errorState: MutableState<Int>
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
     var updateExchange = false
     val state = ExchangeViewModelState()
@@ -94,13 +94,13 @@ class ExchangeViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     initFavoriteData()
                 }
-                state.error.value = INTERNET_CONNECTION
+                errorState.value = INTERNET_CONNECTION
                 state.loadingExchange.value = false
             }
             else -> {
                 state.loadingExchange.value = false
                 updateExchange = false
-                state.error.value = NetworkMonitorUtil.currentNetworkState
+                errorState.value = NetworkMonitorUtil.currentNetworkState
             }
         }
     }
@@ -148,14 +148,14 @@ class ExchangeViewModel @Inject constructor(
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        state.error.value = NETWORK_ERROR
+                        errorState.value = NETWORK_ERROR
                     }
                 }
                 ApiResult.Status.API_ERROR -> {
-                    state.error.value = NETWORK_ERROR
+                    errorState.value = NETWORK_ERROR
                 }
                 ApiResult.Status.NETWORK_ERROR -> {
-                    state.error.value = NO_INTERNET_CONNECTION
+                    errorState.value = NO_INTERNET_CONNECTION
                     NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
                 }
             }
@@ -200,19 +200,19 @@ class ExchangeViewModel @Inject constructor(
                             swapList(SELECTED_KRW_MARKET)
                             krwPreItemArray.addAll(krwExchangeModelList)
                         } else {
-                            state.error.value = NETWORK_ERROR
+                            errorState.value = NETWORK_ERROR
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         NetworkMonitorUtil.currentNetworkState = NETWORK_ERROR
-                        state.error.value = NETWORK_ERROR
+                        errorState.value = NETWORK_ERROR
                     }
                 }
                 ApiResult.Status.API_ERROR -> {
-                    state.error.value = NETWORK_ERROR
+                    errorState.value = NETWORK_ERROR
                 }
                 ApiResult.Status.NETWORK_ERROR -> {
-                    state.error.value = NO_INTERNET_CONNECTION
+                    errorState.value = NO_INTERNET_CONNECTION
                     NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
                 }
             }
@@ -266,14 +266,14 @@ class ExchangeViewModel @Inject constructor(
                     } catch (e: Exception) {
                         e.printStackTrace()
                         NetworkMonitorUtil.currentNetworkState = NETWORK_ERROR
-                        state.error.value = NETWORK_ERROR
+                        errorState.value = NETWORK_ERROR
                     }
                 }
                 ApiResult.Status.API_ERROR -> {
-                    state.error.value = NETWORK_ERROR
+                    errorState.value = NETWORK_ERROR
                 }
                 ApiResult.Status.NETWORK_ERROR -> {
-                    state.error.value = NO_INTERNET_CONNECTION
+                    errorState.value = NO_INTERNET_CONNECTION
                     NetworkMonitorUtil.currentNetworkState = NO_INTERNET_CONNECTION
                 }
             }
@@ -362,6 +362,7 @@ class ExchangeViewModel @Inject constructor(
      * 관심코인 목록 가져오기
      */
     private fun requestFavoriteData(selectedMarketState: Int) {
+        updateExchange = false
         viewModelScope.launch(ioDispatcher) {
             val favoriteMarketListStringBuffer = StringBuffer()
             favoritePreItemArray.clear()
@@ -400,9 +401,9 @@ class ExchangeViewModel @Inject constructor(
                     UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
                 }
             }
-            swapList(marketState = SELECTED_FAVORITE)
             sortList(selectedMarketState)
             state.loadingFavorite.value = false
+            updateExchange = true
         }
     }
 
@@ -712,7 +713,7 @@ class ExchangeViewModel @Inject constructor(
         } else if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION
             || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR
         ) {
-            state.error.value = NetworkMonitorUtil.currentNetworkState
+            errorState.value = NetworkMonitorUtil.currentNetworkState
             UpBitTickerWebSocket.onPause()
             initExchangeData()
         }
@@ -774,7 +775,7 @@ class ExchangeViewModel @Inject constructor(
      * 웹소켓 메세지
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        Logger.e("onticker")
+//        Logger.e("onticker")
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
         val marketState = state.selectedMarket.value
         var position = 0
@@ -799,38 +800,44 @@ class ExchangeViewModel @Inject constructor(
                 marketState == SELECTED_FAVORITE -> {
                     position = favoriteExchangeModelListPosition[model.code] ?: 0
                     targetModelList = favoriteExchangeModelList
+                    Logger.e("target list position ${position}")
                 }
                 // krw 마켓 일 때
                 else -> {
-//                    Log.e("test", model.code)
                     position = krwExchangeModelListPosition[model.code] ?: 0
                     targetModelList = krwExchangeModelList
                 }
             }
         } else if (updateExchange && model.code.startsWith(SYMBOL_BTC)) { // BTC 마켓 일 떄
-            position = btcExchangeModelListPosition[model.code] ?: 0
             targetModelList = when (marketState) {
                 SELECTED_FAVORITE -> {
+                    position = favoriteExchangeModelListPosition[model.code] ?: 0
                     favoriteExchangeModelList
                 }
                 else -> {
+                    position = btcExchangeModelListPosition[model.code] ?: 0
                     btcExchangeModelList
                 }
             }
         }
 
-        targetModelList?.let {
-            targetModelList[position] = CommonExchangeModel(
-                koreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
-                englishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
-                market = model.code,
-                symbol = model.code.substring(4),
-                opening_price = model.preClosingPrice,
-                tradePrice = model.tradePrice,
-                signedChangeRate = model.signedChangeRate,
-                accTradePrice24h = model.accTradePrice24h,
-                warning = model.marketWarning
-            )
+        if (updateExchange) {
+            targetModelList?.let {
+                Logger.e("model list market ${model.code}")
+                Logger.e("target list ${targetModelList[0].market}")
+                Logger.e("target list size ${targetModelList.size}")
+                targetModelList[position] = CommonExchangeModel(
+                    koreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
+                    englishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
+                    market = model.code,
+                    symbol = model.code.substring(4),
+                    opening_price = model.preClosingPrice,
+                    tradePrice = model.tradePrice,
+                    signedChangeRate = model.signedChangeRate,
+                    accTradePrice24h = model.accTradePrice24h,
+                    warning = model.marketWarning
+                )
+            }
         }
     }
 
@@ -838,10 +845,11 @@ class ExchangeViewModel @Inject constructor(
         fun provideFactory(
             remoteRepository: RemoteRepository,
             localRepository: LocalRepository,
+            errorState: MutableState<Int>,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ExchangeViewModel(remoteRepository, localRepository) as T
+                return ExchangeViewModel(remoteRepository, localRepository, errorState) as T
             }
         }
 

@@ -45,22 +45,23 @@ fun ExchangeErrorScreen(
             backgroundColor = Color.Black
         ) {
             Row(modifier = Modifier.fillMaxSize()) {
-                FontLightText(
+                Text(
                     text = errorText, modifier = Modifier
                         .weight(3f)
                         .fillMaxSize()
                         .wrapContentHeight(),
-                    textStyle = TextStyle(color = Color.White, textAlign = TextAlign.Center),
-                    fontSize = 13
+                    style = TextStyle(color = Color.White, textAlign = TextAlign.Center),
+                    fontSize = DpToSp(13.dp)
                 )
                 TextButton(onClick = {
                     checkErrorScreen()
                 }) {
-                    FontLightText(
-                        text = context.getString(R.string.retry), textStyle = TextStyle(
+                    Text(
+                        text = context.getString(R.string.retry),
+                        style = TextStyle(
                             color = colorResource(id = R.color.C0054FF)
                         ),
-                        fontSize = 17
+                        fontSize = DpToSp(dp = 13.dp)
                     )
                 }
             }

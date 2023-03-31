@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +38,7 @@ import kotlin.system.exitProcess
 fun ExchangeScreen(
     exchangeViewModel: ExchangeViewModel = viewModel(),
     startForActivityResult: ActivityResultLauncher<Intent>,
+    errorState: MutableState<Int>,
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState()
@@ -59,7 +61,8 @@ fun ExchangeScreen(
             Exchange(
                 exchangeViewModel = exchangeViewModel,
                 startForActivityResult = startForActivityResult,
-                pagerState = pagerState
+                pagerState = pagerState,
+                errorState = errorState
             )
         }
     }
@@ -71,10 +74,11 @@ fun ExchangeScreen(
 private fun Exchange(
     exchangeViewModel: ExchangeViewModel,
     startForActivityResult: ActivityResultLauncher<Intent>,
-    pagerState: PagerState
+    pagerState: PagerState,
+    errorState: MutableState<Int>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        if (exchangeViewModel.state.error.value == INTERNET_CONNECTION) {
+        if (errorState.value == INTERNET_CONNECTION) {
             SearchBasic(
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
                 modifier = Modifier

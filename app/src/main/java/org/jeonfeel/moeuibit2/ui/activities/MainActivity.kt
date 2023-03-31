@@ -65,7 +65,7 @@ class MainActivity : BaseActivity() {
                 if (resultData != null) {
                     val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
                     val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                    updateFavorite(market = market, isFavorite = isFavorite)
+                    mainViewModel.updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }
         }
@@ -89,7 +89,14 @@ class MainActivity : BaseActivity() {
         }
 //        mainViewModel.requestUsdPrice()
         initNetworkStateMonitor(
+            connected5G = {
+                currentNetworkState = INTERNET_CONNECTION
+            },
+            connectedWifiAction = {
+                currentNetworkState = INTERNET_CONNECTION
+            },
             noInternetAction = {
+                mainViewModel.state.errorState.value = NO_INTERNET_CONNECTION
                 UpBitTickerWebSocket.onPause()
                 UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
             }
@@ -124,7 +131,7 @@ class MainActivity : BaseActivity() {
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                MainNavigation(navController, viewModel, startForActivityResult, scaffoldState)
+                MainNavigation(navController, viewModel, startForActivityResult)
             }
         }
     }
@@ -147,7 +154,6 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Logger.e("Call onDestroy")
         UpBitTickerWebSocket.socket.cancel()
         UpBitOrderBookWebSocket.socket.cancel()
     }
@@ -169,28 +175,5 @@ class MainActivity : BaseActivity() {
                 this.getString(R.string.cancel)
             ) { dialog, _ -> dialog?.dismiss() }
             .show()
-    }
-
-    private fun updateFavorite(market: String, isFavorite: Boolean) {
-        CoroutineScope(ioDispatcher).launch {
-            when {
-                MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap[market] = 0
-                    try {
-                        localRepository.getFavoriteDao().insert(market)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap.remove(market)
-                    try {
-                        localRepository.getFavoriteDao().delete(market)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
     }
 }
