@@ -94,7 +94,10 @@ fun MainNavigation(
                     mainViewModel.state.errorState
                 )
             )
-            ExchangeScreen(exchangeViewModel, startForActivityResult, mainViewModel.state.errorState)
+            ExchangeScreen(
+                exchangeViewModel = exchangeViewModel,
+                errorState = mainViewModel.state.errorState
+            )
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
             CoinSiteScreen()
@@ -106,7 +109,7 @@ fun MainNavigation(
                     mainViewModel.localRepository
                 )
             )
-            PortfolioScreen(portfolioViewModel, startForActivityResult)
+            PortfolioScreen(portfolioViewModel = portfolioViewModel, startForActivityResult)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen(mainViewModel)

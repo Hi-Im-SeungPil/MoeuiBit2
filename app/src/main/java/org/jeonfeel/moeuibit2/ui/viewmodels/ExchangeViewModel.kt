@@ -3,6 +3,9 @@ package org.jeonfeel.moeuibit2.ui.viewmodels
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -65,8 +68,8 @@ class ExchangeViewModel constructor(
     private val btcExchangeModelMutableStateList =
         mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
-    private val favoritePreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
-    private val favoriteExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
+    private var favoritePreItemArray: ArrayList<CommonExchangeModel> = arrayListOf()
+    private var favoriteExchangeModelList: ArrayList<CommonExchangeModel> = arrayListOf()
     private val favoriteExchangeModelListPosition: HashMap<String, Int> = hashMapOf()
     private val favoriteExchangeModelMutableStateList =
         mutableStateOf(mutableStateListOf<CommonExchangeModel>())
@@ -334,6 +337,7 @@ class ExchangeViewModel constructor(
      */
     private suspend fun updateExchange() {
         if (!updateExchange) updateExchange = true
+
         while (updateExchange) {
             when (state.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
@@ -365,34 +369,39 @@ class ExchangeViewModel constructor(
         updateExchange = false
         viewModelScope.launch(ioDispatcher) {
             val favoriteMarketListStringBuffer = StringBuffer()
-            favoritePreItemArray.clear()
-            favoriteExchangeModelList.clear()
-            favoriteExchangeModelMutableStateList.value.clear()
+//            favoritePreItemArray.clear()
+//            favoriteExchangeModelList.clear()
+//            favoriteExchangeModelMutableStateList.value.clear()
+            val tempList = arrayListOf<CommonExchangeModel>()
             val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
-            if (favoriteList.isNotEmpty()) {
-                for (i in favoriteList.indices) {
-                    val market = favoriteList[i]?.market ?: ""
-                    MoeuiBitDataStore.favoriteHashMap[market] = 0
-                    try {
-                        if (market.startsWith(SYMBOL_KRW)) {
-                            val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
-                            favoritePreItemArray.add(model)
-                            favoriteExchangeModelList.add(model)
-                            favoriteExchangeModelListPosition[market] = i
-                            favoriteMarketListStringBuffer.append("$market,")
-                        } else {
-                            val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
-                            favoritePreItemArray.add(model)
-                            favoriteExchangeModelList.add(model)
-                            favoriteExchangeModelListPosition[market] = i
-                            favoriteMarketListStringBuffer.append("$market,")
-                        }
-                    } catch (e: java.lang.Exception) {
-                        localRepository.getFavoriteDao().delete(market)
-                        e.printStackTrace()
+            for (i in favoriteList.indices) {
+                val market = favoriteList[i]?.market ?: ""
+                Logger.e("favorite market $market")
+                MoeuiBitDataStore.favoriteHashMap[market] = 0
+                try {
+                    if (market.startsWith(SYMBOL_KRW)) {
+                        val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
+//                            favoritePreItemArray.add(model)
+//                            favoriteExchangeModelList.add(model)
+                        favoriteExchangeModelListPosition[market] = i
+                        tempList.add(model)
+                        favoriteMarketListStringBuffer.append("$market,")
+                    } else {
+                        val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
+//                            favoritePreItemArray.add(model)
+//                            favoriteExchangeModelList.add(model)
+                        favoriteExchangeModelListPosition[market] = i
+                        tempList.add(model)
+                        favoriteMarketListStringBuffer.append("$market,")
                     }
+                } catch (e: java.lang.Exception) {
+                    localRepository.getFavoriteDao().delete(market)
+                    e.printStackTrace()
                 }
-
+            }
+            favoriteExchangeModelList = tempList
+            favoritePreItemArray = tempList
+            if (favoriteMarketListStringBuffer.isNotEmpty()) {
                 favoriteMarketListStringBuffer.deleteCharAt(favoriteMarketListStringBuffer.lastIndex)
 
                 if (MoeuiBitDataStore.favoriteHashMap[BTC_MARKET] == null) {
@@ -433,6 +442,7 @@ class ExchangeViewModel constructor(
                     }
 
                     if (state.selectedMarket.value == SELECTED_FAVORITE) {
+                        updateExchange = false
                         UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
                         UpBitTickerWebSocket.onPause()
                         requestFavoriteData(SELECTED_FAVORITE)
@@ -461,7 +471,7 @@ class ExchangeViewModel constructor(
     }
 
     fun sortList(marketState: Int) {
-        if (updateExchange) {
+        if (updateExchange || state.selectedMarket.value == SELECTED_FAVORITE) {
             updateExchange = false
             viewModelScope.launch(defaultDispatcher) {
                 state.selectedMarket.value = marketState
@@ -800,7 +810,6 @@ class ExchangeViewModel constructor(
                 marketState == SELECTED_FAVORITE -> {
                     position = favoriteExchangeModelListPosition[model.code] ?: 0
                     targetModelList = favoriteExchangeModelList
-                    Logger.e("target list position ${position}")
                 }
                 // krw 마켓 일 때
                 else -> {
@@ -823,9 +832,6 @@ class ExchangeViewModel constructor(
 
         if (updateExchange) {
             targetModelList?.let {
-                Logger.e("model list market ${model.code}")
-                Logger.e("target list ${targetModelList[0].market}")
-                Logger.e("target list size ${targetModelList.size}")
                 targetModelList[position] = CommonExchangeModel(
                     koreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
                     englishName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",

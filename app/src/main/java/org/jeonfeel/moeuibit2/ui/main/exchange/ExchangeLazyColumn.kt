@@ -5,7 +5,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -29,7 +31,8 @@ fun ExchangeScreenLazyColumn(
     textFieldValueState: MutableState<String>,
     loadingFavorite: MutableState<Boolean>? = null,
     btcPrice: MutableState<Double>,
-    startForActivityResult: ActivityResultLauncher<Intent>
+    startForActivityResult: ActivityResultLauncher<Intent>,
+    scrollState: LazyListState
 ) {
     when {
         loadingFavorite != null && !loadingFavorite.value && filteredExchangeCoinList.isEmpty() -> {
@@ -54,8 +57,8 @@ fun ExchangeScreenLazyColumn(
                 textAlign = TextAlign.Center
             )
         }
-        else -> {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+        filteredExchangeCoinList.isNotEmpty() -> {
+            LazyColumn(modifier = Modifier.fillMaxSize(), state = scrollState) {
                 itemsIndexed(
                     items = filteredExchangeCoinList
                 ) { _, coinListElement ->
@@ -84,7 +87,7 @@ fun ExchangeScreenLazyColumn(
                             marketState
                         ),
                         btcToKrw = CurrentCalculator.btcToKrw(
-                            (coinListElement.tradePrice * btcPrice.value) ,
+                            (coinListElement.tradePrice * btcPrice.value),
                             marketState
                         ),
                         unit = Utils.getUnit(marketState),
