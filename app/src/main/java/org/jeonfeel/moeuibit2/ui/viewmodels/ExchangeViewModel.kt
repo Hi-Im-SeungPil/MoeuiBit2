@@ -13,12 +13,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.gson.JsonArray
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.dao.FavoriteDAO
@@ -41,6 +40,7 @@ class ExchangeViewModelState {
     val searchTextFieldValue = mutableStateOf("")
     val sortButton = mutableStateOf(-1)
     val btcPrice = mutableStateOf(0.0)
+    val testState = mutableStateOf(false)
 }
 
 class ExchangeViewModel constructor(
@@ -77,13 +77,13 @@ class ExchangeViewModel constructor(
     fun initExchangeData() {
         viewModelScope.launch {
             if (krwExchangeModelMutableStateList.value.isEmpty()) {
-                viewModelScope.launch {
-                    requestExchangeData()
-                }.join()
+                requestExchangeData()
             }
             setSocketFavoriteData()
             requestCoinListToWebSocket()
-            updateExchange()
+            if (!updateExchange) {
+                updateExchange()
+            }
         }
     }
 
@@ -337,7 +337,6 @@ class ExchangeViewModel constructor(
      */
     private suspend fun updateExchange() {
         if (!updateExchange) updateExchange = true
-
         while (updateExchange) {
             when (state.selectedMarket.value) {
                 SELECTED_KRW_MARKET -> {
@@ -365,33 +364,28 @@ class ExchangeViewModel constructor(
     /**
      * 관심코인 목록 가져오기
      */
-    private fun requestFavoriteData(selectedMarketState: Int) {
+    private fun requestFavoriteData(selectedMarketState: Int, initState: Boolean = false) {
         updateExchange = false
+        favoritePreItemArray.clear()
         viewModelScope.launch(ioDispatcher) {
             val favoriteMarketListStringBuffer = StringBuffer()
-//            favoritePreItemArray.clear()
-//            favoriteExchangeModelList.clear()
-//            favoriteExchangeModelMutableStateList.value.clear()
             val tempList = arrayListOf<CommonExchangeModel>()
             val favoriteList = localRepository.getFavoriteDao().all ?: emptyList<Favorite>()
             for (i in favoriteList.indices) {
                 val market = favoriteList[i]?.market ?: ""
-                Logger.e("favorite market $market")
                 MoeuiBitDataStore.favoriteHashMap[market] = 0
                 try {
                     if (market.startsWith(SYMBOL_KRW)) {
                         val model = krwExchangeModelList[krwExchangeModelListPosition[market]!!]
-//                            favoritePreItemArray.add(model)
-//                            favoriteExchangeModelList.add(model)
                         favoriteExchangeModelListPosition[market] = i
                         tempList.add(model)
+                        favoritePreItemArray.add(model)
                         favoriteMarketListStringBuffer.append("$market,")
                     } else {
                         val model = btcExchangeModelList[btcExchangeModelListPosition[market]!!]
-//                            favoritePreItemArray.add(model)
-//                            favoriteExchangeModelList.add(model)
                         favoriteExchangeModelListPosition[market] = i
                         tempList.add(model)
+                        favoritePreItemArray.add(model)
                         favoriteMarketListStringBuffer.append("$market,")
                     }
                 } catch (e: java.lang.Exception) {
@@ -400,19 +394,18 @@ class ExchangeViewModel constructor(
                 }
             }
             favoriteExchangeModelList = tempList
-            favoritePreItemArray = tempList
+
             if (favoriteMarketListStringBuffer.isNotEmpty()) {
                 favoriteMarketListStringBuffer.deleteCharAt(favoriteMarketListStringBuffer.lastIndex)
+            }
 
-                if (MoeuiBitDataStore.favoriteHashMap[BTC_MARKET] == null) {
-                    UpBitTickerWebSocket.setFavoriteMarkets("$favoriteMarketListStringBuffer,$BTC_MARKET")
-                } else {
-                    UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
-                }
+            if (MoeuiBitDataStore.favoriteHashMap[BTC_MARKET] == null) {
+                UpBitTickerWebSocket.setFavoriteMarkets("$favoriteMarketListStringBuffer,$BTC_MARKET")
+            } else {
+                UpBitTickerWebSocket.setFavoriteMarkets(favoriteMarketListStringBuffer.toString())
             }
             sortList(selectedMarketState)
             state.loadingFavorite.value = false
-            updateExchange = true
         }
     }
 
@@ -420,36 +413,38 @@ class ExchangeViewModel constructor(
      * 사용자 관심코인 변경사항 업데이트
      */
     fun updateFavorite(
-        market: String,
-        isFavorite: Boolean,
+        market: String = "",
+        isFavorite: Boolean = false,
     ) {
         viewModelScope.launch(ioDispatcher) {
-            when {
-                MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap[market] = 0
-                    try {
-                        localRepository.getFavoriteDao().insert(market)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap.remove(market)
-                    try {
-                        localRepository.getFavoriteDao().delete(market)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-                    if (state.selectedMarket.value == SELECTED_FAVORITE) {
-                        updateExchange = false
-                        UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
-                        UpBitTickerWebSocket.onPause()
-                        requestFavoriteData(SELECTED_FAVORITE)
-                        Handler(Looper.getMainLooper()).post {
-                            requestCoinListToWebSocket()
+            if (market.isNotEmpty()) {
+                when {
+                    MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
+                        MoeuiBitDataStore.favoriteHashMap[market] = 0
+                        try {
+                            localRepository.getFavoriteDao().insert(market)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                        updateExchange()
+                    }
+                    MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
+                        MoeuiBitDataStore.favoriteHashMap.remove(market)
+                        try {
+                            localRepository.getFavoriteDao().delete(market)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
+                        if (state.selectedMarket.value == SELECTED_FAVORITE) {
+                            updateExchange = false
+                            UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                            UpBitTickerWebSocket.onPause()
+                            requestFavoriteData(SELECTED_FAVORITE)
+                            Handler(Looper.getMainLooper()).post {
+                                requestCoinListToWebSocket()
+                            }
+                            updateExchange()
+                        }
                     }
                 }
             }
@@ -459,7 +454,7 @@ class ExchangeViewModel constructor(
     fun marketChangeAction(marketState: Int) {
         if (UpBitTickerWebSocket.currentMarket != marketState) {
             if (marketState == SELECTED_FAVORITE) {
-                requestFavoriteData(marketState)
+                requestFavoriteData(marketState, true)
             }
             UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
             UpBitTickerWebSocket.onPause()
@@ -785,7 +780,6 @@ class ExchangeViewModel constructor(
      * 웹소켓 메세지
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-//        Logger.e("onticker")
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
         val marketState = state.selectedMarket.value
         var position = 0
