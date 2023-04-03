@@ -1,7 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -16,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
+import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -29,10 +34,20 @@ import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun PortfolioScreen(
-    portfolioViewModel: PortfolioViewModel = viewModel(),
-    startForActivityResult: ActivityResultLauncher<Intent>
+    portfolioViewModel: PortfolioViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val startForActivityResult =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val resultData = result.data
+                if (resultData != null) {
+                    val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
+                    val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
+                    portfolioViewModel.updateFavorite(market = market, isFavorite = isFavorite)
+                }
+            }
+        }
     EditUserHoldCoinDialog(
         dialogState = portfolioViewModel.state.editHoldCoinDialogState,
         editUserHoldCoin = portfolioViewModel::editUserHoldCoin

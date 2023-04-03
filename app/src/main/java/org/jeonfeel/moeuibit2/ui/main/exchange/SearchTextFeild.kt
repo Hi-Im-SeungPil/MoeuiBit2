@@ -54,7 +54,7 @@ fun SearchBasic(
                         Text(
                             placeholderText,
                             style = LocalTextStyle.current.copy(
-                                color = colorResource(id = R.color.C0F0F5C),
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                                 fontSize = fontSize
                             )
                         )

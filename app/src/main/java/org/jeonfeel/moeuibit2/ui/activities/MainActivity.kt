@@ -1,12 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.activities
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -15,8 +11,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.ads.OnUserEarnedRewardListener
-import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -24,26 +18,21 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
+import org.jeonfeel.moeuibit2.ui.theme.JetpackComposeDarkThemeTheme
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.utils.ConnectionType
-import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.showToast
-import java.util.*
 import javax.inject.Inject
 
 const val APP_UPDATE_CODE = 123
@@ -58,24 +47,15 @@ class MainActivity : BaseActivity() {
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
-    private val startForActivityResult: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                val resultData = it.data
-                if (resultData != null) {
-                    val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
-                    val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                    mainViewModel.updateFavorite(market = market, isFavorite = isFavorite)
-                }
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         initActivity()
         setContent {
-            MainScreen(mainViewModel)
+            JetpackComposeDarkThemeTheme {
+                MainScreen(mainViewModel)
+            }
         }
     }
 
@@ -131,7 +111,7 @@ class MainActivity : BaseActivity() {
             bottomBar = { MainBottomNavigation(navController) },
         ) { contentPadding ->
             Box(modifier = Modifier.padding(contentPadding)) {
-                MainNavigation(navController, viewModel, startForActivityResult)
+                MainNavigation(navController, viewModel)
             }
         }
     }

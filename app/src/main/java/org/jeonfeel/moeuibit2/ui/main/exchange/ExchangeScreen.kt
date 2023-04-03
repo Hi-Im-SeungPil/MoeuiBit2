@@ -7,6 +7,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -15,6 +16,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -94,7 +96,11 @@ private fun Exchange(
 ) {
     val scrollState = rememberLazyListState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
         if (errorState.value == INTERNET_CONNECTION) {
             SearchBasic(
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,
@@ -109,7 +115,7 @@ private fun Exchange(
                         modifier = Modifier
                             .padding(10.dp)
                             .size(25.dp),
-                        tint = colorResource(id = R.color.C0F0F5C)
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 trailingIcon = {
@@ -120,7 +126,7 @@ private fun Exchange(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .size(25.dp),
-                            tint = colorResource(id = R.color.C0F0F5C)
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },

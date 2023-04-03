@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.ui.viewmodels
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -12,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
@@ -27,8 +30,6 @@ import javax.inject.Inject
 class PortfolioState {
     val userSeedMoney = mutableStateOf(0L)
     var totalPurchase = mutableStateOf(0.0)
-
-    //    val userHoldCoinDtoList =
     val userHoldCoinDtoList = mutableStateOf(SnapshotStateList<UserHoldCoinDTO>())
     val totalValuedAssets = mutableStateOf(0.0)
     var removeCoinCount = mutableStateOf(0)
@@ -69,7 +70,7 @@ class PortfolioViewModel constructor(
                     val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
                     val market = userHoldCoin.market
                     val marketState = Utils.getSelectedMarket(market)
-//                    val isFavorite = favoriteHashMap[market]
+                    val isFavorite = MoeuiBitDataStore.favoriteHashMap[market]
                     userHoldCoinHashMap[market] = userHoldCoin
                     localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
                         localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
@@ -90,7 +91,7 @@ class PortfolioViewModel constructor(
                             currentPrice = 0.0,
                             openingPrice = 0.0,
                             warning = "",
-                            isFavorite = null,
+                            isFavorite = isFavorite,
                             market = userHoldCoin.market,
                             purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
                         )
@@ -254,7 +255,7 @@ class PortfolioViewModel constructor(
         )
     }
 
-    fun swapList() {
+    private fun swapList() {
         val tempList = mutableStateListOf<UserHoldCoinDTO>()
         tempList.addAll(tempUserHoldCoinDtoList)
         state.userHoldCoinDtoList.value = tempList
@@ -282,6 +283,32 @@ class PortfolioViewModel constructor(
         }
     }
 
+    fun updateFavorite(market: String, isFavorite: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            if (market.isNotEmpty()) {
+                when {
+                    MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
+                        MoeuiBitDataStore.favoriteHashMap[market] = 0
+                        try {
+                            localRepository.getFavoriteDao().insert(market)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
+                        MoeuiBitDataStore.favoriteHashMap.remove(market)
+                        try {
+                            localRepository.getFavoriteDao().delete(market)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (state.isPortfolioSocketRunning.value) {
             val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
@@ -293,7 +320,7 @@ class PortfolioViewModel constructor(
             }
             val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
             val userHoldCoin = userHoldCoinHashMap[model.code]!!
-//                val isFavorite = favoriteHashMap[model.code]
+            val isFavorite = MoeuiBitDataStore.favoriteHashMap[model.code]
             tempUserHoldCoinDtoList[position] =
                 UserHoldCoinDTO(
                     myCoinsKoreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
@@ -304,7 +331,7 @@ class PortfolioViewModel constructor(
                     currentPrice = model.tradePrice,
                     openingPrice = model.preClosingPrice,
                     warning = model.marketWarning,
-                    isFavorite = null,
+                    isFavorite = isFavorite,
                     market = model.code,
                     purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
                 )

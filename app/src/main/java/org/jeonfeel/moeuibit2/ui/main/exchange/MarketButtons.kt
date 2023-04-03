@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -49,7 +50,8 @@ fun marketButtons(
     Row(
         Modifier
             .fillMaxWidth()
-            .drawUnderLine(lineColor = Color.DarkGray)) {
+            .drawUnderLine(lineColor = Color.DarkGray)
+    ) {
         CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
@@ -61,7 +63,7 @@ fun marketButtons(
                 },
                 modifier = Modifier
                     .weight(3f),
-                backgroundColor = Color.White,
+                backgroundColor = MaterialTheme.colorScheme.background,
                 divider = {}
             ) {
                 tabTitleList.forEachIndexed { index, title ->
@@ -74,7 +76,7 @@ fun marketButtons(
                                 textAlign = TextAlign.Center,
                             )
                         },
-                        selectedContentColor = colorResource(R.color.C0F0F5C),
+                        selectedContentColor = MaterialTheme.colorScheme.onBackground,
                         unselectedContentColor = Color.LightGray,
                         selected = selectedMarketState.value == index,
                         onClick = {
@@ -88,12 +90,14 @@ fun marketButtons(
             if (isKor) {
                 Spacer(modifier = Modifier.weight(1f))
             } else {
-                Text(text = "\$1 =\n${round(usdPrice).toInt()} KRW",
+                Text(
+                    text = "\$1 =\n${round(usdPrice).toInt()} KRW",
                     fontSize = DpToSp(dp = 13.dp),
                     style = TextStyle(textAlign = TextAlign.Center),
                     modifier = Modifier
                         .weight(1f)
-                        .align(Alignment.CenterVertically))
+                        .align(Alignment.CenterVertically)
+                )
             }
         }
     }

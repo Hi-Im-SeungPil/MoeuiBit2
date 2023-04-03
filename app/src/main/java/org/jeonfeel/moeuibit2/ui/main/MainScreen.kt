@@ -1,9 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.main
 
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,12 +21,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.menuTitleArray
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
@@ -43,7 +45,7 @@ fun MainBottomNavigation(navController: NavController) {
         MainBottomNavItem.Setting
     )
     BottomNavigation(
-        backgroundColor = colorResource(id = R.color.design_default_color_background)
+        backgroundColor = MaterialTheme.colorScheme.primary
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -82,8 +84,7 @@ fun MainBottomNavigation(navController: NavController) {
 @Composable
 fun MainNavigation(
     navController: NavHostController,
-    mainViewModel: MainViewModel,
-    startForActivityResult: ActivityResultLauncher<Intent>,
+    mainViewModel: MainViewModel
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
@@ -109,7 +110,7 @@ fun MainNavigation(
                     mainViewModel.localRepository
                 )
             )
-            PortfolioScreen(portfolioViewModel = portfolioViewModel, startForActivityResult)
+            PortfolioScreen(portfolioViewModel = portfolioViewModel)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen(mainViewModel)
