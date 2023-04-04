@@ -15,7 +15,7 @@ fun AutoSizeText(
     modifier: Modifier = Modifier,
     text: String,
     textStyle: TextStyle? = MaterialTheme.typography.body1,
-    color: Color = Color.Black
+    color: Color =  androidx.compose.material3.MaterialTheme.colorScheme.onBackground
 ) {
     val readyToDraw = remember { mutableStateOf(false) }
     val rememberTextStyle = remember {

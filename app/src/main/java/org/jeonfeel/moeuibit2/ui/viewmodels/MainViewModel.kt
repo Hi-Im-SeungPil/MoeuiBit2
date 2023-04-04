@@ -32,7 +32,8 @@ import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import javax.inject.Inject
 
 data class MainViewModelState(
-    val errorState: MutableState<Int> = mutableStateOf(INTERNET_CONNECTION)
+    val errorState: MutableState<Int> = mutableStateOf(INTERNET_CONNECTION),
+    val isLoadingSuccess: MutableState<Boolean> = mutableStateOf(false)
 )
 
 @HiltViewModel

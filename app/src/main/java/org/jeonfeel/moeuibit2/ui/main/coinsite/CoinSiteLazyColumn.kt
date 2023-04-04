@@ -3,8 +3,10 @@ package org.jeonfeel.moeuibit2.ui.main.coinsite
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +33,7 @@ fun CoinSiteLazyColumn() {
     val coinNewsState = remember {
         mutableStateOf(false)
     }
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
         item {
             ExchangeItem(exchangeState,context)
             CommunityItem(communityState,context)

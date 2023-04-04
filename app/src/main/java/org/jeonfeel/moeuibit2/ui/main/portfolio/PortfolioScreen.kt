@@ -7,8 +7,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -90,8 +92,13 @@ fun PortfolioScreen(
         topBar = {
             TopAppBar(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                backgroundColor = colorResource(id = R.color.design_default_color_background)
+                    .fillMaxWidth()
+                    .shadow(
+                        10.dp,
+                        ambientColor = MaterialTheme.colorScheme.onBackground,
+                        spotColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                backgroundColor = MaterialTheme.colorScheme.background
             ) {
                 Text(
                     text = stringResource(id = R.string.investmentDetail),
@@ -101,7 +108,7 @@ fun PortfolioScreen(
                         .fillMaxHeight()
                         .wrapContentHeight(),
                     style = TextStyle(
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = DpToSp(25.dp),
                         fontWeight = FontWeight.Bold
                     )

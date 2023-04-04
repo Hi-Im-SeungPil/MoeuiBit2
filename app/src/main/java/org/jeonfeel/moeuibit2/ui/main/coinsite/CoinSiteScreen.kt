@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -30,8 +33,14 @@ fun CoinSiteScreen() {
 fun CoinSiteTopAppBar() {
     TopAppBar(
         modifier = Modifier
-            .fillMaxWidth(),
-        backgroundColor = colorResource(id = R.color.design_default_color_background)
+            .fillMaxWidth()
+            .shadow(
+                10.dp,
+                ambientColor = MaterialTheme.colorScheme.onBackground,
+                spotColor = MaterialTheme.colorScheme.onBackground
+            ),
+        backgroundColor = MaterialTheme.colorScheme.background,
+
     ) {
         Text(
             text = stringResource(id = R.string.coinSite),
@@ -41,7 +50,7 @@ fun CoinSiteTopAppBar() {
                 .fillMaxHeight()
                 .wrapContentHeight(),
             style = TextStyle(
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = DpToSp(25.dp),
                 fontWeight = FontWeight.Bold
             )

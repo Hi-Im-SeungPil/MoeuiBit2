@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,9 @@ import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -173,16 +176,16 @@ fun getReturnTextColor(colorStandard: Long, text5: String): Color {
     return if (text5 == stringResource(id = R.string.aReturn)) {
         when {
             colorStandard < 0 -> {
-                decrease_color
+                decreaseColor()
             }
             colorStandard > 0 -> {
-                increase_color
+                increaseColor()
             }
             else -> {
-                Color.Black
+                MaterialTheme.colorScheme.onBackground
             }
         }
     } else {
-        Color.Black
+        MaterialTheme.colorScheme.onBackground
     }
 }

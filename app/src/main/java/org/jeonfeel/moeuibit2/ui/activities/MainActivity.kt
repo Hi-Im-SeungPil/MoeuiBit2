@@ -4,10 +4,13 @@ import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
@@ -109,8 +112,14 @@ class MainActivity : BaseActivity() {
         Scaffold(
             scaffoldState = scaffoldState,
             bottomBar = { MainBottomNavigation(navController) },
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) { contentPadding ->
-            Box(modifier = Modifier.padding(contentPadding)) {
+            Box(
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
                 MainNavigation(navController, viewModel)
             }
         }

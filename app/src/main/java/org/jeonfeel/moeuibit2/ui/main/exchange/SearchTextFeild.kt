@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -42,8 +43,9 @@ fun SearchBasic(
         textFieldValueState.value = it
     }, singleLine = true,
         modifier = modifier.clearFocusOnKeyboardDismiss(),
-        textStyle = TextStyle(color = colorResource(id = R.color.C0F0F5C),
+        textStyle = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
             fontSize = DpToSp(17.dp)),
+        cursorBrush = SolidColor(androidx.compose.material3.MaterialTheme.colorScheme.primary),
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {
@@ -54,7 +56,7 @@ fun SearchBasic(
                         Text(
                             placeholderText,
                             style = LocalTextStyle.current.copy(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                                 fontSize = fontSize
                             )
                         )

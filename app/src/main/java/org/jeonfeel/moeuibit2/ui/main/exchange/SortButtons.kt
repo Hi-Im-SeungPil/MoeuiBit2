@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -16,12 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
 
 enum class SortButtons {
     SortPriceButton, SortRateButton, SortAmountButton
@@ -38,7 +38,7 @@ fun SortButtons(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .drawUnderLine(lineColor = Color.DarkGray),
+            .drawUnderLine(lineColor = MaterialTheme.colorScheme.outline),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -53,7 +53,9 @@ fun SortButtons(
                 sortButtonState = sortButtonState,
                 selectedMarketState = selectedMarketState,
                 isUpdateExchange = isUpdateExchange,
-                sortList = sortList
+                sortList = sortList,
+                materialTextColor = MaterialTheme.colorScheme.onBackground,
+                materialBackground =  MaterialTheme.colorScheme.background
             )
         }
     }
@@ -65,16 +67,18 @@ private fun RowScope.SortButton(
     sortButtonState: MutableState<Int>,
     selectedMarketState: MutableState<Int>,
     isUpdateExchange: Boolean,
-    sortList: (marketState: Int) -> Unit
+    sortList: (marketState: Int) -> Unit,
+    materialTextColor: Color,
+    materialBackground: Color
 ) {
     val buttonText = remember {
         mutableStateOf("")
     }
     val textColor = remember {
-        mutableStateOf(Color.Black)
+        mutableStateOf(materialTextColor)
     }
     val textBackground = remember {
-        mutableStateOf(Color.White)
+        mutableStateOf(materialBackground)
     }
 
     when (buttonId) {
@@ -83,17 +87,17 @@ private fun RowScope.SortButton(
                 SORT_PRICE_DEC -> {
                     buttonText.value = stringResource(id = R.string.currentPriceSortDec)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 SORT_PRICE_ASC -> {
                     buttonText.value = stringResource(id = R.string.currentPriceSort)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 else -> {
                     buttonText.value = stringResource(id = R.string.currentPriceButton)
-                    textColor.value = Color.Black
-                    textBackground.value = Color.White
+                    textColor.value = MaterialTheme.colorScheme.onBackground
+                    textBackground.value = MaterialTheme.colorScheme.background
                 }
             }
         }
@@ -102,17 +106,17 @@ private fun RowScope.SortButton(
                 SORT_RATE_DEC -> {
                     buttonText.value = stringResource(id = R.string.changeSortDec)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 SORT_RATE_ASC -> {
-                    buttonText.value = stringResource(id = R.string.currentPriceSort)
+                    buttonText.value = stringResource(id = R.string.changeSort)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 else -> {
                     buttonText.value = stringResource(id = R.string.change)
-                    textColor.value = Color.Black
-                    textBackground.value = Color.White
+                    textColor.value = MaterialTheme.colorScheme.onBackground
+                    textBackground.value = MaterialTheme.colorScheme.background
                 }
             }
         }
@@ -121,17 +125,17 @@ private fun RowScope.SortButton(
                 SORT_AMOUNT_DEC -> {
                     buttonText.value = stringResource(id = R.string.volumeSortDec)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 SORT_AMOUNT_ASC -> {
                     buttonText.value = stringResource(id = R.string.volumeSort)
                     textColor.value = Color.White
-                    textBackground.value = colorResource(id = R.color.C0F0F5C)
+                    textBackground.value = sortButtonSelectedBackgroundColor()
                 }
                 else -> {
                     buttonText.value = stringResource(id = R.string.volume)
-                    textColor.value = Color.Black
-                    textBackground.value = Color.White
+                    textColor.value = MaterialTheme.colorScheme.onBackground
+                    textBackground.value = MaterialTheme.colorScheme.background
                 }
             }
         }

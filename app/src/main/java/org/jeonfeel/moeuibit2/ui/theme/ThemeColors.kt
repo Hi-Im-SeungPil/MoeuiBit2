@@ -12,10 +12,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-val PrimaryLight = Color(0xFF0061a4)
+val PrimaryLight = Color(0xFF0F0F5C)
 val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFd1e4ff)
-val OnPrimaryContainerLight = Color(0xFF001d36)
+val PrimaryContainerLight = Color(0xFFFFFFFF) // 위에 타이틀 바
+val OnPrimaryContainerLight = Color(0xFF000000)
 
 val SecondaryLight = Color(0xFF535f70)
 val OnSecondaryLight = Color(0xFFffffff)
@@ -32,19 +32,19 @@ val OnErrorLight = Color(0xFFffffff)
 val ErrorContainerLight = Color(0xFFffdad6)
 val OnErrorContainerLight = Color(0xFF410002)
 
-val BackgroundLight = Color(0xFFFFFFFF)
-val OnBackgroundLight = Color(0xFF0F0F5C)
+val BackgroundLight = Color(0xFFFFFFFF) // 배경
+val OnBackgroundLight = Color(0xFF000000) // 배경 위 글씨
 val SurfaceLight = Color(0xFFfdfcff)
 
-val OutlineLight = Color(0xFF73777f)
+val OutlineLight = Color(0xFF444444)
 val SurfaceVariantLight = Color(0xFFdfe2eb)
 val OnSurfaceVariantLight = Color(0xFF43474e)
 
 // Dark==============================================================================
-val PrimaryDark = Color(0xFF2c9fff)
+val PrimaryDark = Color(0xFFFFFFFF)
 val OnPrimaryDark = Color(0xFF003258)
-val PrimaryContainerDark = Color(0xFF00497d)
-val OnPrimaryContainerDark = Color(0xFFd1e4ff)
+val PrimaryContainerDark = Color(0xFF35363A) // 위에 타이틀 바
+val OnPrimaryContainerDark = Color(0xFFFFFFFF)
 
 val SecondaryDark = Color(0xFFbbc7db)
 val OnSecondaryDark = Color(0xFF253140)
@@ -61,124 +61,10 @@ val OnErrorDark = Color(0xFF690005)
 val ErrorContainerDark = Color(0xFF93000a)
 val OnErrorContainerDark = Color(0xFFffdad6)
 
-val BackgroundDark = Color(0xFF1a1c1e)
-val OnBackgroundDark = Color(0xFFe2e2e6)
+val BackgroundDark = Color(0xFF1a1c1e) // 배경
+val OnBackgroundDark = Color(0xFFe2e2e6) // 배경 위 글씨
 val SurfaceDark = Color(0xFF1a1c1e)
 
-val OutlineDark = Color(0xFF8d9199)
+val OutlineDark = Color(0xFFCFCFCF)
 val SurfaceVariantDark = Color(0xFF43474e)
 val OnSurfaceVariantDark = Color(0xFFc3c7cf)
-
-private val DarkColorPalette = darkColorScheme(
-    primary = PrimaryDark,
-    onPrimary = OnPrimaryDark,
-    primaryContainer = PrimaryContainerDark,
-    onPrimaryContainer = OnPrimaryContainerDark,
-    secondary = SecondaryDark,
-    onSecondary = OnSecondaryDark,
-    secondaryContainer = SecondaryContainerDark,
-    onSecondaryContainer = OnSecondaryContainerDark,
-    tertiary = TertiaryDark,
-    onTertiary = OnTertiaryDark,
-    tertiaryContainer = TertiaryContainerDark,
-    onTertiaryContainer = OnTertiaryContainerDark,
-    error = ErrorDark,
-    onError = OnErrorDark,
-    errorContainer = ErrorContainerDark,
-    onErrorContainer = OnErrorContainerDark,
-    background = BackgroundDark,
-    onBackground = OnBackgroundDark,
-    surface = SurfaceDark,
-    outline = OutlineDark,
-    surfaceVariant = SurfaceVariantDark,
-    onSurfaceVariant = OnSurfaceVariantDark,
-)
-
-private val LightColorPalette = lightColorScheme(
-    primary = PrimaryLight,
-    onPrimary = OnPrimaryLight,
-    primaryContainer = PrimaryContainerLight,
-    onPrimaryContainer = OnPrimaryContainerLight,
-    secondary = SecondaryLight,
-    onSecondary = OnSecondaryLight,
-    secondaryContainer = SecondaryContainerLight,
-    onSecondaryContainer = OnSecondaryContainerLight,
-    tertiary = TertiaryLight,
-    onTertiary = OnTertiaryLight,
-    tertiaryContainer = TertiaryContainerLight,
-    onTertiaryContainer = OnTertiaryContainerLight,
-    error = ErrorLight,
-    onError = OnErrorLight,
-    errorContainer = ErrorContainerLight,
-    onErrorContainer = OnErrorContainerLight,
-    background = BackgroundLight,
-    onBackground = OnBackgroundLight,
-    surface = SurfaceLight,
-    outline = OutlineLight,
-    surfaceVariant = SurfaceVariantLight,
-    onSurfaceVariant = OnSurfaceVariantLight,
-)
-
-@Composable
-fun JetpackComposeDarkThemeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
-
-    MaterialTheme(
-        colorScheme = colors,
-        content = content
-    )
-
-    // Optional, this part helps you set the statusbar color
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colors.background.toArgb()
-
-            WindowCompat.getInsetsController(window, view)
-                .isAppearanceLightStatusBars = !darkTheme
-        }
-    }
-}
-
-
-//val md_theme_light_primary = Color(0xFFFFFFFF)
-//val md_theme_light_onPrimary = Color(0xFF000000)
-//
-//val md_theme_dark_primary = Color(0xFF464646)
-//val md_theme_dark_onPrimary = Color(0xFFFFFFFF)
-//val md_theme_dark_primaryContainer = Color(0xFF646464)
-//val md_theme_dark_onPrimaryContainer = Color(0xFFFFFFFF)
-//
-//val LightColorPalette = lightColors(
-//    primary = md_theme_light_primary,
-//    onPrimary = md_theme_light_onPrimary
-//)
-//
-//val DarkColorPalette = darkColors(
-//    primary = md_theme_dark_primary,
-//    onPrimary = md_theme_dark_onPrimary,
-//    primaryVariant = Color(0xffb4b4b4),
-//    secondary = md_theme_dark_primaryContainer,
-//    onSecondary = md_theme_dark_onPrimaryContainer,
-//)
-//
-//@Composable
-//fun MBitAppTheme(
-//    darkTheme: Boolean = isSystemInDarkTheme(),
-//    content: @Composable () -> Unit
-//) {
-//    val context = LocalContext.current
-//    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
-//    MaterialTheme(
-//        colors = colors,
-//        content = content
-//    )
-//}

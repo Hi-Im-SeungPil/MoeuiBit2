@@ -1,7 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
+import org.jeonfeel.moeuibit2.R
 
 val increase_color = if (isKor) {
     Color.Red

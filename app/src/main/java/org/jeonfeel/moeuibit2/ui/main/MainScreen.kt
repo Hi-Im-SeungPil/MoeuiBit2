@@ -1,5 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.main
 
+import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -9,8 +12,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -25,6 +31,7 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
+import org.jeonfeel.moeuibit2.ui.theme.bottomNavigatorSelectedColor
 import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
@@ -45,7 +52,7 @@ fun MainBottomNavigation(navController: NavController) {
         MainBottomNavItem.Setting
     )
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.primary
+        backgroundColor = MaterialTheme.colorScheme.background
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -59,8 +66,8 @@ fun MainBottomNavigation(navController: NavController) {
                     )
                 },
                 label = { Text(text = item.title) },
-                selectedContentColor = colorResource(id = R.color.C0F0F5C),
-                unselectedContentColor = androidx.compose.ui.graphics.Color.LightGray,
+                selectedContentColor = bottomNavigatorSelectedColor(),
+                unselectedContentColor = Color.LightGray,
                 alwaysShowLabel = true,
                 selected = currentDestination?.hierarchy?.any { it.route == item.screen_route } == true,
                 onClick = {

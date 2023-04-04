@@ -1,10 +1,12 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -64,6 +66,7 @@ fun PortfolioMain(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
     ) {
         Row(
             Modifier
@@ -77,7 +80,7 @@ fun PortfolioMain(
                     .padding(8.dp, 20.dp, 0.dp, 20.dp)
                     .wrapContentHeight(),
                 style = TextStyle(
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     fontSize = DpToSp(dp = 22.dp)
                 )
@@ -98,7 +101,7 @@ fun PortfolioMain(
                             adDialogState.value = true
                         },
                     style = TextStyle(
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = DpToSp(dp = 18.dp)
                     )
                 )
@@ -211,7 +214,7 @@ fun RowScope.PortfolioMainItem(
                 .wrapContentHeight()
                 .fillMaxWidth(),
             style = TextStyle(
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = DpToSp(18.dp),
             )
         )
@@ -223,7 +226,7 @@ fun RowScope.PortfolioMainItem(
                 .wrapContentHeight(),
             textStyle = TextStyle(
                 fontSize = DpToSp(22.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         )
         Row(
@@ -239,7 +242,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentHeight()
                     .wrapContentWidth(),
                 style = TextStyle(
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = DpToSp(14.dp),
                 )
             )
@@ -268,7 +271,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentHeight()
                     .wrapContentWidth(),
                 style = TextStyle(
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = DpToSp(14.dp),
                 )
             )

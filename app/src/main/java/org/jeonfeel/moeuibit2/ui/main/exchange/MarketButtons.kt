@@ -33,6 +33,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
 import kotlin.math.round
 
 @OptIn(ExperimentalPagerApi::class)
@@ -44,13 +45,13 @@ fun marketButtons(
     val tabTitleList = listOf(
         stringResource(id = R.string.krw),
         stringResource(id = R.string.btc),
-        stringResource(id = R.string.favorite),
+        stringResource(id = R.string.favorite)
     )
 
     Row(
         Modifier
             .fillMaxWidth()
-            .drawUnderLine(lineColor = Color.DarkGray)
+            .drawUnderLine(lineColor = MaterialTheme.colorScheme.outline)
     ) {
         CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
             TabRow(
@@ -76,8 +77,8 @@ fun marketButtons(
                                 textAlign = TextAlign.Center,
                             )
                         },
-                        selectedContentColor = MaterialTheme.colorScheme.onBackground,
-                        unselectedContentColor = Color.LightGray,
+                        selectedContentColor = exchangeMarketButtonTextColor(selected = true),
+                        unselectedContentColor = exchangeMarketButtonTextColor(selected = false),
                         selected = selectedMarketState.value == index,
                         onClick = {
                             if (selectedMarketState.value != index) {

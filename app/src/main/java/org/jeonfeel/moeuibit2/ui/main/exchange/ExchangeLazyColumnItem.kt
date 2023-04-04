@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,8 @@ import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
+import org.jeonfeel.moeuibit2.ui.theme.lazyColumnItemUnderLineColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.Utils.removeComma
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -59,7 +62,7 @@ fun ExchangeScreenLazyColumnItem(
         Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .drawUnderLine()
+            .drawUnderLine(lineColor = lazyColumnItemUnderLineColor())
             .clickable {
                 val intent = Intent(context, CoinDetailActivity::class.java).apply {
                     putExtra(INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
@@ -77,7 +80,6 @@ fun ExchangeScreenLazyColumnItem(
                 )
             }
     ) {
-
         // 코인명 심볼
         Column(
             Modifier
@@ -105,7 +107,7 @@ fun ExchangeScreenLazyColumnItem(
                     .weight(1f)
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom),
-                style = TextStyle(textAlign = TextAlign.Center),
+                style = TextStyle(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onBackground),
                 overflow = TextOverflow.Ellipsis
             )
             Text(
@@ -130,7 +132,7 @@ fun ExchangeScreenLazyColumnItem(
                             increase_color
                         }
                         formattedPreTradePrice > curTradePrice -> {
-                            decrease_color
+                            decreaseColor()
                         }
                         else -> {
                             Color.Transparent
@@ -268,7 +270,7 @@ fun RowScope.volume(volume: String, doubleVolume: Double, market: String) {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .wrapContentHeight(),
-            style = TextStyle(textAlign = TextAlign.Center)
+            style = TextStyle(textAlign = TextAlign.Center,color = MaterialTheme.colorScheme.onBackground)
         )
         if (!isKor && market.startsWith(SYMBOL_KRW)) {
             AutoSizeText(
