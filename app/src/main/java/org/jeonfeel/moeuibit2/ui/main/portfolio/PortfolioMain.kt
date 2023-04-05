@@ -24,6 +24,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.custom.*
+import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
+import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -94,9 +96,11 @@ fun PortfolioMain(
                 Text(
                     text = stringResource(id = R.string.chargeMoney),
                     modifier = Modifier
+                        .background(color = chargingKrwBackgroundColor())
                         .padding(13.dp)
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
+                        .background(color = chargingKrwBackgroundColor())
                         .clickable {
                             adDialogState.value = true
                         },
@@ -455,21 +459,21 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                     listOf(
                         stringResource(id = R.string.nameDown),
                         Color.White,
-                        colorResource(id = R.color.C0F0F5C)
+                        portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
                 1 -> {
                     listOf(
                         stringResource(id = R.string.nameUp),
                         Color.White,
-                        colorResource(id = R.color.C0F0F5C)
+                        portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
                 else -> {
                     listOf(
                         stringResource(id = R.string.nameUpDown),
-                        Color.Black,
-                        colorResource(id = R.color.design_default_color_background)
+                        MaterialTheme.colorScheme.onBackground,
+                        MaterialTheme.colorScheme.background
                     )
                 }
             }
@@ -480,21 +484,21 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                     listOf(
                         stringResource(id = R.string.aReturnDown),
                         Color.White,
-                        colorResource(id = R.color.C0F0F5C)
+                        portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
                 3 -> {
                     listOf(
                         stringResource(id = R.string.aReturnUp),
                         Color.White,
-                        colorResource(id = R.color.C0F0F5C)
+                        portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
                 else -> {
                     listOf(
                         stringResource(id = R.string.aReturnUpDown),
-                        Color.Black,
-                        colorResource(id = R.color.design_default_color_background)
+                        MaterialTheme.colorScheme.onBackground,
+                        MaterialTheme.colorScheme.background
                     )
                 }
             }
@@ -513,6 +517,7 @@ fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp)
+            .background(color = MaterialTheme.colorScheme.background)
             .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
     )
 }

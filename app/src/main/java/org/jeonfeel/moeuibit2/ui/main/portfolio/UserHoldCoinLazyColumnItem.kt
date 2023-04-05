@@ -2,9 +2,11 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -68,6 +70,7 @@ fun UserHoldCoinLazyColumnItem(
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
+        .background(color = MaterialTheme.colorScheme.background)
         .drawUnderLine(lineColor = Color.Gray, strokeWidth = 2f)
         .clickable {
             selectedCoinKoreanName.value = coinKoreanName
@@ -91,7 +94,7 @@ fun UserHoldCoinLazyColumnItem(
                         .padding(0.dp, 0.dp, 0.dp, 1.dp)
                         .fillMaxWidth(),
                     style = TextStyle(
-                        color = colorResource(id = R.color.C0F0F5C),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = DpToSp(17.dp),
                         fontWeight = FontWeight.Bold,
                     ),
@@ -102,7 +105,7 @@ fun UserHoldCoinLazyColumnItem(
                     text = symbol,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(
-                        color = colorResource(id = R.color.C0F0F5C),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = DpToSp(17.dp)
                     ),
                     overflow = TextOverflow.Ellipsis
@@ -117,14 +120,18 @@ fun UserHoldCoinLazyColumnItem(
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = stringResource(id = R.string.valuationGainOrLoss),
-                            modifier = Modifier.wrapContentWidth()
+                            modifier = Modifier.wrapContentWidth(),
+                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                         )
                         AutoSizeText(
                             text = valuationGainOrLoss,
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .weight(1f, true),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15.dp)),
+                            textStyle = TextStyle(
+                                textAlign = TextAlign.End,
+                                fontSize = DpToSp(15.dp)
+                            ),
                             color = color
                         )
                     }
@@ -132,7 +139,10 @@ fun UserHoldCoinLazyColumnItem(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = stringResource(id = R.string.valuationGainOrLoss),
-                            style = TextStyle(textAlign = TextAlign.Center),
+                            style = TextStyle(
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                         AutoSizeText(
@@ -140,18 +150,26 @@ fun UserHoldCoinLazyColumnItem(
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .fillMaxWidth(),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15.dp)),
+                            textStyle = TextStyle(
+                                textAlign = TextAlign.End,
+                                fontSize = DpToSp(15.dp)
+                            ),
                             color = color
                         )
                         AutoSizeText(
                             text = "= \$ ${
-                                CurrentCalculator.krwToUsd(removeComma(valuationGainOrLoss).toDouble(),
-                                    MoeuiBitDataStore.usdPrice)
+                                CurrentCalculator.krwToUsd(
+                                    removeComma(valuationGainOrLoss).toDouble(),
+                                    MoeuiBitDataStore.usdPrice
+                                )
                             }",
                             modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
                                 .fillMaxWidth(),
-                            textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15.dp)),
+                            textStyle = TextStyle(
+                                textAlign = TextAlign.End,
+                                fontSize = DpToSp(15.dp)
+                            ),
                             color = color
                         )
                     }
@@ -159,7 +177,8 @@ fun UserHoldCoinLazyColumnItem(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = stringResource(id = R.string.aReturn),
-                        modifier = Modifier.wrapContentWidth()
+                        modifier = Modifier.wrapContentWidth(),
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     AutoSizeText(
                         text = aReturn,
@@ -227,19 +246,22 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
             AutoSizeText(
                 modifier = Modifier.weight(1f, true),
                 text = text1,
-                textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15.dp))
+                textStyle = TextStyle(textAlign = TextAlign.End, fontSize = DpToSp(15.dp), color = MaterialTheme.colorScheme.onBackground)
             )
             Text(
                 text = "  ".plus(text2),
                 modifier = Modifier.wrapContentWidth(),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
         }
         if (!isKor && text3 != stringResource(id = R.string.holdingQuantity)) {
             Text(
                 text = "\$ ${
-                    CurrentCalculator.krwToUsd(removeComma(text1).toDouble(),
-                        usdPrice)
+                    CurrentCalculator.krwToUsd(
+                        removeComma(text1).toDouble(),
+                        usdPrice
+                    )
                 }",
                 modifier = Modifier.fillMaxWidth(),
                 style = TextStyle(color = Color.Gray),

@@ -2,12 +2,14 @@ package org.jeonfeel.moeuibit2.ui.main.setting
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -36,7 +38,7 @@ fun OpenSourceLicenseLazyColumn() {
     val openSourceNames = stringArrayResource(id = R.array.openSourceNames)
     val openSourceUrls = stringArrayResource(id = R.array.openSourceUrl)
     val openSourceContents = stringArrayResource(id = R.array.openSourceLicense)
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
         item {
             Intro()
         }

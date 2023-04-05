@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -7,6 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +46,7 @@ fun PortfolioPieChart(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .background(color = MaterialTheme.colorScheme.background)
                 .drawUnderLine(lineColor = Color.Gray, strokeWidth = 2f)
                 .clickable { pieChartState.value = !pieChartState.value }
         ) {
@@ -51,19 +54,16 @@ fun PortfolioPieChart(
                 text = stringResource(id = R.string.holdingAssetsPortfolio), modifier = Modifier
                     .padding(8.dp, 8.dp, 0.dp, 8.dp)
                     .weight(1f, true)
-                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = DpToSp(16.dp))
+                    .align(Alignment.CenterVertically), style = TextStyle(fontSize = DpToSp(16.dp), color = MaterialTheme.colorScheme.primary)
             )
             Icon(
                 imageVector = imageVector.value,
                 contentDescription = null,
-                tint = colorResource(
-                    id = R.color.C0F0F5C
-                ),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(8.dp, 8.dp)
                     .fillMaxHeight()
             )
-
         }
         if (pieChartState.value) {
             HoldCoinPieChart(

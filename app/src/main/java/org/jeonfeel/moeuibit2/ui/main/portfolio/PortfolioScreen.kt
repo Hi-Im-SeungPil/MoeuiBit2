@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
@@ -119,14 +120,18 @@ fun PortfolioScreen(
                     Icon(
                         painterResource(id = R.drawable.img_eraser),
                         contentDescription = null,
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(30.dp)
                     )
                 }
             }
         }
     ) { contentPadding ->
-        Box(modifier = Modifier.padding(contentPadding)) {
+        Box(
+            modifier = Modifier
+                .padding(contentPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             UserHoldCoinLazyColumn(
                 startForActivityResult = startForActivityResult,
                 columnItemDialogState = portfolioViewModel.state.columnItemDialogState,

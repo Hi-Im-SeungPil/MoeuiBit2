@@ -6,17 +6,20 @@ import android.net.Uri
 import android.view.Gravity
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -67,12 +70,19 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
         topBar = {
             TopAppBar(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                backgroundColor = colorResource(id = R.color.design_default_color_background),
-            ) {
-                Row(modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()) {
+                    .shadow(
+                        10.dp,
+                        ambientColor = MaterialTheme.colorScheme.onBackground,
+                        spotColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                backgroundColor = MaterialTheme.colorScheme.background,
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
                     Text(
                         text = stringResource(id = R.string.setting),
                         modifier = Modifier
@@ -83,7 +93,7 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
                             .weight(1f)
                             .align(Alignment.CenterVertically),
                         style = TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = DpToSp(25.dp),
                             fontWeight = FontWeight.Bold
                         )
@@ -133,20 +143,26 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
 //            mainViewModel.resetTransactionInfo()
             transactionInfoDialogState.value = false
         })
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
         item {
             SettingScreenLazyColumnItem(stringResource(id = R.string.write_review), clickAction = {
                 writeReviewAction(context)
             })
-            SettingScreenLazyColumnItem(text = stringResource(id = R.string.init_title), clickAction = {
-                transactionInfoDialogState.value = true
-            })
-            SettingScreenLazyColumnItem(text = stringResource(id = R.string.init_app), clickAction = {
-                resetDialogState.value = true
-            })
-            SettingScreenLazyColumnItem(text = stringResource(id = R.string.open_source_license), clickAction = {
-                openLicense(context)
-            })
+            SettingScreenLazyColumnItem(
+                text = stringResource(id = R.string.init_title),
+                clickAction = {
+                    transactionInfoDialogState.value = true
+                })
+            SettingScreenLazyColumnItem(
+                text = stringResource(id = R.string.init_app),
+                clickAction = {
+                    resetDialogState.value = true
+                })
+            SettingScreenLazyColumnItem(
+                text = stringResource(id = R.string.open_source_license),
+                clickAction = {
+                    openLicense(context)
+                })
         }
     }
 }
@@ -157,10 +173,13 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
         text = text, modifier = Modifier
             .padding(10.dp, 30.dp, 10.dp, 0.dp)
             .fillMaxWidth()
-            .border(1.dp, Color.DarkGray)
+            .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
             .clickable { clickAction() }
             .padding(10.dp, 10.dp),
-        style = TextStyle(fontSize = DpToSp(25.dp))
+        style = TextStyle(
+            fontSize = DpToSp(25.dp),
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+        )
     )
 }
 

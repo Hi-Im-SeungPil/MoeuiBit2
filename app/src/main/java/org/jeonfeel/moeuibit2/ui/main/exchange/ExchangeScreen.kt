@@ -164,9 +164,7 @@ private fun Exchange(
                         exchangeViewModel.marketChangeAction(marketState = SELECTED_FAVORITE)
                     }
                 }
-                CoroutineScope(mainDispatcher).launch {
-                    scrollState.scrollToItem(index = 0)
-                }
+                scrollState.scrollToItem(index = 0)
             }
         } else {
             exchangeViewModel.updateExchange = false

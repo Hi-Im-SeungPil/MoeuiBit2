@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ fun PortfolioMainSortButtons(
 ) {
     Row(
         Modifier
+            .background(color = MaterialTheme.colorScheme.background)
             .fillMaxWidth()
             .wrapContentHeight()
             .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
