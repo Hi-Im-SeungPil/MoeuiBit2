@@ -48,7 +48,10 @@ fun AskingPriceLazyColumn(
     val maxOrderBookSize = coinDetailViewModel.coinOrder.state.maxOrderBookSize.value // 벽돌
     val market = coinDetailViewModel.market // krw 인지 btc 인지
 
-    LazyColumn(modifier = modifier, state = scrollState) {
+    LazyColumn(
+        modifier = modifier.background(color = androidx.compose.material3.MaterialTheme.colorScheme.background),
+        state = scrollState
+    ) {
         if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size >= 30) {
             items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value) { item ->
                 AskingPriceLazyColumnItem(
@@ -67,7 +70,6 @@ fun AskingPriceLazyColumn(
                 EmptyAskingPriceLazyColumnItem(1)
             }
         }
-//        Logger.e("AskingPriceLazyColumn -> ${UpBitOrderBookWebSocket.currentSocketState}, ${coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size}")
     }
 }
 
@@ -92,32 +94,38 @@ fun AskingPriceLazyColumnItem(
 
     val orderBookTextColor = when {
         rate > 0.0 -> {
-            increase_color
+            increaseColor()
         }
         rate < 0.0 -> {
-            decrease_color
+            decreaseColor()
         }
         else -> {
-            Color.Black
+            androidx.compose.material3.MaterialTheme.colorScheme.onBackground
         }
     }
 
     val orderBokBlockColor = if (orderBook.state == 0) {
-        decrease_order_book_block_color
+        decreaseOrderBookBlockColor()
     } else {
-        increase_order_book_block_color
+        increaseOrderBookBlockColor()
     }
 
     val borderModifier = if (currentTradePrice == orderBook.price) {
-        Modifier.border(1.dp, color = Color.Black)
+        Modifier.border(
+            1.dp,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+        )
     } else {
-        Modifier.border(0.5.dp, color = Color.White)
+        Modifier.border(
+            1.dp,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.background
+        )
     }
 
     val orderBookBackground = if (orderBook.state == 0) {
-        decrease_order_book_color
+        decreaseOrderBookColor()
     } else {
-        increase_order_book_color
+        increaseOrderBookColor()
     }
 
     Row(
@@ -153,21 +161,17 @@ fun AskingPriceLazyColumnItem(
             modifier = Modifier
                 .weight(3f)
                 .fillMaxHeight()
-                .drawWithContent {
-                    drawContent()
-                    clipRect {
-                        drawLine(
-                            brush = SolidColor(Color.White),
-                            strokeWidth = 10f,
-                            cap = StrokeCap.Square,
-                            start = Offset.Zero,
-                            end = Offset(y = size.height, x = 0f)
-                        )
-                    }
-                }
         ) {
+            Spacer(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(2.dp)
+                    .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
+            )
+
             Box(
                 modifier = Modifier
+                    .padding(start = 2.dp)
                     .fillMaxHeight()
                     .wrapContentHeight()
                     .height(20.dp)
@@ -195,14 +199,14 @@ fun EmptyAskingPriceLazyColumnItem(
 ) {
     val rateResult = ""
     val orderBokBlockColor = if (orderBookState == 0) {
-        decrease_order_book_color
+        decreaseOrderBookColor()
     } else {
-        increase_order_book_color
+        increaseOrderBookColor()
     }
 
     Row(
         modifier = Modifier
-            .border(0.5.dp, color = Color.White)
+//            .border(0.5.dp, color =)
             .fillMaxWidth()
             .height(40.dp)
             .background(orderBokBlockColor)
@@ -231,7 +235,6 @@ fun EmptyAskingPriceLazyColumnItem(
             modifier = Modifier
                 .weight(3f)
                 .fillMaxHeight()
-                .drawUnderLine(lineColor = Color.White, strokeWidth = 10f)
         ) {
             Box(
                 modifier = Modifier

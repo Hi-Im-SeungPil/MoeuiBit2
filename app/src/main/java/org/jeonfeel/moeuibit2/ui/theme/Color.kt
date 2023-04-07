@@ -19,28 +19,72 @@ val decrease_color = if (isKor) {
     Color.Red
 }
 
-val increase_order_book_color = if (isKor) {
-    Color(0x1AFF3030)
-} else {
-    Color(0x1A0ECB81)
+@Composable
+fun decreaseOrderBookColor(): Color {
+    return if (!isSystemInDarkTheme()) {
+        if (isKor) {
+            Color(0x1A3654FF)
+        } else {
+            Color(0x1AFF3030)
+        }
+    } else {
+        if (isKor) {
+            Color(0x403654FF)
+        } else {
+            Color(0x40FF3030)
+        }
+    }
 }
 
-val decrease_order_book_color = if (isKor) {
-    Color(0x1A3654FF)
-} else {
-    Color(0x1AFF3030)
+@Composable
+fun increaseOrderBookColor(): Color {
+    return if (!isSystemInDarkTheme()) {
+        if (isKor) {
+            Color(0x1AFF3030)
+        } else {
+            Color(0x1A0ECB81)
+        }
+    } else {
+        if (isKor) {
+            Color(0x40FF3030)
+        } else {
+            Color(0x400ECB81)
+        }
+    }
 }
 
-val increase_order_book_block_color = if (isKor) {
-    Color(0x33FF3030)
-} else {
-    Color(0x4D0ECB81)
+@Composable
+fun increaseOrderBookBlockColor(): Color {
+    return if (!isSystemInDarkTheme()) {
+        if (isKor) {
+            Color(0x33FF3030)
+        } else {
+            Color(0x330ECB81)
+        }
+    } else {
+        if (isKor) {
+            Color(0x59FF3030)
+        } else {
+            Color(0x590ECB81)
+        }
+    }
 }
 
-val decrease_order_book_block_color = if (isKor) {
-    Color(0x333654FF)
-} else {
-    Color(0x33FF3030)
+@Composable
+fun decreaseOrderBookBlockColor(): Color {
+    return if (!isSystemInDarkTheme()) {
+        if (isKor) {
+            Color(0x333654FF)
+        } else {
+            Color(0x33FF3030)
+        }
+    } else {
+        if (isKor) {
+            Color(0x593654FF)
+        } else {
+            Color(0x59FF3030)
+        }
+    }
 }
 
 val increase_candle_color = if (isKor) {

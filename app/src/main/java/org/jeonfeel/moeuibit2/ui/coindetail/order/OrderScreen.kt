@@ -1,9 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
@@ -30,13 +32,22 @@ fun OrderScreen(
         }
     }
 
-    Row(modifier = Modifier.fillMaxSize()) {
-        AskingPriceLazyColumn(Modifier
-            .weight(3f)
-            .fillMaxHeight(), coinDetailViewModel)
-        Box(modifier = Modifier
-            .weight(7f)
-            .fillMaxHeight()) {
+    Row(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+    ) {
+        AskingPriceLazyColumn(
+            Modifier
+                .weight(3f)
+                .fillMaxHeight(), coinDetailViewModel
+        )
+        Box(
+            modifier = Modifier
+                .weight(7f)
+                .fillMaxHeight()
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
             OrderScreenAskBid(coinDetailViewModel)
         }
     }

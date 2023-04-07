@@ -56,9 +56,9 @@ class MainActivity : BaseActivity() {
 
         initActivity()
         setContent {
-            JetpackComposeDarkThemeTheme {
+            JetpackComposeDarkThemeTheme(isMainActivity = true, content = {
                 MainScreen(mainViewModel)
-            }
+            })
         }
     }
 

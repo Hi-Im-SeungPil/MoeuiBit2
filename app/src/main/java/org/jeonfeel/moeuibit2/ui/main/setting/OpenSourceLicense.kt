@@ -32,26 +32,33 @@ import org.jeonfeel.moeuibit2.constants.bsd_2
 import org.jeonfeel.moeuibit2.constants.bsd_3
 import org.jeonfeel.moeuibit2.constants.mit
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 
 @Composable
 fun OpenSourceLicenseLazyColumn() {
     val openSourceNames = stringArrayResource(id = R.array.openSourceNames)
     val openSourceUrls = stringArrayResource(id = R.array.openSourceUrl)
     val openSourceContents = stringArrayResource(id = R.array.openSourceLicense)
-    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
         item {
             Intro()
         }
         itemsIndexed(openSourceNames) { index, _ ->
-            OpenSourceLicenseLazyColumnItem(openSourceNames[index],
+            OpenSourceLicenseLazyColumnItem(
+                openSourceNames[index],
                 openSourceUrls[index],
-                openSourceContents[index])
+                openSourceContents[index]
+            )
         }
-        item{
-            OpenSourceLicenseLazyColumnItem("Apache License 2.0","", apache2)
-            OpenSourceLicenseLazyColumnItem("MIT License","", mit)
-            OpenSourceLicenseLazyColumnItem("2-clause BSD license (BSD-2-Clause)","", bsd_2)
-            OpenSourceLicenseLazyColumnItem("3-Clause BSD License (BSD-3-Clause)","", bsd_3)
+        item {
+            OpenSourceLicenseLazyColumnItem("Apache License 2.0", "", apache2)
+            OpenSourceLicenseLazyColumnItem("MIT License", "", mit)
+            OpenSourceLicenseLazyColumnItem("2-clause BSD license (BSD-2-Clause)", "", bsd_2)
+            OpenSourceLicenseLazyColumnItem("3-Clause BSD License (BSD-3-Clause)", "", bsd_3)
         }
     }
 }
@@ -63,37 +70,49 @@ fun OpenSourceLicenseLazyColumnItem(
     openSourceLicense: String,
 ) {
     val context = LocalContext.current
-    Column(modifier = Modifier
-        .padding(10.dp, 10.dp, 10.dp, 0.dp)
-        .fillMaxWidth()
-        .wrapContentHeight()
+    Column(
+        modifier = Modifier
+            .padding(10.dp, 10.dp, 10.dp, 0.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
 
-        if(opensourceUrl.isEmpty()) {
-            Divider(color = Color.Magenta, thickness = 1.dp, modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
+        if (opensourceUrl.isEmpty()) {
+            Divider(
+                color = Color.Magenta,
+                thickness = 1.dp,
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
+            )
         }
 
-        Text(text = openSourceName,
+        Text(
+            text = openSourceName,
             modifier = Modifier.fillMaxWidth(),
             fontWeight = FontWeight.Bold,
-            fontSize = DpToSp(17.dp)
+            fontSize = DpToSp(17.dp),
+            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
         )
 
-        if(opensourceUrl.isNotEmpty()){
-            Text(text = opensourceUrl,
+        if (opensourceUrl.isNotEmpty()) {
+            Text(
+                text = opensourceUrl,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(opensourceUrl)))
                     },
                 fontSize = DpToSp(15.dp),
-                style = TextStyle(color = Color.Blue),
-                textDecoration = TextDecoration.Underline)
+                style = TextStyle(color = decreaseColor()),
+                textDecoration = TextDecoration.Underline
+            )
         }
 
-        Text(text = openSourceLicense,
+        Text(
+            text = openSourceLicense,
             modifier = Modifier.fillMaxWidth(),
-            fontSize = DpToSp(15.dp))
+            fontSize = DpToSp(15.dp),
+            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+        )
     }
 }
 
@@ -116,6 +135,6 @@ fun Intro() {
                 }
             }
             .padding(10.dp, 10.dp, 10.dp, 10.dp),
-        style = TextStyle(fontSize = DpToSp(15.dp)))
+        style = TextStyle(fontSize = DpToSp(15.dp), color = MaterialTheme.colorScheme.onBackground))
 }
 

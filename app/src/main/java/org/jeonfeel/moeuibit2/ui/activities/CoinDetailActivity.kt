@@ -14,12 +14,13 @@ import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
+import org.jeonfeel.moeuibit2.ui.theme.JetpackComposeDarkThemeTheme
 import org.jeonfeel.moeuibit2.utils.ConnectionType
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
 @AndroidEntryPoint
-class CoinDetailActivity :BaseActivity() {
+class CoinDetailActivity : BaseActivity() {
 
     private var coinKoreanName = ""
     private var coinEngName = ""
@@ -36,7 +37,9 @@ class CoinDetailActivity :BaseActivity() {
         Logger.d("onCreate")
         initActivity()
         setContent {
-            CoinDetailActivityScreen()
+            JetpackComposeDarkThemeTheme(isMainActivity = false, content = {
+                CoinDetailActivityScreen()
+            })
         }
     }
 
@@ -46,6 +49,7 @@ class CoinDetailActivity :BaseActivity() {
     private fun initActivity() {
         window.statusBarColor = this.getColor(R.color.C0F0F5C)
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+
         intent?.let {
             coinKoreanName = it.getStringExtra(INTENT_KOREAN_NAME) ?: ""
             coinEngName = it.getStringExtra(INTENT_ENG_NAME) ?: ""
@@ -53,7 +57,7 @@ class CoinDetailActivity :BaseActivity() {
             openingPrice = it.getDoubleExtra(INTENT_OPENING_PRICE, 0.0)
             isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
             warning = it.getStringExtra(INTENT_WARNING) ?: ""
-            marketState = it.getIntExtra(INTENT_MARKET_STATE,-999)
+            marketState = it.getIntExtra(INTENT_MARKET_STATE, -999)
         }
         val market = if (marketState == SELECTED_BTC_MARKET) {
             "BTC-"
@@ -71,10 +75,10 @@ class CoinDetailActivity :BaseActivity() {
 
     @Composable
     fun CoinDetailActivityScreen() {
-        if (isKor) {
+//        if (isKor) {
             CoinDetailScreen(coinKoreanName, coinSymbol, warning, coinDetailViewModel)
-        } else {
-            CoinDetailScreen(coinEngName, coinSymbol, warning, coinDetailViewModel)
-        }
+//        } else {
+//            CoinDetailScreen(coinEngName, coinSymbol, warning, coinDetailViewModel)
+//        }
     }
 }

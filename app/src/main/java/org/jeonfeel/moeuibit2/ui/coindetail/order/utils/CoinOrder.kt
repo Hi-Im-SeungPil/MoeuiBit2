@@ -32,7 +32,6 @@ class CoinOrderState {
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
     val orderBookMutableStateList = mutableStateOf(mutableStateListOf<CoinDetailOrderBookModel>())
-    val orderScreenLoadingState = mutableStateOf(true)
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
     val userCoinQuantity = mutableStateOf(0.0)
@@ -90,7 +89,6 @@ class CoinOrder @Inject constructor(
         localRepository.getMyCoinDao().isInsert(BTC_MARKET)?.let {
             state.btcQuantity.value = it.quantity
         }
-        state.orderScreenLoadingState.value = false
     }
 
     suspend fun bidRequest(

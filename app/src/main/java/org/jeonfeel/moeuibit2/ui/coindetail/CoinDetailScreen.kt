@@ -2,9 +2,12 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -62,7 +65,12 @@ fun CoinDetailScreen(
             )
         },
     ) { contentPadding ->
-        Box(modifier = Modifier.padding(contentPadding)) {
+        Box(
+            modifier = Modifier
+                .padding(contentPadding)
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
             CoinDetailMain(
                 currentPrice = coinDetailViewModel.coinOrder.state.currentTradePriceState.value,
                 symbol = coinSymbol,

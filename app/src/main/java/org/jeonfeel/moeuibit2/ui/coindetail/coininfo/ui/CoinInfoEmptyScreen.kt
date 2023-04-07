@@ -1,8 +1,9 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
+package org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,7 +24,7 @@ fun CoinInfoEmptyScreen() {
             .fillMaxSize()
             .wrapContentHeight(),
         style = TextStyle(
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
             fontSize = DpToSp(23.dp),
             textAlign = TextAlign.Center

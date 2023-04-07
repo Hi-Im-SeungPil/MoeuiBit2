@@ -6,6 +6,7 @@ import android.net.Uri
 import android.view.Gravity
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +24,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,20 +32,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.showAlignBottom
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.ui.activities.OpenSourceLicense
 import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.viewmodels.SettingViewModel
 
 @Composable
-fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
+fun SettingScreen(settingViewModel: SettingViewModel) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val balloon = remember {
@@ -64,6 +62,9 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
             .setBackgroundColorResource(R.color.C6799FF)
             .setLifecycleOwner(lifecycleOwner)
             .build()
+    }
+    BackHandler(settingViewModel.state.openSourceState.value) {
+        settingViewModel.state.openSourceState.value = false
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
@@ -118,13 +119,17 @@ fun SettingScreen(mainViewModel: MainViewModel = viewModel()) {
         }
     ) { contentPadding ->
         Box(modifier = Modifier.padding(contentPadding)) {
-            SettingScreenLazyColumn(mainViewModel)
+            SettingScreenLazyColumn(settingViewModel)
         }
+    }
+
+    if (settingViewModel.state.openSourceState.value) {
+        OpenSourceLicenseLazyColumn()
     }
 }
 
 @Composable
-fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
+fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val context = LocalContext.current
     val resetDialogState = remember {
         mutableStateOf(false)
@@ -132,7 +137,7 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
     val transactionInfoDialogState = remember {
         mutableStateOf(false)
     }
-    ResetDialog(mainViewModel, resetDialogState, context)
+    ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),
         content = stringResource(id = R.string.init_message),
@@ -140,10 +145,14 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
         rightButtonText = stringResource(id = R.string.confirm),
         leftButtonAction = { transactionInfoDialogState.value = false },
         rightButtonAction = {
-//            mainViewModel.resetTransactionInfo()
+            settingViewModel.resetTransactionInfo()
             transactionInfoDialogState.value = false
         })
-    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
         item {
             SettingScreenLazyColumnItem(stringResource(id = R.string.write_review), clickAction = {
                 writeReviewAction(context)
@@ -161,7 +170,7 @@ fun SettingScreenLazyColumn(mainViewModel: MainViewModel = viewModel()) {
             SettingScreenLazyColumnItem(
                 text = stringResource(id = R.string.open_source_license),
                 clickAction = {
-                    openLicense(context)
+                    settingViewModel.state.openSourceState.value = true
                 })
         }
     }
@@ -173,19 +182,19 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
         text = text, modifier = Modifier
             .padding(10.dp, 30.dp, 10.dp, 0.dp)
             .fillMaxWidth()
-            .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+            .border(1.dp, MaterialTheme.colorScheme.onBackground)
             .clickable { clickAction() }
             .padding(10.dp, 10.dp),
         style = TextStyle(
             fontSize = DpToSp(25.dp),
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground
         )
     )
 }
 
 @Composable
 fun ResetDialog(
-    mainViewModel: MainViewModel,
+    settingViewModel: SettingViewModel,
     resetDialogState: MutableState<Boolean>,
     context: Context,
 ) {
@@ -240,7 +249,7 @@ fun ResetDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    resetAll(mainViewModel)
+                                    removeAll(settingViewModel)
                                     Toast
                                         .makeText(
                                             context,
@@ -266,11 +275,6 @@ fun writeReviewAction(context: Context) {
     context.startActivity(intent)
 }
 
-fun resetAll(mainViewModel: MainViewModel) {
-//    mainViewModel.resetAll()
-}
-
-fun openLicense(context: Context) {
-    val intent = Intent(context, OpenSourceLicense::class.java)
-    context.startActivity(intent)
+fun removeAll(settingViewModel: SettingViewModel) {
+    settingViewModel.removeAll()
 }

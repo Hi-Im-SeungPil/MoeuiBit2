@@ -64,7 +64,8 @@ private val LightColorPalette = lightColorScheme(
 @Composable
 fun JetpackComposeDarkThemeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
+    isMainActivity: Boolean
 ) {
     val colors = if (darkTheme) {
         DarkColorPalette
@@ -81,7 +82,7 @@ fun JetpackComposeDarkThemeTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colors.background.toArgb()
+            window.statusBarColor = if(isMainActivity) colors.background.toArgb() else colors.primaryContainer.toArgb()
 
             WindowCompat.getInsetsController(window, view)
                 .isAppearanceLightStatusBars = !darkTheme

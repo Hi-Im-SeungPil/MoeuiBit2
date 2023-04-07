@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.utils.moveUrl
 
 @Composable
@@ -85,11 +87,11 @@ fun CoinInfoContent(
                     .wrapContentWidth()
                     .padding(10.dp, 0.dp, 10.dp, 10.dp)
             )
-        }
-        else if (selectedButton.value != -1 && flex.url != null
+        } else if (selectedButton.value != -1 && flex.url != null
             || flex.url == null && selectedButton.value == 4
-            || flex.url == null && selectedButton.value == 5) {
-            if(!webViewLoading.value) {
+            || flex.url == null && selectedButton.value == 5
+        ) {
+            if (!webViewLoading.value) {
                 AndroidView(
                     factory = {
                         flex
@@ -110,7 +112,7 @@ fun RowScope.MoveUrlText(text: String, clickAction: () -> Unit) {
         text = text,
         fontSize = DpToSp(14.dp),
         style = TextStyle(
-            color = Color.Blue,
+            color = decreaseColor(),
             textDecoration = TextDecoration.Underline,
             textAlign = TextAlign.Center
         ),
@@ -154,7 +156,7 @@ fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
     return if (selectedButton == buttonId) {
         Modifier
             .padding(0.dp, 4.dp)
-            .border(1.dp, colorResource(id = R.color.C0F0F5C))
+            .border(1.dp, MaterialTheme.colorScheme.primary)
     } else {
         Modifier.padding(0.dp, 4.dp)
     }
@@ -163,7 +165,7 @@ fun getButtonModifier(selectedButton: Int, buttonId: Int): Modifier {
 @Composable
 fun getTextColor(selectedButton: Int, buttonId: Int): Color {
     return if (selectedButton == buttonId) {
-        colorResource(id = R.color.C0F0F5C)
+        MaterialTheme.colorScheme.primary
     } else {
         Color.LightGray
     }

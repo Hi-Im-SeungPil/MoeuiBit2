@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +28,8 @@ import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -50,6 +54,7 @@ fun CoinDetailMain(
 
     Column(
         modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
             .padding(0.dp, 10.dp, 0.dp, 0.dp)
             .fillMaxWidth()
             .wrapContentHeight()
@@ -79,7 +84,8 @@ fun CoinDetailMain(
                     Text(
                         text = stringResource(id = R.string.netChange), modifier = Modifier
                             .wrapContentWidth()
-                            .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                            .padding(0.dp, 0.dp, 10.dp, 0.dp),
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     Text(
                         text = curChangeRate.plus("%"),
@@ -115,19 +121,20 @@ fun CoinDetailMain(
 }
 
 // 전일대비에 따른 색상
+@Composable
 fun getTextColor(
     curChangeRate: String,
 ): Color {
     val curSignedChangeRate = curChangeRate.toDouble()
     return when {
         curSignedChangeRate > 0.0 -> {
-            increase_color
+            increaseColor()
         }
         curSignedChangeRate < 0.0 -> {
-            decrease_color
+            decreaseColor()
         }
         else -> {
-            Color.Black
+            MaterialTheme.colorScheme.onBackground
         }
     }
 }

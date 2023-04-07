@@ -30,12 +30,9 @@ import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.theme.decrease_color
-import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
-import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
-import org.jeonfeel.moeuibit2.ui.theme.lazyColumnItemUnderLineColor
+import org.jeonfeel.moeuibit2.ui.theme.*
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.Utils.removeComma
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -129,7 +126,7 @@ fun ExchangeScreenLazyColumnItem(
                 .border(
                     1.dp, color = when {
                         formattedPreTradePrice < curTradePrice -> {
-                            increase_color
+                            increaseColor()
                         }
                         formattedPreTradePrice > curTradePrice -> {
                             decreaseColor()

@@ -60,12 +60,5 @@
             android:exported="true"
             android:screenOrientation="portrait"/>
 
-        <activity android:name="org.jeonfeel.moeuibit2.ui.activities.OpenSourceLicense"
-            android:exported="true"
-            android:screenOrientation="portrait"/>
-
-<!--        <activity android:name="org.jeonfeel.moeuibit2.activity.kimp.KimpActivity"-->
-<!--            android:exported="true"-->
-<!--            android:screenOrientation="portrait"/>-->
     </application>
 </manifest>

@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,7 +49,7 @@ fun CoinDetailTopAppBar(
     val unit = Utils.getUnit(marketState)
 
     TopAppBar(
-        backgroundColor = colorResource(id = R.color.C0F0F5C),
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
         title = {
             Text(
                 if (warning == CAUTION) {

@@ -154,7 +154,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     }
     // 버튼들과 차트.
     Column(modifier = Modifier.fillMaxSize()) {
-        periodButtons(
+        PeriodButtons(
             selectedButton = coinDetailViewModel.chart.state.selectedButton,
             minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
             minuteText = coinDetailViewModel.chart.state.minuteText,
@@ -196,7 +196,7 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
 }
 
 @Composable
-private fun periodButtons(
+private fun PeriodButtons(
     selectedButton: MutableState<Int>,
     minuteVisibility: MutableState<Boolean>,
     minuteText: MutableState<String>,
@@ -215,7 +215,7 @@ private fun periodButtons(
                 .fillMaxHeight()
         }
         val btnColor = if (selectedButton.value == MINUTE_SELECT) {
-            colorResource(id = R.color.C0F0F5C)
+            androidx.compose.material3.MaterialTheme.colorScheme.primary
         } else {
             Color.LightGray
         }
@@ -225,7 +225,7 @@ private fun periodButtons(
                 minuteVisibility.value = !minuteVisibility.value
             }, modifier = if (selectedButton.value == MINUTE_SELECT)
                 buttonModifier
-                    .border(1.dp, colorResource(id = R.color.C0F0F5C))
+                    .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
                     .fillMaxHeight()
             else buttonModifier
         ) {
@@ -288,14 +288,14 @@ fun PeriodButton(
     requestChartData: () -> Unit
 ) {
     val buttonColor = if (selectedButton.value == period) {
-        colorResource(id = R.color.C0F0F5C)
+        androidx.compose.material3.MaterialTheme.colorScheme.primary
     } else {
         Color.LightGray
     }
 
     val modifierResult = if (selectedButton.value == period) {
         modifier
-            .border(1.dp, colorResource(id = R.color.C0F0F5C))
+            .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
             .fillMaxHeight()
     } else {
         modifier
@@ -338,14 +338,14 @@ fun RowScope.MinuteButton(
             requestChartData()
         }, modifier = Modifier
             .weight(1f)
-            .background(Color.White)
-            .border(0.5.dp, colorResource(id = R.color.C0F0F5C))
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
+            .border(0.5.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
             .fillMaxHeight()
     ) {
         if (autoSizeText) {
             AutoSizeText(
                 text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(color = Color.Black),
+                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()

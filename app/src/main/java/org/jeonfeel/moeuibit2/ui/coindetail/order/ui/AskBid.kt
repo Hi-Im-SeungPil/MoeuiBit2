@@ -47,8 +47,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.order.AdjustCommissionDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
-import org.jeonfeel.moeuibit2.ui.theme.decrease_color
-import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.jeonfeel.moeuibit2.ui.theme.*
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.utils.*
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -269,7 +268,8 @@ fun OrderScreenUserSeedMoney(
             Text(
                 text = stringResource(id = R.string.orderable),
                 modifier = Modifier.wrapContentWidth(),
-                fontSize = 13.sp
+                fontSize = 13.sp,
+                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
             )
             AutoSizeText(
                 modifier = Modifier.weight(1f, true),
@@ -284,7 +284,8 @@ fun OrderScreenUserSeedMoney(
                 text = "  ".plus(krwOrSymbol),
                 modifier = Modifier.wrapContentWidth(),
                 fontWeight = FontWeight.Bold, fontSize = DpToSp(15.dp),
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
             )
         }
 
@@ -328,7 +329,10 @@ fun OrderScreenQuantity(coinDetailViewModel: CoinDetailViewModel, marketState: I
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(8.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = DpToSp(15.dp))
+                style = TextStyle(
+                    fontSize = DpToSp(15.dp),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                )
             )
             OrderScreenQuantityTextField(
                 modifier = Modifier.weight(1f, true),
@@ -400,16 +404,22 @@ fun RowScope.OrderScreenQuantityDropDown(
                 }
             }
 
-            Text(buttonText, style = TextStyle(color = Color.Black))
+            Text(
+                buttonText,
+                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+            )
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
             )
         }
         DropdownMenu(
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false },
-            modifier = Modifier.width(with(LocalDensity.current) { textButtonWidth.value.toDp() })
+            modifier = Modifier
+                .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
+                .width(with(LocalDensity.current) { textButtonWidth.value.toDp() })
         ) {
             suggestions.forEach { label ->
                 DropdownMenuItem(onClick = {
@@ -449,7 +459,10 @@ fun RowScope.OrderScreenQuantityDropDown(
                         }
                     }
                 }) {
-                    Text(text = label)
+                    Text(
+                        text = label,
+                        style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+                    )
                 }
             }
         }
@@ -470,9 +483,14 @@ fun OrderScreenPrice(
             .wrapContentHeight()
     ) {
         Text(
-            text = stringResource(id = R.string.price), modifier = Modifier
+            text = stringResource(id = R.string.price),
+            modifier = Modifier
                 .wrapContentWidth()
-                .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15.dp))
+                .padding(8.dp, 0.dp, 8.dp, 0.dp),
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+            )
         )
         Text(
             text = CurrentCalculator.tradePriceCalculator(
@@ -481,14 +499,21 @@ fun OrderScreenPrice(
             ),
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
-            style = TextStyle(fontSize = DpToSp(15.dp))
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+            )
         )
         Text(
             text = "  ".plus(Utils.getUnit(marketState)),
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(0.dp, 0.dp, 8.dp, 0.dp),
-            style = TextStyle(fontSize = DpToSp(15.dp), fontWeight = FontWeight.Bold)
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                fontWeight = FontWeight.Bold,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+            )
         )
     }
 }
@@ -546,22 +571,34 @@ fun OrderScreenTotalPrice(
                 .wrapContentHeight()
         ) {
             Text(
-                text = stringResource(id = R.string.total), modifier = Modifier
+                text = stringResource(id = R.string.total),
+                modifier = Modifier
                     .wrapContentWidth()
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp), style = TextStyle(fontSize = DpToSp(15.dp))
+                    .padding(8.dp, 0.dp, 8.dp, 0.dp),
+                style = TextStyle(
+                    fontSize = DpToSp(15.dp),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                )
             )
             Text(
                 text = totalPrice,
                 modifier = Modifier.weight(1f, true),
                 textAlign = TextAlign.End,
-                style = TextStyle(fontSize = DpToSp(15.dp))
+                style = TextStyle(
+                    fontSize = DpToSp(15.dp),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                )
             )
             Text(
                 text = "  ".plus(Utils.getUnit(marketState)),
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(0.dp, 0.dp, 8.dp, 0.dp),
-                style = TextStyle(fontSize = DpToSp(15.dp), fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    fontSize = DpToSp(15.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                )
             )
         }
         if (marketState == SELECTED_BTC_MARKET) {
@@ -570,7 +607,10 @@ fun OrderScreenTotalPrice(
                 modifier = Modifier
                     .padding(5.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
+                style = TextStyle(
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                    fontSize = DpToSp(12.dp)
+                )
             )
         }
     }
@@ -651,7 +691,8 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                     val selectedTab = coinDetailViewModel.coinOrder.state.askBidSelectedTab.value
                     val userBtcCoin = coinDetailViewModel.coinOrder.state.btcQuantity
                     if (marketState == SELECTED_KRW_MARKET) {
-                        val commission = coinDetailViewModel.getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                        val commission =
+                            coinDetailViewModel.getCommission(PREF_KEY_KRW_BID_COMMISSION)
                         when {
                             currentPrice.value == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -858,7 +899,7 @@ fun OrderScreenNotice(
             Text(
                 text = stringResource(id = R.string.adjust_commission),
                 style = TextStyle(
-                    color = Color.Blue,
+                    color = decreaseColor(),
                     textDecoration = TextDecoration.Underline
                 ),
                 modifier = Modifier
@@ -888,31 +929,36 @@ fun OrderScreenNotice(
 fun getTabTextStyle(selectedTab: Int, tabNum: Int): TextStyle {
     return if (selectedTab == tabNum) {
         TextStyle(
-            color = colorResource(id = R.color.C0F0F5C),
+            color = orderBookTabTextColor(),
             fontWeight = FontWeight.Bold,
             fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center
         )
     } else {
-        TextStyle(color = Color.Gray, fontSize = DpToSp(15.dp), textAlign = TextAlign.Center)
+        val color = if (!isSystemInDarkTheme()) {
+            Color.Gray
+        } else {
+            Color.LightGray
+        }
+        TextStyle(color = color, fontSize = DpToSp(15.dp), textAlign = TextAlign.Center)
     }
 }
 
 @Composable
 fun getTabBackGround(selectedTab: Int, tabNum: Int): Color {
     return if (selectedTab == tabNum) {
-        colorResource(id = R.color.design_default_color_background)
+        androidx.compose.material3.MaterialTheme.colorScheme.background
     } else {
-        colorResource(id = R.color.CF6F6F6)
+        orderBookTabBackground()
     }
 }
 
 @Composable
 fun getButtonsBackground(selectedTab: Int): Color {
     return if (selectedTab == 1) {
-        increase_color
+        increaseColor()
     } else {
-        decrease_color
+        decreaseColor()
     }
 }
 

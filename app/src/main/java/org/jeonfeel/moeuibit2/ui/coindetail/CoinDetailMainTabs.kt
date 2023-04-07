@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
+import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
@@ -62,12 +64,12 @@ fun CoinDetailMainTabRow(navController: NavController) {
     TabRow(
         selectedTabIndex = tabState.value,
         modifier = Modifier.height(40.dp),
-        backgroundColor = colorResource(id = R.color.white)
+        backgroundColor = MaterialTheme.colorScheme.background
     ) {
         items.forEachIndexed { index, tab ->
             Tab(text = { Text(tab.title) },
                 selected = tabState.value == index,
-                selectedContentColor = colorResource(id = R.color.C0F0F5C),
+                selectedContentColor = tabRowSelectedColor(),
                 unselectedContentColor = colorResource(id = R.color.CDCDCDC),
                 onClick = {
                     if (tabState.value != index) {

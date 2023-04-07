@@ -35,6 +35,7 @@ import org.jeonfeel.moeuibit2.ui.theme.bottomNavigatorSelectedColor
 import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
+import org.jeonfeel.moeuibit2.ui.viewmodels.SettingViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
     object Exchange : MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, "exchange")
@@ -120,7 +121,12 @@ fun MainNavigation(
             PortfolioScreen(portfolioViewModel = portfolioViewModel)
         }
         composable(MainBottomNavItem.Setting.screen_route) {
-            SettingScreen(mainViewModel)
+            val settingViewModel: SettingViewModel = viewModel(
+                factory = SettingViewModel.provideFactory(
+                    mainViewModel.localRepository
+                )
+            )
+            SettingScreen(settingViewModel)
         }
     }
 }

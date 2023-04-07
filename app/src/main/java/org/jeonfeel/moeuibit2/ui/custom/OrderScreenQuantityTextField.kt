@@ -36,37 +36,41 @@ fun OrderScreenQuantityTextField(
     currentTradePriceState: MutableState<Double>
 ) {
     val context = LocalContext.current
-    val value = if(askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
+    val value = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
         bidQuantity
     } else {
         askQuantity
     }
 
     BasicTextField(value = value.value, onValueChange = {
-        if(it.toDoubleOrNull() == null && it != "") {
+        if (it.toDoubleOrNull() == null && it != "") {
             value.value = ""
             context.showToast("숫자만 입력 가능합니다.")
-        } else if(currentTradePriceState.value == 0.0) {
+        } else if (currentTradePriceState.value == 0.0) {
             context.showToast("네트워크 통신 오류입니다.")
         } else {
             value.value = it
         }
     }, singleLine = true,
-        textStyle = TextStyle(color = Color.Black,
-            fontSize = DpToSp(17.dp), textAlign = TextAlign.End),
+        textStyle = TextStyle(
+            color = Color.Black,
+            fontSize = DpToSp(17.dp), textAlign = TextAlign.End
+        ),
         modifier = modifier
             .clearFocusOnKeyboardDismiss()
             .padding(0.dp, 0.dp, 9.dp, 0.dp),
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         decorationBox = { innerTextField ->
             Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f,true)) {
+                Box(Modifier.weight(1f, true)) {
                     if (value.value.isEmpty()) {
                         Text(
                             placeholderText,
-                            style = TextStyle(color = Color.Black,
+                            style = TextStyle(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                                 fontSize = fontSize,
-                                textAlign = TextAlign.End),
+                                textAlign = TextAlign.End
+                            ),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
