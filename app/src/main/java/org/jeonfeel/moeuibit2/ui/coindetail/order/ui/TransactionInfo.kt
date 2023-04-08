@@ -31,7 +31,7 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
     val dateFormat = SimpleDateFormat("yyyy-MM-dd kk:mm", Locale("ko", "KR"))
     val marketState = Utils.getSelectedMarket(coinDetailViewModel.market)
     coinDetailViewModel.getTransactionInfoList()
-    val transactionInfoList = coinDetailViewModel.coinOrder.state.transactionInfoList
+    val transactionInfoList = coinDetailViewModel.coinOrder.state.transactionInfoList.value
     if (transactionInfoList.isEmpty()) {
         Text(
             text = stringResource(id = R.string.empty_transaction_info),

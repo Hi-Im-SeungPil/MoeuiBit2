@@ -44,7 +44,7 @@ class CoinOrderState {
     val currentBTCPrice = mutableStateOf(0.0)
     val showAdjustFeeDialog = mutableStateOf(false)
     val commissionStateList = mutableStateListOf<MutableState<Float>>()
-    val transactionInfoList = mutableStateListOf<TransactionInfo>()
+    val transactionInfoList = mutableStateOf(mutableStateListOf<TransactionInfo>())
     var maxOrderBookSize = mutableStateOf(0.0)
 }
 
@@ -307,11 +307,10 @@ class CoinOrder @Inject constructor(
      * transactionInfo
      */
     suspend fun getTransactionInfoList(market: String) {
-        state.transactionInfoList.clear()
         val list = localRepository.getTransactionInfoDao().select(market)
-        for (i in list) {
-            state.transactionInfoList.add(i)
-        }
+        val tempList = mutableStateListOf<TransactionInfo>()
+        tempList.addAll(list)
+        state.transactionInfoList.value = tempList
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {

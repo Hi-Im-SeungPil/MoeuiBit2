@@ -119,7 +119,7 @@ class PortfolioViewModel constructor(
 
     private suspend fun resetPortfolio() {
         state.isPortfolioSocketRunning.value = false
-        state.userHoldCoinDtoList.value.clear()
+//        state.userHoldCoinDtoList.value.clear()
         state.portfolioOrderState.value = SORT_DEFAULT
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()
