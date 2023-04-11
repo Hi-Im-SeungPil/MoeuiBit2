@@ -32,7 +32,7 @@ fun decreaseColor(): Color {
         if (MoeuiBitDataStore.isKor) {
             Color(0xFF6E6EFA)
         } else {
-            Color(0xFFFF3232)
+            Color(0xFFFF4646)
         }
     }
 }
@@ -47,7 +47,7 @@ fun increaseColor(): Color {
         }
     } else {
         if (MoeuiBitDataStore.isKor) {
-            Color(0xFFFF3232)
+            Color(0xFFFF4646)
         } else {
             Color(0xFF0ECB81)
         }

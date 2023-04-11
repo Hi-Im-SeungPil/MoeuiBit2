@@ -1,16 +1,19 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
+import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
@@ -29,7 +32,7 @@ import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
 
-class ChartHelper {
+class ChartHelper(private val context: Context?) {
     /**
      * 차트 초기 세팅
      */
@@ -92,7 +95,7 @@ class ChartHelper {
         combinedChart.axisRight.apply {
             this.minWidth = 50f
             setLabelCount(5, true)
-            textColor = Color.BLACK
+            textColor = ContextCompat.getColor(combinedChart.context, R.color.text_color)
             setDrawAxisLine(true)
             setDrawGridLines(false)
             axisLineColor = Color.GRAY
@@ -116,7 +119,7 @@ class ChartHelper {
 
         combinedChart.legend.apply {
             setCustom(legendArray)
-            textColor = Color.BLACK
+            textColor = ContextCompat.getColor(combinedChart.context, R.color.text_color)
             isWordWrapEnabled = true
             verticalAlignment = Legend.LegendVerticalAlignment.TOP
             horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
@@ -156,7 +159,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
 
     this.setOnTouchListener { _, me ->
         if (loadingOldData.value) {
-            Log.e("return!!!!!!","")
+            Log.e("return!!!!!!", "")
             return@setOnTouchListener true
         }
         if (minuteVisibility.value) minuteVisibility.value = false
@@ -170,7 +173,10 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 rightAxis.axisDependency
             )
             val horizontalLine = LimitLine(valueByTouchPoint.y.toFloat()).apply {
-                lineColor = Color.BLACK
+                lineColor = ContextCompat.getColor(
+                    this@setMBitChartTouchListener.context,
+                    R.color.text_color
+                )
                 lineWidth = 0.5f
             }
             val selectedPrice =
@@ -201,7 +207,10 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         e.printStackTrace()
                         LimitLine(0f)
                     }.apply {
-                        lineColor = Color.BLACK
+                        lineColor = ContextCompat.getColor(
+                            this@setMBitChartTouchListener.context,
+                            R.color.text_color
+                        )
                         lineWidth = 0.5f
                     }
                     xAxis.removeAllLimitLines()
@@ -211,8 +220,14 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
-                        val color = if (tradePrice - openPrice >= 0.0) increase_candle_color
-                        else decrease_candle_color
+                        val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
+                            this@setMBitChartTouchListener.context,
+                            R.color.increase_color
+                        )
+                        else ContextCompat.getColor(
+                            this@setMBitChartTouchListener.context,
+                            R.color.decrease_color
+                        )
                         val yp = this.getPosition(
                             Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
@@ -238,8 +253,14 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
-                        val color = if (tradePrice - openPrice >= 0.0) increase_candle_color
-                        else decrease_candle_color
+                        val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
+                            this@setMBitChartTouchListener.context,
+                            R.color.increase_color
+                        )
+                        else ContextCompat.getColor(
+                            this@setMBitChartTouchListener.context,
+                            R.color.decrease_color
+                        )
                         val yp = this.getPosition(
                             Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
@@ -278,15 +299,22 @@ fun MBitCombinedChart.setMBitChartTouchListener(
 
 fun CandleDataSet.initCandleDataSet() {
     val candleDataSet = this
+    val context = MoeuiBitApp.mBitApplicationContext()
     candleDataSet.apply {
         axisDependency = YAxis.AxisDependency.RIGHT
         shadowColorSameAsCandle = true
         shadowWidth = 1f
-        decreasingColor = decrease_candle_color
+        decreasingColor = context?.let {
+            ContextCompat.getColor(it, R.color.decrease_color)
+        } ?: decrease_candle_color
         decreasingPaintStyle = Paint.Style.FILL
-        increasingColor = increase_candle_color
+        increasingColor = context?.let {
+            ContextCompat.getColor(it, R.color.increase_color)
+        } ?: increase_candle_color
         increasingPaintStyle = Paint.Style.FILL
-        neutralColor = Color.DKGRAY
+        neutralColor = context?.let {
+            ContextCompat.getColor(it, R.color.natural_color)
+        } ?: Color.DKGRAY
         highLightColor = Color.BLACK
         setDrawHorizontalHighlightIndicator(false)
         setDrawVerticalHighlightIndicator(false)
@@ -300,7 +328,9 @@ fun BarDataSet.initPositiveBarDataSet() {
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = increase_bar_color
+        color = MoeuiBitApp.mBitApplicationContext()?.let {
+            ContextCompat.getColor(it, R.color.increase_bar_color)
+        } ?: increase_bar_color
         setDrawIcons(false)
         setDrawValues(false)
     }
@@ -311,7 +341,9 @@ fun BarDataSet.initNegativeBarDataSet() {
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = decrease_bar_color
+        color = MoeuiBitApp.mBitApplicationContext()?.let {
+            ContextCompat.getColor(it, R.color.decrease_bar_color)
+        } ?: decrease_bar_color
         setDrawIcons(false)
         setDrawValues(false)
     }
@@ -443,7 +475,7 @@ fun CombinedChart.addAccAmountLimitLine(
     lastX: Float,
     color: Int,
     marketState: Int,
-    accData: HashMap<Int,Double>
+    accData: HashMap<Int, Double>
 ) {
     val chart = this
     if (chart.axisLeft.limitLines.isNotEmpty()) {

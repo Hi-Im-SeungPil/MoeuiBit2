@@ -5,6 +5,9 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 
 class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
@@ -18,7 +21,6 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        Logger.d("UpBitOrderBookWebSocketListener on Open")
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -27,7 +29,6 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-//        Logger.e(bytes.string(Charsets.UTF_8))
         messageListener?.onOrderBookMessageReceiveListener(bytes.string(Charsets.UTF_8))
     }
 
@@ -37,16 +38,15 @@ class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
+        UpBitOrderBookWebSocket.currentSocketState = SOCKET_IS_FAILURE
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Logger.e("UpBitTickerWebSocketListener on Failure}")
+        Logger.e("orderBook on Failure")
         t.printStackTrace()
-    }
-
-    companion object {
-        const val NORMAL_CLOSURE_STATUS = 1000
+        UpBitOrderBookWebSocket.currentSocketState = SOCKET_IS_FAILURE
+        UpBitOrderBookWebSocket.rebuildSocket()
     }
 }
 

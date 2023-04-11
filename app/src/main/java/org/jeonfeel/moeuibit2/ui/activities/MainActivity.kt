@@ -31,7 +31,7 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
-import org.jeonfeel.moeuibit2.ui.theme.JetpackComposeDarkThemeTheme
+import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -56,7 +56,7 @@ class MainActivity : BaseActivity() {
 
         initActivity()
         setContent {
-            JetpackComposeDarkThemeTheme(isMainActivity = true, content = {
+            MainTheme(isMainActivity = true, content = {
                 MainScreen(mainViewModel)
             })
         }

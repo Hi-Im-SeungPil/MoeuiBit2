@@ -62,7 +62,7 @@ private val LightColorPalette = lightColorScheme(
 )
 
 @Composable
-fun JetpackComposeDarkThemeTheme(
+fun MainTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
     isMainActivity: Boolean

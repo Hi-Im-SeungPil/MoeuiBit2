@@ -18,9 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
-import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
-import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
@@ -70,12 +68,14 @@ fun PortfolioScreen(
 
     AddLifecycleEvent(
         onPauseAction = {
+            UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
             portfolioViewModel.state.isPortfolioSocketRunning.value = false
             UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+                UpBitTickerWebSocket.currentPage = IS_PORTFOLIO_SCREEN
                 portfolioViewModel.getUserSeedMoney()
                 portfolioViewModel.getUserHoldCoins()
             } else {

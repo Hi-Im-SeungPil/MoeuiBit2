@@ -53,7 +53,7 @@ fun OrderScreenQuantityTextField(
         }
     }, singleLine = true,
         textStyle = TextStyle(
-            color = Color.Black,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
             fontSize = DpToSp(17.dp), textAlign = TextAlign.End
         ),
         modifier = modifier

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -25,13 +26,13 @@ fun CommonLoadingDialog(dialogState: MutableState<Boolean>, text: String) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .background(colorResource(id = R.color.design_default_color_background))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Column {
                     CircularProgressIndicator(modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(0.dp, 20.dp, 0.dp, 0.dp),
-                        color = colorResource(id = R.color.C0F0F5C)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(text = text, Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp))
                 }

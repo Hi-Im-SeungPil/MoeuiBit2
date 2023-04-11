@@ -1,11 +1,13 @@
 package org.jeonfeel.moeuibit2.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ fun TwoButtonCommonDialog(
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Card(
                 modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
                     .padding(20.dp, 0.dp)
                     .wrapContentSize()
             ) {
@@ -51,7 +54,8 @@ fun TwoButtonCommonDialog(
                         style = TextStyle(
                             textAlign = TextAlign.Center,
                             fontSize = DpToSp(dp = 25.dp),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
                     Text(
@@ -59,7 +63,10 @@ fun TwoButtonCommonDialog(
                         modifier = Modifier
                             .padding(10.dp, 10.dp, 10.dp, 20.dp)
                             .fillMaxWidth(),
-                        style = TextStyle(fontSize = DpToSp(18.dp))
+                        style = TextStyle(
+                            fontSize = DpToSp(18.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
@@ -71,7 +78,7 @@ fun TwoButtonCommonDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = DpToSp(dp = 18.dp),
                                 textAlign = TextAlign.Center
                             )
@@ -79,7 +86,7 @@ fun TwoButtonCommonDialog(
                         Text(
                             text = "", modifier = Modifier
                                 .width(1.dp)
-                                .border(0.5.dp, Color.LightGray)
+                                .border(1.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = DpToSp(18.dp)
                         )
                         Text(text = rightButtonText,
@@ -90,7 +97,7 @@ fun TwoButtonCommonDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.Center
                             )
@@ -142,7 +149,7 @@ fun OneButtonCommonDialog(
                             .fillMaxWidth(),
                         style = TextStyle(fontSize = DpToSp(18.dp))
                     )
-                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 0.5.dp)
+                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Text(
                         text = buttonText, modifier = Modifier
                             .weight(1f)

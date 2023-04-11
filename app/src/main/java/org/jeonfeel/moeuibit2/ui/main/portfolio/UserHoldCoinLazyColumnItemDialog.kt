@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -28,7 +29,9 @@ import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -54,12 +57,13 @@ fun UserHoldCoinLazyColumnItemDialog(
 ) {
     val context = LocalContext.current
     val textColor = if (openingPrice < currentPrice) {
-        increase_color
+        increaseColor()
     } else if (openingPrice > currentPrice) {
-        decrease_color
+        decreaseColor()
     } else {
-        Color.Black
+        MaterialTheme.colorScheme.onBackground
     }
+
     var name = if (isKor) koreanName else engName
     if(name.startsWith("[BTC]")) {
         name = name.substring(5)
@@ -188,7 +192,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                                 if (!koreanName.isNullOrEmpty()) {
                                     val intent = Intent(context, CoinDetailActivity::class.java)
                                     intent.putExtra(INTENT_KOREAN_NAME, name)
-                                    intent.putExtra(INTENT_ENG_NAME,name)
+                                    intent.putExtra(INTENT_ENG_NAME, name)
                                     intent.putExtra(INTENT_COIN_SYMBOL, symbol)
                                     intent.putExtra(INTENT_OPENING_PRICE, openingPrice)
                                     intent.putExtra(INTENT_IS_FAVORITE, isFavorite != null)

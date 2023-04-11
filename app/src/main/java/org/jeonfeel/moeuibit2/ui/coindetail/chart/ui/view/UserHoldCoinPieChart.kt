@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.data.PieData
@@ -16,7 +17,7 @@ import org.jeonfeel.moeuibit2.utils.firstDecimal
 
 @SuppressLint("ViewConstructor")
 class UserHoldCoinPieChart(
-    context: Context,
+    private val context: Context,
     private val userSeedMoney: Long,
     private var userHoldCoinList: List<MyCoin?>
 ) : PieChart(context) {
@@ -52,6 +53,7 @@ class UserHoldCoinPieChart(
             val labelString = ((eachCoinAmountArray[i] / totalAssets.toFloat()) * 100).firstDecimal()
             val legendEntry = LegendEntry().apply {
                 label = symbolArray[i].plus(" $labelString%")
+                setEntryLabelColor(ContextCompat.getColor(context, R.color.text_color))
                 formColor = colors[i]
             }
             legendEntryArrayList.add(legendEntry)

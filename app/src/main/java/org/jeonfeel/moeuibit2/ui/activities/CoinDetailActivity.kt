@@ -1,22 +1,18 @@
 package org.jeonfeel.moeuibit2.ui.activities
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.core.view.WindowInsetsControllerCompat
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
-import org.jeonfeel.moeuibit2.ui.theme.JetpackComposeDarkThemeTheme
-import org.jeonfeel.moeuibit2.utils.ConnectionType
-import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
+import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.utils.showToast
 
 @AndroidEntryPoint
@@ -37,7 +33,7 @@ class CoinDetailActivity : BaseActivity() {
         Logger.d("onCreate")
         initActivity()
         setContent {
-            JetpackComposeDarkThemeTheme(isMainActivity = false, content = {
+            MainTheme(isMainActivity = false, content = {
                 CoinDetailActivityScreen()
             })
         }

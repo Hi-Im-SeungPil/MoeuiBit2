@@ -20,6 +20,7 @@ const val fullScreenAdId = "ca-app-pub-8481465476603755/8814267120"
 const val SOCKET_IS_CONNECTED = 0
 const val SOCKET_IS_NO_CONNECTION = -1
 const val SOCKET_IS_ON_PAUSE = -2
+const val SOCKET_IS_FAILURE = -3
 
 const val INTERNET_CONNECTION = 0
 const val NO_INTERNET_CONNECTION = -1
@@ -29,6 +30,11 @@ const val SELECTED_KRW_MARKET = 0
 const val SELECTED_BTC_MARKET = 1
 const val SELECTED_FAVORITE = 2
 const val SELECTED_KIMP = 3
+
+const val IS_EXCHANGE_SCREEN = 0
+const val IS_DETAIL_SCREEN = 1
+const val IS_PORTFOLIO_SCREEN = 2
+const val IS_ANOTHER_SCREEN = -1
 
 const val BTC_MARKET = "KRW-BTC"
 

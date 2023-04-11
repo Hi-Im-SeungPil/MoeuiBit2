@@ -206,7 +206,6 @@ fun EmptyAskingPriceLazyColumnItem(
 
     Row(
         modifier = Modifier
-//            .border(0.5.dp, color =)
             .fillMaxWidth()
             .height(40.dp)
             .background(orderBokBlockColor)

@@ -1,18 +1,24 @@
 package org.jeonfeel.moeuibit2.data.remote.websocket
 
+import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
+import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 object UpBitTickerWebSocket {
 
+    var currentSocketState = SOCKET_IS_CONNECTED
+
     var currentMarket = 0
+    var currentPage = 0
     private var krwMarkets = ""
     private var btcMarkets = ""
     private var favoriteMarkets = ""
     var detailMarket = ""
-    var currentSocketState = SOCKET_IS_CONNECTED
+    var portfolioMarket = ""
+
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
         .callTimeout(timeOutDuration)
@@ -63,8 +69,24 @@ object UpBitTickerWebSocket {
     }
 
     fun rebuildSocket() {
-        socket.cancel()
-        socket = client.newWebSocket(request, socketListener)
+//        Logger.e("current network state -> ${NetworkMonitorUtil.currentNetworkState}")
+//        Logger.e("current socket state -> ${UpBitOrderBookWebSocket.currentSocketState}")
+//        Logger.e("current temp state -> ${UpBitOrderBookWebSocket.temp}")
+        if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION && currentSocketState == SOCKET_IS_FAILURE) {
+            socket = client.newWebSocket(request, socketListener)
+            currentSocketState = SOCKET_IS_CONNECTED
+            when (currentPage) {
+                IS_EXCHANGE_SCREEN -> {
+                    requestKrwCoinList(currentMarket)
+                }
+                IS_DETAIL_SCREEN -> {
+                    requestTicker(detailMarket)
+                }
+                IS_PORTFOLIO_SCREEN -> {
+                    requestTicker(portfolioMarket)
+                }
+            }
+        }
     }
 
     fun setFavoriteMarkets(markets: String) {

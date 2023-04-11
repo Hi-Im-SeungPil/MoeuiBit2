@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 
 import android.content.Context
 import androidx.compose.runtime.MutableState
+import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -9,11 +10,13 @@ import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.ChartHelper
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshSettings
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.setMBitChartTouchListener
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
@@ -23,7 +26,7 @@ class MBitCombinedChart(
     context: Context?
 ) : CombinedChart(context) {
 
-    private val chartHelper = ChartHelper()
+    private val chartHelper = ChartHelper(context)
     private val chartCanvas = ChartCanvas(context)
     private var xAxisValueFormatter: XAxisValueFormatter? = null
     private var marketState = 0
@@ -136,8 +139,14 @@ class MBitCombinedChart(
         if (this.candleData != null) {
             val tradePrice = lastCandleEntry.close
             val openPrice = lastCandleEntry.open
-            val color = if (tradePrice - openPrice >= 0.0) increase_candle_color
-            else decrease_candle_color
+            val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
+                this.context,
+                R.color.increase_color
+            )
+            else ContextCompat.getColor(
+                this.context,
+                R.color.decrease_color
+            )
             val yp = this.getTradePriceYPosition(tradePrice)
             if (this.data.candleData.xMax <= this.highestVisibleX
                 && !candleEntriesIsEmpty

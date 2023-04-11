@@ -5,6 +5,8 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 
 class UpBitTickerWebSocketListener : WebSocketListener() {
@@ -19,7 +21,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         super.onOpen(webSocket, response)
-        Logger.d("UpBitTickerWebSocketListener on Open")
+        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_CONNECTED
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
@@ -29,7 +31,6 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
         messageListener?.onTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
-//        Logger.e(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -38,24 +39,18 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
+        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_FAILURE
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         super.onFailure(webSocket, t, response)
-        Logger.e("UpBitTickerWebSocketListener on Failure")
+        Logger.e("ticker on Failure")
         t.printStackTrace()
+        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_FAILURE
         UpBitTickerWebSocket.rebuildSocket()
-    }
-
-    companion object {
-        const val NORMAL_CLOSURE_STATUS = 1000
     }
 }
 
 interface OnTickerMessageReceiveListener {
     fun onTickerMessageReceiveListener(tickerJsonObject: String)
-}
-
-interface ClientRebuild {
-    fun rebuildWebSocket()
 }

@@ -108,6 +108,7 @@ class PortfolioViewModel constructor(
                 UpBitTickerWebSocket
                     .getListener()
                     .setTickerMessageListener(this@PortfolioViewModel)
+                UpBitTickerWebSocket.portfolioMarket = userHoldCoinsMarket.toString()
                 UpBitTickerWebSocket.requestTicker(userHoldCoinsMarket.toString())
                 updateUserHoldCoins()
             } else {
@@ -119,7 +120,6 @@ class PortfolioViewModel constructor(
 
     private suspend fun resetPortfolio() {
         state.isPortfolioSocketRunning.value = false
-//        state.userHoldCoinDtoList.value.clear()
         state.portfolioOrderState.value = SORT_DEFAULT
         userHoldCoinsMarket = StringBuffer()
         userHoldCoinDtoListPositionHashMap.clear()

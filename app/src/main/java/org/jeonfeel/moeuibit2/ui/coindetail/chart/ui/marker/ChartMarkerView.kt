@@ -7,20 +7,23 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.highlight.Highlight
+import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
+import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @SuppressLint("ViewConstructor")
 class ChartMarkerView constructor(
-    context: Context?,
+    private val context: Context?,
     layoutResource: Int,
     private val dateHashMap: HashMap<Int, String>,
     private val chartData: HashMap<Int, Double>,
@@ -33,6 +36,9 @@ class ChartMarkerView constructor(
 
     init {
         binding.linearMarker.visibility = View.VISIBLE
+        context?.let {
+            this.background = ContextCompat.getDrawable(context, R.color.background)
+        } ?: Color.WHITE
     }
 
     override fun refreshContent(e: Entry, highlight: Highlight) {
@@ -136,13 +142,19 @@ class ChartMarkerView constructor(
     private fun getTextColor(rate: Float): Int {
         return when {
             rate > 0.00 -> {
-                increase_candle_color
+                context?.let {
+                    ContextCompat.getColor(context, R.color.increase_color)
+                } ?: increase_candle_color
             }
             rate < 0.00 -> {
-                decrease_candle_color
+                context?.let {
+                    ContextCompat.getColor(context, R.color.decrease_color)
+                } ?: decrease_candle_color
             }
             else -> {
-                Color.BLACK
+                context?.let {
+                    ContextCompat.getColor(context, R.color.text_color)
+                } ?: Color.BLACK
             }
         }
     }

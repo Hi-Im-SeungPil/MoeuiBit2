@@ -62,10 +62,12 @@ fun ExchangeScreen(
 
     AddLifecycleEvent(
         onPauseAction = {
+            UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
             exchangeViewModel.updateExchange = false
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
+            UpBitTickerWebSocket.currentPage = IS_EXCHANGE_SCREEN
             exchangeViewModel.initExchangeData()
         }
     )
