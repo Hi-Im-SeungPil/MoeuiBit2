@@ -97,7 +97,7 @@ class PortfolioViewModel constructor(
                         )
                     )
                 }
-                swapList()
+//                swapList()
                 sortUserHoldCoin(SORT_DEFAULT)
                 if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                     userHoldCoinsMarket.append(BTC_MARKET)
@@ -112,6 +112,7 @@ class PortfolioViewModel constructor(
                 UpBitTickerWebSocket.requestTicker(userHoldCoinsMarket.toString())
                 updateUserHoldCoins()
             } else {
+                swapList()
                 state.totalValuedAssets.value = 0.0
                 state.totalPurchase.value = 0.0
             }

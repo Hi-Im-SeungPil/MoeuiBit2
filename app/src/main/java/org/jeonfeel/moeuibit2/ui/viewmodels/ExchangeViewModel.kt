@@ -36,11 +36,9 @@ class ExchangeViewModelState {
     val loadingFavorite = mutableStateOf(true)
     val loadingExchange = mutableStateOf(true)
     val selectedMarket = mutableStateOf(SELECTED_KRW_MARKET)
-    val error = mutableStateOf(INTERNET_CONNECTION)
     val searchTextFieldValue = mutableStateOf("")
     val sortButton = mutableStateOf(-1)
     val btcPrice = mutableStateOf(0.0)
-    val testState = mutableStateOf(false)
 }
 
 class ExchangeViewModel constructor(

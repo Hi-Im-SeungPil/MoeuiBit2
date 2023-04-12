@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -89,9 +90,11 @@ fun PortfolioMain(
             )
             Card(
                 modifier = Modifier
+                    .background(color = Color.Transparent)
                     .padding(0.dp, 12.dp, 8.dp, 12.dp)
                     .wrapContentWidth(),
                 elevation = 4.dp,
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.chargeMoney),
@@ -100,7 +103,6 @@ fun PortfolioMain(
                         .padding(13.dp)
                         .wrapContentWidth()
                         .align(Alignment.CenterVertically)
-                        .background(color = chargingKrwBackgroundColor())
                         .clickable {
                             adDialogState.value = true
                         },

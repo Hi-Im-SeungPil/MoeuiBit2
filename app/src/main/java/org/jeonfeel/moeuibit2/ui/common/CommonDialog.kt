@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -35,12 +36,13 @@ fun TwoButtonCommonDialog(
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Card(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .padding(20.dp, 0.dp)
-                    .wrapContentSize()
+                    .background(color = Color.Transparent)
+                    .wrapContentSize(),
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Column(
                     Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
                         .wrapContentHeight()
                         .fillMaxWidth()
                 ) {
@@ -121,11 +123,14 @@ fun OneButtonCommonDialog(
         Dialog(onDismissRequest = { dialogState.value = false }) {
             Card(
                 modifier = Modifier
+                    .background(color = Color.Transparent)
                     .padding(20.dp, 0.dp)
-                    .wrapContentSize()
+                    .wrapContentSize(),
+                shape = RoundedCornerShape(10.dp)
             ) {
                 Column(
                     Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
                         .wrapContentHeight()
                         .fillMaxWidth()
                 ) {
@@ -139,7 +144,8 @@ fun OneButtonCommonDialog(
                         style = TextStyle(
                             textAlign = TextAlign.Center,
                             fontSize = DpToSp(25.dp),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
                         )
                     )
                     Text(
@@ -147,7 +153,10 @@ fun OneButtonCommonDialog(
                         modifier = Modifier
                             .padding(10.dp, 10.dp, 10.dp, 20.dp)
                             .fillMaxWidth(),
-                        style = TextStyle(fontSize = DpToSp(18.dp))
+                        style = TextStyle(
+                            fontSize = DpToSp(18.dp),
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Text(
@@ -158,7 +167,7 @@ fun OneButtonCommonDialog(
                             }
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = DpToSp(18.dp),
                             textAlign = TextAlign.Center
                         )
