@@ -9,11 +9,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,7 +45,8 @@ fun ExchangeScreenLazyColumn(
                     .fillMaxSize(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
         }
         filteredExchangeCoinList.isEmpty() && textFieldValueState.value.isNotEmpty() -> {
@@ -54,10 +57,11 @@ fun ExchangeScreenLazyColumn(
                     .fillMaxSize(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
         }
-        filteredExchangeCoinList.isNotEmpty() -> {
+        else -> {
             LazyColumn(modifier = Modifier.fillMaxSize(), state = scrollState) {
                 itemsIndexed(
                     items = filteredExchangeCoinList

@@ -8,9 +8,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -23,9 +29,9 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.apache2
 import org.jeonfeel.moeuibit2.constants.bsd_2
@@ -35,7 +41,7 @@ import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 
 @Composable
-fun OpenSourceLicenseLazyColumn() {
+fun OpenSourceLicenseLazyColumn(openSourceState: MutableState<Boolean>) {
     val openSourceNames = stringArrayResource(id = R.array.openSourceNames)
     val openSourceUrls = stringArrayResource(id = R.array.openSourceUrl)
     val openSourceContents = stringArrayResource(id = R.array.openSourceLicense)
@@ -45,6 +51,7 @@ fun OpenSourceLicenseLazyColumn() {
             .background(color = MaterialTheme.colorScheme.background)
     ) {
         item {
+            ActionBar(openSourceState)
             Intro()
         }
         itemsIndexed(openSourceNames) { index, _ ->
@@ -64,7 +71,7 @@ fun OpenSourceLicenseLazyColumn() {
 }
 
 @Composable
-fun OpenSourceLicenseLazyColumnItem(
+private fun OpenSourceLicenseLazyColumnItem(
     openSourceName: String,
     opensourceUrl: String,
     openSourceLicense: String,
@@ -117,7 +124,7 @@ fun OpenSourceLicenseLazyColumnItem(
 }
 
 @Composable
-fun Intro() {
+private fun Intro() {
     Text(text = stringResource(id = R.string.openSourceIntro),
         modifier = Modifier
             .drawWithContent {
@@ -136,5 +143,35 @@ fun Intro() {
             }
             .padding(10.dp, 10.dp, 10.dp, 10.dp),
         style = TextStyle(fontSize = DpToSp(15.dp), color = MaterialTheme.colorScheme.onBackground))
+}
+
+@Composable
+private fun ActionBar(openSourceState: MutableState<Boolean>) {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
+        IconButton(onClick = { openSourceState.value = false }) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+        }
+        Text(
+            text = "오픈소스 라이선스",
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = DpToSp(dp = 20.dp),
+                textAlign = TextAlign.Center
+            )
+        )
+    }
 }
 

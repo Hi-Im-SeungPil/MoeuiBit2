@@ -296,7 +296,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
+                style = TextStyle(color = userHoldCoinPriceColor(), fontSize = DpToSp(12.dp))
             )
         } else if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && marketState == SELECTED_BTC_MARKET) {
             Text(
@@ -304,7 +304,7 @@ fun OrderScreenUserSeedMoney(
                 modifier = Modifier
                     .padding(0.dp, 2.dp)
                     .align(Alignment.End),
-                style = TextStyle(color = Color.DarkGray, fontSize = DpToSp(12.dp))
+                style = TextStyle(color = userHoldCoinPriceColor(), fontSize = DpToSp(12.dp))
             )
         }
     }
@@ -742,7 +742,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                             coinDetailViewModel.coinOrder.state.currentBTCPrice.value
                         val fee = coinDetailViewModel.getCommission(PREF_KEY_BTC_BID_COMMISSION)
                         when {
-                            currentPrice.value == 0.0 -> {
+                            currentPrice.value == 0.0 || currentBtcPrice == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
                             }
                             OneTimeNetworkCheck.networkCheck(context) == null -> {

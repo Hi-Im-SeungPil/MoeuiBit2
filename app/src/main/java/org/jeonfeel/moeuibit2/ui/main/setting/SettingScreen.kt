@@ -124,7 +124,7 @@ fun SettingScreen(settingViewModel: SettingViewModel) {
     }
 
     if (settingViewModel.state.openSourceState.value) {
-        OpenSourceLicenseLazyColumn()
+        OpenSourceLicenseLazyColumn(settingViewModel.state.openSourceState)
     }
 }
 
@@ -137,6 +137,10 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val transactionInfoDialogState = remember {
         mutableStateOf(false)
     }
+    val mmmmm = remember {
+        mutableStateOf(false)
+    }
+    ThemeDialog(mmmmm)
     ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),
@@ -171,6 +175,11 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
                 text = stringResource(id = R.string.open_source_license),
                 clickAction = {
                     settingViewModel.state.openSourceState.value = true
+                })
+            SettingScreenLazyColumnItem(
+                text = "테마 설정",
+                clickAction = {
+                    mmmmm.value = true
                 })
         }
     }

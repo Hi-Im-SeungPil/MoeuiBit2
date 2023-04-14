@@ -36,18 +36,20 @@ object UpBitTickerWebSocket {
     }
 
     fun requestKrwCoinList(marketState: Int) {
-        when (marketState) {
-            SELECTED_KRW_MARKET -> {
-                socket.send(tickerWebSocketMessage(krwMarkets))
-                currentMarket = SELECTED_KRW_MARKET
-            }
-            SELECTED_BTC_MARKET -> {
-                socket.send(tickerWebSocketMessage(btcMarkets))
-                currentMarket = SELECTED_BTC_MARKET
-            }
-            SELECTED_FAVORITE -> {
-                socket.send(tickerWebSocketMessage(favoriteMarkets))
-                currentMarket = SELECTED_FAVORITE
+        if (currentSocketState != SOCKET_IS_FAILURE) {
+            when (marketState) {
+                SELECTED_KRW_MARKET -> {
+                    socket.send(tickerWebSocketMessage(krwMarkets))
+                    currentMarket = SELECTED_KRW_MARKET
+                }
+                SELECTED_BTC_MARKET -> {
+                    socket.send(tickerWebSocketMessage(btcMarkets))
+                    currentMarket = SELECTED_BTC_MARKET
+                }
+                SELECTED_FAVORITE -> {
+                    socket.send(tickerWebSocketMessage(favoriteMarkets))
+                    currentMarket = SELECTED_FAVORITE
+                }
             }
         }
         currentSocketState = SOCKET_IS_CONNECTED
@@ -69,9 +71,6 @@ object UpBitTickerWebSocket {
     }
 
     fun rebuildSocket() {
-//        Logger.e("current network state -> ${NetworkMonitorUtil.currentNetworkState}")
-//        Logger.e("current socket state -> ${UpBitOrderBookWebSocket.currentSocketState}")
-//        Logger.e("current temp state -> ${UpBitOrderBookWebSocket.temp}")
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION && currentSocketState == SOCKET_IS_FAILURE) {
             socket = client.newWebSocket(request, socketListener)
             currentSocketState = SOCKET_IS_CONNECTED

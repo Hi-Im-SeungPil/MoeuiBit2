@@ -82,10 +82,16 @@ fun MainTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = if(isMainActivity) colors.background.toArgb() else colors.primaryContainer.toArgb()
+            window.statusBarColor =
+                if (isMainActivity) colors.background.toArgb() else colors.primaryContainer.toArgb()
 
-            WindowCompat.getInsetsController(window, view)
-                .isAppearanceLightStatusBars = !darkTheme
+            if (isMainActivity) {
+                WindowCompat.getInsetsController(window, view)
+                    .isAppearanceLightStatusBars = !darkTheme
+            } else {
+                WindowCompat.getInsetsController(window, view)
+                    .isAppearanceLightStatusBars = false
+            }
         }
     }
 }

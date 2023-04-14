@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -52,7 +53,7 @@ fun UserHoldCoinLazyColumnItemDialog(
     openingPrice: Double,
     isFavorite: Int?,
     warning: String,
-    marketState:Int,
+    marketState: Int,
     startForActivityResult: ActivityResultLauncher<Intent>,
 ) {
     val context = LocalContext.current
@@ -65,21 +66,22 @@ fun UserHoldCoinLazyColumnItemDialog(
     }
 
     var name = if (isKor) koreanName else engName
-    if(name.startsWith("[BTC]")) {
+    if (name.startsWith("[BTC]")) {
         name = name.substring(5)
     }
-    val tradePrice = CurrentCalculator.tradePriceCalculator(currentPrice,marketState)
+    val tradePrice = CurrentCalculator.tradePriceCalculator(currentPrice, marketState)
 
     Dialog(onDismissRequest = {}) {
         Card(
             modifier = Modifier
-                .padding(40.dp, 0.dp)
+                .padding(20.dp, 0.dp)
                 .wrapContentSize()
         ) {
             Column(
                 Modifier
                     .wrapContentHeight()
                     .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.background)
             ) {
                 Text(
                     text = name.plus(stringResource(id = R.string.order)),
@@ -91,7 +93,8 @@ fun UserHoldCoinLazyColumnItemDialog(
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         fontSize = DpToSp(20.dp),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 )
                 Row {
@@ -100,7 +103,10 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
-                        style = TextStyle(fontSize = DpToSp(18.dp))
+                        style = TextStyle(
+                            fontSize = DpToSp(18.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     )
                     Text(
                         text = tradePrice,
@@ -114,12 +120,12 @@ fun UserHoldCoinLazyColumnItemDialog(
                         )
                     )
                     Text(
-                        text = if(marketState == SELECTED_KRW_MARKET)"  $SYMBOL_KRW" else "  $SYMBOL_BTC" ,
+                        text = if (marketState == SELECTED_KRW_MARKET) "  $SYMBOL_KRW" else "  $SYMBOL_BTC",
                         modifier = Modifier
                             .padding(0.dp, 20.dp, 20.dp, 20.dp)
                             .wrapContentWidth(),
                         style = TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = DpToSp(18.dp),
                             fontWeight = FontWeight.Bold
                         )
@@ -128,8 +134,10 @@ fun UserHoldCoinLazyColumnItemDialog(
                 if (!isKor && marketState == SELECTED_KRW_MARKET) {
                     Text(
                         text = "= \$ ${
-                            CurrentCalculator.krwToUsd(Utils.removeComma(tradePrice).toDouble(),
-                                MoeuiBitDataStore.usdPrice)
+                            CurrentCalculator.krwToUsd(
+                                Utils.removeComma(tradePrice).toDouble(),
+                                MoeuiBitDataStore.usdPrice
+                            )
                         }",
                         modifier = Modifier
                             .padding(0.dp, 3.dp, 20.dp, 20.dp)
@@ -148,7 +156,10 @@ fun UserHoldCoinLazyColumnItemDialog(
                         modifier = Modifier
                             .padding(20.dp, 20.dp, 0.dp, 20.dp)
                             .wrapContentWidth(),
-                        style = TextStyle(fontSize = DpToSp(18.dp))
+                        style = TextStyle(
+                            fontSize = DpToSp(18.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     )
                     Text(
                         text =
@@ -174,7 +185,7 @@ fun UserHoldCoinLazyColumnItemDialog(
                             }
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = DpToSp(18.dp),
                             textAlign = TextAlign.Center
                         )
@@ -210,9 +221,9 @@ fun UserHoldCoinLazyColumnItemDialog(
                             }
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
-                            color = Color.Black,
                             fontSize = DpToSp(18.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
                 }

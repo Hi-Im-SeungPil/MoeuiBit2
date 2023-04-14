@@ -23,3 +23,12 @@ fun portfolioSortButtonSelectedBackgroundColor(): Color {
         Color(0xFF6464FF)
     }
 }
+
+@Composable
+fun userHoldCoinPriceColor(): Color {
+    return if (!isSystemInDarkTheme()) {
+        Color.DarkGray
+    } else {
+        Color.LightGray
+    }
+}

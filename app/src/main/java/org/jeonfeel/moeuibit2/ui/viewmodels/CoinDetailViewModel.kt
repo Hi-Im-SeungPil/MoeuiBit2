@@ -59,7 +59,8 @@ class CoinDetailViewModel @Inject constructor(
     fun initCoinDetailScreen() {
         if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.value.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
-                UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
+                UpBitTickerWebSocket.getListener()
+                    .setTickerMessageListener(this@CoinDetailViewModel)
                 val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
                 UpBitTickerWebSocket.requestTicker(reqMarket)
                 updateTicker()
@@ -189,12 +190,14 @@ class CoinDetailViewModel @Inject constructor(
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (coinOrder.isTickerSocketRunning) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
-            if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
-                coinOrder.state.currentBTCPrice.value = model.tradePrice
-            } else {
-                coinOrder.coinDetailModel = model
-                coinOrder.state.currentTradePriceStateForOrderBook.value =
-                    coinOrder.coinDetailModel.tradePrice
+            if (model.code == market) {
+                if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
+                    coinOrder.state.currentBTCPrice.value = model.tradePrice
+                } else {
+                    coinOrder.coinDetailModel = model
+                    coinOrder.state.currentTradePriceStateForOrderBook.value =
+                        coinOrder.coinDetailModel.tradePrice
+                }
             }
         }
     }

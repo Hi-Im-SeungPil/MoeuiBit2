@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat
 
 val PrimaryLight = Color(0xFF0F0F5C)
 val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFFFFFFF) // 위에 타이틀 바
+val PrimaryContainerLight = Color(0xFF0F0F5C) // 위에 타이틀 바
 val OnPrimaryContainerLight = Color(0xFF000000)
 
 val SecondaryLight = Color(0xFF535f70)
