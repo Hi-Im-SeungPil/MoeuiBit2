@@ -52,7 +52,9 @@ fun AskingPriceLazyColumn(
         modifier = modifier.background(color = androidx.compose.material3.MaterialTheme.colorScheme.background),
         state = scrollState
     ) {
-        if (UpBitOrderBookWebSocket.currentSocketState == SOCKET_IS_CONNECTED && coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size >= 30) {
+        Logger.e("currentSocketState ${UpBitOrderBookWebSocket.currentSocketState}")
+        Logger.e("orderBookMutableStateList ${coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size}")
+        if (coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size >= 30) {
             items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value) { item ->
                 AskingPriceLazyColumnItem(
                     orderBook = item,

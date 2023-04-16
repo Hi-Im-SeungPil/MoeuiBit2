@@ -4,6 +4,7 @@ import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
@@ -18,6 +19,8 @@ object UpBitTickerWebSocket {
     private var favoriteMarkets = ""
     var detailMarket = ""
     var portfolioMarket = ""
+
+    var listener: OnTickerMessageReceiveListener? = null
 
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
@@ -35,7 +38,9 @@ object UpBitTickerWebSocket {
         return socketListener
     }
 
-    fun requestKrwCoinList(marketState: Int) {
+    fun requestKrwCoinList(
+        marketState: Int
+    ) {
         if (currentSocketState != SOCKET_IS_FAILURE) {
             when (marketState) {
                 SELECTED_KRW_MARKET -> {
@@ -51,8 +56,10 @@ object UpBitTickerWebSocket {
                     currentMarket = SELECTED_FAVORITE
                 }
             }
+            currentSocketState = SOCKET_IS_CONNECTED
+        } else {
+            rebuildSocket()
         }
-        currentSocketState = SOCKET_IS_CONNECTED
     }
 
     fun setMarkets(krwMarkets: String, btcMarkets: String) {
@@ -71,7 +78,9 @@ object UpBitTickerWebSocket {
     }
 
     fun rebuildSocket() {
-        if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION && currentSocketState == SOCKET_IS_FAILURE) {
+        Logger.e("gogogogogo")
+        if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+            socket.cancel()
             socket = client.newWebSocket(request, socketListener)
             currentSocketState = SOCKET_IS_CONNECTED
             when (currentPage) {
@@ -90,5 +99,9 @@ object UpBitTickerWebSocket {
 
     fun setFavoriteMarkets(markets: String) {
         this.favoriteMarkets = markets
+    }
+
+    fun message(message: String) {
+        listener?.onTickerMessageReceiveListener(message)
     }
 }

@@ -30,10 +30,10 @@ object UpBitOrderBookWebSocket {
     }
 
     fun requestOrderBookList(market: String) {
-        if (currentSocketState != SOCKET_IS_FAILURE) {
+//        if (currentSocketState != SOCKET_IS_FAILURE) {
             socket.send(orderBookWebSocketMessage(market))
             currentSocketState = SOCKET_IS_CONNECTED
-        }
+//        }
     }
 
     fun rebuildSocket() {

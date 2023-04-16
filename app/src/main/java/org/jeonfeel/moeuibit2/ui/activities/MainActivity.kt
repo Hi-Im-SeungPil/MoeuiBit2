@@ -32,9 +32,11 @@ import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 import org.jeonfeel.moeuibit2.ui.main.MainNavigation
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
+import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.utils.showToast
 import javax.inject.Inject
 
@@ -45,6 +47,9 @@ const val APP_UPDATE_FLEXIBLE_CODE = 124
 class MainActivity : BaseActivity() {
     @Inject
     lateinit var localRepository: LocalRepository
+
+    @Inject
+    lateinit var preferenceManager: PreferenceManager
     private lateinit var auth: FirebaseAuth
     private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
@@ -66,6 +71,13 @@ class MainActivity : BaseActivity() {
      * 초기화
      */
     private fun initActivity() {
+        val theme = when (preferenceManager.getString("themeMode") ?: "") {
+            "라이트 모드" -> ThemeHelper.ThemeMode.LIGHT
+            "다크 모드" -> ThemeHelper.ThemeMode.DARK
+            else -> ThemeHelper.ThemeMode.DEFAULT
+        }
+//        ThemeHelper.applyTheme(ThemeHelper.ThemeMode.DARK)
+//        ThemeHelper.applyTheme(theme)
         auth = Firebase.auth
         if (auth.currentUser == null) {
             auth.signInAnonymously()

@@ -14,9 +14,9 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
     private var messageListener: OnTickerMessageReceiveListener? = null
 
     fun setTickerMessageListener(onTickerMessageReceiveListener: OnTickerMessageReceiveListener?) {
-        if (this.messageListener !== onTickerMessageReceiveListener) {
-            this.messageListener = onTickerMessageReceiveListener
-        }
+//        if (this.messageListener !== onTickerMessageReceiveListener) {
+//            this.messageListener = onTickerMessageReceiveListener
+//        }
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -30,7 +30,8 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-        messageListener?.onTickerMessageReceiveListener(bytes.string(Charsets.UTF_8))
+//        Logger.e("exchange  =>  ${bytes.string(Charsets.UTF_8)}")
+        UpBitTickerWebSocket.message(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

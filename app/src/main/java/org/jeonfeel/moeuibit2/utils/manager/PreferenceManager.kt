@@ -34,7 +34,7 @@ class PreferenceManager(private val prefrence: SharedPreferences) {
         }
     }
 
-    suspend fun setValue(key: String, value: Any, completeAction: (() -> Unit)? = null) = with(prefrence.edit()) {
+    fun setValue(key: String, value: Any, completeAction: (() -> Unit)? = null) = with(prefrence.edit()) {
         when (value) {
             is Int -> {
                 putInt(key, value)

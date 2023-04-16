@@ -73,6 +73,7 @@ class ExchangeViewModel constructor(
         mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
     fun initExchangeData() {
+        UpBitTickerWebSocket.listener = this
         viewModelScope.launch {
             if (krwExchangeModelMutableStateList.value.isEmpty()) {
                 requestExchangeData()
@@ -754,7 +755,7 @@ class ExchangeViewModel constructor(
         ) {
             errorState.value = NetworkMonitorUtil.currentNetworkState
             UpBitTickerWebSocket.onPause()
-            initExchangeData()
+            UpBitTickerWebSocket.rebuildSocket()
         }
     }
 
@@ -819,7 +820,7 @@ class ExchangeViewModel constructor(
         var position = 0
         var targetModelList: ArrayList<CommonExchangeModel>? = null
         // krw 코인 일 때
-        Logger.e("exchange  =>  ${model.code}")
+        Logger.e("aaaaaaa")
         if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
             when {
                 // BTC 마켓 일떄 비트코인 가격 받아오기 위해

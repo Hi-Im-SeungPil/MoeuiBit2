@@ -16,9 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 
 @Composable
-fun ThemeDialog(dismissRequest: MutableState<Boolean>) {
+fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: PreferenceManager) {
     val radioText = remember {
         listOf("라이트 모드", "다크 모드", "시스템 설정값")
     }
@@ -50,10 +52,16 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>) {
                             )
                         }
                     }
-
                     Button(onClick = {
-
-                        dismissRequest.value = false }) {
+                        dismissRequest.value = false
+                        preferenceManager.setValue("themeMode", selectedOption)
+                        val theme = when (selectedOption) {
+                            "라이트 모드" -> ThemeHelper.ThemeMode.LIGHT
+                            "다크모드" -> ThemeHelper.ThemeMode.DARK
+                            else -> ThemeHelper.ThemeMode.DEFAULT
+                        }
+                        ThemeHelper.applyTheme(theme)
+                    }) {
                         Text(text = "확인")
                     }
                 }

@@ -41,6 +41,7 @@ import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.viewmodels.SettingViewModel
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 
 @Composable
 fun SettingScreen(settingViewModel: SettingViewModel) {
@@ -140,7 +141,7 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val mmmmm = remember {
         mutableStateOf(false)
     }
-    ThemeDialog(mmmmm)
+    ThemeDialog(mmmmm,settingViewModel.preferenceManager)
     ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),

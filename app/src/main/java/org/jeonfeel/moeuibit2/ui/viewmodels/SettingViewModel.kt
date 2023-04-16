@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import javax.inject.Inject
 
 data class SettingScreenState(
@@ -16,7 +17,8 @@ data class SettingScreenState(
 )
 
 class SettingViewModel @Inject constructor(
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
+    val preferenceManager: PreferenceManager
 ) : BaseViewModel() {
     val state = SettingScreenState()
 
@@ -38,10 +40,11 @@ class SettingViewModel @Inject constructor(
     companion object {
         fun provideFactory(
             localRepository: LocalRepository,
+            preferenceManager: PreferenceManager
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SettingViewModel(localRepository) as T
+                return SettingViewModel(localRepository, preferenceManager) as T
             }
         }
     }

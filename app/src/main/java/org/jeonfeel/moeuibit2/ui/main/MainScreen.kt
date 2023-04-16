@@ -1,8 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.main
 
-import android.app.Activity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -13,10 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -123,7 +117,8 @@ fun MainNavigation(
         composable(MainBottomNavItem.Setting.screen_route) {
             val settingViewModel: SettingViewModel = viewModel(
                 factory = SettingViewModel.provideFactory(
-                    mainViewModel.localRepository
+                    mainViewModel.localRepository,
+                    mainViewModel.preferenceManager
                 )
             )
             SettingScreen(settingViewModel)
