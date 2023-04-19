@@ -76,8 +76,7 @@ fun PortfolioScreen(
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
                 UpBitTickerWebSocket.currentPage = IS_PORTFOLIO_SCREEN
-                portfolioViewModel.getUserSeedMoney()
-                portfolioViewModel.getUserHoldCoins()
+                portfolioViewModel.init()
             } else {
                 context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
             }

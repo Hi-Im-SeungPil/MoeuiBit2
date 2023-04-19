@@ -54,14 +54,18 @@ class PortfolioViewModel constructor(
     private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     private val userHoldCoinHashMap = HashMap<String, MyCoin>()
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-
-    fun getUserSeedMoney() {
+    fun init() {
+        UpBitTickerWebSocket.portfolioListener = this
+        getUserSeedMoney()
+        getUserHoldCoins()
+    }
+    private fun getUserSeedMoney() {
         viewModelScope.launch(ioDispatcher) {
             state.userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
         }
     }
 
-    fun getUserHoldCoins() {
+    private fun getUserHoldCoins() {
         viewModelScope.launch(ioDispatcher) {
             resetPortfolio()
             var localTotalPurchase = 0.0

@@ -4,7 +4,9 @@ import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
@@ -20,7 +22,9 @@ object UpBitTickerWebSocket {
     var detailMarket = ""
     var portfolioMarket = ""
 
-    var listener: OnTickerMessageReceiveListener? = null
+    var tickerListener: OnTickerMessageReceiveListener? = null
+    var portfolioListener: OnTickerMessageReceiveListener? = null
+    var coinDetailListener: OnTickerMessageReceiveListener? = null
 
     private var client = OkHttpClient().newBuilder().retryOnConnectionFailure(true)
         .connectTimeout(timeOutDuration)
@@ -37,6 +41,14 @@ object UpBitTickerWebSocket {
     fun getListener(): UpBitTickerWebSocketListener {
         return socketListener
     }
+
+//    fun setListener(listener: Any) {
+//        when (listener) {
+//            is OnTickerMessageReceiveListener -> tickerListener = listener
+//            is PortfolioOnTickerMessageReceiveListener -> portfolioListener = listener
+//            is OnCoinDetailMessageReceiveListener -> coinDetailListener = listener
+//        }
+//    }
 
     fun requestKrwCoinList(
         marketState: Int
@@ -78,7 +90,6 @@ object UpBitTickerWebSocket {
     }
 
     fun rebuildSocket() {
-        Logger.e("gogogogogo")
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
             socket.cancel()
             socket = client.newWebSocket(request, socketListener)
@@ -97,11 +108,30 @@ object UpBitTickerWebSocket {
         }
     }
 
+    fun onlyRebuildSocket() {
+        if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+            socket.cancel()
+            socket = client.newWebSocket(request, socketListener)
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
+
     fun setFavoriteMarkets(markets: String) {
         this.favoriteMarkets = markets
     }
 
     fun message(message: String) {
-        listener?.onTickerMessageReceiveListener(message)
+//        Logger.e("currentPage -> $currentPage")
+        when (currentPage) {
+            IS_EXCHANGE_SCREEN -> {
+                tickerListener?.onTickerMessageReceiveListener(message)
+            }
+            IS_DETAIL_SCREEN -> {
+                coinDetailListener?.onTickerMessageReceiveListener(message)
+            }
+            IS_PORTFOLIO_SCREEN -> {
+                portfolioListener?.onTickerMessageReceiveListener(message)
+            }
+        }
     }
 }

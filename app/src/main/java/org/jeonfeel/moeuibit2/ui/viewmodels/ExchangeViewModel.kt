@@ -3,9 +3,6 @@ package org.jeonfeel.moeuibit2.ui.viewmodels
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,14 +10,11 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.gson.JsonArray
 import com.orhanobut.logger.Logger
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.local.room.dao.FavoriteDAO
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.*
@@ -30,7 +24,6 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
-import javax.inject.Inject
 
 class ExchangeViewModelState {
     val loadingFavorite = mutableStateOf(true)
@@ -73,7 +66,7 @@ class ExchangeViewModel constructor(
         mutableStateOf(mutableStateListOf<CommonExchangeModel>())
 
     fun initExchangeData() {
-        UpBitTickerWebSocket.listener = this
+        UpBitTickerWebSocket.tickerListener = this
         viewModelScope.launch {
             if (krwExchangeModelMutableStateList.value.isEmpty()) {
                 requestExchangeData()
@@ -754,8 +747,8 @@ class ExchangeViewModel constructor(
             || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR
         ) {
             errorState.value = NetworkMonitorUtil.currentNetworkState
-            UpBitTickerWebSocket.onPause()
-            UpBitTickerWebSocket.rebuildSocket()
+            UpBitTickerWebSocket.onlyRebuildSocket()
+            initExchangeData()
         }
     }
 
@@ -819,8 +812,8 @@ class ExchangeViewModel constructor(
         val marketState = state.selectedMarket.value
         var position = 0
         var targetModelList: ArrayList<CommonExchangeModel>? = null
-        // krw 코인 일 때
         Logger.e("aaaaaaa")
+        // krw 코인 일 때
         if (updateExchange && model.code.startsWith(SYMBOL_KRW)) {
             when {
                 // BTC 마켓 일떄 비트코인 가격 받아오기 위해
@@ -861,6 +854,7 @@ class ExchangeViewModel constructor(
         }
 
         if (updateExchange) {
+            Logger.e("bbbbbbbb")
             targetModelList?.let {
                 targetModelList.ifEmpty { return@let }
                 targetModelList[position] = CommonExchangeModel(

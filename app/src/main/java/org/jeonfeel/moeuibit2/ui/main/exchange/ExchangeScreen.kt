@@ -145,7 +145,7 @@ private fun Exchange(
                 isUpdateExchange = exchangeViewModel.updateExchange,
                 sortList = exchangeViewModel::sortList
             )
-            ExchangeScreenLazyColumn(
+            ExchangeScreenLazyColumns(
                 filteredExchangeCoinList = exchangeViewModel.getFilteredCoinList(),
                 preCoinListAndPosition = exchangeViewModel.getPreCoinListAndPosition(),
                 textFieldValueState = exchangeViewModel.state.searchTextFieldValue,

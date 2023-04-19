@@ -33,6 +33,7 @@ class CoinDetailViewModel @Inject constructor(
     private var isBTC = false
 
     fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
+        UpBitTickerWebSocket.coinDetailListener = this
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite

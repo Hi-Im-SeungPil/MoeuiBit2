@@ -26,7 +26,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 @Composable
-fun ExchangeScreenLazyColumn(
+fun ExchangeScreenLazyColumns(
     filteredExchangeCoinList: SnapshotStateList<CommonExchangeModel>,
     preCoinListAndPosition: Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>>,
     textFieldValueState: MutableState<String>,
