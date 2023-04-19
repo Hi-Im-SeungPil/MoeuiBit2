@@ -42,14 +42,6 @@ object UpBitTickerWebSocket {
         return socketListener
     }
 
-//    fun setListener(listener: Any) {
-//        when (listener) {
-//            is OnTickerMessageReceiveListener -> tickerListener = listener
-//            is PortfolioOnTickerMessageReceiveListener -> portfolioListener = listener
-//            is OnCoinDetailMessageReceiveListener -> coinDetailListener = listener
-//        }
-//    }
-
     fun requestKrwCoinList(
         marketState: Int
     ) {
@@ -121,7 +113,6 @@ object UpBitTickerWebSocket {
     }
 
     fun message(message: String) {
-//        Logger.e("currentPage -> $currentPage")
         when (currentPage) {
             IS_EXCHANGE_SCREEN -> {
                 tickerListener?.onTickerMessageReceiveListener(message)

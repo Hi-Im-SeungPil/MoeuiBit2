@@ -34,7 +34,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp

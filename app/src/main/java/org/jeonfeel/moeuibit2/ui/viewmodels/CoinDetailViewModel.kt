@@ -189,7 +189,7 @@ class CoinDetailViewModel @Inject constructor(
      * 웹소켓 리스너
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        if (coinOrder.isTickerSocketRunning) {
+        if (coinOrder.isTickerSocketRunning && UpBitTickerWebSocket.currentPage == IS_DETAIL_SCREEN) {
             val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
             if (model.code == market) {
                 if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {

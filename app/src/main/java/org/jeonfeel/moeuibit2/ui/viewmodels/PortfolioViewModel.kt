@@ -22,6 +22,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.PortfolioTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -173,43 +174,41 @@ class PortfolioViewModel constructor(
     }
 
     fun editUserHoldCoin() {
-//        var count = 1
-//        isPortfolioSocketRunning = false
-//
-//        viewModelScope.launch(ioDispatcher) {
-//            if (UpBitPortfolioWebSocket.currentSocketState != SOCKET_IS_CONNECTED || NetworkMonitorUtil.currentNetworkState != INTERNET_CONNECTION) {
-//                state.removeCoinCount.value = -1
-//                delay(100L)
-//                state.removeCoinCount.value = 0
-//            } else {
-//                for (i in userHoldCoinList) {
-//                    val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
-//                        krwExchangeModelListPosition
-//                    } else {
-//                        btcExchangeModelListPosition
-//                    }
-//                    if (targetList[i.market] == null) {
-//                        localRepository.getFavoriteDao().delete(i.market)
-//                        localRepository.getMyCoinDao().delete(i.market)
-//                        localRepository.getTransactionInfoDao().delete(i.market)
-//                        count += 1
-//                    } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
-//                        localRepository.getMyCoinDao().delete(i.market)
-//                        localRepository.getTransactionInfoDao().delete(i.market)
-//                        count += 1
-//                    }
-//                }
-//                if (count > 1) {
-//                    isPortfolioSocketRunning = false
-//                    UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
-//                    UpBitPortfolioWebSocket.onPause()
-//                    getUserHoldCoins()
-//                }
-//                state.removeCoinCount.value = count
-//                delay(100L)
-//                state.removeCoinCount.value = 0
-//            }
-//        }
+        var count = 1
+        state.isPortfolioSocketRunning.value = false
+
+        viewModelScope.launch(ioDispatcher) {
+            if (UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED || NetworkMonitorUtil.currentNetworkState != INTERNET_CONNECTION) {
+                state.removeCoinCount.value = -1
+                delay(100L)
+                state.removeCoinCount.value = 0
+            } else {
+                for (i in userHoldCoinList) {
+                    val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
+                        MoeuiBitDataStore.krwMarkets
+                    } else {
+                        MoeuiBitDataStore.btcMarkets
+                    }
+                    if (targetList[i.market] == null) {
+                        localRepository.getFavoriteDao().delete(i.market)
+                        localRepository.getMyCoinDao().delete(i.market)
+                        localRepository.getTransactionInfoDao().delete(i.market)
+                        count += 1
+                    } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+                        localRepository.getMyCoinDao().delete(i.market)
+                        localRepository.getTransactionInfoDao().delete(i.market)
+                        count += 1
+                    }
+                }
+                if (count > 1) {
+                    state.isPortfolioSocketRunning.value = false
+                    getUserHoldCoins()
+                }
+                state.removeCoinCount.value = count
+                delay(100L)
+                state.removeCoinCount.value = 0
+            }
+        }
     }
 
     private suspend fun updateUserHoldCoins() {
@@ -315,7 +314,7 @@ class PortfolioViewModel constructor(
     }
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        if (state.isPortfolioSocketRunning.value) {
+        if (state.isPortfolioSocketRunning.value && UpBitTickerWebSocket.currentPage == IS_PORTFOLIO_SCREEN) {
             val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
             if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                 state.btcTradePrice.value = model.tradePrice

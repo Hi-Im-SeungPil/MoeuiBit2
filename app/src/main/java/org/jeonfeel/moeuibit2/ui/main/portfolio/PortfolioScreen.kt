@@ -1,12 +1,12 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import android.app.Activity
-import androidx.compose.material3.MaterialTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitPortfolioWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
@@ -70,7 +69,6 @@ fun PortfolioScreen(
         onPauseAction = {
             UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
             portfolioViewModel.state.isPortfolioSocketRunning.value = false
-            UpBitPortfolioWebSocket.getListener().setPortfolioMessageListener(null)
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {

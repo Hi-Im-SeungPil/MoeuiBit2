@@ -11,7 +11,6 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitCoinDetailWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
@@ -314,8 +313,7 @@ class CoinOrder @Inject constructor(
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {
-        Logger.e("onOrderBookMessage -> ${orderBookJsonObject}")
-        if (isTickerSocketRunning) {
+        if (isTickerSocketRunning && UpBitOrderBookWebSocket.temp == 0) {
             var index = 0
             val model = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = model.getAsJsonArray("obu")
