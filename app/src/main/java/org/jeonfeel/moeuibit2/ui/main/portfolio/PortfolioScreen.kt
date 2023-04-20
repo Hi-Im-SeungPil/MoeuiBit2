@@ -44,6 +44,7 @@ fun PortfolioScreen(
                 }
             }
         }
+    ShowRemoveDialog(portfolioViewModel.state.removeCoinCount)
     EditUserHoldCoinDialog(
         dialogState = portfolioViewModel.state.editHoldCoinDialogState,
         editUserHoldCoin = portfolioViewModel::editUserHoldCoin

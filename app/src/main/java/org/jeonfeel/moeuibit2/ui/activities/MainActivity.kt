@@ -71,13 +71,6 @@ class MainActivity : BaseActivity() {
      * 초기화
      */
     private fun initActivity() {
-        val theme = when (preferenceManager.getString("themeMode") ?: "") {
-            "라이트 모드" -> ThemeHelper.ThemeMode.LIGHT
-            "다크 모드" -> ThemeHelper.ThemeMode.DARK
-            else -> ThemeHelper.ThemeMode.DEFAULT
-        }
-//        ThemeHelper.applyTheme(ThemeHelper.ThemeMode.DARK)
-//        ThemeHelper.applyTheme(theme)
         auth = Firebase.auth
         if (auth.currentUser == null) {
             auth.signInAnonymously()

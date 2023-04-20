@@ -406,7 +406,7 @@ fun RowScope.OrderScreenQuantityDropDown(
 
             Text(
                 buttonText,
-                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp))
             )
             Icon(
                 imageVector = imageVector,
@@ -461,7 +461,7 @@ fun RowScope.OrderScreenQuantityDropDown(
                 }) {
                     Text(
                         text = label,
-                        style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+                        style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp))
                     )
                 }
             }

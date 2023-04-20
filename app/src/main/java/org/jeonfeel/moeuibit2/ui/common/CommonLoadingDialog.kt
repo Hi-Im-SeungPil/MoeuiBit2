@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 
 @Composable
 fun CommonLoadingDialog(dialogState: MutableState<Boolean>, text: String) {
@@ -40,7 +41,7 @@ fun CommonLoadingDialog(dialogState: MutableState<Boolean>, text: String) {
                     Text(
                         text = text,
                         Modifier.padding(20.dp, 8.dp, 20.dp, 15.dp),
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(dp = 14.dp))
                     )
                 }
             }

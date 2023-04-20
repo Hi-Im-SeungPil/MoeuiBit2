@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.utils
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
 import com.github.mikephil.charting.formatter.ValueFormatter
 

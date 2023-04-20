@@ -27,7 +27,6 @@ import org.jeonfeel.moeuibit2.ui.theme.decrease_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
-import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt

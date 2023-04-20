@@ -33,7 +33,7 @@
                 android:layout_height="match_parent"
                 android:text="@string/time"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +48,7 @@
                 android:gravity="end"
                 android:text="@{candleInfo.dateTime}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/openPrice"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -82,7 +82,7 @@
                 android:layout_weight="1"
                 android:text="@{candleInfo.openPrice}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -94,7 +94,7 @@
                 android:layout_marginStart="5dp"
                 android:text="@{candleInfo.openPriceRate}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/highPrice"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -128,7 +128,7 @@
                 android:layout_weight="1"
                 android:text="@{candleInfo.highPrice}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -142,7 +142,7 @@
                 android:gravity="end"
                 android:text="@{candleInfo.highPriceRate}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -164,7 +164,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/lowPrice"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -177,7 +177,7 @@
                 android:layout_weight="1"
                 android:text="@{candleInfo.lowPrice}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -191,7 +191,7 @@
                 android:gravity="end"
                 android:text="@{candleInfo.lowPriceRate}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -212,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/closePrice"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -225,7 +225,7 @@
                 android:layout_weight="1"
                 android:text="@{candleInfo.closePrice}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -239,7 +239,7 @@
                 android:gravity="end"
                 android:text="@{candleInfo.closePriceRate}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -260,7 +260,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tradeAmount"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -274,7 +274,7 @@
                 android:gravity="end"
                 android:text="@{candleInfo.tradeAmount}"
                 android:textColor="@color/text_color"
-                android:textSize="11sp"
+                android:textSize="11dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

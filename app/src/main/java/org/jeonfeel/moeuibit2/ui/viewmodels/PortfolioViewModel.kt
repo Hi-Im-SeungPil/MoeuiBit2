@@ -174,7 +174,7 @@ class PortfolioViewModel constructor(
     }
 
     fun editUserHoldCoin() {
-        var count = 1
+        var count = 0
         state.isPortfolioSocketRunning.value = false
 
         viewModelScope.launch(ioDispatcher) {

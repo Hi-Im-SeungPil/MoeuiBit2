@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -21,6 +22,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.menuTitleArray
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreen
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
@@ -60,7 +62,7 @@ fun MainBottomNavigation(navController: NavController) {
                         modifier = Modifier.fillMaxSize(0.4f)
                     )
                 },
-                label = { Text(text = item.title) },
+                label = { Text(text = item.title, fontSize = DpToSp(dp = 13.dp)) },
                 selectedContentColor = bottomNavigatorSelectedColor(),
                 unselectedContentColor = Color.LightGray,
                 alwaysShowLabel = true,

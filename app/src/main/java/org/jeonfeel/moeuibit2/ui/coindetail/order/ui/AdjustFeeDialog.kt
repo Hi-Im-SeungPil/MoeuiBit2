@@ -11,6 +11,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,8 @@ import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
 
@@ -81,6 +84,7 @@ fun AdjustCommissionDialog(
             ) {
                 Column(
                     Modifier
+                        .background(MaterialTheme.colorScheme.background)
                         .wrapContentHeight()
                         .fillMaxWidth()
                 ) {
@@ -94,7 +98,8 @@ fun AdjustCommissionDialog(
                         style = TextStyle(
                             textAlign = TextAlign.Center,
                             fontSize = DpToSp(25.dp),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     )
                     Column(modifier = Modifier
@@ -144,7 +149,7 @@ fun AdjustCommissionDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.Center
                             )
@@ -159,16 +164,8 @@ fun AdjustCommissionDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
-                                    if (krwBidCommissionState.value.isNotEmpty()
-                                        && krwAskCommissionState.value.isNotEmpty()
-                                        && btcAskCommissionState.value.isNotEmpty()
-                                        && btcBidCommissionState.value.isNotEmpty()
-                                    ) {
-                                        if (krwBidCommissionState.value.toFloat() >= 0.05
-                                            && krwAskCommissionState.value.toFloat() >= 0.05
-                                            && btcBidCommissionState.value.toFloat() >= 0.25
-                                            && btcAskCommissionState.value.toFloat() >= 0.25
-                                        ) {
+                                    if (krwBidCommissionState.value.isNotEmpty() && krwAskCommissionState.value.isNotEmpty() && btcAskCommissionState.value.isNotEmpty() && btcBidCommissionState.value.isNotEmpty()) {
+                                        if (krwBidCommissionState.value.toFloat() >= 0.05 && krwAskCommissionState.value.toFloat() >= 0.05 && btcBidCommissionState.value.toFloat() >= 0.25 && btcAskCommissionState.value.toFloat() >= 0.25) {
                                             coinDetailViewModel.adjustCommission()
                                             dialogState.value = false
                                         } else {
@@ -180,7 +177,7 @@ fun AdjustCommissionDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.Center
                             )
@@ -217,12 +214,12 @@ fun ColumnScope.AdjustCommissionDialogContent(
             }
         }
         if (splitTitle[1] == (stringResource(id = R.string.bid))) {
-            withStyle(style = SpanStyle(color = increase_color,
+            withStyle(style = SpanStyle(color = increaseColor(),
                 fontWeight = FontWeight.Bold)) {
                 append(" ".plus(stringResource(id = R.string.bid)))
             }
         } else {
-            withStyle(style = SpanStyle(color = decrease_color,
+            withStyle(style = SpanStyle(color = decreaseColor(),
                 fontWeight = FontWeight.Bold)) {
                 append(" ".plus(stringResource(id = R.string.ask)))
             }
@@ -247,11 +244,13 @@ fun ColumnScope.AdjustCommissionDialogContent(
             } else {
                 Image(imageVector = Icons.Filled.Close,
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(Color.Red),
+                    colorFilter = ColorFilter.tint(increaseColor()),
                     modifier = Modifier.padding(start = 8.dp))
             }
             Text(text = subTitleResult,
-                modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .align(Alignment.CenterVertically),
                 fontSize = DpToSp(15.dp),
                 fontWeight = FontWeight.Bold)
             BasicTextField(value = textFieldState.value, onValueChange = {
@@ -283,7 +282,7 @@ fun ColumnScope.AdjustCommissionDialogContent(
                     }
                 }
             }, singleLine = true,
-                textStyle = TextStyle(color = Color.Black,
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground,
                     fontSize = DpToSp(17.dp), textAlign = TextAlign.Start),
                 modifier = Modifier
                     .weight(1f, true)
@@ -312,12 +311,12 @@ fun ColumnScope.AdjustCommissionDialogContent(
         if (!doneState.value && marketState == SELECTED_KRW_MARKET) {
             Text(text = stringResource(id = R.string.krwMinimumMessage),
                 fontSize = DpToSp(11.dp),
-                style = TextStyle(color = increase_color),
+                style = TextStyle(color = increaseColor()),
                 modifier = Modifier.padding(start = 15.dp))
         } else if (!doneState.value && marketState == SELECTED_BTC_MARKET) {
             Text(text = stringResource(id = R.string.btcMinimumMessage),
                 fontSize = DpToSp(11.dp),
-                style = TextStyle(color = increase_color),
+                style = TextStyle(color = increaseColor()),
                 modifier = Modifier.padding(start = 15.dp))
         }
         Slider(value = commissionState.value,

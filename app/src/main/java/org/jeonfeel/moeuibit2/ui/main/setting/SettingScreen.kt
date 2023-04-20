@@ -218,7 +218,7 @@ fun ResetDialog(
                     .wrapContentSize()
                     .padding(0.dp, 20.dp)
             ) {
-                Column(modifier = Modifier.wrapContentSize()) {
+                Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background).wrapContentSize()) {
                     Text(
                         text = stringResource(id = R.string.resetDialogTitle),
                         modifier = Modifier
@@ -226,12 +226,14 @@ fun ResetDialog(
                             .padding(0.dp, 20.dp, 0.dp, 0.dp),
                         fontWeight = FontWeight.Bold,
                         fontSize = DpToSp(25.dp),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     Text(
                         text = stringResource(id = R.string.resetDialogContent),
                         modifier = Modifier.padding(10.dp, 40.dp),
-                        fontSize = DpToSp(17.dp)
+                        fontSize = DpToSp(17.dp),
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
@@ -244,7 +246,8 @@ fun ResetDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             fontSize = DpToSp(17.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                         )
                         Text(
                             text = "",
@@ -271,7 +274,8 @@ fun ResetDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             fontSize = DpToSp(15.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                         )
                     }
                 }

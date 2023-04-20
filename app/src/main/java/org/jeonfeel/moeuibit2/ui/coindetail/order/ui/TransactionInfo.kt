@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -40,7 +41,8 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
             fontSize = DpToSp(18.dp),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            style = TextStyle( color = MaterialTheme.colorScheme.onBackground)
         )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
