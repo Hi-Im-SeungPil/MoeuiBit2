@@ -138,10 +138,10 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val transactionInfoDialogState = remember {
         mutableStateOf(false)
     }
-    val mmmmm = remember {
+    val themeDialogState = remember {
         mutableStateOf(false)
     }
-    ThemeDialog(mmmmm,settingViewModel.preferenceManager)
+    ThemeDialog(themeDialogState,settingViewModel.preferenceManager)
     ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),
@@ -180,7 +180,7 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
             SettingScreenLazyColumnItem(
                 text = "테마 설정",
                 clickAction = {
-                    mmmmm.value = true
+                    themeDialogState.value = true
                 })
         }
     }

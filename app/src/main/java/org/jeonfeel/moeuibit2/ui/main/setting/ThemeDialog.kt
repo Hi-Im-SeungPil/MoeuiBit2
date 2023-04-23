@@ -29,7 +29,9 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioText[2]) }
 
     if (dismissRequest.value) {
-        Dialog(onDismissRequest = { dismissRequest.value }) {
+        Dialog(onDismissRequest = {
+            dismissRequest.value
+        }) {
             Card {
                 Column {
                     radioText.forEach { text ->
@@ -44,7 +46,9 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                             RadioButton(selected = text == selectedOption, onClick = { onOptionSelected(text) })
                             Text(
                                 text = text,
-                                modifier = Modifier.padding(start = 16.dp).align(Alignment.CenterVertically),
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .align(Alignment.CenterVertically),
                                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                             )
                         }
@@ -52,6 +56,11 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                     Row {
                         TextButton(
                             onClick = {
+                                when (preferenceManager.getString("themeMode")) {
+                                    "라이트 모드" -> radioText[0]
+                                    "다크모드" -> radioText[1]
+                                    else -> radioText[2]
+                                }
                                 dismissRequest.value = false
                             }, modifier = Modifier.weight(1f)
                         ) {
