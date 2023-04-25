@@ -40,16 +40,13 @@ class MBitCombinedChart(
         isChartLastData: MutableState<Boolean>
     ) {
         val context = MoeuiBitApp.mBitApplicationContext()
+        xAxisValueFormatter = XAxisValueFormatter()
+        xAxisValueFormatter?.setItem(kstDateHashMap)
         this.marketState = marketState
         this.removeAllViews()
         this.addView(chartCanvas)
         this.axisRight.removeAllLimitLines()
         this.xAxis.removeAllLimitLines()
-        this.xAxis.textColor = context?.let {
-            ContextCompat.getColor(it,R.color.text_color)
-        } ?: Color.BLACK
-        xAxisValueFormatter = XAxisValueFormatter()
-        xAxisValueFormatter?.setItem(kstDateHashMap)
         chartHelper.defaultChartSettings(
             combinedChart = this,
             marketState = marketState,

@@ -7,17 +7,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.Text
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 
@@ -32,6 +32,14 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
         Dialog(onDismissRequest = {
             dismissRequest.value
         }) {
+            LaunchedEffect(key1 = dismissRequest.value) {
+                when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
+                    ThemeHelper.ThemeMode.LIGHT.name -> onOptionSelected(radioText[0])
+                    ThemeHelper.ThemeMode.DARK.name -> onOptionSelected(radioText[1])
+                    else -> onOptionSelected(radioText[2])
+                }
+            }
+
             Card {
                 Column {
                     radioText.forEach { text ->
@@ -43,40 +51,71 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                                 })
                                 .padding(horizontal = 16.dp)
                         ) {
-                            RadioButton(selected = text == selectedOption, onClick = { onOptionSelected(text) })
+                            RadioButton(
+                                selected = text == selectedOption,
+                                onClick = { onOptionSelected(text) })
                             Text(
                                 text = text,
                                 modifier = Modifier
                                     .padding(start = 16.dp)
                                     .align(Alignment.CenterVertically),
-                                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
                             )
                         }
                     }
                     Row {
                         TextButton(
                             onClick = {
-                                when (preferenceManager.getString("themeMode")) {
-                                    "라이트 모드" -> radioText[0]
-                                    "다크모드" -> radioText[1]
-                                    else -> radioText[2]
-                                }
+                                val selectedText =
+                                    when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
+                                        ThemeHelper.ThemeMode.LIGHT.name -> radioText[0]
+                                        ThemeHelper.ThemeMode.DARK.name -> radioText[1]
+                                        else -> radioText[2]
+                                    }
+                                onOptionSelected(selectedText)
                                 dismissRequest.value = false
                             }, modifier = Modifier.weight(1f)
                         ) {
-                            Text(text = stringResource(id = R.string.cancel), style = TextStyle(color = MaterialTheme.colorScheme.onBackground))
+                            Text(
+                                text = stringResource(id = R.string.cancel), style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
+                            )
                         }
                         TextButton(onClick = {
-                            dismissRequest.value = false
-                            preferenceManager.setValue("themeMode", selectedOption)
                             val theme = when (selectedOption) {
-                                "라이트 모드" -> ThemeHelper.ThemeMode.LIGHT
-                                "다크모드" -> ThemeHelper.ThemeMode.DARK
-                                else -> ThemeHelper.ThemeMode.DEFAULT
+                                "라이트 모드" -> {
+                                    ThemeHelper.ThemeMode.LIGHT
+                                }
+                                "다크 모드" -> {
+                                    ThemeHelper.ThemeMode.DARK
+                                }
+                                else -> {
+                                    ThemeHelper.ThemeMode.DEFAULT
+                                }
                             }
+                            preferenceManager.setValue(PREF_KEY_THEME_MODE, theme.name)
+                            Logger.e(theme.name)
                             ThemeHelper.applyTheme(theme)
+                            dismissRequest.value = false
                         }, modifier = Modifier.weight(1f)) {
-                            Text(text = stringResource(id = R.string.confirm), style = TextStyle(color = MaterialTheme.colorScheme.onBackground))
+                            Text(
+                                text = stringResource(id = R.string.confirm),
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
+                            )
                         }
                     }
                 }

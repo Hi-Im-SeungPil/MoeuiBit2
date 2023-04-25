@@ -19,7 +19,9 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -42,7 +44,7 @@ fun TransactionInfoLazyColumn(coinDetailViewModel: CoinDetailViewModel = viewMod
             textAlign = TextAlign.Center,
             fontSize = DpToSp(18.dp),
             fontWeight = FontWeight.Bold,
-            style = TextStyle( color = MaterialTheme.colorScheme.onBackground)
+            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
         )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -79,9 +81,9 @@ fun TransactionInfoLazyColumnItem(
     totalPrice: String,
 ) {
     val textColor = if (askBidText == "매수") {
-        increase_color
+        increaseColor()
     } else {
-        decrease_color
+        decreaseColor()
     }
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -108,13 +110,14 @@ fun TransactionInfoLazyColumnItem(
                     .wrapContentHeight(),
                 style = TextStyle(
                     fontSize = DpToSp(18.dp),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
         Divider(
             modifier = Modifier
-                .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)
+                .fillMaxWidth(), color = MaterialTheme.colorScheme.onPrimaryContainer
         )
         ItemRow(title = stringResource(id = R.string.time), content = time)
         ItemRow(title = stringResource(id = R.string.price), content = price)
@@ -122,7 +125,7 @@ fun TransactionInfoLazyColumnItem(
         ItemRow(title = stringResource(id = R.string.total), content = totalPrice)
         Divider(
             modifier = Modifier
-                .fillMaxWidth(), color = colorResource(id = R.color.C0F0F5C)
+                .fillMaxWidth(), color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 }
@@ -134,7 +137,13 @@ private fun ItemRow(title: String, content: String) {
             .padding(0.dp, 3.dp)
             .fillMaxSize()
     ) {
-        Text(text = title)
-        Text(text = content, modifier = Modifier.weight(1f, true), textAlign = TextAlign.End)
+        Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(dp = 13.dp))
+        Text(
+            text = content,
+            modifier = Modifier.weight(1f, true),
+            textAlign = TextAlign.End,
+            fontSize = DpToSp(dp = 13.dp),
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }

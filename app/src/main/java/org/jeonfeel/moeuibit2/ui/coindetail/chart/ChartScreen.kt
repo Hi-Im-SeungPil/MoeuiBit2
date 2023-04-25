@@ -344,7 +344,7 @@ fun RowScope.MinuteButton(
         if (autoSizeText) {
             AutoSizeText(
                 text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground),
+                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp)),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()

@@ -52,31 +52,28 @@ fun ExchangeScreenLoading() {
                     .height(40.dp)
                     .padding(10.dp, 0.dp, 10.dp, 10.dp)
             ) {
-                Text(
-                    text = "",
+                Box(
                     modifier = Modifier
                         .padding(0.dp, 5.dp, 5.dp, 5.dp)
                         .weight(1f)
                         .background(color = color)
                         .fillMaxHeight()
                 )
-                Text(
-                    text = "",
+                Box(
                     modifier = Modifier
                         .padding(5.dp, 5.dp, 0.dp, 5.dp)
                         .weight(1f)
                         .background(color = color)
                         .fillMaxHeight()
                 )
-                Text(
-                    text = "",
+                Box(
                     modifier = Modifier
                         .padding(5.dp, 5.dp, 0.dp, 5.dp)
                         .weight(1f)
                         .background(color = color)
                         .fillMaxHeight()
                 )
-                Text(text = "", modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.weight(1f))
             }
 
             Row(
@@ -84,25 +81,22 @@ fun ExchangeScreenLoading() {
                     .fillMaxWidth()
                     .height(30.dp)
             ) {
-                Text(text = "", modifier = Modifier.weight(1f))
-                Text(
-                    text = "",
+                Box(modifier = Modifier.weight(1f))
+                Box(
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
                         .wrapContentHeight()
                 )
-                Text(
-                    text = "",
+                Box(
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
                         .wrapContentHeight()
                 )
-                Text(
-                    text = "",
+                Box(
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
@@ -132,30 +126,25 @@ fun LoadingLazyColumnItem(
                 .weight(1f)
                 .align(Alignment.Bottom)
         ) {
-            Text(
-                text = "",
+            Box(
                 modifier = Modifier
                     .padding(10.dp, 10.dp, 10.dp, 2.dp)
                     .weight(1f)
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom)
                     .background(color = color),
-                style = TextStyle(textAlign = TextAlign.Center)
             )
-            Text(
-                text = "",
+            Box(
                 modifier = Modifier
                     .padding(10.dp, 2.dp, 10.dp, 10.dp)
                     .weight(1f)
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(color = color),
-                style = TextStyle(textAlign = TextAlign.Center)
             )
         }
 
-        Text(
-            text = "",
+        Box(
             modifier = Modifier
                 .padding(5.dp, 0.dp)
                 .weight(1f)
@@ -165,8 +154,7 @@ fun LoadingLazyColumnItem(
                 .background(color = color)
         )
 
-        Text(
-            text = "",
+        Box(
             modifier = Modifier
                 .padding(5.dp, 0.dp)
                 .weight(1f)
@@ -175,15 +163,13 @@ fun LoadingLazyColumnItem(
                 .background(color = color)
         )
 
-        Text(
-            text = "",
+        Box(
             modifier = Modifier
                 .padding(5.dp, 0.dp, 10.dp, 0.dp)
                 .weight(1f)
                 .fillMaxHeight()
                 .wrapContentHeight()
                 .background(color = color),
-            style = TextStyle(textAlign = TextAlign.Center)
         )
     }
 }

@@ -10,11 +10,4 @@ import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun ShowRemoveDialog(key: MutableState<Int>) {
-    val context = LocalContext.current
-    LaunchedEffect(key1 = key.value == -1) {
-        context.showToast(context.getString(R.string.notRemovedCoin))
-    }
-    LaunchedEffect(key1 = key.value != -1 && key.value != 0) {
-        context.showToast(context.getString(R.string.removedCoin, key.value))
-    }
 }

@@ -173,14 +173,14 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
                     resetDialogState.value = true
                 })
             SettingScreenLazyColumnItem(
-                text = stringResource(id = R.string.open_source_license),
-                clickAction = {
-                    settingViewModel.state.openSourceState.value = true
-                })
-            SettingScreenLazyColumnItem(
                 text = "테마 설정",
                 clickAction = {
                     themeDialogState.value = true
+                })
+            SettingScreenLazyColumnItem(
+                text = stringResource(id = R.string.open_source_license),
+                clickAction = {
+                    settingViewModel.state.openSourceState.value = true
                 })
         }
     }

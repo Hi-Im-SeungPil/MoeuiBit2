@@ -88,7 +88,6 @@ fun TotalAmountDesignatedDialog(
             mutableStateOf(0.0)
         }
 
-
         Dialog(onDismissRequest = { askBidDialogState.value = false }) {
             Card(
                 modifier = Modifier
@@ -174,7 +173,7 @@ fun TotalAmountDesignatedDialog(
                                 .align(Alignment.CenterVertically),
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             textStyle = TextStyle(
-                                fontSize = DpToSp(18.dp), textAlign = TextAlign.End
+                                fontSize = DpToSp(18.dp), textAlign = TextAlign.End, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             ),
                             visualTransformation = NumbersCommaTransformation(),
                             colors = TextFieldDefaults.textFieldColors(
@@ -225,12 +224,13 @@ fun TotalAmountDesignatedDialog(
                                         }
                                         krwFeeState.value =
                                             totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
-                                    }, textAlign = TextAlign.Center, style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,)
+                                    }, textAlign = TextAlign.Center, style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,),
+                                fontSize = DpToSp(13.dp)
                             )
                             if (i != textArray.lastIndex) {
                                 Text(
                                     text = "", style = TextStyle(
-                                        color = Color.LightGray, fontSize = DpToSp(18.dp)
+                                        color = Color.LightGray
                                     ), modifier = Modifier
                                         .width(1.dp)
                                         .border(1.dp, color = Color.LightGray)

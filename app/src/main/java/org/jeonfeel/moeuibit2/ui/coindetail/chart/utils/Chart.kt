@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
+import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
@@ -306,7 +307,7 @@ class Chart @Inject constructor(
             lineData.addDataSet(
                 LineDataSet(movingAverage[i].lineEntry, "").apply {
                     defaultSet(
-                        movingAverageLineColorArray[i]
+                        darkMovingAverageLineColorArray[i]
                     )
                 }
             )

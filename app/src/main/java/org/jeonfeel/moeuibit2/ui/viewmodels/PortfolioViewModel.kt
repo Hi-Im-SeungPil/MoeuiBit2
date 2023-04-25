@@ -38,7 +38,7 @@ class PortfolioState {
     val adConfirmDialogState = mutableStateOf(false)
     val columnItemDialogState = mutableStateOf(false)
     val editHoldCoinDialogState = mutableStateOf(false)
-    val portfolioOrderState = mutableStateOf(-1)
+    val portfolioOrderState = mutableStateOf(-2)
     val selectedCoinKoreanName = mutableStateOf("")
     val pieChartState = mutableStateOf(false)
     val btcTradePrice = mutableStateOf(0.0)
@@ -181,7 +181,7 @@ class PortfolioViewModel constructor(
             if (UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED || NetworkMonitorUtil.currentNetworkState != INTERNET_CONNECTION) {
                 state.removeCoinCount.value = -1
                 delay(100L)
-                state.removeCoinCount.value = 0
+                state.removeCoinCount.value = -2
             } else {
                 for (i in userHoldCoinList) {
                     val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
