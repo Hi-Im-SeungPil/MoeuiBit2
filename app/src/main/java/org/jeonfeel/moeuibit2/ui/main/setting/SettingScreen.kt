@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.main.setting
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.view.Gravity
 import android.widget.ImageView
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonSizeSpec
@@ -111,8 +113,9 @@ fun SettingScreen(settingViewModel: SettingViewModel) {
                             }
                         }, modifier = Modifier
                             .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                            .fillMaxHeight()
                             .size(25.dp)
-                            .wrapContentHeight()
+                            .align(Alignment.CenterVertically)
                     )
                 }
 

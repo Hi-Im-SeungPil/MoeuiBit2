@@ -16,6 +16,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
@@ -93,7 +94,11 @@ class ChartHelper(private val context: Context?) {
         }
 
         combinedChart.axisRight.apply {
-            this.minWidth = 50f
+            if (marketState == SELECTED_BTC_MARKET) {
+                this.minWidth = Paint().measureText("0.00000000")
+            } else {
+                this.minWidth = 50f
+            }
             setLabelCount(5, true)
             textColor = ContextCompat.getColor(combinedChart.context, R.color.text_color)
             setDrawAxisLine(true)
@@ -214,7 +219,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         lineWidth = 0.5f
                     }
                     xAxis.removeAllLimitLines()
-                    if (rightAxis.limitLines.isNotEmpty()) {
+                    if (rightAxis.limitLines.size != 2 && rightAxis.limitLines.size != 0) {
                         rightAxis.removeLimitLine(rightAxis.limitLines.last())
                     }
                     highestVisibleCandle?.let {
