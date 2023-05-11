@@ -17,6 +17,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
@@ -28,7 +29,6 @@ import org.jeonfeel.moeuibit2.ui.theme.decrease_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
-import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -117,7 +117,7 @@ class ChartHelper(private val context: Context?) {
             legendArray.add(
                 LegendEntry().apply {
                     label = movingAverageLineArray[i].toString()
-                    formColor = Color.parseColor(movingAverageLineColorArray[i])
+                    formColor = Color.parseColor(darkMovingAverageLineColorArray[i])
                 }
             )
         }
@@ -389,6 +389,9 @@ fun CombinedChart.chartRefreshSettings(
             chart.setVisibleXRangeMaximum(160f)
             chart.data.notifyDataChanged()
             xAxis?.valueFormatter = valueFormatter
+            xAxis.textColor = context?.let {
+                ContextCompat.getColor(it, R.color.text_color)
+            } ?: Color.GRAY
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.zoom(4f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
@@ -400,6 +403,9 @@ fun CombinedChart.chartRefreshSettings(
             chart.setVisibleXRangeMaximum(candleEntries.size.toFloat())
             chart.data.notifyDataChanged()
             xAxis?.valueFormatter = valueFormatter
+            xAxis.textColor = context?.let {
+                ContextCompat.getColor(it, R.color.text_color)
+            } ?: Color.GRAY
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
             chart.invalidate()
         }

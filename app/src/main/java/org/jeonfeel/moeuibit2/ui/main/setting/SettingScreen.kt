@@ -141,10 +141,10 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val transactionInfoDialogState = remember {
         mutableStateOf(false)
     }
-    val mmmmm = remember {
+    val themeDialogState = remember {
         mutableStateOf(false)
     }
-    ThemeDialog(mmmmm,settingViewModel.preferenceManager)
+    ThemeDialog(themeDialogState,settingViewModel.preferenceManager)
     ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),
@@ -176,14 +176,14 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
                     resetDialogState.value = true
                 })
             SettingScreenLazyColumnItem(
+                text = "테마 설정",
+                clickAction = {
+                    themeDialogState.value = true
+                })
+            SettingScreenLazyColumnItem(
                 text = stringResource(id = R.string.open_source_license),
                 clickAction = {
                     settingViewModel.state.openSourceState.value = true
-                })
-            SettingScreenLazyColumnItem(
-                text = "테마 설정",
-                clickAction = {
-                    mmmmm.value = true
                 })
         }
     }
@@ -221,7 +221,7 @@ fun ResetDialog(
                     .wrapContentSize()
                     .padding(0.dp, 20.dp)
             ) {
-                Column(modifier = Modifier.wrapContentSize()) {
+                Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background).wrapContentSize()) {
                     Text(
                         text = stringResource(id = R.string.resetDialogTitle),
                         modifier = Modifier
@@ -229,12 +229,14 @@ fun ResetDialog(
                             .padding(0.dp, 20.dp, 0.dp, 0.dp),
                         fontWeight = FontWeight.Bold,
                         fontSize = DpToSp(25.dp),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     Text(
                         text = stringResource(id = R.string.resetDialogContent),
                         modifier = Modifier.padding(10.dp, 40.dp),
-                        fontSize = DpToSp(17.dp)
+                        fontSize = DpToSp(17.dp),
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                     )
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
@@ -247,7 +249,8 @@ fun ResetDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             fontSize = DpToSp(17.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                         )
                         Text(
                             text = "",
@@ -274,7 +277,8 @@ fun ResetDialog(
                                 }
                                 .padding(0.dp, 10.dp),
                             fontSize = DpToSp(15.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
                         )
                     }
                 }

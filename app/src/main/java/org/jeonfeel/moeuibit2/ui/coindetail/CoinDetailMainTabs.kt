@@ -26,6 +26,7 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -67,7 +68,7 @@ fun CoinDetailMainTabRow(navController: NavController) {
         backgroundColor = MaterialTheme.colorScheme.background
     ) {
         items.forEachIndexed { index, tab ->
-            Tab(text = { Text(tab.title) },
+            Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp)) },
                 selected = tabState.value == index,
                 selectedContentColor = tabRowSelectedColor(),
                 unselectedContentColor = colorResource(id = R.color.CDCDCDC),

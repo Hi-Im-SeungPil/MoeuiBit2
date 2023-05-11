@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +42,6 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.ui.coindetail.order.AdjustCommissionDialog
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
@@ -268,7 +266,7 @@ fun OrderScreenUserSeedMoney(
             Text(
                 text = stringResource(id = R.string.orderable),
                 modifier = Modifier.wrapContentWidth(),
-                fontSize = 13.sp,
+                fontSize = DpToSp(dp = 13.dp),
                 style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
             )
             AutoSizeText(
@@ -406,7 +404,7 @@ fun RowScope.OrderScreenQuantityDropDown(
 
             Text(
                 buttonText,
-                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+                style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp))
             )
             Icon(
                 imageVector = imageVector,
@@ -461,7 +459,7 @@ fun RowScope.OrderScreenQuantityDropDown(
                 }) {
                     Text(
                         text = label,
-                        style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
+                        style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp))
                     )
                 }
             }
@@ -858,13 +856,15 @@ fun OrderScreenNotice(
                 text = stringResource(id = R.string.minimumOrderAmount),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Start,
-                style = TextStyle(color = Color.Gray)
+                style = TextStyle(color = Color.Gray),
+                fontSize = DpToSp(dp = 12.dp)
             )
             Text(
                 text = texts[0],
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End,
-                style = TextStyle(color = Color.Gray)
+                style = TextStyle(color = Color.Gray),
+                fontSize = DpToSp(dp = 12.dp)
             )
         }
         Row(
@@ -879,7 +879,8 @@ fun OrderScreenNotice(
                     .weight(1f)
                     .align(Alignment.CenterVertically),
                 textAlign = TextAlign.Start,
-                style = TextStyle(color = Color.Gray)
+                style = TextStyle(color = Color.Gray),
+                fontSize = DpToSp(dp = 12.dp)
             )
             Text(
                 text = fee.plus("%"),
@@ -887,7 +888,8 @@ fun OrderScreenNotice(
                     .weight(1f)
                     .align(Alignment.CenterVertically),
                 textAlign = TextAlign.End,
-                style = TextStyle(color = Color.Gray)
+                style = TextStyle(color = Color.Gray),
+                fontSize = DpToSp(dp = 12.dp)
             )
         }
         Row(
@@ -900,7 +902,8 @@ fun OrderScreenNotice(
                 text = stringResource(id = R.string.adjust_commission),
                 style = TextStyle(
                     color = decreaseColor(),
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
+                    fontSize = DpToSp(dp = 12.dp)
                 ),
                 modifier = Modifier
                     .weight(1f)

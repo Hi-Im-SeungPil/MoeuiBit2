@@ -11,6 +11,8 @@
     <color name="background">#FFFFFFFF</color>
     <color name="marker_view_background">#E6FFFFFF</color>
 
+    <color name="textColor">#FF000000</color>
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -38,6 +40,7 @@
     <color name="CBDBDBD">#BDBDBD</color>
     <color name="C26FFE400">#26FFE400</color>
     <color name="C6799FF">#6799FF</color>
+
 
     <array name="pieChart_color">
         <item>#FFE400</item>

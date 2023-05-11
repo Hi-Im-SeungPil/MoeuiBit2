@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 
 import android.content.Context
+import android.graphics.Color
 import androidx.compose.runtime.MutableState
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
@@ -10,16 +11,14 @@ import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.ChartHelper
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshSettings
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.setMBitChartTouchListener
-import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
-import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
-import org.jeonfeel.moeuibit2.utils.XAxisValueFormatter
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 class MBitCombinedChart(
@@ -40,13 +39,14 @@ class MBitCombinedChart(
         kstDateHashMap: HashMap<Int, String>,
         isChartLastData: MutableState<Boolean>
     ) {
+        val context = MoeuiBitApp.mBitApplicationContext()
+        xAxisValueFormatter = XAxisValueFormatter()
+        xAxisValueFormatter?.setItem(kstDateHashMap)
         this.marketState = marketState
         this.removeAllViews()
         this.addView(chartCanvas)
         this.axisRight.removeAllLimitLines()
         this.xAxis.removeAllLimitLines()
-        xAxisValueFormatter = XAxisValueFormatter()
-        xAxisValueFormatter?.setItem(kstDateHashMap)
         chartHelper.defaultChartSettings(
             combinedChart = this,
             marketState = marketState,

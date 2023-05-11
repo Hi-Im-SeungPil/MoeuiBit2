@@ -50,10 +50,10 @@ class UserHoldCoinPieChart(
         }
 
         for (i in eachCoinAmountArray.indices) {
-            val labelString = ((eachCoinAmountArray[i] / totalAssets.toFloat()) * 100).firstDecimal()
+            val labelString =
+                ((eachCoinAmountArray[i] / totalAssets.toFloat()) * 100).firstDecimal()
             val legendEntry = LegendEntry().apply {
                 label = symbolArray[i].plus(" $labelString%")
-                setEntryLabelColor(ContextCompat.getColor(context, R.color.text_color))
                 formColor = colors[i]
             }
             legendEntryArrayList.add(legendEntry)
@@ -62,6 +62,7 @@ class UserHoldCoinPieChart(
         legend.apply {
             setCustom(legendEntryArrayList)
             isWordWrapEnabled = true
+            textColor = ContextCompat.getColor(context, R.color.text_color)
         }
 
         val data: ArrayList<PieEntry> = ArrayList()

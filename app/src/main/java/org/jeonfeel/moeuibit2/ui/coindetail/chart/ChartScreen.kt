@@ -223,10 +223,9 @@ private fun PeriodButtons(
         TextButton(
             onClick = {
                 minuteVisibility.value = !minuteVisibility.value
-            }, modifier = if (selectedButton.value == MINUTE_SELECT)
-                buttonModifier
-                    .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
-                    .fillMaxHeight()
+            }, modifier = if (selectedButton.value == MINUTE_SELECT) buttonModifier
+                .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                .fillMaxHeight()
             else buttonModifier
         ) {
             Text(
@@ -311,7 +310,7 @@ fun PeriodButton(
     }, modifier = modifierResult) {
         Text(
             text = buttonText,
-            style = TextStyle(color = buttonColor)
+            style = TextStyle(color = buttonColor, fontSize = DpToSp(dp = 14.dp))
         )
     }
 }
@@ -345,7 +344,7 @@ fun RowScope.MinuteButton(
         if (autoSizeText) {
             AutoSizeText(
                 text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground),
+                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp)),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()

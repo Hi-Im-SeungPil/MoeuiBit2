@@ -11,9 +11,9 @@ import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
-import org.jeonfeel.moeuibit2.constants.fullScreenAdId
-import org.jeonfeel.moeuibit2.constants.rewardFullScreenAdId
-import org.jeonfeel.moeuibit2.constants.rewardVideoAdId
+import org.jeonfeel.moeuibit2.constants.AD_ID_FULL_SCREEN
+import org.jeonfeel.moeuibit2.constants.AD_ID_REWARD_FULL_SCREEN
+import org.jeonfeel.moeuibit2.constants.AD_ID_REWARD_VIDEO
 
 class AdMobManager() {
 
@@ -32,7 +32,7 @@ class AdMobManager() {
     ) {
         RewardedAd.load(
             activity,
-            rewardVideoAdId,
+            AD_ID_REWARD_VIDEO,
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
@@ -70,7 +70,7 @@ class AdMobManager() {
     ) {
         MobileAds.initialize(activity) {
             RewardedInterstitialAd.load(activity,
-                rewardFullScreenAdId, adRequest, object : RewardedInterstitialAdLoadCallback() {
+                AD_ID_REWARD_FULL_SCREEN, adRequest, object : RewardedInterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: RewardedInterstitialAd) {
                         super.onAdLoaded(ad)
                         ad.show(activity, rewardListener)
@@ -105,7 +105,7 @@ class AdMobManager() {
     ) {
         InterstitialAd.load(
             activity,
-            fullScreenAdId,
+            AD_ID_FULL_SCREEN,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {

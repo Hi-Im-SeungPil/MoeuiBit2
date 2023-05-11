@@ -72,8 +72,7 @@ fun ExchangeScreenLazyColumnItem(
                 }
                 startForActivityResult.launch(intent)
                 (context as MainActivity).overridePendingTransition(
-                    R.anim.lazy_column_item_slide_left,
-                    R.anim.none
+                    R.anim.lazy_column_item_slide_left, R.anim.none
                 )
             }
     ) {
@@ -104,7 +103,7 @@ fun ExchangeScreenLazyColumnItem(
                     .weight(1f)
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom),
-                style = TextStyle(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onBackground),
+                style = TextStyle(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(dp = 13.dp)),
                 overflow = TextOverflow.Ellipsis
             )
             Text(
@@ -114,7 +113,7 @@ fun ExchangeScreenLazyColumnItem(
                     .weight(1f)
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray),
+                style = TextStyle(textAlign = TextAlign.Center, color = Color.Gray, fontSize = DpToSp(dp = 13.dp)),
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -155,7 +154,7 @@ fun ExchangeScreenLazyColumnItem(
                 .fillMaxHeight()
                 .wrapContentHeight(),
             style = TextStyle(
-                textAlign = TextAlign.Center, color = textColor
+                textAlign = TextAlign.Center, color = textColor, fontSize = DpToSp(dp = 13.dp)
             )
         )
         // 거래대금
@@ -183,7 +182,7 @@ fun TradePrice(
                     .fillMaxHeight()
                     .wrapContentHeight(),
                 style = TextStyle(
-                    textAlign = TextAlign.Center, color = textColor
+                    textAlign = TextAlign.Center, color = textColor, fontSize = DpToSp(dp = 13.dp)
                 )
             )
             if (!isKor) {
@@ -210,7 +209,7 @@ fun TradePrice(
                     .fillMaxHeight()
                     .wrapContentHeight(),
                 style = TextStyle(
-                    textAlign = TextAlign.Center, color = textColor
+                    textAlign = TextAlign.Center, color = textColor, fontSize = DpToSp(dp = 13.dp)
                 )
             )
             if (btcToKrw == "0.0000") {
@@ -228,7 +227,7 @@ fun TradePrice(
                                 .weight(1f)
                                 .fillMaxWidth()
                                 .fillMaxHeight(), text = btcToKrw.plus(" $SYMBOL_KRW"),
-                            TextStyle(fontSize = 13.sp, textAlign = TextAlign.End),
+                            TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.End),
                             color = Color.Gray
                         )
                     }
@@ -240,7 +239,7 @@ fun TradePrice(
                             .fillMaxHeight(), text = "\$ ${
                             CurrentCalculator.krwToUsd(removeComma(btcToKrw).toDouble(), usdPrice)
                         }",
-                        TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
+                        TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.Start),
                         color = Color.Gray
                     )
                 }
@@ -267,7 +266,7 @@ fun RowScope.volume(volume: String, doubleVolume: Double, market: String) {
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .wrapContentHeight(),
-            style = TextStyle(textAlign = TextAlign.Center,color = MaterialTheme.colorScheme.onBackground)
+            style = TextStyle(textAlign = TextAlign.Center,color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(dp = 13.dp))
         )
         if (!isKor && market.startsWith(SYMBOL_KRW)) {
             AutoSizeText(
@@ -276,7 +275,7 @@ fun RowScope.volume(volume: String, doubleVolume: Double, market: String) {
                     .fillMaxWidth()
                     .fillMaxHeight(),
                 text = " $SYMBOL_USD ${CurrentCalculator.krwToUsd(tempDoubleVolume, usdPrice)}M",
-                TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
+                TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.Start),
                 color = Color.Gray
             )
         }

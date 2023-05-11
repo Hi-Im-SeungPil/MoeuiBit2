@@ -37,7 +37,9 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
+import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
 import org.jeonfeel.moeuibit2.utils.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -71,26 +73,20 @@ fun TotalAmountDesignatedDialog(
             MutableInteractionSource()
         }
         val userSeedMoneyFormatting = if (marketState == SELECTED_KRW_MARKET) {
-            Calculator.getDecimalFormat()
-                .format(userSeedMoney.value)
+            Calculator.getDecimalFormat().format(userSeedMoney.value)
         } else {
-            val btcPrice =
-                (btcQuantity.value * currentBTCPrice.value).toLong()
-            Calculator.getDecimalFormat()
-                .format(btcPrice)
+            val btcPrice = (btcQuantity.value * currentBTCPrice.value).toLong()
+            Calculator.getDecimalFormat().format(btcPrice)
         }
 
         val userCoinValuable = if (marketState == SELECTED_KRW_MARKET) {
-            Calculator.getDecimalFormat()
-                .format(round(userCoinQuantity.value * currentTradePriceState.value))
+            Calculator.getDecimalFormat().format(round(userCoinQuantity.value * currentTradePriceState.value))
         } else {
-            Calculator.getDecimalFormat()
-                .format(round(userCoinQuantity.value * currentTradePriceState.value * currentBTCPrice.value))
+            Calculator.getDecimalFormat().format(round(userCoinQuantity.value * currentTradePriceState.value * currentBTCPrice.value))
         }
         val krwFeeState = remember {
             mutableStateOf(0.0)
         }
-
 
         Dialog(onDismissRequest = { askBidDialogState.value = false }) {
             Card(
@@ -100,6 +96,7 @@ fun TotalAmountDesignatedDialog(
             ) {
                 Column(
                     Modifier
+                        .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
                         .wrapContentHeight()
                         .fillMaxWidth()
                 ) {
@@ -111,6 +108,7 @@ fun TotalAmountDesignatedDialog(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = TextStyle(
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                             textAlign = TextAlign.Center,
                             fontSize = DpToSp(25.dp),
                             fontWeight = FontWeight.Bold
@@ -124,21 +122,20 @@ fun TotalAmountDesignatedDialog(
                     ) {
                         Text(
                             text = "거래 가능",
-                            style = TextStyle(fontSize = DpToSp(18.dp))
+                            style = TextStyle(fontSize = DpToSp(18.dp), color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground)
                         )
                         AutoSizeText(
                             modifier = Modifier.weight(1f, true),
                             text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) userSeedMoneyFormatting else userCoinValuable,
                             textStyle = TextStyle(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                                 fontSize = DpToSp(18.dp),
                                 textAlign = TextAlign.End
                             )
                         )
                         Text(
-                            text = " $SYMBOL_KRW",
-                            style = TextStyle(
-                                fontSize = DpToSp(18.dp),
-                                fontWeight = FontWeight.Bold
+                            text = " $SYMBOL_KRW", style = TextStyle(
+                                fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold,color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
                             )
                         )
                     }
@@ -149,7 +146,8 @@ fun TotalAmountDesignatedDialog(
                             .fillMaxWidth()
                     ) {
                         TextField(
-                            value = totalPriceDesignated.value, onValueChange = {
+                            value = totalPriceDesignated.value,
+                            onValueChange = {
                                 if (it == "") {
                                     totalPriceDesignated.value = ""
                                     krwFeeState.value = 0.0
@@ -175,32 +173,27 @@ fun TotalAmountDesignatedDialog(
                                 .align(Alignment.CenterVertically),
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                             textStyle = TextStyle(
-                                fontSize = DpToSp(18.dp),
-                                textAlign = TextAlign.End
+                                fontSize = DpToSp(18.dp), textAlign = TextAlign.End, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
                             ),
                             visualTransformation = NumbersCommaTransformation(),
                             colors = TextFieldDefaults.textFieldColors(
                                 focusedIndicatorColor = Color.Transparent,
                                 disabledIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent,
-                                backgroundColor = colorResource(id = R.color.design_default_color_background),
+                                backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background
                             )
                         )
                         Text(
-                            text = " $SYMBOL_KRW",
-                            style = TextStyle(
-                                fontSize = DpToSp(18.dp),
-                                fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            text = " $SYMBOL_KRW", style = TextStyle(
+                                fontSize = DpToSp(18.dp), fontWeight = FontWeight.Bold, color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground
+                            ), modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
 
                     if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
                         Text(
                             text = "지정금액 + 수수료 = ${
-                                Calculator.getDecimalFormat()
-                                    .format(round(krwFeeState.value))
+                                Calculator.getDecimalFormat().format(round(krwFeeState.value))
                             } ".plus(SYMBOL_KRW),
                             style = TextStyle(color = Color.Gray, fontSize = DpToSp(15.dp)),
                             modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 20.dp)
@@ -220,11 +213,9 @@ fun TotalAmountDesignatedDialog(
                                     .weight(1f)
                                     .clickable {
                                         if (totalPriceDesignated.value.isEmpty()) {
-                                            totalPriceDesignated.value =
-                                                valueArray[i].toString()
+                                            totalPriceDesignated.value = valueArray[i].toString()
                                         } else {
-                                            totalPriceDesignated.value =
-                                                (totalPriceDesignated.value.toLong() + valueArray[i]).toString()
+                                            totalPriceDesignated.value = (totalPriceDesignated.value.toLong() + valueArray[i]).toString()
                                         }
                                         val bidFee = if (marketState == SELECTED_KRW_MARKET) {
                                             getCommission(PREF_KEY_KRW_BID_COMMISSION)
@@ -233,17 +224,14 @@ fun TotalAmountDesignatedDialog(
                                         }
                                         krwFeeState.value =
                                             totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
-                                    },
-                                textAlign = TextAlign.Center
+                                    }, textAlign = TextAlign.Center, style = TextStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,),
+                                fontSize = DpToSp(13.dp)
                             )
                             if (i != textArray.lastIndex) {
                                 Text(
-                                    text = "",
-                                    style = TextStyle(
-                                        color = Color.LightGray,
-                                        fontSize = DpToSp(18.dp)
-                                    ),
-                                    modifier = Modifier
+                                    text = "", style = TextStyle(
+                                        color = Color.LightGray
+                                    ), modifier = Modifier
                                         .width(1.dp)
                                         .border(1.dp, color = Color.LightGray)
                                 )
@@ -258,8 +246,7 @@ fun TotalAmountDesignatedDialog(
                             .background(Color.LightGray)
                             .padding(10.dp, 10.dp, 10.dp, 10.dp)
                             .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
+                                interactionSource = interactionSource, indication = null
                             ) {
                                 totalPriceDesignated.value = ""
                                 krwFeeState.value = 0.0
@@ -270,50 +257,38 @@ fun TotalAmountDesignatedDialog(
 
                     Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
                     Row {
-                        Text(
-                            text = stringResource(id = R.string.commonCancel), modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    askBidDialogState.value = false
-                                }
-                                .padding(0.dp, 10.dp),
-                            style = TextStyle(
-                                color = Color.Black,
-                                fontSize = DpToSp(18.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        )
+                        Text(text = stringResource(id = R.string.commonCancel), modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                askBidDialogState.value = false
+                            }
+                            .padding(0.dp, 10.dp), style = TextStyle(
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(18.dp), textAlign = TextAlign.Center
+                        ))
                         Text(
                             text = "", modifier = Modifier
                                 .width(1.dp)
                                 .border(0.5.dp, Color.LightGray)
                                 .padding(0.dp, 10.dp), fontSize = DpToSp(18.dp)
                         )
-                        Text(text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB)
-                            stringResource(id = R.string.bid)
-                        else
-                            stringResource(id = R.string.ask),
+                        Text(text = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) stringResource(id = R.string.bid)
+                        else stringResource(id = R.string.ask),
                             modifier = Modifier
                                 .weight(1f)
                                 .clickable {
                                     if (totalPriceDesignated.value.isEmpty()) {
                                         context.showToast("금액을 입력해 주세요.")
                                     } else {
-                                        val currentPrice =
-                                            currentTradePriceState.value
-                                        val selectedTab =
-                                            askBidSelectedTab.value
+                                        val currentPrice = currentTradePriceState.value
+                                        val selectedTab = askBidSelectedTab.value
                                         val userCoin = userCoinQuantity.value
 
                                         if (marketState == SELECTED_KRW_MARKET) {
-                                            val localUserSeedMoney =
-                                                userSeedMoney.value
-                                            val totalPrice =
-                                                totalPriceDesignated.value.toLong()
-                                            val quantity =
-                                                (totalPrice / currentPrice)
-                                                    .eighthDecimal()
-                                                    .toDouble()
+                                            val localUserSeedMoney = userSeedMoney.value
+                                            val totalPrice = totalPriceDesignated.value.toLong()
+                                            val quantity = (totalPrice / currentPrice)
+                                                .eighthDecimal()
+                                                .toDouble()
                                             val bidCommission = getCommission(PREF_KEY_KRW_BID_COMMISSION)
                                             when {
                                                 currentPrice == 0.0 -> {
@@ -340,25 +315,16 @@ fun TotalAmountDesignatedDialog(
                                                     if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
                                                         CoroutineScope(mainDispatcher).launch {
                                                             bidRequest(
-                                                                currentPrice,
-                                                                quantity,
-                                                                totalPrice,
-                                                                0.0,
-                                                                0.0
-                                                            )
-                                                                .join()
+                                                                currentPrice, quantity, totalPrice, 0.0, 0.0
+                                                            ).join()
                                                             context.showToast(context.getString(R.string.completeBidMessage))
                                                             askBidDialogState.value = false
                                                         }
                                                     } else {
                                                         CoroutineScope(mainDispatcher).launch {
                                                             askRequest(
-                                                                quantity,
-                                                                totalPrice,
-                                                                currentPrice,
-                                                                0.0
-                                                            )
-                                                                .join()
+                                                                quantity, totalPrice, currentPrice, 0.0
+                                                            ).join()
                                                             context.showToast(context.getString(R.string.completeAskMessage))
                                                             askBidDialogState.value = false
                                                         }
@@ -366,20 +332,15 @@ fun TotalAmountDesignatedDialog(
                                                 }
                                             }
                                         } else {
-                                            val bidCommission =
-                                                getCommission(PREF_KEY_BTC_BID_COMMISSION)
-                                            val currentBtcPrice =
-                                                currentBTCPrice.value
-                                            val localUserSeedMoney =
-                                                (btcQuantity.value * currentBtcPrice).roundToLong()
-                                            val totalPrice =
-                                                (totalPriceDesignated.value.toLong() / currentBtcPrice)
-                                                    .eighthDecimal()
-                                                    .toDouble()
-                                            val quantity =
-                                                (totalPrice / currentPrice)
-                                                    .eighthDecimal()
-                                                    .toDouble()
+                                            val bidCommission = getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                                            val currentBtcPrice = currentBTCPrice.value
+                                            val localUserSeedMoney = (btcQuantity.value * currentBtcPrice).roundToLong()
+                                            val totalPrice = (totalPriceDesignated.value.toLong() / currentBtcPrice)
+                                                .eighthDecimal()
+                                                .toDouble()
+                                            val quantity = (totalPrice / currentPrice)
+                                                .eighthDecimal()
+                                                .toDouble()
                                             when {
                                                 currentPrice == 0.0 -> {
                                                     context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -399,33 +360,23 @@ fun TotalAmountDesignatedDialog(
                                                 selectedTab == ASK_BID_SCREEN_BID_TAB && localUserSeedMoney < ((totalPrice + (totalPrice * (bidCommission * 0.01))) * currentBtcPrice).toLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoMoneyMessage))
                                                 }
-                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && totalPriceDesignated.value.toLong() >
-                                                        (userCoin * currentPrice * currentBtcPrice).roundToLong() -> {
+                                                selectedTab == ASK_BID_SCREEN_ASK_TAB && totalPriceDesignated.value.toLong() > (userCoin * currentPrice * currentBtcPrice).roundToLong() -> {
                                                     context.showToast(context.getString(R.string.youHaveNoCoinMessage))
                                                 }
                                                 else -> {
                                                     if (selectedTab == ASK_BID_SCREEN_BID_TAB) {
                                                         CoroutineScope(mainDispatcher).launch {
                                                             bidRequest(
-                                                                currentPrice,
-                                                                quantity,
-                                                                0L,
-                                                                totalPrice,
-                                                                currentBtcPrice
-                                                            )
-                                                                .join()
+                                                                currentPrice, quantity, 0L, totalPrice, currentBtcPrice
+                                                            ).join()
                                                             context.showToast(context.getString(R.string.completeBidMessage))
                                                             askBidDialogState.value = false
                                                         }
                                                     } else {
                                                         CoroutineScope(mainDispatcher).launch {
                                                             askRequest(
-                                                                quantity,
-                                                                totalPrice.toLong(),
-                                                                currentPrice,
-                                                                totalPrice
-                                                            )
-                                                                .join()
+                                                                quantity, totalPrice.toLong(), currentPrice, totalPrice
+                                                            ).join()
                                                             context.showToast(context.getString(R.string.completeAskMessage))
                                                             askBidDialogState.value = false
                                                         }
@@ -435,14 +386,11 @@ fun TotalAmountDesignatedDialog(
                                         }
                                     }
                                 }
-                                .background(if (askBidSelectedTab.value == 1) increase_color else decrease_color)
+                                .background(if (askBidSelectedTab.value == 1) increaseColor() else decreaseColor())
                                 .padding(0.dp, 10.dp),
                             style = TextStyle(
-                                color = Color.White,
-                                fontSize = DpToSp(18.dp),
-                                textAlign = TextAlign.Center
-                            )
-                        )
+                                color = Color.White, fontSize = DpToSp(18.dp), textAlign = TextAlign.Center
+                            ))
                     }
                 }
             }
@@ -455,22 +403,18 @@ class NumbersCommaTransformation : VisualTransformation {
         var result = AnnotatedString(text.text.toLongOrNull().formatWithComma())
         if (result.text == "입력") {
             result = AnnotatedString(
-                text.text.toLongOrNull().formatWithComma(),
-                spanStyle = SpanStyle(Color.LightGray)
+                text.text.toLongOrNull().formatWithComma(), spanStyle = SpanStyle(Color.LightGray)
             )
         }
-        return TransformedText(
-            text = result,
-            offsetMapping = object : OffsetMapping {
-                override fun originalToTransformed(offset: Int): Int {
-                    return text.text.toLongOrNull().formatWithComma().length
-                }
-
-                override fun transformedToOriginal(offset: Int): Int {
-                    return text.length
-                }
+        return TransformedText(text = result, offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                return text.text.toLongOrNull().formatWithComma().length
             }
-        )
+
+            override fun transformedToOriginal(offset: Int): Int {
+                return text.length
+            }
+        })
     }
 }
 

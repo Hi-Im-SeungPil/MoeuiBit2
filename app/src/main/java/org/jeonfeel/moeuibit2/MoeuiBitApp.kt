@@ -1,30 +1,51 @@
 package org.jeonfeel.moeuibit2
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Bundle
+import androidx.lifecycle.*
+import com.google.android.gms.ads.*
+import com.google.android.gms.ads.appopen.AppOpenAd
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.HiltAndroidApp
+import org.jeonfeel.moeuibit2.constants.AD_ID_TEST
+import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
+import org.jeonfeel.moeuibit2.utils.manager.AppOpenAdManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import java.util.*
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MoeuiBitApp: Application() {
+class MoeuiBitApp : Application() {
 
     @Inject
     lateinit var prefrenceManager: PreferenceManager
+    private lateinit var appOpenAdManager: AppOpenAdManager
 
     override fun onCreate() {
         super.onCreate()
-        val theme = when (prefrenceManager.getString("themeMode") ?: "") {
-            "라이트 모드" -> ThemeHelper.ThemeMode.LIGHT
-            "다크 모드" -> ThemeHelper.ThemeMode.DARK
+        mBitApplication = this
+        applyTheme()
+        initAd()
+
+        Logger.addLogAdapter(AndroidLogAdapter())
+    }
+
+    private fun applyTheme() {
+        val theme = when (prefrenceManager.getString(PREF_KEY_THEME_MODE) ?: "") {
+            ThemeHelper.ThemeMode.LIGHT.name -> ThemeHelper.ThemeMode.LIGHT
+            ThemeHelper.ThemeMode.DARK.name -> ThemeHelper.ThemeMode.DARK
             else -> ThemeHelper.ThemeMode.DEFAULT
         }
         ThemeHelper.applyTheme(theme)
-        mBitApplication = this
-        Logger.addLogAdapter(AndroidLogAdapter())
+    }
+
+    private fun initAd() {
+        appOpenAdManager = AppOpenAdManager()
+        appOpenAdManager.initOpenAd(this)
     }
 
     companion object {

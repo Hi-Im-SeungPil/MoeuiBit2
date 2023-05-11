@@ -85,12 +85,12 @@ fun CoinDetailMain(
                         text = stringResource(id = R.string.netChange), modifier = Modifier
                             .wrapContentWidth()
                             .padding(0.dp, 0.dp, 10.dp, 0.dp),
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(13.dp))
                     )
                     Text(
                         text = curChangeRate.plus("%"),
                         modifier = Modifier.weight(1f),
-                        style = TextStyle(color = textColor),
+                        style = TextStyle(color = textColor, fontSize = DpToSp(13.dp)),
                         maxLines = 1
                     )
                     AutoSizeText(
