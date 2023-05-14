@@ -82,21 +82,24 @@ fun ExchangeScreenLoading() {
                     .height(30.dp)
             ) {
                 Box(modifier = Modifier.weight(1f))
-                Box(
+                Text(
+                    text = "",
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
                         .wrapContentHeight()
                 )
-                Box(
+                Text(
+                    text = "",
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
                         .wrapContentHeight()
                 )
-                Box(
+                Text(
+                    text = "",
                     modifier = Modifier
                         .padding(10.dp, 0.dp)
                         .weight(1f)
@@ -126,7 +129,8 @@ fun LoadingLazyColumnItem(
                 .weight(1f)
                 .align(Alignment.Bottom)
         ) {
-            Box(
+            Text(
+                text = "",
                 modifier = Modifier
                     .padding(10.dp, 10.dp, 10.dp, 2.dp)
                     .weight(1f)
@@ -134,7 +138,8 @@ fun LoadingLazyColumnItem(
                     .wrapContentHeight(Alignment.Bottom)
                     .background(color = color),
             )
-            Box(
+            Text(
+                text = "",
                 modifier = Modifier
                     .padding(10.dp, 2.dp, 10.dp, 10.dp)
                     .weight(1f)
@@ -144,7 +149,8 @@ fun LoadingLazyColumnItem(
             )
         }
 
-        Box(
+        Text(
+            text = "",
             modifier = Modifier
                 .padding(5.dp, 0.dp)
                 .weight(1f)
@@ -154,7 +160,8 @@ fun LoadingLazyColumnItem(
                 .background(color = color)
         )
 
-        Box(
+        Text(
+            text = "",
             modifier = Modifier
                 .padding(5.dp, 0.dp)
                 .weight(1f)
@@ -163,7 +170,8 @@ fun LoadingLazyColumnItem(
                 .background(color = color)
         )
 
-        Box(
+        Text(
+            text = "",
             modifier = Modifier
                 .padding(5.dp, 0.dp, 10.dp, 0.dp)
                 .weight(1f)

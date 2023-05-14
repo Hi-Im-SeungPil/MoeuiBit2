@@ -287,7 +287,7 @@ class Chart @Inject constructor(
             try {
                 modifyLineData()
             } catch (e: Exception) {
-                e.printStackTrace()
+
             }
             _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
         }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitApp
+import org.jeonfeel.moeuibit2.constants.AD_ID_OPENING
 import org.jeonfeel.moeuibit2.constants.AD_ID_TEST
 import java.util.*
 
@@ -46,7 +47,7 @@ class AppOpenAdManager : Application.ActivityLifecycleCallbacks, LifecycleEventO
         val request = AdRequest.Builder().build()
         AppOpenAd.load(
             context,
-            AD_ID_TEST,
+            AD_ID_OPENING,
             request,
             object : AppOpenAd.AppOpenAdLoadCallback() {
                 override fun onAdLoaded(ad: AppOpenAd) {

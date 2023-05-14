@@ -105,8 +105,7 @@ fun SettingScreen(settingViewModel: SettingViewModel) {
                     AndroidView(
                         factory = {
                             ImageView(it).apply {
-                                val drawable = ContextCompat.getDrawable(it, R.drawable.img_info)
-                                setImageDrawable(drawable)
+                                setImageResource(R.drawable.img_info)
                                 setOnClickListener {
                                     showAlignBottom(balloon)
                                 }

@@ -138,22 +138,22 @@ class PortfolioViewModel constructor(
         viewModelScope.launch(defaultDispatcher) {
             when (sortStandard) {
                 SORT_NAME_DEC -> {
-                    tempUserHoldCoinDtoList.sortByDescending { element ->
+                    tempUserHoldCoinDtoList.sortBy { element ->
                         element.myCoinsKoreanName
                     }
                 }
                 SORT_NAME_ASC -> {
-                    tempUserHoldCoinDtoList.sortBy { element ->
+                    tempUserHoldCoinDtoList.sortByDescending { element ->
                         element.myCoinsKoreanName
                     }
                 }
                 SORT_RATE_ASC -> {
-                    tempUserHoldCoinDtoList.sortBy { element ->
+                    tempUserHoldCoinDtoList.sortByDescending { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
                 SORT_RATE_DEC -> {
-                    tempUserHoldCoinDtoList.sortByDescending { element ->
+                    tempUserHoldCoinDtoList.sortBy { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
