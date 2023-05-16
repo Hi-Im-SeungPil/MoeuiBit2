@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
@@ -42,7 +43,7 @@ fun ExchangeScreenLazyColumns(
                 modifier = Modifier
                     .padding(0.dp, 20.dp, 0.dp, 0.dp)
                     .fillMaxSize(),
-                fontSize = 20.sp,
+                fontSize = DpToSp(dp = 20.dp),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
@@ -54,7 +55,7 @@ fun ExchangeScreenLazyColumns(
                 modifier = Modifier
                     .padding(0.dp, 20.dp, 0.dp, 0.dp)
                     .fillMaxSize(),
-                fontSize = 20.sp,
+                fontSize = DpToSp(dp = 20.dp),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)

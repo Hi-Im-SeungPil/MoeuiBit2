@@ -36,6 +36,16 @@ object UpBitOrderBookWebSocket {
 //        }
     }
 
+    fun onlyRebuildSocket() {
+        if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
+            socket.cancel()
+            socket = client.newWebSocket(
+                request,
+                socketListener
+            )
+            currentSocketState = SOCKET_IS_CONNECTED
+        }
+    }
     fun rebuildSocket() {
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION && currentSocketState == SOCKET_IS_FAILURE) {
             currentSocketState = SOCKET_IS_CONNECTED

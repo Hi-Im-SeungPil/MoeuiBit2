@@ -22,6 +22,7 @@ import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.loadingColor
 
 @Composable
@@ -88,7 +89,8 @@ fun ExchangeScreenLoading() {
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    fontSize = DpToSp(dp = 12.dp)
                 )
                 Text(
                     text = "",
@@ -96,7 +98,8 @@ fun ExchangeScreenLoading() {
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    fontSize = DpToSp(dp = 12.dp)
                 )
                 Text(
                     text = "",
@@ -104,7 +107,8 @@ fun ExchangeScreenLoading() {
                         .padding(10.dp, 0.dp)
                         .weight(1f)
                         .background(color = color)
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    fontSize = DpToSp(dp = 12.dp)
                 )
             }
             for (i in 0..14) {
@@ -137,6 +141,7 @@ fun LoadingLazyColumnItem(
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom)
                     .background(color = color),
+                fontSize = DpToSp(dp = 13.dp)
             )
             Text(
                 text = "",
@@ -146,6 +151,7 @@ fun LoadingLazyColumnItem(
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .background(color = color),
+                fontSize = DpToSp(dp = 13.dp)
             )
         }
 
@@ -157,7 +163,8 @@ fun LoadingLazyColumnItem(
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .wrapContentHeight()
-                .background(color = color)
+                .background(color = color),
+            fontSize = DpToSp(dp = 13.dp)
         )
 
         Text(
@@ -167,7 +174,8 @@ fun LoadingLazyColumnItem(
                 .weight(1f)
                 .fillMaxHeight()
                 .wrapContentHeight()
-                .background(color = color)
+                .background(color = color),
+            fontSize = DpToSp(dp = 13.dp)
         )
 
         Text(
@@ -178,6 +186,7 @@ fun LoadingLazyColumnItem(
                 .fillMaxHeight()
                 .wrapContentHeight()
                 .background(color = color),
+            fontSize = DpToSp(dp = 13.dp)
         )
     }
 }

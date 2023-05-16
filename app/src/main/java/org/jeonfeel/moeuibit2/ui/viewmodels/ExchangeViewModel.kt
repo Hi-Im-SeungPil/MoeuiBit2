@@ -18,6 +18,7 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.*
+import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
@@ -730,6 +731,7 @@ class ExchangeViewModel constructor(
         } else if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION || NetworkMonitorUtil.currentNetworkState == NETWORK_ERROR) {
             errorState.value = NetworkMonitorUtil.currentNetworkState
             UpBitTickerWebSocket.onlyRebuildSocket()
+            UpBitOrderBookWebSocket.onlyRebuildSocket()
             initExchangeData()
         }
     }

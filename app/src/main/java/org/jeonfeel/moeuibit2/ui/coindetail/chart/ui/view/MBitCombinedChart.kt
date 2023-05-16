@@ -1,24 +1,21 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view
 
 import android.content.Context
-import android.graphics.Color
 import androidx.compose.runtime.MutableState
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.CandleDataSet
-import com.github.mikephil.charting.data.CandleEntry
-import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.POSITIVE_BAR
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.ChartHelper
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.addAccAmountLimitLine
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshSettings
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 class MBitCombinedChart(

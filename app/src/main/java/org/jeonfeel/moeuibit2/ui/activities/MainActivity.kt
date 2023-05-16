@@ -21,6 +21,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
@@ -132,18 +133,12 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        networkMonitorUtil.register()
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }
         Utils.getLocale()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        networkMonitorUtil.unregister()
     }
 
     override fun onDestroy() {

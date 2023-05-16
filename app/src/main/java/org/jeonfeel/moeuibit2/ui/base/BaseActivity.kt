@@ -53,12 +53,19 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        networkMonitorUtil.register()
+        try {
+            networkMonitorUtil.register()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        networkMonitorUtil.unregister()
+        try {
+            networkMonitorUtil.unregister()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
-
 }

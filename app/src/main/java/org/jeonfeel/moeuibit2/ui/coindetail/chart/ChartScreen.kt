@@ -80,77 +80,82 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         coinDetailViewModel.chart.chartUpdateLiveData.observe(
             lifecycleOwner
         ) {
-            when (it) {
-                // 차트 초기화
-                CHART_INIT -> {
-                    combinedChart.getChartXValueFormatter()?.setItem(
-                        newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
-                    )
-                    combinedChart.initChart(
-                        coinDetailViewModel::requestOldData,
-                        marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                        loadingOldData = coinDetailViewModel.chart.state.loadingOldData,
-                        isChartLastData = coinDetailViewModel.chart.state.isLastData,
-                        minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-                        accData = coinDetailViewModel.chart.accData,
-                        kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
-                    )
-                    combinedChart.chartDataInit(
-                        candleEntries = coinDetailViewModel.chart.candleEntries,
-                        candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                        positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                        negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                        lineData = coinDetailViewModel.chart.createLineData(),
-                        purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
-                    )
-                    combinedChart.initCanvas()
-                }
-                // 차트 컴포넌트 추가되었을 떄
-                CHART_ADD -> {
-                    combinedChart.getChartXValueFormatter()?.let {
-                        val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
-                        it.addItem(
-                            newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition]
-                                ?: "",
-                            position = candlePosition
+            try {
+                when (it) {
+                    // 차트 초기화
+                    CHART_INIT -> {
+                        combinedChart.getChartXValueFormatter()?.setItem(
+                            newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
                         )
-                    }
-                    combinedChart.chartAdd(
-                        model = coinDetailViewModel.chart.addModel,
-                        candlePosition = coinDetailViewModel.chart.candlePosition,
-                        addLineData = coinDetailViewModel.chart::addLineData
-                    )
-                }
-                // 예전 데이터 불러오기
-                CHART_OLD_DATA -> {
-                    combinedChart.getChartXValueFormatter()
-                        ?.setItem(coinDetailViewModel.chart.kstDateHashMap)
-                    combinedChart.chartRefreshLoadMoreData(
-                        candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                        positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                        negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                        lineData = coinDetailViewModel.chart.createLineData(),
-                        startPosition = combinedChart.lowestVisibleX,
-                        currentVisible = combinedChart.visibleXRange,
-                        loadingOldData = coinDetailViewModel.chart.state.loadingOldData
-                    )
-                }
-                // 마지막 차트 컴포넌트 최신화
-                else -> {
-                    if (!coinDetailViewModel.chart.isCandleEntryEmpty()) {
-                        combinedChart.chartSet(
+                        combinedChart.initChart(
+                            coinDetailViewModel::requestOldData,
                             marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                            lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
-                            candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
-                            candleUpdateLiveDataValue = it,
-                            isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+                            loadingOldData = coinDetailViewModel.chart.state.loadingOldData,
+                            isChartLastData = coinDetailViewModel.chart.state.isLastData,
+                            minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
                             accData = coinDetailViewModel.chart.accData,
+                            kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                        )
+                        combinedChart.chartDataInit(
+                            candleEntries = coinDetailViewModel.chart.candleEntries,
+                            candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                            positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                            negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                            lineData = coinDetailViewModel.chart.createLineData(),
+                            purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
+                        )
+                        combinedChart.initCanvas()
+                    }
+                    // 차트 컴포넌트 추가되었을 떄
+                    CHART_ADD -> {
+                        combinedChart.getChartXValueFormatter()?.let {
+                            val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
+                            it.addItem(
+                                newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition]
+                                    ?: "",
+                                position = candlePosition
+                            )
+                        }
+                        combinedChart.chartAdd(
+                            model = coinDetailViewModel.chart.addModel,
                             candlePosition = coinDetailViewModel.chart.candlePosition,
+                            addLineData = coinDetailViewModel.chart::addLineData
                         )
                     }
+                    // 예전 데이터 불러오기
+                    CHART_OLD_DATA -> {
+                        combinedChart.getChartXValueFormatter()
+                            ?.setItem(coinDetailViewModel.chart.kstDateHashMap)
+                        combinedChart.chartRefreshLoadMoreData(
+                            candleDataSet = coinDetailViewModel.chart.candleDataSet,
+                            positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
+                            negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
+                            lineData = coinDetailViewModel.chart.createLineData(),
+                            startPosition = combinedChart.lowestVisibleX,
+                            currentVisible = combinedChart.visibleXRange,
+                            loadingOldData = coinDetailViewModel.chart.state.loadingOldData
+                        )
+                    }
+                    // 마지막 차트 컴포넌트 최신화
+                    else -> {
+                        if (!coinDetailViewModel.chart.isCandleEntryEmpty()) {
+                            combinedChart.chartSet(
+                                marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+                                lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
+                                candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+                                candleUpdateLiveDataValue = it,
+                                isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+                                accData = coinDetailViewModel.chart.accData,
+                                candlePosition = coinDetailViewModel.chart.candlePosition,
+                            )
+                        }
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
+
     }
     // 버튼들과 차트.
     Column(modifier = Modifier.fillMaxSize()) {
@@ -230,7 +235,7 @@ private fun PeriodButtons(
         ) {
             Text(
                 text = minuteText.value,
-                style = TextStyle(color = btnColor)
+                style = TextStyle(color = btnColor, fontSize = DpToSp(dp = 13.dp))
             )
         }
 
@@ -344,7 +349,10 @@ fun RowScope.MinuteButton(
         if (autoSizeText) {
             AutoSizeText(
                 text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(14.dp)),
+                textStyle = MaterialTheme.typography.body1.copy(
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                    fontSize = DpToSp(14.dp)
+                ),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()

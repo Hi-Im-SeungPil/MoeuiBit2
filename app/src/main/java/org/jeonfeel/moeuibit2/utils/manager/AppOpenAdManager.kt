@@ -58,6 +58,7 @@ class AppOpenAdManager : Application.ActivityLifecycleCallbacks, LifecycleEventO
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     isLoadingAd = false
+                    Logger.e(loadAdError.message)
                 }
             }
         )
