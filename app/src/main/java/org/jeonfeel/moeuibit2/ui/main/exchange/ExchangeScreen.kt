@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -20,15 +19,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
@@ -64,6 +60,7 @@ fun ExchangeScreen(
         onPauseAction = {
             UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
             exchangeViewModel.updateExchange = false
+            exchangeViewModel.stopExchangeUpdateCoroutine()
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
@@ -139,7 +136,7 @@ private fun Exchange(
                 selectedMarketState = exchangeViewModel.state.selectedMarket,
                 pagerState
             )
-            SortButtons(
+            ExchangeSortButtons(
                 sortButtonState = exchangeViewModel.state.sortButton,
                 selectedMarketState = exchangeViewModel.state.selectedMarket,
                 isUpdateExchange = exchangeViewModel.updateExchange,

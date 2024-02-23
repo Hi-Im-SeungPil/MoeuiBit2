@@ -68,6 +68,26 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    @Composable
+    private fun MainScreen(viewModel: MainViewModel) {
+        val navController = rememberNavController()
+        val scaffoldState = rememberScaffoldState()
+        Scaffold(
+            scaffoldState = scaffoldState,
+            bottomBar = { MainBottomNavigation(navController) },
+            modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        ) { contentPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
+                MainNavigation(navController, viewModel)
+            }
+        }
+    }
+
     /**
      * 초기화
      */
@@ -108,26 +128,6 @@ class MainActivity : BaseActivity() {
             this.showToast(this.getString(R.string.updateFail))
         }.addOnCanceledListener {
             this.showToast(this.getString(R.string.updateFail))
-        }
-    }
-
-    @Composable
-    fun MainScreen(viewModel: MainViewModel) {
-        val navController = rememberNavController()
-        val scaffoldState = rememberScaffoldState()
-        Scaffold(
-            scaffoldState = scaffoldState,
-            bottomBar = { MainBottomNavigation(navController) },
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
-        ) { contentPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                MainNavigation(navController, viewModel)
-            }
         }
     }
 

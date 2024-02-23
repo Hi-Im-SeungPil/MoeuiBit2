@@ -12,15 +12,15 @@ class LocalRepository(private val moeuiBitDatabase: MoeuiBitDatabase) {
         return moeuiBitDatabase.favoriteDAO()
     }
 
-    fun getMyCoinDao(): MyCoinDAO {
+    suspend fun getMyCoinDao(): MyCoinDAO {
         return moeuiBitDatabase.myCoinDAO()
     }
 
-    fun getTransactionInfoDao(): TransactionInfoDAO {
+    suspend fun getTransactionInfoDao(): TransactionInfoDAO {
         return moeuiBitDatabase.transactionInfoDAO()
     }
 
-    fun getUserDao(): UserDAO {
+    suspend fun getUserDao(): UserDAO {
         return moeuiBitDatabase.userDAO()
     }
 }

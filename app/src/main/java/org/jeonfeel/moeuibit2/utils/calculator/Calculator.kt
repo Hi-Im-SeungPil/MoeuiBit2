@@ -2,9 +2,15 @@ package org.jeonfeel.moeuibit2.utils.calculator
 
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
+import org.jeonfeel.moeuibit2.utils.firstDecimal
+import org.jeonfeel.moeuibit2.utils.fiveDecimal
 import org.jeonfeel.moeuibit2.utils.forthDecimal
 import org.jeonfeel.moeuibit2.utils.secondDecimal
+import org.jeonfeel.moeuibit2.utils.sevenDecimal
+import org.jeonfeel.moeuibit2.utils.sixthDecimal
+import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.floor
@@ -62,12 +68,26 @@ object Calculator {
         val absChangePrice = abs(changePrice)
 
         var result: String = if (marketState == SELECTED_KRW_MARKET) {
-            if (absChangePrice >= 100) {
-                decimalFormat.format(round(changePrice).toInt())
-            } else if (absChangePrice < 100 && absChangePrice >= 1) {
+            if (absChangePrice >= 1000) {
+                round(changePrice).toLong().commaFormat()
+            } else if (absChangePrice >= 100 && absChangePrice < 1000) {
                 changePrice.secondDecimal()
-            } else {
+            } else if (absChangePrice >= 10 && absChangePrice < 100) {
+                changePrice.secondDecimal()
+            } else if (absChangePrice >= 1 && absChangePrice < 10) {
+                changePrice.secondDecimal()
+            } else if (absChangePrice >= 0.1 && absChangePrice < 1) {
+                changePrice.secondDecimal()
+            } else if (absChangePrice >= 0.01 && absChangePrice < 0.1) {
+                changePrice.thirdDecimal()
+            } else if (absChangePrice >= 0.001 && absChangePrice < 0.01) {
                 changePrice.forthDecimal()
+            } else if (absChangePrice >= 0.0001 && absChangePrice < 0.001) {
+                changePrice.fiveDecimal()
+            } else if (absChangePrice >= 0.00001 && absChangePrice < 0.0001) {
+                changePrice.sixthDecimal()
+            } else {
+                changePrice.sevenDecimal()
             }
         } else {
             changePrice.eighthDecimal()
@@ -160,20 +180,25 @@ object Calculator {
                     (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
                 decimalDecimalFormat.format((first))
             }
+
             "Max" -> {
                 val first =
                     (seedMoney / (tradePrice + floor(tradePrice * ((fee) * 0.01) * 100000000) * 0.00000001))
                 decimalDecimalFormat.format((first))
             }
+
             "50%" -> {
                 decimalDecimalFormat.format((seedMoney * 0.5) / tradePrice)
             }
+
             "25%" -> {
                 decimalDecimalFormat.format((seedMoney * 0.25) / tradePrice)
             }
+
             "10%" -> {
                 decimalDecimalFormat.format((seedMoney * 0.1) / tradePrice)
             }
+
             else -> "0"
         }
 
@@ -190,19 +215,24 @@ object Calculator {
                 val first = (BTCQuantity / (tradePrice + (tradePrice * ((fee + 0.00001) * 0.01))))
                 decimalDecimalFormat.format(first)
             }
+
             "Max" -> {
                 val first = (BTCQuantity / (tradePrice + (tradePrice * ((fee + 0.00001) * 0.01))))
                 decimalDecimalFormat.format(first)
             }
+
             "50%" -> {
                 decimalDecimalFormat.format((BTCQuantity * 0.5) / tradePrice)
             }
+
             "25%" -> {
                 decimalDecimalFormat.format((BTCQuantity * 0.25) / tradePrice)
             }
+
             "10%" -> {
                 decimalDecimalFormat.format((BTCQuantity * 0.1) / tradePrice)
             }
+
             else -> "0"
         }
     }
@@ -216,18 +246,23 @@ object Calculator {
                 "최대" -> {
                     decimalDecimalFormat.format(userCoinQuantity)
                 }
+
                 "Max" -> {
                     decimalDecimalFormat.format(userCoinQuantity)
                 }
+
                 "50%" -> {
                     decimalDecimalFormat.format(userCoinQuantity * 0.5)
                 }
+
                 "25%" -> {
                     decimalDecimalFormat.format(userCoinQuantity * 0.25)
                 }
+
                 "10%" -> {
                     decimalDecimalFormat.format(userCoinQuantity * 0.1)
                 }
+
                 else -> "0"
             }
         } catch (e: Exception) {

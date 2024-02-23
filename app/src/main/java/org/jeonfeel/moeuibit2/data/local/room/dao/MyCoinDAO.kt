@@ -10,7 +10,7 @@ interface MyCoinDAO {
     val all: List<MyCoin?>?
 
     @Insert
-    suspend fun insert(myCoin: MyCoin?)
+    suspend fun insert(myCoin: MyCoin)
 
     @Query("UPDATE MYCOIN SET purchasePrice = :price WHERE market = :market")
     suspend fun updatePurchasePrice(market: String?, price: Double?)

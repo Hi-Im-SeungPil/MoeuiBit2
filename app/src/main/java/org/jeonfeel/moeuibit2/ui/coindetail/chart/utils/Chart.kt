@@ -8,6 +8,7 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
@@ -39,9 +40,7 @@ class Chart @Inject constructor(
     val state = ChartState()
     var market = ""
     private val gson = Gson()
-
-    var chartLastData = false
-
+    private var chartLastData = false
     val candleEntries = ArrayList<CandleEntry>()
     private val movingAverage = ArrayList<GetMovingAverage>()
     private val chartData = ArrayList<ChartModel>()
@@ -54,6 +53,7 @@ class Chart @Inject constructor(
     private var candleEntriesLastPosition = 0
     private var firstCandleUtcTime = ""
     private var kstTime = "" // 캔들 / 바 / 라인 추가를 위한 kstTime
+
     var purchaseAveragePrice: Float? = null // 매수평균가
     var candlePosition = 0f // 현재 캔들 포지션
     val accData = HashMap<Int, Double>() // 거래량
@@ -87,7 +87,6 @@ class Chart @Inject constructor(
             resetChartData()
             val positiveBarEntries = ArrayList<BarEntry>()
             val negativeBarEntries = ArrayList<BarEntry>()
-
             val chartModelList = response.body() ?: JsonArray()
             if (chartModelList.size() != 0) {
                 val indices = chartModelList.size()
@@ -105,6 +104,7 @@ class Chart @Inject constructor(
 
                 for (i in indices - 1 downTo 0) {
                     val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
+                    Logger.e(model.toString())
                     candleEntries.add(
                         CandleEntry(
                             candlePosition,
@@ -169,10 +169,10 @@ class Chart @Inject constructor(
         }
         if (response.isSuccessful && (response.body()?.size() ?: JsonArray()) != 0) {
             val chartModelList = response.body() ?: JsonArray()
+            val chartModelListSize = chartModelList.size()
             val tempCandleEntries = ArrayList<CandleEntry>()
             val tempPositiveBarEntries = ArrayList<BarEntry>()
             val tempNegativeBarEntries = ArrayList<BarEntry>()
-            val chartModelListSize = chartModelList.size()
             val positiveBarDataCount = positiveBarDataSet.entryCount
             val negativeBarDataCount = negativeBarDataSet.entryCount
             var tempCandlePosition = candleXMin - chartModelListSize

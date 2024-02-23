@@ -12,7 +12,7 @@ interface UserDAO {
     val all: User?
 
     @Insert
-    suspend fun insertAll(vararg users: User?)
+    suspend fun insertAll(vararg users: User)
 
     @Delete
     suspend fun delete(user: User)

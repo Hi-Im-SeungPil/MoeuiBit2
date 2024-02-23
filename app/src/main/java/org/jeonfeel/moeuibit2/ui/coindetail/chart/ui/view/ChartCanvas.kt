@@ -24,7 +24,7 @@ class ChartCanvas constructor(context: Context?) :
     private val lastCandlePriceRectPaint = Paint()
     private val textPaint = Paint()
 
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
         if(lastCandlePrice.isNotEmpty()) {
             val left = xPosition
@@ -35,8 +35,8 @@ class ChartCanvas constructor(context: Context?) :
             val textY = (top - (top - bottom) * 0.75).toFloat()
             val textX = left + textMarginLeft
 
-            canvas?.drawRect(left,top,right * 2,bottom, lastCandlePriceRectPaint)
-            canvas?.drawText(lastCandlePrice,textX,textY,textPaint)
+            canvas.drawRect(left,top,right * 2,bottom, lastCandlePriceRectPaint)
+            canvas.drawText(lastCandlePrice,textX,textY,textPaint)
         }
         if (selectPrice.isNotEmpty()) {
             val left = xPosition
@@ -47,8 +47,8 @@ class ChartCanvas constructor(context: Context?) :
             val textY = (top - (top - bottom) * 0.75).toFloat()
             val textX = left + textMarginLeft
 
-            canvas?.drawRect(left, top, right * 2, bottom, selectPriceRectPaint)
-            canvas?.drawText(selectPrice, textX,textY, textPaint)
+            canvas.drawRect(left, top, right * 2, bottom, selectPriceRectPaint)
+            canvas.drawText(selectPrice, textX,textY, textPaint)
         }
     }
 
@@ -84,9 +84,5 @@ class ChartCanvas constructor(context: Context?) :
         this.lastCandlePriceYPosition = lastCandlePriceYPosition
         this.lastCandlePriceRectPaint.color = color
         this.invalidate()
-    }
-
-    fun getTextPaint(): Paint {
-        return textPaint
     }
 }

@@ -12,8 +12,37 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontnote okhttp3.**
 
 -dontwarn org.jetbrains.kotlin.**
 
+-dontwarn com.google.android.gms.**
 -keep class com.google.android.gms.** { *; }
 -keep class com.google.firebase.** { *; }
+
+-keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
+
+-keep class org.jeonfeel.moeuibit2.data.remote.retrofit.api.** { *; }
+
+# Retrofit
+-keep class retrofit2.** { *; }
+
+# OkHttp
+-keep class okhttp3.** { *; }
+
+# Gson
+-keep class com.google.gson.** { *; }
+
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
+-keep class com.google.gson.examples.android.model.** { *; }
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+ -keep,allowobfuscation,allowshrinking interface retrofit2.Call
+ -keep,allowobfuscation,allowshrinking class retrofit2.Response
+ -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation

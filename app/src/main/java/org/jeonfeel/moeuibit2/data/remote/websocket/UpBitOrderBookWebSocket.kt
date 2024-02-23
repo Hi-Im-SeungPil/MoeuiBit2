@@ -6,6 +6,7 @@ import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitOrderBookWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
+import java.net.SocketTimeoutException
 
 object UpBitOrderBookWebSocket {
 
@@ -30,10 +31,12 @@ object UpBitOrderBookWebSocket {
     }
 
     fun requestOrderBookList(market: String) {
-//        if (currentSocketState != SOCKET_IS_FAILURE) {
+        try {
             socket.send(orderBookWebSocketMessage(market))
             currentSocketState = SOCKET_IS_CONNECTED
-//        }
+        } catch (e: Exception) {
+            onlyRebuildSocket()
+        }
     }
 
     fun onlyRebuildSocket() {
@@ -57,7 +60,11 @@ object UpBitOrderBookWebSocket {
     }
 
     fun onPause() {
-        socket.send(orderBookWebSocketMessage("pause"))
-        currentSocketState = SOCKET_IS_ON_PAUSE
+        try {
+            socket.send(orderBookWebSocketMessage("pause"))
+            currentSocketState = SOCKET_IS_ON_PAUSE
+        } catch (e: Exception) {
+            onlyRebuildSocket()
+        }
     }
 }

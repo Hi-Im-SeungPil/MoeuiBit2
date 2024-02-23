@@ -6,6 +6,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
@@ -29,6 +30,7 @@ class CoinDetailViewModel @Inject constructor(
     var preClosingPrice = 0.0
     val favoriteMutableState = mutableStateOf(false)
     private var isBTC = false
+    private var updateOrderBlockJob: Job? = null
 
     fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
         UpBitTickerWebSocket.coinDetailListener = this
@@ -57,7 +59,7 @@ class CoinDetailViewModel @Inject constructor(
 
     // 주문 화면
     fun initCoinDetailScreen() {
-        if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.value.isEmpty()) {
+        if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
             viewModelScope.launch(ioDispatcher) {
                 UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
                 val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
@@ -77,6 +79,16 @@ class CoinDetailViewModel @Inject constructor(
     fun initOrderScreen() {
         viewModelScope.launch(ioDispatcher) {
             coinOrder.initOrderScreen(market)
+        }
+        updateOrderBlockJob =viewModelScope.launch {
+            coinOrder.updateOrderBlock()
+        }
+        updateOrderBlockJob?.start()
+    }
+
+    fun cancelUpdateOrderBlockJob () {
+        viewModelScope.launch {
+            updateOrderBlockJob?.cancelAndJoin()
         }
     }
 

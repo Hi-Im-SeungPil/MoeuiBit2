@@ -28,8 +28,9 @@ class RemoteModule {
         val httpClient = OkHttpClient.Builder()
 
         return httpClient.connectionPool(connectionPool)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .connectTimeout(5, TimeUnit.MINUTES)
+            .readTimeout(5, TimeUnit.MINUTES)
             .build()
     }
 

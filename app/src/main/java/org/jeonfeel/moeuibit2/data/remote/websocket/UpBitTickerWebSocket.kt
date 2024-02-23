@@ -9,6 +9,7 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageRece
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
+import java.net.SocketTimeoutException
 
 object UpBitTickerWebSocket {
 
@@ -45,24 +46,30 @@ object UpBitTickerWebSocket {
     fun requestKrwCoinList(
         marketState: Int
     ) {
-        if (currentSocketState != SOCKET_IS_FAILURE) {
-            when (marketState) {
-                SELECTED_KRW_MARKET -> {
-                    socket.send(tickerWebSocketMessage(krwMarkets))
-                    currentMarket = SELECTED_KRW_MARKET
+        try {
+            if (currentSocketState != SOCKET_IS_FAILURE) {
+                when (marketState) {
+                    SELECTED_KRW_MARKET -> {
+                        socket.send(tickerWebSocketMessage(krwMarkets))
+                        currentMarket = SELECTED_KRW_MARKET
+                    }
+
+                    SELECTED_BTC_MARKET -> {
+                        socket.send(tickerWebSocketMessage(btcMarkets))
+                        currentMarket = SELECTED_BTC_MARKET
+                    }
+
+                    SELECTED_FAVORITE -> {
+                        socket.send(tickerWebSocketMessage(favoriteMarkets))
+                        currentMarket = SELECTED_FAVORITE
+                    }
                 }
-                SELECTED_BTC_MARKET -> {
-                    socket.send(tickerWebSocketMessage(btcMarkets))
-                    currentMarket = SELECTED_BTC_MARKET
-                }
-                SELECTED_FAVORITE -> {
-                    socket.send(tickerWebSocketMessage(favoriteMarkets))
-                    currentMarket = SELECTED_FAVORITE
-                }
+                currentSocketState = SOCKET_IS_CONNECTED
+            } else {
+                rebuildSocket()
             }
-            currentSocketState = SOCKET_IS_CONNECTED
-        } else {
-            rebuildSocket()
+        } catch (e: Exception) {
+            onlyRebuildSocket()
         }
     }
 
@@ -72,13 +79,21 @@ object UpBitTickerWebSocket {
     }
 
     fun requestTicker(market: String) {
-        currentSocketState = SOCKET_IS_CONNECTED
-        socket.send(tickerWebSocketMessage(market))
+        try {
+            currentSocketState = SOCKET_IS_CONNECTED
+            socket.send(tickerWebSocketMessage(market))
+        } catch (e: Exception) {
+            onlyRebuildSocket()
+        }
     }
 
     fun onPause() {
-        socket.send(tickerWebSocketMessage("pause"))
-        currentSocketState = SOCKET_IS_ON_PAUSE
+        try {
+            socket.send(tickerWebSocketMessage("pause"))
+            currentSocketState = SOCKET_IS_ON_PAUSE
+        } catch (e: Exception) {
+            onlyRebuildSocket()
+        }
     }
 
     fun rebuildSocket() {
@@ -90,9 +105,11 @@ object UpBitTickerWebSocket {
                 IS_EXCHANGE_SCREEN -> {
                     requestKrwCoinList(currentMarket)
                 }
+
                 IS_DETAIL_SCREEN -> {
                     requestTicker(detailMarket)
                 }
+
                 IS_PORTFOLIO_SCREEN -> {
                     requestTicker(portfolioMarket)
                 }
@@ -117,9 +134,11 @@ object UpBitTickerWebSocket {
             IS_EXCHANGE_SCREEN -> {
                 tickerListener?.onTickerMessageReceiveListener(message)
             }
+
             IS_DETAIL_SCREEN -> {
                 coinDetailListener?.onTickerMessageReceiveListener(message)
             }
+
             IS_PORTFOLIO_SCREEN -> {
                 portfolioListener?.onTickerMessageReceiveListener(message)
             }

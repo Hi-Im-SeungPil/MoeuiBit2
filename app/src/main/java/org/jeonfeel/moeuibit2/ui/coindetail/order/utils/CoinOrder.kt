@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
+import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -30,7 +31,8 @@ import kotlin.math.round
 class CoinOrderState {
     val currentTradePriceState = mutableStateOf(0.0)
     val currentTradePriceStateForOrderBook = mutableStateOf(0.0)
-    val orderBookMutableStateList = mutableStateOf(mutableStateListOf<CoinDetailOrderBookModel>())
+    val orderBookMutableStateList = mutableStateListOf<CoinDetailOrderBookModel>()
+    val orderBoolList = ArrayList<CoinDetailOrderBookModel>()
     val askBidSelectedTab = mutableStateOf(1)
     val userSeedMoney = mutableStateOf(0L)
     val userCoinQuantity = mutableStateOf(0.0)
@@ -281,6 +283,21 @@ class CoinOrder @Inject constructor(
         )
     }
 
+    suspend fun updateOrderBlock() {
+        while (true) {
+            if (state.orderBoolList.isNotEmpty()) {
+                if (state.orderBookMutableStateList.isEmpty()) {
+                    state.orderBookMutableStateList.addAll(state.orderBoolList)
+                } else {
+                    for (i in state.orderBoolList.indices) {
+                        state.orderBookMutableStateList[i] = state.orderBoolList[i]
+                    }
+                }
+            }
+            delay(15L)
+        }
+    }
+
     fun initAdjustCommission() {
         for (i in PREF_KEY_FEE_LIST.indices) {
             val fee = preferenceManager.getFloat(PREF_KEY_FEE_LIST[i])
@@ -319,33 +336,43 @@ class CoinOrder @Inject constructor(
             val modelJsonArray = model.getAsJsonArray("obu")
             if (!modelJsonArray.isJsonNull) {
                 val indices = modelJsonArray.size()
-                val temp = mutableStateListOf<CoinDetailOrderBookModel>()
+                val temp = ArrayList<CoinDetailOrderBookModel>()
                 val temp1 = ArrayList<CoinDetailOrderBookModel>()
                 val temp2 = ArrayList<CoinDetailOrderBookModel>()
                 for (i in indices - 1 downTo 0) {
                     val orderBookAskModel =
                         gson.fromJson(modelJsonArray[i], CoinDetailOrderBookAskModel::class.java)
-                    temp1.add(CoinDetailOrderBookModel(
-                        orderBookAskModel.ask_price,
-                        orderBookAskModel.ask_size,
-                        0
-                    ))
+                    temp1.add(
+                        CoinDetailOrderBookModel(
+                            orderBookAskModel.ask_price,
+                            orderBookAskModel.ask_size,
+                            0
+                        )
+                    )
                     index++
                 }
                 for (i in 0 until indices) {
                     val orderBookBidModel =
                         gson.fromJson(modelJsonArray[i], CoinDetailOrderBookBidModel::class.java)
-                    temp2.add(CoinDetailOrderBookModel(
-                        orderBookBidModel.bid_price,
-                        orderBookBidModel.bid_size,
-                        1
-                    ))
+                    temp2.add(
+                        CoinDetailOrderBookModel(
+                            orderBookBidModel.bid_price,
+                            orderBookBidModel.bid_size,
+                            1
+                        )
+                    )
                     index++
                 }
                 temp.addAll(temp1)
                 temp.addAll(temp2)
                 state.maxOrderBookSize.value = temp.maxOf { it.size }
-                state.orderBookMutableStateList.value = temp
+                if (state.orderBoolList.isEmpty()) {
+                    state.orderBoolList.addAll(temp)
+                } else {
+                    for (i in temp.indices) {
+                        state.orderBoolList[i] = temp[i]
+                    }
+                }
             }
         }
     }

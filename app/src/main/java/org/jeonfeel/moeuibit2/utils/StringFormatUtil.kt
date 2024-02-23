@@ -30,16 +30,24 @@ fun Double.secondDecimal(): String {
     return String.format("%.2f", this)
 }
 
-fun Double.sixthDecimal(): String {
-    return String.format("%.6f", this)
-}
-
 fun Double.thirdDecimal(): String {
     return String.format("%.3f", this)
 }
 
 fun Double.forthDecimal(): String {
     return String.format("%.4f", this)
+}
+
+fun Double.fiveDecimal(): String {
+    return String.format("%.5f", this)
+}
+
+fun Double.sixthDecimal(): String {
+    return String.format("%.6f", this)
+}
+
+fun Double.sevenDecimal(): String {
+    return String.format("%.7f", this)
 }
 
 fun Double.eighthDecimal(): String {
@@ -54,8 +62,24 @@ fun Float.secondDecimal(): String {
     return String.format("%.2f", this)
 }
 
+fun Float.thirdDecimal(): String {
+    return String.format("%.3f", this)
+}
+
 fun Float.forthDecimal(): String {
     return String.format("%.4f", this)
+}
+
+fun Float.fiveDecimal(): String {
+    return String.format("%.5f", this)
+}
+
+fun Float.sixthDecimal(): String {
+    return String.format("%.6f", this)
+}
+
+fun Float.sevenDecimal(): String {
+    return String.format("%.7f", this)
 }
 
 fun Float.eighthDecimal(): String {

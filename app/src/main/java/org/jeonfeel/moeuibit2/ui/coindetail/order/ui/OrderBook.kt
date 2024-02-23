@@ -52,8 +52,8 @@ fun AskingPriceLazyColumn(
         modifier = modifier.background(color = androidx.compose.material3.MaterialTheme.colorScheme.background),
         state = scrollState
     ) {
-        if (coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value.size >= 30) {
-            items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList.value) { item ->
+        if (coinDetailViewModel.coinOrder.state.orderBookMutableStateList.size >= 30) {
+            items(items = coinDetailViewModel.coinOrder.state.orderBookMutableStateList) { item ->
                 AskingPriceLazyColumnItem(
                     orderBook = item,
                     preClosingPrice = preClosingPrice,

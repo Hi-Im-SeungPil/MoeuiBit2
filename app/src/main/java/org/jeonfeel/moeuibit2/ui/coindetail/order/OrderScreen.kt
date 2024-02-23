@@ -24,6 +24,7 @@ fun OrderScreen(
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
+                coinDetailViewModel.cancelUpdateOrderBlockJob()
                 UpBitOrderBookWebSocket.temp = IS_ANOTHER_SCREEN
                 UpBitOrderBookWebSocket.onPause()
             }

@@ -1,6 +1,9 @@
 package org.jeonfeel.moeuibit2.ui.main
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -10,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -59,7 +64,9 @@ fun MainBottomNavigation(navController: NavController) {
                     Icon(
                         painterResource(id = item.icon),
                         contentDescription = item.title,
-                        modifier = Modifier.fillMaxSize(0.4f)
+                        modifier = Modifier
+                            .padding(vertical = 7.dp)
+                            .size(28.dp)
                     )
                 },
                 label = { Text(text = item.title, fontSize = DpToSp(dp = 13.dp)) },
@@ -126,4 +133,11 @@ fun MainNavigation(
             SettingScreen(settingViewModel)
         }
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun MainBottomNavigationPreview() {
+    val context = LocalContext.current
+    MainBottomNavigation(navController = NavController(context))
 }
