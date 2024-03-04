@@ -37,13 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.custom.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.utils.secondDecimal

@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.custom
+package org.jeonfeel.moeuibit2.ui.common
 
 import android.graphics.Rect
 import android.view.View

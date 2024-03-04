@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.viewmodels
+package org.jeonfeel.moeuibit2.ui.coindetail
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope

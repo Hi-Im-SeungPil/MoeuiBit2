@@ -32,10 +32,12 @@ fun AddLifecycleEvent(
     onResumeAction: (() -> Unit)? = null,
     onPauseAction: (() -> Unit)? = null,
     onStopAction: (() -> Unit)? = null,
+    onCreateAction: (() -> Unit)? = null,
     elseAction: (() -> Unit)? = null
 ) {
     OnLifecycleEvent { _, event ->
         when (event) {
+            Lifecycle.Event.ON_CREATE -> onCreateAction?.let { it() }
             Lifecycle.Event.ON_START -> onStartAction?.let { it() }
             Lifecycle.Event.ON_RESUME -> onResumeAction?.let { it() }
             Lifecycle.Event.ON_PAUSE -> onPauseAction?.let { it() }

@@ -16,21 +16,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun PortfolioScreen(
-    portfolioViewModel: PortfolioViewModel = viewModel()
+    portfolioViewModel: PortfolioViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val startForActivityResult =

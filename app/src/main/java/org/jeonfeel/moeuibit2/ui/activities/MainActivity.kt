@@ -4,16 +4,9 @@ import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -21,7 +14,6 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
@@ -29,12 +21,10 @@ import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
-import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
-import org.jeonfeel.moeuibit2.ui.main.MainNavigation
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
-import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
+import org.jeonfeel.moeuibit2.ui.main.MainViewModel
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
@@ -51,10 +41,13 @@ class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var preferenceManager: PreferenceManager
-    private lateinit var auth: FirebaseAuth
-    private val mainViewModel: MainViewModel by viewModels()
+//    private lateinit var auth: FirebaseAuth
+//    private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
+    }
+    private val networkErrorState by lazy {
+        mutableIntStateOf(INTERNET_CONNECTION)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,28 +56,8 @@ class MainActivity : BaseActivity() {
         initActivity()
         setContent {
             MainTheme(isMainActivity = true, content = {
-                MainScreen(mainViewModel)
+                MoeuiBitApp(networkErrorState)
             })
-        }
-    }
-
-    @Composable
-    private fun MainScreen(viewModel: MainViewModel) {
-        val navController = rememberNavController()
-        val scaffoldState = rememberScaffoldState()
-        Scaffold(
-            scaffoldState = scaffoldState,
-            bottomBar = { MainBottomNavigation(navController) },
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
-        ) { contentPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                MainNavigation(navController, viewModel)
-            }
         }
     }
 
@@ -92,11 +65,10 @@ class MainActivity : BaseActivity() {
      * 초기화
      */
     private fun initActivity() {
-        auth = Firebase.auth
-        if (auth.currentUser == null) {
-            auth.signInAnonymously()
-        }
-//        mainViewModel.requestUsdPrice()
+//        auth = Firebase.auth
+//        if (auth.currentUser == null) {
+//            auth.signInAnonymously()
+//        }
         initNetworkStateMonitor(
             connected5G = {
                 currentNetworkState = INTERNET_CONNECTION
@@ -105,7 +77,7 @@ class MainActivity : BaseActivity() {
                 currentNetworkState = INTERNET_CONNECTION
             },
             noInternetAction = {
-                mainViewModel.state.errorState.value = NO_INTERNET_CONNECTION
+                networkErrorState.value = NO_INTERNET_CONNECTION
                 UpBitTickerWebSocket.onPause()
                 UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
             }

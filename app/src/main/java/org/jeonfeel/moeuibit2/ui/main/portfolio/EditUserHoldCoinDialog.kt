@@ -18,12 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
 
 @Composable
 fun EditUserHoldCoinDialog(dialogState: MutableState<Boolean>, editUserHoldCoin: () -> Unit) {

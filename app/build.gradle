@@ -14,17 +14,14 @@ android {
         dataBinding = true
     }
 
-//    compileSdkVersion 34
-//    buildToolsVersion "30.0.3"
-
     defaultConfig {
         applicationId "org.jeonfeel.moeuibit2"
         minSdkVersion 26
         targetSdkVersion 34
         buildToolsVersion = "34.0.0"
         compileSdk 34
-        versionCode 25
-        versionName "2.2.8"
+        versionCode 26
+        versionName "2.2.9"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         kapt {
@@ -44,8 +41,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+//            minifyEnabled true
+//            shrinkResources true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -132,6 +129,7 @@ dependencies {
     //hilt
     implementation("com.google.dagger:hilt-android:2.44.2")
     kapt("com.google.dagger:hilt-android-compiler:2.44.2")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //compose
     implementation 'androidx.activity:activity-compose:1.8.2'

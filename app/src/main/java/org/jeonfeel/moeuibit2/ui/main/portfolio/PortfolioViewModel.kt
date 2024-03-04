@@ -1,9 +1,7 @@
-package org.jeonfeel.moeuibit2.ui.viewmodels
+package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import android.app.Activity
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -14,7 +12,6 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
@@ -45,7 +42,8 @@ class PortfolioState {
     val isPortfolioSocketRunning = mutableStateOf(true)
 }
 
-class PortfolioViewModel constructor(
+@HiltViewModel
+class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val adMobManager: AdMobManager
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
@@ -60,6 +58,7 @@ class PortfolioViewModel constructor(
         getUserSeedMoney()
         getUserHoldCoins()
     }
+
     private fun getUserSeedMoney() {
         viewModelScope.launch(ioDispatcher) {
             state.userSeedMoney.value = localRepository.getUserDao().all?.krw ?: 0L
@@ -142,21 +141,25 @@ class PortfolioViewModel constructor(
                         element.myCoinsKoreanName
                     }
                 }
+
                 SORT_NAME_ASC -> {
                     tempUserHoldCoinDtoList.sortByDescending { element ->
                         element.myCoinsKoreanName
                     }
                 }
+
                 SORT_RATE_ASC -> {
                     tempUserHoldCoinDtoList.sortByDescending { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
+
                 SORT_RATE_DEC -> {
                     tempUserHoldCoinDtoList.sortBy { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
+
                 else -> {
                     tempUserHoldCoinDtoList.sortBy { element ->
                         element.myCoinsKoreanName

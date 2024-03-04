@@ -1,10 +1,11 @@
-package org.jeonfeel.moeuibit2.ui.viewmodels
+package org.jeonfeel.moeuibit2.ui.main.setting
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
@@ -16,6 +17,7 @@ data class SettingScreenState(
     val openSourceState: MutableState<Boolean> = mutableStateOf(false)
 )
 
+@HiltViewModel
 class SettingViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     val preferenceManager: PreferenceManager

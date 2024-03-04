@@ -11,13 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
 
 @Composable
 fun CommonLoadingDialog(dialogState: MutableState<Boolean>, text: String) {

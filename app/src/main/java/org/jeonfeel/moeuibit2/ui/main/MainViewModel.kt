@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.viewmodels
+package org.jeonfeel.moeuibit2.ui.main
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

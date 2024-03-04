@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.custom
+package org.jeonfeel.moeuibit2.ui.common
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text

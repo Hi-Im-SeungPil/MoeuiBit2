@@ -1,5 +1,6 @@
-package org.jeonfeel.moeuibit2.ui.custom
+package org.jeonfeel.moeuibit2.ui.common
 
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -11,8 +12,11 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import org.jeonfeel.moeuibit2.ui.custom.rememberIsKeyboardOpen
+import com.orhanobut.logger.Logger
+import org.jeonfeel.moeuibit2.utils.showToast
+import kotlin.math.abs
 
 fun Modifier.drawUnderLine(
     lineColor: Color = Color.LightGray,
@@ -55,5 +59,53 @@ fun Modifier.clearFocusOnKeyboardDismiss(): Modifier = composed {
                 keyboardAppearedSinceLastFocused = false
             }
         }
+    }
+}
+
+@Composable
+fun Modifier.SwipeDetector(
+    onSwipeLeftAction: () -> Unit,
+    onSwipeRightAction: () -> Unit
+): Modifier = composed {
+    val offsetX = remember { mutableFloatStateOf(0f) }
+    val direction = remember { mutableIntStateOf(-1) }
+
+    this.pointerInput(Unit) {
+        detectDragGestures(
+            onDrag = { change, dragAmount ->
+                change.consume()
+                val (x, y) = dragAmount
+                if (abs(x) > abs(y)) {
+                    when {
+                        x > 0 -> {    //right
+                            offsetX.floatValue += x
+                            direction.intValue = 0
+                        }
+
+                        x < 0 -> {  // left
+                            offsetX.floatValue += x
+                            direction.intValue = 1
+                        }
+                    }
+                }
+            },
+            onDragEnd = {
+                when (direction.intValue) {
+                    0 -> {
+                        if (offsetX.floatValue > 180) {
+                            onSwipeLeftAction()
+                        }
+                        offsetX.floatValue = 0f
+                    }
+
+                    1 -> {
+                        if (offsetX.floatValue < -180) {
+                            onSwipeRightAction()
+                        }
+                        offsetX.floatValue = 0f
+                    }
+                }
+            }
+        )
     }
 }

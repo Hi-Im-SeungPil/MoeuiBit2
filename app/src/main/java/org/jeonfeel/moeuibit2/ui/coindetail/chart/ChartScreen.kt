@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -26,9 +25,9 @@ import org.jeonfeel.moeuibit2.constants.chartMinuteStrArray
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
-import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.Utils
 

@@ -12,11 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
-import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 
 @Composable
 fun PortfolioMainSortButtons(

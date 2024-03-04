@@ -37,7 +37,7 @@ import org.jeonfeel.moeuibit2.constants.apache2
 import org.jeonfeel.moeuibit2.constants.bsd_2
 import org.jeonfeel.moeuibit2.constants.bsd_3
 import org.jeonfeel.moeuibit2.constants.mit
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 
 @Composable

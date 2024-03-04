@@ -8,7 +8,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen

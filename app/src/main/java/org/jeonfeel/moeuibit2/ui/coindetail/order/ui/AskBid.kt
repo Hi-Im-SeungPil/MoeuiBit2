@@ -27,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -42,11 +41,11 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.custom.OrderScreenQuantityTextField
+import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.OrderScreenQuantityTextField
 import org.jeonfeel.moeuibit2.ui.theme.*
-import org.jeonfeel.moeuibit2.ui.viewmodels.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.utils.*
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator

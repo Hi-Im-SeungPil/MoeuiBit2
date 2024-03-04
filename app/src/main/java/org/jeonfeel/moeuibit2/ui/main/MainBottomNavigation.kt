@@ -1,9 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -17,26 +15,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.menuTitleArray
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreen
-import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
-import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.bottomNavigatorSelectedColor
-import org.jeonfeel.moeuibit2.ui.viewmodels.ExchangeViewModel
-import org.jeonfeel.moeuibit2.ui.viewmodels.MainViewModel
-import org.jeonfeel.moeuibit2.ui.viewmodels.PortfolioViewModel
-import org.jeonfeel.moeuibit2.ui.viewmodels.SettingViewModel
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
     object Exchange : MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, "exchange")
@@ -88,49 +74,6 @@ fun MainBottomNavigation(navController: NavController) {
                     }
                 }
             )
-        }
-    }
-}
-
-@Composable
-fun MainNavigation(
-    navController: NavHostController,
-    mainViewModel: MainViewModel
-) {
-    NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
-        composable(MainBottomNavItem.Exchange.screen_route) {
-            val exchangeViewModel: ExchangeViewModel = viewModel(
-                factory = ExchangeViewModel.provideFactory(
-                    mainViewModel.remoteRepository,
-                    mainViewModel.localRepository,
-                    mainViewModel.state.errorState
-                )
-            )
-            ExchangeScreen(
-                exchangeViewModel = exchangeViewModel,
-                errorState = mainViewModel.state.errorState
-            )
-        }
-        composable(MainBottomNavItem.CoinSite.screen_route) {
-            CoinSiteScreen()
-        }
-        composable(MainBottomNavItem.Portfolio.screen_route) {
-            val portfolioViewModel: PortfolioViewModel = viewModel(
-                factory = PortfolioViewModel.provideFactory(
-                    mainViewModel.adMobManager,
-                    mainViewModel.localRepository
-                )
-            )
-            PortfolioScreen(portfolioViewModel = portfolioViewModel)
-        }
-        composable(MainBottomNavItem.Setting.screen_route) {
-            val settingViewModel: SettingViewModel = viewModel(
-                factory = SettingViewModel.provideFactory(
-                    mainViewModel.localRepository,
-                    mainViewModel.preferenceManager
-                )
-            )
-            SettingScreen(settingViewModel)
         }
     }
 }

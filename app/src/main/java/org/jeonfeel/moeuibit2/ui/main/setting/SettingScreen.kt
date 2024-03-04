@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.ui.main.setting
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.view.Gravity
 import android.widget.ImageView
@@ -32,8 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat
-import androidx.core.widget.ImageViewCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonSizeSpec
@@ -41,12 +39,10 @@ import com.skydoves.balloon.showAlignBottom
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.viewmodels.SettingViewModel
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
 
 @Composable
-fun SettingScreen(settingViewModel: SettingViewModel) {
+fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val balloon = remember {
@@ -220,7 +216,9 @@ fun ResetDialog(
                     .wrapContentSize()
                     .padding(0.dp, 20.dp)
             ) {
-                Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background).wrapContentSize()) {
+                Column(modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .wrapContentSize()) {
                     Text(
                         text = stringResource(id = R.string.resetDialogTitle),
                         modifier = Modifier

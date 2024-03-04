@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.custom
+package org.jeonfeel.moeuibit2.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity

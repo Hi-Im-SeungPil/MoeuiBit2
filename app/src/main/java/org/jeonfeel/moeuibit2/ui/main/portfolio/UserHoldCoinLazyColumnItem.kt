@@ -11,22 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.usdPrice
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
-import org.jeonfeel.moeuibit2.ui.custom.AutoSizeText
-import org.jeonfeel.moeuibit2.ui.custom.DpToSp
-import org.jeonfeel.moeuibit2.ui.custom.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.utils.Utils.removeComma
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
@@ -139,7 +136,7 @@ fun UserHoldCoinLazyColumnItem(
                         AutoSizeText(
                             text = "= \$ ${
                                 CurrentCalculator.krwToUsd(
-                                    removeComma(valuationGainOrLoss).toDouble(), MoeuiBitDataStore.usdPrice
+                                    removeComma(valuationGainOrLoss).toDouble(), usdPrice
                                 )
                             }", modifier = Modifier
                                 .padding(0.dp, 0.dp, 0.dp, 4.dp)
