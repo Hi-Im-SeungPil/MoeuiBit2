@@ -2,16 +2,13 @@ package org.jeonfeel.moeuibit2.ui.main
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeRoute
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
-import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioViewModel
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
-import org.jeonfeel.moeuibit2.ui.main.setting.SettingViewModel
 
 @Composable
 fun MainBottomNavGraph(

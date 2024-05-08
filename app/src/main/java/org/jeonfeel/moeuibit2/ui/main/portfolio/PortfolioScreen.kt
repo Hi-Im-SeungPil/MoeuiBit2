@@ -17,7 +17,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -30,7 +29,7 @@ import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun PortfolioScreen(
-    portfolioViewModel: PortfolioViewModel = hiltViewModel()
+    viewModel: PortfolioViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val startForActivityResult =
@@ -40,42 +39,49 @@ fun PortfolioScreen(
                 if (resultData != null) {
                     val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
                     val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                    portfolioViewModel.updateFavorite(market = market, isFavorite = isFavorite)
+                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }
         }
-    ShowRemoveDialog(portfolioViewModel.state.removeCoinCount)
+    val holder = rememberPortfolioScreenStateHolder(
+        context = context,
+        resultLauncher = startForActivityResult,
+        adMobManager = viewModel.adMobManager,
+        errorReward = viewModel::errorReward,
+        earnReward = viewModel::earnReward,
+        btcTradePrice = viewModel.state.btcTradePrice
+    )
     EditUserHoldCoinDialog(
-        dialogState = portfolioViewModel.state.editHoldCoinDialogState,
-        editUserHoldCoin = portfolioViewModel::editUserHoldCoin
+        dialogState = holder.editHoldCoinDialogState,
+        editUserHoldCoin = viewModel::editUserHoldCoin
     )
     TwoButtonCommonDialog(
-        dialogState = portfolioViewModel.state.adConfirmDialogState,
+        dialogState = holder.adConfirmDialogState,
         title = stringResource(id = R.string.chargeMoney),
         content = stringResource(id = R.string.adDialogContent),
         leftButtonText = stringResource(id = R.string.commonCancel),
         rightButtonText = stringResource(id = R.string.commonAccept),
-        leftButtonAction = { portfolioViewModel.state.adConfirmDialogState.value = false },
+        leftButtonAction = { holder.adConfirmDialogState.value = false },
         rightButtonAction = {
-            portfolioViewModel.showAd(context)
-            portfolioViewModel.state.adConfirmDialogState.value = false
-            portfolioViewModel.state.adLoadingDialogState.value = true
+            holder.showAd()
+            holder.adConfirmDialogState.value = false
+            holder.adLoadingDialogState.value = true
         })
     CommonLoadingDialog(
-        portfolioViewModel.state.adLoadingDialogState,
+        holder.adLoadingDialogState,
         stringResource(id = R.string.loadAd)
     )
 
     AddLifecycleEvent(
         onPauseAction = {
             UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
-            portfolioViewModel.state.isPortfolioSocketRunning.value = false
+            viewModel.state.isPortfolioSocketRunning.value = false
             UpBitTickerWebSocket.onPause()
         },
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
                 UpBitTickerWebSocket.currentPage = IS_PORTFOLIO_SCREEN
-                portfolioViewModel.init()
+                viewModel.init()
             } else {
                 context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
             }
@@ -109,7 +115,7 @@ fun PortfolioScreen(
                     )
                 )
                 IconButton(onClick = {
-                    portfolioViewModel.state.editHoldCoinDialogState.value = true
+                    holder.editHoldCoinDialogState.value = true
                 }) {
                     Icon(
                         painterResource(id = R.drawable.img_eraser),
@@ -128,19 +134,20 @@ fun PortfolioScreen(
         ) {
             UserHoldCoinLazyColumn(
                 startForActivityResult = startForActivityResult,
-                columnItemDialogState = portfolioViewModel.state.columnItemDialogState,
-                portfolioOrderState = portfolioViewModel.state.portfolioOrderState,
-                totalValuedAssets = portfolioViewModel.state.totalValuedAssets,
-                totalPurchase = portfolioViewModel.state.totalPurchase,
-                userSeedMoney = portfolioViewModel.state.userSeedMoney,
-                adDialogState = portfolioViewModel.state.adConfirmDialogState,
-                pieChartState = portfolioViewModel.state.pieChartState,
-                userHoldCoinList = portfolioViewModel.userHoldCoinList,
-                userHoldCoinDTOList = portfolioViewModel.state.userHoldCoinDtoList.value,
-                selectedCoinKoreanName = portfolioViewModel.state.selectedCoinKoreanName,
-                btcTradePrice = portfolioViewModel.state.btcTradePrice,
-                isPortfolioSocketRunning = portfolioViewModel.state.isPortfolioSocketRunning,
-                sortUserHoldCoin = portfolioViewModel::sortUserHoldCoin
+                columnItemDialogState = holder.columnItemDialogState,
+                portfolioOrderState = viewModel.state.portfolioOrderState,
+                totalValuedAssets = viewModel.state.totalValuedAssets,
+                totalPurchase = viewModel.state.totalPurchase,
+                userSeedMoney = viewModel.state.userSeedMoney,
+                adDialogState = holder.adConfirmDialogState,
+                pieChartState = holder.pieChartState,
+                userHoldCoinList = viewModel.userHoldCoinList,
+                userHoldCoinDTOList = viewModel.state.userHoldCoinDtoList.value,
+                selectedCoinKoreanName = holder.selectedCoinKoreanName,
+                isPortfolioSocketRunning = viewModel.state.isPortfolioSocketRunning,
+                sortUserHoldCoin = viewModel::sortUserHoldCoin,
+                getUserCoinInfo = holder::getUserCoinResultMap,
+                getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap
             )
         }
     }

@@ -4,14 +4,23 @@ import java.text.DecimalFormat
 
 val commaFormat = DecimalFormat("###,###")
 val decimalFormat = DecimalFormat("###,###.##")
+val eightDecimalFormat = DecimalFormat("###,###.########")
 val percentFormat = DecimalFormat("0.00%")
 
 fun Long.commaFormat(): String {
     return commaFormat.format(this)
 }
 
+fun String.commaFormat(): String {
+    return commaFormat.format(this)
+}
+
 fun Int.commaFormat(): String {
     return commaFormat.format(this)
+}
+
+fun Double.eightDecimalCommaFormat(): String {
+    return eightDecimalFormat.format(this)
 }
 
 fun Double.commaDecimalFormat(): String {

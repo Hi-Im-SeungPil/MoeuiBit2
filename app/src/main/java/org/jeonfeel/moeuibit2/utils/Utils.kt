@@ -3,12 +3,16 @@ package org.jeonfeel.moeuibit2.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increase_color
+import org.json.JSONObject
 import java.util.*
 
 object Utils {
@@ -76,5 +80,17 @@ object Utils {
 
     fun getLocale() {
         MoeuiBitDataStore.isKor = Locale.getDefault().language == "ko"
+    }
+
+    fun extractCryptoKeysWithGson(json: JsonObject): List<String> {
+        val dataObject = json.getAsJsonObject("data")
+
+        val keyList = mutableListOf<String>()
+        for ((key, _) in dataObject.entrySet()) {
+            if (key != "date")
+            keyList.add(key)
+        }
+
+        return keyList
     }
 }

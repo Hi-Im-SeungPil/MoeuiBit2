@@ -17,9 +17,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
@@ -49,23 +53,14 @@ fun PortfolioMain(
     pieChartState: MutableState<Boolean>,
     userHoldCoinList: List<MyCoin?>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
-    isPortfolioSocketRunning: MutableState<Boolean>
+    isPortfolioSocketRunning: MutableState<Boolean>,
+    getPortFolioMainInfoMap: (
+        totalValuedAssets: MutableState<Double>,
+        totalPurchase: MutableState<Double>,
+        userSeedMoney: MutableState<Long>
+    ) -> Map<String, String>
 ) {
-    val calcTotalValuedAssets = Calculator.getDecimalFormat()
-        .format(round(totalValuedAssets.value).toLong())
-    val totalPurchaseValue =
-        Calculator.getDecimalFormat().format(round(totalPurchase.value).toLong())
-    val calcUserSeedMoney = Calculator.getDecimalFormat().format(userSeedMoney.value)
-    val totalHoldings = Calculator.getDecimalFormat()
-        .format(round(userSeedMoney.value + totalValuedAssets.value).toLong())
-    val valuationGainOrLoss = Calculator.getDecimalFormat()
-        .format(round(totalValuedAssets.value - totalPurchase.value).toLong())
-    val aReturn = if (totalValuedAssets.value == 0.0) {
-        "0"
-    } else {
-        ((totalValuedAssets.value - totalPurchase.value) / totalPurchase.value * 100).secondDecimal()
-    }
-
+    val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -125,7 +120,7 @@ fun PortfolioMain(
 //                        .align(Alignment.CenterVertically)
 //                        .padding(8.dp)
 //                        .clickable {
-//                            mainViewModel.test()
+//
 //                        },
 //                    style = TextStyle(
 //                        color = Color.Black,
@@ -140,46 +135,34 @@ fun PortfolioMain(
                 .wrapContentHeight()
                 .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
         ) {
-            val colorStandard = round(totalValuedAssets.value - totalPurchase.value).toLong()
-            if (MoeuiBitDataStore.isKor) {
-                PortfolioMainItem(
-                    text1 = stringResource(id = R.string.userSeedMoney),
-                    text2 = calcUserSeedMoney,
-                    text3 = stringResource(id = R.string.totalPurchaseValue),
-                    text4 = totalPurchaseValue,
-                    text5 = stringResource(id = R.string.totalValuedAssets),
-                    text6 = calcTotalValuedAssets,
-                    colorStandard = colorStandard
-                )
-                PortfolioMainItem(
-                    text1 = stringResource(id = R.string.totalHoldings),
-                    text2 = totalHoldings,
-                    text3 = stringResource(id = R.string.valuationGainOrLoss),
-                    text4 = valuationGainOrLoss,
-                    text5 = stringResource(id = R.string.aReturn),
-                    text6 = aReturn.plus("%"),
-                    colorStandard = colorStandard
-                )
-            } else {
-                PortfolioMainItemForEn(
-                    text1 = stringResource(id = R.string.userSeedMoney),
-                    text2 = calcUserSeedMoney,
-                    text3 = stringResource(id = R.string.totalPurchaseValue),
-                    text4 = totalPurchaseValue,
-                    text5 = stringResource(id = R.string.totalValuedAssets),
-                    text6 = calcTotalValuedAssets,
-                    colorStandard = colorStandard
-                )
-                PortfolioMainItemForEn(
-                    text1 = stringResource(id = R.string.totalHoldings),
-                    text2 = totalHoldings,
-                    text3 = stringResource(id = R.string.valuationGainOrLoss),
-                    text4 = valuationGainOrLoss,
-                    text5 = stringResource(id = R.string.aReturn),
-                    text6 = aReturn.plus("%"),
-                    colorStandard = colorStandard
-                )
-            }
+
+            PortfolioMainItem(
+                text1 = stringResource(id = R.string.userSeedMoney),
+                text2 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_CALC_USER_SEED_MONEY]
+                    ?: "",
+                text3 = stringResource(id = R.string.totalPurchaseValue),
+                text4 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_TOTAL_PURCHASE_VALUE]
+                    ?: "",
+                text5 = stringResource(id = R.string.totalValuedAssets),
+                text6 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_CALC_TOTAL_VALUED_ASSETS]
+                    ?: "",
+                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
+                    ?: 0L
+            )
+            PortfolioMainItem(
+                text1 = stringResource(id = R.string.totalHoldings),
+                text2 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_TOTAL_HOLDINGS]
+                    ?: "",
+                text3 = stringResource(id = R.string.valuationGainOrLoss),
+                text4 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_VALUATION_GAIN_OR_LOSE]
+                    ?: "",
+                text5 = stringResource(id = R.string.aReturn),
+                text6 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_A_RETURN]
+                    ?: "",
+                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
+                    ?: 0L
+            )
+
         }
         PortfolioPieChart(
             pieChartState = pieChartState,
@@ -298,161 +281,6 @@ fun RowScope.PortfolioMainItem(
 }
 
 @Composable
-fun RowScope.PortfolioMainItemForEn(
-    text1: String,
-    text2: String,
-    text3: String,
-    text4: String,
-    text5: String,
-    text6: String,
-    colorStandard: Long,
-) {
-    val textColor = getReturnTextColor(colorStandard, text5)
-    Column(
-        modifier = Modifier
-            .padding()
-            .wrapContentHeight()
-            .weight(2f, true)
-    ) {
-        Text(
-            text = text1,
-            modifier = Modifier
-                .padding(8.dp, 0.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            style = TextStyle(
-                color = Color.Black,
-                fontSize = DpToSp(18.dp),
-            )
-        )
-        AutoSizeText(
-            text = text2,
-            modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            textStyle = TextStyle(
-                fontSize = DpToSp(22.dp),
-                fontWeight = FontWeight.Bold
-            )
-        )
-        AutoSizeText(
-            text = "= \$ ${
-                CurrentCalculator.krwToUsd(
-                    Utils.removeComma(text2).toDouble(),
-                    MoeuiBitDataStore.usdPrice
-                )
-            }",
-            modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
-                .wrapContentHeight(),
-            textStyle = TextStyle(
-                fontSize = DpToSp(15.dp),
-                fontWeight = FontWeight.Bold
-            ),
-            color = Color.Gray
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 15.dp, 0.dp, 0.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text3,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(dp = 17.dp),
-                    textAlign = TextAlign.Center
-                )
-            )
-            AutoSizeText(
-                text = text4,
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15.dp),
-                    textAlign = TextAlign.End,
-                ),
-                color = textColor
-            )
-            AutoSizeText(
-                text = "= \$ ${
-                    CurrentCalculator.krwToUsd(
-                        Utils.removeComma(text4).toDouble(),
-                        MoeuiBitDataStore.usdPrice
-                    )
-                }",
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 13.dp),
-                    textAlign = TextAlign.End
-                ),
-                color = if (text3 == stringResource(id = R.string.totalPurchaseValue)) Color.Gray else textColor
-            )
-        }
-        Column(
-            modifier = Modifier
-                .padding(0.dp, 8.dp, 0.dp, 25.dp)
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = text5,
-                modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 0.dp)
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                style = TextStyle(
-                    color = Color.Black,
-                    fontSize = DpToSp(dp = 17.dp),
-                    textAlign = TextAlign.Center
-                )
-            )
-            AutoSizeText(
-                text = text6,
-                modifier = Modifier
-                    .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                textStyle = TextStyle(
-                    fontSize = DpToSp(dp = 15.dp),
-                    textAlign = TextAlign.End
-                ),
-                color = textColor
-            )
-            if (text5 != stringResource(id = R.string.aReturn)) {
-                AutoSizeText(
-                    text = "= \$ ${
-                        CurrentCalculator.krwToUsd(
-                            Utils.removeComma(text6).toDouble(),
-                            MoeuiBitDataStore.usdPrice
-                        )
-                    }",
-                    modifier = Modifier
-                        .padding(8.dp, 4.dp, 8.dp, 0.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    textStyle = TextStyle(
-                        fontSize = DpToSp(dp = 13.dp),
-                        textAlign = TextAlign.End
-                    ),
-                    color = Color.Gray
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
     return when (button) {
         PortfolioSortButton.BUTTON_NAME -> {
@@ -464,6 +292,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
+
                 1 -> {
                     listOf(
                         stringResource(id = R.string.nameUp),
@@ -471,6 +300,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
+
                 else -> {
                     listOf(
                         stringResource(id = R.string.nameUpDown),
@@ -480,6 +310,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 }
             }
         }
+
         PortfolioSortButton.BUTTON_RATE -> {
             when (textState) {
                 2 -> {
@@ -489,6 +320,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
+
                 3 -> {
                     listOf(
                         stringResource(id = R.string.aReturnUp),
@@ -496,6 +328,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
+
                 else -> {
                     listOf(
                         stringResource(id = R.string.aReturnUpDown),

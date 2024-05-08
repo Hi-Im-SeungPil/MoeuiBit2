@@ -1,15 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -37,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -47,9 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -57,7 +43,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.SYMBOL_USD
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.SwipeDetector
@@ -67,7 +53,6 @@ import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.lazyColumnItemUnderLineColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.showToast
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -82,33 +67,11 @@ fun ExchangeScreenLazyColumns(
     createCoinName: (String, String) -> AnnotatedString,
     changeSelectedMarketState: (Int) -> Unit,
     selectedMarketState: State<Int>,
-    pagerState: PagerState
 ) {
     val lazyColumnVisibility = remember {
         mutableStateOf(true)
     }
-    val removeAction = remember {
-        mutableStateOf(
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> -fullWidth }, // small slide 300px
-                animationSpec = tween(
-                    durationMillis = 300,
-                )
-            )
-        )
-    }
-    val enterAction = remember {
-        mutableStateOf(
-            slideInHorizontally(
-                initialOffsetX = { fullWidth ->
-                    -fullWidth
-                }, // small slide 300px
-                animationSpec = tween(
-                    durationMillis = 300,
-                )
-            )
-        )
-    }
+
     val coroutineScope = rememberCoroutineScope()
 
     when {
@@ -216,7 +179,6 @@ fun ExchangeScreenLazyColumnItem(
     lazyColumnItemClickAction: (CommonExchangeModel) -> Unit,
     createCoinName: (String, String) -> AnnotatedString
 ) {
-    val context = LocalContext.current
     val textColor = Utils.getIncreaseOrDecreaseColor(signedChangeRate.toFloat())
 
     Row(

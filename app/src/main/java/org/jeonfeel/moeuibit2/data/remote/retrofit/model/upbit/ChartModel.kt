@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.retrofit.model
+package org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

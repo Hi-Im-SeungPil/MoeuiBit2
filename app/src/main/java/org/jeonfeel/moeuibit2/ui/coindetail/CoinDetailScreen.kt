@@ -16,8 +16,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 

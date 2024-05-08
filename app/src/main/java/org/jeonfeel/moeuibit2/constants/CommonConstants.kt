@@ -69,6 +69,7 @@ const val retrofitBaseUrl = "https://api.upbit.com/"
 const val webSocketBaseUrl = "wss://api.upbit.com/websocket/v1"
 const val playStoreUrl = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
 const val coinImageUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
+const val bitthumbCoinNameUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
 
 fun twitterUrl(href: String): String =
     "<a class=\"twitter-timeline\" href=\"${href}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"

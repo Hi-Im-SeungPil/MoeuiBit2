@@ -1,12 +1,16 @@
 package org.jeonfeel.moeuibit2
 
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
-
 object MoeuiBitDataStore {
     var isKor = true
     var usdPrice = 1250.0
-    val coinName = HashMap<String,Pair<String,String>>()
-    val favoriteHashMap = HashMap<String,Int>()
-    var krwMarkets = HashMap<String,Int>()
-    var btcMarkets = HashMap<String,Int>()
+
+    val upBitCoinName = HashMap<String,Pair<String,String>>()
+    val upBitFavoriteHashMap = HashMap<String,Int>()
+    var upBitKrwMarkets = HashMap<String,Int>()
+    var upBitBtcMarkets = HashMap<String,Int>()
+
+    val bitThumbCoinName = HashMap<String,Pair<String,String>>()
+    val bitThumbFavoriteHashMap = HashMap<String,Int>()
+    var bitThumbKrwMarkets = HashMap<String,Int>()
+    var bitThumbBtcMarkets = HashMap<String,Int>()
 }

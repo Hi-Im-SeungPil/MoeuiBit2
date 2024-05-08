@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
-import android.app.Activity
-import android.content.Context
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -10,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
-import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
@@ -22,7 +20,6 @@ import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
-import org.jeonfeel.moeuibit2.utils.showToast
 import javax.inject.Inject
 
 class PortfolioState {
@@ -31,21 +28,15 @@ class PortfolioState {
     val userHoldCoinDtoList = mutableStateOf(SnapshotStateList<UserHoldCoinDTO>())
     val totalValuedAssets = mutableStateOf(0.0)
     var removeCoinCount = mutableStateOf(0)
-    val adLoadingDialogState = mutableStateOf(false)
-    val adConfirmDialogState = mutableStateOf(false)
-    val columnItemDialogState = mutableStateOf(false)
-    val editHoldCoinDialogState = mutableStateOf(false)
     val portfolioOrderState = mutableStateOf(-2)
-    val selectedCoinKoreanName = mutableStateOf("")
-    val pieChartState = mutableStateOf(false)
-    val btcTradePrice = mutableStateOf(0.0)
+    val btcTradePrice = mutableDoubleStateOf(0.0)
     val isPortfolioSocketRunning = mutableStateOf(true)
 }
 
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    private val adMobManager: AdMobManager
+    val adMobManager: AdMobManager
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()
@@ -74,7 +65,7 @@ class PortfolioViewModel @Inject constructor(
                     val userHoldCoin = userHoldCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
                     val market = userHoldCoin.market
                     val marketState = Utils.getSelectedMarket(market)
-                    val isFavorite = MoeuiBitDataStore.favoriteHashMap[market]
+                    val isFavorite = MoeuiBitDataStore.upBitFavoriteHashMap[market]
                     userHoldCoinHashMap[market] = userHoldCoin
                     localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
                         localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
@@ -85,9 +76,9 @@ class PortfolioViewModel @Inject constructor(
                     userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
                     tempUserHoldCoinDtoList.add(
                         UserHoldCoinDTO(
-                            myCoinsKoreanName = MoeuiBitDataStore.coinName[userHoldCoin.market]?.first
+                            myCoinsKoreanName = MoeuiBitDataStore.upBitCoinName[userHoldCoin.market]?.first
                                 ?: "",
-                            myCoinsEngName = MoeuiBitDataStore.coinName[userHoldCoin.market]?.second
+                            myCoinsEngName = MoeuiBitDataStore.upBitCoinName[userHoldCoin.market]?.second
                                 ?: "",
                             myCoinsSymbol = userHoldCoin.symbol,
                             myCoinsQuantity = 0.0,
@@ -101,7 +92,6 @@ class PortfolioViewModel @Inject constructor(
                         )
                     )
                 }
-//                swapList()
                 sortUserHoldCoin(SORT_DEFAULT)
                 if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                     userHoldCoinsMarket.append(BTC_MARKET)
@@ -188,9 +178,9 @@ class PortfolioViewModel @Inject constructor(
             } else {
                 for (i in userHoldCoinList) {
                     val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
-                        MoeuiBitDataStore.krwMarkets
+                        MoeuiBitDataStore.upBitKrwMarkets
                     } else {
-                        MoeuiBitDataStore.btcMarkets
+                        MoeuiBitDataStore.upBitBtcMarkets
                     }
                     if (targetList[i.market] == null) {
                         localRepository.getFavoriteDao().delete(i.market)
@@ -238,37 +228,13 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    fun showAd(context: Context) {
-        adMobManager.loadRewardVideoAd(
-            activity = context as Activity,
-            onAdLoaded = {
-                state.adLoadingDialogState.value = false
-            },
-            onAdFailedToLoad = {
-                context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
-                state.adLoadingDialogState.value = false
-            },
-            fullScreenOnAdLoad = {
-                state.adLoadingDialogState.value = false
-            },
-            fullScreenOnAdFailedToLoad = {
-                context.showToast(context.getString(R.string.adLoadError))
-                errorReward()
-                state.adLoadingDialogState.value = false
-            },
-            rewardListener = {
-                earnReward()
-            }
-        )
-    }
-
     private fun swapList() {
         val tempList = mutableStateListOf<UserHoldCoinDTO>()
         tempList.addAll(tempUserHoldCoinDtoList)
         state.userHoldCoinDtoList.value = tempList
     }
 
-    private fun earnReward() {
+    fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {
@@ -279,7 +245,7 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    private fun errorReward() {
+    fun errorReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = localRepository.getUserDao()
             if (userDao.all == null) {
@@ -294,8 +260,8 @@ class PortfolioViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             if (market.isNotEmpty()) {
                 when {
-                    MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
-                        MoeuiBitDataStore.favoriteHashMap[market] = 0
+                    MoeuiBitDataStore.upBitFavoriteHashMap[market] == null && isFavorite -> {
+                        MoeuiBitDataStore.upBitFavoriteHashMap[market] = 0
                         try {
                             localRepository.getFavoriteDao().insert(market)
                         } catch (e: Exception) {
@@ -303,8 +269,8 @@ class PortfolioViewModel @Inject constructor(
                         }
                     }
 
-                    MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
-                        MoeuiBitDataStore.favoriteHashMap.remove(market)
+                    MoeuiBitDataStore.upBitFavoriteHashMap[market] != null && !isFavorite -> {
+                        MoeuiBitDataStore.upBitFavoriteHashMap.remove(market)
                         try {
                             localRepository.getFavoriteDao().delete(market)
                         } catch (e: Exception) {
@@ -320,18 +286,18 @@ class PortfolioViewModel @Inject constructor(
         if (state.isPortfolioSocketRunning.value && UpBitTickerWebSocket.currentPage == IS_PORTFOLIO_SCREEN) {
             val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
             if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
-                state.btcTradePrice.value = model.tradePrice
+                state.btcTradePrice.doubleValue = model.tradePrice
                 return
             } else if (model.code == BTC_MARKET) {
-                state.btcTradePrice.value = model.tradePrice
+                state.btcTradePrice.doubleValue = model.tradePrice
             }
             val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
             val userHoldCoin = userHoldCoinHashMap[model.code]!!
-            val isFavorite = MoeuiBitDataStore.favoriteHashMap[model.code]
+            val isFavorite = MoeuiBitDataStore.upBitFavoriteHashMap[model.code]
             tempUserHoldCoinDtoList[position] =
                 UserHoldCoinDTO(
-                    myCoinsKoreanName = MoeuiBitDataStore.coinName[model.code]?.first ?: "",
-                    myCoinsEngName = MoeuiBitDataStore.coinName[model.code]?.second ?: "",
+                    myCoinsKoreanName = MoeuiBitDataStore.upBitCoinName[model.code]?.first ?: "",
+                    myCoinsEngName = MoeuiBitDataStore.upBitCoinName[model.code]?.second ?: "",
                     myCoinsSymbol = userHoldCoin.symbol,
                     myCoinsQuantity = userHoldCoin.quantity,
                     myCoinsBuyingAverage = userHoldCoin.purchasePrice,
@@ -346,15 +312,6 @@ class PortfolioViewModel @Inject constructor(
     }
 
     companion object {
-        fun provideFactory(
-            adMobManager: AdMobManager,
-            localRepository: LocalRepository,
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return PortfolioViewModel(localRepository, adMobManager) as T
-            }
-        }
 
         const val SORT_DEFAULT = -1
         const val SORT_NAME_DEC = 0

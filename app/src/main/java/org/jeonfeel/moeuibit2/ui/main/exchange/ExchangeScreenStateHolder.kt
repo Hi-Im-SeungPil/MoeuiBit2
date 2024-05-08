@@ -5,17 +5,14 @@ import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,12 +40,10 @@ import org.jeonfeel.moeuibit2.constants.SORT_PRICE_ASC
 import org.jeonfeel.moeuibit2.constants.SORT_PRICE_DEC
 import org.jeonfeel.moeuibit2.constants.SORT_RATE_ASC
 import org.jeonfeel.moeuibit2.constants.SORT_RATE_DEC
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
-import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
 enum class SortButtons {
     SortPriceButton, SortRateButton, SortAmountButton
@@ -252,7 +247,7 @@ class ExchangeScreenStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             putExtra(INTENT_OPENING_PRICE, commonExchangeModel.opening_price)
             putExtra(
                 INTENT_IS_FAVORITE,
-                MoeuiBitDataStore.favoriteHashMap[commonExchangeModel.market] != null
+                MoeuiBitDataStore.upBitFavoriteHashMap[commonExchangeModel.market] != null
             )
             putExtra(INTENT_MARKET_STATE, marketState)
             putExtra(INTENT_WARNING, commonExchangeModel.warning)

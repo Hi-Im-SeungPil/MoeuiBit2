@@ -1,12 +1,12 @@
 package org.jeonfeel.moeuibit2.data.repository.remote
 
-import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BinanceService
+import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import retrofit2.Response
@@ -15,6 +15,7 @@ class RemoteRepository(
     private val upBitService: UpBitService,
     private val usdtService: USDTService,
     private val binanceService: BinanceService,
+    private val bitThumbService: BitThumbService
 ) {
 
     private fun <T> call(response: Response<T>): ApiResult<T> {
@@ -54,13 +55,38 @@ class RemoteRepository(
     }
 
     /**
-     * 마켓코드 요청
+     * 업비트 마켓코드 요청
      */
-    suspend fun getMarketCodeService(): Flow<ApiResult<JsonArray>> {
+    suspend fun getUpbitMarketCodeService(): Flow<ApiResult<JsonArray>> {
         return flow {
             emit(ApiResult.loading())
             try {
                 emit(call(upBitService.getMarketCode()))
+            } catch (e: Exception) {
+                emit(ApiResult.error(e))
+            }
+        }
+    }
+
+    /**
+     * 빗썸 마켓코드 요청
+     */
+    suspend fun getBitThumbKRWMarketCodeService(): Flow<ApiResult<JsonObject>> {
+        return flow {
+            emit(ApiResult.loading())
+            try {
+                emit(call(bitThumbService.getMarketCode()))
+            } catch (e: Exception) {
+                emit(ApiResult.error(e))
+            }
+        }
+    }
+
+    suspend fun getBitthumbCoinNameService(): Flow<ApiResult<JsonObject>> {
+        return flow {
+            emit(ApiResult.loading())
+            try {
+                emit(call(bitThumbService.getCoinName()))
             } catch (e: Exception) {
                 emit(ApiResult.error(e))
             }

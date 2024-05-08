@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,9 +12,8 @@ import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
-import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.ChartModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*

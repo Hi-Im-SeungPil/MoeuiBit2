@@ -8,6 +8,7 @@ import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.retrofitBaseUrl
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BinanceService
+import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
@@ -64,7 +65,18 @@ class RemoteModule {
 
     @Singleton
     @Provides
-    fun provideRemoteRepository(upBitService: UpBitService, usdtService: USDTService, binanceService: BinanceService): RemoteRepository {
-        return RemoteRepository(upBitService, usdtService, binanceService)
+    fun provideBitThumbService(retrofit: Retrofit): BitThumbService {
+        return retrofit.create(BitThumbService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRemoteRepository(
+        upBitService: UpBitService,
+        usdtService: USDTService,
+        binanceService: BinanceService,
+        bitThumbService: BitThumbService
+    ): RemoteRepository {
+        return RemoteRepository(upBitService, usdtService, binanceService, bitThumbService)
     }
 }

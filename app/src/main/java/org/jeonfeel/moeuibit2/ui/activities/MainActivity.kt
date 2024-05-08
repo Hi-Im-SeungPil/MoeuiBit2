@@ -14,6 +14,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
@@ -97,6 +98,7 @@ class MainActivity : BaseActivity() {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }.addOnFailureListener {
+            Logger.e(it.message.toString())
             this.showToast(this.getString(R.string.updateFail))
         }.addOnCanceledListener {
             this.showToast(this.getString(R.string.updateFail))

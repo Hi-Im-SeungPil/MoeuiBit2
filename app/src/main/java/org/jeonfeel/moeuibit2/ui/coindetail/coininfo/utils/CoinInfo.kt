@@ -7,6 +7,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 
@@ -46,6 +47,8 @@ class CoinInfo {
                         coinInfoHashMap[INFO_INFO_KEY] = info
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     }
+
+
                     state.coinInfoDialog.value = false
                     state.coinInfoLoading.value = true
                 }

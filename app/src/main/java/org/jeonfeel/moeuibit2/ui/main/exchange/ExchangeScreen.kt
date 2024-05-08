@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -33,7 +33,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -54,19 +57,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.google.accompanist.pager.rememberPagerState
 import com.orhanobut.logger.Logger
+import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
 import org.jeonfeel.moeuibit2.constants.IS_EXCHANGE_SCREEN
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -145,10 +151,11 @@ fun ExchangeRoute(
                 filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
                 preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
                 loadingFavorite = viewModel.getFavoriteLoadingState(),
-                btcPrice = viewModel.btcPrice,
+                btcPrice = viewModel.getBtcPrice(),
                 checkErrorScreen = viewModel::checkErrorScreen,
                 changeSelectedMarketState = viewModel::changeSelectedMarketState,
-                updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState
+                updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
+                currentRootExchange = viewModel.currentRootExchange
             )
         }
     }
@@ -165,7 +172,8 @@ private fun Exchange(
     btcPrice: State<Double>,
     checkErrorScreen: () -> Unit,
     changeSelectedMarketState: (Int) -> Unit,
-    updateIsExchangeUpdate: (Boolean) -> Unit
+    updateIsExchangeUpdate: (Boolean) -> Unit,
+    currentRootExchange: State<String>
 ) {
     Column(
         modifier = Modifier
@@ -181,7 +189,8 @@ private fun Exchange(
                 selectedMarketState = stateHolder.selectedMarketState,
                 pagerState = stateHolder.pagerState,
                 tabTitleList = stateHolder.tabTitleList,
-                changeSelectedMarketState = changeSelectedMarketState
+                changeSelectedMarketState = changeSelectedMarketState,
+                currentRootExchange = currentRootExchange
             )
             ExchangeSortButtons(
                 sortButtonClickAction = stateHolder::sortButtonClickAction,
@@ -199,7 +208,6 @@ private fun Exchange(
                 createCoinName = stateHolder::createCoinName,
                 changeSelectedMarketState = changeSelectedMarketState,
                 selectedMarketState = stateHolder.selectedMarketState,
-                pagerState = stateHolder.pagerState,
             )
         } else {
             updateIsExchangeUpdate(false)
@@ -254,8 +262,20 @@ private fun MarketButtons(
     selectedMarketState: State<Int>,
     pagerState: PagerState,
     tabTitleList: List<String>,
-    changeSelectedMarketState: (Int) -> Unit
+    changeSelectedMarketState: (Int) -> Unit,
+//    changeRootExchangeAction: (String) -> Unit,
+    currentRootExchange: State<String>
 ) {
+    val changeRootExchangeDialogState = remember {
+        mutableStateOf(false)
+    }
+    val menuList = remember {
+        listOf(
+            Pair("업비트", R.drawable.img_up_bit),
+            Pair("빗썸", R.drawable.img_bit_thumb)
+        )
+    }
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -296,7 +316,24 @@ private fun MarketButtons(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable {
+                    changeRootExchangeDialogState.value = true
+                }
+            ) {
+                GlideImage(
+                    imageModel = if (currentRootExchange.value == "bitThumb") menuList[1].second else menuList[0].second,
+                    modifier = Modifier.size(28.dp)
+                )
+                Text(
+                    text = if (currentRootExchange.value == "bitThumb") menuList[1].first else menuList[0].first,
+                    style = TextStyle(
+                        fontSize = 24.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                )
+            }
         }
     }
 }
@@ -446,6 +483,103 @@ private fun RowScope.SortButton(
             fontSize = DpToSp(dp = 13.dp),
             textAlign = TextAlign.Center
         ))
+}
+
+@Composable
+fun RootExchangeDialog(
+    dialogState: MutableState<Boolean>,
+    getRootExchange: () -> String,
+    setRootExchange: (String) -> Unit
+) {
+    val menuList = remember {
+        listOf(
+            Pair("업비트", R.drawable.img_up_bit),
+            Pair("빗썸", R.drawable.img_bit_thumb)
+        )
+    }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(menuList[0].first) }
+
+    if (dialogState.value) {
+        Dialog(onDismissRequest = {
+            dialogState.value
+        }) {
+            LaunchedEffect(key1 = dialogState.value) {
+                when (getRootExchange()) {
+                    ExchangeViewModel.ROOT_EXCHANGE_UPBIT -> onOptionSelected(menuList[0].first)
+                    ExchangeViewModel.ROOT_EXCHANGE_BITTHUMB -> onOptionSelected(menuList[1].first)
+                    else -> onOptionSelected(menuList[0].first)
+                }
+            }
+
+            Card {
+                Column {
+                    menuList.forEach { list ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = (list.first == selectedOption), onClick = {
+                                    onOptionSelected(list.first)
+                                })
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            RadioButton(
+                                selected = list.first == selectedOption,
+                                onClick = { onOptionSelected(list.first) })
+                            Text(
+                                text = list.first,
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .align(Alignment.CenterVertically),
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
+                            )
+                        }
+                    }
+                    Row {
+                        TextButton(
+                            onClick = {
+                                val selectedText =
+                                    when (getRootExchange()) {
+                                        ExchangeViewModel.ROOT_EXCHANGE_UPBIT -> menuList[0].first
+                                        ExchangeViewModel.ROOT_EXCHANGE_BITTHUMB -> menuList[1].first
+                                        else -> menuList[0].first
+                                    }
+                                onOptionSelected(selectedText)
+                                dialogState.value = false
+                            }, modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.cancel), style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
+                            )
+                        }
+                        TextButton(onClick = {
+                            setRootExchange(selectedOption)
+                            dialogState.value = false
+                        }, modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.confirm),
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(
+                                        dp = 15.dp
+                                    )
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private object NoRippleTheme : RippleTheme {

@@ -31,16 +31,16 @@ class MainViewModel @Inject constructor(
     fun updateFavorite(market: String, isFavorite: Boolean) {
         viewModelScope.launch(ioDispatcher) {
             when {
-                MoeuiBitDataStore.favoriteHashMap[market] == null && isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap[market] = 0
+                MoeuiBitDataStore.upBitFavoriteHashMap[market] == null && isFavorite -> {
+                    MoeuiBitDataStore.upBitFavoriteHashMap[market] = 0
                     try {
                         localRepository.getFavoriteDao().insert(market)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
-                MoeuiBitDataStore.favoriteHashMap[market] != null && !isFavorite -> {
-                    MoeuiBitDataStore.favoriteHashMap.remove(market)
+                MoeuiBitDataStore.upBitFavoriteHashMap[market] != null && !isFavorite -> {
+                    MoeuiBitDataStore.upBitFavoriteHashMap.remove(market)
                     try {
                         localRepository.getFavoriteDao().delete(market)
                     } catch (e: Exception) {
