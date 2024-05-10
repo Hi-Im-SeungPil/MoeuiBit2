@@ -66,15 +66,17 @@ const val ASK = "ask"
 const val BID = "bid"
 
 const val retrofitBaseUrl = "https://api.upbit.com/"
-const val webSocketBaseUrl = "wss://api.upbit.com/websocket/v1"
+const val upbitWebSocketBaseUrl = "wss://api.upbit.com/websocket/v1"
+const val bitthumbWebSocketBaseUrl = "wss://pubwss.bithumb.com/pub/ws"
 const val playStoreUrl = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
 const val coinImageUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
 const val bitthumbCoinNameUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
 
 fun twitterUrl(href: String): String =
     "<a class=\"twitter-timeline\" href=\"${href}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"
-fun orderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
-fun tickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]},{"format":"SIMPLE"}]"""
+fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
+fun upbitTickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]},{"format":"SIMPLE"}]"""
+fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["24H"]}"""
 
 val chartMinuteArray = arrayOf("1","3","5","10","15","30","60","240")
 val chartMinuteStrArray = arrayOf("1분","3분","5분","10분","15분","30분","60분","240분")

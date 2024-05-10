@@ -12,8 +12,8 @@ import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookAskModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookBidModel

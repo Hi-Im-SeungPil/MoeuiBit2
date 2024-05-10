@@ -73,7 +73,7 @@ import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
 import org.jeonfeel.moeuibit2.constants.IS_EXCHANGE_SCREEN
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss

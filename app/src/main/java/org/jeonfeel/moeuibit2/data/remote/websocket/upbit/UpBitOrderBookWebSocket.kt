@@ -1,12 +1,10 @@
-package org.jeonfeel.moeuibit2.data.remote.websocket
+package org.jeonfeel.moeuibit2.data.remote.websocket.upbit
 
-import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitOrderBookWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
-import java.net.SocketTimeoutException
 
 object UpBitOrderBookWebSocket {
 
@@ -20,7 +18,7 @@ object UpBitOrderBookWebSocket {
         .writeTimeout(timeOutDuration)
         .build()
     private val request = Request.Builder()
-        .url(webSocketBaseUrl)
+        .url(upbitWebSocketBaseUrl)
         .build()
     private val socketListener = UpBitOrderBookWebSocketListener()
     var socket = client.newWebSocket(request, socketListener)
@@ -32,7 +30,7 @@ object UpBitOrderBookWebSocket {
 
     fun requestOrderBookList(market: String) {
         try {
-            socket.send(orderBookWebSocketMessage(market))
+            socket.send(upbitOrderBookWebSocketMessage(market))
             currentSocketState = SOCKET_IS_CONNECTED
         } catch (e: Exception) {
             onlyRebuildSocket()
@@ -61,7 +59,7 @@ object UpBitOrderBookWebSocket {
 
     fun onPause() {
         try {
-            socket.send(orderBookWebSocketMessage("pause"))
+            socket.send(upbitOrderBookWebSocketMessage("pause"))
             currentSocketState = SOCKET_IS_ON_PAUSE
         } catch (e: Exception) {
             onlyRebuildSocket()

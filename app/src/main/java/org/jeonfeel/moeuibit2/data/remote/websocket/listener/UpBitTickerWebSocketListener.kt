@@ -7,7 +7,8 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 
 class UpBitTickerWebSocketListener : WebSocketListener() {
 
@@ -26,12 +27,14 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
+        Logger.e(text)
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
 //        Logger.e("exchange  =>  ${bytes.string(Charsets.UTF_8)}")
-        UpBitTickerWebSocket.message(bytes.string(Charsets.UTF_8))
+        Logger.e(bytes.string(Charsets.UTF_8))
+//        BitthumbTickerWebSocket.message(bytes.string(Charsets.UTF_8))
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {

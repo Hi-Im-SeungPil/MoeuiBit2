@@ -29,7 +29,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeMod
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.TickerModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository

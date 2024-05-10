@@ -75,13 +75,30 @@ class RemoteRepository(
         return flow {
             emit(ApiResult.loading())
             try {
-                emit(call(bitThumbService.getMarketCode()))
+                emit(call(bitThumbService.getKRWMarketCode()))
             } catch (e: Exception) {
                 emit(ApiResult.error(e))
             }
         }
     }
 
+    /**
+     * 빗썸 마켓코드 요청
+     */
+    suspend fun getBitThumbBTCMarketCodeService(): Flow<ApiResult<JsonObject>> {
+        return flow {
+            emit(ApiResult.loading())
+            try {
+                emit(call(bitThumbService.getBTCMarketCode()))
+            } catch (e: Exception) {
+                emit(ApiResult.error(e))
+            }
+        }
+    }
+
+    /**
+     * 빗썸 코인 이름 요청
+     */
     suspend fun getBitthumbCoinNameService(): Flow<ApiResult<JsonObject>> {
         return flow {
             emit(ApiResult.loading())

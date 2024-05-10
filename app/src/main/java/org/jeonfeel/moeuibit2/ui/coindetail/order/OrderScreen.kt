@@ -12,7 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.AskingPriceLazyColumn
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.OrderScreenAskBid
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent

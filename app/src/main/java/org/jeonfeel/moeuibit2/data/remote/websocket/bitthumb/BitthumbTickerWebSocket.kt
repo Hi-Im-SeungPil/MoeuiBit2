@@ -1,17 +1,29 @@
-package org.jeonfeel.moeuibit2.data.remote.websocket
+package org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb
 
 import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnCoinDetailMessageReceiveListener
+import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.IS_DETAIL_SCREEN
+import org.jeonfeel.moeuibit2.constants.IS_EXCHANGE_SCREEN
+import org.jeonfeel.moeuibit2.constants.IS_PORTFOLIO_SCREEN
+import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
+import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
+import org.jeonfeel.moeuibit2.constants.SOCKET_IS_ON_PAUSE
+import org.jeonfeel.moeuibit2.constants.bitthumbTickerWebSocketMessage
+import org.jeonfeel.moeuibit2.constants.bitthumbWebSocketBaseUrl
+import org.jeonfeel.moeuibit2.constants.readTimeOutDuration
+import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
+import org.jeonfeel.moeuibit2.constants.timeOutDuration
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.PortfolioOnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
-import java.net.SocketTimeoutException
 
-object UpBitTickerWebSocket {
+object BitthumbTickerWebSocket {
 
     var currentSocketState = SOCKET_IS_CONNECTED
 
@@ -33,11 +45,15 @@ object UpBitTickerWebSocket {
         .readTimeout(readTimeOutDuration)
         .writeTimeout(timeOutDuration)
         .build()
+
     private val request = Request.Builder()
-        .url(webSocketBaseUrl)
+        .url(bitthumbWebSocketBaseUrl)
         .build()
     private val socketListener = UpBitTickerWebSocketListener()
-    var socket = client.newWebSocket(request, socketListener)
+    var socket = client.newWebSocket(
+        request,
+        socketListener
+    )
 
     fun getListener(): UpBitTickerWebSocketListener {
         return socketListener
@@ -50,17 +66,18 @@ object UpBitTickerWebSocket {
             if (currentSocketState != SOCKET_IS_FAILURE) {
                 when (marketState) {
                     SELECTED_KRW_MARKET -> {
-                        socket.send(tickerWebSocketMessage(krwMarkets))
+                        Logger.e(krwMarkets)
+                        socket.send(bitthumbTickerWebSocketMessage(krwMarkets))
                         currentMarket = SELECTED_KRW_MARKET
                     }
 
                     SELECTED_BTC_MARKET -> {
-                        socket.send(tickerWebSocketMessage(btcMarkets))
+                        socket.send(bitthumbTickerWebSocketMessage(btcMarkets))
                         currentMarket = SELECTED_BTC_MARKET
                     }
 
                     SELECTED_FAVORITE -> {
-                        socket.send(tickerWebSocketMessage(favoriteMarkets))
+                        socket.send(bitthumbTickerWebSocketMessage(favoriteMarkets))
                         currentMarket = SELECTED_FAVORITE
                     }
                 }
@@ -81,7 +98,8 @@ object UpBitTickerWebSocket {
     fun requestTicker(market: String) {
         try {
             currentSocketState = SOCKET_IS_CONNECTED
-            socket.send(tickerWebSocketMessage(market))
+            socket.send(bitthumbTickerWebSocketMessage(market))
+            Logger.e(market)
         } catch (e: Exception) {
             onlyRebuildSocket()
         }
@@ -89,7 +107,7 @@ object UpBitTickerWebSocket {
 
     fun onPause() {
         try {
-            socket.send(tickerWebSocketMessage("pause"))
+            socket.send(bitthumbTickerWebSocketMessage("pause"))
             currentSocketState = SOCKET_IS_ON_PAUSE
         } catch (e: Exception) {
             onlyRebuildSocket()
@@ -99,7 +117,10 @@ object UpBitTickerWebSocket {
     fun rebuildSocket() {
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
             socket.cancel()
-            socket = client.newWebSocket(request, socketListener)
+            socket = client.newWebSocket(
+                request,
+                socketListener
+            )
             currentSocketState = SOCKET_IS_CONNECTED
             when (currentPage) {
                 IS_EXCHANGE_SCREEN -> {
@@ -120,13 +141,16 @@ object UpBitTickerWebSocket {
     fun onlyRebuildSocket() {
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
             socket.cancel()
-            socket = client.newWebSocket(request, socketListener)
+            socket = client.newWebSocket(
+            request,
+            socketListener
+            )
             currentSocketState = SOCKET_IS_CONNECTED
         }
     }
 
     fun setFavoriteMarkets(markets: String) {
-        this.favoriteMarkets = markets
+        favoriteMarkets = markets
     }
 
     fun message(message: String) {
@@ -136,11 +160,11 @@ object UpBitTickerWebSocket {
             }
 
             IS_DETAIL_SCREEN -> {
-                coinDetailListener?.onTickerMessageReceiveListener(message)
+//                coinDetailListener?.onTickerMessageReceiveListener(message)
             }
 
             IS_PORTFOLIO_SCREEN -> {
-                portfolioListener?.onTickerMessageReceiveListener(message)
+//                portfolioListener?.onTickerMessageReceiveListener(message)
             }
         }
     }

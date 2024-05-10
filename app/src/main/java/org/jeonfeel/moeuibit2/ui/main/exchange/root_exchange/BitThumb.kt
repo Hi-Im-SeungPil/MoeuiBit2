@@ -18,7 +18,9 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbCommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.MarketCodeModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
@@ -59,18 +61,16 @@ class BitThumb(
     suspend fun initBitThumbData() {
         if (krwMarketCodeList.isEmpty()
 //            || btcMarketCodeList.isEmpty()
-            ) {
+        ) {
             requestCoinName()
             requestKRWMarketCode()
-//            requestBTCMarketCode()
-//            requestKrwTicker(krwMarketListStringBuffer.toString())
-//            requestBtcTicker(btcMarketListStringBuffer.toString())
+            requestBTCMarketCode()
             withContext(ioDispatcher) {
 //                initFavoriteData()
             }
         }
 //        setSocketFavoriteData()
-//        requestCoinListToWebSocket()
+        requestCoinListToWebSocket()
     }
 
     private suspend fun requestCoinName() {
@@ -80,6 +80,7 @@ class BitThumb(
                 ApiResult.Status.SUCCESS -> {
                     bitthumbCoinNameJson = it.data
                 }
+
                 ApiResult.Status.API_ERROR -> {
                     changeNetworkState(NETWORK_ERROR)
                 }
@@ -100,7 +101,7 @@ class BitThumb(
             when (it.status) {
                 ApiResult.Status.LOADING -> {}
                 ApiResult.Status.SUCCESS -> {
-//                    try {
+                    try {
                         val data = it.data ?: JsonObject()
                         val marketCodeList: List<String> = Utils.extractCryptoKeysWithGson(data)
 //                        Logger.e(data.toString())
@@ -110,6 +111,7 @@ class BitThumb(
                             val marketCode = marketCodeList[i]
                             val dataObject = data["data"] as JsonObject
                             val coinNames = parseCoinName(marketCode = marketCode)
+                            MoeuiBitDataStore.bitThumbCoinName[marketCode] = coinNames
                             val bitthumbCommonExchangeModel = gson.fromJson(
                                 dataObject[marketCode],
                                 BitthumbCommonExchangeModel::class.java
@@ -119,7 +121,7 @@ class BitThumb(
                                 this.koreanName = coinNames.first
                                 this.englishName = coinNames.second
                             }
-                            krwMarketListStringBuffer.append("${marketCode},")
+                            krwMarketListStringBuffer.append("${marketCode}_KRW,")
                             krwMarketCodeList.add(
                                 MarketCodeModel(
                                     market = "KRW-$marketCode",
@@ -154,10 +156,10 @@ class BitThumb(
                         krwPreItemArray.addAll(krwExchangeModelList)
 
                         Logger.e("list -> ${krwExchangeModelList.toString()}")
-//                    } catch (e: Exception) {
-//                        Logger.e("error -> ${e.message}")
-//                        changeNetworkState(NETWORK_ERROR)
-//                    }
+                    } catch (e: Exception) {
+                        Logger.e("error -> ${e.message}")
+                        changeNetworkState(NETWORK_ERROR)
+                    }
                 }
 
                 ApiResult.Status.API_ERROR -> {
@@ -176,7 +178,7 @@ class BitThumb(
      * get market, koreanName, englishName, warning
      */
     private suspend fun requestBTCMarketCode() {
-        remoteRepository.getBitThumbKRWMarketCodeService().collect {
+        remoteRepository.getBitThumbBTCMarketCodeService().collect {
             when (it.status) {
                 ApiResult.Status.LOADING -> {}
                 ApiResult.Status.SUCCESS -> {
@@ -194,15 +196,19 @@ class BitThumb(
                             ).apply {
                                 this.market = "BTC-$marketCode"
                                 this.symbol = marketCode
-                                this.koreanName = ""
-                                this.englishName = ""
+                                this.koreanName =
+                                    MoeuiBitDataStore.bitThumbCoinName[marketCode]?.first ?: ""
+                                this.englishName =
+                                    MoeuiBitDataStore.bitThumbCoinName[marketCode]?.second ?: ""
                             }
-                            btcMarketListStringBuffer.append("${marketCode},")
+                            btcMarketListStringBuffer.append("${marketCode}_BTC,")
                             btcMarketCodeList.add(
                                 MarketCodeModel(
                                     market = "BTC-$marketCode",
-                                    korean_name = "",
-                                    english_name = "",
+                                    korean_name = MoeuiBitDataStore.bitThumbCoinName[marketCode]?.first
+                                        ?: "",
+                                    english_name = MoeuiBitDataStore.bitThumbCoinName[marketCode]?.second
+                                        ?: "",
                                     market_warning = ""
                                 )
                             )
@@ -214,7 +220,7 @@ class BitThumb(
                                     symbol = bitthumbCommonExchangeModel.symbol,
                                     opening_price = bitthumbCommonExchangeModel.opening_price.toDouble(),
                                     tradePrice = bitthumbCommonExchangeModel.tradePrice.toDouble(),
-                                    signedChangeRate = bitthumbCommonExchangeModel.signedChangeRate.toDouble(),
+                                    signedChangeRate = bitthumbCommonExchangeModel.signedChangeRate * 0.01,
                                     accTradePrice24h = bitthumbCommonExchangeModel.accTradePrice24h.toDouble(),
                                     warning = ""
                                 )
@@ -228,6 +234,10 @@ class BitThumb(
                             btcExchangeModelListPosition[btcExchangeModelList[i].market] = i
                         }
                         MoeuiBitDataStore.bitThumbBtcMarkets = btcExchangeModelListPosition
+                        BitthumbTickerWebSocket.setMarkets(
+                            krwMarkets = krwMarketListStringBuffer.toString(),
+                            btcMarkets = btcMarketListStringBuffer.toString()
+                        )
                         swapList(SELECTED_BTC_MARKET)
                         btcPreItemArray.addAll(btcExchangeModelList)
                     } catch (e: Exception) {
@@ -279,7 +289,12 @@ class BitThumb(
         }
     }
 
-    private fun parseCoinName(marketCode: String): Pair<String,String> {
+    private fun requestCoinListToWebSocket() {
+        BitthumbTickerWebSocket.tickerListener = this
+        BitthumbTickerWebSocket.requestKrwCoinList(selectedMarketState.value)
+    }
+
+    private fun parseCoinName(marketCode: String): Pair<String, String> {
         return try {
             val names = bitthumbCoinNameJson?.let { json ->
                 json[marketCode]
@@ -287,10 +302,10 @@ class BitThumb(
 
             val krName = (names as JsonObject)["kr_name"].asString
             val engName = (names as JsonObject)["eng_name"].asString
-            Logger.e("$krName $engName")
-            Pair(krName,engName)
+//            Logger.e("$krName $engName")
+            Pair(krName, engName)
         } catch (e: Exception) {
-            Pair("","")
+            Pair("", "")
         }
     }
 
@@ -299,13 +314,13 @@ class BitThumb(
 //                            btcMarkets = "$btcMarketListStringBuffer,$BTC_MARKET"
 //                        )
 
-//                        for (i in krwMarketCodeList.indices) {
+    //                        for (i in krwMarketCodeList.indices) {
 //                            MoeuiBitDataStore.coinName[krwMarketCodeList[i].market] = Pair(
 //                                krwMarketCodeList[i].korean_name, krwMarketCodeList[i].english_name
 //                            )
 //                        }
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-
+        Logger.e(tickerJsonObject.toString())
     }
 
 }

@@ -5,9 +5,8 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
-import org.jeonfeel.moeuibit2.data.remote.websocket.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
 
 class UpBitOrderBookWebSocketListener : WebSocketListener() {
 
