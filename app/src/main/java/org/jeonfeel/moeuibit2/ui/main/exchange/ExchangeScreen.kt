@@ -78,6 +78,8 @@ import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
@@ -155,7 +157,8 @@ fun ExchangeRoute(
                 checkErrorScreen = viewModel::checkErrorScreen,
                 changeSelectedMarketState = viewModel::changeSelectedMarketState,
                 updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
-                currentRootExchange = viewModel.currentRootExchange
+                currentRootExchange = viewModel.currentRootExchange,
+                changeRootExchangeAction = viewModel::changeRootExchangeAction
             )
         }
     }
@@ -173,7 +176,8 @@ private fun Exchange(
     checkErrorScreen: () -> Unit,
     changeSelectedMarketState: (Int) -> Unit,
     updateIsExchangeUpdate: (Boolean) -> Unit,
-    currentRootExchange: State<String>
+    currentRootExchange: State<String>,
+    changeRootExchangeAction: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -190,7 +194,8 @@ private fun Exchange(
                 pagerState = stateHolder.pagerState,
                 tabTitleList = stateHolder.tabTitleList,
                 changeSelectedMarketState = changeSelectedMarketState,
-                currentRootExchange = currentRootExchange
+                currentRootExchange = currentRootExchange,
+                changeRootExchangeAction = changeRootExchangeAction
             )
             ExchangeSortButtons(
                 sortButtonClickAction = stateHolder::sortButtonClickAction,
@@ -263,7 +268,7 @@ private fun MarketButtons(
     pagerState: PagerState,
     tabTitleList: List<String>,
     changeSelectedMarketState: (Int) -> Unit,
-//    changeRootExchangeAction: (String) -> Unit,
+    changeRootExchangeAction: (String) -> Unit,
     currentRootExchange: State<String>
 ) {
     val changeRootExchangeDialogState = remember {
@@ -319,7 +324,12 @@ private fun MarketButtons(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable {
-                    changeRootExchangeDialogState.value = true
+//                    changeRootExchangeDialogState.value = true
+                    if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
+                        changeRootExchangeAction(ROOT_EXCHANGE_BITTHUMB)
+                    } else {
+                        changeRootExchangeAction(ROOT_EXCHANGE_UPBIT)
+                    }
                 }
             ) {
                 GlideImage(

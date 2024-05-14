@@ -16,11 +16,10 @@ import org.jeonfeel.moeuibit2.constants.SOCKET_IS_ON_PAUSE
 import org.jeonfeel.moeuibit2.constants.bitthumbTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.constants.bitthumbWebSocketBaseUrl
 import org.jeonfeel.moeuibit2.constants.readTimeOutDuration
-import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.constants.timeOutDuration
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.BitThumbTickerWebSocketListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 object BitthumbTickerWebSocket {
@@ -49,13 +48,14 @@ object BitthumbTickerWebSocket {
     private val request = Request.Builder()
         .url(bitthumbWebSocketBaseUrl)
         .build()
-    private val socketListener = UpBitTickerWebSocketListener()
-    var socket = client.newWebSocket(
+
+    private val socketListener = BitThumbTickerWebSocketListener()
+    private var socket = client.newWebSocket(
         request,
         socketListener
     )
 
-    fun getListener(): UpBitTickerWebSocketListener {
+    fun getListener(): BitThumbTickerWebSocketListener {
         return socketListener
     }
 
@@ -66,7 +66,8 @@ object BitthumbTickerWebSocket {
             if (currentSocketState != SOCKET_IS_FAILURE) {
                 when (marketState) {
                     SELECTED_KRW_MARKET -> {
-                        Logger.e(krwMarkets)
+                        Logger.e("request KRW Coin List -> $krwMarkets")
+                        Logger.e(bitthumbTickerWebSocketMessage(krwMarkets))
                         socket.send(bitthumbTickerWebSocketMessage(krwMarkets))
                         currentMarket = SELECTED_KRW_MARKET
                     }
@@ -107,7 +108,7 @@ object BitthumbTickerWebSocket {
 
     fun onPause() {
         try {
-            socket.send(bitthumbTickerWebSocketMessage("pause"))
+            socket.send(bitthumbTickerWebSocketMessage("BTC_ZMAKS"))
             currentSocketState = SOCKET_IS_ON_PAUSE
         } catch (e: Exception) {
             onlyRebuildSocket()

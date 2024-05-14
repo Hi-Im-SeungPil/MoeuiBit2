@@ -47,6 +47,7 @@ object UpBitTickerWebSocket {
             if (currentSocketState != SOCKET_IS_FAILURE) {
                 when (marketState) {
                     SELECTED_KRW_MARKET -> {
+                        Logger.e("request $krwMarkets")
                         socket.send(upbitTickerWebSocketMessage(krwMarkets))
                         currentMarket = SELECTED_KRW_MARKET
                     }

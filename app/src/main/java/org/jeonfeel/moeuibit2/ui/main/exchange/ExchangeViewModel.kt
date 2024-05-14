@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
@@ -91,13 +92,14 @@ class ExchangeViewModel @Inject constructor(
             rootExchange = if (rootExchangeValue == ROOT_EXCHANGE_UPBIT
                 || rootExchangeValue == "-999"
             ) {
-//                upBit
-                bitThumb
+                state._currentRootExchange.value = ROOT_EXCHANGE_UPBIT
+                upBit
             } else {
+                state._currentRootExchange.value = ROOT_EXCHANGE_BITTHUMB
                 bitThumb
             }
             requestExchangeData()
-//            updateExchange()
+            updateExchange()
             state._loadingExchange.value = false
         }
     }
@@ -175,7 +177,10 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 is BitThumb -> {
-
+                    (rootExchange as BitThumb).updateFavorite(
+                        market = market,
+                        isFavorite = isFavorite
+                    )
                 }
             }
         }
@@ -199,11 +204,11 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 is BitThumb -> {
-//                    (rootExchange as BitThumb).marketChangeAction(
-//                        marketState = marketState,
-//                        sortButtonState = sortButtonState,
-//                        viewModelScope
-//                    )
+                    (rootExchange as BitThumb).marketChangeAction(
+                        marketState = marketState,
+                        sortButtonState = sortButtonState,
+                        viewModelScope
+                    )
                 }
             }
         }
@@ -229,7 +234,9 @@ class ExchangeViewModel @Inject constructor(
                     }
 
                     is BitThumb -> {
-
+                        (rootExchange as BitThumb).sortList(
+                            sortButtonState = sortButtonState
+                        )
                     }
                 }
                 state._isUpdateExchange.value = true
@@ -292,8 +299,7 @@ class ExchangeViewModel @Inject constructor(
             }
 
             is BitThumb -> {
-//                (rootExchange as BitThumb).preItemList()
-                Pair(emptyList<CommonExchangeModel>(), emptyList<CommonExchangeModel>())
+                (rootExchange as BitThumb).preItemList()
             }
 
             else -> {
@@ -345,12 +351,11 @@ class ExchangeViewModel @Inject constructor(
     fun getBtcPrice(): State<Double> {
         return when (rootExchange) {
             is UpBit -> {
-                Logger.e((rootExchange as UpBit).getBtcPrice().toString())
                 (rootExchange as UpBit).getBtcPrice()
             }
 
             is BitThumb -> {
-                mutableDoubleStateOf(0.0)
+                (rootExchange as BitThumb).getBtcPrice()
             }
 
             else -> {
@@ -423,8 +428,18 @@ class ExchangeViewModel @Inject constructor(
     fun changeRootExchangeAction(rootExchange: String) {
         if (currentRootExchange.value != rootExchange) {
             state._currentRootExchange.value = rootExchange
-
             stopExchangeUpdateCoroutine()
+            preferenceManager.setValue(PREF_KEY_ROOT_EXCHANGE, rootExchange)
+            state._krwExchangeModelMutableStateList.clear()
+            state._btcExchangeModelMutableStateList.clear()
+            state._favoriteExchangeModelMutableStateList.clear()
+            state._selectedMarketState.intValue = SELECTED_KRW_MARKET
+            if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
+               UpBitTickerWebSocket.onPause()
+            } else {
+                BitthumbTickerWebSocket.onPause()
+            }
+            initExchangeData()
         }
     }
 

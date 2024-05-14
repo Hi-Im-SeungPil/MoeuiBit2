@@ -293,7 +293,6 @@ class UpBit(
                     )
                 }
             }
-            UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
             UpBitTickerWebSocket.onPause()
             if (marketState != SELECTED_FAVORITE) {
                 viewModelScope.launch(defaultDispatcher) {

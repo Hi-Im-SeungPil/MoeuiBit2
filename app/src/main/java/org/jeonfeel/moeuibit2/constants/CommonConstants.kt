@@ -39,6 +39,7 @@ const val IS_PORTFOLIO_SCREEN = 2
 const val IS_ANOTHER_SCREEN = -1
 
 const val BTC_MARKET = "KRW-BTC"
+const val BITTHUMB_BTC_MARKET = "BTC_KRW"
 
 const val SORT_DEFAULT = -1
 const val SORT_PRICE_DEC = 0

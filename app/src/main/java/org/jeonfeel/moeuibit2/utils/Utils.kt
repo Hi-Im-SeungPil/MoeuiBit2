@@ -83,14 +83,21 @@ object Utils {
     }
 
     fun extractCryptoKeysWithGson(json: JsonObject): List<String> {
-        val dataObject = json.getAsJsonObject("data")
-
         val keyList = mutableListOf<String>()
-        for ((key, _) in dataObject.entrySet()) {
-            if (key != "date")
-            keyList.add(key)
+        for ((key, _) in json.entrySet()) {
+            if (key != "date") {
+                keyList.add(key)
+            }
         }
 
         return keyList
+    }
+
+    fun BitthumbMarketToUpbitMarket(market: String): String {
+        val standard = market.indexOf("_")
+        val temp = market.substring(0, standard)
+        val temp2 = market.substring(standard + 1)
+        Logger.e("$temp $temp2")
+        return "$temp2-$temp"
     }
 }
