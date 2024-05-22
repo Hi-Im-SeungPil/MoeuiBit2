@@ -13,11 +13,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.PREF_KEY_ROOT_EXCHANGE
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -35,8 +38,6 @@ class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var preferenceManager: PreferenceManager
-//    private lateinit var auth: FirebaseAuth
-//    private val mainViewModel: MainViewModel by viewModels()
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
@@ -59,10 +60,6 @@ class MainActivity : BaseActivity() {
      * 초기화
      */
     private fun initActivity() {
-//        auth = Firebase.auth
-//        if (auth.currentUser == null) {
-//            auth.signInAnonymously()
-//        }
         initNetworkStateMonitor(
             connected5G = {
                 currentNetworkState = INTERNET_CONNECTION
@@ -72,8 +69,12 @@ class MainActivity : BaseActivity() {
             },
             noInternetAction = {
                 networkErrorState.value = NO_INTERNET_CONNECTION
-                UpBitTickerWebSocket.onPause()
-                UpBitTickerWebSocket.getListener().setTickerMessageListener(null)
+                val currentRootExchange = preferenceManager.getString(PREF_KEY_ROOT_EXCHANGE)
+                if (currentRootExchange == ROOT_EXCHANGE_UPBIT) {
+                    UpBitTickerWebSocket.onPause()
+                } else {
+                    BitthumbTickerWebSocket.onPause()
+                }
             }
         )
         checkUpdate()

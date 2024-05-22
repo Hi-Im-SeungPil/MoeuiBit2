@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.websocket.listener
+package org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit
 
 import com.orhanobut.logger.Logger
 import okhttp3.Response
@@ -7,7 +7,6 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_CONNECTED
 import org.jeonfeel.moeuibit2.constants.SOCKET_IS_FAILURE
-import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 
 class UpBitTickerWebSocketListener : WebSocketListener() {
@@ -32,8 +31,6 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         super.onMessage(webSocket, bytes)
-//        Logger.e("exchange  =>  ${bytes.string(Charsets.UTF_8)}")
-//        Logger.e(bytes.string(Charsets.UTF_8))
         UpBitTickerWebSocket.message(bytes.string(Charsets.UTF_8))
     }
 
@@ -43,7 +40,7 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
-//        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_FAILURE
+        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_FAILURE
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -51,9 +48,6 @@ class UpBitTickerWebSocketListener : WebSocketListener() {
         Logger.e("ticker on Failure")
         Logger.e("failure response ${response?.message}")
         Logger.e("failure message ${t.message}")
-//        t.printStackTrace()
-//        UpBitTickerWebSocket.currentSocketState = SOCKET_IS_FAILURE
-//        UpBitTickerWebSocket.rebuildSocket()
     }
 }
 

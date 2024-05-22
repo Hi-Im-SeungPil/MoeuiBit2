@@ -9,13 +9,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.*
@@ -31,7 +33,13 @@ fun AskingPriceLazyColumn(
     modifier: Modifier,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = 10)
+    val initPosition = remember {
+        coinDetailViewModel.getOrderBookInitPosition()
+    }
+    val blockItemCount = remember {
+        coinDetailViewModel.getBlockItemCount()
+    }
+    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = initPosition)
     val preClosingPrice = coinDetailViewModel.preClosingPrice // 지난 가격
     val currentTradePriceStateForOrderBook =
         coinDetailViewModel.coinOrder.state.currentTradePriceStateForOrderBook // 현재가격
@@ -53,10 +61,10 @@ fun AskingPriceLazyColumn(
                 )
             }
         } else { // 로딩 되지 않았을 때 빈 화면
-            items(15) {
+            items(blockItemCount) {
                 EmptyAskingPriceLazyColumnItem(0)
             }
-            items(15) {
+            items(blockItemCount) {
                 EmptyAskingPriceLazyColumnItem(1)
             }
         }

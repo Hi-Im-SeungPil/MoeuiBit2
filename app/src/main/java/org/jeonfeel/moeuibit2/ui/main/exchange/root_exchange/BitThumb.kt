@@ -7,11 +7,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.ticker
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -30,14 +27,11 @@ import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbCommonExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbTickerContent
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbTickerModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.test
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.MarketCodeModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
@@ -729,13 +723,13 @@ class BitThumb(
     }
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        val model = gson.fromJson(tickerJsonObject, test::class.java)
+        val model = gson.fromJson(tickerJsonObject, BitthumbTickerModel::class.java)
         Logger.e("model -> ${model.toString()}")
         if (model.content != null) {
             val marketState = selectedMarketState.value
             var position = 0
             var targetModelList: ArrayList<CommonExchangeModel>? = null
-            val modelCode = Utils.BitthumbMarketToUpbitMarket(model.content.symbol)
+            val modelCode = Utils.bitthumbMarketToUpbitMarket(model.content.symbol)
             Logger.e("modelCode -> ${modelCode}")
             if (UpBitTickerWebSocket.currentPage == IS_EXCHANGE_SCREEN) {
                 if (isUpdateExchange.value && modelCode.startsWith(SYMBOL_KRW)) {

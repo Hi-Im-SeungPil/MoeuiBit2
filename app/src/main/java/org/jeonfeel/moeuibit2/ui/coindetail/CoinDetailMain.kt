@@ -40,7 +40,7 @@ fun CoinDetailMain(
         Calculator.signedChangeRateCalculator(coinDetailViewModel.coinOrder.coinDetailModel.signedChangeRate) // 전일대비
     val curChangePrice =
         Calculator.changePriceCalculator(
-            coinDetailViewModel.coinOrder.coinDetailModel.signed_change_price,
+            coinDetailViewModel.coinOrder.coinDetailModel.signedChangePrice,
             marketState
         ) // 전일대비 가격
     val textColor = getTextColor(curChangeRate) // 전일대비, 전일대비 가격 색상
@@ -79,7 +79,10 @@ fun CoinDetailMain(
                         text = stringResource(id = R.string.netChange), modifier = Modifier
                             .wrapContentWidth()
                             .padding(0.dp, 0.dp, 10.dp, 0.dp),
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = DpToSp(13.dp))
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = DpToSp(13.dp)
+                        )
                     )
                     Text(
                         text = curChangeRate.plus("%"),
@@ -124,9 +127,11 @@ fun getTextColor(
         curSignedChangeRate > 0.0 -> {
             increaseColor()
         }
+
         curSignedChangeRate < 0.0 -> {
             decreaseColor()
         }
+
         else -> {
             MaterialTheme.colorScheme.onBackground
         }

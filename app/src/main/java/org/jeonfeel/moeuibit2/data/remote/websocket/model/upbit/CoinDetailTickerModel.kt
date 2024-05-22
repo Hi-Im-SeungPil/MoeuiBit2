@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.websocket.model
+package org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit
 
 import androidx.annotation.Keep
 import androidx.compose.runtime.Stable
@@ -14,5 +14,5 @@ data class CoinDetailTickerModel (
     @SerializedName("scr")
     val signedChangeRate: Double,
     @SerializedName("scp")
-    val signed_change_price: Double
+    val signedChangePrice: Double
 )

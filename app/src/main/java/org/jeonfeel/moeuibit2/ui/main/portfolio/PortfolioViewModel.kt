@@ -12,8 +12,8 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.PortfolioTickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.PortfolioTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO

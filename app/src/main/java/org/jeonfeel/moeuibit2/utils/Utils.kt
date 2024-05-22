@@ -4,15 +4,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
-import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
-import org.jeonfeel.moeuibit2.ui.theme.increase_color
-import org.json.JSONObject
 import java.util.*
 
 object Utils {
@@ -93,11 +89,19 @@ object Utils {
         return keyList
     }
 
-    fun BitthumbMarketToUpbitMarket(market: String): String {
+    fun bitthumbMarketToUpbitMarket(market: String): String {
         val standard = market.indexOf("_")
         val temp = market.substring(0, standard)
         val temp2 = market.substring(standard + 1)
         Logger.e("$temp $temp2")
         return "$temp2-$temp"
+    }
+
+    fun upbitMarketToBitthumbMarket(market: String): String {
+        val standard = market.indexOf("-")
+        val temp = market.substring(0, standard)
+        val temp2 = market.substring(standard + 1)
+        Logger.e("$temp $temp2")
+        return "${temp2}_$temp"
     }
 }

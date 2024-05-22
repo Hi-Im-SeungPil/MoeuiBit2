@@ -24,6 +24,7 @@ class CoinDetailActivity : BaseActivity() {
     private var isFavorite = false
     private var warning = ""
     private var marketState = -999
+    private var rootExchange = ""
     private lateinit var coinSymbol: String
     private val coinDetailViewModel: CoinDetailViewModel by viewModels()
 
@@ -54,13 +55,21 @@ class CoinDetailActivity : BaseActivity() {
             isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
             warning = it.getStringExtra(INTENT_WARNING) ?: ""
             marketState = it.getIntExtra(INTENT_MARKET_STATE, -999)
+            rootExchange = it.getStringExtra(INTENT_ROOT_EXCHANGE) ?: ""
         }
+
         val market = if (marketState == SELECTED_BTC_MARKET) {
             "BTC-"
         } else {
             "KRW-"
         }
-        coinDetailViewModel.initViewModel(market.plus(coinSymbol), openingPrice, isFavorite)
+
+        coinDetailViewModel.initViewModel(
+            market.plus(coinSymbol),
+            openingPrice,
+            isFavorite,
+            rootExchange
+        )
         initNetworkStateMonitor(
             noInternetAction = {
                 coinDetailViewModel.chart.state.isUpdateChart.value = false
@@ -72,7 +81,7 @@ class CoinDetailActivity : BaseActivity() {
     @Composable
     fun CoinDetailActivityScreen() {
 //        if (isKor) {
-            CoinDetailScreen(coinKoreanName, coinSymbol, warning, coinDetailViewModel)
+        CoinDetailScreen(coinKoreanName, coinSymbol, warning, coinDetailViewModel)
 //        } else {
 //            CoinDetailScreen(coinEngName, coinSymbol, warning, coinDetailViewModel)
 //        }

@@ -54,7 +54,6 @@ import org.jeonfeel.moeuibit2.ui.theme.lazyColumnItemUnderLineColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeScreenLazyColumns(
     filteredExchangeCoinList: List<CommonExchangeModel>,
@@ -71,7 +70,6 @@ fun ExchangeScreenLazyColumns(
     val lazyColumnVisibility = remember {
         mutableStateOf(true)
     }
-
     val coroutineScope = rememberCoroutineScope()
 
     when {

@@ -89,6 +89,7 @@ class ExchangeViewModel @Inject constructor(
         viewModelScope.launch {
             state._loadingExchange.value = true
             val rootExchangeValue = preferenceManager.getString(PREF_KEY_ROOT_EXCHANGE)
+            Logger.e("rootExchangeValue => $rootExchangeValue")
             rootExchange = if (rootExchangeValue == ROOT_EXCHANGE_UPBIT
                 || rootExchangeValue == "-999"
             ) {
@@ -414,7 +415,7 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun stopExchangeUpdateCoroutine() {
+    private fun stopExchangeUpdateCoroutine() {
         viewModelScope.launch {
             exchangeUpdateJob?.cancelAndJoin()
             exchangeUpdateJob = null
@@ -427,18 +428,42 @@ class ExchangeViewModel @Inject constructor(
 
     fun changeRootExchangeAction(rootExchange: String) {
         if (currentRootExchange.value != rootExchange) {
-            state._currentRootExchange.value = rootExchange
             stopExchangeUpdateCoroutine()
+            if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
+                UpBitTickerWebSocket.onPause()
+            } else {
+                BitthumbTickerWebSocket.onPause()
+            }
+            state._currentRootExchange.value = rootExchange
             preferenceManager.setValue(PREF_KEY_ROOT_EXCHANGE, rootExchange)
             state._krwExchangeModelMutableStateList.clear()
             state._btcExchangeModelMutableStateList.clear()
             state._favoriteExchangeModelMutableStateList.clear()
             state._selectedMarketState.intValue = SELECTED_KRW_MARKET
-            if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
-               UpBitTickerWebSocket.onPause()
-            } else {
-                BitthumbTickerWebSocket.onPause()
-            }
+            initExchangeData()
+        }
+    }
+
+    fun onPauseAction() {
+        if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
+            UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
+            updateIsExchangeUpdateState(false)
+            stopExchangeUpdateCoroutine()
+            UpBitTickerWebSocket.onPause()
+        } else {
+            BitthumbTickerWebSocket.currentScreen = IS_ANOTHER_SCREEN
+            updateIsExchangeUpdateState(false)
+            stopExchangeUpdateCoroutine()
+            BitthumbTickerWebSocket.onPause()
+        }
+    }
+
+    fun onResumeAction() {
+        if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
+            UpBitTickerWebSocket.currentPage = IS_EXCHANGE_SCREEN
+            initExchangeData()
+        } else {
+            BitthumbTickerWebSocket.currentScreen = IS_EXCHANGE_SCREEN
             initExchangeData()
         }
     }

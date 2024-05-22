@@ -29,6 +29,7 @@ import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_KOREAN_NAME
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET_STATE
 import org.jeonfeel.moeuibit2.constants.INTENT_OPENING_PRICE
+import org.jeonfeel.moeuibit2.constants.INTENT_ROOT_EXCHANGE
 import org.jeonfeel.moeuibit2.constants.INTENT_WARNING
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
@@ -55,6 +56,7 @@ class ExchangeScreenStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val lazyScrollState: LazyListState,
     val startForActivityResult: ManagedActivityResultLauncher<Intent, ActivityResult>,
     val selectedMarketState: State<Int>,
+    private val rootExchange: State<String>,
     private val isUpdateExchange: State<Boolean>,
     private val marketChangeAction: (marketState: Int, sortButtonState: MutableIntState) -> Unit,
     private val sortList: (marketState: Int, sortButtonState: MutableIntState) -> Unit
@@ -251,6 +253,7 @@ class ExchangeScreenStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             )
             putExtra(INTENT_MARKET_STATE, marketState)
             putExtra(INTENT_WARNING, commonExchangeModel.warning)
+            putExtra(INTENT_ROOT_EXCHANGE, rootExchange.value)
         }
         startForActivityResult.launch(intent)
         (context as MainActivity).overridePendingTransition(
@@ -288,7 +291,8 @@ fun rememberExchangeScreenStateHolder(
     isUpdateExchange: State<Boolean>,
     marketChangeAction: (marketState: Int, sortButtonState: MutableIntState) -> Unit,
     sortList: (marketState: Int, sortButtonState: MutableIntState) -> Unit,
-    selectedMarketState: State<Int>
+    selectedMarketState: State<Int>,
+    rootExchange: State<String>
 ) = remember() {
     ExchangeScreenStateHolder(
         context = context,
@@ -298,6 +302,7 @@ fun rememberExchangeScreenStateHolder(
         isUpdateExchange = isUpdateExchange,
         marketChangeAction = marketChangeAction,
         sortList = sortList,
-        selectedMarketState = selectedMarketState
+        selectedMarketState = selectedMarketState,
+        rootExchange = rootExchange
     )
 }

@@ -10,13 +10,17 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
 import javax.inject.Inject
 
@@ -29,11 +33,16 @@ class CoinDetailViewModel @Inject constructor(
     var market = ""
     var preClosingPrice = 0.0
     val favoriteMutableState = mutableStateOf(false)
+    var rootExchange = ROOT_EXCHANGE_UPBIT
     private var isBTC = false
     private var updateOrderBlockJob: Job? = null
 
-    fun initViewModel(market: String, preClosingPrice: Double, isFavorite: Boolean) {
-        UpBitTickerWebSocket.coinDetailListener = this
+    fun initViewModel(
+        market: String,
+        preClosingPrice: Double,
+        isFavorite: Boolean,
+        rootExchange: String
+    ) {
         this.market = market
         this.preClosingPrice = preClosingPrice
         this.favoriteMutableState.value = isFavorite
@@ -43,7 +52,13 @@ class CoinDetailViewModel @Inject constructor(
         if (market.startsWith("BTC")) {
             isBTC = true
         }
-        Logger.e("isbtc$isBTC")
+        this.rootExchange = rootExchange
+        if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+            UpBitTickerWebSocket.coinDetailListener = this
+        } else {
+            BitthumbTickerWebSocket.coinDetailListener = this
+        }
+        Logger.e("isbtc$isBTC rootExchange$rootExchange")
     }
 
     private fun updateTicker() {
@@ -59,17 +74,37 @@ class CoinDetailViewModel @Inject constructor(
 
     // 주문 화면
     fun initCoinDetailScreen() {
-        if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
-            viewModelScope.launch(ioDispatcher) {
-                UpBitTickerWebSocket.getListener().setTickerMessageListener(this@CoinDetailViewModel)
-                val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
-                UpBitTickerWebSocket.requestTicker(reqMarket)
-                updateTicker()
+        Logger.e("initCoinDetailScreen")
+        when (rootExchange) {
+            ROOT_EXCHANGE_UPBIT -> {
+                if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
+                    viewModelScope.launch(ioDispatcher) {
+                        val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
+                        UpBitTickerWebSocket.requestTicker(reqMarket)
+                        updateTicker()
+                    }
+                } else {
+                    val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
+                    UpBitTickerWebSocket.requestTicker(reqMarket)
+                }
             }
-        } else {
-            UpBitTickerWebSocket.getListener().setTickerMessageListener(this)
-            val reqMarket = if (isBTC) "$market,$BTC_MARKET" else market
-            UpBitTickerWebSocket.requestTicker(reqMarket)
+
+            ROOT_EXCHANGE_BITTHUMB -> {
+                if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
+                    viewModelScope.launch(ioDispatcher) {
+                        val bitthumbMarket = Utils.upbitMarketToBitthumbMarket(market)
+                        val reqMarket =
+                            if (isBTC) "\"${bitthumbMarket}\",\"$BITTHUMB_BTC_MARKET\"" else "\"$bitthumbMarket\""
+                        BitthumbTickerWebSocket.requestTicker(reqMarket)
+                        updateTicker()
+                    }
+                } else {
+                    val bitthumbMarket = Utils.upbitMarketToBitthumbMarket(market)
+                    val reqMarket =
+                        if (isBTC) "\"${bitthumbMarket}\",\"$BITTHUMB_BTC_MARKET\"" else "\"$bitthumbMarket\""
+                    BitthumbTickerWebSocket.requestTicker(reqMarket)
+                }
+            }
         }
         for (i in 0 until 4) {
             coinOrder.state.commissionStateList.add(mutableStateOf(0f))
@@ -78,15 +113,15 @@ class CoinDetailViewModel @Inject constructor(
 
     fun initOrderScreen() {
         viewModelScope.launch(ioDispatcher) {
-            coinOrder.initOrderScreen(market)
+            coinOrder.initOrderScreen(market, rootExchange)
         }
-        updateOrderBlockJob =viewModelScope.launch {
+        updateOrderBlockJob = viewModelScope.launch {
             coinOrder.updateOrderBlock()
         }
         updateOrderBlockJob?.start()
     }
 
-    fun cancelUpdateOrderBlockJob () {
+    fun cancelUpdateOrderBlockJob() {
         viewModelScope.launch {
             updateOrderBlockJob?.cancelAndJoin()
         }
@@ -96,11 +131,22 @@ class CoinDetailViewModel @Inject constructor(
      * 매수
      */
     fun bidRequest(
-        currentPrice: Double, quantity: Double, totalPrice: Long = 0L, btcTotalPrice: Double = 0.0, currentBtcPrice: Double = 0.0
+        currentPrice: Double,
+        quantity: Double,
+        totalPrice: Long = 0L,
+        btcTotalPrice: Double = 0.0,
+        currentBtcPrice: Double = 0.0
     ): Job {
         return viewModelScope.launch(ioDispatcher) {
             coinOrder.bidRequest(
-                market, name, currentPrice, quantity, totalPrice, btcTotalPrice, marketState = marketState, currentBtcPrice
+                market,
+                name,
+                currentPrice,
+                quantity,
+                totalPrice,
+                btcTotalPrice,
+                marketState = marketState,
+                currentBtcPrice
             )
         }
     }
@@ -164,7 +210,9 @@ class CoinDetailViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             chart.requestOldData(
-                positiveBarDataSet = positiveBarDataSet, negativeBarDataSet = negativeBarDataSet, candleXMin = candleXMin
+                positiveBarDataSet = positiveBarDataSet,
+                negativeBarDataSet = negativeBarDataSet,
+                candleXMin = candleXMin
             )
         }
     }
@@ -175,18 +223,58 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
+    fun getOrderBookInitPosition(): Int {
+        return if(rootExchange == ROOT_EXCHANGE_UPBIT) {
+            8
+        } else {
+            24
+        }
+    }
+
+    fun getBlockItemCount(): Int {
+        return if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+            15
+        } else {
+            30
+        }
+    }
+
     /**
      * 웹소켓 리스너
      */
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-        if (coinOrder.isTickerSocketRunning && UpBitTickerWebSocket.currentPage == IS_DETAIL_SCREEN) {
-            val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
-            if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
-                coinOrder.state.currentBTCPrice.value = model.tradePrice
+        if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+            if (coinOrder.isTickerSocketRunning && UpBitTickerWebSocket.currentPage == IS_DETAIL_SCREEN) {
+                val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
+                if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
+                    coinOrder.state.currentBTCPrice.value = model.tradePrice
+                }
+                if (model.code == market) {
+                    coinOrder.coinDetailModel = model
+                    coinOrder.state.currentTradePriceStateForOrderBook.value =
+                        coinOrder.coinDetailModel.tradePrice
+                }
             }
-            if (model.code == market) {
-                coinOrder.coinDetailModel = model
-                coinOrder.state.currentTradePriceStateForOrderBook.value = coinOrder.coinDetailModel.tradePrice
+        } else {
+            if (coinOrder.isTickerSocketRunning && BitthumbTickerWebSocket.currentScreen == IS_DETAIL_SCREEN) {
+                val bitthumbModel =
+                    gson.fromJson(tickerJsonObject, BitthumbCoinDetailTickerModel::class.java)
+                if (bitthumbModel.content != null) {
+                    val model = CoinDetailTickerModel(
+                        code = Utils.bitthumbMarketToUpbitMarket(bitthumbModel.content.code),
+                        tradePrice = bitthumbModel.content.tradePrice.toDouble(),
+                        signedChangeRate = bitthumbModel.content.signedChangeRate.toDouble() * 0.01,
+                        signedChangePrice = bitthumbModel.content.signedChangePrice.toDouble()
+                    )
+                    if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
+                        coinOrder.state.currentBTCPrice.value = model.tradePrice
+                    }
+                    if (model.code == market) {
+                        coinOrder.coinDetailModel = model
+                        coinOrder.state.currentTradePriceStateForOrderBook.value =
+                            coinOrder.coinDetailModel.tradePrice
+                    }
+                }
             }
         }
     }

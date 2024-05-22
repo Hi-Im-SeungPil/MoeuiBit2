@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.remote.websocket.model
+package org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit
 
 import androidx.annotation.Keep
 

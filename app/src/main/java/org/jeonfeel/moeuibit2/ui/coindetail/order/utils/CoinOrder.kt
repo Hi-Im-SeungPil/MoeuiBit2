@@ -12,14 +12,22 @@ import kotlinx.coroutines.delay
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.bitthumb.BitthumbOrderBookWebSocketListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnOrderBookMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailOrderBookAskModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailOrderBookBidModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnOrderBookMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookAskModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookBidModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailOrderBookModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import java.net.SocketTimeoutException
@@ -57,28 +65,39 @@ class CoinOrder @Inject constructor(
     var isTickerSocketRunning = true
     val state = CoinOrderState()
     var coinDetailModel = CoinDetailTickerModel("", 0.0, 0.0, 0.0)
+    private var rootExchange = ""
 
-    suspend fun initOrderScreen(market: String) {
-        val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
-            market.plus(",$BTC_MARKET")
-        } else {
-            market
-        }
-        UpBitTickerWebSocket.detailMarket = requestMarket
-        UpBitOrderBookWebSocket.market = market
-        try {
-            Handler(Looper.getMainLooper()).post {
-                UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
-                UpBitOrderBookWebSocket.requestOrderBookList(market)
+    suspend fun initOrderScreen(market: String, rootExchange: String) {
+        this.rootExchange = rootExchange
+        when (rootExchange) {
+            ROOT_EXCHANGE_UPBIT -> {
+                val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
+                    market.plus(",$BTC_MARKET")
+                } else {
+                    market
+                }
+                UpBitTickerWebSocket.detailMarket = requestMarket
+                UpBitOrderBookWebSocket.market = market
+                Handler(Looper.getMainLooper()).post {
+                    UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
+                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+                }
             }
-        } catch (e: UnknownHostException) {
-            state.errorDialogState.value = true
-            Logger.e(e.message.toString())
-        } catch (e: SocketTimeoutException) {
-            state.errorDialogState.value = true
-            Logger.e(e.message.toString())
-        } catch (e: Exception) {
-            Logger.e(e.message.toString())
+
+            ROOT_EXCHANGE_BITTHUMB -> {
+                val bitthumbMarket = Utils.upbitMarketToBitthumbMarket(market)
+                val requestMarket = if (market.startsWith(SYMBOL_BTC)) {
+                    "\"${bitthumbMarket}\"".plus(",\"$BITTHUMB_BTC_MARKET\"")
+                } else {
+                    "\"${bitthumbMarket}\""
+                }
+                BitthumbTickerWebSocket.detailMarket = requestMarket
+                BitthumbOrderBookWebSocket.market = bitthumbMarket
+                Handler(Looper.getMainLooper()).post {
+                    BitthumbOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
+                    BitthumbOrderBookWebSocket.requestOrderBookList("\"${bitthumbMarket}\"")
+                }
+            }
         }
 
         localRepository.getUserDao().all?.let {
@@ -330,7 +349,11 @@ class CoinOrder @Inject constructor(
     }
 
     override fun onOrderBookMessageReceiveListener(orderBookJsonObject: String) {
-        if (isTickerSocketRunning && UpBitOrderBookWebSocket.temp == 0) {
+//        Logger.e(orderBookJsonObject)
+        if (rootExchange == ROOT_EXCHANGE_UPBIT
+            && isTickerSocketRunning
+            && UpBitOrderBookWebSocket.currentScreen == IS_DETAIL_SCREEN
+        ) {
             var index = 0
             val model = gson.fromJson(orderBookJsonObject, JsonObject::class.java)
             val modelJsonArray = model.getAsJsonArray("obu")
@@ -362,6 +385,48 @@ class CoinOrder @Inject constructor(
                         )
                     )
                     index++
+                }
+                temp.addAll(temp1)
+                temp.addAll(temp2)
+                state.maxOrderBookSize.value = temp.maxOf { it.size }
+                if (state.orderBoolList.isEmpty()) {
+                    state.orderBoolList.addAll(temp)
+                } else {
+                    for (i in temp.indices) {
+                        state.orderBoolList[i] = temp[i]
+                    }
+                }
+            }
+        } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB
+            && isTickerSocketRunning
+            && BitthumbOrderBookWebSocket.currentScreen == IS_DETAIL_SCREEN
+        ) {
+            val model =
+                gson.fromJson(orderBookJsonObject, BitthumbCoinDetailOrderBookModel::class.java)
+            Logger.e("model -> $model")
+            if (model.content != null) {
+                val temp = ArrayList<CoinDetailOrderBookModel>()
+                val temp1 = ArrayList<CoinDetailOrderBookModel>()
+                val temp2 = ArrayList<CoinDetailOrderBookModel>()
+                val indices = model.content.asks.size
+                for (i in indices - 1 downTo 0) {
+                    val ask = model.content.asks[i]
+                    temp1.add(
+                        CoinDetailOrderBookModel(
+                            ask[0].toDouble(),
+                            ask[1].toDouble(),
+                            0
+                        )
+                    )
+                }
+                model.content.bids.forEach { bids ->
+                    temp2.add(
+                        CoinDetailOrderBookModel(
+                            bids[0].toDouble(),
+                            bids[1].toDouble(),
+                            1
+                        )
+                    )
                 }
                 temp.addAll(temp1)
                 temp.addAll(temp2)

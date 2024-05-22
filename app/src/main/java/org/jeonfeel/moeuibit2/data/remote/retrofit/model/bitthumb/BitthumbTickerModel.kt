@@ -1,10 +1,11 @@
 package org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb
 
-data class BitthumbTickerContent (
-    val content: BitthumbTickerModel
+data class BitthumbTickerModel(
+    val content: Content,
+    val type: String
 )
 
-data class BitthumbTickerModel(
+data class Content(
     val buyVolume: String,
     val chgAmt: String,
     val chgRate: String,

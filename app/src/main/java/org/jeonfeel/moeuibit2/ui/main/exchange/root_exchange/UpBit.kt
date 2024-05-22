@@ -30,7 +30,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.ExchangeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.MarketCodeModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.TickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
@@ -699,6 +699,7 @@ class UpBit(
     }
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
+//        Logger.e("upbit")
         val model = gson.fromJson(tickerJsonObject, TickerModel::class.java)
         val marketState = selectedMarketState.value
         var position = 0

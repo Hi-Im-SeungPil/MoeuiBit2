@@ -11,10 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
+import org.jeonfeel.moeuibit2.constants.IS_DETAIL_SCREEN
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.AskingPriceLazyColumn
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.OrderScreenAskBid
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 
 @Composable
@@ -25,11 +29,20 @@ fun OrderScreen(
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
                 coinDetailViewModel.cancelUpdateOrderBlockJob()
-                UpBitOrderBookWebSocket.temp = IS_ANOTHER_SCREEN
-                UpBitOrderBookWebSocket.onPause()
+                if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    UpBitOrderBookWebSocket.currentScreen = IS_ANOTHER_SCREEN
+                    UpBitOrderBookWebSocket.onPause()
+                } else {
+                    UpBitOrderBookWebSocket.currentScreen = IS_ANOTHER_SCREEN
+                    UpBitOrderBookWebSocket.onPause()
+                }
             }
             Lifecycle.Event.ON_RESUME -> {
-                UpBitOrderBookWebSocket.temp = 0
+                if(coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    UpBitOrderBookWebSocket.currentScreen = IS_DETAIL_SCREEN
+                } else {
+                    BitthumbOrderBookWebSocket.currentScreen = IS_DETAIL_SCREEN
+                }
                 coinDetailViewModel.initOrderScreen()
             }
             else -> {}

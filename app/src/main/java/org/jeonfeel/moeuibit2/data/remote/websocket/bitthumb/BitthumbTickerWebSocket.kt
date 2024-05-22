@@ -17,9 +17,8 @@ import org.jeonfeel.moeuibit2.constants.bitthumbTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.constants.bitthumbWebSocketBaseUrl
 import org.jeonfeel.moeuibit2.constants.readTimeOutDuration
 import org.jeonfeel.moeuibit2.constants.timeOutDuration
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.BitThumbTickerWebSocketListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.bitthumb.BitThumbTickerWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 object BitthumbTickerWebSocket {
@@ -27,7 +26,7 @@ object BitthumbTickerWebSocket {
     var currentSocketState = SOCKET_IS_CONNECTED
 
     var currentMarket = 0
-    var currentPage = 0
+    var currentScreen = 0
     private var krwMarkets = ""
     private var btcMarkets = ""
     private var favoriteMarkets = ""
@@ -54,10 +53,6 @@ object BitthumbTickerWebSocket {
         request,
         socketListener
     )
-
-    fun getListener(): BitThumbTickerWebSocketListener {
-        return socketListener
-    }
 
     fun requestKrwCoinList(
         marketState: Int
@@ -98,19 +93,21 @@ object BitthumbTickerWebSocket {
 
     fun requestTicker(market: String) {
         try {
+            Logger.e(bitthumbTickerWebSocketMessage(market))
             currentSocketState = SOCKET_IS_CONNECTED
             socket.send(bitthumbTickerWebSocketMessage(market))
-            Logger.e(market)
         } catch (e: Exception) {
             onlyRebuildSocket()
         }
     }
 
     fun onPause() {
+        Logger.e("bitthumb onPause")
         try {
-            socket.send(bitthumbTickerWebSocketMessage("BTC_ZMAKS"))
+            socket.send(bitthumbTickerWebSocketMessage(""))
             currentSocketState = SOCKET_IS_ON_PAUSE
         } catch (e: Exception) {
+            Logger.e(e.message.toString())
             onlyRebuildSocket()
         }
     }
@@ -123,7 +120,7 @@ object BitthumbTickerWebSocket {
                 socketListener
             )
             currentSocketState = SOCKET_IS_CONNECTED
-            when (currentPage) {
+            when (currentScreen) {
                 IS_EXCHANGE_SCREEN -> {
                     requestKrwCoinList(currentMarket)
                 }
@@ -139,7 +136,7 @@ object BitthumbTickerWebSocket {
         }
     }
 
-    fun onlyRebuildSocket() {
+    private fun onlyRebuildSocket() {
         if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
             socket.cancel()
             socket = client.newWebSocket(
@@ -155,13 +152,13 @@ object BitthumbTickerWebSocket {
     }
 
     fun message(message: String) {
-        when (currentPage) {
+        when (currentScreen) {
             IS_EXCHANGE_SCREEN -> {
                 tickerListener?.onTickerMessageReceiveListener(message)
             }
 
             IS_DETAIL_SCREEN -> {
-//                coinDetailListener?.onTickerMessageReceiveListener(message)
+                coinDetailListener?.onTickerMessageReceiveListener(message)
             }
 
             IS_PORTFOLIO_SCREEN -> {

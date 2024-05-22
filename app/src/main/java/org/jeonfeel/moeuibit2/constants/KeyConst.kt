@@ -8,6 +8,7 @@ const val INTENT_WARNING = "warning"
 const val INTENT_MARKET_STATE = "marketState"
 const val INTENT_MARKET = "market"
 const val INTENT_ENG_NAME = "coinEngName"
+const val INTENT_ROOT_EXCHANGE = "rootExchange"
 
 const val PREF_KEY_KRW_BID_COMMISSION = "krwBidFee"
 const val PREF_KEY_KRW_ASK_COMMISSION = "krwAskFee"

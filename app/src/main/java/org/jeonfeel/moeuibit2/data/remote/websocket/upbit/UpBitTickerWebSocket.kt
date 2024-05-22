@@ -4,8 +4,8 @@ import com.orhanobut.logger.Logger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.UpBitTickerWebSocketListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.UpBitTickerWebSocketListener
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 
 object UpBitTickerWebSocket {

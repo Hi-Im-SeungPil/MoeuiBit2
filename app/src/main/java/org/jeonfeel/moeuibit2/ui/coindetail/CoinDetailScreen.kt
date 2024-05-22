@@ -12,13 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.common.OneButtonCommonDialog
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 
 @Composable
@@ -26,7 +29,7 @@ fun CoinDetailScreen(
     coinKoreanName: String,
     coinSymbol: String,
     warning: String,
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    coinDetailViewModel: CoinDetailViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val market = coinDetailViewModel.market
@@ -41,13 +44,24 @@ fun CoinDetailScreen(
     OnLifecycleEvent { _, event ->
         when (event) {
             Lifecycle.Event.ON_PAUSE -> {
-                UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
-                UpBitTickerWebSocket.onPause()
+                if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
+                    UpBitTickerWebSocket.onPause()
+                } else if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                    BitthumbTickerWebSocket.currentScreen = IS_ANOTHER_SCREEN
+                    BitthumbTickerWebSocket.onPause()
+                }
             }
+
             Lifecycle.Event.ON_RESUME -> {
-                UpBitTickerWebSocket.currentPage = IS_DETAIL_SCREEN
+                if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    UpBitTickerWebSocket.currentPage = IS_DETAIL_SCREEN
+                } else if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                    BitthumbTickerWebSocket.currentScreen = IS_DETAIL_SCREEN
+                }
                 coinDetailViewModel.initCoinDetailScreen()
             }
+
             else -> {}
         }
     }

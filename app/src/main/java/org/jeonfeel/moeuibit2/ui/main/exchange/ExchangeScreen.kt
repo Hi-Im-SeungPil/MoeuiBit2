@@ -116,7 +116,8 @@ fun ExchangeRoute(
         isUpdateExchange = viewModel.isUpdateExchange,
         marketChangeAction = viewModel::marketChangeAction,
         sortList = viewModel::sortList,
-        selectedMarketState = viewModel.selectedMarketState
+        selectedMarketState = viewModel.selectedMarketState,
+        rootExchange = viewModel.currentRootExchange
     )
     // init
     AddLifecycleEvent(
@@ -124,14 +125,10 @@ fun ExchangeRoute(
 
         },
         onPauseAction = {
-            UpBitTickerWebSocket.currentPage = IS_ANOTHER_SCREEN
-            viewModel.updateIsExchangeUpdateState(false)
-            viewModel.stopExchangeUpdateCoroutine()
-            UpBitTickerWebSocket.onPause()
+            viewModel.onPauseAction()
         },
         onResumeAction = {
-            UpBitTickerWebSocket.currentPage = IS_EXCHANGE_SCREEN
-            viewModel.initExchangeData()
+            viewModel.onResumeAction()
         }
     )
     // 백핸들러

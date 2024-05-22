@@ -78,6 +78,7 @@ fun twitterUrl(href: String): String =
 fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
 fun upbitTickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]},{"format":"SIMPLE"}]"""
 fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["24H"]}"""
+fun bitthumbOrderBookWebSocketMessage(market: String): String = """{"type":"orderbooksnapshot","symbols":[$market]}"""
 
 val chartMinuteArray = arrayOf("1","3","5","10","15","30","60","240")
 val chartMinuteStrArray = arrayOf("1분","3분","5분","10분","15분","30분","60분","240분")
