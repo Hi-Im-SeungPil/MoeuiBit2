@@ -77,7 +77,7 @@ fun twitterUrl(href: String): String =
     "<a class=\"twitter-timeline\" href=\"${href}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"
 fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
 fun upbitTickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]},{"format":"SIMPLE"}]"""
-fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["24H"]}"""
+fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["MID"]}"""
 fun bitthumbOrderBookWebSocketMessage(market: String): String = """{"type":"orderbooksnapshot","symbols":[$market]}"""
 
 val chartMinuteArray = arrayOf("1","3","5","10","15","30","60","240")

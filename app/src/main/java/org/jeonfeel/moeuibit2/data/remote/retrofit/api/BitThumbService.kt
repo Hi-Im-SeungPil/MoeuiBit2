@@ -4,6 +4,8 @@ import com.google.gson.JsonObject
 import org.jeonfeel.moeuibit2.constants.bitthumbCoinNameUrl
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface BitThumbService {
 
@@ -15,5 +17,8 @@ interface BitThumbService {
 
     @GET(bitthumbCoinNameUrl)
     suspend fun getCoinName(): Response<JsonObject>
+
+    @GET("https://api.bithumb.com/public/ticker/{market}")
+    suspend fun getTickerUnit(@Path(value = "market") market: String): Response<JsonObject>
 
 }

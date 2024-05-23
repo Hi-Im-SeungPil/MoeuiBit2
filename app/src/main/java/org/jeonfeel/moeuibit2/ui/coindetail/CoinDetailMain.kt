@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +35,9 @@ fun CoinDetailMain(
     symbol: String,
     coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
-    val marketState = Utils.getSelectedMarket(coinDetailViewModel.market) // krw 인지 btc인지
+    val marketState = remember {
+        Utils.getSelectedMarket(coinDetailViewModel.market)
+    } // krw 인지 btc인지
     val curTradePrice = CurrentCalculator.tradePriceCalculator(currentPrice, marketState) // 현재가
     val curChangeRate =
         Calculator.signedChangeRateCalculator(coinDetailViewModel.coinOrder.coinDetailModel.signedChangeRate) // 전일대비

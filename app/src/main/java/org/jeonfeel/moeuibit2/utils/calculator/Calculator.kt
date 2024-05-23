@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.utils.calculator
 
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.utils.commaFormat
@@ -114,6 +115,7 @@ object Calculator {
     }
 
     fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
+        Logger.e("preClosingPrice => $preClosingPrice")
         return ((orderBookPrice - preClosingPrice) / preClosingPrice * 100)
     }
 

@@ -9,6 +9,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
+import org.jeonfeel.moeuibit2.utils.Utils
 import retrofit2.Response
 
 class RemoteRepository(
@@ -90,6 +91,20 @@ class RemoteRepository(
             emit(ApiResult.loading())
             try {
                 emit(call(bitThumbService.getBTCMarketCode()))
+            } catch (e: Exception) {
+                emit(ApiResult.error(e))
+            }
+        }
+    }
+
+    /**
+     * 빗썸 마켓코드 요청
+     */
+    suspend fun getBitthumbTickerUnit(market: String): Flow<ApiResult<JsonObject>> {
+        return flow {
+            emit(ApiResult.loading())
+            try {
+                emit(call(bitThumbService.getTickerUnit(Utils.upbitMarketToBitthumbMarket(market))))
             } catch (e: Exception) {
                 emit(ApiResult.error(e))
             }

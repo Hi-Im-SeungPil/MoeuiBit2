@@ -725,7 +725,7 @@ class BitThumb(
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         val model = gson.fromJson(tickerJsonObject, BitthumbTickerModel::class.java)
         Logger.e("model -> ${model.toString()}")
-        if (model.content != null) {
+        if (model.content != null && model.content.closePrice != "0") {
             val marketState = selectedMarketState.value
             var position = 0
             var targetModelList: ArrayList<CommonExchangeModel>? = null
@@ -740,7 +740,7 @@ class BitThumb(
                         marketState == SELECTED_FAVORITE && model.content.symbol == BITTHUMB_BTC_MARKET -> {
                             btcTradePrice.doubleValue =
                                 model.content.closePrice.toDouble() // 관심코인에 비트코인이 있을 시
-                            if (MoeuiBitDataStore.upBitFavoriteHashMap[BTC_MARKET] != null) {
+                            if (MoeuiBitDataStore.bitThumbFavoriteHashMap[BTC_MARKET] != null) {
                                 position = favoriteExchangeModelListPosition[modelCode] ?: 0
                                 targetModelList = favoriteExchangeModelList
                             }
@@ -776,7 +776,7 @@ class BitThumb(
                                 ?: "",
                             market = modelCode,
                             symbol = modelCode.substring(4),
-                            opening_price = model.content.prevClosePrice.toDouble(),
+                            opening_price = model.content.openPrice.toDouble(),
                             tradePrice = model.content.closePrice.toDouble(),
                             signedChangeRate = model.content.chgRate.toDouble() * 0.01,
                             accTradePrice24h = model.content.value.toDouble(),

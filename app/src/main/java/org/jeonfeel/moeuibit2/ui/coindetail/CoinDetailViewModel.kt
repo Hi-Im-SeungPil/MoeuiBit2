@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -10,11 +11,13 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
@@ -22,11 +25,13 @@ import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import javax.inject.Inject
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
-    val coinOrder: CoinOrder, val chart: Chart, val coinInfo: CoinInfo
+    val coinOrder: CoinOrder, val chart: Chart, val coinInfo: CoinInfo, val remoteRepository: RemoteRepository
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
     private var name = ""
     private var marketState = -999
@@ -58,7 +63,49 @@ class CoinDetailViewModel @Inject constructor(
         } else {
             BitthumbTickerWebSocket.coinDetailListener = this
         }
+        requestCoinTicker()
         Logger.e("isbtc$isBTC rootExchange$rootExchange")
+    }
+
+    private fun requestCoinTicker() {
+        if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+            viewModelScope.launch {
+                remoteRepository.getBitthumbTickerUnit(market = market).collect { apiResult ->
+                    when(apiResult.status) {
+                        ApiResult.Status.LOADING -> {
+
+                        }
+                        ApiResult.Status.SUCCESS -> {
+                            Logger.e("tickerUnit success -> ${apiResult.data}")
+                            val bitthumbModel = apiResult.data?.get("data") as JsonObject
+                            if (bitthumbModel != null) {
+                                val model = CoinDetailTickerModel(
+                                    code = market,
+                                    tradePrice = bitthumbModel["closing_price"]?.asDouble ?: 0.0,
+                                    signedChangeRate = Calculator.orderBookRateCalculator(bitthumbModel["opening_price"].asDouble,bitthumbModel["closing_price"].asDouble) * 0.01,
+                                    signedChangePrice = bitthumbModel["closing_price"].asDouble - bitthumbModel["opening_price"].asDouble
+                                )
+                                Logger.e("tickerUnit success -> ${bitthumbModel["closing_price"].asDouble}")
+                                Logger.e("tickerUnit success -> ${bitthumbModel["opening_price"].asDouble}")
+                                Logger.e("tickerUnit success -> ${Calculator.orderBookRateCalculator(bitthumbModel["opening_price"].asDouble,bitthumbModel["closing_price"].asDouble)}")
+                                if (model.code == market) {
+                                    Logger.e("tickerUnit success -> 2")
+                                    coinOrder.coinDetailModel = model
+                                    coinOrder.state.currentTradePriceStateForOrderBook.value =
+                                        coinOrder.coinDetailModel.tradePrice
+                                }
+                            }
+                        }
+                        ApiResult.Status.API_ERROR -> {
+                            Logger.e("tickerUnit api error -> " + apiResult.message.toString())
+                        }
+                        ApiResult.Status.NETWORK_ERROR -> {
+                            Logger.e("tickerUnit network error -> " + apiResult.message.toString())
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun updateTicker() {
