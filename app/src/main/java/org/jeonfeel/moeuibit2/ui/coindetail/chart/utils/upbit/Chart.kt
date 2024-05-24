@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
+package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -13,10 +13,13 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbChartModel
 import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -66,7 +69,7 @@ class Chart @Inject constructor(
         }
     }
 
-    suspend fun requestChartData(
+    suspend fun requestUpbitChartData(
         candleType: String = state.candleType.value, //분봉인지, 일봉인지
         market: String, // 어느 코인인지
     ) {
@@ -99,6 +102,71 @@ class Chart @Inject constructor(
                     chartModelList[0],
                     ChartModel::class.java
                 ).candleDateTimeKst
+
+                for (i in indices - 1 downTo 0) {
+                    val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
+                    Logger.e(model.toString())
+                    candleEntries.add(
+                        CandleEntry(
+                            candlePosition,
+                            model.highPrice.toFloat(),
+                            model.lowPrice.toFloat(),
+                            model.openingPrice.toFloat(),
+                            model.tradePrice.toFloat()
+                        )
+                    )
+                    if (model.tradePrice - model.openingPrice >= 0.0) {
+                        positiveBarEntries.add(
+                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                        )
+                    } else {
+                        negativeBarEntries.add(
+                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                        )
+                    }
+                    kstDateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
+                    accData[candlePosition.toInt()] = model.candleAccTradePrice
+                    candlePosition += 1f
+                    candleEntriesLastPosition = candleEntries.size - 1
+                }
+            } else {
+                //TODO
+            }
+            /**
+             * 현재 보유 코인인지 있으면 불러옴
+             */
+            val myCoin = getChartCoinPurchaseAverage(market)
+            myCoin?.let {
+                purchaseAveragePrice = it.purchasePrice.toFloat()
+            }
+            candlePosition -= 1f
+            positiveBarDataSet = BarDataSet(positiveBarEntries, "")
+            negativeBarDataSet = BarDataSet(negativeBarEntries, "")
+            candleDataSet = CandleDataSet(candleEntries, "")
+            state.isUpdateChart.value = true
+            state.loadingDialogState.value = false
+            _chartUpdateMutableLiveData.value = CHART_INIT
+            updateChart(market)
+        }
+    }
+
+    suspend fun requestBitthumbChartData(
+        candleType: String = state.candleType.value, //분봉인지, 일봉인지
+        market: String, // 어느 코인인지
+    ) {
+        state.isUpdateChart.value = false
+        state.loadingDialogState.value = true
+
+        val response: Response<BitthumbChartModel> = remoteRepository.getBitthumbChart(market = market, candleType = candleType)
+
+        if (response.isSuccessful && response.body()?.status == "0000") {
+            resetChartData()
+            val positiveBarEntries = ArrayList<BarEntry>()
+            val negativeBarEntries = ArrayList<BarEntry>()
+            val chartModelList = response.body()?.data
+            if ((chartModelList?.size ?: 0) != 0) {
+                val indices = chartModelList?.size
+                kstTime = (chartModelList?.get(0)?.get(0) ?: "").toString()
 
                 for (i in indices - 1 downTo 0) {
                     val model = gson.fromJson(chartModelList[i], ChartModel::class.java)

@@ -4,10 +4,12 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.util.Log.isLoggable
 import androidx.lifecycle.*
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.orhanobut.logger.AndroidLogAdapter
+import com.orhanobut.logger.BuildConfig
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.HiltAndroidApp
 import org.jeonfeel.moeuibit2.constants.AD_ID_TEST
@@ -31,7 +33,11 @@ class MoeuiBitApp : Application() {
         applyTheme()
         initAd()
 
-        Logger.addLogAdapter(AndroidLogAdapter())
+        Logger.addLogAdapter(object : AndroidLogAdapter() {
+            override fun isLoggable(priority: Int, tag: String?): Boolean {
+                return BuildConfig.DEBUG
+            }
+        })
     }
 
     private fun applyTheme() {

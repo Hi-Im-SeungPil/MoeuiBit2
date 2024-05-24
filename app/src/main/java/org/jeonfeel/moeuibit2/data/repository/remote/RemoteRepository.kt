@@ -9,6 +9,7 @@ import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.remote.retrofit.api.UpBitService
+import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbChartModel
 import org.jeonfeel.moeuibit2.utils.Utils
 import retrofit2.Response
 
@@ -123,6 +124,13 @@ class RemoteRepository(
                 emit(ApiResult.error(e))
             }
         }
+    }
+
+    /**
+     * 일,주,월봉 요청
+     */
+    suspend fun getBitthumbChart(candleType: String, market: String ): Response<BitthumbChartModel> {
+        return bitThumbService.getChartData(market = market, candleType = candleType)
     }
 
     /**

@@ -19,14 +19,13 @@ import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinD
 import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailTickerModel
 import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import javax.inject.Inject
 
 @HiltViewModel
@@ -266,7 +265,7 @@ class CoinDetailViewModel @Inject constructor(
 
     fun requestChartData() {
         viewModelScope.launch {
-            chart.requestChartData(market = market)
+            chart.requestUpbitChartData(market = market)
         }
     }
 
