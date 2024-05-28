@@ -9,6 +9,8 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.*
 
 object Utils {
@@ -93,7 +95,7 @@ object Utils {
         val standard = market.indexOf("_")
         val temp = market.substring(0, standard)
         val temp2 = market.substring(standard + 1)
-        Logger.e("$temp $temp2")
+//        Logger.e("$temp $temp2")
         return "$temp2-$temp"
     }
 
@@ -103,5 +105,71 @@ object Utils {
         val temp2 = market.substring(standard + 1)
         Logger.e("$temp $temp2")
         return "${temp2}_$temp"
+    }
+
+    fun millisToUpbitFormat(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = millis
+        return formatter.format(calendar.time)
+    }
+
+    fun upbitFormatToMillis(time: String): Long {
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val date: Date = dateFormat.parse(time)
+
+        // Date 객체의 time 속성을 이용해 밀리초로 변환
+        return date.time
+    }
+
+    fun getStandardMillis(candleType: String): Long {
+        val oneMinute: Long = (60 * 1000).toLong()
+        val threeMinutes: Long = 3 * oneMinute
+        val fiveMinutes: Long = 5 * oneMinute
+        val fifteenMinutes: Long = 15 * oneMinute
+        val thirtyMinutes: Long = 30 * oneMinute
+        val oneHour: Long = 60 * oneMinute
+        val sixHours: Long = 6 * oneHour
+        val twelveHours: Long = 12 * oneHour
+        val oneDay: Long = 24 * oneHour
+        return when(candleType) {
+            "1m" -> {
+                oneMinute
+            }
+
+            "3m" -> {
+                threeMinutes
+            }
+
+            "5m" -> {
+                fiveMinutes
+            }
+
+            "10m" -> {
+                fifteenMinutes
+            }
+
+            "30m" -> {
+                thirtyMinutes
+            }
+
+            "1h" -> {
+                oneHour
+            }
+
+            "6h" -> {
+                sixHours
+            }
+
+            "12h" -> {
+                twelveHours
+            }
+
+            "24h" -> {
+                oneDay
+            }
+            else -> {0}
+        }
     }
 }

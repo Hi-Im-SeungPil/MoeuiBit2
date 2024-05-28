@@ -403,7 +403,7 @@ class CoinOrder @Inject constructor(
         ) {
             val model =
                 gson.fromJson(orderBookJsonObject, BitthumbCoinDetailOrderBookModel::class.java)
-            Logger.e("model -> $model")
+//            Logger.e("model -> $model")
             if (model.content != null) {
                 val temp = ArrayList<CoinDetailOrderBookModel>()
                 val temp1 = ArrayList<CoinDetailOrderBookModel>()

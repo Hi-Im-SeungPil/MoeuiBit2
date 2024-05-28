@@ -115,7 +115,7 @@ object Calculator {
     }
 
     fun orderBookRateCalculator(preClosingPrice: Double, orderBookPrice: Double): Double {
-        Logger.e("preClosingPrice => $preClosingPrice")
+//        Logger.e("preClosingPrice => $preClosingPrice")
         return ((orderBookPrice - preClosingPrice) / preClosingPrice * 100)
     }
 

@@ -17,7 +17,7 @@ class BitThumbTickerWebSocketListener : WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         super.onMessage(webSocket, text)
-        Logger.e("text text -> $text")
+//        Logger.e("text text -> $text")
         BitthumbTickerWebSocket.message(text)
     }
 

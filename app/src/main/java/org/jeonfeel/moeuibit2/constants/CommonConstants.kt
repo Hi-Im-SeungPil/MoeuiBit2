@@ -82,6 +82,8 @@ fun bitthumbOrderBookWebSocketMessage(market: String): String = """{"type":"orde
 
 val chartMinuteArray = arrayOf("1","3","5","10","15","30","60","240")
 val chartMinuteStrArray = arrayOf("1분","3분","5분","10분","15분","30분","60분","240분")
+val bitthumbChartMinuteArray = arrayOf("1m","3m","5m","10m","30m","1h","6h","12h")
+val bitthumbChartMinuteStrArray = arrayOf("1분","3분","5분","10분","30분","60분","6시간","12시간")
 val menuTitleArray = if (MoeuiBitDataStore.isKor) {
     arrayOf("거래소","코인사이트","투자내역","설정")
 } else {

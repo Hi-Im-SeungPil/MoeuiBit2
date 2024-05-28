@@ -102,7 +102,8 @@ class MBitCombinedChart(
         candleUpdateLiveDataValue: Int,
         isUpdateChart: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
-        candlePosition: Float
+        candlePosition: Float,
+        rootExchange: String
     ) {
         if (isUpdateChart.value && this.barData != null) {
             val positiveBarLast =
@@ -113,22 +114,24 @@ class MBitCombinedChart(
                     ?: emptyList()
             val positiveDataSet = this.barData.dataSets[POSITIVE_BAR]
             val negativeDataSet = this.barData.dataSets[NEGATIVE_BAR]
-            val barEntry = BarEntry(candlePosition, accData[candlePosition.toInt()]!!.toFloat())
-            if (lastCandleEntry.close - lastCandleEntry.open >= 0.0) {
-                if (positiveBarLast.isNotEmpty()) {
-                    positiveDataSet.removeLast()
-                    positiveDataSet.addEntry(barEntry)
+            if(accData[candlePosition.toInt()] != null) {
+                val barEntry = BarEntry(candlePosition, accData[candlePosition.toInt()]!!.toFloat())
+                if (lastCandleEntry.close - lastCandleEntry.open >= 0.0) {
+                    if (positiveBarLast.isNotEmpty()) {
+                        positiveDataSet.removeLast()
+                        positiveDataSet.addEntry(barEntry)
+                    } else {
+                        positiveDataSet.addEntry(barEntry)
+                        negativeDataSet.removeLast()
+                    }
                 } else {
-                    positiveDataSet.addEntry(barEntry)
-                    negativeDataSet.removeLast()
-                }
-            } else {
-                if (negativeBarLast.isNotEmpty()) {
-                    negativeDataSet.removeLast()
-                    negativeDataSet.addEntry(barEntry)
-                } else {
-                    negativeDataSet.addEntry(barEntry)
-                    positiveDataSet.removeLast()
+                    if (negativeBarLast.isNotEmpty()) {
+                        negativeDataSet.removeLast()
+                        negativeDataSet.addEntry(barEntry)
+                    } else {
+                        negativeDataSet.addEntry(barEntry)
+                        positiveDataSet.removeLast()
+                    }
                 }
             }
         }

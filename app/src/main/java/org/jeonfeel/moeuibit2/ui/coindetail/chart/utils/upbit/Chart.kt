@@ -20,6 +20,7 @@ import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
+import org.jeonfeel.moeuibit2.utils.Utils
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -157,43 +158,56 @@ class Chart @Inject constructor(
         state.isUpdateChart.value = false
         state.loadingDialogState.value = true
 
-        val response: Response<BitthumbChartModel> = remoteRepository.getBitthumbChart(market = market, candleType = candleType)
-
+        val response: Response<BitthumbChartModel> = remoteRepository.getBitthumbChart(
+            market = Utils.upbitMarketToBitthumbMarket(market),
+            candleType = candleType
+        )
+        Logger.e("requestBitthumbChartData, ${response.message()}")
         if (response.isSuccessful && response.body()?.status == "0000") {
+            Logger.e("requestBitthumbChartData, ${response.body()?.status}")
             resetChartData()
             val positiveBarEntries = ArrayList<BarEntry>()
             val negativeBarEntries = ArrayList<BarEntry>()
             val chartModelList = response.body()?.data
             if ((chartModelList?.size ?: 0) != 0) {
-                val indices = chartModelList?.size
-                kstTime = (chartModelList?.get(0)?.get(0) ?: "").toString()
-
-                for (i in indices - 1 downTo 0) {
-                    val model = gson.fromJson(chartModelList[i], ChartModel::class.java)
-                    Logger.e(model.toString())
+                val indices = chartModelList?.size ?: 0
+                Logger.e(response.body().toString())
+                kstTime = Utils.millisToUpbitFormat(
+                    (chartModelList?.last()?.get(0) ?: 0).toString().toDouble().toLong()
+                )
+                for (i in 0 until indices) {
+                    val openingPrice = (chartModelList?.get(i)?.get(1) ?: "").toString().toFloat()
+                    val closePrice = (chartModelList?.get(i)?.get(2) ?: "").toString().toFloat()
+                    val highPrice = (chartModelList?.get(i)?.get(3) ?: "").toString().toFloat()
+                    val lowPrice = (chartModelList?.get(i)?.get(4) ?: "").toString().toFloat()
+                    val accAmount = (chartModelList?.get(i)?.get(5) ?: "").toString().toFloat()
+                    val time = Utils.millisToUpbitFormat(
+                        (chartModelList?.get(i)?.get(0) ?: 0).toString().toDouble().toLong()
+                    )
                     candleEntries.add(
                         CandleEntry(
                             candlePosition,
-                            model.highPrice.toFloat(),
-                            model.lowPrice.toFloat(),
-                            model.openingPrice.toFloat(),
-                            model.tradePrice.toFloat()
+                            highPrice,
+                            lowPrice,
+                            openingPrice,
+                            closePrice
                         )
                     )
-                    if (model.tradePrice - model.openingPrice >= 0.0) {
+                    if (closePrice - openingPrice >= 0.0) {
                         positiveBarEntries.add(
-                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                            BarEntry(candlePosition, accAmount)
                         )
                     } else {
                         negativeBarEntries.add(
-                            BarEntry(candlePosition, model.candleAccTradePrice.toFloat())
+                            BarEntry(candlePosition, accAmount)
                         )
                     }
-                    kstDateHashMap[candlePosition.toInt()] = model.candleDateTimeKst
-                    accData[candlePosition.toInt()] = model.candleAccTradePrice
+                    kstDateHashMap[candlePosition.toInt()] = time
+                    accData[candlePosition.toInt()] = accAmount.toDouble()
                     candlePosition += 1f
                     candleEntriesLastPosition = candleEntries.size - 1
                 }
+                candlePosition += 1f
             } else {
                 //TODO
             }
@@ -321,6 +335,7 @@ class Chart @Inject constructor(
                         )
                     )
                     kstTime = model.candleDateTimeKst
+                    Logger.e(kstTime)
                     candlePosition += 1f
                     candleEntriesLastPosition += 1
                     kstDateHashMap[candlePosition.toInt()] = kstTime
@@ -356,6 +371,64 @@ class Chart @Inject constructor(
 
             }
             _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
+        }
+    }
+
+    fun bitthumbUpdateCandleTicker(tradePrice: Double) {
+        if(kstTime.isNotEmpty()) {
+            val kstTimeMillis = Utils.upbitFormatToMillis(kstTime)
+            val standardMillis = Utils.getStandardMillis(state.candleType.value)
+            val currentMillis = System.currentTimeMillis()
+            Logger.e("standard -> ${standardMillis + kstTimeMillis} current -> $currentMillis")
+            if (currentMillis < kstTimeMillis + standardMillis) {
+                Logger.e("CHART_SET_CANDLE".toString())
+                if (state.isUpdateChart.value && candleEntries.isNotEmpty()) {
+                    val candleEntry = candleEntries[candleEntriesLastPosition]
+                    if (candleEntry.close < candleEntry.low) {
+                        candleEntries[candleEntriesLastPosition].low = tradePrice.toFloat()
+                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+                    } else if(candleEntry.close > candleEntry.high) {
+                        candleEntries[candleEntriesLastPosition].high = tradePrice.toFloat()
+                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+                    } else {
+                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+                    }
+                    try {
+                        modifyLineData()
+                    } catch (e: Exception) {
+
+                    }
+                    _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
+                }
+            } else {
+                Logger.e("CHART_ADD_CANDLE")
+                kstTime = Utils.millisToUpbitFormat(kstTimeMillis + standardMillis)
+                addModel = ChartModel(
+                    candleDateTimeKst = kstTime,
+                    candleDateTimeUtc = "",
+                    openingPrice = tradePrice,
+                    highPrice = tradePrice,
+                    lowPrice = tradePrice,
+                    tradePrice = tradePrice,
+                    candleAccTradePrice = 0.0,
+                    timestamp = currentMillis
+                )
+                state.isUpdateChart.value = false
+                candleEntries.add(
+                    CandleEntry(
+                        candlePosition,
+                        tradePrice.toFloat(),
+                        tradePrice.toFloat(),
+                        tradePrice.toFloat(),
+                        tradePrice.toFloat()
+                    )
+                )
+                candlePosition += 1f
+                candleEntriesLastPosition += 1
+                kstDateHashMap[candlePosition.toInt()] = kstTime
+                _chartUpdateMutableLiveData.postValue(CHART_ADD)
+                state.isUpdateChart.value = true
+            }
         }
     }
 
@@ -415,6 +488,13 @@ class Chart @Inject constructor(
 
     private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
         return localRepository.getMyCoinDao().isInsert(market)
+    }
+
+    fun setBitthumbChart() {
+        state.isLastData.value = true
+        if (state.candleType.value == "1") {
+            state.candleType.value = "1m"
+        }
     }
 
     fun getLastCandleEntry() = candleEntries.last()

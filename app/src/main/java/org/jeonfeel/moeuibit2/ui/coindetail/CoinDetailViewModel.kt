@@ -30,7 +30,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CoinDetailViewModel @Inject constructor(
-    val coinOrder: CoinOrder, val chart: Chart, val coinInfo: CoinInfo, val remoteRepository: RemoteRepository
+    val coinOrder: CoinOrder,
+    val chart: Chart,
+    val coinInfo: CoinInfo,
+    val remoteRepository: RemoteRepository
 ) : BaseViewModel(), OnTickerMessageReceiveListener {
     private var name = ""
     private var marketState = -999
@@ -70,10 +73,11 @@ class CoinDetailViewModel @Inject constructor(
         if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
             viewModelScope.launch {
                 remoteRepository.getBitthumbTickerUnit(market = market).collect { apiResult ->
-                    when(apiResult.status) {
+                    when (apiResult.status) {
                         ApiResult.Status.LOADING -> {
 
                         }
+
                         ApiResult.Status.SUCCESS -> {
                             Logger.e("tickerUnit success -> ${apiResult.data}")
                             val bitthumbModel = apiResult.data?.get("data") as JsonObject
@@ -81,12 +85,22 @@ class CoinDetailViewModel @Inject constructor(
                                 val model = CoinDetailTickerModel(
                                     code = market,
                                     tradePrice = bitthumbModel["closing_price"]?.asDouble ?: 0.0,
-                                    signedChangeRate = Calculator.orderBookRateCalculator(bitthumbModel["opening_price"].asDouble,bitthumbModel["closing_price"].asDouble) * 0.01,
+                                    signedChangeRate = Calculator.orderBookRateCalculator(
+                                        bitthumbModel["opening_price"].asDouble,
+                                        bitthumbModel["closing_price"].asDouble
+                                    ) * 0.01,
                                     signedChangePrice = bitthumbModel["closing_price"].asDouble - bitthumbModel["opening_price"].asDouble
                                 )
                                 Logger.e("tickerUnit success -> ${bitthumbModel["closing_price"].asDouble}")
                                 Logger.e("tickerUnit success -> ${bitthumbModel["opening_price"].asDouble}")
-                                Logger.e("tickerUnit success -> ${Calculator.orderBookRateCalculator(bitthumbModel["opening_price"].asDouble,bitthumbModel["closing_price"].asDouble)}")
+                                Logger.e(
+                                    "tickerUnit success -> ${
+                                        Calculator.orderBookRateCalculator(
+                                            bitthumbModel["opening_price"].asDouble,
+                                            bitthumbModel["closing_price"].asDouble
+                                        )
+                                    }"
+                                )
                                 if (model.code == market) {
                                     Logger.e("tickerUnit success -> 2")
                                     coinOrder.coinDetailModel = model
@@ -95,9 +109,11 @@ class CoinDetailViewModel @Inject constructor(
                                 }
                             }
                         }
+
                         ApiResult.Status.API_ERROR -> {
                             Logger.e("tickerUnit api error -> " + apiResult.message.toString())
                         }
+
                         ApiResult.Status.NETWORK_ERROR -> {
                             Logger.e("tickerUnit network error -> " + apiResult.message.toString())
                         }
@@ -107,20 +123,21 @@ class CoinDetailViewModel @Inject constructor(
         }
     }
 
-    private fun updateTicker() {
-        viewModelScope.launch {
-            while (coinOrder.isTickerSocketRunning) {
-                val tradPrice = coinOrder.coinDetailModel.tradePrice
-                coinOrder.state.currentTradePriceState.value = tradPrice
+    private suspend fun updateTicker() {
+        while (coinOrder.isTickerSocketRunning) {
+            val tradPrice = coinOrder.coinDetailModel.tradePrice
+            coinOrder.state.currentTradePriceState.value = tradPrice
+            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
                 chart.updateCandleTicker(tradPrice)
-                delay(100L)
+            } else {
+                chart.bitthumbUpdateCandleTicker(tradePrice = tradPrice)
             }
+            delay(100L)
         }
     }
 
     // 주문 화면
     fun initCoinDetailScreen() {
-        Logger.e("initCoinDetailScreen")
         when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 if (coinOrder.state.currentTradePriceState.value == 0.0 && coinOrder.state.orderBookMutableStateList.isEmpty()) {
@@ -255,22 +272,30 @@ class CoinDetailViewModel @Inject constructor(
         positiveBarDataSet: IBarDataSet, negativeBarDataSet: IBarDataSet, candleXMin: Float
     ) {
         viewModelScope.launch {
-            chart.requestOldData(
-                positiveBarDataSet = positiveBarDataSet,
-                negativeBarDataSet = negativeBarDataSet,
-                candleXMin = candleXMin
-            )
+            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+                chart.requestOldData(
+                    positiveBarDataSet = positiveBarDataSet,
+                    negativeBarDataSet = negativeBarDataSet,
+                    candleXMin = candleXMin
+                )
+            }
         }
     }
 
     fun requestChartData() {
         viewModelScope.launch {
-            chart.requestUpbitChartData(market = market)
+            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+                chart.requestUpbitChartData(market = market)
+            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                Logger.e("requestChartData")
+                chart.setBitthumbChart()
+                chart.requestBitthumbChartData(market = market)
+            }
         }
     }
 
     fun getOrderBookInitPosition(): Int {
-        return if(rootExchange == ROOT_EXCHANGE_UPBIT) {
+        return if (rootExchange == ROOT_EXCHANGE_UPBIT) {
             8
         } else {
             24
