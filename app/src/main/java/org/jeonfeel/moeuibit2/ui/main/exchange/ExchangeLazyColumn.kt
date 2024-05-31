@@ -35,7 +35,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -43,7 +42,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.SYMBOL_USD
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.SwipeDetector
@@ -138,19 +137,19 @@ fun ExchangeScreenLazyColumns(
                             coinListElement.signedChangeRate
                         ),
                         curTradePrice = CurrentCalculator.tradePriceCalculator(
-                            coinListElement.tradePrice,
+                            coinListElement.tradePrice.toDouble(),
                             currentMarketState
                         ),
                         accTradePrice24h = CurrentCalculator.accTradePrice24hCalculator(
-                            coinListElement.accTradePrice24h,
+                            coinListElement.accTradePrice24h.toDouble(),
                             currentMarketState
                         ),
                         formattedPreTradePrice = CurrentCalculator.tradePriceCalculator(
-                            preCoinElement.tradePrice,
+                            preCoinElement.tradePrice.toDouble(),
                             currentMarketState
                         ),
                         btcToKrw = CurrentCalculator.btcToKrw(
-                            (coinListElement.tradePrice * btcPrice.value),
+                            (coinListElement.tradePrice.toDouble() * btcPrice.value),
                             currentMarketState
                         ),
                         unit = Utils.getUnit(currentMarketState),
@@ -195,7 +194,7 @@ fun ExchangeScreenLazyColumnItem(
                 .align(Alignment.Bottom)
         ) {
             Text(
-                text = createCoinName(commonExchangeModel.warning, commonExchangeModel.koreanName),
+                text = createCoinName(commonExchangeModel.warning.toString(), commonExchangeModel.koreanName),
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -249,7 +248,7 @@ fun ExchangeScreenLazyColumnItem(
                 tradePrice = curTradePrice,
                 textColor = textColor,
                 btcToKrw = btcToKrw,
-                doubleTradePrice = commonExchangeModel.tradePrice,
+                doubleTradePrice = commonExchangeModel.tradePrice.toDouble(),
                 selectedMarket = currentMarketState
             )
         }
@@ -266,7 +265,7 @@ fun ExchangeScreenLazyColumnItem(
             )
         )
         // 거래대금
-        Volume(accTradePrice24h, commonExchangeModel.accTradePrice24h, commonExchangeModel.market)
+        Volume(accTradePrice24h, commonExchangeModel.accTradePrice24h.toDouble(), commonExchangeModel.market)
     }
 }
 

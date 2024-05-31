@@ -13,10 +13,10 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.bitthumb.BitthumbChartModel
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.ChartModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitthumbChartModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet

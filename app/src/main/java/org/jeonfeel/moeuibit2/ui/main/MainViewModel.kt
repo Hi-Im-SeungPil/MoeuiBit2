@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import javax.inject.Inject
@@ -21,7 +20,6 @@ data class MainViewModelState(
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val remoteRepository: RemoteRepository,
     val localRepository: LocalRepository,
     val adMobManager: AdMobManager,
     val preferenceManager: PreferenceManager

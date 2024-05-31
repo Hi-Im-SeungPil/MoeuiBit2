@@ -11,7 +11,6 @@ import org.jeonfeel.moeuibit2.utils.ConnectionType
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import javax.inject.Inject
 
-@AndroidEntryPoint
 abstract class BaseActivity : AppCompatActivity() {
 
     @Inject

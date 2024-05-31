@@ -12,10 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
 import org.jeonfeel.moeuibit2.constants.IS_DETAIL_SCREEN
-import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbOrderBookWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbOrderBookWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.AskingPriceLazyColumn
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.OrderScreenAskBid
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT

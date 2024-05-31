@@ -11,6 +11,9 @@ val defaultDispatcher = Dispatchers.Default
 val timeOutDuration: Duration = Duration.ofMillis(50000L)
 val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
 
+const val UPBIT_KRW_SYMBOL_PREFIX = "KRW-"
+const val UPBIT_BTC_SYMBOL_PREFIX = "BTC-"
+
 const val ROOM_DATABASE_NAME = "MoeuiBitDatabase"
 const val PREFRENCE_NAME = "MoeuiBitPrefrence"
 const val AD_ID_REWARD_FULL_SCREEN = "ca-app-pub-8481465476603755/3905762551"

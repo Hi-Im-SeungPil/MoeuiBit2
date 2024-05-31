@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
@@ -70,10 +72,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
 import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
-import org.jeonfeel.moeuibit2.constants.IS_EXCHANGE_SCREEN
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
@@ -103,61 +102,75 @@ fun ExchangeRoute(
                 if (resultData != null) {
                     val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
                     val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
-                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
+//                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }
         }
     // ui state, ui 로직
-    val stateHolder = rememberExchangeScreenStateHolder(
-        context = context,
-        pagerState = pagerState,
-        lazyScrollState = lazyScrollState,
-        startForActivityResult = startForActivityResult,
-        isUpdateExchange = viewModel.isUpdateExchange,
-        marketChangeAction = viewModel::marketChangeAction,
-        sortList = viewModel::sortList,
-        selectedMarketState = viewModel.selectedMarketState,
-        rootExchange = viewModel.currentRootExchange
-    )
+//    val stateHolder = rememberExchangeScreenStateHolder(
+//        context = context,
+//        pagerState = pagerState,
+//        lazyScrollState = lazyScrollState,
+//        startForActivityResult = startForActivityResult,
+//        isUpdateExchange = viewModel.isUpdateExchange,
+//        marketChangeAction = viewModel::marketChangeAction,
+//        sortList = viewModel::sortList,
+//        selectedMarketState = viewModel.selectedMarketState,
+//        rootExchange = viewModel.currentRootExchange
+//    )
     // init
     AddLifecycleEvent(
-        onCreateAction = {
-
-        },
         onPauseAction = {
-            viewModel.onPauseAction()
+//            viewModel.onPauseAction()
         },
         onResumeAction = {
-            viewModel.onResumeAction()
+//            viewModel.onResumeAction()
         }
     )
     // 백핸들러
     ExchangeBackHandler(context)
     // main network watcher value sync
     LaunchedEffect(key1 = networkErrorState.value) {
-        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
+//        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
     }
-
-    when (viewModel.loadingExchange.value) {
-        true -> {
-            ExchangeScreenLoading()
+    LazyColumn(Modifier.fillMaxSize()) {
+        items(items = viewModel.getTickerList(), key = { it.market }) { item ->
+            Text(text = "${item.market} // ${item.tradePrice} // ${item.change}")
         }
+//    Exchange(
+//        stateHolder = stateHolder,
+//        errorState = viewModel.networkErrorState,
+//        filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
+//        preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
+//        loadingFavorite = viewModel.getFavoriteLoadingState(),
+//        btcPrice = viewModel.getBtcPrice(),
+//        checkErrorScreen = viewModel::checkErrorScreen,
+//        changeSelectedMarketState = viewModel::changeSelectedMarketState,
+//        updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
+//        currentRootExchange = viewModel.currentRootExchange,
+//        changeRootExchangeAction = viewModel::changeRootExchangeAction
+//    )
 
-        false -> {
-            Exchange(
-                stateHolder = stateHolder,
-                errorState = viewModel.networkErrorState,
-                filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
-                preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
-                loadingFavorite = viewModel.getFavoriteLoadingState(),
-                btcPrice = viewModel.getBtcPrice(),
-                checkErrorScreen = viewModel::checkErrorScreen,
-                changeSelectedMarketState = viewModel::changeSelectedMarketState,
-                updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
-                currentRootExchange = viewModel.currentRootExchange,
-                changeRootExchangeAction = viewModel::changeRootExchangeAction
-            )
-        }
+//    when (viewModel.loadingExchange.value) {
+//        true -> {
+//            ExchangeScreenLoading()
+//        }
+
+//        false -> {
+//            Exchange(
+//                stateHolder = stateHolder,
+//                errorState = viewModel.networkErrorState,
+//                filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
+//                preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
+//                loadingFavorite = viewModel.getFavoriteLoadingState(),
+//                btcPrice = viewModel.getBtcPrice(),
+//                checkErrorScreen = viewModel::checkErrorScreen,
+//                changeSelectedMarketState = viewModel::changeSelectedMarketState,
+//                updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
+//                currentRootExchange = viewModel.currentRootExchange,
+//                changeRootExchangeAction = viewModel::changeRootExchangeAction
+//            )
+//        }
     }
 }
 

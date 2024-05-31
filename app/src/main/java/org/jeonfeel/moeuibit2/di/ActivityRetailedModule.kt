@@ -6,8 +6,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
@@ -27,16 +25,16 @@ class ActivityRetailedModule {
         return AdMobManager()
     }
 
-    @Provides
-    fun provideChart(
-        remoteRepository: RemoteRepository,
-        localRepository: LocalRepository
-    ): Chart {
-        return Chart(
-            remoteRepository = remoteRepository,
-            localRepository = localRepository
-        )
-    }
+//    @Provides
+//    fun provideChart(
+//        remoteRepository: RemoteRepository,
+//        localRepository: LocalRepository
+//    ): Chart {
+//        return Chart(
+//            remoteRepository = remoteRepository,
+//            localRepository = localRepository
+//        )
+//    }
 
     @Provides
     fun provideCoinOrder(

@@ -24,7 +24,7 @@
 
 -keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
 
--keep class org.jeonfeel.moeuibit2.data.remote.retrofit.api.** { *; }
+-keep class org.jeonfeel.moeuibit2.data.network.retrofit.api.** { *; }
 
 # Retrofit
 -keep class retrofit2.** { *; }

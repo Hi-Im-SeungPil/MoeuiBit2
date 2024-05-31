@@ -143,16 +143,16 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
                     // 마지막 차트 컴포넌트 최신화
                     else -> {
                         if (!coinDetailViewModel.chart.isCandleEntryEmpty()) {
-                            combinedChart.chartSet(
-                                marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
-                                lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
-                                candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
-                                candleUpdateLiveDataValue = it,
-                                isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
-                                accData = coinDetailViewModel.chart.accData,
-                                candlePosition = coinDetailViewModel.chart.candlePosition,
-                                rootExchange = coinDetailViewModel.rootExchange
-                            )
+//                            combinedChart.chartSet(
+//                                marketState = Utils.getSelectedMarket(coinDetailViewModel.market),
+//                                lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
+//                                candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+//                                candleUpdateLiveDataValue = it,
+//                                isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
+//                                accData = coinDetailViewModel.chart.accData,
+//                                candlePosition = coinDetailViewModel.chart.candlePosition,
+//                                rootExchange = coinDetailViewModel.rootExchange
+//                            )
                         }
                     }
                 }
@@ -164,15 +164,15 @@ fun ChartScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
     }
     // 버튼들과 차트.
     Column(modifier = Modifier.fillMaxSize()) {
-        PeriodButtons(
-            selectedButton = coinDetailViewModel.chart.state.selectedButton,
-            minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-            minuteText = coinDetailViewModel.chart.state.minuteText,
-            candleType = coinDetailViewModel.chart.state.candleType,
-            isChartLastData = coinDetailViewModel.chart.state.isLastData,
-            requestChartData = coinDetailViewModel::requestChartData,
-            rootExchange = coinDetailViewModel.rootExchange
-        )
+//        PeriodButtons(
+//            selectedButton = coinDetailViewModel.chart.state.selectedButton,
+//            minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
+//            minuteText = coinDetailViewModel.chart.state.minuteText,
+//            candleType = coinDetailViewModel.chart.state.candleType,
+//            isChartLastData = coinDetailViewModel.chart.state.isLastData,
+//            requestChartData = coinDetailViewModel::requestChartData,
+//            rootExchange = coinDetailViewModel.rootExchange
+//        )
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 factory = {

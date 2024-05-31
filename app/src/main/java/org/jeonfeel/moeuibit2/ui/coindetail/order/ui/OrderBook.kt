@@ -15,9 +15,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailOrderBookModel
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.CoinDetailOrderBookModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.*

@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,13 +12,13 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.data.remote.retrofit.ApiResult
-import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.bitthumb.BitthumbCoinDetailTickerModel
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.CoinDetailTickerModel
-import org.jeonfeel.moeuibit2.data.repository.remote.RemoteRepository
+import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
+import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.listener.upbit.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BitthumbCoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.CoinDetailTickerModel
+import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
@@ -26,6 +27,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,14 +35,15 @@ class CoinDetailViewModel @Inject constructor(
     val coinOrder: CoinOrder,
     val chart: Chart,
     val coinInfo: CoinInfo,
-    val remoteRepository: RemoteRepository
-) : BaseViewModel(), OnTickerMessageReceiveListener {
+    val remoteRepository: RemoteRepository,
+    val preferenceManager: PreferenceManager
+) : BaseViewModel(preferenceManager = preferenceManager), OnTickerMessageReceiveListener {
     private var name = ""
     private var marketState = -999
     var market = ""
     var preClosingPrice = 0.0
     val favoriteMutableState = mutableStateOf(false)
-    var rootExchange = ROOT_EXCHANGE_UPBIT
+//    var rootExchange = ROOT_EXCHANGE_UPBIT
     private var isBTC = false
     private var updateOrderBlockJob: Job? = null
 
@@ -176,7 +179,7 @@ class CoinDetailViewModel @Inject constructor(
 
     fun initOrderScreen() {
         viewModelScope.launch(ioDispatcher) {
-            coinOrder.initOrderScreen(market, rootExchange)
+//            coinOrder.initOrderScreen(market, rootExchange)
         }
         updateOrderBlockJob = viewModelScope.launch {
             coinOrder.updateOrderBlock()
@@ -316,7 +319,7 @@ class CoinDetailViewModel @Inject constructor(
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (rootExchange == ROOT_EXCHANGE_UPBIT) {
             if (coinOrder.isTickerSocketRunning && UpBitTickerWebSocket.currentPage == IS_DETAIL_SCREEN) {
-                val model = gson.fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
+                val model = Gson().fromJson(tickerJsonObject, CoinDetailTickerModel::class.java)
                 if (marketState == SELECTED_BTC_MARKET && model.code.startsWith(SYMBOL_KRW)) {
                     coinOrder.state.currentBTCPrice.value = model.tradePrice
                 }
@@ -329,7 +332,7 @@ class CoinDetailViewModel @Inject constructor(
         } else {
             if (coinOrder.isTickerSocketRunning && BitthumbTickerWebSocket.currentScreen == IS_DETAIL_SCREEN) {
                 val bitthumbModel =
-                    gson.fromJson(tickerJsonObject, BitthumbCoinDetailTickerModel::class.java)
+                    Gson().fromJson(tickerJsonObject, BitthumbCoinDetailTickerModel::class.java)
                 if (bitthumbModel.content != null) {
                     val model = CoinDetailTickerModel(
                         code = Utils.bitthumbMarketToUpbitMarket(bitthumbModel.content.code),

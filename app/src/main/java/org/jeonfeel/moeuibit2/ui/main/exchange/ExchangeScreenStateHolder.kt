@@ -41,7 +41,7 @@ import org.jeonfeel.moeuibit2.constants.SORT_PRICE_ASC
 import org.jeonfeel.moeuibit2.constants.SORT_PRICE_DEC
 import org.jeonfeel.moeuibit2.constants.SORT_RATE_ASC
 import org.jeonfeel.moeuibit2.constants.SORT_RATE_DEC
-import org.jeonfeel.moeuibit2.data.remote.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -246,7 +246,7 @@ class ExchangeScreenStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             putExtra(INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
             putExtra(INTENT_ENG_NAME, commonExchangeModel.englishName)
             putExtra(INTENT_COIN_SYMBOL, commonExchangeModel.symbol)
-            putExtra(INTENT_OPENING_PRICE, commonExchangeModel.opening_price)
+            putExtra(INTENT_OPENING_PRICE, commonExchangeModel.openingPrice)
             putExtra(
                 INTENT_IS_FAVORITE,
                 MoeuiBitDataStore.upBitFavoriteHashMap[commonExchangeModel.market] != null

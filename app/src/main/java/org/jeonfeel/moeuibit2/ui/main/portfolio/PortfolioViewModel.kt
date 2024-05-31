@@ -5,21 +5,23 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.listener.upbit.OnTickerMessageReceiveListener
-import org.jeonfeel.moeuibit2.data.remote.websocket.model.upbit.PortfolioTickerModel
+import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.listener.upbit.OnTickerMessageReceiveListener
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.PortfolioTickerModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import javax.inject.Inject
 
 class PortfolioState {
@@ -36,8 +38,9 @@ class PortfolioState {
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    val adMobManager: AdMobManager
-) : BaseViewModel(), OnTickerMessageReceiveListener {
+    val adMobManager: AdMobManager,
+    val preferenceManager: PreferenceManager
+) : BaseViewModel(preferenceManager), OnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()
     var userHoldCoinList = emptyList<MyCoin?>()
@@ -284,7 +287,7 @@ class PortfolioViewModel @Inject constructor(
 
     override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
         if (state.isPortfolioSocketRunning.value && UpBitTickerWebSocket.currentPage == IS_PORTFOLIO_SCREEN) {
-            val model = gson.fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
+            val model = Gson().fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
             if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
                 state.btcTradePrice.doubleValue = model.tradePrice
                 return

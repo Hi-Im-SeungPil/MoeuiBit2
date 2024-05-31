@@ -21,7 +21,7 @@ data class SettingScreenState(
 class SettingViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     val preferenceManager: PreferenceManager
-) : BaseViewModel() {
+) : BaseViewModel(preferenceManager) {
     val state = SettingScreenState()
 
     fun removeAll() {

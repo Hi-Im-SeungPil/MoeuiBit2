@@ -7,10 +7,10 @@ import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import java.text.SimpleDateFormat
-import java.time.ZoneId
 import java.util.*
 
 object Utils {
@@ -78,6 +78,12 @@ object Utils {
 
     fun getLocale() {
         MoeuiBitDataStore.isKor = Locale.getDefault().language == "ko"
+    }
+
+    fun divideKrwBtc(list: List<UpbitMarketCodeRes>): Pair<List<String>, List<String>> {
+        val krwList = list.filter { it.market.contains(UPBIT_KRW_SYMBOL_PREFIX) }.map { it.market }.toList()
+        val btcList = list.filter { it.market.contains(UPBIT_BTC_SYMBOL_PREFIX) }.map { it.market }.toList()
+        return Pair(krwList, btcList)
     }
 
     fun extractCryptoKeysWithGson(json: JsonObject): List<String> {

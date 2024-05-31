@@ -14,9 +14,9 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.PREF_KEY_ROOT_EXCHANGE
-import org.jeonfeel.moeuibit2.data.remote.websocket.bitthumb.BitthumbTickerWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitOrderBookWebSocket
-import org.jeonfeel.moeuibit2.data.remote.websocket.upbit.UpBitTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbTickerWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSocket
+import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
@@ -38,6 +38,7 @@ class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var preferenceManager: PreferenceManager
+
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
@@ -47,7 +48,6 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         initActivity()
         setContent {
             MainTheme(isMainActivity = true, content = {
