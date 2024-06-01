@@ -1,7 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.common
 
 sealed class MarketChangeState {
-    object Rise: MarketChangeState()
-    object Fall: MarketChangeState()
-    object Even: MarketChangeState()
+    data object Rise: MarketChangeState()
+    data object Fall: MarketChangeState()
+    data object Even: MarketChangeState()
 }

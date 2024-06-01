@@ -431,7 +431,6 @@ fun ExchangeSortButtons(
             modifier = Modifier
                 .weight(1f), text = ""
         )
-
         val values = SortButtons.values()
         for (i in values.indices) {
             SortButton(

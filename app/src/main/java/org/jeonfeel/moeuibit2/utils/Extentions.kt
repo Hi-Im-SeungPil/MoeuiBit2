@@ -4,12 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
 
+/**
+ * 토스트 보여줌
+ */
 fun Context.showToast(text: String) {
     Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
 }
 
+/**
+ * url로 이동
+ */
 fun Context.moveUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     this.startActivity(intent)
@@ -37,3 +48,19 @@ fun String.convertMarketChangeState(): MarketChangeState {
         MarketChangeState.Even
     }
 }
+
+@Composable
+fun Int.toDp() {
+    return with(LocalDensity.current) {
+        this@toDp.dp.toSp()
+    }
+}
+
+fun Float.getFluctuateColor() =
+    if (this > 0f) RiseColor
+    else if (this < 0f) FallColor
+    else EvenColor
+
+val RiseColor = Color(0xFFF44141)
+val FallColor = Color(0xFF0975F3)
+val EvenColor = Color(0xFF40444E)
