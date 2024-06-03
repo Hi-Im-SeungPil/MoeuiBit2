@@ -4,10 +4,11 @@ enum class SortType {
     PRICE,
     RATE,
     VOLUME,
-    NONE
+    DEFAULT
 }
 
 enum class SortOrder {
     ASCENDING,
-    DESCENDING
+    DESCENDING,
+    NONE
 }

@@ -1,22 +1,29 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBit
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.ExchangeInitState
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
 import javax.inject.Inject
 
+//enum class TradeCurrency {
+//    KRW, BTC, FAV
+//}
+
+enum class TradeCurrency {
+    KRW, BTC, FAV
+}
+
 class ExchangeViewModelState {
-    val krwExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
-    val btcExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
-    val favoriteExchangeModelMutableStateList = mutableStateListOf<CommonExchangeModel>()
-    val isUpdateExchange = mutableStateOf(false)
+    val isUpdateExchange = mutableStateOf(true)
+    val tradeCurrencyState = mutableStateOf(TradeCurrency.KRW)
 }
 
 @HiltViewModel
@@ -27,14 +34,15 @@ class ExchangeViewModel @Inject constructor(
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
-    private val krwExchangeModelStateList: List<CommonExchangeModel> get() = state.krwExchangeModelMutableStateList
-    private val btcExchangeModelStateList: List<CommonExchangeModel> get() = state.btcExchangeModelMutableStateList
-    private val favoriteExchangeModelStateList: List<CommonExchangeModel> get() = state.favoriteExchangeModelMutableStateList
+    val tradeCurrencyState: State<TradeCurrency> get() = state.tradeCurrencyState
 
     init {
         rootExchangeCoroutineBranch(
             upbitAction = {
-                upBit.initUpBit().collect { upBitInitState ->
+                upBit.initUpBit(
+                    tradeCurrencyState = tradeCurrencyState,
+                    isUpdateExchange = isUpdateExchange
+                ).collect { upBitInitState ->
                     processData(upBitInitState)
                 }
             },
@@ -54,12 +62,12 @@ class ExchangeViewModel @Inject constructor(
 
             }
 
-            is ExchangeInitState.Wait -> {
-
-            }
-
             is ExchangeInitState.Error -> {
                 // 에러 처리
+            }
+
+            is ExchangeInitState.Wait -> {
+
             }
         }
     }
@@ -67,15 +75,27 @@ class ExchangeViewModel @Inject constructor(
     fun getTickerList(): List<CommonExchangeModel> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
-                upBit.krwExchangeModelList
+                upBit.getExchangeModelList(tradeCurrencyState)
             }
+
             ROOT_EXCHANGE_BITTHUMB -> {
-                upBit.krwExchangeModelList
+                upBit.getExchangeModelList(tradeCurrencyState)
             }
+
             else -> {
-                upBit.krwExchangeModelList
+                upBit.getExchangeModelList(tradeCurrencyState)
             }
         }
+    }
+
+    fun sortTickerList(sortType: SortType, sortOrder: SortOrder) {
+        state.isUpdateExchange.value = false
+        upBit.sortTickerList(
+            tradeCurrencyState = tradeCurrencyState,
+            sortType = sortType,
+            sortOrder = sortOrder
+        )
+        state.isUpdateExchange.value = true
     }
 
     companion object {

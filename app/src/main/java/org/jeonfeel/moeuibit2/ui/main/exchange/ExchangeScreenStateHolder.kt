@@ -293,7 +293,7 @@ fun rememberExchangeScreenStateHolder(
     sortList: (marketState: Int, sortButtonState: MutableIntState) -> Unit,
     selectedMarketState: State<Int>,
     rootExchange: State<String>
-) = remember() {
+) = remember {
     ExchangeScreenStateHolder(
         context = context,
         pagerState = pagerState,

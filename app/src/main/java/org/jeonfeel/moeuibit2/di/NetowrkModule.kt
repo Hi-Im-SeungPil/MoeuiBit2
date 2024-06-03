@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.orhanobut.logger.Logger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,6 +10,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.ConnectionPool
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.jeonfeel.moeuibit2.constants.retrofitBaseUrl
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
@@ -32,8 +34,12 @@ class NetowrkModule {
     @Provides
     fun provideUpBitOkHttpClient(): OkHttpClient {
         val connectionPool = ConnectionPool(0, 700L, TimeUnit.MILLISECONDS)
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
         val httpClient = OkHttpClient.Builder()
         return httpClient.connectionPool(connectionPool)
+            .addInterceptor(httpLoggingInterceptor)
             .retryOnConnectionFailure(true)
             .connectTimeout(5, TimeUnit.MINUTES)
             .readTimeout(5, TimeUnit.MINUTES)

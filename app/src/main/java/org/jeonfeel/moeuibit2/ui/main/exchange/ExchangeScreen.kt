@@ -79,6 +79,7 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.ui.main.exchange.newExchange.ExchangeScreenRoute
 import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
@@ -133,10 +134,7 @@ fun ExchangeRoute(
     LaunchedEffect(key1 = networkErrorState.value) {
 //        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
     }
-    LazyColumn(Modifier.fillMaxSize()) {
-        items(items = viewModel.getTickerList(), key = { it.market }) { item ->
-            Text(text = "${item.market} // ${item.tradePrice} // ${item.change}")
-        }
+    ExchangeScreenRoute()
 //    Exchange(
 //        stateHolder = stateHolder,
 //        errorState = viewModel.networkErrorState,
@@ -171,7 +169,7 @@ fun ExchangeRoute(
 //                changeRootExchangeAction = viewModel::changeRootExchangeAction
 //            )
 //        }
-    }
+
 }
 
 @OptIn(ExperimentalPagerApi::class)

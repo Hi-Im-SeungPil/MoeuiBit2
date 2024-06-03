@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -72,7 +73,6 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
-import org.jeonfeel.moeuibit2.ui.main.exchange.SortButtons
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
@@ -85,9 +85,28 @@ import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.convertMarketChangeState
 import org.jeonfeel.moeuibit2.utils.getFluctuateColor
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ExchangeScreen() {
-
+fun ExchangeScreen(
+    tickerList: List<CommonExchangeModel>,
+    isUpdateExchange: State<Boolean>,
+    sortTickerList: (SortType, SortOrder) -> Unit
+) {
+    val state = rememberExchangeStateHolder(
+        isUpdateExchange = isUpdateExchange.value,
+        sortTickerList = sortTickerList
+    )
+    Column(modifier = Modifier.fillMaxSize()) {
+        SearchSection(textFieldValueState = state.textFieldValueState)
+        SelectTradeCurrencySection(
+            pagerState = state.pagerState
+        )
+        SortingSection(sortOrder = state.sortOrder.value, onSortClick = state::onSortClick)
+        CoinTickerSection(
+            lazyScrollState = state.lazyScrollState,
+            tickerList = state.getFilteredList(tickerList = tickerList)
+        )
+    }
 }
 
 @Composable
@@ -156,10 +175,10 @@ private fun SearchSection(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun SelectTradeCurrencySection(
-    selectedMarketState: State<Int>,
+    selectedMarketState: State<Int> = mutableStateOf(0),
     pagerState: PagerState,
-    tabTitleList: List<String>,
-    changeSelectedMarketState: (Int) -> Unit,
+    tabTitleList: List<String> = listOf("hello", "my", "name"),
+//    changeSelectedMarketState: (Int) -> Unit,
 ) {
     Row(
         Modifier
@@ -196,7 +215,7 @@ private fun SelectTradeCurrencySection(
                     selected = selectedMarketState.value == index,
                     onClick = {
                         if (selectedMarketState.value != index) {
-                            changeSelectedMarketState(index)
+//                            changeSelectedMarketState(index)
                         }
                     },
                 )
@@ -206,35 +225,30 @@ private fun SelectTradeCurrencySection(
 }
 
 @Composable
-private fun SortingSection() {
-    val buttonIdList = SortButtons.entries.toTypedArray()
-    var sortType by remember { mutableStateOf(SortType.NONE) }
-    var sortOrder by remember { mutableStateOf(SortOrder.DESCENDING) }
+private fun SortingSection(
+    sortOrder: SortOrder,
+    onSortClick: (sortType: SortType) -> Unit
+) {
     Row {
         SortButton(
             text = "가격",
             sortType = SortType.PRICE,
-            selectedSortType = sortType,
             sortOrder = sortOrder,
-            onSortClick = {
-                sortType = it
-                sortOrder =
-                    if (sortOrder == SortOrder.DESCENDING) SortOrder.ASCENDING else SortOrder.DESCENDING
-//                sortCoins(it, sortOrder)
-            }
+            onSortClick = onSortClick
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        SortButton(
+            text = "증감",
+            sortType = SortType.RATE,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick
         )
         Spacer(modifier = Modifier.width(8.dp))
         SortButton(
             text = "거래량",
             sortType = SortType.VOLUME,
-            selectedSortType = sortType,
             sortOrder = sortOrder,
-            onSortClick = {
-                sortType = it
-                sortOrder =
-                    if (sortOrder == SortOrder.DESCENDING) SortOrder.ASCENDING else SortOrder.DESCENDING
-//                sortCoins(it, sortOrder)
-            }
+            onSortClick = onSortClick
         )
     }
 }
@@ -243,7 +257,6 @@ private fun SortingSection() {
 private fun RowScope.SortButton(
     text: String,
     sortType: SortType,
-    selectedSortType: SortType,
     sortOrder: SortOrder,
     onSortClick: (SortType) -> Unit
 ) {
@@ -256,24 +269,20 @@ private fun RowScope.SortButton(
         )
     ) {
         Text(text = text)
-        if (selectedSortType == sortType) {
-//            Icon(
-//                imageVector = if (sortOrder == SortOrder.DESCENDING) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
-//                contentDescription = null
-//            )
-        }
     }
 }
 
 @Composable
 private fun CoinTickerSection(
-    tickerList: List<CommonExchangeModel>
+    tickerList: List<CommonExchangeModel>,
+    lazyScrollState: LazyListState
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(items = tickerList, key = { it.market }) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyScrollState) {
+        items(items = tickerList) {
             CoinTickerView(
                 name = it.koreanName,
-                lastPrice = it.tradePrice.toString(),
+                symbol = it.symbol,
+                lastPrice = it.tradePrice.formattedString(),
                 fluctuateRate = it.signedChangeRate.toFloat(),
                 fluctuatePrice = it.signedChangePrice.toFloat(),
                 change = it.change.convertMarketChangeState(),
@@ -288,6 +297,7 @@ private fun CoinTickerSection(
 fun CoinTickerView(
     modifier: Modifier = Modifier,
     name: String,
+    symbol: String,
     lastPrice: String,
     fluctuateRate: Float,
     fluctuatePrice: Float,
@@ -321,14 +331,22 @@ fun CoinTickerView(
         delay(animationDurationTimeMills.toLong())
         animateNeed = false
     }
-    Spacer(modifier = Modifier.width(10.dp))
-    Text(
-        text = name,
-        modifier = Modifier,
-        textAlign = TextAlign.Center,
-        fontSize = DpToSp(18.dp),
-        fontWeight = FontWeight.Bold
-    )
+    Column(
+        modifier = Modifier
+            .weight(1f)
+    ) {
+        Text(
+            text = name,
+            modifier = Modifier,
+            textAlign = TextAlign.Center,
+            fontSize = DpToSp(18.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = symbol,
+            fontSize = DpToSp(15.dp),
+        )
+    }
     Spacer(modifier = Modifier.width(10.dp))
     Spacer(modifier = Modifier.weight(1f))
     Text(

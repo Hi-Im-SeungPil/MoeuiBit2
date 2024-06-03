@@ -7,7 +7,10 @@ import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import java.text.SimpleDateFormat
@@ -59,9 +62,11 @@ object Utils {
             value > 0 -> {
                 increaseColor()
             }
+
             value < 0 -> {
                 decreaseColor()
             }
+
             else -> {
                 MaterialTheme.colorScheme.onBackground
             }
@@ -69,7 +74,7 @@ object Utils {
     }
 
     fun getPortfolioName(marketState: Int, name: String): String {
-        return if(marketState == SELECTED_BTC_MARKET) {
+        return if (marketState == SELECTED_BTC_MARKET) {
             "[$SYMBOL_BTC] $name"
         } else {
             name
@@ -80,10 +85,86 @@ object Utils {
         MoeuiBitDataStore.isKor = Locale.getDefault().language == "ko"
     }
 
-    fun divideKrwBtc(list: List<UpbitMarketCodeRes>): Pair<List<String>, List<String>> {
-        val krwList = list.filter { it.market.contains(UPBIT_KRW_SYMBOL_PREFIX) }.map { it.market }.toList()
-        val btcList = list.filter { it.market.contains(UPBIT_BTC_SYMBOL_PREFIX) }.map { it.market }.toList()
+    fun divideKrwResBtcRes(list: List<UpbitMarketCodeRes>): Pair<List<UpbitMarketCodeRes>, List<UpbitMarketCodeRes>> {
+        val krwList = list.filter { it.market.contains(UPBIT_KRW_SYMBOL_PREFIX) }.toList()
+        val btcList = list.filter { it.market.contains(UPBIT_BTC_SYMBOL_PREFIX) }.toList()
         return Pair(krwList, btcList)
+    }
+
+    fun filterTickerList(
+        exchangeModelList: List<CommonExchangeModel>,
+        searchStr: String
+    ): List<CommonExchangeModel> {
+        return when {
+            searchStr.isEmpty() -> exchangeModelList
+            else -> {
+                exchangeModelList.filter {
+                    it.symbol.contains(searchStr) || it.koreanName.contains(searchStr) || it.englishName.contains(
+                        searchStr
+                    )
+                }
+            }
+        }
+    }
+
+    fun sortTickerList(
+        tickerList: List<CommonExchangeModel>,
+        sortType: SortType,
+        sortOrder: SortOrder
+    ): List<CommonExchangeModel> {
+        return when (sortType) {
+            SortType.DEFAULT -> {
+                tickerList.sortedBy { it.accTradePrice24h }
+            }
+
+            SortType.PRICE -> {
+                when (sortOrder) {
+                    SortOrder.DESCENDING -> {
+                        tickerList.sortedByDescending { it.tradePrice }
+                    }
+
+                    SortOrder.ASCENDING -> {
+                        tickerList.sortedBy { it.tradePrice }
+                    }
+
+                    SortOrder.NONE -> {
+                        tickerList.sortedBy { it.accTradePrice24h }
+                    }
+                }
+            }
+
+            SortType.RATE -> {
+                when (sortOrder) {
+                    SortOrder.DESCENDING -> {
+                        tickerList.sortedByDescending { it.signedChangeRate }
+                    }
+
+                    SortOrder.ASCENDING -> {
+                        tickerList.sortedBy { it.signedChangeRate }
+                    }
+
+                    SortOrder.NONE -> {
+                        tickerList.sortedBy { it.accTradePrice24h }
+                    }
+                }
+            }
+
+            SortType.VOLUME -> {
+                when (sortOrder) {
+                    SortOrder.DESCENDING -> {
+                        tickerList.sortedByDescending { it.accTradePrice24h }
+                    }
+
+                    SortOrder.ASCENDING -> {
+                        tickerList.sortedBy { it.accTradePrice24h }
+                    }
+
+                    SortOrder.NONE -> {
+                        tickerList.sortedBy { it.accTradePrice24h }
+                    }
+                }
+            }
+        }
     }
 
     fun extractCryptoKeysWithGson(json: JsonObject): List<String> {
@@ -139,7 +220,7 @@ object Utils {
         val sixHours: Long = 6 * oneHour
         val twelveHours: Long = 12 * oneHour
         val oneDay: Long = 24 * oneHour
-        return when(candleType) {
+        return when (candleType) {
             "1m" -> {
                 oneMinute
             }
@@ -175,7 +256,10 @@ object Utils {
             "24h" -> {
                 oneDay
             }
-            else -> {0}
+
+            else -> {
+                0
+            }
         }
     }
 }
