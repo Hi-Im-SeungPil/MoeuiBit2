@@ -180,6 +180,8 @@ dependencies {
     //thunder
     implementation 'io.github.jaeyunn15:thunder:1.1.0' // must required
     implementation 'io.github.jaeyunn15:thunder-okhttp:1.1.0' // must required
+
+    implementation("me.onebone:toolbar-compose:2.3.5")
 }
 
 repositories {

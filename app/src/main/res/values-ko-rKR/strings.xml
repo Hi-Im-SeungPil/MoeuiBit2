@@ -27,7 +27,7 @@
     <string name="favorite">관심</string>
     <string name="btc">BTC</string>
     <string name="kimp">김프</string>
-    <string name="textField">코인명/심볼 검색</string>
+    <string name="textField">코인명 / 초성 / 심볼 검색</string>
     <string name="firstError">예상치 못한 오류가 발생했습니다.</string>
     <string name="secondError">예상치 못한 오류가 계속 발생하고 있습니다.</string>
     <string name="retry">재시도</string>
@@ -121,7 +121,7 @@
     <string name="volume">거래량↓↑</string>
     <string name="volumeSort">거래량↑</string>
     <string name="volumeSortDec">거래량↓</string>
-    <string name="textFieldText">코인명/심볼 검색</string>
+    <string name="textFieldText">코인명 / 초성 / 심볼 검색</string>
     <string name="minute">분</string>
     <string name="one_minute">1분</string>
     <string name="three_minute">3분</string>

@@ -4,7 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.aacBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.Utils
 
 @Serializable
 data class GetUpbitMarketTickerRes(
@@ -61,7 +64,7 @@ data class GetUpbitMarketTickerRes(
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes): CommonExchangeModel {
         return CommonExchangeModel(
             market = market,
-            tradePrice = tradePrice.newBigDecimal(),
+            tradePrice = tradePrice.newBigDecimal(ExchangeViewModel.ROOT_EXCHANGE_UPBIT),
             tradeVolume = tradeVolume,
             changePrice = changePrice,
             changeRate = changeRate * 100,
@@ -70,7 +73,7 @@ data class GetUpbitMarketTickerRes(
             signedChangeRate = signedChangeRate * 100,
             highPrice = highPrice,
             lowPrice = lowPrice,
-            accTradePrice24h = accTradePrice24h.newBigDecimal(),
+            accTradePrice24h = accTradePrice24h.aacBigDecimal(),
             tradeDate = tradeDate,
             tradeTime = tradeTime,
             timestamp = timestamp,
@@ -78,7 +81,8 @@ data class GetUpbitMarketTickerRes(
             warning = getUpbitMarketCodeRes.marketEvent.warning,
             englishName = getUpbitMarketCodeRes.englishName,
             symbol = market.substring(4),
-            koreanName = getUpbitMarketCodeRes.koreanName
+            koreanName = getUpbitMarketCodeRes.koreanName,
+            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName)
         )
     }
 }

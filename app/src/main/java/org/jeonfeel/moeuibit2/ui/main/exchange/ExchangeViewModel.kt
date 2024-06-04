@@ -2,10 +2,14 @@ package org.jeonfeel.moeuibit2.ui.main.exchange
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBit
@@ -23,7 +27,7 @@ enum class TradeCurrency {
 
 class ExchangeViewModelState {
     val isUpdateExchange = mutableStateOf(true)
-    val tradeCurrencyState = mutableStateOf(TradeCurrency.KRW)
+    val tradeCurrencyState = mutableStateOf(TRADE_CURRENCY_KRW)
 }
 
 @HiltViewModel
@@ -34,7 +38,7 @@ class ExchangeViewModel @Inject constructor(
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
-    val tradeCurrencyState: State<TradeCurrency> get() = state.tradeCurrencyState
+    val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
 
     init {
         rootExchangeCoroutineBranch(
@@ -98,16 +102,28 @@ class ExchangeViewModel @Inject constructor(
         state.isUpdateExchange.value = true
     }
 
-    companion object {
-        const val SORT_DEFAULT = -1
-        const val SORT_PRICE_DEC = 0
-        const val SORT_PRICE_ASC = 1
-        const val SORT_RATE_DEC = 2
-        const val SORT_RATE_ASC = 3
-        const val SORT_AMOUNT_DEC = 4
-        const val SORT_AMOUNT_ASC = 5
+    fun changeTradeCurrency(tradeCurrency: Int) {
+        state.tradeCurrencyState.value = tradeCurrency
+    }
 
+    fun onPause() {
+        viewModelScope.launch {
+            upBit.onPause()
+        }
+    }
+
+    fun onResume() {
+        viewModelScope.launch {
+            upBit.onResume()
+        }
+    }
+
+    companion object {
         const val ROOT_EXCHANGE_UPBIT = "upbit"
         const val ROOT_EXCHANGE_BITTHUMB = "bitthumb"
+
+        const val TRADE_CURRENCY_KRW = 0
+        const val TRADE_CURRENCY_BTC = 1
+        const val TRADE_CURRENCY_FAV = 2
     }
 }

@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.channels.ticker
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 
 @Composable
@@ -12,6 +11,10 @@ fun ExchangeScreenRoute(
     ExchangeScreen(
         tickerList = viewModel.getTickerList(),
         isUpdateExchange = viewModel.isUpdateExchange,
-        sortTickerList = viewModel::sortTickerList
+        sortTickerList = viewModel::sortTickerList,
+        tradeCurrencyState = viewModel.tradeCurrencyState,
+        changeTradeCurrency = viewModel::changeTradeCurrency,
+        onPaused = viewModel::onPause,
+        onResume = viewModel::onResume
     )
 }

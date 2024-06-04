@@ -6,7 +6,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
@@ -20,13 +22,11 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val lazyScrollState: LazyListState,
     val context: Context,
     val isUpdateExchange: Boolean,
-    val sortTickerList: (
-        sortType: SortType,
-        sortOrder: SortOrder
-    ) -> Unit
+    val sortTickerList: (sortType: SortType, sortOrder: SortOrder) -> Unit,
+    val focusManaManager: FocusManager
 ) {
     val textFieldValueState = mutableStateOf("")
-    private var sortType = mutableStateOf(SortType.DEFAULT)
+    var selectedSortType = mutableStateOf(SortType.DEFAULT)
     var sortOrder = mutableStateOf(SortOrder.DESCENDING)
 
     fun getFilteredList(tickerList: List<CommonExchangeModel>): List<CommonExchangeModel> {
@@ -41,8 +41,8 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     ) {
         if (!isUpdateExchange) return
         when {
-            this.sortType.value != sortType -> {
-                this.sortType.value = sortType
+            this.selectedSortType.value != sortType -> {
+                this.selectedSortType.value = sortType
                 this.sortOrder.value = SortOrder.DESCENDING
             }
 
@@ -50,7 +50,7 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
                 this.sortOrder.value = when (this.sortOrder.value) {
                     SortOrder.DESCENDING -> SortOrder.ASCENDING
                     SortOrder.ASCENDING -> {
-                        this.sortType.value = SortType.DEFAULT
+                        this.selectedSortType.value = SortType.DEFAULT
                         SortOrder.NONE
                     }
 
@@ -59,7 +59,7 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             }
         }
 
-        sortTickerList(this.sortType.value, this.sortOrder.value)
+        sortTickerList(this.selectedSortType.value, this.sortOrder.value)
     }
 }
 
@@ -69,6 +69,7 @@ fun rememberExchangeStateHolder(
     pagerState: PagerState = rememberPagerState(),
     listScrollState: LazyListState = rememberLazyListState(),
     context: Context = LocalContext.current,
+    focusManaManager: FocusManager = LocalFocusManager.current,
     isUpdateExchange: Boolean,
     sortTickerList: (
         sortType: SortType,
@@ -80,6 +81,7 @@ fun rememberExchangeStateHolder(
         lazyScrollState = listScrollState,
         context = context,
         isUpdateExchange = isUpdateExchange,
-        sortTickerList = sortTickerList
+        sortTickerList = sortTickerList,
+        focusManaManager = focusManaManager
     )
 }

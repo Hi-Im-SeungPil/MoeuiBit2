@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string-array name="exchange_screen_tab_list">
+        <item>KRW</item>
+        <item>BTC</item>
+        <item>관심</item>
+    </string-array>
+
     <string-array name="openSourceNames">
         <item>UpBit</item>
         <item>MpAndroidChart</item>

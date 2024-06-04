@@ -13,9 +13,9 @@ object CurrentCalculator {
             if(tradePrice == 0.0 || tradePrice < 0.00000001) {
                 "0"
             } else {
-                if (tradePrice >= 1000) {
+                if (tradePrice >= 1_000) {
                     round(tradePrice).toLong().commaFormat()
-                } else if (tradePrice >= 100 && tradePrice < 1000) {
+                } else if (tradePrice >= 100 && tradePrice < 1_000) {
                     tradePrice.firstDecimal()
                 } else if (tradePrice >= 10 && tradePrice < 100) {
                     tradePrice.secondDecimal()

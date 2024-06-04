@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.toUpperCase
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -95,13 +96,15 @@ object Utils {
         exchangeModelList: List<CommonExchangeModel>,
         searchStr: String
     ): List<CommonExchangeModel> {
+        val strResult = searchStr.uppercase()
         return when {
-            searchStr.isEmpty() -> exchangeModelList
+            strResult.isEmpty() -> exchangeModelList
             else -> {
                 exchangeModelList.filter {
-                    it.symbol.contains(searchStr) || it.koreanName.contains(searchStr) || it.englishName.contains(
-                        searchStr
-                    )
+                    it.symbol.uppercase().contains(strResult)
+                            || it.koreanName.uppercase().contains(strResult)
+                            || it.englishName.uppercase().contains(strResult)
+                            || it.initialConstant.uppercase().contains(strResult)
                 }
             }
         }
@@ -208,6 +211,25 @@ object Utils {
 
         // Date 객체의 time 속성을 이용해 밀리초로 변환
         return date.time
+    }
+
+    private fun extractInitialConsonant(char: Char): Char {
+        if (char in '가'..'힣') {
+            val baseCode = char.code - 0xAC00
+            val initialConsonantIndex = baseCode / 28 / 21
+            // 초성 배열
+            val initialConsonants = listOf(
+                'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ',
+                'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+            )
+            return initialConsonants[initialConsonantIndex]
+        }
+        // 한글이 아닐 경우 입력 그대로 반환
+        return char
+    }
+
+    fun extractInitials(input: String): String {
+        return input.map { extractInitialConsonant(it) }.joinToString("")
     }
 
     fun getStandardMillis(candleType: String): Long {

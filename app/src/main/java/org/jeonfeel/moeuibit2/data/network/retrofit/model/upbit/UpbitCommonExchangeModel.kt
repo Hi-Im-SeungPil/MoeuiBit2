@@ -9,6 +9,7 @@ data class CommonExchangeModel(
     val koreanName: String,
     val englishName: String,
     val market: String,
+    val initialConstant: String,
     val symbol: String,
     val openingPrice: Double,
     val tradePrice: BigDecimal,

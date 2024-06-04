@@ -61,6 +61,6 @@ fun Float.getFluctuateColor() =
     else if (this < 0f) FallColor
     else EvenColor
 
-val RiseColor = Color(0xFFF44141)
-val FallColor = Color(0xFF0975F3)
-val EvenColor = Color(0xFF40444E)
+val RiseColor = Color(0xFFE15241)
+val FallColor = Color(0xFF4A80EA)
+val EvenColor = Color(0xFF000000)

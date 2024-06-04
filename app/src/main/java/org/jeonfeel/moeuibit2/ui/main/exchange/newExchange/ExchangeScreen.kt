@@ -13,25 +13,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Surface
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
@@ -39,8 +33,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -51,77 +47,129 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.delay
+import me.onebone.toolbar.CollapsingToolbarScaffold
+import me.onebone.toolbar.ScrollStrategy
+import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.main.exchange.NoRippleTheme
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
-import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
+import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.EvenColor
 import org.jeonfeel.moeuibit2.utils.FallColor
 import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.convertMarketChangeState
 import org.jeonfeel.moeuibit2.utils.getFluctuateColor
+import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeScreen(
     tickerList: List<CommonExchangeModel>,
     isUpdateExchange: State<Boolean>,
-    sortTickerList: (SortType, SortOrder) -> Unit
+    sortTickerList: (SortType, SortOrder) -> Unit,
+    tradeCurrencyState: State<Int>,
+    changeTradeCurrency: KFunction1<Int, Unit>,
+    onResume: () -> Unit,
+    onPaused: () -> Unit
 ) {
     val state = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
         sortTickerList = sortTickerList
     )
+
+    AddLifecycleEvent(
+        onPauseAction = {
+            onPaused()
+        },
+        onResumeAction = {
+            onResume()
+        }
+    )
+
     Column(modifier = Modifier.fillMaxSize()) {
-        SearchSection(textFieldValueState = state.textFieldValueState)
-        SelectTradeCurrencySection(
-            pagerState = state.pagerState
+        SearchSection(
+            textFieldValueState = state.textFieldValueState,
+            focusManager = state.focusManaManager,
+            modifier = Modifier
+                .background(color = Color.White)
+                .zIndex(1f)
         )
-        SortingSection(sortOrder = state.sortOrder.value, onSortClick = state::onSortClick)
-        CoinTickerSection(
-            lazyScrollState = state.lazyScrollState,
-            tickerList = state.getFilteredList(tickerList = tickerList)
-        )
+        CollapsingToolbarScaffold(
+            state = rememberCollapsingToolbarScaffoldState(),
+            scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
+            toolbar = {
+                SelectTradeCurrencySection(
+                    pagerState = state.pagerState,
+                    modifier = Modifier.zIndex(-1f),
+                    tradeCurrencyState = tradeCurrencyState,
+                    changeTradeCurrency = changeTradeCurrency
+                )
+            },
+            modifier = Modifier
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                SortingSection(
+                    sortOrder = state.sortOrder.value,
+                    onSortClick = state::onSortClick,
+                    selectedSortType = state.selectedSortType
+                )
+                CoinTickerSection(
+                    lazyScrollState = state.lazyScrollState,
+                    tickerList = state.getFilteredList(tickerList = tickerList)
+                )
+            }
+        }
     }
+
 }
 
 @Composable
 private fun SearchSection(
     textFieldValueState: MutableState<String>,
+    focusManager: FocusManager,
+    modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
+    val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
     BasicTextField(value = textFieldValueState.value, onValueChange = {
         textFieldValueState.value = it
     }, singleLine = true,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(45.dp)
-            .clearFocusOnKeyboardDismiss(),
+            .clearFocusOnKeyboardDismiss()
+            .onFocusChanged { focusState ->
+                hintFocusState.value = focusState.isFocused
+            },
         textStyle = TextStyle(
             color = MaterialTheme.colorScheme.primary,
             fontSize = DpToSp(17.dp)
@@ -142,13 +190,13 @@ private fun SearchSection(
                     tint = MaterialTheme.colorScheme.onBackground
                 )
                 Box(Modifier.weight(1f)) {
-                    if (textFieldValueState.value.isEmpty()) {
+                    if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
                         CommonText(
                             stringResource(id = R.string.textFieldText),
                             textStyle = LocalTextStyle.current.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = Color(0xff8f9297),
                             ),
-                            fontSize = 17.dp
+                            fontSize = 17.dp,
                         )
                     }
                     innerTextField()
@@ -175,51 +223,56 @@ private fun SearchSection(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun SelectTradeCurrencySection(
-    selectedMarketState: State<Int> = mutableStateOf(0),
+    tradeCurrencyState: State<Int>,
     pagerState: PagerState,
-    tabTitleList: List<String> = listOf("hello", "my", "name"),
-//    changeSelectedMarketState: (Int) -> Unit,
+    tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
+    modifier: Modifier = Modifier,
+    changeTradeCurrency: (Int) -> Unit,
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .drawUnderLine(lineColor = MaterialTheme.colorScheme.outline)
-    ) {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                    color = Color.Transparent
-                )
-            },
-            modifier = Modifier
-                .weight(3f),
-            backgroundColor = MaterialTheme.colorScheme.background,
-            divider = {}
+    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+        Row(
+            modifier
+                .fillMaxWidth()
+                .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
         ) {
-            tabTitleList.forEachIndexed { index, title ->
-                Tab(
-                    text = {
-                        CommonText(
-                            text = title,
-                            textStyle = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                            ),
-                            fontSize = 17.dp
-                        )
-                    },
-                    selectedContentColor = exchangeMarketButtonTextColor(selected = true),
-                    unselectedContentColor = exchangeMarketButtonTextColor(selected = false),
-                    selected = selectedMarketState.value == index,
-                    onClick = {
-                        if (selectedMarketState.value != index) {
-//                            changeSelectedMarketState(index)
-                        }
-                    },
-                )
+            TabRow(
+                selectedTabIndex = pagerState.currentPage,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                        color = Color.Transparent
+                    )
+                },
+                modifier = Modifier
+                    .weight(3f),
+                backgroundColor = MaterialTheme.colorScheme.background,
+                divider = {}
+            ) {
+                tabTitleList.forEachIndexed { index, title ->
+                    Tab(
+                        text = {
+                            Text(
+                                text = title,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                fontSize = DpToSp(dp = 17.dp),
+                                modifier = Modifier.weight(1f)
+                            )
+                        },
+                        selectedContentColor = Color.Black,
+                        unselectedContentColor = Color(0xff8C939E),
+                        selected = tradeCurrencyState.value == index,
+                        onClick = {
+                            if (tradeCurrencyState.value != index) {
+                                changeTradeCurrency(index)
+                            }
+                        },
+                    )
+                }
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
@@ -227,28 +280,35 @@ private fun SelectTradeCurrencySection(
 @Composable
 private fun SortingSection(
     sortOrder: SortOrder,
-    onSortClick: (sortType: SortType) -> Unit
+    onSortClick: (sortType: SortType) -> Unit,
+    selectedSortType: MutableState<SortType>
 ) {
-    Row {
+    Row(
+        modifier = Modifier
+            .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
+            .padding(top = 4.dp, bottom = 6.dp)
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
         SortButton(
-            text = "가격",
+            text = "현재가",
             sortType = SortType.PRICE,
             sortOrder = sortOrder,
-            onSortClick = onSortClick
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
-        Spacer(modifier = Modifier.width(8.dp))
         SortButton(
-            text = "증감",
+            text = "변동",
             sortType = SortType.RATE,
             sortOrder = sortOrder,
-            onSortClick = onSortClick
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
-        Spacer(modifier = Modifier.width(8.dp))
         SortButton(
             text = "거래량",
             sortType = SortType.VOLUME,
             sortOrder = sortOrder,
-            onSortClick = onSortClick
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
     }
 }
@@ -258,17 +318,46 @@ private fun RowScope.SortButton(
     text: String,
     sortType: SortType,
     sortOrder: SortOrder,
+    selectedSortType: MutableState<SortType>,
     onSortClick: (SortType) -> Unit
 ) {
-    Button(
-        onClick = { onSortClick(sortType) },
-        modifier = Modifier.weight(1f),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.White
-//               if (selectedSortType == sortType) MaterialTheme.colors.primary else MaterialTheme.colors.surface
-        )
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .noRippleClickable {
+                onSortClick(sortType)
+            }, verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = text)
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = text,
+            modifier = Modifier,
+            style = TextStyle(
+                fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
+                if (selectedSortType.value == sortType) Color(0xff2454E6) else Color(0xff91959E)
+            )
+        )
+        Column(modifier = Modifier.padding(start = 4.dp)) {
+            Text(
+                text = "▲",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
+            )
+            Text(
+                text = "▼",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -286,8 +375,8 @@ private fun CoinTickerSection(
                 fluctuateRate = it.signedChangeRate.toFloat(),
                 fluctuatePrice = it.signedChangePrice.toFloat(),
                 change = it.change.convertMarketChangeState(),
+                acc24h = it.accTradePrice24h.formattedUnitString(),
                 onClickEvent = {},
-                onFavoriteClick = {}
             )
         }
     }
@@ -301,115 +390,111 @@ fun CoinTickerView(
     lastPrice: String,
     fluctuateRate: Float,
     fluctuatePrice: Float,
+    acc24h: String,
     change: MarketChangeState,
     onClickEvent: () -> Unit,
-    onFavoriteClick: () -> Unit,
     infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = "")
-) = Row(
-    modifier = modifier
-        .clickable { onClickEvent.invoke() }
-        .fillMaxWidth()
-        .padding(horizontal = 10.dp, vertical = 8.dp),
-    verticalAlignment = Alignment.Top
-) {
-    val animationDurationTimeMills = 200
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.0f,
-        targetValue = 0.5f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = animationDurationTimeMills
-                0.25f at 100
-            },
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "animation alpha"
-    )
-    var animateNeed by remember { mutableStateOf(false) }
-    LaunchedEffect(key1 = fluctuateRate) {
-        animateNeed = true
-        delay(animationDurationTimeMills.toLong())
-        animateNeed = false
-    }
-    Column(
-        modifier = Modifier
-            .weight(1f)
+) = Column {
+    Row(
+        modifier = modifier
+            .clickable { onClickEvent.invoke() }
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = name,
-            modifier = Modifier,
-            textAlign = TextAlign.Center,
-            fontSize = DpToSp(18.dp),
-            fontWeight = FontWeight.Bold
+        val animationDurationTimeMills = 200
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.0f,
+            targetValue = 0.5f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = animationDurationTimeMills
+                    0.25f at 100
+                },
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "animation alpha"
         )
-        Text(
-            text = symbol,
-            fontSize = DpToSp(15.dp),
-        )
-    }
-    Spacer(modifier = Modifier.width(10.dp))
-    Spacer(modifier = Modifier.weight(1f))
-    Text(
-        text = lastPrice,
-        modifier = Modifier
-            .background(Color.White)
-            .drawBehind {
-                drawLine(
-                    color = if (animateNeed) {
-                        when (change) {
-                            MarketChangeState.Even -> EvenColor.copy(alpha = alpha)
-                            MarketChangeState.Fall -> FallColor.copy(alpha = alpha)
-                            MarketChangeState.Rise -> RiseColor.copy(alpha = alpha)
-                        }
-                    } else Color.White,
-                    start = Offset(0f, size.height),
-                    end = Offset(size.width, size.height),
-                    strokeWidth = if (animateNeed) 2.dp.toPx() else 0.dp.toPx()
+        var animateNeed by remember { mutableStateOf(false) }
+        LaunchedEffect(key1 = fluctuateRate) {
+            animateNeed = true
+            delay(animationDurationTimeMills.toLong())
+            animateNeed = false
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            Text(
+                text = name,
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(15.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(fontWeight = FontWeight.W600)
+            )
+            Text(
+                modifier = Modifier.fillMaxSize(),
+                text = symbol,
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(12.dp),
+                style = TextStyle(
+                    color = Color(0xff8C939E)
                 )
-            }
-            .padding(2.dp),
-        textAlign = TextAlign.End,
-        fontSize = DpToSp(16.dp),
-        fontWeight = FontWeight.Bold
-    )
-    Spacer(modifier = Modifier.width(10.dp))
-    Column(
-        horizontalAlignment = Alignment.End,
-        modifier = Modifier
-            .widthIn(min = 60.dp)
-            .fillMaxHeight()
-    ) {
-        FluctuationStatusView(
-            fluctuateRate = fluctuateRate,
-            fontSize = DpToSp(14.dp),
-            radius = 4.dp
-        )
-        Text(
-            modifier = Modifier.padding(end = 10.dp),
-            text = fluctuatePrice.newBigDecimal(scale = 2).formattedString(),
-            textAlign = TextAlign.End,
-            fontSize = DpToSp(12.dp),
-            fontWeight = FontWeight.Bold,
+            )
+        }
+        AutoSizeText(
+            text = lastPrice,
+            modifier = Modifier
+                .weight(1f)
+                .background(Color.White)
+                .drawBehind {
+                    drawLine(
+                        color = if (animateNeed) {
+                            when (change) {
+                                MarketChangeState.Even -> EvenColor.copy(alpha = alpha)
+                                MarketChangeState.Fall -> FallColor.copy(alpha = alpha)
+                                MarketChangeState.Rise -> RiseColor.copy(alpha = alpha)
+                            }
+                        } else Color.White,
+                        start = Offset(0f, size.height),
+                        end = Offset(size.width, size.height),
+                        strokeWidth = if (animateNeed) 2.dp.toPx() else 0.dp.toPx()
+                    )
+                }
+                .padding(2.dp),
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(15.dp),
+                fontWeight = FontWeight.W400,
+            ),
             color = fluctuatePrice.getFluctuateColor()
         )
+        AutoSizeText(
+            text = fluctuateRate.formattedFluctuateString() + "%",
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(15.dp),
+                fontWeight = FontWeight.W400,
+            ),
+            color = fluctuatePrice.getFluctuateColor(),
+            modifier = Modifier.weight(1f)
+        )
+        AutoSizeText(
+            text = acc24h, modifier = Modifier.weight(1f),
+            textStyle = TextStyle(
+                fontSize = DpToSp(14.dp),
+                fontWeight = FontWeight.W400,
+                textAlign = TextAlign.Center
+            )
+        )
     }
-}
-
-@Composable
-fun FluctuationStatusView(
-    modifier: Modifier = Modifier,
-    fluctuateRate: Float,
-    fontSize: TextUnit = DpToSp(8.dp),
-    radius: Dp = 8.dp,
-) = Surface(
-    color = fluctuateRate.getFluctuateColor(),
-    modifier = modifier,
-    shape = RoundedCornerShape(radius)
-) {
-    Text(
-        text = fluctuateRate.formattedFluctuateString() + "%",
-        fontSize = fontSize,
-        color = Color.White,
-        modifier = Modifier.padding(horizontal = 10.dp)
+    Divider(
+        modifier = Modifier
+            .padding(horizontal = 9.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(color = Color(0xfff0f0f2))
     )
 }

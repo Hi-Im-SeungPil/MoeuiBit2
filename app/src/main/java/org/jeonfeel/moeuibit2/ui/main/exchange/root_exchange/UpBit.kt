@@ -2,9 +2,7 @@ package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -15,7 +13,9 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarket
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
-import org.jeonfeel.moeuibit2.ui.main.exchange.TradeCurrency
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -48,15 +48,18 @@ class UpBit @Inject constructor(
     private val btcExchangeModelPosition = mutableMapOf<String, Int>()
     private val _btcExchangeModelList = mutableStateListOf<CommonExchangeModel>()
 
+    private lateinit var tradeCurrencyState: State<Int>
+
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
     /**
      * 업비트 초기화
      */
     fun initUpBit(
-        tradeCurrencyState: State<TradeCurrency>,
+        tradeCurrencyState: State<Int>,
         isUpdateExchange: State<Boolean>
     ): Flow<ExchangeInitState> {
+        this.tradeCurrencyState = tradeCurrencyState
         return flow {
             emit(ExchangeInitState.Loading)
             runCatching {
@@ -134,17 +137,21 @@ class UpBit @Inject constructor(
         }
     }
 
-    fun getExchangeModelList(tradeCurrencyState: State<TradeCurrency>): List<CommonExchangeModel> {
+    fun getExchangeModelList(tradeCurrencyState: State<Int>): List<CommonExchangeModel> {
         return when (tradeCurrencyState.value) {
-            TradeCurrency.KRW -> {
+            TRADE_CURRENCY_KRW -> {
                 _krwExchangeModelList.toList()
             }
 
-            TradeCurrency.BTC -> {
+            TRADE_CURRENCY_BTC -> {
                 _btcExchangeModelList.toList()
             }
 
-            TradeCurrency.FAV -> {
+            TRADE_CURRENCY_FAV -> {
+                emptyList()
+            }
+
+            else -> {
                 emptyList()
             }
         }
@@ -154,21 +161,25 @@ class UpBit @Inject constructor(
      * tickerList 정렬
      */
     fun sortTickerList(
-        tradeCurrencyState: State<TradeCurrency>,
+        tradeCurrencyState: State<Int>,
         sortType: SortType,
         sortOrder: SortOrder
     ) {
         val tickerList = when (tradeCurrencyState.value) {
-            TradeCurrency.KRW -> {
+            TRADE_CURRENCY_KRW -> {
                 _krwExchangeModelList.toList()
             }
 
-            TradeCurrency.BTC -> {
+            TRADE_CURRENCY_BTC -> {
                 _btcExchangeModelList.toList()
             }
 
-            TradeCurrency.FAV -> {
+            TRADE_CURRENCY_FAV -> {
                 _krwExchangeModelList.toList()
+            }
+
+            else -> {
+                emptyList()
             }
         }
 
@@ -176,41 +187,58 @@ class UpBit @Inject constructor(
             tickerList = tickerList.toList(), sortType = sortType, sortOrder = sortOrder
         )
 
-        Logger.e("sortedList -> $${sortedList.map { it.signedChangeRate }.toList()}")
-
         sortedList.forEachIndexed { index, ticker ->
             when (tradeCurrencyState.value) {
-                TradeCurrency.KRW -> {
+                TRADE_CURRENCY_KRW -> {
                     _krwExchangeModelList[index] = ticker
                     krwExchangeModelPosition[ticker.market] = index
                 }
 
-                TradeCurrency.BTC -> {
+                TRADE_CURRENCY_BTC -> {
                     _btcExchangeModelList[index] = ticker
                     btcExchangeModelPosition[ticker.market] = index
                 }
 
-                TradeCurrency.FAV -> {
+                TRADE_CURRENCY_FAV -> {
 
                 }
             }
         }
-        Logger.e(krwExchangeModelPosition.toString())
     }
 
     /**
      * 웹소켓 티커 구독 요청
      */
-    private suspend fun requestSubscribeTicker(tradeCurrencyState: State<TradeCurrency>) {
-        Logger.e("krwList -> $krwList")
-        upbitUseCase.requestSubscribeTicker(marketCodes = krwList)
+    private suspend fun requestSubscribeTicker(
+        tradeCurrencyState: State<Int>,
+        onResume: Boolean = false
+    ) {
+        when (tradeCurrencyState.value) {
+            TRADE_CURRENCY_KRW -> upbitUseCase.requestSubscribeTicker(marketCodes = krwList)
+            TRADE_CURRENCY_BTC -> upbitUseCase.requestSubscribeTicker(marketCodes = btcList)
+            TRADE_CURRENCY_FAV -> {}
+        }
+    }
+
+    suspend fun onPause() {
+        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
+    }
+
+    suspend fun onResume() {
+        if (_krwExchangeModelList.isNotEmpty()) {
+            when (tradeCurrencyState.value) {
+                TRADE_CURRENCY_KRW -> upbitUseCase.requestSubscribeTicker(marketCodes = krwList)
+                TRADE_CURRENCY_BTC -> upbitUseCase.requestSubscribeTicker(marketCodes = btcList)
+                TRADE_CURRENCY_FAV -> {}
+            }
+        }
     }
 
     /**
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker(
-        tradeCurrencyState: State<TradeCurrency>,
+        tradeCurrencyState: State<Int>,
         isUpdateExchange: State<Boolean>
     ) {
         upbitUseCase.observeTickerResponse().onEach { result ->
@@ -219,24 +247,24 @@ class UpBit @Inject constructor(
             }
         }.collect { upbitSocketTickerRes ->
             if (!isUpdateExchange.value) return@collect
-
+            Logger.e("ticker -> ${upbitSocketTickerRes.code}")
             var positionMap: MutableMap<String, Int>? = null
             var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
             var targetModelList: MutableList<CommonExchangeModel>? = null
             when (tradeCurrencyState.value) {
-                TradeCurrency.KRW -> {
+                TRADE_CURRENCY_KRW -> {
                     positionMap = krwExchangeModelPosition
                     upbitMarketCodeMap = krwMarketCodeMap
                     targetModelList = _krwExchangeModelList
                 }
 
-                TradeCurrency.BTC -> {
+                TRADE_CURRENCY_BTC -> {
                     positionMap = btcExchangeModelPosition
                     upbitMarketCodeMap = btcMarketCodeMap
                     targetModelList = _btcExchangeModelList
                 }
 
-                TradeCurrency.FAV -> {}
+                TRADE_CURRENCY_FAV -> {}
                 null -> {}
             }
             val position = positionMap?.get(upbitSocketTickerRes.code) ?: 0
