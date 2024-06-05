@@ -15,6 +15,8 @@ fun ExchangeScreenRoute(
         tradeCurrencyState = viewModel.tradeCurrencyState,
         changeTradeCurrency = viewModel::changeTradeCurrency,
         onPaused = viewModel::onPause,
-        onResume = viewModel::onResume
+        onResume = viewModel::onResume,
+        needAnimationList = viewModel.getNeedAnimationList(),
+        stopAnimation = viewModel::stopAnimation,
     )
 }

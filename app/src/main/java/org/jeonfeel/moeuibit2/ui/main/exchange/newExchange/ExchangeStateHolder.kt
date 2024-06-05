@@ -4,14 +4,18 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
@@ -22,8 +26,10 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val lazyScrollState: LazyListState,
     val context: Context,
     val isUpdateExchange: Boolean,
-    val sortTickerList: (sortType: SortType, sortOrder: SortOrder) -> Unit,
-    val focusManaManager: FocusManager
+    val sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    val focusManaManager: FocusManager,
+    private val changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    val coroutineScope: CoroutineScope
 ) {
     val textFieldValueState = mutableStateOf("")
     var selectedSortType = mutableStateOf(SortType.DEFAULT)
@@ -59,7 +65,15 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             }
         }
 
-        sortTickerList(this.selectedSortType.value, this.sortOrder.value)
+        sortTickerList(null, this.selectedSortType.value, this.sortOrder.value)
+    }
+
+    fun changeTradeCurrencyAction(tradeCurrency: Int) {
+        sortTickerList(tradeCurrency, this.selectedSortType.value, this.sortOrder.value)
+        coroutineScope.launch {
+            lazyScrollState.scrollToItem(0)
+        }
+        changeTradeCurrency(tradeCurrency)
     }
 }
 
@@ -71,10 +85,9 @@ fun rememberExchangeStateHolder(
     context: Context = LocalContext.current,
     focusManaManager: FocusManager = LocalFocusManager.current,
     isUpdateExchange: Boolean,
-    sortTickerList: (
-        sortType: SortType,
-        sortOrder: SortOrder
-    ) -> Unit
+    sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) = remember {
     ExchangeStateHolder(
         pagerState = pagerState,
@@ -82,6 +95,8 @@ fun rememberExchangeStateHolder(
         context = context,
         isUpdateExchange = isUpdateExchange,
         sortTickerList = sortTickerList,
-        focusManaManager = focusManaManager
+        focusManaManager = focusManaManager,
+        changeTradeCurrency = changeTradeCurrency,
+        coroutineScope = coroutineScope
     )
 }

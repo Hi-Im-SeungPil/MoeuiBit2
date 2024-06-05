@@ -1,5 +1,7 @@
 package org.jeonfeel.moeuibit2.utils
 
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import java.math.BigDecimal
@@ -11,24 +13,34 @@ object BigDecimalMapper {
     private val format: DecimalFormat = DecimalFormat("###,###")
     private const val MILLION = 1_000_000L
     private const val THOUSAND = 100_000_000L
-    fun Double.newBigDecimal(rootExchange: String): BigDecimal {
+    fun Double.newBigDecimal(rootExchange: String, market: String): BigDecimal {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 when {
-                    this >= 1_000 -> BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
-                    this >= 100 -> BigDecimal(this).setScale(1, RoundingMode.HALF_UP)
-                    this >= 10 -> BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
-                    this >= 1 -> BigDecimal(this).setScale(3, RoundingMode.HALF_UP)
-                    this >= 0.1 -> BigDecimal(this).setScale(4, RoundingMode.HALF_UP)
-                    this >= 0.01 -> BigDecimal(this).setScale(5, RoundingMode.HALF_UP)
-                    this >= 0.001 -> BigDecimal(this).setScale(6, RoundingMode.HALF_UP)
-                    this >= 0.0001 -> BigDecimal(this).setScale(7, RoundingMode.HALF_UP)
-                    else -> BigDecimal(this).setScale(8, RoundingMode.HALF_UP)
+                    market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                        when {
+                            this >= 1_000 -> BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
+                            this >= 100 -> BigDecimal(this).setScale(1, RoundingMode.HALF_UP)
+                            this >= 10 -> BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
+                            this >= 1 -> BigDecimal(this).setScale(3, RoundingMode.HALF_UP)
+                            this >= 0.1 -> BigDecimal(this).setScale(4, RoundingMode.HALF_UP)
+                            this >= 0.01 -> BigDecimal(this).setScale(5, RoundingMode.HALF_UP)
+                            this >= 0.001 -> BigDecimal(this).setScale(6, RoundingMode.HALF_UP)
+                            this >= 0.0001 -> BigDecimal(this).setScale(7, RoundingMode.HALF_UP)
+                            else -> BigDecimal(this).setScale(8, RoundingMode.HALF_UP)
+                        }
+                    }
+
+                    else -> {
+                        BigDecimal(this).setScale(8, RoundingMode.HALF_UP)
+                    }
                 }
             }
+
             ROOT_EXCHANGE_BITTHUMB -> {
                 BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
             }
+
             else -> {
                 BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
             }

@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -77,33 +77,35 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.NoRippleTheme
+import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
-import org.jeonfeel.moeuibit2.utils.EvenColor
 import org.jeonfeel.moeuibit2.utils.FallColor
 import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.convertMarketChangeState
 import org.jeonfeel.moeuibit2.utils.getFluctuateColor
-import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeScreen(
     tickerList: List<CommonExchangeModel>,
     isUpdateExchange: State<Boolean>,
-    sortTickerList: (SortType, SortOrder) -> Unit,
+    sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
     tradeCurrencyState: State<Int>,
-    changeTradeCurrency: KFunction1<Int, Unit>,
+    changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     onResume: () -> Unit,
-    onPaused: () -> Unit
+    onPaused: () -> Unit,
+    needAnimationList: List<State<String>>,
+    stopAnimation: (market: String) -> Unit
 ) {
     val state = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
-        sortTickerList = sortTickerList
+        sortTickerList = sortTickerList,
+        changeTradeCurrency = changeTradeCurrency,
     )
 
     AddLifecycleEvent(
@@ -131,7 +133,7 @@ fun ExchangeScreen(
                     pagerState = state.pagerState,
                     modifier = Modifier.zIndex(-1f),
                     tradeCurrencyState = tradeCurrencyState,
-                    changeTradeCurrency = changeTradeCurrency
+                    changeTradeCurrency = state::changeTradeCurrencyAction
                 )
             },
             modifier = Modifier
@@ -144,7 +146,9 @@ fun ExchangeScreen(
                 )
                 CoinTickerSection(
                     lazyScrollState = state.lazyScrollState,
-                    tickerList = state.getFilteredList(tickerList = tickerList)
+                    tickerList = state.getFilteredList(tickerList = tickerList),
+                    needAnimationList = needAnimationList,
+                    stopAnimation = stopAnimation
                 )
             }
         }
@@ -364,19 +368,23 @@ private fun RowScope.SortButton(
 @Composable
 private fun CoinTickerSection(
     tickerList: List<CommonExchangeModel>,
-    lazyScrollState: LazyListState
+    lazyScrollState: LazyListState,
+    stopAnimation: (market: String) -> Unit,
+    needAnimationList: List<State<String>>,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyScrollState) {
-        items(items = tickerList) {
+        itemsIndexed(items = tickerList) { index, item ->
             CoinTickerView(
-                name = it.koreanName,
-                symbol = it.symbol,
-                lastPrice = it.tradePrice.formattedString(),
-                fluctuateRate = it.signedChangeRate.toFloat(),
-                fluctuatePrice = it.signedChangePrice.toFloat(),
-                change = it.change.convertMarketChangeState(),
-                acc24h = it.accTradePrice24h.formattedUnitString(),
+                name = item.koreanName,
+                symbol = item.symbol,
+                lastPrice = item.tradePrice.formattedString(),
+                fluctuateRate = item.signedChangeRate.toFloat(),
+                fluctuatePrice = item.signedChangePrice.toFloat(),
+                acc24h = item.accTradePrice24h.formattedUnitString(),
                 onClickEvent = {},
+                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else "NONE",
+                market = item.market,
+                stopAnimation = stopAnimation
             )
         }
     }
@@ -391,9 +399,11 @@ fun CoinTickerView(
     fluctuateRate: Float,
     fluctuatePrice: Float,
     acc24h: String,
-    change: MarketChangeState,
     onClickEvent: () -> Unit,
-    infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = "")
+    infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = ""),
+    needAnimation: String,
+    stopAnimation: (market: String) -> Unit,
+    market: String,
 ) = Column {
     Row(
         modifier = modifier
@@ -402,10 +412,10 @@ fun CoinTickerView(
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val animationDurationTimeMills = 200
+        val animationDurationTimeMills = 400
         val alpha by infiniteTransition.animateFloat(
             initialValue = 0.0f,
-            targetValue = 0.5f,
+            targetValue = 0.8f,
             animationSpec = infiniteRepeatable(
                 animation = keyframes {
                     durationMillis = animationDurationTimeMills
@@ -415,11 +425,12 @@ fun CoinTickerView(
             ),
             label = "animation alpha"
         )
-        var animateNeed by remember { mutableStateOf(false) }
-        LaunchedEffect(key1 = fluctuateRate) {
-            animateNeed = true
-            delay(animationDurationTimeMills.toLong())
-            animateNeed = false
+
+        LaunchedEffect(key1 = needAnimation) {
+            if (needAnimation != TickerAskBidState.NONE.name) {
+                delay(animationDurationTimeMills.toLong())
+                stopAnimation(market)
+            }
         }
         Column(
             modifier = Modifier
@@ -429,7 +440,7 @@ fun CoinTickerView(
                 text = name,
                 modifier = Modifier.fillMaxSize(),
                 textAlign = TextAlign.Center,
-                fontSize = DpToSp(15.dp),
+                fontSize = DpToSp(13.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(fontWeight = FontWeight.W600)
@@ -438,39 +449,46 @@ fun CoinTickerView(
                 modifier = Modifier.fillMaxSize(),
                 text = symbol,
                 textAlign = TextAlign.Center,
-                fontSize = DpToSp(12.dp),
+                fontSize = DpToSp(11.dp),
                 style = TextStyle(
                     color = Color(0xff8C939E)
                 )
             )
         }
-        AutoSizeText(
-            text = lastPrice,
-            modifier = Modifier
-                .weight(1f)
-                .background(Color.White)
-                .drawBehind {
-                    drawLine(
-                        color = if (animateNeed) {
-                            when (change) {
-                                MarketChangeState.Even -> EvenColor.copy(alpha = alpha)
-                                MarketChangeState.Fall -> FallColor.copy(alpha = alpha)
-                                MarketChangeState.Rise -> RiseColor.copy(alpha = alpha)
-                            }
-                        } else Color.White,
-                        start = Offset(0f, size.height),
-                        end = Offset(size.width, size.height),
-                        strokeWidth = if (animateNeed) 2.dp.toPx() else 0.dp.toPx()
-                    )
-                }
-                .padding(2.dp),
-            textStyle = TextStyle(
-                textAlign = TextAlign.Center,
-                fontSize = DpToSp(15.dp),
-                fontWeight = FontWeight.W400,
-            ),
-            color = fluctuatePrice.getFluctuateColor()
-        )
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            AutoSizeText(
+                text = lastPrice,
+                modifier = Modifier
+                    .background(Color.White)
+                    .drawBehind {
+                        drawLine(
+                            color = when (needAnimation) {
+                                TickerAskBidState.ASK.name -> {
+                                    FallColor.copy(alpha = alpha)
+                                }
+
+                                TickerAskBidState.BID.name -> {
+                                    RiseColor.copy(alpha = alpha)
+                                }
+
+                                else -> {
+                                    Color.White
+                                }
+                            },
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = if (needAnimation != "NONE") 2.dp.toPx() else 0.dp.toPx()
+                        )
+                    }
+                    .padding(2.dp),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    fontSize = DpToSp(15.dp),
+                    fontWeight = FontWeight.W400,
+                ),
+                color = fluctuatePrice.getFluctuateColor()
+            )
+        }
         AutoSizeText(
             text = fluctuateRate.formattedFluctuateString() + "%",
             textStyle = TextStyle(

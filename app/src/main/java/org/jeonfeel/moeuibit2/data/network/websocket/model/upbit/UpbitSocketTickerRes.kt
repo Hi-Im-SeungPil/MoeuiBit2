@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.model.upbit
 
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -9,7 +8,6 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.aacBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
-import java.util.Date
 
 @Serializable
 data class UpbitSocketTickerRes(
@@ -81,7 +79,7 @@ data class UpbitSocketTickerRes(
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes): CommonExchangeModel {
         return CommonExchangeModel(
             market = code,
-            tradePrice = tradePrice.newBigDecimal(ROOT_EXCHANGE_UPBIT),
+            tradePrice = tradePrice.newBigDecimal(ROOT_EXCHANGE_UPBIT, market = code),
             tradeVolume = tradeVolume,
             changePrice = changePrice,
             changeRate = changeRate * 100,
@@ -99,7 +97,8 @@ data class UpbitSocketTickerRes(
             englishName = getUpbitMarketCodeRes.englishName,
             symbol = code.substring(4),
             koreanName = getUpbitMarketCodeRes.koreanName,
-            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName)
+            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName),
+            askBid = askBid
         )
     }
 }

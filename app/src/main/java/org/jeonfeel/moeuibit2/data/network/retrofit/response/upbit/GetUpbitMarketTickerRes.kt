@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.aacBigDecimal
@@ -63,26 +62,27 @@ data class GetUpbitMarketTickerRes(
 ) {
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes): CommonExchangeModel {
         return CommonExchangeModel(
+            koreanName = getUpbitMarketCodeRes.koreanName,
+            englishName = getUpbitMarketCodeRes.englishName,
             market = market,
-            tradePrice = tradePrice.newBigDecimal(ExchangeViewModel.ROOT_EXCHANGE_UPBIT),
-            tradeVolume = tradeVolume,
-            changePrice = changePrice,
-            changeRate = changeRate * 100,
+            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName),
+            symbol = market.substring(4),
             openingPrice = openingPrice,
-            signedChangePrice = signedChangePrice,
+            tradePrice = tradePrice.newBigDecimal(ExchangeViewModel.ROOT_EXCHANGE_UPBIT, market = market),
             signedChangeRate = signedChangeRate * 100,
-            highPrice = highPrice,
-            lowPrice = lowPrice,
             accTradePrice24h = accTradePrice24h.aacBigDecimal(),
             tradeDate = tradeDate,
             tradeTime = tradeTime,
-            timestamp = timestamp,
+            tradeVolume = tradeVolume,
             change = change,
+            changePrice = changePrice,
+            changeRate = changeRate * 100,
+            highPrice = highPrice,
+            lowPrice = lowPrice,
+            signedChangePrice = signedChangePrice,
+            timestamp = timestamp,
             warning = getUpbitMarketCodeRes.marketEvent.warning,
-            englishName = getUpbitMarketCodeRes.englishName,
-            symbol = market.substring(4),
-            koreanName = getUpbitMarketCodeRes.koreanName,
-            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName)
+            askBid = "NONE"
         )
     }
 }

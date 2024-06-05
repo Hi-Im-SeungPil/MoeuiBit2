@@ -1,11 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
@@ -15,19 +14,16 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBit
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.ExchangeInitState
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import java.math.BigDecimal
 import javax.inject.Inject
 
-//enum class TradeCurrency {
-//    KRW, BTC, FAV
-//}
-
-enum class TradeCurrency {
-    KRW, BTC, FAV
+enum class TickerAskBidState {
+    ASK, BID, NONE
 }
 
 class ExchangeViewModelState {
     val isUpdateExchange = mutableStateOf(true)
-    val tradeCurrencyState = mutableStateOf(TRADE_CURRENCY_KRW)
+    val tradeCurrencyState = mutableIntStateOf(TRADE_CURRENCY_KRW)
 }
 
 @HiltViewModel
@@ -92,10 +88,10 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun sortTickerList(sortType: SortType, sortOrder: SortOrder) {
+    fun sortTickerList(targetTradeCurrency: Int? = null, sortType: SortType, sortOrder: SortOrder) {
         state.isUpdateExchange.value = false
         upBit.sortTickerList(
-            tradeCurrencyState = tradeCurrencyState,
+            tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
             sortType = sortType,
             sortOrder = sortOrder
         )
@@ -103,20 +99,85 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun changeTradeCurrency(tradeCurrency: Int) {
-        state.tradeCurrencyState.value = tradeCurrency
+        state.tradeCurrencyState.intValue = tradeCurrency
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upBit.changeTradeCurrencyAction()
+            },
+            bitthumbAction = {
+
+            }
+        )
     }
 
     fun onPause() {
-        viewModelScope.launch {
-            upBit.onPause()
-        }
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upBit.onPause()
+            },
+            bitthumbAction = {
+
+            }
+        )
     }
 
     fun onResume() {
-        viewModelScope.launch {
-            upBit.onResume()
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upBit.onResume()
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+    fun getBtcPrice(): BigDecimal {
+        return when (rootExchange) {
+            ROOT_EXCHANGE_UPBIT -> {
+                upBit.getBtcPrice()
+            }
+
+            ROOT_EXCHANGE_BITTHUMB -> {
+                upBit.getBtcPrice()
+            }
+
+            else -> {
+                upBit.getBtcPrice()
+            }
         }
     }
+
+    fun getNeedAnimationList(): List<State<String>> {
+        return when (rootExchange) {
+            ROOT_EXCHANGE_UPBIT -> {
+                upBit.getNeedAnimationList()
+            }
+
+            ROOT_EXCHANGE_BITTHUMB -> {
+                upBit.getNeedAnimationList()
+            }
+
+            else -> {
+                upBit.getNeedAnimationList()
+            }
+        }
+    }
+
+    fun stopAnimation(market: String) {
+        rootExchangeBranch(
+            upbitAction = {
+                upBit.stopAnimation(market)
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+//    fun getget(): List<MutableState<Boolean>> {
+//        return upBit.krwNeedAnimationList
+//    }
 
     companion object {
         const val ROOT_EXCHANGE_UPBIT = "upbit"

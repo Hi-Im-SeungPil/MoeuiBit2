@@ -117,7 +117,7 @@ object Utils {
     ): List<CommonExchangeModel> {
         return when (sortType) {
             SortType.DEFAULT -> {
-                tickerList.sortedBy { it.accTradePrice24h }
+                tickerList.sortedByDescending { it.accTradePrice24h }
             }
 
             SortType.PRICE -> {
@@ -131,7 +131,7 @@ object Utils {
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedBy { it.accTradePrice24h }
+                        tickerList.sortedByDescending { it.accTradePrice24h }
                     }
                 }
             }
@@ -147,7 +147,7 @@ object Utils {
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedBy { it.accTradePrice24h }
+                        tickerList.sortedByDescending { it.accTradePrice24h }
                     }
                 }
             }
@@ -163,7 +163,7 @@ object Utils {
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedBy { it.accTradePrice24h }
+                        tickerList.sortedByDescending { it.accTradePrice24h }
                     }
                 }
             }

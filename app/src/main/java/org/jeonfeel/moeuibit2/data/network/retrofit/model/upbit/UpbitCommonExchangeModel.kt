@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit
 
 import androidx.annotation.Keep
-import androidx.compose.runtime.Stable
 import java.math.BigDecimal
 
 @Keep
@@ -25,5 +24,6 @@ data class CommonExchangeModel(
     val lowPrice: Double,
     val signedChangePrice: Double,
     val timestamp: Long,
-    val warning: Boolean
+    val warning: Boolean,
+    val askBid: String? = null
 )
