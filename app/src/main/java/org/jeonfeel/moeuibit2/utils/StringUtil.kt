@@ -1,5 +1,7 @@
 package org.jeonfeel.moeuibit2.utils
 
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import java.text.DecimalFormat
 
 val commaFormat = DecimalFormat("###,###")
@@ -9,6 +11,14 @@ val percentFormat = DecimalFormat("0.00%")
 
 fun Long.commaFormat(): String {
     return commaFormat.format(this)
+}
+
+fun String.isTradeCurrencyKrw(): Boolean {
+    return when {
+        this.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> true
+        this.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> false
+        else -> true
+    }
 }
 
 fun String.commaFormat(): String {

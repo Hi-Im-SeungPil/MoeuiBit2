@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.aacBigDecimal
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 
@@ -88,7 +88,7 @@ data class UpbitSocketTickerRes(
             signedChangeRate = signedChangeRate * 100,
             highPrice = highPrice,
             lowPrice = lowPrice,
-            accTradePrice24h = accTradePrice24h.aacBigDecimal(),
+            accTradePrice24h = accTradePrice24h.accBigDecimal(),
             tradeDate = tradeDate,
             tradeTime = tradeTime,
             timestamp = timestamp,
