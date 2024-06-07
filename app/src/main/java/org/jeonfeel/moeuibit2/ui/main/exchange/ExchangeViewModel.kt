@@ -28,9 +28,9 @@ class ExchangeViewModelState {
 
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
-    private val upBit: UpBit,
-    private val localRepository: LocalRepository,
-    private val preferenceManager: PreferenceManager
+        private val upBit: UpBit,
+        private val localRepository: LocalRepository,
+        private val preferenceManager: PreferenceManager
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
@@ -38,17 +38,17 @@ class ExchangeViewModel @Inject constructor(
 
     init {
         rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBit.initUpBit(
-                    tradeCurrencyState = tradeCurrencyState,
-                    isUpdateExchange = isUpdateExchange
-                ).collect { upBitInitState ->
-                    processData(upBitInitState)
-                }
-            },
-            bitthumbAction = {
+                upbitAction = {
+                    upBit.initUpBit(
+                            tradeCurrencyState = tradeCurrencyState,
+                            isUpdateExchange = isUpdateExchange
+                    ).collect { upBitInitState ->
+                        processData(upBitInitState)
+                    }
+                },
+                bitthumbAction = {
 
-            }
+                }
         )
     }
 
@@ -91,44 +91,46 @@ class ExchangeViewModel @Inject constructor(
     fun sortTickerList(targetTradeCurrency: Int? = null, sortType: SortType, sortOrder: SortOrder) {
         state.isUpdateExchange.value = false
         upBit.sortTickerList(
-            tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-            sortType = sortType,
-            sortOrder = sortOrder
+                tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+                sortType = sortType,
+                sortOrder = sortOrder
         )
         state.isUpdateExchange.value = true
     }
 
     fun changeTradeCurrency(tradeCurrency: Int) {
-        state.tradeCurrencyState.intValue = tradeCurrency
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBit.changeTradeCurrencyAction()
-            },
-            bitthumbAction = {
+        if (tradeCurrency in 0..2) {
+            state.tradeCurrencyState.intValue = tradeCurrency
+            rootExchangeCoroutineBranch(
+                    upbitAction = {
+                        upBit.changeTradeCurrencyAction()
+                    },
+                    bitthumbAction = {
 
-            }
-        )
+                    }
+            )
+        }
     }
 
     fun onPause() {
         rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBit.onPause()
-            },
-            bitthumbAction = {
+                upbitAction = {
+                    upBit.onPause()
+                },
+                bitthumbAction = {
 
-            }
+                }
         )
     }
 
     fun onResume() {
         rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBit.onResume()
-            },
-            bitthumbAction = {
+                upbitAction = {
+                    upBit.onResume()
+                },
+                bitthumbAction = {
 
-            }
+                }
         )
     }
 
@@ -166,12 +168,12 @@ class ExchangeViewModel @Inject constructor(
 
     fun stopAnimation(market: String) {
         rootExchangeBranch(
-            upbitAction = {
-                upBit.stopAnimation(market)
-            },
-            bitthumbAction = {
+                upbitAction = {
+                    upBit.stopAnimation(market)
+                },
+                bitthumbAction = {
 
-            }
+                }
         )
     }
 

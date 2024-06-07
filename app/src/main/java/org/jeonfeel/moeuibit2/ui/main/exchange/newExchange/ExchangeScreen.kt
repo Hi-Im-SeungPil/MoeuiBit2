@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -60,9 +61,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
@@ -71,6 +75,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeMo
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.SwipeDetector
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
@@ -108,6 +113,7 @@ fun ExchangeScreen(
             isUpdateExchange = isUpdateExchange.value,
             sortTickerList = sortTickerList,
             changeTradeCurrency = changeTradeCurrency,
+            tradeCurrencyState = tradeCurrencyState
     )
 
     AddLifecycleEvent(
@@ -135,7 +141,8 @@ fun ExchangeScreen(
                             pagerState = state.pagerState,
                             modifier = Modifier.zIndex(-1f),
                             tradeCurrencyState = tradeCurrencyState,
-                            changeTradeCurrency = state::changeTradeCurrencyAction
+                            changeTradeCurrency = state::changeTradeCurrencyAction,
+                            coroutineScope = state.coroutineScope
                     )
                 },
                 modifier = Modifier
@@ -151,12 +158,15 @@ fun ExchangeScreen(
                         tickerList = state.getFilteredList(tickerList = tickerList),
                         needAnimationList = needAnimationList,
                         stopAnimation = stopAnimation,
-                        btcKrwPrice = btcKrwPrice
+                        btcKrwPrice = btcKrwPrice,
+                        coinTickerListVisibility = state.coinTickerListVisibility.value,
+                        coinTickerListSwipeAction = state::coinTickerListSwipeAction,
+                        tradeCurrencyState = tradeCurrencyState,
+                        pagerState = state.pagerState
                 )
             }
         }
     }
-
 }
 
 @Composable
@@ -235,6 +245,7 @@ private fun SelectTradeCurrencySection(
         tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
         modifier: Modifier = Modifier,
         changeTradeCurrency: (Int) -> Unit,
+        coroutineScope: CoroutineScope
 ) {
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
         Row(
@@ -273,7 +284,9 @@ private fun SelectTradeCurrencySection(
                             selected = tradeCurrencyState.value == index,
                             onClick = {
                                 if (tradeCurrencyState.value != index) {
-                                    changeTradeCurrency(index)
+                                    coroutineScope.launch {
+                                        changeTradeCurrency(index)
+                                    }
                                 }
                             },
                     )
@@ -368,30 +381,79 @@ private fun RowScope.SortButton(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
 @Composable
 private fun CoinTickerSection(
         tickerList: List<CommonExchangeModel>,
         lazyScrollState: LazyListState,
         stopAnimation: (market: String) -> Unit,
         needAnimationList: List<State<String>>,
-        btcKrwPrice: BigDecimal
+        btcKrwPrice: BigDecimal,
+        coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
+        coinTickerListVisibility: Boolean,
+        tradeCurrencyState: State<Int>,
+        pagerState: PagerState
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), state = lazyScrollState) {
-        itemsIndexed(items = tickerList) { index, item ->
-            CoinTickerView(
-                    name = item.koreanName,
-                    symbol = item.symbol,
-                    lastPrice = item.tradePrice.formattedString(),
-                    fluctuateRate = item.signedChangeRate.toFloat(),
-                    fluctuatePrice = item.signedChangePrice.toFloat(),
-                    acc24h = item.accTradePrice24h.formattedUnitString(),
-                    onClickEvent = {},
-                    needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
-                    market = item.market,
-                    stopAnimation = stopAnimation,
-                    btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice).formattedStringForBtc(),
-                    btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice).formattedUnitStringForBtc()
-            )
+    HorizontalPager(count = 3, state = pagerState, userScrollEnabled = false) { index ->
+        when(index) {
+            0 -> {
+                LazyColumn(modifier = Modifier
+                        .fillMaxSize()
+                        .SwipeDetector(
+                                onSwipeLeftAction = {
+                                    coinTickerListSwipeAction(true)
+                                },
+                                onSwipeRightAction = {
+                                    coinTickerListSwipeAction(false)
+                                }
+                        ), state = lazyScrollState) {
+                    itemsIndexed(items = tickerList) { index, item ->
+                        CoinTickerView(
+                                name = item.koreanName,
+                                symbol = item.symbol,
+                                lastPrice = item.tradePrice.formattedString(),
+                                fluctuateRate = item.signedChangeRate.toFloat(),
+                                fluctuatePrice = item.signedChangePrice.toFloat(),
+                                acc24h = item.accTradePrice24h.formattedUnitString(),
+                                onClickEvent = {},
+                                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
+                                market = item.market,
+                                stopAnimation = stopAnimation,
+                                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice).formattedStringForBtc(),
+                                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice).formattedUnitStringForBtc()
+                        )
+                    }
+                }
+            }
+            1 -> {
+                LazyColumn(modifier = Modifier
+                        .fillMaxSize()
+                        .SwipeDetector(
+                                onSwipeLeftAction = {
+                                    coinTickerListSwipeAction(true)
+                                },
+                                onSwipeRightAction = {
+                                    coinTickerListSwipeAction(false)
+                                }
+                        ), state = lazyScrollState) {
+                    itemsIndexed(items = tickerList) { index, item ->
+                        CoinTickerView(
+                                name = item.koreanName,
+                                symbol = item.symbol,
+                                lastPrice = item.tradePrice.formattedString(),
+                                fluctuateRate = item.signedChangeRate.toFloat(),
+                                fluctuatePrice = item.signedChangePrice.toFloat(),
+                                acc24h = item.accTradePrice24h.formattedUnitString(),
+                                onClickEvent = {},
+                                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
+                                market = item.market,
+                                stopAnimation = stopAnimation,
+                                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice).formattedStringForBtc(),
+                                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice).formattedUnitStringForBtc()
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -496,14 +558,14 @@ fun CoinTickerView(
                     ),
                     color = fluctuatePrice.getFluctuateColor()
             )
-            if (!market.isTradeCurrencyKrw()) {
-                AutoSizeText(text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
-                        textStyle = TextStyle(textAlign = TextAlign.End,
-                                fontSize = DpToSp(11.dp)
-                        ),
-                        color = Color(0xff91959E)
-                )
-            }
+//            if (!market.isTradeCurrencyKrw()) {
+//                AutoSizeText(text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
+//                        textStyle = TextStyle(textAlign = TextAlign.End,
+//                                fontSize = DpToSp(11.dp)
+//                        ),
+//                        color = Color(0xff91959E)
+//                )
+//            }
         }
         AutoSizeText(
                 text = fluctuateRate.formattedFluctuateString() + "%",
@@ -524,15 +586,15 @@ fun CoinTickerView(
                             textAlign = TextAlign.Center
                     )
             )
-            if(!market.isTradeCurrencyKrw()) {
-                AutoSizeText(
-                        text = btcPriceMultiplyAcc,
-                        textStyle = TextStyle(
-                                fontSize = DpToSp(11.dp),
-                                textAlign = TextAlign.End
-                        ),
-                        color = Color(0xff91959E)
-                )
+            if (!market.isTradeCurrencyKrw()) {
+//                AutoSizeText(
+//                        text = btcPriceMultiplyAcc,
+//                        textStyle = TextStyle(
+//                                fontSize = DpToSp(11.dp),
+//                                textAlign = TextAlign.End
+//                        ),
+//                        color = Color(0xff91959E)
+//                )
             }
         }
     }
