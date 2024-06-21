@@ -4,7 +4,7 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 
-open class BaseRootExchange {
+open class BaseCommunicationModule {
     protected suspend fun <T> executeUseCase(
         target: Flow<Any>,
         onLoading: ((result: ApiResult<*>) -> Unit)? = null,

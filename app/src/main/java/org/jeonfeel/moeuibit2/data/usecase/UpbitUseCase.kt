@@ -1,13 +1,10 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onEach
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestFormatField
@@ -18,7 +15,6 @@ import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.reflect.KFunction3
 
 class UpbitUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
@@ -87,7 +83,7 @@ class UpbitUseCase @Inject constructor(
     suspend fun requestSubscribeTicker(
         marketCodes: List<String>
     ) {
-        upBitSocketService.requestUpbitRequest(
+        upBitSocketService.requestUpbitTickerRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(

@@ -2,14 +2,11 @@ package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -46,7 +43,7 @@ sealed class ExchangeInitState {
 
 class UpBit @Inject constructor(
     private val upbitUseCase: UpbitUseCase
-) : BaseRootExchange() {
+) : BaseCommunicationModule() {
     private var successInit = false
     private val krwMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
     private val btcMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
@@ -331,7 +328,7 @@ class UpBit @Inject constructor(
         }.collect { upbitSocketTickerRes ->
             try {
                 if (isUpdateExchange?.value == false) return@collect
-                Logger.e("ticker -> ${upbitSocketTickerRes.code}")
+
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
                 var targetModelList: MutableList<CommonExchangeModel>? = null

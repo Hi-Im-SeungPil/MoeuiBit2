@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
+import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -96,6 +97,15 @@ class NetowrkModule {
         upBitSocketService: UpBitSocketService
     ): UpbitUseCase {
         return UpbitUseCase(upbitRepository, upBitSocketService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideOrderBookUseCase(
+        upbitRepository: UpbitRepository,
+        upBitSocketService: UpBitSocketService
+    ): UpbitCoinOrderUseCase {
+        return UpbitCoinOrderUseCase(upbitRepository, upBitSocketService)
     }
 
     @Singleton

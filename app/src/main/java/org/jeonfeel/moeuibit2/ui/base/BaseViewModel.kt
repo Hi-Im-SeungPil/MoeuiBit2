@@ -9,14 +9,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constants.PREF_KEY_ROOT_EXCHANGE
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseRootExchange
 import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
-import javax.inject.Inject
 
 enum class NetworkState {
     CONNECTED,

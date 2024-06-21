@@ -177,10 +177,6 @@ class ExchangeViewModel @Inject constructor(
         )
     }
 
-//    fun getget(): List<MutableState<Boolean>> {
-//        return upBit.krwNeedAnimationList
-//    }
-
     companion object {
         const val ROOT_EXCHANGE_UPBIT = "upbit"
         const val ROOT_EXCHANGE_BITTHUMB = "bitthumb"

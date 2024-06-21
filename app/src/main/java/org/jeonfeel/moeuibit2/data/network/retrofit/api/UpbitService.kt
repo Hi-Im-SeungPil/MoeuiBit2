@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.api
 
 import com.google.gson.JsonArray
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import retrofit2.Response
 import retrofit2.http.GET
@@ -16,7 +17,7 @@ interface UpBitService {
     suspend fun getMarketTicker(@Query("markets") markets: String): Response<List<GetUpbitMarketTickerRes>>
 
     @GET("v1/orderbook")
-    suspend fun getKrwOrderBook(@Query("markets") market: String): Response<JsonArray>
+    suspend fun getOrderBook(@Query("markets") market: String): Response<List<GetUpbitOrderBookRes>>
 
     @GET("v1/candles/minutes/{minute}")
     suspend fun getMinuteCandle(
