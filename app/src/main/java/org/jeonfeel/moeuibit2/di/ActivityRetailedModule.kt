@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
@@ -39,7 +39,7 @@ class ActivityRetailedModule {
     @Provides
     fun provideCoinOrder(
         localRepository: LocalRepository,
-        prefrenceManager: PreferenceManager
+        prefrenceManager: PreferencesManager
     ): CoinOrder {
         return CoinOrder(
             preferenceManager = prefrenceManager,

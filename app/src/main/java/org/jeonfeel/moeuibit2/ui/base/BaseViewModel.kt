@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 
 enum class NetworkState {
     CONNECTED,
@@ -21,7 +21,7 @@ enum class NetworkState {
 }
 
 abstract class BaseViewModel(
-    preferenceManager: PreferenceManager
+    preferenceManager: PreferencesManager
 ) : ViewModel() {
     private val _networkErrorState = mutableStateOf(NetworkState.NETWORK_ERROR)
     val networkErrorState: State<NetworkState> get() = _networkErrorState

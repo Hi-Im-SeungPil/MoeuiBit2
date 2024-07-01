@@ -21,7 +21,7 @@ import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
 class PortfolioState {
@@ -39,7 +39,7 @@ class PortfolioState {
 class PortfolioViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     val adMobManager: AdMobManager,
-    val preferenceManager: PreferenceManager
+    val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager), OnTickerMessageReceiveListener {
     val state = PortfolioState()
     var userHoldCoinsMarket = StringBuffer()

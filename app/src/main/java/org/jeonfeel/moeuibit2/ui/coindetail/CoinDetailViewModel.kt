@@ -27,7 +27,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +36,7 @@ class CoinDetailViewModel @Inject constructor(
     val chart: Chart,
     val coinInfo: CoinInfo,
     val remoteRepository: RemoteRepository,
-    val preferenceManager: PreferenceManager
+    val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager = preferenceManager), OnTickerMessageReceiveListener {
     private var name = ""
     private var marketState = -999
@@ -58,7 +58,6 @@ class CoinDetailViewModel @Inject constructor(
         this.favoriteMutableState.value = isFavorite
         this.marketState = Utils.getSelectedMarket(market)
         chart.market = market
-        coinOrder.initAdjustCommission()
         if (market.startsWith("BTC")) {
             isBTC = true
         }
@@ -238,7 +237,7 @@ class CoinDetailViewModel @Inject constructor(
      */
     fun adjustCommission() {
         viewModelScope.launch(ioDispatcher) {
-            coinOrder.adjustCommission()
+
         }
     }
 
@@ -246,14 +245,14 @@ class CoinDetailViewModel @Inject constructor(
      * 수수료 조정 초기화
      */
     fun initAdjustCommission() {
-        coinOrder.initAdjustCommission()
+
     }
 
     /**
      * 수수료 얻어오기
      */
     fun getCommission(key: String): Float {
-        return coinOrder.getCommission(key)
+        return 0f
     }
 
     /**

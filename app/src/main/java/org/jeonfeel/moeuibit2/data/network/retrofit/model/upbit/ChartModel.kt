@@ -1,8 +1,9 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit
 
+import android.content.Context
 import androidx.annotation.Keep
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.annotations.SerializedName
-
 @Keep
 data class ChartModel(
     @SerializedName("candle_date_time_kst")

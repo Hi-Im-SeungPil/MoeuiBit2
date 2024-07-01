@@ -26,7 +26,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 import kotlin.math.floor
 import kotlin.math.round
@@ -54,7 +54,7 @@ class CoinOrderState {
 
 class CoinOrder @Inject constructor(
     private val localRepository: LocalRepository,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferencesManager
 ) : OnOrderBookMessageReceiveListener {
     val gson = Gson()
     var isTickerSocketRunning = true
@@ -133,7 +133,7 @@ class CoinOrder @Inject constructor(
                         quantity
                     )
                 )
-                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
+//                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
                 state.userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
                 val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_COMMISSION)
@@ -310,27 +310,6 @@ class CoinOrder @Inject constructor(
             }
             delay(15L)
         }
-    }
-
-    fun initAdjustCommission() {
-        for (i in PREF_KEY_FEE_LIST.indices) {
-            val fee = preferenceManager.getFloat(PREF_KEY_FEE_LIST[i])
-            if (state.commissionStateList.size <= 3) {
-                state.commissionStateList.add(mutableStateOf(fee))
-            } else {
-                state.commissionStateList[i] = mutableStateOf(fee)
-            }
-        }
-    }
-
-    suspend fun adjustCommission() {
-        for (i in PREF_KEY_FEE_LIST.indices) {
-            preferenceManager.setValue(PREF_KEY_FEE_LIST[i], state.commissionStateList[i].value)
-        }
-    }
-
-    fun getCommission(key: String): Float {
-        return preferenceManager.getFloat(key)
     }
 
     /**

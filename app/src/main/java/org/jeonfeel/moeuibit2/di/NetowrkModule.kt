@@ -17,6 +17,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
+import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
@@ -103,9 +104,10 @@ class NetowrkModule {
     @Provides
     fun provideOrderBookUseCase(
         upbitRepository: UpbitRepository,
+        localRepository: LocalRepository,
         upBitSocketService: UpBitSocketService
     ): UpbitCoinOrderUseCase {
-        return UpbitCoinOrderUseCase(upbitRepository, upBitSocketService)
+        return UpbitCoinOrderUseCase(upbitRepository,localRepository, upBitSocketService)
     }
 
     @Singleton

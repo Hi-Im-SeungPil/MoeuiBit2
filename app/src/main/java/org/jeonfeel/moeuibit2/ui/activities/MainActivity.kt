@@ -10,6 +10,9 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
@@ -24,7 +27,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import org.jeonfeel.moeuibit2.utils.showToast
 import javax.inject.Inject
 
@@ -37,7 +40,7 @@ class MainActivity : BaseActivity() {
     lateinit var localRepository: LocalRepository
 
     @Inject
-    lateinit var preferenceManager: PreferenceManager
+    lateinit var preferenceManager: PreferencesManager
 
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
@@ -69,11 +72,15 @@ class MainActivity : BaseActivity() {
             },
             noInternetAction = {
                 networkErrorState.value = NO_INTERNET_CONNECTION
-                val currentRootExchange = preferenceManager.getString(PREF_KEY_ROOT_EXCHANGE)
-                if (currentRootExchange == ROOT_EXCHANGE_UPBIT) {
-                    UpBitTickerWebSocket.onPause()
-                } else {
-                    BitthumbTickerWebSocket.onPause()
+                CoroutineScope(Dispatchers.Main).launch {
+                    preferenceManager.getString(PREF_KEY_ROOT_EXCHANGE)
+                        .collect { currentRootExchange ->
+                            if (currentRootExchange == ROOT_EXCHANGE_UPBIT) {
+                                UpBitTickerWebSocket.onPause()
+                            } else {
+                                BitthumbTickerWebSocket.onPause()
+                            }
+                        }
                 }
             }
         )

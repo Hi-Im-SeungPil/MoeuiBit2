@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,7 +12,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBit
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.ExchangeInitState
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -30,7 +29,7 @@ class ExchangeViewModelState {
 class ExchangeViewModel @Inject constructor(
         private val upBit: UpBit,
         private val localRepository: LocalRepository,
-        private val preferenceManager: PreferenceManager
+        private val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange

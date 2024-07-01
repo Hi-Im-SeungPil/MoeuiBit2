@@ -10,7 +10,7 @@ import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
 data class MainViewModelState(
@@ -22,7 +22,7 @@ data class MainViewModelState(
 class MainViewModel @Inject constructor(
     val localRepository: LocalRepository,
     val adMobManager: AdMobManager,
-    val preferenceManager: PreferenceManager
+    val preferenceManager: PreferencesManager
 ) : ViewModel() {
     val state = MainViewModelState()
 

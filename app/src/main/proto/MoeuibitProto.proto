@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "org.jeonfeel.moeuibit2";
+option java_multiple_files = true;
+
+message CoinNameCache {
+  Map<String,String> coinKoreanName = 1
+  Map<String,String> coinEnglishName = 2
+}

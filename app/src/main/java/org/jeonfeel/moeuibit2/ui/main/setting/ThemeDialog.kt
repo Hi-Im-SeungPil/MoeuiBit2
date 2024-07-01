@@ -19,10 +19,10 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 
 @Composable
-fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: PreferenceManager) {
+fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: PreferencesManager) {
     val radioText = remember {
         listOf("라이트 모드", "다크 모드", "시스템 설정값")
     }

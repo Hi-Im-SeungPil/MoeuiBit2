@@ -5,19 +5,17 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
-import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
+import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
 @HiltViewModel
 class NewCoinDetailViewModel @Inject constructor(
-    preferenceManager: PreferenceManager,
+    preferenceManager: PreferencesManager,
     private val upbitCoinOrder: UpbitCoinOrder,
     private val upbitUseCase: UpbitUseCase
 ) : BaseViewModel(preferenceManager) {
@@ -25,16 +23,11 @@ class NewCoinDetailViewModel @Inject constructor(
     fun init(market: String) {
         rootExchangeCoroutineBranch(
             upbitAction = {
-                val markets = when (market.isTradeCurrencyKrw()) {
-                    true -> {
-                        market
-                    }
-                    false -> {
-                        "$market,KRW-BTC"
-                    }
-                }
+                val getUpbitTickerReq = GetUpbitMarketTickerReq(
+                    market.coinOrderIsKrwMarket()
+                )
                 executeUseCase<CommonExchangeModel>(
-                    target = upbitUseCase.getMarketTicker(markets),
+                    target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
                     onComplete = {
 
                     }

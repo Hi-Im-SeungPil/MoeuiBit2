@@ -19,6 +19,18 @@ import java.util.*
 
 object Utils {
 
+    fun String.coinOrderIsKrwMarket(): String {
+        return when (this.isTradeCurrencyKrw()) {
+            true -> {
+                this
+            }
+
+            false -> {
+                "$this,KRW-BTC"
+            }
+        }
+    }
+
     fun getSelectedMarket(market: String): Int {
         return if (market.startsWith(SYMBOL_KRW)) {
             SELECTED_KRW_MARKET

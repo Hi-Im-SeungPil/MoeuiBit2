@@ -1,30 +1,24 @@
 package org.jeonfeel.moeuibit2
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
-import android.util.Log.isLoggable
-import androidx.lifecycle.*
-import com.google.android.gms.ads.*
-import com.google.android.gms.ads.appopen.AppOpenAd
 import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.BuildConfig
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.HiltAndroidApp
-import org.jeonfeel.moeuibit2.constants.AD_ID_TEST
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.utils.manager.AppOpenAdManager
-import org.jeonfeel.moeuibit2.utils.manager.PreferenceManager
-import java.util.*
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
 @HiltAndroidApp
 class MoeuiBitApp : Application() {
 
     @Inject
-    lateinit var prefrenceManager: PreferenceManager
+    lateinit var preferencesManager: PreferencesManager
     private lateinit var appOpenAdManager: AppOpenAdManager
 
     override fun onCreate() {
@@ -42,12 +36,16 @@ class MoeuiBitApp : Application() {
     }
 
     private fun applyTheme() {
-        val theme = when (prefrenceManager.getString(PREF_KEY_THEME_MODE) ?: "") {
-            ThemeHelper.ThemeMode.LIGHT.name -> ThemeHelper.ThemeMode.LIGHT
-            ThemeHelper.ThemeMode.DARK.name -> ThemeHelper.ThemeMode.DARK
-            else -> ThemeHelper.ThemeMode.DEFAULT
+        CoroutineScope(Dispatchers.Main).launch {
+            preferencesManager.getString(PREF_KEY_THEME_MODE).collect { themeMode ->
+                val theme = when (themeMode) {
+                    ThemeHelper.ThemeMode.LIGHT.name -> ThemeHelper.ThemeMode.LIGHT
+                    ThemeHelper.ThemeMode.DARK.name -> ThemeHelper.ThemeMode.DARK
+                    else -> ThemeHelper.ThemeMode.DEFAULT
+                }
+                ThemeHelper.applyTheme(theme)
+            }
         }
-        ThemeHelper.applyTheme(theme)
     }
 
     private fun initAd() {
