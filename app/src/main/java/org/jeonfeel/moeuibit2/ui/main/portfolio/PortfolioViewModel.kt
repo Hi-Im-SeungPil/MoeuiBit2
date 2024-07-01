@@ -73,7 +73,7 @@ class PortfolioViewModel @Inject constructor(
                     localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
                         localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
                     } else {
-                        localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.PurchaseAverageBtcPrice)
+                        localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.purchaseAverageBtcPrice)
                     }
                     userHoldCoinsMarket.append(userHoldCoin.market).append(",")
                     userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
@@ -91,7 +91,7 @@ class PortfolioViewModel @Inject constructor(
                             warning = "",
                             isFavorite = isFavorite,
                             market = userHoldCoin.market,
-                            purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
+                            purchaseAverageBtcPrice = userHoldCoin.purchaseAverageBtcPrice
                         )
                     )
                 }
@@ -309,7 +309,7 @@ class PortfolioViewModel @Inject constructor(
                     warning = model.marketWarning,
                     isFavorite = isFavorite,
                     market = model.code,
-                    purchaseAverageBtcPrice = userHoldCoin.PurchaseAverageBtcPrice
+                    purchaseAverageBtcPrice = userHoldCoin.purchaseAverageBtcPrice
                 )
         }
     }

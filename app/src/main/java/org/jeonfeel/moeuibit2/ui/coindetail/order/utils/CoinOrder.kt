@@ -173,7 +173,7 @@ class CoinOrder @Inject constructor(
         } else {
             val prePurchaseAveragePrice = myCoin.purchasePrice
             val preCoinQuantity = myCoin.quantity
-            val prePurchaseAverageBtcPrice = myCoin.PurchaseAverageBtcPrice
+            val prePurchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
             val purchaseAverage = Calculator.averagePurchasePriceCalculator(
                 currentPrice,
                 quantity,

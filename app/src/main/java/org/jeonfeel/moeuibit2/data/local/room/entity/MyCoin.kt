@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity
 class MyCoin(
-    @field:PrimaryKey var market: String,
-    var purchasePrice: Double,
-    var koreanCoinName: String,
-    var symbol: String,
-    var quantity: Double,
-    @ColumnInfo(defaultValue = "0.0")var PurchaseAverageBtcPrice: Double = 0.0
+    @field:PrimaryKey var market: String = "",
+    var purchasePrice: Double = 0.0,
+    var koreanCoinName: String = "",
+    var symbol: String = "",
+    var quantity: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0")var purchaseAverageBtcPrice: Double = 0.0
 )

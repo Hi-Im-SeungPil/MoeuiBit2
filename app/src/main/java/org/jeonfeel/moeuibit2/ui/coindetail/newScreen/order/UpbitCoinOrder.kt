@@ -1,28 +1,48 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import javax.inject.Inject
 
 class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase) :
     BaseCommunicationModule() {
-    private val orderBookList = mutableStateListOf<UpbitOrderBookModel>()
+    private val _orderBookList = mutableStateListOf<UpbitOrderBookModel>()
+    val orderBookList: List<UpbitOrderBookModel> get() = _orderBookList
+    private val _userSeedMoney = mutableLongStateOf(0L)
+    val userSeedMoney: Long get() = _userSeedMoney.longValue
+    private val _userCoin = mutableStateOf(MyCoin())
+    val userCoin: MyCoin get() = _userCoin.value
+    private val _userBtcCoin = mutableStateOf(MyCoin())
+    val userBtcCoin: MyCoin get() = _userBtcCoin.value
     private val _tickerResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
+
+    suspend fun initCoinOrder(market: String) {
+        requestOrderBook(market)
+        getUserSeedMoney()
+        getUserCoin(market)
+        getUserBtcCoin(market)
+        requestSubscribeOrderBook(market)
+        collectOrderBook()
+    }
 
     /**
      * 호가 요청
      */
-    suspend fun requestOrderBook(market: String) {
+    private suspend fun requestOrderBook(market: String) {
         executeUseCase<List<UpbitOrderBookModel>>(
             target = upbitCoinOrderUseCase.getOrderBook(market),
             onComplete = {
-                orderBookList.addAll(it)
+                _orderBookList.addAll(it)
             }
         )
     }
@@ -30,26 +50,52 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     /**
      * 호가 구독 요청
      */
-    suspend fun requestSubscribeOrderBook(market: String) {
+    private suspend fun requestSubscribeOrderBook(market: String) {
         upbitCoinOrderUseCase.getSocketOrderBook(listOf(market))
     }
 
     /**
      * 호가 수집
      */
-    suspend fun collectOrderBook() {
+    private suspend fun collectOrderBook() {
         upbitCoinOrderUseCase.observeOrderBook().onEach { result ->
             _tickerResponse.update {
                 result
             }
         }.collect { upbitSocketOrderBookRes ->
             val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
-            for (i in orderBookList.indices) {
-                orderBookList[i] = realTimeOrderBook[i]
+            for (i in _orderBookList.indices) {
+                _orderBookList[i] = realTimeOrderBook[i]
             }
         }
     }
 
+    /**
+     * 사용자 시드머니 받아옴
+     */
+    private suspend fun getUserSeedMoney() {
+        upbitCoinOrderUseCase.getUserSeedMoney()?.let {
+            _userSeedMoney.longValue = it.krw
+        }
+    }
 
+    /**
+     * 사용자가 구매한 코인 정보
+     */
+    private suspend fun getUserCoin(market: String) {
+        upbitCoinOrderUseCase.getUserCoin(market)?.let {
+            _userCoin.value = it
+        }
+    }
 
+    /**
+     * BTC 마켓일 때 사용자의 btc 가져오기
+     */
+    private suspend fun getUserBtcCoin(market: String) {
+        if (!market.isTradeCurrencyKrw()) {
+            upbitCoinOrderUseCase.getUserBtcCoin()?.let {
+                _userBtcCoin.value = it
+            }
+        }
+    }
 }

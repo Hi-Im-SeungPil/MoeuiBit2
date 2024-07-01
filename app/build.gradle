@@ -182,6 +182,9 @@ dependencies {
     implementation 'io.github.jaeyunn15:thunder-okhttp:1.1.0' // must required
 
     implementation("me.onebone:toolbar-compose:2.3.5")
+
+    implementation ("androidx.datastore:datastore-preferences:1.1.1")
+    implementation ("androidx.datastore:datastore:1.1.1")
 }
 
 repositories {

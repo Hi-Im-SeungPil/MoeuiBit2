@@ -1,6 +1,9 @@
 package org.jeonfeel.moeuibit2
 
 object MoeuiBitDataStore {
+
+
+
     var isKor = true
     var usdPrice = 1250.0
 
