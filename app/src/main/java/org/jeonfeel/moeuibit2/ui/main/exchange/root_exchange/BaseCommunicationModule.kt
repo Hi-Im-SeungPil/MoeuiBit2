@@ -8,7 +8,7 @@ open class BaseCommunicationModule {
     protected suspend fun <T> executeUseCase(
         target: Flow<Any>,
         onLoading: ((result: ApiResult<*>) -> Unit)? = null,
-        onComplete: (T) -> Unit,
+        onComplete: suspend (T) -> Unit,
         onApiError: ((result: ApiResult<*>) -> Unit)? = null,
         onNetworkError: ((result: ApiResult<*>) -> Unit)? = null,
     ) {

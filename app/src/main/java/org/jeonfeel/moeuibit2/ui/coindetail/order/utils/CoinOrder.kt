@@ -147,12 +147,12 @@ class CoinOrder @Inject constructor(
                         currentBtcPrice
                     )
                 )
-                if (state.btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
+                if (state.btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (0.5 * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
                     coinDao.updateMinusQuantity(
                         BTC_MARKET,
-                        (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001))
+                        (btcTotalPrice + (floor(btcTotalPrice * (0.5 * 0.01) * 100000000) * 0.00000001))
                     )
                 }
                 state.btcQuantity.value = coinDao.isInsert(BTC_MARKET)?.quantity ?: 0.0
@@ -198,16 +198,16 @@ class CoinOrder @Inject constructor(
             coinDao.updatePlusQuantity(market, quantity)
             if (marketState == SELECTED_KRW_MARKET) {
                 val fee = preferenceManager.getFloat(PREF_KEY_KRW_BID_COMMISSION)
-                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
+                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (0.5 * 0.01))).toLong())
                 state.userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
                 val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_COMMISSION)
-                if (state.btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
+                if (state.btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (0.5 * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
                     coinDao.updateMinusQuantity(
                         BTC_MARKET,
-                        (btcTotalPrice + (floor(btcTotalPrice * (fee * 0.01) * 100000000) * 0.00000001))
+                        (btcTotalPrice + (floor(btcTotalPrice * (0.5 * 0.01) * 100000000) * 0.00000001))
                     )
                 }
                 coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
@@ -242,7 +242,7 @@ class CoinOrder @Inject constructor(
 
         if (marketState == SELECTED_KRW_MARKET) {
             val commission = preferenceManager.getFloat(PREF_KEY_KRW_ASK_COMMISSION)
-            userDao.updatePlusMoney((totalPrice - floor(totalPrice * (commission * 0.01))).toLong())
+            userDao.updatePlusMoney((totalPrice - floor(totalPrice * (0.5 * 0.01))).toLong())
             state.userSeedMoney.value = userDao.all?.krw ?: 0L
         } else {
             val commission = preferenceManager.getFloat(PREF_KEY_BTC_ASK_COMMISSION)
@@ -254,7 +254,7 @@ class CoinOrder @Inject constructor(
                         purchasePrice = state.currentBTCPrice.value,
                         koreanCoinName = "비트코인",
                         symbol = SYMBOL_BTC,
-                        quantity = (btcTotalPrice - btcTotalPrice * (commission * 0.01))
+                        quantity = (btcTotalPrice - btcTotalPrice * (0.5 * 0.01))
                     )
                 )
             } else {
@@ -262,7 +262,7 @@ class CoinOrder @Inject constructor(
                 val preCoinQuantity = btc.quantity
                 val purchaseAverage = Calculator.averagePurchasePriceCalculator(
                     currentPrice = state.currentBTCPrice.value,
-                    currentQuantity = (btcTotalPrice - btcTotalPrice * (commission * 0.01)),
+                    currentQuantity = (btcTotalPrice - btcTotalPrice * (0.5 * 0.01)),
                     preAveragePurchasePrice = preAveragePurchasePrice,
                     preCoinQuantity = preCoinQuantity,
                     marketState = marketState
@@ -270,7 +270,7 @@ class CoinOrder @Inject constructor(
                 coinDao.updatePurchasePrice(BTC_MARKET, purchaseAverage)
                 coinDao.updatePlusQuantity(
                     BTC_MARKET,
-                    (btcTotalPrice - btcTotalPrice * (commission * 0.01))
+                    (btcTotalPrice - btcTotalPrice * (0.5 * 0.01))
                 )
             }
         }

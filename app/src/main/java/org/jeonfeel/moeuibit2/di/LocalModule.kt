@@ -11,6 +11,7 @@ import org.jeonfeel.moeuibit2.constants.ROOM_DATABASE_NAME
 import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase
 import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_2_3
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Singleton
 
@@ -18,6 +19,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class LocalModule {
 
+    /**
+     * 데이터 베이스 (ROOM)
+     */
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): MoeuiBitDatabase {
@@ -36,9 +40,21 @@ class LocalModule {
         return LocalRepository(moeuiBitDatabase)
     }
 
+    /**
+     * dataStore preferences
+     */
     @Singleton
     @Provides
     fun providePreferencesManager(@ApplicationContext context: Context): PreferencesManager {
         return PreferencesManager(context)
+    }
+
+    /**
+     * dataStore
+     */
+    @Singleton
+    @Provides
+    fun provideCacheManager(@ApplicationContext context: Context): CacheManager {
+        return CacheManager(context)
     }
 }

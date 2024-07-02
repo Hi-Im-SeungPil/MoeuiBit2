@@ -6,6 +6,7 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.android'
     id 'kotlinx-serialization'
+    id 'com.google.protobuf'
 }
 
 android {
@@ -185,8 +186,25 @@ dependencies {
     implementation("me.onebone:toolbar-compose:2.3.5")
 
     //data store
-    implementation ("androidx.datastore:datastore-preferences:1.1.1")
-    implementation ("androidx.datastore:datastore:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore:1.1.1")
+    implementation("com.google.protobuf:protobuf-java:3.22.3")
+    implementation("com.google.protobuf:protobuf-kotlin:3.19.4")
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.19.4'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
 }
 
 repositories {

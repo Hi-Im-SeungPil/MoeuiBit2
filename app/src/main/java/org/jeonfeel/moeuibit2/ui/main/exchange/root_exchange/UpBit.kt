@@ -23,6 +23,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -42,7 +43,8 @@ sealed class ExchangeInitState {
 
 
 class UpBit @Inject constructor(
-    private val upbitUseCase: UpbitUseCase
+    private val upbitUseCase: UpbitUseCase,
+    private val cacheManager: CacheManager
 ) : BaseCommunicationModule() {
     private var successInit = false
     private val krwMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
@@ -108,6 +110,10 @@ class UpBit @Inject constructor(
                 btcMarketCodeMap.putAll(codeListPair.second.associateBy { it.market })
                 krwNeedAnimationList.addAll(krwList.map { mutableStateOf(TickerAskBidState.NONE.name) })
                 btcNeedAnimationList.addAll(btcList.map { mutableStateOf(TickerAskBidState.NONE.name) })
+                cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap)
+                cacheManager.saveKoreanCoinNameMap(btcMarketCodeMap)
+//                cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap)
+//                cacheManager.saveEnglishCoinNameMap(btcMarketCodeMap)
             }
         )
     }

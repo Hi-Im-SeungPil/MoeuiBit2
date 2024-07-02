@@ -33,11 +33,12 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
             dismissRequest.value
         }) {
             LaunchedEffect(key1 = dismissRequest.value) {
-                when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
-                    ThemeHelper.ThemeMode.LIGHT.name -> onOptionSelected(radioText[0])
-                    ThemeHelper.ThemeMode.DARK.name -> onOptionSelected(radioText[1])
-                    else -> onOptionSelected(radioText[2])
-                }
+                //TODO : 테마 변경
+//                when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
+//                    ThemeHelper.ThemeMode.LIGHT.name -> onOptionSelected(radioText[0])
+//                    ThemeHelper.ThemeMode.DARK.name -> onOptionSelected(radioText[1])
+//                    else -> onOptionSelected(radioText[2])
+//                }
             }
 
             Card {
@@ -71,14 +72,15 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                     Row {
                         TextButton(
                             onClick = {
-                                val selectedText =
-                                    when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
-                                        ThemeHelper.ThemeMode.LIGHT.name -> radioText[0]
-                                        ThemeHelper.ThemeMode.DARK.name -> radioText[1]
-                                        else -> radioText[2]
-                                    }
-                                onOptionSelected(selectedText)
-                                dismissRequest.value = false
+                                //TODO : 테마 변경
+//                                val selectedText =
+//                                    when (preferenceManager.getString(PREF_KEY_THEME_MODE)) {
+//                                        ThemeHelper.ThemeMode.LIGHT.name -> radioText[0]
+//                                        ThemeHelper.ThemeMode.DARK.name -> radioText[1]
+//                                        else -> radioText[2]
+//                                    }
+//                                onOptionSelected(selectedText)
+//                                dismissRequest.value = false
                             }, modifier = Modifier.weight(1f)
                         ) {
                             Text(
@@ -102,7 +104,7 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                                     ThemeHelper.ThemeMode.DEFAULT
                                 }
                             }
-                            preferenceManager.setValue(PREF_KEY_THEME_MODE, theme.name)
+//                            preferenceManager.setValue(PREF_KEY_THEME_MODE, theme.name)
                             Logger.e(theme.name)
                             ThemeHelper.applyTheme(theme)
                             dismissRequest.value = false
