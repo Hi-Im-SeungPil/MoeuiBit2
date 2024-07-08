@@ -110,10 +110,8 @@ class UpBit @Inject constructor(
                 btcMarketCodeMap.putAll(codeListPair.second.associateBy { it.market })
                 krwNeedAnimationList.addAll(krwList.map { mutableStateOf(TickerAskBidState.NONE.name) })
                 btcNeedAnimationList.addAll(btcList.map { mutableStateOf(TickerAskBidState.NONE.name) })
-                cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap)
-                cacheManager.saveKoreanCoinNameMap(btcMarketCodeMap)
-//                cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap)
-//                cacheManager.saveEnglishCoinNameMap(btcMarketCodeMap)
+                cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
             }
         )
     }

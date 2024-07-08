@@ -37,29 +37,14 @@ sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: Strin
     object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
 }
 
-sealed class CoinDetailMainTabRowItemForEn(var title: String, var screen_route: String) {
-    object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER_FOR_EN, "order")
-    object Chart : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART_FOR_EN, "Chart")
-    object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO_FOR_EN, "CoinInfo")
-}
-
 @Composable
 fun CoinDetailMainTabRow(navController: NavController) {
     val tabState = remember { mutableStateOf(0) }
-    val items = if(isKor) {
-        listOf(
-            CoinDetailMainTabRowItem.Order,
-            CoinDetailMainTabRowItem.Chart,
-            CoinDetailMainTabRowItem.CoinInfo
-        )
-    } else {
-        listOf(
-            CoinDetailMainTabRowItemForEn.Order,
-            CoinDetailMainTabRowItemForEn.Chart,
-            CoinDetailMainTabRowItemForEn.CoinInfo
-        )
-    }
-
+    val items = listOf(
+        CoinDetailMainTabRowItem.Order,
+        CoinDetailMainTabRowItem.Chart,
+        CoinDetailMainTabRowItem.CoinInfo
+    )
 
     TabRow(
         selectedTabIndex = tabState.value,
@@ -91,7 +76,6 @@ fun CoinDetailMainTabRow(navController: NavController) {
 @Composable
 fun TabRowMainNavigation(
     navController: NavHostController,
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     NavHost(
@@ -100,21 +84,21 @@ fun TabRowMainNavigation(
     ) {
         composable(CoinDetailMainTabRowItem.Order.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                OrderScreen(coinDetailViewModel)
+                OrderScreen()
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
         }
         composable(CoinDetailMainTabRowItem.Chart.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                ChartScreen(coinDetailViewModel)
+//                ChartScreen(coinDetailViewModel)
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
         }
         composable(CoinDetailMainTabRowItem.CoinInfo.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                CoinInfoScreen(coinDetailViewModel)
+//                CoinInfoScreen(coinDetailViewModel)
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }

@@ -159,9 +159,7 @@ fun ExchangeScreen(
                         needAnimationList = needAnimationList,
                         stopAnimation = stopAnimation,
                         btcKrwPrice = btcKrwPrice,
-                        coinTickerListVisibility = state.coinTickerListVisibility.value,
                         coinTickerListSwipeAction = state::coinTickerListSwipeAction,
-                        tradeCurrencyState = tradeCurrencyState,
                         pagerState = state.pagerState
                 )
             }
@@ -381,7 +379,7 @@ private fun RowScope.SortButton(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun CoinTickerSection(
         tickerList: List<CommonExchangeModel>,
@@ -390,8 +388,6 @@ private fun CoinTickerSection(
         needAnimationList: List<State<String>>,
         btcKrwPrice: BigDecimal,
         coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
-        coinTickerListVisibility: Boolean,
-        tradeCurrencyState: State<Int>,
         pagerState: PagerState
 ) {
     HorizontalPager(count = 3, state = pagerState, userScrollEnabled = false) { index ->

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase) :
     BaseCommunicationModule() {
-    private val _orderBookList = mutableStateListOf<UpbitOrderBookModel>()
-    val orderBookList: List<UpbitOrderBookModel> get() = _orderBookList
+    private val _orderBookList = mutableStateListOf<OrderBookModel>()
+    val orderBookList: List<OrderBookModel> get() = _orderBookList
     private val _userSeedMoney = mutableLongStateOf(0L)
     val userSeedMoney: Long get() = _userSeedMoney.longValue
     private val _userCoin = mutableStateOf(MyCoin())
@@ -39,7 +39,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      * 호가 요청
      */
     private suspend fun requestOrderBook(market: String) {
-        executeUseCase<List<UpbitOrderBookModel>>(
+        executeUseCase<List<OrderBookModel>>(
             target = upbitCoinOrderUseCase.getOrderBook(market),
             onComplete = {
                 _orderBookList.addAll(it)
@@ -51,14 +51,14 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      * 호가 구독 요청
      */
     private suspend fun requestSubscribeOrderBook(market: String) {
-        upbitCoinOrderUseCase.getSocketOrderBook(listOf(market))
+        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
     }
 
     /**
      * 호가 수집
      */
     private suspend fun collectOrderBook() {
-        upbitCoinOrderUseCase.observeOrderBook().onEach { result ->
+        upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
             _tickerResponse.update {
                 result
             }
@@ -68,6 +68,14 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 _orderBookList[i] = realTimeOrderBook[i]
             }
         }
+    }
+
+    suspend fun onPause() {
+        requestSubscribeOrderBook("")
+    }
+
+    suspend fun onResume() {
+
     }
 
     /**

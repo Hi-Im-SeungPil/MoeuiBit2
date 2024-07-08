@@ -2,7 +2,7 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -18,12 +18,12 @@ data class GetUpbitOrderBookRes(
     @SerializedName("total_bid_size")
     val totalBidSize: Double
 ) {
-    fun mapTo(): List<UpbitOrderBookModel> {
-        val askList = ArrayList<UpbitOrderBookModel>()
-        val bidList = ArrayList<UpbitOrderBookModel>()
+    fun mapTo(): List<OrderBookModel> {
+        val askList = ArrayList<OrderBookModel>()
+        val bidList = ArrayList<OrderBookModel>()
         orderbookUnits.forEach { orderBookUnit ->
             askList.add(
-                UpbitOrderBookModel(
+                OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(
                         rootExchange = ROOT_EXCHANGE_UPBIT,
                         market = market
@@ -33,7 +33,7 @@ data class GetUpbitOrderBookRes(
                 )
             )
             bidList.add(
-                UpbitOrderBookModel(
+                OrderBookModel(
                     price = orderBookUnit.bidPrice.newBigDecimal(
                         rootExchange = ROOT_EXCHANGE_UPBIT,
                         market = market

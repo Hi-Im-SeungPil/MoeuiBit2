@@ -2,11 +2,10 @@ package org.jeonfeel.moeuibit2.data.network.websocket.model.upbit
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
-import java.math.BigDecimal
 
 @Serializable
 data class UpbitSocketOrderBookRes(
@@ -23,12 +22,12 @@ data class UpbitSocketOrderBookRes(
     val totalBidSize: Double,
     val type: String
 ) {
-    fun mapTo(): List<UpbitOrderBookModel> {
-        val askList = ArrayList<UpbitOrderBookModel>()
-        val bidList = ArrayList<UpbitOrderBookModel>()
+    fun mapTo(): List<OrderBookModel> {
+        val askList = ArrayList<OrderBookModel>()
+        val bidList = ArrayList<OrderBookModel>()
         orderbookUnits.forEach { orderBookUnit ->
             askList.add(
-                UpbitOrderBookModel(
+                OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(
                         rootExchange = ROOT_EXCHANGE_UPBIT,
                         market = code
@@ -38,7 +37,7 @@ data class UpbitSocketOrderBookRes(
                 )
             )
             bidList.add(
-                UpbitOrderBookModel(
+                OrderBookModel(
                     price = orderBookUnit.bidPrice.newBigDecimal(
                         rootExchange = ROOT_EXCHANGE_UPBIT,
                         market = code

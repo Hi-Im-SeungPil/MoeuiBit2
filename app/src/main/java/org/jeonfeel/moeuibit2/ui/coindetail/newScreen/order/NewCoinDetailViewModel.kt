@@ -3,13 +3,14 @@ package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.UpbitOrderBookModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import javax.inject.Inject
 
@@ -17,12 +18,14 @@ import javax.inject.Inject
 class NewCoinDetailViewModel @Inject constructor(
     preferenceManager: PreferencesManager,
     private val upbitCoinOrder: UpbitCoinOrder,
-    private val upbitUseCase: UpbitUseCase
+    private val upbitUseCase: UpbitUseCase,
+    private val cacheManager: CacheManager
 ) : BaseViewModel(preferenceManager) {
 
     fun init(market: String) {
         rootExchangeCoroutineBranch(
             upbitAction = {
+//                cacheManager.readKoreanCoinNameMap()[market.substring(4)]
                 val getUpbitTickerReq = GetUpbitMarketTickerReq(
                     market.coinOrderIsKrwMarket()
                 )
@@ -53,9 +56,23 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     /**
+     * 코인 주문 화면 pause
+     */
+    fun coinOrderScreenOnPause() {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upbitCoinOrder.onPause()
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+    /**
      * orderBookList 받아옴
      */
-    fun getOrderBookList(): List<UpbitOrderBookModel> {
+    fun getOrderBookList(): List<OrderBookModel> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 upbitCoinOrder.orderBookList

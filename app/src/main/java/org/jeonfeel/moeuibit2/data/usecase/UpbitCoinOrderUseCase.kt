@@ -8,15 +8,10 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderB
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.OrderBookIsOnlyRealTimeField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.OrderBookRequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestFormatField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestTicketField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.UpbitSocketOrderBookReq
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import java.util.UUID
 import javax.inject.Inject
 
 enum class OrderBookKind {
@@ -38,7 +33,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         )
     }
 
-    suspend fun getSocketOrderBook(marketCodes: List<String>) {
+    suspend fun requestSubscribeOrderBook(marketCodes: List<String>) {
         upBitSocketService.requestUpbitOrderBookRequest(
             listOf(
                 OrderBookRequestTypeField(codes = marketCodes),
@@ -47,7 +42,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         )
     }
 
-    suspend fun observeOrderBook(): Flow<UpbitSocketOrderBookRes> {
+    suspend fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes> {
         return upBitSocketService.collectUpbitOrderBook()
     }
 

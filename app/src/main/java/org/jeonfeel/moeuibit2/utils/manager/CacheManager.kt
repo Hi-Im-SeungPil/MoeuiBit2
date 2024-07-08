@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import kotlinx.coroutines.flow.first
 import org.jeonfeel.moeuibit2.EnglishCoinNameCache
+import org.jeonfeel.moeuibit2.EnglishCoinNameComponent
 import org.jeonfeel.moeuibit2.KoreanCoinNameCache
 import org.jeonfeel.moeuibit2.KoreanCoinNameComponent
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -22,7 +23,7 @@ private val Context.koreanCoinNameCacheDataStore: DataStore<KoreanCoinNameCache>
 
 class CacheManager(private val context: Context) {
 
-    suspend fun saveKoreanCoinNameMap(codeMap: MutableMap<String, UpbitMarketCodeRes>) {
+    suspend fun saveKoreanCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
         val koreanNameKeyValueList = arrayListOf<KoreanCoinNameComponent>()
         codeMap.forEach { (key, value) ->
             val symbol = key.substring(4)
@@ -46,7 +47,20 @@ class CacheManager(private val context: Context) {
         return koreanCoinNameCache.koreanCoinNameComponentsList.associate { it.key to it.value }
     }
 
-    suspend fun saveEnglishCoinNameMap(englishCoinNameCache: EnglishCoinNameCache) {
+    suspend fun saveEnglishCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
+
+        val englishNameKeyValueList = arrayListOf<EnglishCoinNameComponent>()
+        codeMap.forEach { (key, value) ->
+            val symbol = key.substring(4)
+            val englishName = value.englishName
+            val component =
+                EnglishCoinNameComponent.newBuilder().setKey(symbol).setValue(englishName).build()
+            englishNameKeyValueList.add(component)
+        }
+        val englishCoinNameCache =
+            EnglishCoinNameCache.newBuilder().addAllEnglishCoinNameMap(englishNameKeyValueList)
+                .build()
+
         context.englishCoinNameCacheDataStore.updateData { current ->
             current.toBuilder().clearEnglishCoinNameMap()
                 .addAllEnglishCoinNameMap(englishCoinNameCache.englishCoinNameMapList)

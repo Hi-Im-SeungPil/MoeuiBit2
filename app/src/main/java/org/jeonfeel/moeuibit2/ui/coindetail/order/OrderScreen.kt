@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jeonfeel.moeuibit2.constants.IS_ANOTHER_SCREEN
@@ -22,7 +23,7 @@ import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 
 @Composable
 fun OrderScreen(
-    coinDetailViewModel: CoinDetailViewModel = viewModel(),
+    coinDetailViewModel: CoinDetailViewModel = hiltViewModel(),
 ) {
     OnLifecycleEvent { _, event ->
         when (event) {
@@ -36,14 +37,16 @@ fun OrderScreen(
                     UpBitOrderBookWebSocket.onPause()
                 }
             }
+
             Lifecycle.Event.ON_RESUME -> {
-                if(coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
                     UpBitOrderBookWebSocket.currentScreen = IS_DETAIL_SCREEN
                 } else {
                     BitthumbOrderBookWebSocket.currentScreen = IS_DETAIL_SCREEN
                 }
                 coinDetailViewModel.initOrderScreen()
             }
+
             else -> {}
         }
     }
