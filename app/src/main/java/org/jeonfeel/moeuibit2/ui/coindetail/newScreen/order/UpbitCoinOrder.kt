@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private val _userBtcCoin = mutableStateOf(MyCoin())
     val userBtcCoin: MyCoin get() = _userBtcCoin.value
     private val _tickerResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
+    private val _maxOrderBookSize = mutableDoubleStateOf(0.0)
+    val maxOrderBookSize: Double get() = _maxOrderBookSize.doubleValue
 
     suspend fun initCoinOrder(market: String) {
         requestOrderBook(market)
@@ -67,6 +70,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
             for (i in _orderBookList.indices) {
                 _orderBookList[i] = realTimeOrderBook[i]
             }
+            _maxOrderBookSize.doubleValue = realTimeOrderBook.maxOf { it.size }
         }
     }
 

@@ -1,5 +1,13 @@
 package org.jeonfeel.moeuibit2.utils
 
+import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.CAUTION
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import java.text.DecimalFormat
@@ -103,4 +111,20 @@ fun Float.sevenDecimal(): String {
 
 fun Float.eighthDecimal(): String {
     return String.format("%.8f", this)
+}
+
+fun getCoinDetailTitle(warning: String, context: Context, koreanCoinName: String): String {
+    return buildAnnotatedString {
+        if (warning == CAUTION) {
+            withStyle(
+                style = SpanStyle(
+                    color = Color.Yellow,
+                    fontWeight = FontWeight.Bold
+                )
+            ) {
+                append(context.getString(R.string.CAUTION_KOREAN))
+            }
+        }
+        append(koreanCoinName)
+    }.toString()
 }

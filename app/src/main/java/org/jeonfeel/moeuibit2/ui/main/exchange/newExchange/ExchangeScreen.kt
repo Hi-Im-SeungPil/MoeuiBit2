@@ -98,69 +98,69 @@ import java.math.BigDecimal
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeScreen(
-        tickerList: List<CommonExchangeModel>,
-        isUpdateExchange: State<Boolean>,
-        sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
-        tradeCurrencyState: State<Int>,
-        changeTradeCurrency: (tradeCurrency: Int) -> Unit,
-        onResume: () -> Unit,
-        onPaused: () -> Unit,
-        needAnimationList: List<State<String>>,
-        stopAnimation: (market: String) -> Unit,
-        btcKrwPrice: BigDecimal
+    tickerList: List<CommonExchangeModel>,
+    isUpdateExchange: State<Boolean>,
+    sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    tradeCurrencyState: State<Int>,
+    changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    onResume: () -> Unit,
+    onPaused: () -> Unit,
+    needAnimationList: List<State<String>>,
+    stopAnimation: (market: String) -> Unit,
+    btcKrwPrice: BigDecimal
 ) {
     val state = rememberExchangeStateHolder(
-            isUpdateExchange = isUpdateExchange.value,
-            sortTickerList = sortTickerList,
-            changeTradeCurrency = changeTradeCurrency,
-            tradeCurrencyState = tradeCurrencyState
+        isUpdateExchange = isUpdateExchange.value,
+        sortTickerList = sortTickerList,
+        changeTradeCurrency = changeTradeCurrency,
+        tradeCurrencyState = tradeCurrencyState
     )
 
     AddLifecycleEvent(
-            onPauseAction = {
-                onPaused()
-            },
-            onResumeAction = {
-                onResume()
-            }
+        onPauseAction = {
+            onPaused()
+        },
+        onResumeAction = {
+            onResume()
+        }
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
         SearchSection(
-                textFieldValueState = state.textFieldValueState,
-                focusManager = state.focusManaManager,
-                modifier = Modifier
-                        .background(color = Color.White)
-                        .zIndex(1f)
+            textFieldValueState = state.textFieldValueState,
+            focusManager = state.focusManaManager,
+            modifier = Modifier
+                .background(color = Color.White)
+                .zIndex(1f)
         )
         CollapsingToolbarScaffold(
-                state = rememberCollapsingToolbarScaffoldState(),
-                scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
-                toolbar = {
-                    SelectTradeCurrencySection(
-                            pagerState = state.pagerState,
-                            modifier = Modifier.zIndex(-1f),
-                            tradeCurrencyState = tradeCurrencyState,
-                            changeTradeCurrency = state::changeTradeCurrencyAction,
-                            coroutineScope = state.coroutineScope
-                    )
-                },
-                modifier = Modifier
+            state = rememberCollapsingToolbarScaffoldState(),
+            scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
+            toolbar = {
+                SelectTradeCurrencySection(
+                    pagerState = state.pagerState,
+                    modifier = Modifier.zIndex(-1f),
+                    tradeCurrencyState = tradeCurrencyState,
+                    changeTradeCurrency = state::changeTradeCurrencyAction,
+                    coroutineScope = state.coroutineScope
+                )
+            },
+            modifier = Modifier
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 SortingSection(
-                        sortOrder = state.sortOrder.value,
-                        onSortClick = state::onSortClick,
-                        selectedSortType = state.selectedSortType
+                    sortOrder = state.sortOrder.value,
+                    onSortClick = state::onSortClick,
+                    selectedSortType = state.selectedSortType
                 )
                 CoinTickerSection(
-                        lazyScrollState = state.lazyScrollState,
-                        tickerList = state.getFilteredList(tickerList = tickerList),
-                        needAnimationList = needAnimationList,
-                        stopAnimation = stopAnimation,
-                        btcKrwPrice = btcKrwPrice,
-                        coinTickerListSwipeAction = state::coinTickerListSwipeAction,
-                        pagerState = state.pagerState
+                    lazyScrollState = state.lazyScrollState,
+                    tickerList = state.getFilteredList(tickerList = tickerList),
+                    needAnimationList = needAnimationList,
+                    stopAnimation = stopAnimation,
+                    btcKrwPrice = btcKrwPrice,
+                    coinTickerListSwipeAction = state::coinTickerListSwipeAction,
+                    pagerState = state.pagerState
                 )
             }
         }
@@ -169,124 +169,124 @@ fun ExchangeScreen(
 
 @Composable
 private fun SearchSection(
-        textFieldValueState: MutableState<String>,
-        focusManager: FocusManager,
-        modifier: Modifier = Modifier
+    textFieldValueState: MutableState<String>,
+    focusManager: FocusManager,
+    modifier: Modifier = Modifier
 ) {
     val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
     BasicTextField(value = textFieldValueState.value, onValueChange = {
         textFieldValueState.value = it
     }, singleLine = true,
-            modifier = modifier
+        modifier = modifier
+            .fillMaxWidth()
+            .height(45.dp)
+            .clearFocusOnKeyboardDismiss()
+            .onFocusChanged { focusState ->
+                hintFocusState.value = focusState.isFocused
+            },
+        textStyle = TextStyle(
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = DpToSp(17.dp)
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(45.dp)
-                    .clearFocusOnKeyboardDismiss()
-                    .onFocusChanged { focusState ->
-                        hintFocusState.value = focusState.isFocused
-                    },
-            textStyle = TextStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = DpToSp(17.dp)
-            ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            decorationBox = { innerTextField ->
-                Row(
-                        modifier = Modifier
-                                .fillMaxWidth()
-                                .height(45.dp), verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                            Icons.Default.Search,
+                    .height(45.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(25.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+                Box(Modifier.weight(1f)) {
+                    if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
+                        CommonText(
+                            stringResource(id = R.string.textFieldText),
+                            textStyle = LocalTextStyle.current.copy(
+                                color = Color(0xff8f9297),
+                            ),
+                            fontSize = 17.dp,
+                        )
+                    }
+                    innerTextField()
+                }
+                if (textFieldValueState.value.isNotEmpty()) {
+                    IconButton(onClick = {
+                        textFieldValueState.value = ""
+                        focusManager.clearFocus(true)
+                    }) {
+                        Icon(
+                            Icons.Default.Close,
                             contentDescription = null,
                             modifier = Modifier
-                                    .padding(10.dp)
-                                    .size(25.dp),
+                                .padding(10.dp)
+                                .size(25.dp),
                             tint = MaterialTheme.colorScheme.onBackground
-                    )
-                    Box(Modifier.weight(1f)) {
-                        if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
-                            CommonText(
-                                    stringResource(id = R.string.textFieldText),
-                                    textStyle = LocalTextStyle.current.copy(
-                                            color = Color(0xff8f9297),
-                                    ),
-                                    fontSize = 17.dp,
-                            )
-                        }
-                        innerTextField()
-                    }
-                    if (textFieldValueState.value.isNotEmpty()) {
-                        IconButton(onClick = {
-                            textFieldValueState.value = ""
-                            focusManager.clearFocus(true)
-                        }) {
-                            Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                            .padding(10.dp)
-                                            .size(25.dp),
-                                    tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
+                        )
                     }
                 }
-            })
+            }
+        })
 }
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun SelectTradeCurrencySection(
-        tradeCurrencyState: State<Int>,
-        pagerState: PagerState,
-        tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
-        modifier: Modifier = Modifier,
-        changeTradeCurrency: (Int) -> Unit,
-        coroutineScope: CoroutineScope
+    tradeCurrencyState: State<Int>,
+    pagerState: PagerState,
+    tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
+    modifier: Modifier = Modifier,
+    changeTradeCurrency: (Int) -> Unit,
+    coroutineScope: CoroutineScope
 ) {
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
         Row(
-                modifier
-                        .fillMaxWidth()
-                        .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
+            modifier
+                .fillMaxWidth()
+                .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
         ) {
             TabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                                modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                                color = Color.Transparent
-                        )
-                    },
-                    modifier = Modifier
-                            .weight(3f),
-                    backgroundColor = MaterialTheme.colorScheme.background,
-                    divider = {}
+                selectedTabIndex = pagerState.currentPage,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                        color = Color.Transparent
+                    )
+                },
+                modifier = Modifier
+                    .weight(3f),
+                backgroundColor = MaterialTheme.colorScheme.background,
+                divider = {}
             ) {
                 tabTitleList.forEachIndexed { index, title ->
                     Tab(
-                            text = {
-                                Text(
-                                        text = title,
-                                        style = TextStyle(
-                                                fontWeight = FontWeight.Bold,
-                                                textAlign = TextAlign.Center,
-                                        ),
-                                        fontSize = DpToSp(dp = 17.dp),
-                                        modifier = Modifier.weight(1f)
-                                )
-                            },
-                            selectedContentColor = Color.Black,
-                            unselectedContentColor = Color(0xff8C939E),
-                            selected = tradeCurrencyState.value == index,
-                            onClick = {
-                                if (tradeCurrencyState.value != index) {
-                                    coroutineScope.launch {
-                                        changeTradeCurrency(index)
-                                    }
+                        text = {
+                            Text(
+                                text = title,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                fontSize = DpToSp(dp = 17.dp),
+                                modifier = Modifier.weight(1f)
+                            )
+                        },
+                        selectedContentColor = Color.Black,
+                        unselectedContentColor = Color(0xff8C939E),
+                        selected = tradeCurrencyState.value == index,
+                        onClick = {
+                            if (tradeCurrencyState.value != index) {
+                                coroutineScope.launch {
+                                    changeTradeCurrency(index)
                                 }
-                            },
+                            }
+                        },
                     )
                 }
             }
@@ -297,82 +297,82 @@ private fun SelectTradeCurrencySection(
 
 @Composable
 private fun SortingSection(
-        sortOrder: SortOrder,
-        onSortClick: (sortType: SortType) -> Unit,
-        selectedSortType: MutableState<SortType>
+    sortOrder: SortOrder,
+    onSortClick: (sortType: SortType) -> Unit,
+    selectedSortType: MutableState<SortType>
 ) {
     Row(
-            modifier = Modifier
-                    .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
-                    .padding(top = 4.dp, bottom = 6.dp)
+        modifier = Modifier
+            .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
+            .padding(top = 4.dp, bottom = 6.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
         SortButton(
-                text = "현재가",
-                sortType = SortType.PRICE,
-                sortOrder = sortOrder,
-                onSortClick = onSortClick,
-                selectedSortType = selectedSortType
+            text = "현재가",
+            sortType = SortType.PRICE,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
         SortButton(
-                text = "변동",
-                sortType = SortType.RATE,
-                sortOrder = sortOrder,
-                onSortClick = onSortClick,
-                selectedSortType = selectedSortType
+            text = "변동",
+            sortType = SortType.RATE,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
         SortButton(
-                text = "거래량",
-                sortType = SortType.VOLUME,
-                sortOrder = sortOrder,
-                onSortClick = onSortClick,
-                selectedSortType = selectedSortType
+            text = "거래량",
+            sortType = SortType.VOLUME,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
         )
     }
 }
 
 @Composable
 private fun RowScope.SortButton(
-        text: String,
-        sortType: SortType,
-        sortOrder: SortOrder,
-        selectedSortType: MutableState<SortType>,
-        onSortClick: (SortType) -> Unit
+    text: String,
+    sortType: SortType,
+    sortOrder: SortOrder,
+    selectedSortType: MutableState<SortType>,
+    onSortClick: (SortType) -> Unit
 ) {
     Row(
-            modifier = Modifier
-                    .weight(1f)
-                    .noRippleClickable {
-                        onSortClick(sortType)
-                    }, verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier
+            .weight(1f)
+            .noRippleClickable {
+                onSortClick(sortType)
+            }, verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.weight(1f))
         Text(
-                text = text,
-                modifier = Modifier,
-                style = TextStyle(
-                        fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
+            text = text,
+            modifier = Modifier,
+            style = TextStyle(
+                fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
                 if (selectedSortType.value == sortType) Color(0xff2454E6) else Color(0xff91959E)
-                )
+            )
         )
         Column(modifier = Modifier.padding(start = 4.dp)) {
             Text(
-                    text = "▲",
-                    fontSize = DpToSp(dp = 6.dp),
-                    style = TextStyle(
-                            color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) Color(
-                                    0xff2454E6
-                            ) else Color(0xff91959E)
-                    )
+                text = "▲",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
             )
             Text(
-                    text = "▼",
-                    fontSize = DpToSp(dp = 6.dp),
-                    style = TextStyle(
-                            color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) Color(
-                                    0xff2454E6
-                            ) else Color(0xff91959E)
-                    )
+                text = "▼",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
             )
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -382,114 +382,81 @@ private fun RowScope.SortButton(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun CoinTickerSection(
-        tickerList: List<CommonExchangeModel>,
-        lazyScrollState: LazyListState,
-        stopAnimation: (market: String) -> Unit,
-        needAnimationList: List<State<String>>,
-        btcKrwPrice: BigDecimal,
-        coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
-        pagerState: PagerState
+    tickerList: List<CommonExchangeModel>,
+    lazyScrollState: LazyListState,
+    stopAnimation: (market: String) -> Unit,
+    needAnimationList: List<State<String>>,
+    btcKrwPrice: BigDecimal,
+    coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
+    pagerState: PagerState
 ) {
-    HorizontalPager(count = 3, state = pagerState, userScrollEnabled = false) { index ->
-        when(index) {
-            0 -> {
-                LazyColumn(modifier = Modifier
-                        .fillMaxSize()
-                        .SwipeDetector(
-                                onSwipeLeftAction = {
-                                    coinTickerListSwipeAction(true)
-                                },
-                                onSwipeRightAction = {
-                                    coinTickerListSwipeAction(false)
-                                }
-                        ), state = lazyScrollState) {
-                    itemsIndexed(items = tickerList) { index, item ->
-                        CoinTickerView(
-                                name = item.koreanName,
-                                symbol = item.symbol,
-                                lastPrice = item.tradePrice.formattedString(),
-                                fluctuateRate = item.signedChangeRate.toFloat(),
-                                fluctuatePrice = item.signedChangePrice.toFloat(),
-                                acc24h = item.accTradePrice24h.formattedUnitString(),
-                                onClickEvent = {},
-                                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
-                                market = item.market,
-                                stopAnimation = stopAnimation,
-                                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice).formattedStringForBtc(),
-                                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice).formattedUnitStringForBtc()
-                        )
-                    }
-                }
+    LazyColumn(modifier = Modifier
+        .fillMaxSize()
+        .SwipeDetector(
+            onSwipeLeftAction = {
+                coinTickerListSwipeAction(true)
+            },
+            onSwipeRightAction = {
+                coinTickerListSwipeAction(false)
             }
-            1 -> {
-                LazyColumn(modifier = Modifier
-                        .fillMaxSize()
-                        .SwipeDetector(
-                                onSwipeLeftAction = {
-                                    coinTickerListSwipeAction(true)
-                                },
-                                onSwipeRightAction = {
-                                    coinTickerListSwipeAction(false)
-                                }
-                        ), state = lazyScrollState) {
-                    itemsIndexed(items = tickerList) { index, item ->
-                        CoinTickerView(
-                                name = item.koreanName,
-                                symbol = item.symbol,
-                                lastPrice = item.tradePrice.formattedString(),
-                                fluctuateRate = item.signedChangeRate.toFloat(),
-                                fluctuatePrice = item.signedChangePrice.toFloat(),
-                                acc24h = item.accTradePrice24h.formattedUnitString(),
-                                onClickEvent = {},
-                                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
-                                market = item.market,
-                                stopAnimation = stopAnimation,
-                                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice).formattedStringForBtc(),
-                                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice).formattedUnitStringForBtc()
-                        )
-                    }
-                }
-            }
+        ), state = lazyScrollState) {
+        itemsIndexed(items = tickerList) { index, item ->
+            CoinTickerView(
+                name = item.koreanName,
+                symbol = item.symbol,
+                lastPrice = item.tradePrice.formattedString(),
+                fluctuateRate = item.signedChangeRate.toFloat(),
+                fluctuatePrice = item.signedChangePrice.toFloat(),
+                acc24h = item.accTradePrice24h.formattedUnitString(),
+                onClickEvent = {},
+                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
+                market = item.market,
+                stopAnimation = stopAnimation,
+                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
+                    .formattedStringForBtc(),
+                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
+                    .formattedUnitStringForBtc()
+            )
         }
     }
 }
 
 @Composable
 fun CoinTickerView(
-        modifier: Modifier = Modifier,
-        name: String,
-        symbol: String,
-        lastPrice: String,
-        fluctuateRate: Float,
-        fluctuatePrice: Float,
-        acc24h: String,
-        onClickEvent: () -> Unit,
-        infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = ""),
-        needAnimation: String,
-        stopAnimation: (market: String) -> Unit,
-        market: String,
-        btcPriceMultiplyCoinPrice: String,
-        btcPriceMultiplyAcc: String
+    modifier: Modifier = Modifier,
+    name: String,
+    symbol: String,
+    lastPrice: String,
+    fluctuateRate: Float,
+    fluctuatePrice: Float,
+    acc24h: String,
+    onClickEvent: () -> Unit,
+    infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = ""),
+    needAnimation: String,
+    stopAnimation: (market: String) -> Unit,
+    market: String,
+    btcPriceMultiplyCoinPrice: String,
+    btcPriceMultiplyAcc: String
 ) = Column {
     Row(
-            modifier = modifier
-                    .clickable { onClickEvent.invoke() }
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clickable { onClickEvent.invoke() }
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val animationDurationTimeMills = 200
         val alpha by infiniteTransition.animateFloat(
-                initialValue = 0.0f,
-                targetValue = 0.8f,
-                animationSpec = infiniteRepeatable(
-                        animation = keyframes {
-                            durationMillis = animationDurationTimeMills
-                            0.5f at 100
-                        },
-                        repeatMode = RepeatMode.Reverse
-                ),
-                label = "animation alpha"
+            initialValue = 0.0f,
+            targetValue = 0.8f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = animationDurationTimeMills
+                    0.5f at 100
+                },
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "animation alpha"
         )
 
         LaunchedEffect(key1 = needAnimation) {
@@ -499,60 +466,60 @@ fun CoinTickerView(
             }
         }
         Column(
-                modifier = Modifier
-                        .weight(1f)
+            modifier = Modifier
+                .weight(1f)
         ) {
             Text(
-                    text = name,
-                    modifier = Modifier.fillMaxSize(),
-                    textAlign = TextAlign.Center,
-                    fontSize = DpToSp(13.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(fontWeight = FontWeight.W600)
+                text = name,
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(13.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(fontWeight = FontWeight.W600)
             )
             Text(
-                    modifier = Modifier.fillMaxSize(),
-                    text = symbol,
-                    textAlign = TextAlign.Center,
-                    fontSize = DpToSp(11.dp),
-                    style = TextStyle(
-                            color = Color(0xff8C939E)
-                    )
+                modifier = Modifier.fillMaxSize(),
+                text = symbol,
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(11.dp),
+                style = TextStyle(
+                    color = Color(0xff8C939E)
+                )
             )
         }
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             AutoSizeText(
-                    text = lastPrice,
-                    modifier = Modifier
-                            .background(Color.White)
-                            .drawBehind {
-                                drawLine(
-                                        color = when (needAnimation) {
-                                            TickerAskBidState.ASK.name -> {
-                                                FallColor.copy(alpha = alpha)
-                                            }
+                text = lastPrice,
+                modifier = Modifier
+                    .background(Color.White)
+                    .drawBehind {
+                        drawLine(
+                            color = when (needAnimation) {
+                                TickerAskBidState.ASK.name -> {
+                                    FallColor.copy(alpha = alpha)
+                                }
 
-                                            TickerAskBidState.BID.name -> {
-                                                RiseColor.copy(alpha = alpha)
-                                            }
+                                TickerAskBidState.BID.name -> {
+                                    RiseColor.copy(alpha = alpha)
+                                }
 
-                                            else -> {
-                                                Color.White
-                                            }
-                                        },
-                                        start = Offset(0f, size.height),
-                                        end = Offset(size.width, size.height),
-                                        strokeWidth = if (needAnimation != TickerAskBidState.NONE.name) 2.dp.toPx() else 0.dp.toPx()
-                                )
-                            }
-                            .padding(2.dp),
-                    textStyle = TextStyle(
-                            textAlign = TextAlign.Center,
-                            fontSize = DpToSp(14.dp),
-                            fontWeight = FontWeight.W400,
-                    ),
-                    color = fluctuatePrice.getFluctuateColor()
+                                else -> {
+                                    Color.White
+                                }
+                            },
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = if (needAnimation != TickerAskBidState.NONE.name) 2.dp.toPx() else 0.dp.toPx()
+                        )
+                    }
+                    .padding(2.dp),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    fontSize = DpToSp(14.dp),
+                    fontWeight = FontWeight.W400,
+                ),
+                color = fluctuatePrice.getFluctuateColor()
             )
 //            if (!market.isTradeCurrencyKrw()) {
 //                AutoSizeText(text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
@@ -564,23 +531,23 @@ fun CoinTickerView(
 //            }
         }
         AutoSizeText(
-                text = fluctuateRate.formattedFluctuateString() + "%",
-                textStyle = TextStyle(
-                        textAlign = TextAlign.Center,
-                        fontSize = DpToSp(14.dp),
-                        fontWeight = FontWeight.W400,
-                ),
-                color = fluctuatePrice.getFluctuateColor(),
-                modifier = Modifier.weight(1f)
+            text = fluctuateRate.formattedFluctuateString() + "%",
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(14.dp),
+                fontWeight = FontWeight.W400,
+            ),
+            color = fluctuatePrice.getFluctuateColor(),
+            modifier = Modifier.weight(1f)
         )
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             AutoSizeText(
-                    text = acc24h,
-                    textStyle = TextStyle(
-                            fontSize = DpToSp(14.dp),
-                            fontWeight = FontWeight.W400,
-                            textAlign = TextAlign.Center
-                    )
+                text = acc24h,
+                textStyle = TextStyle(
+                    fontSize = DpToSp(14.dp),
+                    fontWeight = FontWeight.W400,
+                    textAlign = TextAlign.Center
+                )
             )
             if (!market.isTradeCurrencyKrw()) {
 //                AutoSizeText(
@@ -595,10 +562,10 @@ fun CoinTickerView(
         }
     }
     Divider(
-            modifier = Modifier
-                    .padding(horizontal = 9.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(color = Color(0xfff0f0f2))
+        modifier = Modifier
+            .padding(horizontal = 9.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(color = Color(0xfff0f0f2))
     )
 }

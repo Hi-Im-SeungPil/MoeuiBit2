@@ -1,10 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
+import androidx.compose.runtime.mutableStateOf
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
@@ -21,18 +22,23 @@ class NewCoinDetailViewModel @Inject constructor(
     private val upbitUseCase: UpbitUseCase,
     private val cacheManager: CacheManager
 ) : BaseViewModel(preferenceManager) {
+    private val _coinTicker = mutableStateOf<GetUpbitMarketTickerRes?>(null)
+    val coinTicker get() = _coinTicker
+    private val _koreanCoinName = mutableStateOf("")
+    val koreanCoinName get() = _koreanCoinName
 
     fun init(market: String) {
         rootExchangeCoroutineBranch(
             upbitAction = {
-//                cacheManager.readKoreanCoinNameMap()[market.substring(4)]
+                _koreanCoinName.value =
+                    cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
                 val getUpbitTickerReq = GetUpbitMarketTickerReq(
                     market.coinOrderIsKrwMarket()
                 )
-                executeUseCase<CommonExchangeModel>(
+                executeUseCase<GetUpbitMarketTickerRes>(
                     target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
-                    onComplete = {
-
+                    onComplete = { ticker ->
+                        _coinTicker.value = ticker
                     }
                 )
             },
@@ -84,6 +90,22 @@ class NewCoinDetailViewModel @Inject constructor(
 
             else -> {
                 upbitCoinOrder.orderBookList
+            }
+        }
+    }
+
+    fun getMaxOrderBookSize(): Double {
+        return when (rootExchange) {
+            ROOT_EXCHANGE_UPBIT -> {
+                upbitCoinOrder.maxOrderBookSize
+            }
+
+            ROOT_EXCHANGE_BITTHUMB -> {
+                upbitCoinOrder.maxOrderBookSize
+            }
+
+            else -> {
+                upbitCoinOrder.maxOrderBookSize
             }
         }
     }
