@@ -1,6 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -11,11 +11,12 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 data class GetUpbitOrderBookRes(
     val level: Int,
     val market: String,
+    @SerialName("orderbook_units")
     val orderbookUnits: List<OrderbookUnit>,
     val timestamp: Long,
-    @SerializedName("total_ask_size")
+    @SerialName("total_ask_size")
     val totalAskSize: Double,
-    @SerializedName("total_bid_size")
+    @SerialName("total_bid_size")
     val totalBidSize: Double
 ) {
     fun mapTo(): List<OrderBookModel> {
@@ -50,12 +51,12 @@ data class GetUpbitOrderBookRes(
 
 @Serializable
 data class OrderbookUnit(
-    @SerializedName("ask_price")
+    @SerialName("ask_price")
     val askPrice: Double,
-    @SerializedName("ask_size")
+    @SerialName("ask_size")
     val askSize: Double,
-    @SerializedName("bid_price")
+    @SerialName("bid_price")
     val bidPrice: Double,
-    @SerializedName("bid_size")
+    @SerialName("bid_size")
     val bidSize: Double
 )

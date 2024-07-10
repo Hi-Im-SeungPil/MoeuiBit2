@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -63,14 +64,18 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private suspend fun collectOrderBook() {
         upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
             _tickerResponse.update {
+                Logger.e(result.toString())
                 result
             }
         }.collect { upbitSocketOrderBookRes ->
-            val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
-            for (i in _orderBookList.indices) {
-                _orderBookList[i] = realTimeOrderBook[i]
+            Logger.e(upbitSocketOrderBookRes.toString())
+            if(upbitSocketOrderBookRes.type == "orderbook") {
+                val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
+                for (i in _orderBookList.indices) {
+                    _orderBookList[i] = realTimeOrderBook[i]
+                }
+                _maxOrderBookSize.doubleValue = realTimeOrderBook.maxOf { it.size }
             }
-            _maxOrderBookSize.doubleValue = realTimeOrderBook.maxOf { it.size }
         }
     }
 

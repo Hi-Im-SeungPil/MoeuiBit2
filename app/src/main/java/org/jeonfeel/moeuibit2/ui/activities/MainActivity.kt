@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -22,6 +23,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSock
 import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
+import org.jeonfeel.moeuibit2.ui.NavGraph
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
@@ -53,8 +55,10 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         initActivity()
         setContent {
+            val navController = rememberNavController()
             MainTheme(isMainActivity = true, content = {
-                MoeuiBitApp(networkErrorState)
+                NavGraph(navController = navController, networkErrorState = networkErrorState)
+//                MoeuiBitApp(networkErrorState)
             })
         }
     }

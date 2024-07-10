@@ -40,9 +40,12 @@ import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.coindetail.getTextColor
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewOrderScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
@@ -51,7 +54,7 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 @Composable
 fun NewCoinDetailScreen(
     viewModel: NewCoinDetailViewModel,
-    market: String,
+    market: String = "KRW-BTC",
     warning: String
 ) {
     val state = rememberCoinDetailStateHolder(context = LocalContext.current)
@@ -88,6 +91,15 @@ fun NewCoinDetailScreen(
             priceTextColor = state.getCoinDetailPriceTextColor(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             )
+        )
+        NewOrderScreen(
+            initCoinOrder = viewModel::initCoinOrder,
+            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause ,
+            market = "KRW-BTC",
+            preClosedPrice = viewModel.coinTicker.value?.prevClosingPrice ?: 10000.0,
+            orderBookList = viewModel.getOrderBookList(),
+            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
+            coinPrice = (viewModel.coinTicker.value?.tradePrice ?: 100000.0).newBigDecimal(ROOT_EXCHANGE_UPBIT,"KRW-BTC")
         )
     }
 }

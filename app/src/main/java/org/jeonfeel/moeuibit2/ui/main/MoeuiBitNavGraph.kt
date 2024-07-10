@@ -13,11 +13,12 @@ import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 @Composable
 fun MainBottomNavGraph(
     navController: NavHostController,
-    networkErrorState: MutableIntState
+    networkErrorState: MutableIntState,
+    appNavController: NavHostController
 ) {
     NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route) {
         composable(MainBottomNavItem.Exchange.screen_route) {
-            ExchangeRoute(networkErrorState = networkErrorState)
+            ExchangeRoute(networkErrorState = networkErrorState, appNavController = appNavController)
         }
         composable(MainBottomNavItem.CoinSite.screen_route) {
             CoinSiteScreen()

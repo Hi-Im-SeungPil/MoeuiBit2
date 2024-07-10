@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
@@ -62,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -92,6 +91,7 @@ import kotlin.system.exitProcess
 fun ExchangeRoute(
     viewModel: ExchangeViewModel = hiltViewModel(),
     networkErrorState: MutableIntState,
+    appNavController: NavHostController,
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState()
@@ -134,7 +134,7 @@ fun ExchangeRoute(
     LaunchedEffect(key1 = networkErrorState.value) {
 //        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
     }
-    ExchangeScreenRoute()
+    ExchangeScreenRoute(appNavController = appNavController)
 //    Exchange(
 //        stateHolder = stateHolder,
 //        errorState = viewModel.networkErrorState,

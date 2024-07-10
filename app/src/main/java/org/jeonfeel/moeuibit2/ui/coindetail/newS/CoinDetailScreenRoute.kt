@@ -8,9 +8,9 @@ import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewCoinDetailViewMod
 fun CoinDetailScreenRoute(
     viewModel: NewCoinDetailViewModel = hiltViewModel()
 ) {
-    val market = ""
+//    val market = ""
     NewCoinDetailScreen(
         viewModel = viewModel,
-        market = market
+        warning = ""
     )
 }

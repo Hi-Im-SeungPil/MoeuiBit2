@@ -75,7 +75,7 @@ class CoinOrder @Inject constructor(
                 UpBitOrderBookWebSocket.market = market
                 Handler(Looper.getMainLooper()).post {
                     UpBitOrderBookWebSocket.getListener().setOrderBookMessageListener(this)
-                    UpBitOrderBookWebSocket.requestOrderBookList(market)
+//                    UpBitOrderBookWebSocket.requestOrderBookList(market)
                 }
             }
 

@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -60,8 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.CoroutineScope
@@ -72,6 +71,7 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.ui.AppScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -107,7 +107,8 @@ fun ExchangeScreen(
     onPaused: () -> Unit,
     needAnimationList: List<State<String>>,
     stopAnimation: (market: String) -> Unit,
-    btcKrwPrice: BigDecimal
+    btcKrwPrice: BigDecimal,
+    appNavController: NavHostController
 ) {
     val state = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
@@ -160,7 +161,8 @@ fun ExchangeScreen(
                     stopAnimation = stopAnimation,
                     btcKrwPrice = btcKrwPrice,
                     coinTickerListSwipeAction = state::coinTickerListSwipeAction,
-                    pagerState = state.pagerState
+                    pagerState = state.pagerState,
+                    appNavController = appNavController
                 )
             }
         }
@@ -388,7 +390,8 @@ private fun CoinTickerSection(
     needAnimationList: List<State<String>>,
     btcKrwPrice: BigDecimal,
     coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
-    pagerState: PagerState
+    pagerState: PagerState,
+    appNavController: NavHostController
 ) {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -408,7 +411,7 @@ private fun CoinTickerSection(
                 fluctuateRate = item.signedChangeRate.toFloat(),
                 fluctuatePrice = item.signedChangePrice.toFloat(),
                 acc24h = item.accTradePrice24h.formattedUnitString(),
-                onClickEvent = {},
+                onClickEvent = { appNavController.navigate(AppScreen.CoinDetail.name) },
                 needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
                 market = item.market,
                 stopAnimation = stopAnimation,
@@ -436,7 +439,7 @@ fun CoinTickerView(
     stopAnimation: (market: String) -> Unit,
     market: String,
     btcPriceMultiplyCoinPrice: String,
-    btcPriceMultiplyAcc: String
+    btcPriceMultiplyAcc: String,
 ) = Column {
     Row(
         modifier = modifier
@@ -521,14 +524,16 @@ fun CoinTickerView(
                 ),
                 color = fluctuatePrice.getFluctuateColor()
             )
-//            if (!market.isTradeCurrencyKrw()) {
-//                AutoSizeText(text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
-//                        textStyle = TextStyle(textAlign = TextAlign.End,
-//                                fontSize = DpToSp(11.dp)
-//                        ),
-//                        color = Color(0xff91959E)
-//                )
-//            }
+            if (!market.isTradeCurrencyKrw()) {
+                AutoSizeText(
+                    text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        textAlign = TextAlign.End,
+                        fontSize = DpToSp(11.dp)
+                    ),
+                    color = Color(0xff91959E)
+                )
+            }
         }
         AutoSizeText(
             text = fluctuateRate.formattedFluctuateString() + "%",
@@ -550,14 +555,14 @@ fun CoinTickerView(
                 )
             )
             if (!market.isTradeCurrencyKrw()) {
-//                AutoSizeText(
-//                        text = btcPriceMultiplyAcc,
-//                        textStyle = TextStyle(
-//                                fontSize = DpToSp(11.dp),
-//                                textAlign = TextAlign.End
-//                        ),
-//                        color = Color(0xff91959E)
-//                )
+                AutoSizeText(
+                    text = btcPriceMultiplyAcc,
+                    textStyle = TextStyle(
+                        fontSize = DpToSp(11.dp),
+                        textAlign = TextAlign.End
+                    ),
+                    color = Color(0xff91959E)
+                )
             }
         }
     }

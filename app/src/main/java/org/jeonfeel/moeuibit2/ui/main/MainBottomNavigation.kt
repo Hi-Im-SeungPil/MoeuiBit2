@@ -25,10 +25,10 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.bottomNavigatorSelectedColor
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screen_route: String) {
-    object Exchange : MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, "exchange")
-    object CoinSite : MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, "site")
-    object Portfolio : MainBottomNavItem(menuTitleArray[2], R.drawable.img_report, "portfolio")
-    object Setting : MainBottomNavItem(menuTitleArray[3], R.drawable.img_setting, "setting")
+    data object Exchange : MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, "exchange")
+    data object CoinSite : MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, "site")
+    data object Portfolio : MainBottomNavItem(menuTitleArray[2], R.drawable.img_report, "portfolio")
+    data object Setting : MainBottomNavItem(menuTitleArray[3], R.drawable.img_setting, "setting")
 }
 
 @Composable

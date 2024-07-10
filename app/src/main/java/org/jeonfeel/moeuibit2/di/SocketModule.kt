@@ -37,8 +37,7 @@ class SocketModule {
             .pingInterval(
                 10,
                 TimeUnit.SECONDS
-            )
-            .build()
+            ).build()
     }
 
     @Provides

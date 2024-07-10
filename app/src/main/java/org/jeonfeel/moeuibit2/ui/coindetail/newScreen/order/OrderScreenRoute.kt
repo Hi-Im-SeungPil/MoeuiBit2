@@ -7,9 +7,9 @@ import java.math.BigDecimal
 @Composable
 fun OrderScreenRoute(
     viewModel: NewCoinDetailViewModel = hiltViewModel(),
-    market: String
+    market: String = "KRW-BTC"
 ) {
-    OrderScreen(
+    NewOrderScreen(
         initCoinOrder = viewModel::initCoinOrder,
         coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
         market = market,

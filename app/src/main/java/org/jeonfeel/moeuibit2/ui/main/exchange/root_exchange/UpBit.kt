@@ -14,7 +14,9 @@ import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
+import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
@@ -40,10 +42,9 @@ sealed class ExchangeInitState {
     ) : ExchangeInitState()
 }
 
-
-
 class UpBit @Inject constructor(
     private val upbitUseCase: UpbitUseCase,
+    private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase,
     private val cacheManager: CacheManager
 ) : BaseCommunicationModule() {
     private var successInit = false
@@ -64,6 +65,7 @@ class UpBit @Inject constructor(
     private var isUpdateExchange: State<Boolean>? = null
 
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
+    private val _orderBookResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
 
     /**
      * 업비트 초기화
@@ -233,6 +235,7 @@ class UpBit @Inject constructor(
     private suspend fun requestSubscribeTicker() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> upbitUseCase.requestSubscribeTicker(marketCodes = krwList.toList())
+//            upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf("KRW-BTC"))
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
@@ -325,12 +328,21 @@ class UpBit @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
+//        upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
+//            _orderBookResponse.update {
+//                Logger.e(result.toString())
+//                result
+//            }
+//        }.collect {
+//
+//        }
         upbitUseCase.observeTickerResponse().onEach { result ->
             _tickerResponse.update {
                 result
             }
         }.collect { upbitSocketTickerRes ->
             try {
+                Logger.e("aaaa")
                 if (isUpdateExchange?.value == false) return@collect
 
                 var positionMap: MutableMap<String, Int>? = null

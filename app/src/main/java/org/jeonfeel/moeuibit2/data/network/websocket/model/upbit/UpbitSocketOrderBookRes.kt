@@ -9,23 +9,29 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
 @Serializable
 data class UpbitSocketOrderBookRes(
-    val code: String,
-    val level: Int,
-    @SerialName("orderbook_units")
-    val orderbookUnits: List<OrderBookUnit>,
-    @SerialName("stream_type")
-    val streamType: String,
-    val timestamp: Long,
+    val type: String = "",
+    val code: String = "",
+    val timestamp: Long = 0L,
+
     @SerialName("total_ask_size")
-    val totalAskSize: Double,
+    val totalAskSize: Double = 0.0,
+
     @SerialName("total_bid_size")
-    val totalBidSize: Double,
-    val type: String
+    val totalBidSize: Double = 0.0,
+
+    @SerialName("orderbook_units")
+    val orderbook_units: List<OrderBookUnit> = listOf(),
+
+    @SerialName("stream_type")
+    val streamType: String = "",
+
+    @SerialName("level")
+    val level: Double = 0.0
 ) {
     fun mapTo(): List<OrderBookModel> {
         val askList = ArrayList<OrderBookModel>()
         val bidList = ArrayList<OrderBookModel>()
-        orderbookUnits.forEach { orderBookUnit ->
+        orderbook_units.forEach { orderBookUnit ->
             askList.add(
                 OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(

@@ -33,7 +33,7 @@ import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.math.BigDecimal
 
 @Composable
-fun OrderScreen(
+fun NewOrderScreen(
     initCoinOrder: (String) -> Unit,
     coinOrderScreenOnPause: () -> Unit,
     market: String,
@@ -158,7 +158,6 @@ fun OrderBookView(
                     .width(2.dp)
                     .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
             )
-
             Box(
                 modifier = Modifier
                     .padding(start = 2.dp)
@@ -168,7 +167,6 @@ fun OrderBookView(
                     .fillMaxWidth(orderBookBlockSize)
                     .background(orderBokBlockColor)
             )
-
             AutoSizeText(
                 text = orderBookText, textStyle = MaterialTheme.typography.body1,
                 modifier = Modifier

@@ -9,3 +9,9 @@ data class OrderBookRequestTypeField(
 data class OrderBookIsOnlyRealTimeField(
     val isOnlyRealTime: Boolean = true
 ): UpbitSocketOrderBookReq
+
+data class OrderBookTicketField(
+    val ticket: String
+): UpbitSocketOrderBookReq
+
+//RequestTicketField(ticket = UUID.randomUUID().toString())

@@ -9,15 +9,16 @@ import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.UpBitSocket
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.UpbitSocketOrderBookReq
 
 interface UpBitSocketService {
-    @Send
-    fun requestUpbitTickerRequest(request: List<UpBitSocketTickerReq>)
-
-    @Receive
-    fun collectUpbitTickers(): Flow<UpbitSocketTickerRes>
 
     @Send
     fun requestUpbitOrderBookRequest(request: List<UpbitSocketOrderBookReq> )
 
     @Receive
     fun collectUpbitOrderBook(): Flow<UpbitSocketOrderBookRes>
+
+    @Send
+    fun requestUpbitTickerRequest(request: List<UpBitSocketTickerReq>)
+
+    @Receive
+    fun collectUpbitTickers(): Flow<UpbitSocketTickerRes>
 }

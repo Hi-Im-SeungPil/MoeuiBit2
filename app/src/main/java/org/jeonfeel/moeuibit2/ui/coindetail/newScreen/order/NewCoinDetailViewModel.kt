@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
 import androidx.compose.runtime.mutableStateOf
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
@@ -57,7 +58,8 @@ class NewCoinDetailViewModel @Inject constructor(
                 upbitCoinOrder.initCoinOrder(market)
             },
             bitthumbAction = {
-            }
+            },
+            dispatcher = Dispatchers.IO
         )
     }
 
