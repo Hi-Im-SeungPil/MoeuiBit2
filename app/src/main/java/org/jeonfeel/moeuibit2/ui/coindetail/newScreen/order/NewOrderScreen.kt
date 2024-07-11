@@ -36,9 +36,10 @@ import java.math.BigDecimal
 fun NewOrderScreen(
     initCoinOrder: (String) -> Unit,
     coinOrderScreenOnPause: () -> Unit,
+    coinOrderScreenOnResume: (String) -> Unit,
+    orderBookList: List<OrderBookModel>,
     market: String,
     preClosedPrice: Double,
-    orderBookList: List<OrderBookModel>,
     maxOrderBookSize: Double,
     coinPrice: BigDecimal,
 //    quantityState: Int
@@ -57,7 +58,7 @@ fun NewOrderScreen(
             coinOrderScreenOnPause()
         },
         onResumeAction = {
-
+            coinOrderScreenOnResume(market)
         }
     )
 

@@ -19,7 +19,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,36 +31,31 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
-import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
-import org.jeonfeel.moeuibit2.ui.coindetail.TabRowMainNavigation
-import org.jeonfeel.moeuibit2.ui.coindetail.getTextColor
-import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewOrderScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
-import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 
 @Composable
 fun NewCoinDetailScreen(
-    viewModel: NewCoinDetailViewModel,
-    market: String = "KRW-BTC",
-    warning: String
+    viewModel: NewCoinDetailViewModel = hiltViewModel(),
+    market: String,
+    warning: Boolean
 ) {
     val state = rememberCoinDetailStateHolder(context = LocalContext.current)
 
     AddLifecycleEvent(
         onCreateAction = {
-
+            viewModel.init(market)
         },
         onPauseAction = {
 
@@ -83,24 +77,16 @@ fun NewCoinDetailScreen(
             fluctuateRate = viewModel.coinTicker.value?.signedChangeRate?.secondDecimal() ?: "",
             fluctuatePrice = viewModel.coinTicker.value?.signedChangePrice?.toString() ?: "",
             price = state.getCoinDetailPrice(
-                viewModel.coinTicker.value?.tradePrice ?: 0.0,
+                viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
                 viewModel.rootExchange ?: "",
                 market
-            ) ?: "",
+            ),
             symbol = market.substring(4),
             priceTextColor = state.getCoinDetailPriceTextColor(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             )
         )
-        NewOrderScreen(
-            initCoinOrder = viewModel::initCoinOrder,
-            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause ,
-            market = "KRW-BTC",
-            preClosedPrice = viewModel.coinTicker.value?.prevClosingPrice ?: 10000.0,
-            orderBookList = viewModel.getOrderBookList(),
-            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
-            coinPrice = (viewModel.coinTicker.value?.tradePrice ?: 100000.0).newBigDecimal(ROOT_EXCHANGE_UPBIT,"KRW-BTC")
-        )
+        OrderScreenRoute(market = market)
     }
 }
 

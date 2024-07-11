@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.network.websocket.thunder.request
+package org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit
 
 sealed interface UpBitSocketTickerReq
 

@@ -15,7 +15,7 @@ class CoinDetailStateHolder(
 ) {
     fun getCoinDetailTitle(
         koreanCoinName: String,
-        warning: String
+        warning: Boolean
     ): String {
         return getCoinDetailTitle(warning, context, koreanCoinName)
     }

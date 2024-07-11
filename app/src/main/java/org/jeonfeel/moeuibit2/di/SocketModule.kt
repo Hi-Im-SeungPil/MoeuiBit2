@@ -12,7 +12,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -23,12 +24,32 @@ class SocketModule {
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
-    annotation class SocketType
+    annotation class ExchangeTickerSocketType
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ExchangeTickerSocket
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailTickerSocketType
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailTickerSocket
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailOrderBookSocketType
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailOrderBookSocket
 
     @Singleton
     @Provides
-    @SocketType
-    fun provideOkHttpClient(): OkHttpClient {
+    @ExchangeTickerSocketType
+    fun provideExchangeOkHttpClient(): OkHttpClient {
         val httpLoggingInterceptor =
             HttpLoggingInterceptor { message -> Logger.d(message) }
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -42,10 +63,69 @@ class SocketModule {
 
     @Provides
     @Singleton
-    fun provideSocketService(
-        @SocketType okHttpClient: OkHttpClient,
+    @ExchangeTickerSocket
+    fun provideExchangeTickerSocketService(
+        @ExchangeTickerSocketType okHttpClient: OkHttpClient,
         @ApplicationContext context: Context
-    ): UpBitSocketService {
+    ): UpBitExchangeSocketService {
+        return thunder {
+            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            setApplicationContext(context)
+            setConverterType(ConverterType.Serialization)
+        }.create()
+    }
+
+    @Singleton
+    @Provides
+    @CoinDetailTickerSocketType
+    fun provideCoinDetailOkHttpClient(): OkHttpClient {
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            .addInterceptor(httpLoggingInterceptor)
+            .pingInterval(
+                10,
+                TimeUnit.SECONDS
+            ).build()
+    }
+
+    @Provides
+    @Singleton
+    @CoinDetailTickerSocket
+    fun provideOrderBookTickerSocketService(
+        @CoinDetailTickerSocketType okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpBitExchangeSocketService {
+        return thunder {
+            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            setApplicationContext(context)
+            setConverterType(ConverterType.Serialization)
+        }.create()
+    }
+
+    @Singleton
+    @Provides
+    @CoinDetailOrderBookSocketType
+    fun provideOrderBookOkHttpClient(): OkHttpClient {
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            .addInterceptor(httpLoggingInterceptor)
+            .pingInterval(
+                10,
+                TimeUnit.SECONDS
+            ).build()
+    }
+
+    @Provides
+    @Singleton
+    @CoinDetailOrderBookSocket
+    fun provideCoinDetailOrderBookSocketService(
+        @CoinDetailOrderBookSocketType okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpbitOrderBookSocketService {
         return thunder {
             setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
             setApplicationContext(context)

@@ -16,7 +16,8 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
@@ -95,7 +96,7 @@ class NetowrkModule {
     @Provides
     fun provideUpbitUseCase(
         upbitRepository: UpbitRepository,
-        upBitSocketService: UpBitSocketService
+        @SocketModule.ExchangeTickerSocket upBitSocketService: UpBitExchangeSocketService
     ): UpbitUseCase {
         return UpbitUseCase(upbitRepository, upBitSocketService)
     }
@@ -105,7 +106,7 @@ class NetowrkModule {
     fun provideOrderBookUseCase(
         upbitRepository: UpbitRepository,
         localRepository: LocalRepository,
-        upBitSocketService: UpBitSocketService
+        @SocketModule.CoinDetailOrderBookSocket upBitSocketService: UpbitOrderBookSocketService
     ): UpbitCoinOrderUseCase {
         return UpbitCoinOrderUseCase(upbitRepository,localRepository, upBitSocketService)
     }

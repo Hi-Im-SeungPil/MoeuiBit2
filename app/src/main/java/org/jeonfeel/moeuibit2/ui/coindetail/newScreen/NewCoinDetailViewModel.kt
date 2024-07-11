@@ -1,14 +1,18 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
+package org.jeonfeel.moeuibit2.ui.coindetail.newScreen
 
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
@@ -23,10 +27,10 @@ class NewCoinDetailViewModel @Inject constructor(
     private val upbitUseCase: UpbitUseCase,
     private val cacheManager: CacheManager
 ) : BaseViewModel(preferenceManager) {
-    private val _coinTicker = mutableStateOf<GetUpbitMarketTickerRes?>(null)
-    val coinTicker get() = _coinTicker
+    private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
+    val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
     private val _koreanCoinName = mutableStateOf("")
-    val koreanCoinName get() = _koreanCoinName
+    val koreanCoinName: State<String> get() = _koreanCoinName
 
     fun init(market: String) {
         rootExchangeCoroutineBranch(
@@ -39,7 +43,7 @@ class NewCoinDetailViewModel @Inject constructor(
                 executeUseCase<GetUpbitMarketTickerRes>(
                     target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
                     onComplete = { ticker ->
-                        _coinTicker.value = ticker
+                        _coinTicker.value = ticker.mapTo()
                     }
                 )
             },
@@ -70,6 +74,17 @@ class NewCoinDetailViewModel @Inject constructor(
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upbitCoinOrder.onPause()
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+    fun coinOrderScreenOnResume(market: String) {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upbitCoinOrder.onResume(market)
             },
             bitthumbAction = {
 

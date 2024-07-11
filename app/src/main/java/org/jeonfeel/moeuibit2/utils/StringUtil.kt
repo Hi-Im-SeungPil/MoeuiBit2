@@ -113,9 +113,9 @@ fun Float.eighthDecimal(): String {
     return String.format("%.8f", this)
 }
 
-fun getCoinDetailTitle(warning: String, context: Context, koreanCoinName: String): String {
+fun getCoinDetailTitle(warning: Boolean, context: Context, koreanCoinName: String): String {
     return buildAnnotatedString {
-        if (warning == CAUTION) {
+        if (warning) {
             withStyle(
                 style = SpanStyle(
                     color = Color.Yellow,

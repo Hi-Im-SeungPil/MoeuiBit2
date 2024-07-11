@@ -83,8 +83,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         requestSubscribeOrderBook("")
     }
 
-    suspend fun onResume() {
-
+    suspend fun onResume(market: String) {
+        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
     }
 
     /**

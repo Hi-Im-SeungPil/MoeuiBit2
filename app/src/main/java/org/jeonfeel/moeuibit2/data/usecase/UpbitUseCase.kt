@@ -7,10 +7,10 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeMo
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestFormatField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestTicketField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.RequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.UpBitSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTypeField
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import java.util.UUID
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class UpbitUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
-    private val upBitSocketService: UpBitSocketService
+    private val upBitSocketService: UpBitExchangeSocketService
 ) : BaseUseCase() {
 
     /**
@@ -81,7 +81,7 @@ class UpbitUseCase @Inject constructor(
         return requestApiResult(
             result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
             onSuccess = { ticker ->
-                ticker
+                ticker[0]
             }
         )
     }

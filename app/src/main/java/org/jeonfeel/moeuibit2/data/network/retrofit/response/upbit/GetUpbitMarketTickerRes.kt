@@ -60,15 +60,18 @@ data class GetUpbitMarketTickerRes(
     @SerialName("trade_volume")
     val tradeVolume: Double
 ) {
-    fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes): CommonExchangeModel {
+    fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {
         return CommonExchangeModel(
-            koreanName = getUpbitMarketCodeRes.koreanName,
-            englishName = getUpbitMarketCodeRes.englishName,
+            koreanName = getUpbitMarketCodeRes?.koreanName ?: "",
+            englishName = getUpbitMarketCodeRes?.englishName ?: "",
             market = market,
-            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName),
+            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes?.koreanName ?: ""),
             symbol = market.substring(4),
             openingPrice = openingPrice,
-            tradePrice = tradePrice.newBigDecimal(ExchangeViewModel.ROOT_EXCHANGE_UPBIT, market = market),
+            tradePrice = tradePrice.newBigDecimal(
+                ExchangeViewModel.ROOT_EXCHANGE_UPBIT,
+                market = market
+            ),
             signedChangeRate = signedChangeRate * 100,
             accTradePrice24h = accTradePrice24h.accBigDecimal(),
             tradeDate = tradeDate,
@@ -81,7 +84,7 @@ data class GetUpbitMarketTickerRes(
             lowPrice = lowPrice,
             signedChangePrice = signedChangePrice,
             timestamp = timestamp,
-            warning = getUpbitMarketCodeRes.marketEvent.warning,
+            warning = getUpbitMarketCodeRes?.marketEvent?.warning ?: false,
             askBid = "NONE"
         )
     }

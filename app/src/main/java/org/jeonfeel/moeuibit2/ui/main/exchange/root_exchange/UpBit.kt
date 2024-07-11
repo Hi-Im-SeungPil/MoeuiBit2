@@ -44,7 +44,6 @@ sealed class ExchangeInitState {
 
 class UpBit @Inject constructor(
     private val upbitUseCase: UpbitUseCase,
-    private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase,
     private val cacheManager: CacheManager
 ) : BaseCommunicationModule() {
     private var successInit = false
@@ -65,7 +64,6 @@ class UpBit @Inject constructor(
     private var isUpdateExchange: State<Boolean>? = null
 
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
-    private val _orderBookResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
 
     /**
      * 업비트 초기화
@@ -235,7 +233,6 @@ class UpBit @Inject constructor(
     private suspend fun requestSubscribeTicker() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> upbitUseCase.requestSubscribeTicker(marketCodes = krwList.toList())
-//            upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf("KRW-BTC"))
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
@@ -328,14 +325,6 @@ class UpBit @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
-//        upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
-//            _orderBookResponse.update {
-//                Logger.e(result.toString())
-//                result
-//            }
-//        }.collect {
-//
-//        }
         upbitUseCase.observeTickerResponse().onEach { result ->
             _tickerResponse.update {
                 result

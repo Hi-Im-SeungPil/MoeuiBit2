@@ -411,7 +411,11 @@ private fun CoinTickerSection(
                 fluctuateRate = item.signedChangeRate.toFloat(),
                 fluctuatePrice = item.signedChangePrice.toFloat(),
                 acc24h = item.accTradePrice24h.formattedUnitString(),
-                onClickEvent = { appNavController.navigate(AppScreen.CoinDetail.name) },
+                onClickEvent = {
+                    val market = item.market
+                    val warning = item.warning
+                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning")
+                },
                 needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
                 market = item.market,
                 stopAnimation = stopAnimation,
