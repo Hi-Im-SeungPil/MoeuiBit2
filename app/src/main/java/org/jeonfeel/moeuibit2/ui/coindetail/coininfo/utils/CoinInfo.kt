@@ -28,21 +28,21 @@ class CoinInfo {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val coinInfoHashMap = HashMap<String, String>()
                     val homepage =
-                        snapshot.child(INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
-                    val amount = snapshot.child(INFO_AMOUNT_KEY).getValue(String::class.java) ?: ""
+                        snapshot.child(KeyConst.INFO_HOMEPAGE_KEY).getValue(String::class.java) ?: ""
+                    val amount = snapshot.child(KeyConst.INFO_AMOUNT_KEY).getValue(String::class.java) ?: ""
                     val twitter =
-                        snapshot.child(INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
-                    val block = snapshot.child(INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
-                    val info = snapshot.child(INFO_INFO_KEY).getValue(String::class.java) ?: ""
+                        snapshot.child(KeyConst.INFO_TWITTER_KEY).getValue(String::class.java) ?: ""
+                    val block = snapshot.child(KeyConst.INFO_BLOCK_KEY).getValue(String::class.java) ?: ""
+                    val info = snapshot.child(KeyConst.INFO_INFO_KEY).getValue(String::class.java) ?: ""
 
                     if (homepage.isEmpty()) {
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     } else {
-                        coinInfoHashMap[INFO_HOMEPAGE_KEY] = homepage
-                        coinInfoHashMap[INFO_AMOUNT_KEY] = amount
-                        coinInfoHashMap[INFO_TWITTER_KEY] = twitter
-                        coinInfoHashMap[INFO_BLOCK_KEY] = block
-                        coinInfoHashMap[INFO_INFO_KEY] = info
+                        coinInfoHashMap[KeyConst.INFO_HOMEPAGE_KEY] = homepage
+                        coinInfoHashMap[KeyConst.INFO_AMOUNT_KEY] = amount
+                        coinInfoHashMap[KeyConst.INFO_TWITTER_KEY] = twitter
+                        coinInfoHashMap[KeyConst.INFO_BLOCK_KEY] = block
+                        coinInfoHashMap[KeyConst.INFO_INFO_KEY] = info
                         _coinInfoMutableLiveData.postValue(coinInfoHashMap)
                     }
 

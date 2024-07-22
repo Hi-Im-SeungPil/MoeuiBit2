@@ -2,10 +2,12 @@ package org.jeonfeel.moeuibit2.utils
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.CAUTION
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
@@ -16,6 +18,7 @@ val commaFormat = DecimalFormat("###,###")
 val decimalFormat = DecimalFormat("###,###.##")
 val eightDecimalFormat = DecimalFormat("###,###.########")
 val percentFormat = DecimalFormat("0.00%")
+val decimalPoint = DecimalFormat("0.######")
 
 fun Long.commaFormat(): String {
     return commaFormat.format(this)
@@ -113,18 +116,23 @@ fun Float.eighthDecimal(): String {
     return String.format("%.8f", this)
 }
 
-fun getCoinDetailTitle(warning: Boolean, context: Context, koreanCoinName: String): String {
-    return buildAnnotatedString {
-        if (warning) {
-            withStyle(
-                style = SpanStyle(
-                    color = Color.Yellow,
-                    fontWeight = FontWeight.Bold
-                )
-            ) {
-                append(context.getString(R.string.CAUTION_KOREAN))
-            }
-        }
-        append(koreanCoinName)
-    }.toString()
+fun Double.decimalPoint(): String {
+    return decimalPoint.format(this)
+}
+
+fun getCoinDetailTitle(warning: Boolean, context: Context, koreanCoinName: String) {
+//    Logger.e("koreanCoinName3 $koreanCoinName")
+//    return buildAnnotatedString {
+//        if (warning) {
+//            withStyle(
+//                style = SpanStyle(
+//                    color = Color.Yellow,
+//                    fontWeight = FontWeight.Bold
+//                )
+//            ) {
+//                append(context.getString(R.string.CAUTION_KOREAN))
+//            }
+//        }
+//        append(koreanCoinName)
+//    }
 }

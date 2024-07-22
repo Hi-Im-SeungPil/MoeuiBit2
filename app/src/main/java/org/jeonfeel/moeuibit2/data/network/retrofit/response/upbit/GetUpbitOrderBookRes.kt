@@ -44,7 +44,7 @@ data class GetUpbitOrderBookRes(
                 )
             )
         }
-        bidList.reverse()
+        askList.reverse()
         return askList + bidList
     }
 }

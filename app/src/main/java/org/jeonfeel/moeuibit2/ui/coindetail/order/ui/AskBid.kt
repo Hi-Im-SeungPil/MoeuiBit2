@@ -423,7 +423,7 @@ fun RowScope.OrderScreenQuantityDropDown(
                     expanded.value = false
                     if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB && currentTradePriceState.value != 0.0) {
                         bidButtonText.value = label
-                        val bidFee = getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                        val bidFee = getCommission(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                         val quantity = if (marketState == SELECTED_KRW_MARKET) {
                             Calculator.orderScreenSpinnerBidValueCalculator(
                                 bidButtonText.value,
@@ -432,7 +432,7 @@ fun RowScope.OrderScreenQuantityDropDown(
                                 bidFee
                             )
                         } else {
-                            val bidFee2 = getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                            val bidFee2 = getCommission(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                             Calculator.orderScreenSpinnerBidValueCalculatorForBTC(
                                 bidButtonText.value,
                                 btcQuantity.value,
@@ -689,7 +689,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                     val userBtcCoin = coinDetailViewModel.coinOrder.state.btcQuantity
                     if (marketState == SELECTED_KRW_MARKET) {
                         val commission =
-                            coinDetailViewModel.getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                            coinDetailViewModel.getCommission(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                         when {
                             currentPrice.value == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -737,7 +737,7 @@ fun OrderScreenButtons(coinDetailViewModel: CoinDetailViewModel, marketState: In
                     } else {
                         val currentBtcPrice =
                             coinDetailViewModel.coinOrder.state.currentBTCPrice.value
-                        val fee = coinDetailViewModel.getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                        val fee = coinDetailViewModel.getCommission(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                         when {
                             currentPrice.value == 0.0 || currentBtcPrice == 0.0 -> {
                                 context.showToast(context.getString(R.string.NETWORK_ERROR))

@@ -23,14 +23,7 @@ import com.google.accompanist.pager.PagerState
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.CAUTION
-import org.jeonfeel.moeuibit2.constants.INTENT_COIN_SYMBOL
-import org.jeonfeel.moeuibit2.constants.INTENT_ENG_NAME
-import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
-import org.jeonfeel.moeuibit2.constants.INTENT_KOREAN_NAME
-import org.jeonfeel.moeuibit2.constants.INTENT_MARKET_STATE
-import org.jeonfeel.moeuibit2.constants.INTENT_OPENING_PRICE
-import org.jeonfeel.moeuibit2.constants.INTENT_ROOT_EXCHANGE
-import org.jeonfeel.moeuibit2.constants.INTENT_WARNING
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
@@ -243,17 +236,17 @@ class ExchangeScreenStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
         val marketState = Utils.getSelectedMarket(commonExchangeModel.market)
 
         val intent = Intent(context, CoinDetailActivity::class.java).apply {
-            putExtra(INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
-            putExtra(INTENT_ENG_NAME, commonExchangeModel.englishName)
-            putExtra(INTENT_COIN_SYMBOL, commonExchangeModel.symbol)
-            putExtra(INTENT_OPENING_PRICE, commonExchangeModel.openingPrice)
+            putExtra(KeyConst.INTENT_KOREAN_NAME, commonExchangeModel.koreanName)
+            putExtra(KeyConst.INTENT_ENG_NAME, commonExchangeModel.englishName)
+            putExtra(KeyConst.INTENT_COIN_SYMBOL, commonExchangeModel.symbol)
+            putExtra(KeyConst.INTENT_OPENING_PRICE, commonExchangeModel.openingPrice)
             putExtra(
-                INTENT_IS_FAVORITE,
+                KeyConst.INTENT_IS_FAVORITE,
                 MoeuiBitDataStore.upBitFavoriteHashMap[commonExchangeModel.market] != null
             )
-            putExtra(INTENT_MARKET_STATE, marketState)
-            putExtra(INTENT_WARNING, commonExchangeModel.warning)
-            putExtra(INTENT_ROOT_EXCHANGE, rootExchange.value)
+            putExtra(KeyConst.INTENT_MARKET_STATE, marketState)
+            putExtra(KeyConst.INTENT_WARNING, commonExchangeModel.warning)
+            putExtra(KeyConst.INTENT_ROOT_EXCHANGE, rootExchange.value)
         }
         startForActivityResult.launch(intent)
         (context as MainActivity).overridePendingTransition(

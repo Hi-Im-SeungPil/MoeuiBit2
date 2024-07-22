@@ -48,14 +48,14 @@ class CoinDetailActivity : BaseActivity() {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 
         intent?.let {
-            coinKoreanName = it.getStringExtra(INTENT_KOREAN_NAME) ?: ""
-            coinEngName = it.getStringExtra(INTENT_ENG_NAME) ?: ""
-            coinSymbol = it.getStringExtra(INTENT_COIN_SYMBOL) ?: ""
-            openingPrice = it.getDoubleExtra(INTENT_OPENING_PRICE, 0.0)
-            isFavorite = it.getBooleanExtra(INTENT_IS_FAVORITE, false)
-            warning = it.getStringExtra(INTENT_WARNING) ?: ""
-            marketState = it.getIntExtra(INTENT_MARKET_STATE, -999)
-            rootExchange = it.getStringExtra(INTENT_ROOT_EXCHANGE) ?: ""
+            coinKoreanName = it.getStringExtra(KeyConst.INTENT_KOREAN_NAME) ?: ""
+            coinEngName = it.getStringExtra(KeyConst.INTENT_ENG_NAME) ?: ""
+            coinSymbol = it.getStringExtra(KeyConst.INTENT_COIN_SYMBOL) ?: ""
+            openingPrice = it.getDoubleExtra(KeyConst.INTENT_OPENING_PRICE, 0.0)
+            isFavorite = it.getBooleanExtra(KeyConst.INTENT_IS_FAVORITE, false)
+            warning = it.getStringExtra(KeyConst.INTENT_WARNING) ?: ""
+            marketState = it.getIntExtra(KeyConst.INTENT_MARKET_STATE, -999)
+            rootExchange = it.getStringExtra(KeyConst.INTENT_ROOT_EXCHANGE) ?: ""
         }
 
         val market = if (marketState == SELECTED_BTC_MARKET) {

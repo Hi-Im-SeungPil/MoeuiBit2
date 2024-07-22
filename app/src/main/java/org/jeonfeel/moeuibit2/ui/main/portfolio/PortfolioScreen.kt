@@ -37,8 +37,8 @@ fun PortfolioScreen(
             if (result.resultCode == Activity.RESULT_OK) {
                 val resultData = result.data
                 if (resultData != null) {
-                    val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
-                    val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
+                    val isFavorite = resultData.getBooleanExtra(KeyConst.INTENT_IS_FAVORITE, false)
+                    val market = resultData.getStringExtra(KeyConst.INTENT_MARKET) ?: ""
                     viewModel.updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }

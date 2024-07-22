@@ -16,8 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.PREF_KEY_ROOT_EXCHANGE
 import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbTickerWebSocket
 import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
@@ -77,7 +77,7 @@ class MainActivity : BaseActivity() {
             noInternetAction = {
                 networkErrorState.value = NO_INTERNET_CONNECTION
                 CoroutineScope(Dispatchers.Main).launch {
-                    preferenceManager.getString(PREF_KEY_ROOT_EXCHANGE)
+                    preferenceManager.getString(KeyConst.PREF_KEY_ROOT_EXCHANGE)
                         .collect { currentRootExchange ->
                             if (currentRootExchange == ROOT_EXCHANGE_UPBIT) {
                                 UpBitTickerWebSocket.onPause()

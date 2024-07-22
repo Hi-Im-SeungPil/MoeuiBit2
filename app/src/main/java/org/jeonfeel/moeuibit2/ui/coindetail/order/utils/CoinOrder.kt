@@ -123,7 +123,7 @@ class CoinOrder @Inject constructor(
 
         if (myCoin == null) {
             if (marketState == SELECTED_KRW_MARKET) {
-                val fee = preferenceManager.getFloat(PREF_KEY_KRW_BID_COMMISSION)
+                val fee = preferenceManager.getFloat(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                 coinDao.insert(
                     MyCoin(
                         market,
@@ -136,7 +136,7 @@ class CoinOrder @Inject constructor(
 //                userDao.updateMinusMoney((totalPrice + floor(totalPrice * (fee * 0.01))).toLong())
                 state.userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_COMMISSION)
+                val fee = preferenceManager.getFloat(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                 coinDao.insert(
                     MyCoin(
                         market,
@@ -197,11 +197,11 @@ class CoinOrder @Inject constructor(
 
             coinDao.updatePlusQuantity(market, quantity)
             if (marketState == SELECTED_KRW_MARKET) {
-                val fee = preferenceManager.getFloat(PREF_KEY_KRW_BID_COMMISSION)
+                val fee = preferenceManager.getFloat(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                 userDao.updateMinusMoney((totalPrice + floor(totalPrice * (0.5 * 0.01))).toLong())
                 state.userSeedMoney.value = userDao.all?.krw ?: 0L
             } else {
-                val fee = preferenceManager.getFloat(PREF_KEY_BTC_BID_COMMISSION)
+                val fee = preferenceManager.getFloat(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                 if (state.btcQuantity.value - (btcTotalPrice + (floor(btcTotalPrice * (0.5 * 0.01) * 100000000) * 0.00000001)) < 0.0000001) {
                     coinDao.delete(BTC_MARKET)
                 } else {
@@ -241,11 +241,11 @@ class CoinOrder @Inject constructor(
         coinDao.updateMinusQuantity(market, quantity)
 
         if (marketState == SELECTED_KRW_MARKET) {
-            val commission = preferenceManager.getFloat(PREF_KEY_KRW_ASK_COMMISSION)
+            val commission = preferenceManager.getFloat(KeyConst.PREF_KEY_KRW_ASK_COMMISSION)
             userDao.updatePlusMoney((totalPrice - floor(totalPrice * (0.5 * 0.01))).toLong())
             state.userSeedMoney.value = userDao.all?.krw ?: 0L
         } else {
-            val commission = preferenceManager.getFloat(PREF_KEY_BTC_ASK_COMMISSION)
+            val commission = preferenceManager.getFloat(KeyConst.PREF_KEY_BTC_ASK_COMMISSION)
             val btc = coinDao.isInsert(BTC_MARKET)
             if (btc == null) {
                 coinDao.insert(

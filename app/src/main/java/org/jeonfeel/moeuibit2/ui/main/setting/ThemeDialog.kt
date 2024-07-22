@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager

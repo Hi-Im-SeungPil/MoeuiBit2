@@ -200,13 +200,13 @@ fun UserHoldCoinLazyColumnItemDialog(
                             .clickable {
                                 if (!koreanName.isNullOrEmpty()) {
                                     val intent = Intent(context, CoinDetailActivity::class.java)
-                                    intent.putExtra(INTENT_KOREAN_NAME, name)
-                                    intent.putExtra(INTENT_ENG_NAME, name)
-                                    intent.putExtra(INTENT_COIN_SYMBOL, symbol)
-                                    intent.putExtra(INTENT_OPENING_PRICE, openingPrice)
-                                    intent.putExtra(INTENT_IS_FAVORITE, isFavorite != null)
-                                    intent.putExtra(INTENT_WARNING, warning)
-                                    intent.putExtra(INTENT_MARKET_STATE, marketState)
+                                    intent.putExtra(KeyConst.INTENT_KOREAN_NAME, name)
+                                    intent.putExtra(KeyConst.INTENT_ENG_NAME, name)
+                                    intent.putExtra(KeyConst.INTENT_COIN_SYMBOL, symbol)
+                                    intent.putExtra(KeyConst.INTENT_OPENING_PRICE, openingPrice)
+                                    intent.putExtra(KeyConst.INTENT_IS_FAVORITE, isFavorite != null)
+                                    intent.putExtra(KeyConst.INTENT_WARNING, warning)
+                                    intent.putExtra(KeyConst.INTENT_MARKET_STATE, marketState)
                                     startForActivityResult.launch(intent)
                                     (context as MainActivity).overridePendingTransition(
                                         R.anim.lazy_column_item_slide_left,

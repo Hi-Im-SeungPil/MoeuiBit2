@@ -3,8 +3,11 @@ package org.jeonfeel.moeuibit2.ui.coindetail.newScreen
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
@@ -22,7 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewCoinDetailViewModel @Inject constructor(
-    preferenceManager: PreferencesManager,
+    private val preferenceManager: PreferencesManager,
     private val upbitCoinOrder: UpbitCoinOrder,
     private val upbitUseCase: UpbitUseCase,
     private val cacheManager: CacheManager
@@ -31,8 +34,11 @@ class NewCoinDetailViewModel @Inject constructor(
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
     private val _koreanCoinName = mutableStateOf("")
     val koreanCoinName: State<String> get() = _koreanCoinName
+    private val _orderBookIndication = mutableStateOf<String>("quantity")
+    val orderBookIndication: State<String> get() = _orderBookIndication
 
     fun init(market: String) {
+        getOrderBookIndication()
         rootExchangeCoroutineBranch(
             upbitAction = {
                 _koreanCoinName.value =
@@ -111,7 +117,7 @@ class NewCoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun getMaxOrderBookSize(): Double {
+    fun getMaxOrderBookSize(): State<Double> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 upbitCoinOrder.maxOrderBookSize
@@ -124,6 +130,31 @@ class NewCoinDetailViewModel @Inject constructor(
             else -> {
                 upbitCoinOrder.maxOrderBookSize
             }
+        }
+    }
+
+    private fun getOrderBookIndication() {
+        viewModelScope.launch {
+            preferenceManager.getString("orderBookIndication").collect {
+                _orderBookIndication.value = it
+            }
+        }
+    }
+
+    fun changeOrderBookIndication() {
+        if (_orderBookIndication.value == "quantity") {
+            _orderBookIndication.value = "totalPrice"
+        } else {
+            _orderBookIndication.value = "quantity"
+        }
+    }
+
+    fun saveOrderBookIndication() {
+        viewModelScope.launch {
+            preferenceManager.setValue(
+                "orderBookIndication",
+                _orderBookIndication.value
+            )
         }
     }
 

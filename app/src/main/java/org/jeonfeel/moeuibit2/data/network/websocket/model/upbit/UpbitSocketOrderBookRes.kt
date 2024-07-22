@@ -53,7 +53,7 @@ data class UpbitSocketOrderBookRes(
                 )
             )
         }
-        bidList.reverse()
+        askList.reverse()
         return (askList + bidList).toList()
     }
 }

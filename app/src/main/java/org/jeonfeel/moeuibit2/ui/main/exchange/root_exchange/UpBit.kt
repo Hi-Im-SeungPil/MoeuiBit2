@@ -331,7 +331,6 @@ class UpBit @Inject constructor(
             }
         }.collect { upbitSocketTickerRes ->
             try {
-                Logger.e("aaaa")
                 if (isUpdateExchange?.value == false) return@collect
 
                 var positionMap: MutableMap<String, Int>? = null

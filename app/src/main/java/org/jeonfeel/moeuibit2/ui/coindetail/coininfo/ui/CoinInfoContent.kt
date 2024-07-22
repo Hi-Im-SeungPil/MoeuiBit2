@@ -47,21 +47,21 @@ fun CoinInfoContent(
                 .wrapContentHeight()
         ) {
             MoveUrlText(text = stringResource(id = R.string.block), clickAction = {
-                selected.value = coinInfoHashMap.value[INFO_BLOCK_KEY]!!
+                selected.value = coinInfoHashMap.value[KeyConst.INFO_BLOCK_KEY]!!
                 context.moveUrl(selected.value)
             })
             MoveUrlText(text = stringResource(id = R.string.homePage), clickAction = {
-                selected.value = coinInfoHashMap.value[INFO_HOMEPAGE_KEY]!!
+                selected.value = coinInfoHashMap.value[KeyConst.INFO_HOMEPAGE_KEY]!!
                 context.moveUrl(selected.value)
             })
             MoveUrlText(text = stringResource(id = R.string.info), clickAction = {
-                selected.value = coinInfoHashMap.value[INFO_INFO_KEY]!!
+                selected.value = coinInfoHashMap.value[KeyConst.INFO_INFO_KEY]!!
                 context.moveUrl(selected.value)
             })
             LoadWebViewText(text = stringResource(id = R.string.twitter), clickAction = {
                 webViewLoading.value = true;
                 selectedButton.value = 4
-                selected.value = coinInfoHashMap.value[INFO_TWITTER_KEY]!!
+                selected.value = coinInfoHashMap.value[KeyConst.INFO_TWITTER_KEY]!!
                 flex.loadData(
                     twitterUrl(selected.value),
                     "text/html; charset=utf-8",
@@ -71,7 +71,7 @@ fun CoinInfoContent(
             LoadWebViewText(text = stringResource(id = R.string.amount), clickAction = {
                 webViewLoading.value = true;
                 selectedButton.value = 5
-                selected.value = coinInfoHashMap.value[INFO_AMOUNT_KEY]!!
+                selected.value = coinInfoHashMap.value[KeyConst.INFO_AMOUNT_KEY]!!
                 flex.loadUrl(selected.value)
             }, selectedButton = selectedButton, buttonId = 5)
         }

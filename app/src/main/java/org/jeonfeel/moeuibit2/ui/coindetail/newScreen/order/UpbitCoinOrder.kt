@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -28,7 +29,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     val userBtcCoin: MyCoin get() = _userBtcCoin.value
     private val _tickerResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
     private val _maxOrderBookSize = mutableDoubleStateOf(0.0)
-    val maxOrderBookSize: Double get() = _maxOrderBookSize.doubleValue
+    val maxOrderBookSize: State<Double> get() = _maxOrderBookSize
 
     suspend fun initCoinOrder(market: String) {
         requestOrderBook(market)
@@ -46,6 +47,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         executeUseCase<List<OrderBookModel>>(
             target = upbitCoinOrderUseCase.getOrderBook(market),
             onComplete = {
+                _maxOrderBookSize.doubleValue = it.maxOf { unit -> unit.size }
                 _orderBookList.addAll(it)
             }
         )
@@ -64,11 +66,9 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private suspend fun collectOrderBook() {
         upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
             _tickerResponse.update {
-                Logger.e(result.toString())
                 result
             }
         }.collect { upbitSocketOrderBookRes ->
-            Logger.e(upbitSocketOrderBookRes.toString())
             if(upbitSocketOrderBookRes.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {

@@ -3,11 +3,10 @@ package org.jeonfeel.moeuibit2.ui.coindetail.newS
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Icon
@@ -15,6 +14,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -36,13 +36,10 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewOrderScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 
 @Composable
@@ -68,14 +65,11 @@ fun NewCoinDetailScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         NewCoinDetailTopAppBar(
             coinSymbol = market.substring(4),
-            title = state.getCoinDetailTitle(
-                koreanCoinName = viewModel.koreanCoinName.value,
-                warning = warning
-            )
+            title = viewModel.koreanCoinName.value
         )
         CoinDetailPriceSection(
-            fluctuateRate = viewModel.coinTicker.value?.signedChangeRate?.secondDecimal() ?: "",
-            fluctuatePrice = viewModel.coinTicker.value?.signedChangePrice?.toString() ?: "",
+            fluctuateRate = state.getFluctuateRate(viewModel.coinTicker.value?.signedChangeRate ?: 1.0),
+            fluctuatePrice = state.getFluctuatePrice(viewModel.coinTicker.value?.signedChangePrice ?: 0.0),
             price = state.getCoinDetailPrice(
                 viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
                 viewModel.rootExchange ?: "",
@@ -86,7 +80,18 @@ fun NewCoinDetailScreen(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             )
         )
-        OrderScreenRoute(market = market)
+        OrderScreenRoute(
+            market = market,
+            initCoinOrder = viewModel::initCoinOrder,
+            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
+            coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
+            preClosedPrice = viewModel.coinTicker,
+            orderBookList = viewModel.getOrderBookList(),
+            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
+            orderBookIndication = viewModel.orderBookIndication,
+            changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
+            saveOrderBookIndicationState = viewModel::saveOrderBookIndication
+        )
     }
 }
 
@@ -103,15 +108,24 @@ fun NewCoinDetailTopAppBar(
                 Text(
                     text = title,
                     style = TextStyle(
-                        color = Color.White,
-                        fontSize = DpToSp(dp = 22.dp),
+                        color = Color.Black,
+                        fontSize = DpToSp(dp = 17.dp),
                         textAlign = TextAlign.Center
                     ),
                     modifier = Modifier.fillMaxWidth(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(text = coinSymbol)
+                Text(
+                    text = coinSymbol,
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = DpToSp(dp = 13.dp),
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.fillMaxWidth(1f),
+                    maxLines = 1
+                )
             }
         },
         navigationIcon = {
@@ -121,12 +135,20 @@ fun NewCoinDetailTopAppBar(
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = Color.Black
                 )
             }
         },
         actions = {
+            IconButton(onClick = {
 
+            }) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = null,
+                    tint = Color.Black
+                )
+            }
         }
     )
 }
@@ -149,12 +171,12 @@ fun CoinDetailPriceSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(55.dp)
+                .wrapContentHeight()
         ) {
             Column(
                 modifier = Modifier
-                    .weight(2f)
-                    .fillMaxHeight()
+                    .weight(1f)
+                    .wrapContentHeight()
             ) {
                 Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
                     Text(
@@ -164,9 +186,8 @@ fun CoinDetailPriceSection(
                 }
                 Row(
                     modifier = Modifier
-                        .padding(20.dp, 0.dp, 0.dp, 10.dp)
-                        .fillMaxHeight()
-                        .wrapContentHeight(Alignment.Bottom)
+                        .padding(20.dp, 7.dp, 0.dp, 10.dp)
+                        .wrapContentHeight()
                 ) {
                     Text(
                         text = stringResource(id = R.string.netChange), modifier = Modifier
@@ -180,14 +201,15 @@ fun CoinDetailPriceSection(
                     Text(
                         text = fluctuateRate,
                         modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .weight(1f),
+                            .align(Alignment.CenterVertically),
                         style = TextStyle(color = priceTextColor, fontSize = DpToSp(13.dp)),
                         maxLines = 1
                     )
                     AutoSizeText(
                         text = fluctuatePrice,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .align(Alignment.CenterVertically),
                         textStyle = TextStyle(
                             textAlign = TextAlign.Start,
                             fontSize = DpToSp(13.dp)
@@ -200,9 +222,9 @@ fun CoinDetailPriceSection(
             GlideImage(
                 imageModel = coinImageUrl.plus("$symbol.png"),
                 modifier = Modifier
-                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                    .weight(1f),
-                contentScale = ContentScale.FillHeight,
+                    .size(65.dp)
+                    .padding(end = 20.dp),
+                contentScale = ContentScale.Inside,
                 error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
             )
         }

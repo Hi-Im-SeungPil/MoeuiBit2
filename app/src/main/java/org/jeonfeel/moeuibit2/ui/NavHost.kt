@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.ui.coindetail.newS.CoinDetailScreenRoute
 
 enum class AppScreen {
@@ -31,7 +32,8 @@ fun NavGraph(
             )
         ) { backStackEntry ->
             val market = backStackEntry.arguments?.getString("market") ?: ""
-            val warning = backStackEntry.arguments?.getBoolean("warning") ?: false
+            val warning =
+                backStackEntry.arguments?.getBoolean("warning") ?: false
             CoinDetailScreenRoute(market = market, warning = warning)
         }
     }

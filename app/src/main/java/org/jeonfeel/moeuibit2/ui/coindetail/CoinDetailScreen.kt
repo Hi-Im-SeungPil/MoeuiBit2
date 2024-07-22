@@ -90,8 +90,8 @@ fun CoinDetailScreen(
 
         BackHandler(true) {
             val intent = Intent()
-            intent.putExtra(INTENT_MARKET, market.substring(0, 4).plus(coinSymbol))
-            intent.putExtra(INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
+            intent.putExtra(KeyConst.INTENT_MARKET, market.substring(0, 4).plus(coinSymbol))
+            intent.putExtra(KeyConst.INTENT_IS_FAVORITE, coinDetailViewModel.favoriteMutableState.value)
             (context as CoinDetailActivity).setResult(-1, intent)
             (context).finish()
             context.overridePendingTransition(R.anim.none, R.anim.lazy_column_item_slide_right)

@@ -153,9 +153,9 @@ fun TotalAmountDesignatedDialog(
                                     if (it.toLongOrNull() != null) {
                                         totalPriceDesignated.value = it
                                         val bidFee = if (marketState == SELECTED_KRW_MARKET) {
-                                            getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                                            getCommission(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                                         } else {
-                                            getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                                            getCommission(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                                         }
                                         krwFeeState.value =
                                             totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
@@ -216,9 +216,9 @@ fun TotalAmountDesignatedDialog(
                                             totalPriceDesignated.value = (totalPriceDesignated.value.toLong() + valueArray[i]).toString()
                                         }
                                         val bidFee = if (marketState == SELECTED_KRW_MARKET) {
-                                            getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                                            getCommission(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                                         } else {
-                                            getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                                            getCommission(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                                         }
                                         krwFeeState.value =
                                             totalPriceDesignated.value.toDouble() + (totalPriceDesignated.value.toFloat() * (bidFee * 0.01))
@@ -287,7 +287,7 @@ fun TotalAmountDesignatedDialog(
                                             val quantity = (totalPrice / currentPrice)
                                                 .eighthDecimal()
                                                 .toDouble()
-                                            val bidCommission = getCommission(PREF_KEY_KRW_BID_COMMISSION)
+                                            val bidCommission = getCommission(KeyConst.PREF_KEY_KRW_BID_COMMISSION)
                                             when {
                                                 currentPrice == 0.0 -> {
                                                     context.showToast(context.getString(R.string.NETWORK_ERROR))
@@ -330,7 +330,7 @@ fun TotalAmountDesignatedDialog(
                                                 }
                                             }
                                         } else {
-                                            val bidCommission = getCommission(PREF_KEY_BTC_BID_COMMISSION)
+                                            val bidCommission = getCommission(KeyConst.PREF_KEY_BTC_BID_COMMISSION)
                                             val currentBtcPrice = currentBTCPrice.value
                                             val localUserSeedMoney = (btcQuantity.value * currentBtcPrice).roundToLong()
                                             val totalPrice = (totalPriceDesignated.value.toLong() / currentBtcPrice)

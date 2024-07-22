@@ -8,7 +8,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constants.PREF_KEY_THEME_MODE
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.utils.manager.AppOpenAdManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
@@ -37,7 +37,7 @@ class MoeuiBitApp : Application() {
 
     private fun applyTheme() {
         CoroutineScope(Dispatchers.Main).launch {
-            preferencesManager.getString(PREF_KEY_THEME_MODE).collect { themeMode ->
+            preferencesManager.getString(KeyConst.PREF_KEY_THEME_MODE).collect { themeMode ->
                 val theme = when (themeMode) {
                     ThemeHelper.ThemeMode.LIGHT.name -> ThemeHelper.ThemeMode.LIGHT
                     ThemeHelper.ThemeMode.DARK.name -> ThemeHelper.ThemeMode.DARK

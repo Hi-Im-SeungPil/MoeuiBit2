@@ -68,9 +68,8 @@ import com.google.accompanist.pager.rememberPagerState
 import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.INTENT_IS_FAVORITE
-import org.jeonfeel.moeuibit2.constants.INTENT_MARKET
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -101,8 +100,8 @@ fun ExchangeRoute(
             if (result.resultCode == Activity.RESULT_OK) {
                 val resultData = result.data
                 if (resultData != null) {
-                    val isFavorite = resultData.getBooleanExtra(INTENT_IS_FAVORITE, false)
-                    val market = resultData.getStringExtra(INTENT_MARKET) ?: ""
+                    val isFavorite = resultData.getBooleanExtra(KeyConst.INTENT_IS_FAVORITE, false)
+                    val market = resultData.getStringExtra(KeyConst.INTENT_MARKET) ?: ""
 //                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
                 }
             }
