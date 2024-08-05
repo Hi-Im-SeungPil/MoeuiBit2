@@ -17,7 +17,8 @@ fun OrderScreenRoute(
     orderBookList: List<OrderBookModel>,
     orderBookIndication : State<String>,
     saveOrderBookIndicationState: () -> Unit,
-    changeOrderBookIndicationState: () -> Unit
+    changeOrderBookIndicationState: () -> Unit,
+    userSeedMoneyState: State<Long>
 ) {
     NewOrderScreen(
         initCoinOrder = initCoinOrder,
@@ -27,9 +28,9 @@ fun OrderScreenRoute(
         commonExchangeModelState = preClosedPrice,
         orderBookList = orderBookList,
         maxOrderBookSize = maxOrderBookSize,
-        coinPrice = BigDecimal(0.0),
         orderBookIndicationState = orderBookIndication,
         saveOrderBookIndicationState = saveOrderBookIndicationState,
-        changeOrderBookIndicationState =  changeOrderBookIndicationState
+        changeOrderBookIndicationState =  changeOrderBookIndicationState,
+        userSeedMoneyState = userSeedMoneyState
     )
 }

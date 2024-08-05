@@ -116,7 +116,7 @@ fun CoinDetailMain(
         }
         // 코인 상세화면 주문 ,차트 ,정보 버튼
         CoinDetailMainTabRow(navController = navController)
-        TabRowMainNavigation(navController)
+//        TabRowMainNavigation(navController)
     }
 }
 

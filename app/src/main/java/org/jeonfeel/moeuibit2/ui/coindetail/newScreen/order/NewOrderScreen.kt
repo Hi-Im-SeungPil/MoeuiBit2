@@ -21,37 +21,46 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
+import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.showToast
 import java.math.BigDecimal
 
 @Composable
@@ -63,15 +72,13 @@ fun NewOrderScreen(
     market: String,
     commonExchangeModelState: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
-    coinPrice: BigDecimal,
     orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
-    changeOrderBookIndicationState: () -> Unit
-//    quantityState: Int
+    changeOrderBookIndicationState: () -> Unit,
+    userSeedMoneyState: State<Long>
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
-        coinPrice = coinPrice,
         maxOrderBookSize = maxOrderBookSize
     )
 
@@ -95,7 +102,7 @@ fun NewOrderScreen(
             .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        Column(Modifier.weight(3f)) {
+        Column(Modifier.weight(4f)) {
             OrderBookSection(
                 orderBookList = orderBookList,
                 getOrderBookItemFluctuateRate = state::getOrderBookItemFluctuateRate,
@@ -107,36 +114,20 @@ fun NewOrderScreen(
                 orderBookIndicationState = orderBookIndicationState,
                 getOrderBookIndicationText = state::getOrderBookIndicationText
             )
-            Row(
-                modifier = Modifier
-                    .border(1.dp, Color.Black)
-                    .clickable {
-                        changeOrderBookIndicationState()
-                    }
-                    .padding(vertical = 10.dp)
-                    .padding(horizontal = 5.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.img_sync_alt),
-                    contentDescription = "",
-                    modifier = Modifier.size(24.dp).align(Alignment.CenterVertically)
-                )
-                Text(
-                    text = state.getOrderBookIndicationText(orderBookIndicationState.value),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 3.dp)
-                        .align(Alignment.CenterVertically),
-                    style = TextStyle(fontSize = DpToSp(12.dp), textAlign = TextAlign.Center)
-                )
-            }
+            ChangeOrderBookIndicationSection(
+                orderBookIndicationText = state.getOrderBookIndicationText(
+                    orderBookIndicationState.value
+                ), onClick = { changeOrderBookIndicationState() })
         }
-        Box(
+        Column(
             modifier = Modifier
+                .padding(10.dp)
                 .weight(7f)
                 .fillMaxHeight()
                 .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
-        )
+        ) {
+            OrderSection(userSeedMoney = userSeedMoneyState.value)
+        }
     }
 }
 
@@ -147,28 +138,27 @@ fun ColumnScope.OrderBookSection(
     getOrderBookItemBackground: (OrderBookKind) -> Color,
     getOrderBookItemTextColor: (Double) -> Color,
     getOrderBookBlockColor: (OrderBookKind) -> Color,
-//    getOrderBookText: (Double, Double) -> String,
     getOrderBookIndicationText: (String, Double) -> String,
     getOrderBookBlockSize: (Double) -> Float,
     isMatchTradePrice: (BigDecimal) -> Boolean,
     orderBookIndicationState: State<String>
 ) {
-
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val centralItemIndex = 15
-    val density = LocalDensity.current
-    val local = LocalConfiguration.current
-    val orderBookSectionHeight = remember { mutableIntStateOf(0) }
-    LaunchedEffect(true) {
-        delay(1000L)
-        coroutineScope.launch {
-            listState.animateScrollAndCentralizeItem(15,coroutineScope)
+    val firstInit = remember { mutableStateOf(false) }
+    LaunchedEffect(orderBookList.size == 30) {
+        if (!firstInit.value && orderBookList.size == 30) {
+            coroutineScope.launch {
+                listState.scrollToItem(15)
+                listState.scrollToCentralizeItem(15, coroutineScope)
+                firstInit.value = true
+            }
         }
     }
-    LazyColumn(modifier = Modifier.weight(1f).onGloballyPositioned { coordinates ->
-        orderBookSectionHeight.intValue = coordinates.size.height
-    }, state = listState) {
+    LazyColumn(
+        modifier = Modifier
+            .weight(1f), state = listState
+    ) {
         items(orderBookList) { orderBookModel ->
             OrderBookView(
                 price = orderBookModel.price.formattedString(),
@@ -271,15 +261,128 @@ fun OrderBookView(
     }
 }
 
-fun LazyListState.animateScrollAndCentralizeItem(index: Int, scope: CoroutineScope) {
+@Composable
+fun ChangeOrderBookIndicationSection(
+    onClick: () -> Unit,
+    orderBookIndicationText: String
+) {
+    Row(
+        modifier = Modifier
+            .border(1.dp, Color.Black)
+            .clickable {
+                onClick()
+            }
+            .padding(vertical = 10.dp)
+            .padding(horizontal = 5.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.img_sync_alt),
+            contentDescription = "",
+            modifier = Modifier
+                .size(24.dp)
+                .align(Alignment.CenterVertically)
+        )
+        Text(
+            text = orderBookIndicationText,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 3.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(fontSize = DpToSp(12.dp), textAlign = TextAlign.Center)
+        )
+    }
+}
+
+@Composable
+fun OrderSection(
+    userSeedMoney: Long
+) {
+    Column(modifier = Modifier) {
+        Row {
+            Text(
+                text = "주문가능",
+                style = TextStyle(fontWeight = FontWeight.W500, fontSize = DpToSp(dp = 14.dp))
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            AutoSizeText(
+                text = userSeedMoney.formatWithComma(),
+                textStyle = TextStyle(fontSize = DpToSp(dp = 14.dp), textAlign = TextAlign.Center)
+            )
+            Text(
+                text = " KRW",
+                style = TextStyle(fontWeight = FontWeight.W700, fontSize = DpToSp(dp = 14.dp))
+            )
+        }
+    }
+}
+
+@Composable
+fun OrderScreenQuantityTextField(
+    modifier: Modifier = Modifier,
+    placeholderText: String = "Placeholder",
+    fontSize: TextUnit = MaterialTheme.typography.body2.fontSize,
+    askBidSelectedTab: MutableState<Int>,
+    bidQuantity: MutableState<String>,
+    askQuantity: MutableState<String>,
+    currentTradePriceState: MutableState<Double>
+) {
+    val context = LocalContext.current
+    val value = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
+        bidQuantity
+    } else {
+        askQuantity
+    }
+
+    BasicTextField(value = value.value, onValueChange = {
+        if (it.toDoubleOrNull() == null && it != "") {
+            value.value = ""
+            context.showToast("숫자만 입력 가능합니다.")
+        } else if (currentTradePriceState.value == 0.0) {
+            context.showToast("네트워크 통신 오류입니다.")
+        } else {
+            value.value = it
+        }
+    }, singleLine = true,
+        textStyle = TextStyle(
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+            fontSize = DpToSp(17.dp), textAlign = TextAlign.End
+        ),
+        modifier = modifier
+            .clearFocusOnKeyboardDismiss()
+            .padding(0.dp, 0.dp, 9.dp, 0.dp),
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        decorationBox = { innerTextField ->
+            Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f, true)) {
+                    if (value.value.isEmpty()) {
+                        Text(
+                            placeholderText,
+                            style = TextStyle(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                                fontSize = fontSize,
+                                textAlign = TextAlign.End
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        })
+}
+
+private fun LazyListState.scrollToCentralizeItem(index: Int, scope: CoroutineScope) {
     val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
     scope.launch {
+        Logger.e("itemInfo -> " + itemInfo.toString())
         if (itemInfo != null) {
-            val center = this@animateScrollAndCentralizeItem.layoutInfo.viewportEndOffset / 2
+
+            val center = this@scrollToCentralizeItem.layoutInfo.viewportEndOffset / 2
             val childCenter = itemInfo.offset + itemInfo.size / 2
-            this@animateScrollAndCentralizeItem.scrollBy((childCenter - center).toFloat())
+            val scrollDistance = childCenter - center
+            this@scrollToCentralizeItem.scrollBy(scrollDistance.toFloat())
         } else {
-            this@animateScrollAndCentralizeItem.scrollToItem(index)
+            this@scrollToCentralizeItem.scrollToItem(index)
         }
     }
 }

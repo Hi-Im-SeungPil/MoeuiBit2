@@ -2,22 +2,32 @@ package org.jeonfeel.moeuibit2.ui.coindetail.newScreen
 
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
@@ -34,29 +44,44 @@ class NewCoinDetailViewModel @Inject constructor(
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
     private val _koreanCoinName = mutableStateOf("")
     val koreanCoinName: State<String> get() = _koreanCoinName
-    private val _orderBookIndication = mutableStateOf<String>("quantity")
+    private val _orderBookIndication = mutableStateOf("quantity")
     val orderBookIndication: State<String> get() = _orderBookIndication
+    private val _userSeedMoney = mutableLongStateOf(0L)
+    val userSeedMoney: State<Long> get() = _userSeedMoney
+
+    private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
     fun init(market: String) {
         getOrderBookIndication()
         rootExchangeCoroutineBranch(
             upbitAction = {
+                _userSeedMoney.value = getUserSeedMoney()
                 _koreanCoinName.value =
                     cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
-                val getUpbitTickerReq = GetUpbitMarketTickerReq(
-                    market.coinOrderIsKrwMarket()
-                )
-                executeUseCase<GetUpbitMarketTickerRes>(
-                    target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
-                    onComplete = { ticker ->
-                        _coinTicker.value = ticker.mapTo()
-                    }
-                )
+                requestCoinTicker(market)
+                requestSubscribeTicker(market)
+                collectTicker()
             },
             bitthumbAction = {
 
             }
         )
+    }
+
+    private suspend fun requestCoinTicker(market: String) {
+        val getUpbitTickerReq = GetUpbitMarketTickerReq(
+            market.coinOrderIsKrwMarket()
+        )
+        executeUseCase<GetUpbitMarketTickerRes>(
+            target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
+            onComplete = { ticker ->
+                _coinTicker.value = ticker.mapTo()
+            }
+        )
+    }
+
+    private suspend fun requestSubscribeTicker(market: String) {
+        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(market))
     }
 
     /**
@@ -158,6 +183,18 @@ class NewCoinDetailViewModel @Inject constructor(
         }
     }
 
+    fun onPause() {
+        viewModelScope.launch {
+            requestSubscribeTicker("")
+        }
+    }
+
+    fun onResume(market: String) {
+        viewModelScope.launch {
+            requestSubscribeTicker(market)
+        }
+    }
+
     /**
      * 사용자 시드머니 받아옴
      */
@@ -211,6 +248,20 @@ class NewCoinDetailViewModel @Inject constructor(
 
             else -> {
                 upbitCoinOrder.userBtcCoin
+            }
+        }
+    }
+
+    private suspend fun collectTicker() {
+        upbitUseCase.observeTickerResponse().onEach { result ->
+            _tickerResponse.update {
+                result
+            }
+        }.collect { upbitSocketTickerRes ->
+            try {
+                _coinTicker.value = upbitSocketTickerRes.mapTo()
+            } catch (e: Exception) {
+                Logger.e(e.message.toString())
             }
         }
     }

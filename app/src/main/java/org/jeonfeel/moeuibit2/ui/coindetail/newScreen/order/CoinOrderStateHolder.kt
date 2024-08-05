@@ -15,9 +15,7 @@ import kotlin.math.round
 
 class CoinOrderStateHolder(
     private val commonExchangeModelState: State<CommonExchangeModel?>,
-    private val coinPrice: BigDecimal,
     private val maxOrderBookSize: State<Double>
-//    private val quantityState: Int
 ) {
     /**
      * 호가창 전일대비 값 받아옴
@@ -87,12 +85,18 @@ class CoinOrderStateHolder(
         }
     }
 
+    /**
+     * 가격이랑 호가창이랑 일치하는지
+     */
     fun getIsMatchedTradePrice(
         orderBookPrice: BigDecimal
     ): Boolean {
         return orderBookPrice == commonExchangeModelState.value?.tradePrice
     }
 
+    /**
+     * 호가창 수량 / 총액 텍스트
+     */
     fun getOrderBookIndicationText(orderBookIndicationState: String, quantity: Double): String {
         return if (orderBookIndicationState == "quantity") {
             quantity.thirdDecimal()
@@ -103,6 +107,9 @@ class CoinOrderStateHolder(
         }
     }
 
+    /**
+     * 호가창 수량 / 총액 텍스트
+     */
     fun getOrderBookIndicationText(orderBookIndicationState: String): String {
         return if (orderBookIndicationState == "quantity") {
             "총액 기준 보기"
@@ -110,32 +117,15 @@ class CoinOrderStateHolder(
             "수량 기준 보기"
         }
     }
-
-//    fun getOrderBookText(orderBookSize: Double): String {
-//        return when (quantityState) {
-//            1 -> {
-//                orderBookSize
-//            }
-//
-//            2 -> {
-//                (orderBookSize.newBigDecimal() * coinPrice)
-//            }
-//
-//            else -> {
-//
-//            }
-//        }
 }
 
 @Composable
 fun rememberCoinOrderStateHolder(
     commonExchangeModelState: State<CommonExchangeModel?>,
-    coinPrice: BigDecimal,
     maxOrderBookSize: State<Double>
 ) = remember {
     CoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
-        coinPrice = coinPrice,
         maxOrderBookSize = maxOrderBookSize
     )
 }

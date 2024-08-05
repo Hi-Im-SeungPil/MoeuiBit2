@@ -9,7 +9,7 @@ import org.jeonfeel.moeuibit2.R
 @Composable
 fun tabRowSelectedColor(): Color {
     return if(!isSystemInDarkTheme()) {
-        colorResource(id = R.color.C0F0F5C)
+        Color.Black
     } else {
         Color(0xFF6464FF)
     }

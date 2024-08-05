@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newS
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
+import org.jeonfeel.moeuibit2.ui.coindetail.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
@@ -55,10 +58,10 @@ fun NewCoinDetailScreen(
             viewModel.init(market)
         },
         onPauseAction = {
-
+            viewModel.onPause()
         },
         onResumeAction = {
-
+            viewModel.onResume(market)
         }
     )
 
@@ -68,8 +71,12 @@ fun NewCoinDetailScreen(
             title = viewModel.koreanCoinName.value
         )
         CoinDetailPriceSection(
-            fluctuateRate = state.getFluctuateRate(viewModel.coinTicker.value?.signedChangeRate ?: 1.0),
-            fluctuatePrice = state.getFluctuatePrice(viewModel.coinTicker.value?.signedChangePrice ?: 0.0),
+            fluctuateRate = state.getFluctuateRate(
+                viewModel.coinTicker.value?.signedChangeRate ?: 1.0
+            ),
+            fluctuatePrice = state.getFluctuatePrice(
+                viewModel.coinTicker.value?.signedChangePrice ?: 0.0
+            ),
             price = state.getCoinDetailPrice(
                 viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
                 viewModel.rootExchange ?: "",
@@ -80,18 +87,22 @@ fun NewCoinDetailScreen(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             )
         )
-        OrderScreenRoute(
-            market = market,
-            initCoinOrder = viewModel::initCoinOrder,
-            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
-            coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
-            preClosedPrice = viewModel.coinTicker,
-            orderBookList = viewModel.getOrderBookList(),
-            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
-            orderBookIndication = viewModel.orderBookIndication,
-            changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
-            saveOrderBookIndicationState = viewModel::saveOrderBookIndication
-        )
+//        OrderScreenRoute(
+//            market = market,
+//            initCoinOrder = viewModel::initCoinOrder,
+//            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
+//            coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
+//            preClosedPrice = viewModel.coinTicker,
+//            orderBookList = viewModel.getOrderBookList(),
+//            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
+//            orderBookIndication = viewModel.orderBookIndication,
+//            changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
+//            saveOrderBookIndicationState = viewModel::saveOrderBookIndication
+//        )
+        CoinDetailMainTabRow(navController = state.navController)
+        Box {
+            TabRowMainNavigation(navHostController = state.navController, market = market)
+        }
     }
 }
 
@@ -229,7 +240,5 @@ fun CoinDetailPriceSection(
             )
         }
         // 코인 상세화면 주문 ,차트 ,정보 버튼
-//        CoinDetailMainTabRow(navController = navController)
-//        TabRowMainNavigation(navController)
     }
 }

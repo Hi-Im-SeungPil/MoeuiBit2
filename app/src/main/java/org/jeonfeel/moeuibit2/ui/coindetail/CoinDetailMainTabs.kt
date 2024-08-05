@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,6 +26,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
@@ -48,11 +52,11 @@ fun CoinDetailMainTabRow(navController: NavController) {
 
     TabRow(
         selectedTabIndex = tabState.value,
-        modifier = Modifier.height(40.dp),
+        modifier = Modifier.height(35.dp),
         backgroundColor = MaterialTheme.colorScheme.background
     ) {
         items.forEachIndexed { index, tab ->
-            Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp)) },
+            Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp), fontWeight = FontWeight.W600) },
                 selected = tabState.value == index,
                 selectedContentColor = tabRowSelectedColor(),
                 unselectedContentColor = colorResource(id = R.color.CDCDCDC),
@@ -75,16 +79,30 @@ fun CoinDetailMainTabRow(navController: NavController) {
 
 @Composable
 fun TabRowMainNavigation(
-    navController: NavHostController,
+    navHostController: NavHostController,
+    viewModel: NewCoinDetailViewModel = hiltViewModel(),
+    market: String
 ) {
     val context = LocalContext.current
     NavHost(
-        navController = navController,
+        navController = navHostController,
         startDestination = CoinDetailMainTabRowItem.Order.screen_route
     ) {
         composable(CoinDetailMainTabRowItem.Order.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                OrderScreen()
+                OrderScreenRoute(
+                    market = market,
+                    initCoinOrder = viewModel::initCoinOrder,
+                    coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
+                    coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
+                    preClosedPrice = viewModel.coinTicker,
+                    orderBookList = viewModel.getOrderBookList(),
+                    maxOrderBookSize = viewModel.getMaxOrderBookSize(),
+                    orderBookIndication = viewModel.orderBookIndication,
+                    changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
+                    saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
+                    userSeedMoneyState = viewModel.userSeedMoney
+                )
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }

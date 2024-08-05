@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -76,29 +77,32 @@ data class UpbitSocketTickerRes(
     @SerialName("type")
     val type: String
 ) {
-    fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes): CommonExchangeModel {
+    fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {
         return CommonExchangeModel(
+            koreanName = getUpbitMarketCodeRes?.koreanName ?: "",
+            englishName = getUpbitMarketCodeRes?.englishName ?: "",
             market = code,
-            tradePrice = tradePrice.newBigDecimal(ROOT_EXCHANGE_UPBIT, market = code),
-            tradeVolume = tradeVolume,
-            changePrice = changePrice,
-            changeRate = changeRate * 100,
+            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes?.koreanName ?: ""),
+            symbol = code.substring(4),
             openingPrice = openingPrice,
-            signedChangePrice = signedChangePrice,
+            tradePrice = tradePrice.newBigDecimal(
+                ExchangeViewModel.ROOT_EXCHANGE_UPBIT,
+                market = code
+            ),
             signedChangeRate = signedChangeRate * 100,
-            highPrice = highPrice,
-            lowPrice = lowPrice,
             accTradePrice24h = accTradePrice24h.accBigDecimal(),
             tradeDate = tradeDate,
             tradeTime = tradeTime,
-            timestamp = timestamp,
+            tradeVolume = tradeVolume,
             change = change,
-            warning = getUpbitMarketCodeRes.marketEvent.warning,
-            englishName = getUpbitMarketCodeRes.englishName,
-            symbol = code.substring(4),
-            koreanName = getUpbitMarketCodeRes.koreanName,
-            initialConstant = Utils.extractInitials(getUpbitMarketCodeRes.koreanName),
-            askBid = askBid
+            changePrice = changePrice,
+            changeRate = changeRate * 100,
+            highPrice = highPrice,
+            lowPrice = lowPrice,
+            signedChangePrice = signedChangePrice,
+            timestamp = timestamp,
+            warning = getUpbitMarketCodeRes?.marketEvent?.warning ?: false,
+            askBid = "NONE"
         )
     }
 }

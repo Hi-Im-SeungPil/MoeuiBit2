@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -18,7 +21,8 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 import kotlin.math.abs
 
 class CoinDetailStateHolder(
-    private val context: Context
+    private val context: Context,
+    val navController: NavHostController
 ) {
     fun getCoinDetailTitle(
         koreanCoinName: String,
@@ -73,9 +77,11 @@ class CoinDetailStateHolder(
 
 @Composable
 fun rememberCoinDetailStateHolder(
-    context: Context
+    context: Context,
+    navController: NavHostController = rememberNavController()
 ) = remember {
     CoinDetailStateHolder(
-        context = context
+        context = context,
+        navController = navController
     )
 }
