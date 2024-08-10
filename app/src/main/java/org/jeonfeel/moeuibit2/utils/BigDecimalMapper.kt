@@ -70,6 +70,13 @@ object BigDecimalMapper {
         return BigDecimal(this.toString()).setScale(scale, roundingMode)
     }
 
+    fun Double.newBigDecimal(
+        scale: Int = 0,
+        roundingMode: RoundingMode = RoundingMode.FLOOR
+    ): BigDecimal {
+        return BigDecimal(this.toString()).setScale(scale, roundingMode)
+    }
+
     fun BigDecimal.formattedString(): String {
         return when {
             this >= BigDecimal("1000") -> format.format(this)

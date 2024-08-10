@@ -1,22 +1,39 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.round
+
+enum class OrderTabState {
+    BID, ASK, TRANSACTION_INFO
+}
 
 class CoinOrderStateHolder(
     private val commonExchangeModelState: State<CommonExchangeModel?>,
-    private val maxOrderBookSize: State<Double>
+    private val maxOrderBookSize: State<Double>,
+    val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID)
 ) {
+    private val _bidQuantity =
+        mutableStateOf(0.0.newBigDecimal(scale = 8, roundingMode = RoundingMode.FLOOR))
+    val bidQuantity: State<BigDecimal> get() = _bidQuantity
+    private val _askQuantity =
+        mutableStateOf(0.0.newBigDecimal(scale = 8, roundingMode = RoundingMode.FLOOR))
+    val askQuantity: State<BigDecimal> get() = _askQuantity
+
     /**
      * 호가창 전일대비 값 받아옴
      */
@@ -116,6 +133,14 @@ class CoinOrderStateHolder(
         } else {
             "수량 기준 보기"
         }
+    }
+
+    fun updateBidQuantity() {
+
+    }
+
+    fun updateAskQuantity() {
+
     }
 }
 

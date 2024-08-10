@@ -15,20 +15,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
-import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
-import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
@@ -101,7 +96,7 @@ fun TabRowMainNavigation(
                     orderBookIndication = viewModel.orderBookIndication,
                     changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
                     saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
-                    userSeedMoneyState = viewModel.userSeedMoney
+                    getUserSeedMoney = viewModel::getUserSeedMoney
                 )
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))

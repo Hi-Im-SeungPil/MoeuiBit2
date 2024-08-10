@@ -40,26 +40,24 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
-import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.showToast
 import java.math.BigDecimal
 
@@ -75,7 +73,7 @@ fun NewOrderScreen(
     orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
-    userSeedMoneyState: State<Long>
+    getUserSeedMoney: () -> Long
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -121,12 +119,17 @@ fun NewOrderScreen(
         }
         Column(
             modifier = Modifier
-                .padding(10.dp)
                 .weight(7f)
                 .fillMaxHeight()
                 .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
         ) {
-            OrderSection(userSeedMoney = userSeedMoneyState.value)
+            OrderSection(
+                orderTabState = state.orderTabState,
+                userSeedMoney = getUserSeedMoney(),
+                isKrw = market.isTradeCurrencyKrw(),
+                symbol = commonExchangeModelState.value?.symbol ?: "",
+                currentPrice = commonExchangeModelState.value?.tradePrice
+            )
         }
     }
 }
@@ -293,28 +296,7 @@ fun ChangeOrderBookIndicationSection(
     }
 }
 
-@Composable
-fun OrderSection(
-    userSeedMoney: Long
-) {
-    Column(modifier = Modifier) {
-        Row {
-            Text(
-                text = "주문가능",
-                style = TextStyle(fontWeight = FontWeight.W500, fontSize = DpToSp(dp = 14.dp))
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            AutoSizeText(
-                text = userSeedMoney.formatWithComma(),
-                textStyle = TextStyle(fontSize = DpToSp(dp = 14.dp), textAlign = TextAlign.Center)
-            )
-            Text(
-                text = " KRW",
-                style = TextStyle(fontWeight = FontWeight.W700, fontSize = DpToSp(dp = 14.dp))
-            )
-        }
-    }
-}
+
 
 @Composable
 fun OrderScreenQuantityTextField(

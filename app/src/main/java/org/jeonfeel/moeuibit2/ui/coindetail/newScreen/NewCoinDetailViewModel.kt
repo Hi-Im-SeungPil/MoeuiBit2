@@ -55,7 +55,7 @@ class NewCoinDetailViewModel @Inject constructor(
         getOrderBookIndication()
         rootExchangeCoroutineBranch(
             upbitAction = {
-                _userSeedMoney.value = getUserSeedMoney()
+                _userSeedMoney.longValue = getUserSeedMoney()
                 _koreanCoinName.value =
                     cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
                 requestCoinTicker(market)

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
-import java.math.BigDecimal
+import kotlin.reflect.KFunction0
 
 @Composable
 fun OrderScreenRoute(
@@ -15,10 +15,10 @@ fun OrderScreenRoute(
     preClosedPrice: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
     orderBookList: List<OrderBookModel>,
-    orderBookIndication : State<String>,
+    orderBookIndication: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
-    userSeedMoneyState: State<Long>
+    getUserSeedMoney: () -> Long
 ) {
     NewOrderScreen(
         initCoinOrder = initCoinOrder,
@@ -31,6 +31,6 @@ fun OrderScreenRoute(
         orderBookIndicationState = orderBookIndication,
         saveOrderBookIndicationState = saveOrderBookIndicationState,
         changeOrderBookIndicationState =  changeOrderBookIndicationState,
-        userSeedMoneyState = userSeedMoneyState
+        getUserSeedMoney = getUserSeedMoney
     )
 }

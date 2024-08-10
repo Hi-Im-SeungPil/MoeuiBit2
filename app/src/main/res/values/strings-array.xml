@@ -88,4 +88,10 @@
         <item>https://www.coindeskkorea.com/</item>
     </string-array>
 
+    <string-array name="order_tab_text_array">
+        <item>매수</item>
+        <item>매도</item>
+        <item>거래 내역</item>
+    </string-array>
+
 </resources>
