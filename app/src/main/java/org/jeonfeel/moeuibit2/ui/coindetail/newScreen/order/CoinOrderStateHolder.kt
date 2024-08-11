@@ -1,11 +1,14 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
@@ -14,6 +17,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.secondDecimal
+import org.jeonfeel.moeuibit2.utils.showToast
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -26,15 +30,14 @@ enum class OrderTabState {
 class CoinOrderStateHolder(
     private val commonExchangeModelState: State<CommonExchangeModel?>,
     private val maxOrderBookSize: State<Double>,
+    private val context: Context,
     val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
     val getUserSeedMoney: () -> Long
 ) {
-    private val _bidQuantity =
-        mutableStateOf(0.0.newBigDecimal(scale = 8, roundingMode = RoundingMode.FLOOR))
-    val bidQuantity: State<BigDecimal> get() = _bidQuantity
-    private val _askQuantity =
-        mutableStateOf(0.0.newBigDecimal(scale = 8, roundingMode = RoundingMode.FLOOR))
-    val askQuantity: State<BigDecimal> get() = _askQuantity
+    private val _bidQuantity = mutableStateOf("0")
+    val bidQuantity: State<String> get() = _bidQuantity
+    private val _askQuantity = mutableStateOf("0")
+    val askQuantity: State<String> get() = _askQuantity
 
     /**
      * 호가창 전일대비 값 받아옴
@@ -48,6 +51,7 @@ class CoinOrderStateHolder(
 
 
     fun getOrderBookItemBackground(kind: OrderBookKind): Color {
+
         return when (kind) {
             // 매도
             OrderBookKind.ASK -> {
@@ -137,17 +141,43 @@ class CoinOrderStateHolder(
         }
     }
 
-    fun getCoinQuantity(percentage: Double): String {
-        return if (commonExchangeModelState.value != null) {
+    fun quantityOnValueChanged(value: String, isBid: Boolean) {
+        if (value.toDoubleOrNull() == null && value != "") {
+            if(isBid) {
+                _bidQuantity.value = "0"
+            } else {
+                _askQuantity.value = "0"
+            }
+            context.showToast("숫자만 입력 가능합니다.")
+        } else if (commonExchangeModelState.value == null || commonExchangeModelState.value?.tradePrice?.toDouble()
+            == 0.0
+        ) {
+            context.showToast("네트워크 통신 오류입니다.")
+        } else {
+            if(isBid) {
+                _bidQuantity.value = value
+            } else {
+                _askQuantity.value = value
+            }
+        }
+    }
+
+    fun updateBidCoinQuantity(percentage: Double) {
+        if (commonExchangeModelState.value != null) {
             val seedMoney = (getUserSeedMoney() * percentage).newBigDecimal(
                 scale = 0,
                 roundingMode = RoundingMode.FLOOR
             )
-            val quantity = seedMoney.divide(commonExchangeModelState.value?.tradePrice)
-            quantity.setScale(8, RoundingMode.FLOOR).formattedStringForQuantity()
+            val quantity =
+                seedMoney.divide(commonExchangeModelState.value?.tradePrice, 8, RoundingMode.FLOOR)
+            _bidQuantity.value = quantity.formattedStringForQuantity()
         } else {
-            "0"
+            _bidQuantity.value = "0"
         }
+    }
+
+    fun updateAskCoinQuantity(percentage: Double) {
+        // 유저가 가지고 있는 코인을 나눠서 세팅
     }
 
     fun updateBidQuantity() {
@@ -163,11 +193,13 @@ class CoinOrderStateHolder(
 fun rememberCoinOrderStateHolder(
     commonExchangeModelState: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
-    getUserSeedMoney: () -> Long
+    getUserSeedMoney: () -> Long,
+    context: Context = LocalContext.current
 ) = remember {
     CoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
         maxOrderBookSize = maxOrderBookSize,
-        getUserSeedMoney = getUserSeedMoney
+        getUserSeedMoney = getUserSeedMoney,
+        context = context
     )
 }

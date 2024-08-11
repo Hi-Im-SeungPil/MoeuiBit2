@@ -130,7 +130,11 @@ fun NewOrderScreen(
                 isKrw = market.isTradeCurrencyKrw(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
                 currentPrice = commonExchangeModelState.value?.tradePrice,
-                getCoinQuantity = state::getCoinQuantity
+                updateBidCoinQuantity = state::updateBidCoinQuantity,
+                updateAskCoinQuantity = state::updateAskCoinQuantity,
+                bidQuantity = state.bidQuantity.value,
+                askQuantity = state.askQuantity.value,
+                quantityOnValueChanged = state::quantityOnValueChanged
             )
         }
     }

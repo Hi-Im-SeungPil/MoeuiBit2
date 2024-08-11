@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,20 +22,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import java.math.BigDecimal
-import kotlin.reflect.KFunction1
 
 @Composable
 fun OrderSection(
@@ -42,7 +46,11 @@ fun OrderSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    getCoinQuantity: (Double) -> String
+    updateBidCoinQuantity: (Double) -> Unit,
+    updateAskCoinQuantity: (Double) -> Unit,
+    bidQuantity: String,
+    askQuantity: String,
+    quantityOnValueChanged: (String, Boolean) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -53,14 +61,18 @@ fun OrderSection(
                     isKrw = isKrw,
                     symbol = symbol,
                     currentPrice = currentPrice,
-                    getCoinQuantity = getCoinQuantity
+                    updateBidCoinQuantity = updateBidCoinQuantity,
+                    bidQuantity = bidQuantity,
+                    quantityOnValueChanged = quantityOnValueChanged
                 )
 
                 OrderTabState.ASK -> AskSection(
                     isKrw = isKrw,
                     symbol = symbol,
                     currentPrice = currentPrice,
-                    getCoinQuantity = getCoinQuantity
+                    updateAskCoinQuantity = updateAskCoinQuantity,
+                    askQuantity = askQuantity,
+                    quantityOnValueChanged = quantityOnValueChanged
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {}
@@ -75,12 +87,19 @@ fun BidSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    getCoinQuantity: (Double) -> String
+    updateBidCoinQuantity: (Double) -> Unit,
+    bidQuantity: String,
+    quantityOnValueChanged: (String, Boolean) -> Unit
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(userSeedMoney = userSeedMoney, isKrw = isKrw, symbol = symbol)
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
-        OrderTabQuantitySection(getCoinQuantity)
+        OrderTabQuantitySection(
+            dropDownItemClickAction = updateBidCoinQuantity,
+            quantity = bidQuantity,
+            quantityOnValueChanged = quantityOnValueChanged,
+            isBid = true
+        )
         OrderTabTotalPriceSection(currentPrice = currentPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.BID)
     }
@@ -91,7 +110,9 @@ fun AskSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    getCoinQuantity: KFunction1<Double, String>
+    updateAskCoinQuantity: (Double) -> Unit,
+    askQuantity: String,
+    quantityOnValueChanged: (String, Boolean) -> Unit
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -100,7 +121,12 @@ fun AskSection(
             symbol = symbol
         )
         OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
-        OrderTabQuantitySection(getCoinQuantity = getCoinQuantity)
+        OrderTabQuantitySection(
+            dropDownItemClickAction = updateAskCoinQuantity,
+            quantity = askQuantity,
+            quantityOnValueChanged = quantityOnValueChanged,
+            isBid = false
+        )
         OrderTabTotalPriceSection(currentPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.ASK)
     }
@@ -201,7 +227,12 @@ fun OrderTabPriceSection(currentPrice: String) {
 }
 
 @Composable
-fun OrderTabQuantitySection(getCoinQuantity: (Double) -> String) {
+fun OrderTabQuantitySection(
+    dropDownItemClickAction: (Double) -> Unit,
+    quantity: String,
+    quantityOnValueChanged: (String, Boolean) -> Unit,
+    isBid: Boolean
+) {
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -217,27 +248,46 @@ fun OrderTabQuantitySection(getCoinQuantity: (Double) -> String) {
             fontSize = DpToSp(13.dp),
             color = Color.DarkGray
         )
-        AutoSizeText(
-            text = "10025.89372662",
-            modifier = Modifier
-                .padding(vertical = 10.dp)
-                .weight(1f)
-                .padding(end = 5.dp),
+
+        BasicTextField(value = quantity, onValueChange = {
+            quantityOnValueChanged(it, isBid)
+        }, singleLine = true,
             textStyle = TextStyle(
-                textAlign = TextAlign.End,
-                fontSize = DpToSp(14.dp),
-                fontWeight = FontWeight.W500
-            )
-        )
-        PercentageDropdown()
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                fontSize = DpToSp(13.dp), textAlign = TextAlign.End
+            ),
+            modifier = Modifier
+                .padding(horizontal = 5.dp)
+                .weight(1f)
+                .clearFocusOnKeyboardDismiss(),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            decorationBox = { innerTextField ->
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.fillMaxWidth()) {
+                        if (quantity.isEmpty()) {
+                            Text(
+                                "0",
+                                style = TextStyle(
+                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                                    fontSize = DpToSp(dp = 13.dp),
+                                    textAlign = TextAlign.End
+                                ),
+                                modifier = Modifier
+                            )
+                        }
+                        innerTextField()
+                    }
+                }
+            })
+        PercentageDropdown(dropDownItemClickAction)
     }
 }
 
 @Composable
-fun PercentageDropdown() {
+fun PercentageDropdown(itemClickAction: (Double) -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     val items = remember { listOf("최대", "75%", "50%", "25%", "10%") }
-    val percentage = remember { listOf(1, 0.75, 0.5, 0.25, 0.1) }
+    val percentage = remember { listOf(1.0, 0.75, 0.5, 0.25, 0.1) }
     val defaultText = remember { "비율" }
     val selectedItem = remember { mutableStateOf(defaultText) }
 
@@ -263,10 +313,11 @@ fun PercentageDropdown() {
                 expanded = expanded.value,
                 onDismissRequest = { expanded.value = false }
             ) {
-                items.forEach { label ->
+                items.forEachIndexed { index, label ->
                     androidx.compose.material.DropdownMenuItem(onClick = {
                         selectedItem.value = label
                         expanded.value = false
+                        itemClickAction(percentage[index])
                     }) {
                         Text(text = label)
                     }
