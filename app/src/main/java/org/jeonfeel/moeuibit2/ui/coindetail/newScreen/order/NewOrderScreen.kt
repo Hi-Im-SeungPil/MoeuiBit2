@@ -77,7 +77,8 @@ fun NewOrderScreen(
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
-        maxOrderBookSize = maxOrderBookSize
+        maxOrderBookSize = maxOrderBookSize,
+        getUserSeedMoney = getUserSeedMoney
     )
 
     AddLifecycleEvent(
@@ -128,7 +129,8 @@ fun NewOrderScreen(
                 userSeedMoney = getUserSeedMoney(),
                 isKrw = market.isTradeCurrencyKrw(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
-                currentPrice = commonExchangeModelState.value?.tradePrice
+                currentPrice = commonExchangeModelState.value?.tradePrice,
+                getCoinQuantity = state::getCoinQuantity
             )
         }
     }

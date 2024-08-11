@@ -6,9 +6,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
@@ -25,7 +26,8 @@ enum class OrderTabState {
 class CoinOrderStateHolder(
     private val commonExchangeModelState: State<CommonExchangeModel?>,
     private val maxOrderBookSize: State<Double>,
-    val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID)
+    val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
+    val getUserSeedMoney: () -> Long
 ) {
     private val _bidQuantity =
         mutableStateOf(0.0.newBigDecimal(scale = 8, roundingMode = RoundingMode.FLOOR))
@@ -135,6 +137,19 @@ class CoinOrderStateHolder(
         }
     }
 
+    fun getCoinQuantity(percentage: Double): String {
+        return if (commonExchangeModelState.value != null) {
+            val seedMoney = (getUserSeedMoney() * percentage).newBigDecimal(
+                scale = 0,
+                roundingMode = RoundingMode.FLOOR
+            )
+            val quantity = seedMoney.divide(commonExchangeModelState.value?.tradePrice)
+            quantity.setScale(8, RoundingMode.FLOOR).formattedStringForQuantity()
+        } else {
+            "0"
+        }
+    }
+
     fun updateBidQuantity() {
 
     }
@@ -147,10 +162,12 @@ class CoinOrderStateHolder(
 @Composable
 fun rememberCoinOrderStateHolder(
     commonExchangeModelState: State<CommonExchangeModel?>,
-    maxOrderBookSize: State<Double>
+    maxOrderBookSize: State<Double>,
+    getUserSeedMoney: () -> Long
 ) = remember {
     CoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
-        maxOrderBookSize = maxOrderBookSize
+        maxOrderBookSize = maxOrderBookSize,
+        getUserSeedMoney = getUserSeedMoney
     )
 }

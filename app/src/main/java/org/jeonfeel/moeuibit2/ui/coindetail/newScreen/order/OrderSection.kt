@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +33,7 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import java.math.BigDecimal
+import kotlin.reflect.KFunction1
 
 @Composable
 fun OrderSection(
@@ -41,7 +41,8 @@ fun OrderSection(
     userSeedMoney: Long,
     isKrw: Boolean,
     symbol: String,
-    currentPrice: BigDecimal?
+    currentPrice: BigDecimal?,
+    getCoinQuantity: (Double) -> String
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -51,13 +52,15 @@ fun OrderSection(
                     userSeedMoney = userSeedMoney,
                     isKrw = isKrw,
                     symbol = symbol,
-                    currentPrice = currentPrice
+                    currentPrice = currentPrice,
+                    getCoinQuantity = getCoinQuantity
                 )
 
                 OrderTabState.ASK -> AskSection(
                     isKrw = isKrw,
                     symbol = symbol,
-                    currentPrice = currentPrice
+                    currentPrice = currentPrice,
+                    getCoinQuantity = getCoinQuantity
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {}
@@ -71,19 +74,25 @@ fun BidSection(
     userSeedMoney: Long,
     isKrw: Boolean,
     symbol: String,
-    currentPrice: BigDecimal?
+    currentPrice: BigDecimal?,
+    getCoinQuantity: (Double) -> String
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(userSeedMoney = userSeedMoney, isKrw = isKrw, symbol = symbol)
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
-        OrderTabQuantitySection()
+        OrderTabQuantitySection(getCoinQuantity)
         OrderTabTotalPriceSection(currentPrice = currentPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.BID)
     }
 }
 
 @Composable
-fun AskSection(isKrw: Boolean, symbol: String, currentPrice: BigDecimal?) {
+fun AskSection(
+    isKrw: Boolean,
+    symbol: String,
+    currentPrice: BigDecimal?,
+    getCoinQuantity: KFunction1<Double, String>
+) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
             userHoldingQuantity = 10023845.89372662,
@@ -91,7 +100,7 @@ fun AskSection(isKrw: Boolean, symbol: String, currentPrice: BigDecimal?) {
             symbol = symbol
         )
         OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
-        OrderTabQuantitySection()
+        OrderTabQuantitySection(getCoinQuantity = getCoinQuantity)
         OrderTabTotalPriceSection(currentPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.ASK)
     }
@@ -192,7 +201,7 @@ fun OrderTabPriceSection(currentPrice: String) {
 }
 
 @Composable
-fun OrderTabQuantitySection() {
+fun OrderTabQuantitySection(getCoinQuantity: (Double) -> String) {
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -221,20 +230,6 @@ fun OrderTabQuantitySection() {
             )
         )
         PercentageDropdown()
-//        Text(
-//            text = "비율 ▼",
-//            modifier = Modifier
-//                .width(50.dp)
-//                .background(
-//                    Color.LightGray,
-//                    shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
-//                )
-//                .padding(10.dp),
-//            style = TextStyle(
-//                textAlign = TextAlign.End,
-//                fontSize = DpToSp(13.dp),
-//            )
-//        )
     }
 }
 
@@ -242,7 +237,7 @@ fun OrderTabQuantitySection() {
 fun PercentageDropdown() {
     val expanded = remember { mutableStateOf(false) }
     val items = remember { listOf("최대", "75%", "50%", "25%", "10%") }
-    val percentage = remember { listOf(100, 75, 50, 25, 10) }
+    val percentage = remember { listOf(1, 0.75, 0.5, 0.25, 0.1) }
     val defaultText = remember { "비율" }
     val selectedItem = remember { mutableStateOf(defaultText) }
 
@@ -256,7 +251,8 @@ fun PercentageDropdown() {
                     .background(
                         Color.LightGray,
                         shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
-                    ).padding(10.dp),
+                    )
+                    .padding(10.dp),
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     fontSize = DpToSp(13.dp),
