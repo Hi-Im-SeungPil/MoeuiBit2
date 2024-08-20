@@ -49,6 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -73,12 +74,16 @@ fun NewOrderScreen(
     orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
-    getUserSeedMoney: () -> Long
+    getUserSeedMoney: () -> Long,
+    requestBid: (String,Double,BigDecimal,Long) -> Unit,
+    getUserCoin: () -> MyCoin
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
         maxOrderBookSize = maxOrderBookSize,
-        getUserSeedMoney = getUserSeedMoney
+        getUserSeedMoney = getUserSeedMoney,
+        requestBid = requestBid,
+        market = market
     )
 
     AddLifecycleEvent(
@@ -134,7 +139,11 @@ fun NewOrderScreen(
                 updateAskCoinQuantity = state::updateAskCoinQuantity,
                 bidQuantity = state.bidQuantity.value,
                 askQuantity = state.askQuantity.value,
-                quantityOnValueChanged = state::quantityOnValueChanged
+                quantityOnValueChanged = state::quantityOnValueChanged,
+                getBidTotalPrice = state::getBidTotalPrice,
+                getAskTotalPrice = state::getAskTotalPrice,
+                requestBid = state::bid,
+                getUserCoin = getUserCoin
             )
         }
     }

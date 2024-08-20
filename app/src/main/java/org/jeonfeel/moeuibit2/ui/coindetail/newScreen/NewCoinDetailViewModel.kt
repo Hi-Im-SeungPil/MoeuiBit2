@@ -31,6 +31,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
@@ -212,6 +213,50 @@ class NewCoinDetailViewModel @Inject constructor(
                 0L
             }
         }
+    }
+
+    fun requestBid(
+        market: String,
+        quantity: Double,
+        price: BigDecimal,
+        totalPrice: Long
+    ) {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upbitCoinOrder.requestBid(
+                    market = market,
+                    totalPrice = totalPrice,
+                    quantity = quantity,
+                    price = price,
+                    koreanName = koreanCoinName.value
+                )
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+    fun requestAsk(
+        market:String,
+        quantity: Double,
+        price: BigDecimal,
+        totalPrice: Long
+    ) {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upbitCoinOrder.requestBid(
+                    market = market,
+                    totalPrice = totalPrice,
+                    quantity = quantity,
+                    price = price,
+                    koreanName = koreanCoinName.value
+                )
+            },
+            bitthumbAction = {
+
+            }
+        )
     }
 
     /**

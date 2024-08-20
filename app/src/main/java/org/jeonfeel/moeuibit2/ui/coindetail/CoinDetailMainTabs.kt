@@ -96,7 +96,9 @@ fun TabRowMainNavigation(
                     orderBookIndication = viewModel.orderBookIndication,
                     changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
                     saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
-                    getUserSeedMoney = viewModel::getUserSeedMoney
+                    getUserSeedMoney = viewModel::getUserSeedMoney,
+                    requestBid = viewModel::requestBid,
+                    getUserCoin = viewModel::getUserCoin
                 )
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))

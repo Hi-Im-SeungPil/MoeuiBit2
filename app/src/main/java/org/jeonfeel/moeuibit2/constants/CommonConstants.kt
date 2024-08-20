@@ -10,6 +10,7 @@ val mainDispatcher = Dispatchers.Main
 val defaultDispatcher = Dispatchers.Default
 val timeOutDuration: Duration = Duration.ofMillis(50000L)
 val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
+val COMMISSION_FEE = 0.0005
 
 const val UPBIT_KRW_SYMBOL_PREFIX = "KRW-"
 const val UPBIT_BTC_SYMBOL_PREFIX = "BTC-"

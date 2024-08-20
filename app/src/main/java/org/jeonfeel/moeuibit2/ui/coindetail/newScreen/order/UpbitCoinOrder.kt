@@ -15,6 +15,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrde
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import java.math.BigDecimal
 import javax.inject.Inject
 
 class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase) :
@@ -69,7 +70,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 result
             }
         }.collect { upbitSocketOrderBookRes ->
-            if(upbitSocketOrderBookRes.type == "orderbook") {
+            if (upbitSocketOrderBookRes.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {
                     _orderBookList[i] = realTimeOrderBook[i]
@@ -114,5 +115,42 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 _userBtcCoin.value = it
             }
         }
+    }
+
+    /**
+     * if(시드 머니 < 코인 총액) return
+     * else if(시드 머니 >= 코인 총 액) {
+     *  구매 해야함.
+     *  db에 코인 수량 만큼 저장 하고, 시드 머니 빼기
+     *
+     * }
+     *
+     * btc 일때는?
+     */
+    suspend fun requestBid(
+        market: String,
+        totalPrice: Long,
+        quantity: Double,
+        price: BigDecimal,
+        koreanName: String,
+    ) {
+        if (market.isTradeCurrencyKrw()) {
+            upbitCoinOrderUseCase.requestKRWBid(
+                market = market, totalPrice = totalPrice, coin = MyCoin(
+                    market = market,
+                    purchasePrice = price.toDouble(),
+                    koreanCoinName = koreanName,
+                    symbol = market.substring(4),
+                    quantity = quantity
+                )
+            )
+            _userSeedMoney.longValue -= totalPrice
+        } else {
+
+        }
+    }
+
+    fun plusUserSeedMoney(totalPrice: Long) {
+        _userSeedMoney.longValue += totalPrice
     }
 }

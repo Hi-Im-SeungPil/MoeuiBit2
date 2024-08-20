@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -31,12 +30,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import java.math.BigDecimal
 
 @Composable
@@ -51,6 +53,10 @@ fun OrderSection(
     bidQuantity: String,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
+    getBidTotalPrice: () -> String,
+    getAskTotalPrice: () -> String,
+    requestBid: () -> Unit,
+    getUserCoin: () -> MyCoin,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -63,7 +69,9 @@ fun OrderSection(
                     currentPrice = currentPrice,
                     updateBidCoinQuantity = updateBidCoinQuantity,
                     bidQuantity = bidQuantity,
-                    quantityOnValueChanged = quantityOnValueChanged
+                    quantityOnValueChanged = quantityOnValueChanged,
+                    getBidTotalPrice = getBidTotalPrice,
+                    requestBid = requestBid
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -72,7 +80,9 @@ fun OrderSection(
                     currentPrice = currentPrice,
                     updateAskCoinQuantity = updateAskCoinQuantity,
                     askQuantity = askQuantity,
-                    quantityOnValueChanged = quantityOnValueChanged
+                    quantityOnValueChanged = quantityOnValueChanged,
+                    getAskTotalPrice = getAskTotalPrice,
+                    getUserCoin = getUserCoin
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {}
@@ -89,7 +99,9 @@ fun BidSection(
     currentPrice: BigDecimal?,
     updateBidCoinQuantity: (Double) -> Unit,
     bidQuantity: String,
-    quantityOnValueChanged: (String, Boolean) -> Unit
+    quantityOnValueChanged: (String, Boolean) -> Unit,
+    getBidTotalPrice: () -> String,
+    requestBid: () -> Unit
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(userSeedMoney = userSeedMoney, isKrw = isKrw, symbol = symbol)
@@ -100,8 +112,8 @@ fun BidSection(
             quantityOnValueChanged = quantityOnValueChanged,
             isBid = true
         )
-        OrderTabTotalPriceSection(currentPrice = currentPrice)
-        OrderSectionButtonGroup(orderTabState = OrderTabState.BID)
+        OrderTabTotalPriceSection(getTotalPrice = getBidTotalPrice)
+        OrderSectionButtonGroup(orderTabState = OrderTabState.BID, bidAskAction = requestBid)
     }
 }
 
@@ -112,11 +124,13 @@ fun AskSection(
     currentPrice: BigDecimal?,
     updateAskCoinQuantity: (Double) -> Unit,
     askQuantity: String,
-    quantityOnValueChanged: (String, Boolean) -> Unit
+    quantityOnValueChanged: (String, Boolean) -> Unit,
+    getAskTotalPrice: () -> String,
+    getUserCoin: () -> MyCoin
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
-            userHoldingQuantity = 10023845.89372662,
+            userHoldingQuantity = getUserCoin().quantity,
             isKrw = isKrw,
             symbol = symbol
         )
@@ -127,7 +141,7 @@ fun AskSection(
             quantityOnValueChanged = quantityOnValueChanged,
             isBid = false
         )
-        OrderTabTotalPriceSection(currentPrice)
+        OrderTabTotalPriceSection(getAskTotalPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.ASK)
     }
 }
@@ -188,7 +202,8 @@ fun OrderTabUserSeedMoneySection(
         )
         Spacer(modifier = Modifier.weight(1f))
         AutoSizeText(
-            text = userSeedMoney?.formatWithComma() ?: userHoldingQuantity.toString(),
+            text = userSeedMoney?.formatWithComma() ?: userHoldingQuantity?.newBigDecimal(scale = 8)
+                ?.formattedStringForQuantity() ?: "0",
             textStyle = TextStyle(fontSize = DpToSp(dp = 14.dp), textAlign = TextAlign.Center)
         )
         Text(
@@ -233,6 +248,9 @@ fun OrderTabQuantitySection(
     quantityOnValueChanged: (String, Boolean) -> Unit,
     isBid: Boolean
 ) {
+    val str = remember {
+        mutableStateOf("")
+    }
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -262,21 +280,23 @@ fun OrderTabQuantitySection(
                 .clearFocusOnKeyboardDismiss(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             decorationBox = { innerTextField ->
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.fillMaxWidth()) {
-                        if (quantity.isEmpty()) {
-                            Text(
-                                "0",
-                                style = TextStyle(
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-                                    fontSize = DpToSp(dp = 13.dp),
-                                    textAlign = TextAlign.End
-                                ),
-                                modifier = Modifier
-                            )
-                        }
-                        innerTextField()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (quantity.isEmpty()) {
+                        Text(
+                            "0",
+                            style = TextStyle(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                                fontSize = DpToSp(dp = 13.dp),
+                                textAlign = TextAlign.End
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
+                    Spacer(modifier = Modifier.weight(1f))
+                    innerTextField()
                 }
             })
         PercentageDropdown(dropDownItemClickAction)
@@ -328,7 +348,9 @@ fun PercentageDropdown(itemClickAction: (Double) -> Unit) {
 }
 
 @Composable
-fun OrderTabTotalPriceSection(currentPrice: BigDecimal?) {
+fun OrderTabTotalPriceSection(
+    getTotalPrice: () -> String
+) {
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -344,7 +366,7 @@ fun OrderTabTotalPriceSection(currentPrice: BigDecimal?) {
             color = Color.DarkGray
         )
         Text(
-            text = "10,000,000",
+            text = getTotalPrice(),
             modifier = Modifier.weight(1f),
             style = TextStyle(
                 textAlign = TextAlign.End,
@@ -360,7 +382,7 @@ fun OrderSectionButtonGroup(
     orderTabState: OrderTabState,
     resetAction: () -> Unit = {},
     bidAskAction: () -> Unit = {},
-    totalBidAskAction: () -> Unit = {}
+    totalBidAskAction: () -> Unit = {},
 ) {
     val buttonColor = remember {
         if (orderTabState == OrderTabState.BID) Color.Red else Color.Blue
