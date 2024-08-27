@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.api
 
 import com.google.gson.JsonArray
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -25,7 +26,7 @@ interface UpBitService {
         @Query("market") market: String,
         @Query("count") count: String,
         @Query("to") time: String
-    ): Response<JsonArray>
+    ): Response<List<GetChartCandleRes>>
 
     @GET("v1/candles/{period}")
     suspend fun getOtherCandle(
@@ -33,5 +34,5 @@ interface UpBitService {
         @Query("market") market: String,
         @Query("count") count: String,
         @Query("to") time: String
-    ): Response<JsonArray>
+    ): Response<List<GetChartCandleRes>>
 }

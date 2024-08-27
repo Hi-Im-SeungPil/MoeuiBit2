@@ -10,6 +10,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitthumbChartModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.utils.Utils
 import retrofit2.Response
 
@@ -40,7 +41,7 @@ class RemoteRepository(
             market: String,
             count: String = "200",
             time: String = "",
-    ): Response<JsonArray> {
+    ): Response<List<GetChartCandleRes>> {
         return upBitService.getMinuteCandle(minute, market, count, time)
     }
 
@@ -52,7 +53,7 @@ class RemoteRepository(
             market: String,
             count: String = "200",
             time: String = "",
-    ): Response<JsonArray> {
+    ): Response<List<GetChartCandleRes>> {
         return upBitService.getOtherCandle(candleType, market, count, time)
     }
 

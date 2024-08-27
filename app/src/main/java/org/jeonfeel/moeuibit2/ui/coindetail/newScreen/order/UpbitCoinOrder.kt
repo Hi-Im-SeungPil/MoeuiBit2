@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -14,8 +13,10 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
+import java.math.RoundingMode
 import javax.inject.Inject
 
 class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase) :
@@ -45,13 +46,15 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      * 호가 요청
      */
     private suspend fun requestOrderBook(market: String) {
-        executeUseCase<List<OrderBookModel>>(
-            target = upbitCoinOrderUseCase.getOrderBook(market),
-            onComplete = {
-                _maxOrderBookSize.doubleValue = it.maxOf { unit -> unit.size }
-                _orderBookList.addAll(it)
-            }
-        )
+        if (_orderBookList.isEmpty()) {
+            executeUseCase<List<OrderBookModel>>(
+                target = upbitCoinOrderUseCase.getOrderBook(market),
+                onComplete = {
+                    _maxOrderBookSize.doubleValue = it.maxOf { unit -> unit.size }
+                    _orderBookList.addAll(it)
+                }
+            )
+        }
     }
 
     /**
@@ -118,36 +121,73 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     }
 
     /**
-     * if(시드 머니 < 코인 총액) return
-     * else if(시드 머니 >= 코인 총 액) {
-     *  구매 해야함.
-     *  db에 코인 수량 만큼 저장 하고, 시드 머니 빼기
      *
-     * }
-     *
-     * btc 일때는?
      */
     suspend fun requestBid(
         market: String,
         totalPrice: Long,
         quantity: Double,
-        price: BigDecimal,
+        coinPrice: BigDecimal,
         koreanName: String,
     ) {
         if (market.isTradeCurrencyKrw()) {
             upbitCoinOrderUseCase.requestKRWBid(
                 market = market, totalPrice = totalPrice, coin = MyCoin(
                     market = market,
-                    purchasePrice = price.toDouble(),
+                    purchasePrice = coinPrice.toDouble(),
                     koreanCoinName = koreanName,
                     symbol = market.substring(4),
                     quantity = quantity
-                )
+                ),
+                userSeedMoney = _userSeedMoney.longValue
             )
-            _userSeedMoney.longValue -= totalPrice
+            getUserSeedMoney()
+            getUserCoin(market)
         } else {
 
         }
+    }
+
+    suspend fun requestAsk(
+        market: String,
+        quantity: Double,
+        totalPrice: Long,
+        coinPrice: BigDecimal
+    ) {
+        val updateUserCoin = MyCoin(
+            market = market,
+            purchasePrice = _userCoin.value.purchasePrice,
+            koreanCoinName = _userCoin.value.koreanCoinName,
+            symbol = _userCoin.value.symbol,
+            quantity = minusQuantity(
+                currentQuantity = _userCoin.value.quantity,
+                quantity = quantity
+            )
+        )
+        if (market.isTradeCurrencyKrw()) {
+            upbitCoinOrderUseCase.requestKRWAsk(
+                market = market,
+                quantity = quantity,
+                totalPrice = totalPrice,
+                userCoinQuantity = userCoin.quantity.newBigDecimal(8, RoundingMode.FLOOR),
+                currentPrice = coinPrice
+            )
+        }
+        _userCoin.value = updateUserCoin
+        getUserSeedMoney()
+    }
+
+    fun updateUserSeedMoney() {
+
+    }
+
+    fun updateUserCoinQuantity() {
+
+    }
+
+    private fun minusQuantity(currentQuantity: Double, quantity: Double): Double {
+        return currentQuantity.newBigDecimal(8, RoundingMode.HALF_UP)
+            .minus(quantity.newBigDecimal(8, RoundingMode.HALF_UP)).toDouble()
     }
 
     fun plusUserSeedMoney(totalPrice: Long) {

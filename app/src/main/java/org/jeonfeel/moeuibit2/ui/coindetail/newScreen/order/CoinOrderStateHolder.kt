@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.COMMISSION_FEE
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
@@ -36,10 +37,14 @@ class CoinOrderStateHolder(
     private val context: Context,
     val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
     val getUserSeedMoney: () -> Long,
-    val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
-    val market: String
+    private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
+    private val requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
+    val market: String,
+    private val getUserCoin: () -> MyCoin
 ) {
     private val toast: Toast? = null
+    val percentageLabelList = listOf("최대", "75%", "50%", "25%", "10%")
+    private val percentageList = listOf(1.0, 0.75, 0.5, 0.25, 0.1)
     private val _bidQuantity = mutableStateOf("")
     val bidQuantity: State<String> get() = _bidQuantity
     private val _askQuantity = mutableStateOf("")
@@ -48,6 +53,10 @@ class CoinOrderStateHolder(
     val bidTotalPrice: State<BigDecimal> get() = _bidTotalPrice
     private val _askTotalPrice = mutableStateOf(0.0.newBigDecimal())
     val askTotalPrice: State<BigDecimal> get() = _askTotalPrice
+    private val _bidQuantityPercentage = mutableStateOf("비율")
+    val bidQuantityPercentage: State<String> get() = _bidQuantityPercentage
+    private val _askQuantityPercentage = mutableStateOf("비율")
+    val askQuantityPercentage: State<String> get() = _askQuantityPercentage
 
     /**
      * 호가창 전일대비 값 받아옴
@@ -164,27 +173,35 @@ class CoinOrderStateHolder(
             == 0.0
         ) {
             context.showToast("네트워크 통신 오류입니다.")
+        } else if (value == "") {
+            if (isBid) {
+                _bidQuantity.value = ""
+                _bidTotalPrice.value = 0.0.newBigDecimal()
+            } else {
+                _askQuantity.value = ""
+                _askTotalPrice.value = 0.0.newBigDecimal()
+            }
         } else {
             if (isBid) {
+                val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
+                    value.toDouble().newBigDecimal()
+                ) ?: 0.0.newBigDecimal()
                 _bidQuantity.value = value
-                _bidTotalPrice.value =
-                    commonExchangeModelState.value?.tradePrice?.multiply(
-                        value.toDouble().newBigDecimal()
-                    ) ?: 0.0.newBigDecimal()
+                _bidTotalPrice.value = (totalPrice + totalPrice.multiply(0.0005.newBigDecimal(4)))
             } else {
+                val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
+                    value.toDouble().newBigDecimal()
+                ) ?: 0.0.newBigDecimal()
                 _askQuantity.value = value
-                _askTotalPrice.value =
-                    commonExchangeModelState.value?.tradePrice?.multiply(
-                        value.toDouble().newBigDecimal()
-                    ) ?: 0.0.newBigDecimal()
+                _askTotalPrice.value = (totalPrice - totalPrice.multiply(0.0005.newBigDecimal(4)))
             }
         }
     }
 
-    fun updateBidCoinQuantity(percentage: Double) {
+    fun updateBidCoinQuantity(index: Int) {
         if (commonExchangeModelState.value != null) {
-            var percentageResult = percentage
-            if (percentage == 1.0) {
+            var percentageResult = percentageList[index]
+            if (percentageResult == 1.0) {
                 percentageResult -= COMMISSION_FEE
             }
             val seedMoney = (getUserSeedMoney() * percentageResult).newBigDecimal(
@@ -193,14 +210,24 @@ class CoinOrderStateHolder(
             )
             val quantity =
                 seedMoney.divide(commonExchangeModelState.value?.tradePrice, 8, RoundingMode.FLOOR)
+            _bidQuantityPercentage.value = percentageLabelList[index]
             _bidQuantity.value = quantity.formattedStringForQuantity()
         } else {
             _bidQuantity.value = "0"
         }
     }
 
-    fun updateAskCoinQuantity(percentage: Double) {
+    fun updateAskCoinQuantity(index: Int) {
         // 유저가 가지고 있는 코인을 나눠서 세팅
+        if (commonExchangeModelState.value != null) {
+            val percentageResult = percentageList[index]
+            val quantity = getUserCoin().quantity.newBigDecimal(8, RoundingMode.FLOOR)
+                .multiply(percentageResult.newBigDecimal(4))
+            _askQuantityPercentage.value = percentageLabelList[index]
+            _askQuantity.value = quantity.formattedStringForQuantity()
+        } else {
+            _askQuantity.value = "0"
+        }
     }
 
     fun getBidTotalPrice(): String {
@@ -215,20 +242,23 @@ class CoinOrderStateHolder(
 
     fun getAskTotalPrice(): String {
         return if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
-            askQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+            val total = askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
                 .multiply(commonExchangeModelState.value!!.tradePrice)
-                .formattedString()
+            val commission = total.multiply(COMMISSION_FEE.newBigDecimal(4))
+            total.minus(commission).formattedString()
         } else {
             "0"
         }
     }
 
-    fun bidReset() {
+    private fun bidReset() {
         _bidQuantity.value = ""
+        _bidQuantityPercentage.value = "비율"
     }
 
-    fun askReset() {
-
+    private fun askReset() {
+        _askQuantity.value = ""
+        _askQuantityPercentage.value = "비율"
     }
 
     fun bid() {
@@ -236,6 +266,7 @@ class CoinOrderStateHolder(
             val totalPrice =
                 bidQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
+                    .setScale(0, RoundingMode.FLOOR)
             when {
                 commonExchangeModelState.value == null -> {
                     Logger.e("requestBid1")
@@ -245,7 +276,7 @@ class CoinOrderStateHolder(
                     Logger.e("requestBid7")
                 }
 
-                totalPrice.toDouble() > getUserSeedMoney() * 0.9995 -> {
+                totalPrice > (getUserSeedMoney() * 0.9995).newBigDecimal(0, RoundingMode.FLOOR) -> {
                     Logger.e("requestBid2")
                 }
 
@@ -271,12 +302,52 @@ class CoinOrderStateHolder(
         }
     }
 
-    fun updateBidQuantity() {
+    fun ask() {
+        val userCoinQuantity = getUserCoinQuantity()
+        if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
+            val userAskQuantity =
+                askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+            val tempPrice = userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
+                .setScale(0, RoundingMode.FLOOR)
+            val commission = tempPrice.multiply(COMMISSION_FEE.newBigDecimal(4))
+            val totalPrice = tempPrice.minus(commission).setScale(0, RoundingMode.FLOOR)
+            when {
+                commonExchangeModelState.value == null -> {
+                    Logger.e("requestBid1")
+                }
 
+                commonExchangeModelState.value != null && commonExchangeModelState.value?.tradePrice?.toDouble() == 0.0 -> {
+                    Logger.e("requestBid7")
+                }
+
+                userAskQuantity > (userCoinQuantity).newBigDecimal(8, RoundingMode.FLOOR) -> {
+                    Logger.e("requestBid2")
+                }
+
+                totalPrice.toDouble() < 5000 -> {
+                    Logger.e("requestBid3")
+                }
+
+                OneTimeNetworkCheck.networkCheck(context) == null -> {
+                    Logger.e("requestBid4")
+                }
+
+                else -> {
+                    Logger.e("requestAsk")
+                    requestAsk(
+                        market,
+                        userAskQuantity.toDouble(),
+                        totalPrice.toLong(),
+                        commonExchangeModelState.value!!.tradePrice
+                    )
+                    askReset()
+                }
+            }
+        }
     }
 
-    fun updateAskQuantity() {
-
+    fun getUserCoinQuantity(): Double {
+        return getUserCoin().quantity
     }
 }
 
@@ -287,7 +358,9 @@ fun rememberCoinOrderStateHolder(
     getUserSeedMoney: () -> Long,
     context: Context = LocalContext.current,
     requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
-    market: String
+    requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
+    market: String,
+    getUserCoin: () -> MyCoin
 ) = remember {
     CoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -295,6 +368,8 @@ fun rememberCoinOrderStateHolder(
         getUserSeedMoney = getUserSeedMoney,
         context = context,
         requestBid = requestBid,
+        requestAsk = requestAsk,
         market = market,
+        getUserCoin = getUserCoin
     )
 }

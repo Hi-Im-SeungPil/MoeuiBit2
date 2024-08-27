@@ -6,7 +6,6 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import java.math.BigDecimal
-import kotlin.reflect.KFunction0
 
 @Composable
 fun OrderScreenRoute(
@@ -14,29 +13,31 @@ fun OrderScreenRoute(
     initCoinOrder: (String) -> Unit,
     coinOrderScreenOnPause: () -> Unit,
     coinOrderScreenOnResume: (String) -> Unit,
-    preClosedPrice: State<CommonExchangeModel?>,
+    commonExchangeModelState: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
     orderBookList: List<OrderBookModel>,
-    orderBookIndication: State<String>,
+    orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
     getUserSeedMoney: () -> Long,
     requestBid: (String, Double, BigDecimal, Long) -> Unit,
+    requestAsk: (String, Double, Long, BigDecimal) -> Unit,
     getUserCoin: () -> MyCoin
 ) {
     NewOrderScreen(
+        market = market,
         initCoinOrder = initCoinOrder,
         coinOrderScreenOnPause = coinOrderScreenOnPause,
         coinOrderScreenOnResume = coinOrderScreenOnResume,
-        market = market,
-        commonExchangeModelState = preClosedPrice,
-        orderBookList = orderBookList,
+        commonExchangeModelState = commonExchangeModelState,
         maxOrderBookSize = maxOrderBookSize,
-        orderBookIndicationState = orderBookIndication,
+        orderBookList = orderBookList,
+        orderBookIndicationState = orderBookIndicationState,
         saveOrderBookIndicationState = saveOrderBookIndicationState,
         changeOrderBookIndicationState = changeOrderBookIndicationState,
         getUserSeedMoney = getUserSeedMoney,
         requestBid = requestBid,
+        requestAsk = requestAsk,
         getUserCoin = getUserCoin
     )
 }

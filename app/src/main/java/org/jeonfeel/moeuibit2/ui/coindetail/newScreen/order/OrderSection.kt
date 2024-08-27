@@ -30,7 +30,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -48,15 +47,19 @@ fun OrderSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateBidCoinQuantity: (Double) -> Unit,
-    updateAskCoinQuantity: (Double) -> Unit,
+    updateBidCoinQuantity: (Int) -> Unit,
+    updateAskCoinQuantity: (Int) -> Unit,
     bidQuantity: String,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getBidTotalPrice: () -> String,
     getAskTotalPrice: () -> String,
     requestBid: () -> Unit,
-    getUserCoin: () -> MyCoin,
+    requestAsk: () -> Unit,
+    getUserCoinQuantity: () -> Double,
+    dropdownLabelList: List<String>,
+    askSelectedText: String,
+    bidSelectedText: String
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -71,7 +74,9 @@ fun OrderSection(
                     bidQuantity = bidQuantity,
                     quantityOnValueChanged = quantityOnValueChanged,
                     getBidTotalPrice = getBidTotalPrice,
-                    requestBid = requestBid
+                    requestBid = requestBid,
+                    dropdownLabelList = dropdownLabelList,
+                    selectedText = bidSelectedText
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -82,7 +87,10 @@ fun OrderSection(
                     askQuantity = askQuantity,
                     quantityOnValueChanged = quantityOnValueChanged,
                     getAskTotalPrice = getAskTotalPrice,
-                    getUserCoin = getUserCoin
+                    getUserCoinQuantity = getUserCoinQuantity,
+                    dropdownLabelList = dropdownLabelList,
+                    selectedText = askSelectedText,
+                    requestAsk = requestAsk
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {}
@@ -97,12 +105,15 @@ fun BidSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateBidCoinQuantity: (Double) -> Unit,
+    updateBidCoinQuantity: (Int) -> Unit,
     bidQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getBidTotalPrice: () -> String,
-    requestBid: () -> Unit
+    requestBid: () -> Unit,
+    dropdownLabelList: List<String>,
+    selectedText: String
 ) {
+
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(userSeedMoney = userSeedMoney, isKrw = isKrw, symbol = symbol)
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
@@ -110,7 +121,9 @@ fun BidSection(
             dropDownItemClickAction = updateBidCoinQuantity,
             quantity = bidQuantity,
             quantityOnValueChanged = quantityOnValueChanged,
-            isBid = true
+            isBid = true,
+            dropdownLabelList = dropdownLabelList,
+            selectedText = selectedText
         )
         OrderTabTotalPriceSection(getTotalPrice = getBidTotalPrice)
         OrderSectionButtonGroup(orderTabState = OrderTabState.BID, bidAskAction = requestBid)
@@ -122,15 +135,18 @@ fun AskSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateAskCoinQuantity: (Double) -> Unit,
+    updateAskCoinQuantity: (Int) -> Unit,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getAskTotalPrice: () -> String,
-    getUserCoin: () -> MyCoin
+    getUserCoinQuantity: () -> Double,
+    dropdownLabelList: List<String>,
+    selectedText: String,
+    requestAsk: () -> Unit
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
-            userHoldingQuantity = getUserCoin().quantity,
+            userHoldingQuantity = getUserCoinQuantity(),
             isKrw = isKrw,
             symbol = symbol
         )
@@ -139,10 +155,12 @@ fun AskSection(
             dropDownItemClickAction = updateAskCoinQuantity,
             quantity = askQuantity,
             quantityOnValueChanged = quantityOnValueChanged,
-            isBid = false
+            isBid = false,
+            dropdownLabelList = dropdownLabelList,
+            selectedText = selectedText
         )
         OrderTabTotalPriceSection(getAskTotalPrice)
-        OrderSectionButtonGroup(orderTabState = OrderTabState.ASK)
+        OrderSectionButtonGroup(orderTabState = OrderTabState.ASK, bidAskAction = requestAsk)
     }
 }
 
@@ -243,14 +261,13 @@ fun OrderTabPriceSection(currentPrice: String) {
 
 @Composable
 fun OrderTabQuantitySection(
-    dropDownItemClickAction: (Double) -> Unit,
+    dropDownItemClickAction: (Int) -> Unit,
     quantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
-    isBid: Boolean
+    isBid: Boolean,
+    dropdownLabelList: List<String>,
+    selectedText: String
 ) {
-    val str = remember {
-        mutableStateOf("")
-    }
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -299,22 +316,26 @@ fun OrderTabQuantitySection(
                     innerTextField()
                 }
             })
-        PercentageDropdown(dropDownItemClickAction)
+        PercentageDropdown(
+            itemClickAction = dropDownItemClickAction,
+            labelList = dropdownLabelList,
+            selectedText = selectedText
+        )
     }
 }
 
 @Composable
-fun PercentageDropdown(itemClickAction: (Double) -> Unit) {
+fun PercentageDropdown(
+    itemClickAction: ((Int) -> Unit),
+    labelList: List<String>,
+    selectedText: String
+) {
     val expanded = remember { mutableStateOf(false) }
-    val items = remember { listOf("최대", "75%", "50%", "25%", "10%") }
-    val percentage = remember { listOf(1.0, 0.75, 0.5, 0.25, 0.1) }
-    val defaultText = remember { "비율" }
-    val selectedItem = remember { mutableStateOf(defaultText) }
 
     Box(modifier = Modifier, contentAlignment = Alignment.CenterEnd) {
         Column {
             Text(
-                text = selectedItem.value + " ▼",
+                text = selectedText,
                 modifier = Modifier
                     .width(60.dp)
                     .noRippleClickable { expanded.value = true }
@@ -333,11 +354,10 @@ fun PercentageDropdown(itemClickAction: (Double) -> Unit) {
                 expanded = expanded.value,
                 onDismissRequest = { expanded.value = false }
             ) {
-                items.forEachIndexed { index, label ->
+                labelList.forEachIndexed { index, label ->
                     androidx.compose.material.DropdownMenuItem(onClick = {
-                        selectedItem.value = label
                         expanded.value = false
-                        itemClickAction(percentage[index])
+                        itemClickAction(index)
                     }) {
                         Text(text = label)
                     }

@@ -6,6 +6,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderBookReq
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -43,7 +44,7 @@ class UpbitRepository(
         market: String,
         count: String = "200",
         time: String = "",
-    ): Response<JsonArray> {
+    ): Response<List<GetChartCandleRes>> {
         return upBitService.getMinuteCandle(minute, market, count, time)
     }
 
@@ -55,7 +56,7 @@ class UpbitRepository(
         market: String,
         count: String = "200",
         time: String = "",
-    ): Response<JsonArray> {
+    ): Response<List<GetChartCandleRes>> {
         return upBitService.getOtherCandle(candleType, market, count, time)
     }
 }

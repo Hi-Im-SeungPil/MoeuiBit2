@@ -1,10 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen
 
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -12,22 +12,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
@@ -39,7 +35,8 @@ class NewCoinDetailViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upbitCoinOrder: UpbitCoinOrder,
     private val upbitUseCase: UpbitUseCase,
-    private val cacheManager: CacheManager
+    private val cacheManager: CacheManager,
+    val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
@@ -227,35 +224,36 @@ class NewCoinDetailViewModel @Inject constructor(
                     market = market,
                     totalPrice = totalPrice,
                     quantity = quantity,
-                    price = price,
+                    coinPrice = price,
                     koreanName = koreanCoinName.value
                 )
             },
             bitthumbAction = {
 
-            }
+            },
+            dispatcher = Dispatchers.IO
         )
     }
 
     fun requestAsk(
         market:String,
         quantity: Double,
+        totalPrice: Long,
         price: BigDecimal,
-        totalPrice: Long
     ) {
         rootExchangeCoroutineBranch(
             upbitAction = {
-                upbitCoinOrder.requestBid(
+                upbitCoinOrder.requestAsk(
                     market = market,
                     totalPrice = totalPrice,
                     quantity = quantity,
-                    price = price,
-                    koreanName = koreanCoinName.value
+                    coinPrice = price,
                 )
             },
             bitthumbAction = {
 
-            }
+            },
+            dispatcher = Dispatchers.IO
         )
     }
 
@@ -293,6 +291,33 @@ class NewCoinDetailViewModel @Inject constructor(
 
             else -> {
                 upbitCoinOrder.userBtcCoin
+            }
+        }
+    }
+
+    // 차트 화면
+    fun requestOldData(
+        positiveBarDataSet: IBarDataSet, negativeBarDataSet: IBarDataSet, candleXMin: Float
+    ) {
+        viewModelScope.launch {
+            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+                chart.requestOldData(
+                    positiveBarDataSet = positiveBarDataSet,
+                    negativeBarDataSet = negativeBarDataSet,
+                    candleXMin = candleXMin
+                )
+            }
+        }
+    }
+
+    fun requestChartData(market: String) {
+        viewModelScope.launch {
+            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+                chart.requestUpbitChartData(market = market)
+            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                Logger.e("requestChartData")
+                chart.setBitthumbChart()
+//                chart.requestBitthumbChartData(market = market)
             }
         }
     }

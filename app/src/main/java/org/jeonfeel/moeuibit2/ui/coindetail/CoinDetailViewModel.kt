@@ -130,9 +130,9 @@ class CoinDetailViewModel @Inject constructor(
             val tradPrice = coinOrder.coinDetailModel.tradePrice
             coinOrder.state.currentTradePriceState.value = tradPrice
             if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.updateCandleTicker(tradPrice)
+//                chart.updateCandleTicker(tradPrice)
             } else {
-                chart.bitthumbUpdateCandleTicker(tradePrice = tradPrice)
+//                chart.bitthumbUpdateCandleTicker(tradePrice = tradPrice)
             }
             delay(100L)
         }
@@ -290,8 +290,8 @@ class CoinDetailViewModel @Inject constructor(
                 chart.requestUpbitChartData(market = market)
             } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
                 Logger.e("requestChartData")
-                chart.setBitthumbChart()
-                chart.requestBitthumbChartData(market = market)
+//                chart.setBitthumbChart()
+//                chart.requestBitthumbChartData(market = market)
             }
         }
     }

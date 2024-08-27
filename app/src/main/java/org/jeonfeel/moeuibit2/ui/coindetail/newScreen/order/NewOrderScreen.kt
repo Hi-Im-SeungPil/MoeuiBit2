@@ -75,7 +75,8 @@ fun NewOrderScreen(
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
     getUserSeedMoney: () -> Long,
-    requestBid: (String,Double,BigDecimal,Long) -> Unit,
+    requestBid: (String, Double, BigDecimal, Long) -> Unit,
+    requestAsk: (String, Double, Long, BigDecimal) -> Unit,
     getUserCoin: () -> MyCoin
 ) {
     val state = rememberCoinOrderStateHolder(
@@ -83,7 +84,9 @@ fun NewOrderScreen(
         maxOrderBookSize = maxOrderBookSize,
         getUserSeedMoney = getUserSeedMoney,
         requestBid = requestBid,
-        market = market
+        requestAsk = requestAsk,
+        market = market,
+        getUserCoin = getUserCoin
     )
 
     AddLifecycleEvent(
@@ -143,7 +146,11 @@ fun NewOrderScreen(
                 getBidTotalPrice = state::getBidTotalPrice,
                 getAskTotalPrice = state::getAskTotalPrice,
                 requestBid = state::bid,
-                getUserCoin = getUserCoin
+                requestAsk = state::ask,
+                getUserCoinQuantity = state::getUserCoinQuantity,
+                dropdownLabelList = state.percentageLabelList,
+                askSelectedText = state.askQuantityPercentage.value,
+                bidSelectedText = state.bidQuantityPercentage.value
             )
         }
     }
@@ -312,7 +319,6 @@ fun ChangeOrderBookIndicationSection(
 }
 
 
-
 @Composable
 fun OrderScreenQuantityTextField(
     modifier: Modifier = Modifier,
@@ -373,7 +379,6 @@ private fun LazyListState.scrollToCentralizeItem(index: Int, scope: CoroutineSco
     scope.launch {
         Logger.e("itemInfo -> " + itemInfo.toString())
         if (itemInfo != null) {
-
             val center = this@scrollToCentralizeItem.layoutInfo.viewportEndOffset / 2
             val childCenter = itemInfo.offset + itemInfo.size / 2
             val scrollDistance = childCenter - center

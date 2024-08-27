@@ -22,7 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewOrderScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
@@ -81,7 +83,7 @@ fun TabRowMainNavigation(
     val context = LocalContext.current
     NavHost(
         navController = navHostController,
-        startDestination = CoinDetailMainTabRowItem.Order.screen_route
+        startDestination = CoinDetailMainTabRowItem.Order.screen_route,
     ) {
         composable(CoinDetailMainTabRowItem.Order.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
@@ -90,14 +92,15 @@ fun TabRowMainNavigation(
                     initCoinOrder = viewModel::initCoinOrder,
                     coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
                     coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
-                    preClosedPrice = viewModel.coinTicker,
+                    commonExchangeModelState = viewModel.coinTicker,
                     orderBookList = viewModel.getOrderBookList(),
                     maxOrderBookSize = viewModel.getMaxOrderBookSize(),
-                    orderBookIndication = viewModel.orderBookIndication,
+                    orderBookIndicationState = viewModel.orderBookIndication,
                     changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
                     saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
                     getUserSeedMoney = viewModel::getUserSeedMoney,
                     requestBid = viewModel::requestBid,
+                    requestAsk = viewModel::requestAsk,
                     getUserCoin = viewModel::getUserCoin
                 )
             } else {
@@ -106,7 +109,7 @@ fun TabRowMainNavigation(
         }
         composable(CoinDetailMainTabRowItem.Chart.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-//                ChartScreen(coinDetailViewModel)
+                ChartScreen(market = market)
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
