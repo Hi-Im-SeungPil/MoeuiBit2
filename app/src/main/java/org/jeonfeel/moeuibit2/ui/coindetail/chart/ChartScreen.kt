@@ -53,7 +53,6 @@ const val NEGATIVE_BAR = 1
 
 @Composable
 fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), market: String) {
-
     val context = LocalContext.current
     val combinedChart = remember { MBitCombinedChart(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -101,7 +100,8 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                             isChartLastData = coinDetailViewModel.chart.state.isLastData,
                             minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
                             accData = coinDetailViewModel.chart.accData,
-                            kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                            kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap,
+                            market = market
                         )
                         combinedChart.chartDataInit(
                             candleEntries = coinDetailViewModel.chart.candleEntries,

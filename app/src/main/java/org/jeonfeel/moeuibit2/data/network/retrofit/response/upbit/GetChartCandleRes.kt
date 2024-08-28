@@ -18,22 +18,22 @@ data class GetChartCandleRes(
     val candleDateTimeUtc: String,
 
     @SerialName("high_price")
-    val highPrice: Int,
+    val highPrice: Double,
 
     @SerialName("low_price")
-    val lowPrice: Int,
+    val lowPrice: Double,
 
     @SerialName("market")
     val market: String,
 
     @SerialName("opening_price")
-    val openingPrice: Int,
+    val openingPrice: Double,
 
     @SerialName("timestamp")
     val timestamp: Long,
 
     @SerialName("trade_price")
-    val tradePrice: Int,
+    val tradePrice: Double,
 
     @SerialName("unit")
     val unit: Int

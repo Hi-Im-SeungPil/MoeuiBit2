@@ -28,13 +28,14 @@ class MBitCombinedChart(
     private var marketState = 0
 
     fun initChart(
-        requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
+        requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
         marketState: Int,
         loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>,
-        isChartLastData: MutableState<Boolean>
+        isChartLastData: MutableState<Boolean>,
+        market: String
     ) {
         val context = MoeuiBitApp.mBitApplicationContext()
         xAxisValueFormatter = XAxisValueFormatter()
@@ -52,7 +53,8 @@ class MBitCombinedChart(
             isChartLastData = isChartLastData,
             minuteVisibility = minuteVisibility,
             accData = accData,
-            kstDateHashMap = kstDateHashMap
+            kstDateHashMap = kstDateHashMap,
+            market = market
         )
     }
 

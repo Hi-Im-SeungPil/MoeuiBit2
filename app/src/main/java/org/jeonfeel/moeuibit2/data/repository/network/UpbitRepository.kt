@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.repository.network
 
-import com.google.gson.JsonArray
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
@@ -39,24 +38,24 @@ class UpbitRepository(
     /**
      * 분봉 요청
      */
-    suspend fun getMinuteCandleService(
+    suspend fun getMinuteCandle(
         minute: String,
         market: String,
         count: String = "200",
         time: String = "",
-    ): Response<List<GetChartCandleRes>> {
-        return upBitService.getMinuteCandle(minute, market, count, time)
+    ): ApiResult<List<GetChartCandleRes>> {
+        return networkCall(upBitService.getMinuteCandle(minute, market, count, time))
     }
 
     /**
      * 일,주,월봉 요청
      */
-    suspend fun getOtherCandleService(
+    suspend fun getOtherCandle(
         candleType: String,
         market: String,
         count: String = "200",
         time: String = "",
-    ): Response<List<GetChartCandleRes>> {
-        return upBitService.getOtherCandle(candleType, market, count, time)
+    ): ApiResult<List<GetChartCandleRes>> {
+        return networkCall(upBitService.getOtherCandle(candleType, market, count, time))
     }
 }

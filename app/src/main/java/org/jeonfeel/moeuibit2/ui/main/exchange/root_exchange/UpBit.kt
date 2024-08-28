@@ -223,6 +223,15 @@ class UpBit @Inject constructor(
                 }
             }
         }
+        if (tradeCurrencyState?.value == TRADE_CURRENCY_KRW) {
+            krwNeedAnimationList.forEach {
+                it.value = TickerAskBidState.NONE.name
+            }
+        } else {
+            btcNeedAnimationList.forEach {
+                it.value = TickerAskBidState.NONE.name
+            }
+        }
     }
 
     /**

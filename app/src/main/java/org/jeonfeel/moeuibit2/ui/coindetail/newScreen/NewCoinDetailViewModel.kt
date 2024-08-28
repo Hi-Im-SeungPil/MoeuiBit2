@@ -297,14 +297,15 @@ class NewCoinDetailViewModel @Inject constructor(
 
     // 차트 화면
     fun requestOldData(
-        positiveBarDataSet: IBarDataSet, negativeBarDataSet: IBarDataSet, candleXMin: Float
+        positiveBarDataSet: IBarDataSet, negativeBarDataSet: IBarDataSet, candleXMin: Float, market: String
     ) {
         viewModelScope.launch {
             if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.requestOldData(
+                chart.newRequestOldData(
                     positiveBarDataSet = positiveBarDataSet,
                     negativeBarDataSet = negativeBarDataSet,
-                    candleXMin = candleXMin
+                    candleXMin = candleXMin,
+                    market = market
                 )
             }
         }
@@ -312,13 +313,13 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun requestChartData(market: String) {
         viewModelScope.launch {
-            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.requestUpbitChartData(market = market)
-            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
-                Logger.e("requestChartData")
-                chart.setBitthumbChart()
+//            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
+                chart.refresh(market = market)
+//            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+//                Logger.e("requestChartData")
+//                chart.setBitthumbChart()
 //                chart.requestBitthumbChartData(market = market)
-            }
+//            }
         }
     }
 

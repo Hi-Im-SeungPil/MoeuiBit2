@@ -40,12 +40,13 @@ class ChartHelper(private val context: Context?) {
     fun defaultChartSettings(
         combinedChart: MBitCombinedChart,
         marketState: Int,
-        requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
+        requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
         loadingOldData: MutableState<Boolean>,
         minuteVisibility: MutableState<Boolean>,
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>,
-        isChartLastData: MutableState<Boolean>
+        isChartLastData: MutableState<Boolean>,
+        market: String
     ) {
         combinedChart.apply {
             marker = ChartMarkerView(
@@ -139,7 +140,8 @@ class ChartHelper(private val context: Context?) {
             marketState = marketState,
             accData = accData,
             requestOldData = requestOldData,
-            isChartLastData = isChartLastData
+            isChartLastData = isChartLastData,
+            market = market
         )
         combinedChart.invalidate()
     }
@@ -154,8 +156,9 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     minuteVisibility: MutableState<Boolean>,
     marketState: Int,
     accData: HashMap<Int, Double>,
-    requestOldData: (IBarDataSet, IBarDataSet, Float) -> Unit,
-    isChartLastData: MutableState<Boolean>
+    requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
+    isChartLastData: MutableState<Boolean>,
+    market: String
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -292,7 +295,8 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         requestOldData(
                             this.barData.dataSets[POSITIVE_BAR],
                             this.barData.dataSets[NEGATIVE_BAR],
-                            this.data.candleData.xMin
+                            this.data.candleData.xMin,
+                            market
                         )
                     }
                 }
