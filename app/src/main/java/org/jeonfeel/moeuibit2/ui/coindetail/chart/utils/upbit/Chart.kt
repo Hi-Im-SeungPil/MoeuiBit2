@@ -5,9 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.google.protobuf.api
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -29,9 +26,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
-import org.jeonfeel.moeuibit2.utils.Utils
 import org.json.JSONObject
-import retrofit2.Response
 import javax.inject.Inject
 
 class ChartState {
@@ -55,7 +50,7 @@ class Chart @Inject constructor(
     var chartUpdateJob: Job? = null
     private var chartLastData = false
     private val _candleEntries = ArrayList<CandleEntry>()
-    val candleEntries get() = _candleEntries
+    val candleEntries:List<CandleEntry> get() = _candleEntries
     private val movingAverage = ArrayList<GetMovingAverage>()
     private val chartData = ArrayList<ChartModel>()
 
@@ -92,6 +87,7 @@ class Chart @Inject constructor(
         candleType: String = state.candleType.value,
         market: String
     ) {
+        Logger.e("${System.identityHashCode(this)}")
         state.isUpdateChart.value = false
         state.loadingDialogState.value = true
         val getChartCandleReq = GetChartCandleReq(
@@ -304,9 +300,9 @@ class Chart @Inject constructor(
                     accData[tempCandlePosition.toInt()] = it.candleAccTradePrice
                     tempCandlePosition += 1f
                 }
-                tempCandleEntries.addAll(candleEntries)
-                candleEntries.clear()
-                candleEntries.addAll(tempCandleEntries)
+                tempCandleEntries.addAll(_candleEntries)
+                _candleEntries.clear()
+                _candleEntries.addAll(tempCandleEntries)
                 for (i in 0 until positiveBarDataCount) {
                     tempPositiveBarEntries.add(positiveBarDataSet.getEntryForIndex(i))
                 }
@@ -357,7 +353,7 @@ class Chart @Inject constructor(
                                     chartData.openingPrice.toFloat(),
                                     chartData.tradePrice.toFloat()
                                 )
-                                candleEntries.add(candleEntry)
+                                _candleEntries.add(candleEntry)
                                 kstTime = chartData.candleDateTimeKst
                                 candlePosition += 1f
                                 candleEntriesLastPosition += 1
@@ -368,7 +364,7 @@ class Chart @Inject constructor(
                             }
 
                             kstTime == chartData.candleDateTimeKst -> {
-                                candleEntries[candleEntries.lastIndex] =
+                                _candleEntries[candleEntries.lastIndex] =
                                     CandleEntry(
                                         candlePosition,
                                         chartData.highPrice.toFloat(),
@@ -396,69 +392,69 @@ class Chart @Inject constructor(
             try {
                 modifyLineData()
             } catch (e: Exception) {
-
+                e.printStackTrace()
             }
             _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
         }
     }
 
-    fun bitthumbUpdateCandleTicker(tradePrice: Double) {
-        if (kstTime.isNotEmpty()) {
-            val kstTimeMillis = Utils.upbitFormatToMillis(kstTime)
-            val standardMillis = Utils.getStandardMillis(state.candleType.value)
-            val currentMillis = System.currentTimeMillis()
-            Logger.e("standard -> ${standardMillis + kstTimeMillis} current -> $currentMillis")
-            if (currentMillis < kstTimeMillis + standardMillis) {
-                Logger.e("CHART_SET_CANDLE".toString())
-                if (state.isUpdateChart.value && candleEntries.isNotEmpty()) {
-                    val candleEntry = candleEntries[candleEntriesLastPosition]
-                    if (candleEntry.close < candleEntry.low) {
-                        candleEntries[candleEntriesLastPosition].low = tradePrice.toFloat()
-                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-                    } else if (candleEntry.close > candleEntry.high) {
-                        candleEntries[candleEntriesLastPosition].high = tradePrice.toFloat()
-                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-                    } else {
-                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-                    }
-                    try {
-//                        modifyLineData()
-                    } catch (e: Exception) {
-
-                    }
-                    _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
-                }
-            } else {
-                Logger.e("CHART_ADD_CANDLE")
-                kstTime = Utils.millisToUpbitFormat(kstTimeMillis + standardMillis)
-                addModel = ChartModel(
-                    candleDateTimeKst = kstTime,
-                    candleDateTimeUtc = "",
-                    openingPrice = tradePrice,
-                    highPrice = tradePrice,
-                    lowPrice = tradePrice,
-                    tradePrice = tradePrice,
-                    candleAccTradePrice = 0.0,
-                    timestamp = currentMillis
-                )
-                state.isUpdateChart.value = false
-                candleEntries.add(
-                    CandleEntry(
-                        candlePosition,
-                        tradePrice.toFloat(),
-                        tradePrice.toFloat(),
-                        tradePrice.toFloat(),
-                        tradePrice.toFloat()
-                    )
-                )
-                candlePosition += 1f
-                candleEntriesLastPosition += 1
-                kstDateHashMap[candlePosition.toInt()] = kstTime
-                _chartUpdateMutableLiveData.postValue(CHART_ADD)
-                state.isUpdateChart.value = true
-            }
-        }
-    }
+//    fun bitthumbUpdateCandleTicker(tradePrice: Double) {
+//        if (kstTime.isNotEmpty()) {
+//            val kstTimeMillis = Utils.upbitFormatToMillis(kstTime)
+//            val standardMillis = Utils.getStandardMillis(state.candleType.value)
+//            val currentMillis = System.currentTimeMillis()
+//            Logger.e("standard -> ${standardMillis + kstTimeMillis} current -> $currentMillis")
+//            if (currentMillis < kstTimeMillis + standardMillis) {
+//                Logger.e("CHART_SET_CANDLE".toString())
+//                if (state.isUpdateChart.value && candleEntries.isNotEmpty()) {
+//                    val candleEntry = candleEntries[candleEntriesLastPosition]
+//                    if (candleEntry.close < candleEntry.low) {
+//                        candleEntries[candleEntriesLastPosition].low = tradePrice.toFloat()
+//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+//                    } else if (candleEntry.close > candleEntry.high) {
+//                        candleEntries[candleEntriesLastPosition].high = tradePrice.toFloat()
+//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+//                    } else {
+//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
+//                    }
+//                    try {
+////                        modifyLineData()
+//                    } catch (e: Exception) {
+//
+//                    }
+//                    _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
+//                }
+//            } else {
+//                Logger.e("CHART_ADD_CANDLE")
+//                kstTime = Utils.millisToUpbitFormat(kstTimeMillis + standardMillis)
+//                addModel = ChartModel(
+//                    candleDateTimeKst = kstTime,
+//                    candleDateTimeUtc = "",
+//                    openingPrice = tradePrice,
+//                    highPrice = tradePrice,
+//                    lowPrice = tradePrice,
+//                    tradePrice = tradePrice,
+//                    candleAccTradePrice = 0.0,
+//                    timestamp = currentMillis
+//                )
+//                state.isUpdateChart.value = false
+//                _candleEntries.add(
+//                    CandleEntry(
+//                        candlePosition,
+//                        tradePrice.toFloat(),
+//                        tradePrice.toFloat(),
+//                        tradePrice.toFloat(),
+//                        tradePrice.toFloat()
+//                    )
+//                )
+//                candlePosition += 1f
+//                candleEntriesLastPosition += 1
+//                kstDateHashMap[candlePosition.toInt()] = kstTime
+//                _chartUpdateMutableLiveData.postValue(CHART_ADD)
+//                state.isUpdateChart.value = true
+//            }
+//        }
+//    }
 
     /**
      * 이동평균선 만든다
@@ -467,7 +463,7 @@ class Chart @Inject constructor(
         val lineData = LineData()
 
         for (i in movingAverage) {
-            i.createLineData(candleEntries)
+            i.createLineData(_candleEntries)
         }
 
         for (i in movingAverage.indices) {
@@ -499,7 +495,8 @@ class Chart @Inject constructor(
     fun addLineData() {
         val lastCandle = candleEntries.last()
         for (i in movingAverage) {
-            i.addLineData(lastCandle)
+            val yValue = candleEntries[candleEntries.lastIndex - i.getNumber()].y
+            i.addLineData(lastCandle, yValue)
         }
     }
 
@@ -510,7 +507,7 @@ class Chart @Inject constructor(
         candlePosition = 0f
         candleEntriesLastPosition = 0
         chartData.clear()
-        candleEntries.clear()
+        _candleEntries.clear()
         kstDateHashMap.clear()
     }
 

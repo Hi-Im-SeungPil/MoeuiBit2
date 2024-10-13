@@ -365,7 +365,7 @@ fun BarDataSet.initNegativeBarDataSet() {
 }
 
 fun CombinedChart.chartRefreshSettings(
-    candleEntries: ArrayList<CandleEntry>,
+    candleEntries: List<CandleEntry>,
     candleDataSet: CandleDataSet,
     positiveBarDataSet: BarDataSet,
     negativeBarDataSet: BarDataSet,

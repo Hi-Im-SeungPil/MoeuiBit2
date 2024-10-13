@@ -6,10 +6,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
+import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.order.utils.CoinOrder
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
+import javax.inject.Singleton
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
@@ -25,30 +29,20 @@ class ActivityRetailedModule {
         return AdMobManager()
     }
 
+
+
 //    @Provides
-//    fun provideChart(
-//        remoteRepository: RemoteRepository,
+//    fun provideUpbitChartUsecase(
+//        upbitRepository: UpbitRepository,
 //        localRepository: LocalRepository
-//    ): Chart {
-//        return Chart(
-//            remoteRepository = remoteRepository,
+//    ): UpbitChartUseCase {
+//        return UpbitChartUseCase(
+//            upbitRepository = upbitRepository,
 //            localRepository = localRepository
 //        )
 //    }
 
-    @Provides
-    fun provideCoinOrder(
-        localRepository: LocalRepository,
-        prefrenceManager: PreferencesManager
-    ): CoinOrder {
-        return CoinOrder(
-            preferenceManager = prefrenceManager,
-            localRepository = localRepository
-        )
-    }
-
-    @Provides
-    fun provideCoinInfo(): CoinInfo {
-        return CoinInfo()
-    }
+//    private val upbitRepository: UpbitRepository,
+//    private val localRepository: LocalRepository,
+//    private val upbitChartUseCase: UpbitChartUseCase
 }

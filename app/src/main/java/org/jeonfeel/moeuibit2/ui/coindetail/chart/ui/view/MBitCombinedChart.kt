@@ -86,9 +86,7 @@ class MBitCombinedChart(
         }
 
         this.apply {
-            Logger.e("before " + xAxis.axisMaximum.toString())
             xAxis.axisMaximum += 1f
-            Logger.e("after " + xAxis.axisMaximum.toString())
             barData.notifyDataChanged()
             lineData.notifyDataChanged()
             data.notifyDataChanged()
@@ -199,7 +197,7 @@ class MBitCombinedChart(
      * 차트 데이터 초기화
      */
     fun chartDataInit(
-        candleEntries: ArrayList<CandleEntry>,
+        candleEntries: List<CandleEntry>,
         candleDataSet: CandleDataSet,
         positiveBarDataSet: BarDataSet,
         negativeBarDataSet: BarDataSet,

@@ -14,6 +14,10 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
+import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
+import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton

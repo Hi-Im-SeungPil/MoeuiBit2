@@ -5,6 +5,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
+import com.orhanobut.logger.Logger
 
 class GetMovingAverage(
     private val number: Int
@@ -31,18 +32,25 @@ class GetMovingAverage(
     }
 
     fun modifyLineData(lastCandle: CandleEntry) {
+        if (lastCandle.x < number) return
         sum -= beforeLastCandleClose
         sum += lastCandle.close
         val average = sum / number
         beforeLastCandleClose = lastCandle.close
         lineEntry.removeLast()
-        lineEntry.add(Entry(lastCandle.x,average))
+        lineEntry.add(Entry(lastCandle.x, average))
     }
 
-    fun addLineData(lastCandle: CandleEntry) {
+    fun addLineData(lastCandle: CandleEntry, yValue: Float) {
+        if (lastCandle.x < number) return
+        Logger.e("last -> ${lineEntry.lastIndex - number - 1} $number ${lineEntry.count()} $yValue")
+        sum = sum - yValue + lastCandle.close
         count++
-        sum = sum - lineEntry[lineEntry.lastIndex - number - 1].y + lastCandle.close
-        lineEntry.add(Entry(lastCandle.x,lastCandle.close))
+        lineEntry.add(Entry(lastCandle.x, sum / number))
+    }
+
+    fun getNumber(): Int {
+        return number
     }
 }
 
