@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.constants
 
 import kotlinx.coroutines.Dispatchers
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import java.time.Duration
 import java.util.*
 
@@ -10,7 +9,8 @@ val mainDispatcher = Dispatchers.Main
 val defaultDispatcher = Dispatchers.Default
 val timeOutDuration: Duration = Duration.ofMillis(50000L)
 val readTimeOutDuration: Duration = Duration.ofMillis(50000L)
-val COMMISSION_FEE = 0.0005
+val KRW_COMMISSION_FEE = 0.0005
+val BTC_COMMISSION_FEE = 0.0025
 
 const val UPBIT_KRW_SYMBOL_PREFIX = "KRW-"
 const val UPBIT_BTC_SYMBOL_PREFIX = "BTC-"

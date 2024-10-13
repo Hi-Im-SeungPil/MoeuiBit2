@@ -275,11 +275,11 @@ class CoinDetailViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.requestOldData(
-                    positiveBarDataSet = positiveBarDataSet,
-                    negativeBarDataSet = negativeBarDataSet,
-                    candleXMin = candleXMin
-                )
+//                chart.requestOldData(
+//                    positiveBarDataSet = positiveBarDataSet,
+//                    negativeBarDataSet = negativeBarDataSet,
+//                    candleXMin = candleXMin
+//                )
             }
         }
     }
@@ -287,7 +287,7 @@ class CoinDetailViewModel @Inject constructor(
     fun requestChartData() {
         viewModelScope.launch {
             if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.requestUpbitChartData(market = market)
+//                chart.requestUpbitChartData(market = market)
             } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
                 Logger.e("requestChartData")
 //                chart.setBitthumbChart()

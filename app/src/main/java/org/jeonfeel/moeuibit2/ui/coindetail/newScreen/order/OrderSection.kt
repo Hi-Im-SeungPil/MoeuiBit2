@@ -38,12 +38,14 @@ import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 
 @Composable
 fun OrderSection(
     orderTabState: MutableState<OrderTabState>,
-    userSeedMoney: Long,
+    userSeedMoney: Double,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
@@ -101,7 +103,7 @@ fun OrderSection(
 
 @Composable
 fun BidSection(
-    userSeedMoney: Long,
+    userSeedMoney: Double,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
@@ -194,7 +196,7 @@ fun OrderTabSection(
 
 @Composable
 fun OrderTabUserSeedMoneySection(
-    userSeedMoney: Long? = null,
+    userSeedMoney: Double? = null,
     userHoldingQuantity: Double? = null,
     isKrw: Boolean,
     symbol: String
@@ -220,8 +222,10 @@ fun OrderTabUserSeedMoneySection(
         )
         Spacer(modifier = Modifier.weight(1f))
         AutoSizeText(
-            text = userSeedMoney?.formatWithComma() ?: userHoldingQuantity?.newBigDecimal(scale = 8)
-                ?.formattedStringForQuantity() ?: "0",
+            text = if (isKrw) userSeedMoney?.toLong()
+                .formatWithComma() else userSeedMoney?.eighthDecimal()
+                ?: userHoldingQuantity?.newBigDecimal(scale = 8)
+                    ?.formattedStringForQuantity() ?: "0",
             textStyle = TextStyle(fontSize = DpToSp(dp = 14.dp), textAlign = TextAlign.Center)
         )
         Text(

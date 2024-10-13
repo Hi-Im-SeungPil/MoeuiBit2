@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.constants.COMMISSION_FEE
+import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -20,6 +20,8 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.OneTimeNetworkCheck
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
@@ -37,6 +39,7 @@ class CoinOrderStateHolder(
     private val context: Context,
     val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
     val getUserSeedMoney: () -> Long,
+    val getUserBTC: () -> Double,
     private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
     private val requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
     val market: String,
@@ -63,7 +66,7 @@ class CoinOrderStateHolder(
      */
     fun getOrderBookItemFluctuateRate(orderBookPrice: Double): String {
         return Calculator.orderBookRateCalculator(
-            preClosingPrice = commonExchangeModelState.value?.openingPrice ?: 1.0,
+            preClosingPrice = commonExchangeModelState.value?.prevClosingPrice ?: 1.0,
             orderBookPrice = orderBookPrice
         ).secondDecimal().plus("%")
     }
@@ -198,16 +201,31 @@ class CoinOrderStateHolder(
         }
     }
 
+    fun getUserSeedMoneyOrBtc(): Double {
+        return if (market.isTradeCurrencyKrw()) {
+            getUserSeedMoney().toDouble()
+        } else {
+            getUserBTC()
+        }
+    }
+
     fun updateBidCoinQuantity(index: Int) {
         if (commonExchangeModelState.value != null) {
             var percentageResult = percentageList[index]
             if (percentageResult == 1.0) {
-                percentageResult -= COMMISSION_FEE
+                percentageResult -= KRW_COMMISSION_FEE
             }
-            val seedMoney = (getUserSeedMoney() * percentageResult).newBigDecimal(
-                scale = 0,
-                roundingMode = RoundingMode.FLOOR
-            )
+            val seedMoney = if (market.isTradeCurrencyKrw()) {
+                (getUserSeedMoneyOrBtc() * percentageResult).newBigDecimal(
+                    scale = 0,
+                    roundingMode = RoundingMode.FLOOR
+                )
+            } else {
+                (getUserSeedMoneyOrBtc() * percentageResult).newBigDecimal(
+                    scale = 8,
+                    roundingMode = RoundingMode.FLOOR
+                )
+            }
             val quantity =
                 seedMoney.divide(commonExchangeModelState.value?.tradePrice, 8, RoundingMode.FLOOR)
             _bidQuantityPercentage.value = percentageLabelList[index]
@@ -232,9 +250,15 @@ class CoinOrderStateHolder(
 
     fun getBidTotalPrice(): String {
         return if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
-            bidQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
-                .multiply(commonExchangeModelState.value!!.tradePrice)
-                .formattedString()
+            val totalPrice =
+                bidQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                    .multiply(commonExchangeModelState.value!!.tradePrice)
+
+            if (market.isTradeCurrencyKrw()) {
+                totalPrice.formattedString()
+            } else {
+                totalPrice.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
+            }
         } else {
             "0"
         }
@@ -242,9 +266,10 @@ class CoinOrderStateHolder(
 
     fun getAskTotalPrice(): String {
         return if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
-            val total = askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
-                .multiply(commonExchangeModelState.value!!.tradePrice)
-            val commission = total.multiply(COMMISSION_FEE.newBigDecimal(4))
+            val total =
+                askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                    .multiply(commonExchangeModelState.value!!.tradePrice)
+            val commission = total.multiply(KRW_COMMISSION_FEE.newBigDecimal(4))
             total.minus(commission).formattedString()
         } else {
             "0"
@@ -309,7 +334,7 @@ class CoinOrderStateHolder(
                 askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
             val tempPrice = userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
                 .setScale(0, RoundingMode.FLOOR)
-            val commission = tempPrice.multiply(COMMISSION_FEE.newBigDecimal(4))
+            val commission = tempPrice.multiply(KRW_COMMISSION_FEE.newBigDecimal(4))
             val totalPrice = tempPrice.minus(commission).setScale(0, RoundingMode.FLOOR)
             when {
                 commonExchangeModelState.value == null -> {
@@ -356,6 +381,7 @@ fun rememberCoinOrderStateHolder(
     commonExchangeModelState: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
     getUserSeedMoney: () -> Long,
+    getUserBTC: () -> Double,
     context: Context = LocalContext.current,
     requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
     requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
@@ -370,6 +396,7 @@ fun rememberCoinOrderStateHolder(
         requestBid = requestBid,
         requestAsk = requestAsk,
         market = market,
-        getUserCoin = getUserCoin
+        getUserCoin = getUserCoin,
+        getUserBTC = getUserBTC
     )
 }

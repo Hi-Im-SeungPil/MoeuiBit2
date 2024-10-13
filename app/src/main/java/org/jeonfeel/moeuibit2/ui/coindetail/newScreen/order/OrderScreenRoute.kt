@@ -20,6 +20,7 @@ fun OrderScreenRoute(
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
     getUserSeedMoney: () -> Long,
+    getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Long) -> Unit,
     requestAsk: (String, Double, Long, BigDecimal) -> Unit,
     getUserCoin: () -> MyCoin
@@ -36,6 +37,7 @@ fun OrderScreenRoute(
         saveOrderBookIndicationState = saveOrderBookIndicationState,
         changeOrderBookIndicationState = changeOrderBookIndicationState,
         getUserSeedMoney = getUserSeedMoney,
+        getUserBTC = getUserBTC,
         requestBid = requestBid,
         requestAsk = requestAsk,
         getUserCoin = getUserCoin

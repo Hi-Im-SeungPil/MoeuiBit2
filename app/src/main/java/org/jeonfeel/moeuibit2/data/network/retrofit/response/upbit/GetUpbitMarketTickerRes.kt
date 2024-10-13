@@ -85,7 +85,8 @@ data class GetUpbitMarketTickerRes(
             signedChangePrice = signedChangePrice,
             timestamp = timestamp,
             warning = getUpbitMarketCodeRes?.marketEvent?.warning ?: false,
-            askBid = "NONE"
+            askBid = "NONE",
+            prevClosingPrice = prevClosingPrice
         )
     }
 }

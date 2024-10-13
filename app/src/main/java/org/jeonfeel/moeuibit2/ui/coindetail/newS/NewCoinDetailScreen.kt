@@ -87,18 +87,6 @@ fun NewCoinDetailScreen(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             )
         )
-//        OrderScreenRoute(
-//            market = market,
-//            initCoinOrder = viewModel::initCoinOrder,
-//            coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
-//            coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
-//            preClosedPrice = viewModel.coinTicker,
-//            orderBookList = viewModel.getOrderBookList(),
-//            maxOrderBookSize = viewModel.getMaxOrderBookSize(),
-//            orderBookIndication = viewModel.orderBookIndication,
-//            changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
-//            saveOrderBookIndicationState = viewModel::saveOrderBookIndication
-//        )
         CoinDetailMainTabRow(navController = state.navController)
         Box {
             TabRowMainNavigation(navHostController = state.navController, market = market)

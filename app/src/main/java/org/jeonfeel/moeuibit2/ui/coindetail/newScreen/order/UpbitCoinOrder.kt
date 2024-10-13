@@ -177,14 +177,6 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         getUserSeedMoney()
     }
 
-    fun updateUserSeedMoney() {
-
-    }
-
-    fun updateUserCoinQuantity() {
-
-    }
-
     private fun minusQuantity(currentQuantity: Double, quantity: Double): Double {
         return currentQuantity.newBigDecimal(8, RoundingMode.HALF_UP)
             .minus(quantity.newBigDecimal(8, RoundingMode.HALF_UP)).toDouble()

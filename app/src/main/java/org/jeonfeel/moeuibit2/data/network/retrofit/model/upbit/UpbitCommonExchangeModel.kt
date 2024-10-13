@@ -25,5 +25,6 @@ data class CommonExchangeModel(
     val signedChangePrice: Double,
     val timestamp: Long,
     val warning: Boolean,
-    val askBid: String? = null
+    val askBid: String? = null,
+    val prevClosingPrice: Double = 0.0,
 )

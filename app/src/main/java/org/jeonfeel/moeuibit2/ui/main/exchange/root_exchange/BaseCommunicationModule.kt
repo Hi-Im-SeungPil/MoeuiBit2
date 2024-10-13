@@ -9,7 +9,7 @@ open class BaseCommunicationModule {
         target: Flow<Any>,
         onLoading: ((result: ApiResult<*>) -> Unit)? = null,
         onComplete: suspend (T) -> Unit,
-        onApiError: ((result: ApiResult<*>) -> Unit)? = null,
+        onApiError: suspend ((result: ApiResult<*>) -> Unit) = {},
         onNetworkError: ((result: ApiResult<*>) -> Unit)? = null,
     ) {
         target.collect { result ->

@@ -13,9 +13,11 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
@@ -98,7 +100,11 @@ class ChartHelper(private val context: Context?) {
             if (marketState == SELECTED_BTC_MARKET) {
                 this.minWidth = Paint().measureText("0.00000000")
             } else {
-                this.minWidth = 50f
+                if(market == BTC_MARKET) {
+                    this.minWidth = 70f
+                } else {
+                    this.minWidth = 50f
+                }
             }
             setLabelCount(5, true)
             textColor = ContextCompat.getColor(combinedChart.context, R.color.text_color)
@@ -377,6 +383,9 @@ fun CombinedChart.chartRefreshSettings(
 
         val candleData = CandleData(candleDataSet)
         val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
+        if(barData.entryCount == 1) {
+            this.axisLeft.axisMaximum = barData.yMax * 5
+        }
         val combinedData = CombinedData()
         combinedData.setData(candleData)
         combinedData.setData(barData)
@@ -386,18 +395,18 @@ fun CombinedChart.chartRefreshSettings(
         chart.candleData.notifyDataChanged()
         chart.barData.notifyDataChanged()
         if (candleEntries.size >= 20) {
-            xAxis.axisMaximum = chart.candleData.xMax + 3f
-            xAxis.axisMinimum = chart.candleData.xMin - 3f
+            xAxis.axisMaximum = chart.candleData.xMax + 10f
+            xAxis.axisMinimum = chart.candleData.xMin - 10f
             chart.fitScreen()
             chart.setVisibleXRangeMinimum(20f)
-            chart.setVisibleXRangeMaximum(160f)
+            chart.setVisibleXRangeMaximum(190f)
             chart.data.notifyDataChanged()
             xAxis?.valueFormatter = valueFormatter
             xAxis.textColor = context?.let {
                 ContextCompat.getColor(it, R.color.text_color)
             } ?: Color.GRAY
             addPurchaseLimitLine(purchaseAveragePrice, marketState)
-            chart.zoom(4f, 0f, 0f, 0f)
+            chart.zoom(3f, 0f, 0f, 0f)
             chart.moveViewToX(candleEntries.size.toFloat())
         } else {
             xAxis.axisMaximum = chart.candleData.xMax

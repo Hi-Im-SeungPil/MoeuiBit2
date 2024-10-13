@@ -8,6 +8,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -67,6 +68,8 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun requestCoinTicker(market: String) {
+        delay(50)
+        Logger.e("market = $market")
         val getUpbitTickerReq = GetUpbitMarketTickerReq(
             market.coinOrderIsKrwMarket()
         )
@@ -279,18 +282,18 @@ class NewCoinDetailViewModel @Inject constructor(
     /**
      * BTC마켓 일 때 필요한데, 사용자 BTC 코인 받아옴
      */
-    fun getUserBtcCoin(): MyCoin {
+    fun getUserBtcCoin(): Double {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
-                upbitCoinOrder.userBtcCoin
+                upbitCoinOrder.userBtcCoin.quantity
             }
 
             ROOT_EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.userBtcCoin
+                upbitCoinOrder.userBtcCoin.quantity
             }
 
             else -> {
-                upbitCoinOrder.userBtcCoin
+                upbitCoinOrder.userBtcCoin.quantity
             }
         }
     }
@@ -331,6 +334,7 @@ class NewCoinDetailViewModel @Inject constructor(
         }.collect { upbitSocketTickerRes ->
             try {
                 _coinTicker.value = upbitSocketTickerRes.mapTo()
+                chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)
             } catch (e: Exception) {
                 Logger.e(e.message.toString())
             }

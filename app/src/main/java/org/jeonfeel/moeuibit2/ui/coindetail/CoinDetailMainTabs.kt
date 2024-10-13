@@ -99,6 +99,7 @@ fun TabRowMainNavigation(
                     changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
                     saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
                     getUserSeedMoney = viewModel::getUserSeedMoney,
+                    getUserBTC = viewModel::getUserBtcCoin,
                     requestBid = viewModel::requestBid,
                     requestAsk = viewModel::requestAsk,
                     getUserCoin = viewModel::getUserCoin

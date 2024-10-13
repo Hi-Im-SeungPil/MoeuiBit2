@@ -75,6 +75,7 @@ fun NewOrderScreen(
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
     getUserSeedMoney: () -> Long,
+    getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Long) -> Unit,
     requestAsk: (String, Double, Long, BigDecimal) -> Unit,
     getUserCoin: () -> MyCoin
@@ -86,7 +87,8 @@ fun NewOrderScreen(
         requestBid = requestBid,
         requestAsk = requestAsk,
         market = market,
-        getUserCoin = getUserCoin
+        getUserCoin = getUserCoin,
+        getUserBTC = getUserBTC
     )
 
     AddLifecycleEvent(
@@ -134,7 +136,7 @@ fun NewOrderScreen(
         ) {
             OrderSection(
                 orderTabState = state.orderTabState,
-                userSeedMoney = getUserSeedMoney(),
+                userSeedMoney = state.getUserSeedMoneyOrBtc(),
                 isKrw = market.isTradeCurrencyKrw(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
                 currentPrice = commonExchangeModelState.value?.tradePrice,

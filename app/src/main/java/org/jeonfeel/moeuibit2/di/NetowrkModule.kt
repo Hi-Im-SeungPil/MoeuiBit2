@@ -38,7 +38,9 @@ class NetowrkModule {
     fun provideUpBitOkHttpClient(): OkHttpClient {
         val connectionPool = ConnectionPool(0, 700L, TimeUnit.MILLISECONDS)
         val httpLoggingInterceptor =
-            HttpLoggingInterceptor { message -> Logger.d(message) }
+            HttpLoggingInterceptor { message ->
+//                Logger.d(message)
+            }
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
         val httpClient = OkHttpClient.Builder()
         return httpClient.connectionPool(connectionPool)

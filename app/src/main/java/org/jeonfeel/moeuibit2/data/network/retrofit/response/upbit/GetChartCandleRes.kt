@@ -36,5 +36,17 @@ data class GetChartCandleRes(
     val tradePrice: Double,
 
     @SerialName("unit")
-    val unit: Int
+    val unit: Int = 0,
+
+    @SerialName("prev_closing_price")
+    val prevClosingPrice: Double? = 0.0,
+
+    @SerialName("change_price")
+    val changePrice: Double? = 0.0,
+
+    @SerialName("change_rate")
+    val changeRate: Double? = 0.0,
+
+    @SerialName("first_day_of_period")
+    val firstDayOfPeriod: String = "",
 )

@@ -115,6 +115,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                     }
                     // 차트 컴포넌트 추가되었을 떄
                     CHART_ADD -> {
+                        Logger.e("CHART ADD")
                         combinedChart.getChartXValueFormatter()?.let {
                             val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
                             it.addItem(
@@ -163,7 +164,6 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                 Logger.e(e.message.toString())
             }
         }
-
     }
     // 버튼들과 차트.
     Column(modifier = Modifier.fillMaxSize()) {

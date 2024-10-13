@@ -1,13 +1,10 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.COMMISSION_FEE
-import org.jeonfeel.moeuibit2.constants.KeyConst
-import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -22,13 +19,10 @@ import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.math.floor
-import kotlin.math.round
 
 enum class OrderBookKind {
     ASK, BID
@@ -83,7 +77,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
         val userCoin = coinDao.isInsert(market)
-        val commission = (totalPrice * (COMMISSION_FEE)).newBigDecimal()
+        val commission = (totalPrice * (KRW_COMMISSION_FEE)).newBigDecimal()
         var krwTotalPrice = (totalPrice + commission.toLong())
         krwTotalPrice = if (userSeedMoney - krwTotalPrice < 10) {
             userSeedMoney

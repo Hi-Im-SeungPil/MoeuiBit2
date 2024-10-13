@@ -6,8 +6,10 @@ import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
@@ -37,7 +39,6 @@ class MBitCombinedChart(
         isChartLastData: MutableState<Boolean>,
         market: String
     ) {
-        val context = MoeuiBitApp.mBitApplicationContext()
         xAxisValueFormatter = XAxisValueFormatter()
         xAxisValueFormatter?.setItem(kstDateHashMap)
         this.marketState = marketState
@@ -85,7 +86,9 @@ class MBitCombinedChart(
         }
 
         this.apply {
+            Logger.e("before " + xAxis.axisMaximum.toString())
             xAxis.axisMaximum += 1f
+            Logger.e("after " + xAxis.axisMaximum.toString())
             barData.notifyDataChanged()
             lineData.notifyDataChanged()
             data.notifyDataChanged()
@@ -116,7 +119,7 @@ class MBitCombinedChart(
                     ?: emptyList()
             val positiveDataSet = this.barData.dataSets[POSITIVE_BAR]
             val negativeDataSet = this.barData.dataSets[NEGATIVE_BAR]
-            if(accData[candlePosition.toInt()] != null) {
+            if (accData[candlePosition.toInt()] != null) {
                 val barEntry = BarEntry(candlePosition, accData[candlePosition.toInt()]!!.toFloat())
                 if (lastCandleEntry.close - lastCandleEntry.open >= 0.0) {
                     if (positiveBarLast.isNotEmpty()) {
@@ -233,7 +236,8 @@ class MBitCombinedChart(
             width = this.rendererRightYAxis
                 .paintAxisLabels
                 .measureText(this.axisRight.longestLabel.plus('0')),
-            x = this.measuredWidth - this.axisRight.getRequiredWidthSpace(
+            x = this.measuredWidth -
+                    this.axisRight.getRequiredWidthSpace(
                 this.rendererRightYAxis.paintAxisLabels
             )
         )
