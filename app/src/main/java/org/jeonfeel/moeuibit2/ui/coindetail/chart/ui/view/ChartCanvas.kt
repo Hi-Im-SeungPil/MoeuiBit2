@@ -20,13 +20,16 @@ class ChartCanvas constructor(context: Context?) :
     private var lastCandlePriceYPosition = 0f
     private var selectPrice = ""
     private var lastCandlePrice = ""
+    private var lastACCBarPrice = ""
+    private var lastACCBarYPosition = 0f
     private val selectPriceRectPaint = Paint()
     private val lastCandlePriceRectPaint = Paint()
+    private val lastAccBarRectPaint = Paint()
     private val textPaint = Paint()
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        if(lastCandlePrice.isNotEmpty()) {
+        if (lastCandlePrice.isNotEmpty()) {
             val left = xPosition
             val right = xPosition + width + textMarginLeft * 2
             val top = lastCandlePriceYPosition - textSize / 2 - 10f
@@ -35,8 +38,20 @@ class ChartCanvas constructor(context: Context?) :
             val textY = (top - (top - bottom) * 0.75).toFloat()
             val textX = left + textMarginLeft
 
-            canvas.drawRect(left,top,right * 2,bottom, lastCandlePriceRectPaint)
-            canvas.drawText(lastCandlePrice,textX,textY,textPaint)
+            canvas.drawRect(left, top, right * 2, bottom, lastCandlePriceRectPaint)
+            canvas.drawText(lastCandlePrice, textX, textY, textPaint)
+        }
+        if (lastACCBarPrice.isNotEmpty()) {
+            val left = xPosition
+            val right = xPosition + width + textMarginLeft * 2
+            val top = lastACCBarYPosition - textSize / 2 - 10f
+            val bottom = lastACCBarYPosition + textSize / 2 + 10f
+
+            val textY = (top - (top - bottom) * 0.75).toFloat()
+            val textX = left + textMarginLeft
+
+            canvas.drawRect(left, top, right * 2, bottom, lastCandlePriceRectPaint)
+            canvas.drawText(lastCandlePrice, textX, textY, textPaint)
         }
         if (selectPrice.isNotEmpty()) {
             val left = xPosition
@@ -48,18 +63,21 @@ class ChartCanvas constructor(context: Context?) :
             val textX = left + textMarginLeft
 
             canvas.drawRect(left, top, right * 2, bottom, selectPriceRectPaint)
-            canvas.drawText(selectPrice, textX,textY, textPaint)
+            canvas.drawText(selectPrice, textX, textY, textPaint)
         }
     }
 
-    fun canvasInit(textSize: Float, textMarginLeft: Float,
-                   width: Float, x: Float) {
+    fun canvasInit(
+        textSize: Float, textMarginLeft: Float,
+        width: Float, x: Float
+    ) {
         this.textSize = textSize
         this.width = width
         this.xPosition = x
         this.textMarginLeft = textMarginLeft
         selectPriceRectPaint.color = Color.parseColor("#004B00")
         lastCandlePriceRectPaint.color = increase_candle_color
+        lastAccBarRectPaint.color = increase_candle_color
         textPaint.color = Color.WHITE
         textPaint.textSize = textSize
     }
@@ -79,10 +97,25 @@ class ChartCanvas constructor(context: Context?) :
         this.invalidate()
     }
 
-    fun realTimeLastCandleClose(lastCandlePriceYPosition: Float, lastCandlePrice: String, color: Int) {
+    fun realTimeLastCandleClose(
+        lastCandlePriceYPosition: Float,
+        lastCandlePrice: String,
+        candleColor: Int,
+    ) {
         this.lastCandlePrice = lastCandlePrice
         this.lastCandlePriceYPosition = lastCandlePriceYPosition
-        this.lastCandlePriceRectPaint.color = color
+        this.lastCandlePriceRectPaint.color = candleColor
+        this.invalidate()
+    }
+
+    fun realTimeLastBarClose(
+        lastACCBarYPosition: Float,
+        lastACCBarPrice: String,
+        barColor: Int
+    ) {
+        this.lastACCBarYPosition = lastACCBarYPosition
+        this.lastACCBarPrice = lastACCBarPrice
+        this.lastAccBarRectPaint.color = barColor
         this.invalidate()
     }
 }

@@ -71,6 +71,9 @@ class ChartHelper(private val context: Context?) {
             setPinchZoom(false)
             setDrawGridBackground(false)
             setDrawBorders(false)
+            legend.xOffset = -20f
+            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
             fitScreen()
         }
 
@@ -100,7 +103,7 @@ class ChartHelper(private val context: Context?) {
             if (marketState == SELECTED_BTC_MARKET) {
                 this.minWidth = Paint().measureText("0.00000000")
             } else {
-                if(market == BTC_MARKET) {
+                if (market == BTC_MARKET) {
                     this.minWidth = 70f
                 } else {
                     this.minWidth = 50f
@@ -173,7 +176,6 @@ fun MBitCombinedChart.setMBitChartTouchListener(
 
     this.setOnTouchListener { _, me ->
         if (loadingOldData.value) {
-            Log.e("return!!!!!!", "")
             return@setOnTouchListener true
         }
         if (minuteVisibility.value) minuteVisibility.value = false
@@ -203,6 +205,14 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 } else {
                     null
                 }
+
+            val highestVisibleBar: BarEntry? = if (this.barData.xMax > this.highestVisibleX) {
+                this.data.barData.dataSets[0].getEntriesForXValue(
+                    round(this.highestVisibleX)
+                ).first()
+            } else {
+                null
+            }
 
             /**
              * 액션
@@ -234,6 +244,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
+
                         val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
                             this@setMBitChartTouchListener.context,
                             R.color.increase_color
@@ -256,6 +267,11 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                             yp,
                             CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
                             color
+                        )
+                    }
+                    highestVisibleBar?.let {
+                        chartCanvas?.realTimeLastBarClose(
+
                         )
                     }
                     chartCanvas?.actionDownInvalidate(y, selectedPrice)
@@ -383,7 +399,7 @@ fun CombinedChart.chartRefreshSettings(
 
         val candleData = CandleData(candleDataSet)
         val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
-        if(barData.entryCount == 1) {
+        if (barData.entryCount == 1) {
             this.axisLeft.axisMaximum = barData.yMax * 5
         }
         val combinedData = CombinedData()

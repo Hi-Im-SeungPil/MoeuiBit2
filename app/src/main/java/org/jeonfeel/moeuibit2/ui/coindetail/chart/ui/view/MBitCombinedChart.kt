@@ -6,10 +6,7 @@ import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.MoeuiBitApp
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
@@ -160,7 +157,7 @@ class MBitCombinedChart(
                         tradePrice,
                         marketState
                     ),
-                    color = color
+                    candleColor = color
                 )
                 if (candleUpdateLiveDataValue == CHART_SET_ALL) {
                     val lastBar = try {
