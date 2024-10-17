@@ -326,6 +326,12 @@ class NewCoinDetailViewModel @Inject constructor(
         }
     }
 
+    fun setLastPeriod(period: String) {
+        viewModelScope.launch {
+            chart.saveLastPeriod(period)
+        }
+    }
+
     private suspend fun collectTicker() {
         upbitUseCase.observeTickerResponse().onEach { result ->
             _tickerResponse.update {

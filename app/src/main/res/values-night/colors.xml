@@ -8,7 +8,7 @@
     <color name="decrease_bar_color">#996E6EFA</color>
     <color name="increase_bar_color">#99FF4646</color>
 
-    <color name="marker_view_background">#FF000000</color>
+    <color name="marker_view_background">#B3000000</color>
     <color name="background">#FF000000</color>
 
     <color name="textColor">#FFFFFFFF</color>

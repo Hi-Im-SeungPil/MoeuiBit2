@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -52,7 +55,7 @@ const val POSITIVE_BAR = 0
 const val NEGATIVE_BAR = 1
 
 @Composable
-fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), market: String) {
+fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
     val context = LocalContext.current
     val combinedChart = remember { MBitCombinedChart(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -174,14 +177,17 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
             isChartLastData = coinDetailViewModel.chart.state.isLastData,
             requestChartData = coinDetailViewModel::requestChartData,
             rootExchange = ROOT_EXCHANGE_UPBIT,
-            market = market
+            market = market,
+            setLastPeriod = coinDetailViewModel::setLastPeriod
         )
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
                 factory = {
                     combinedChart
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
             )
             if (coinDetailViewModel.chart.state.minuteVisible.value) {
                 Row(
@@ -189,6 +195,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                         .fillMaxWidth()
                         .height(35.dp)
                         .align(Alignment.TopCenter)
+                        .border(0.5.dp, color = colorScheme.primary)
                 ) {
                     if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
                         for (i in chartMinuteArray.indices) {
@@ -202,7 +209,8 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                                 autoSizeText = true,
                                 selectedButton = coinDetailViewModel.chart.state.selectedButton,
                                 requestChartData = coinDetailViewModel::requestChartData,
-                                market = market
+                                market = market,
+                                setLastPeriod = coinDetailViewModel::setLastPeriod
                             )
                         }
                     } else if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
@@ -217,7 +225,8 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel = hiltViewModel(), m
                                 autoSizeText = true,
                                 selectedButton = coinDetailViewModel.chart.state.selectedButton,
                                 requestChartData = coinDetailViewModel::requestChartData,
-                                market = market
+                                market = market,
+                                setLastPeriod = coinDetailViewModel::setLastPeriod
                             )
                         }
                     }
@@ -236,12 +245,14 @@ private fun PeriodButtons(
     isChartLastData: MutableState<Boolean>,
     requestChartData: KFunction1<String, Unit>,
     rootExchange: String,
-    market: String
+    market: String,
+    setLastPeriod: (period: String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(35.dp)
+            .background(Color.White)
     ) {
         val buttonModifier = remember {
             Modifier
@@ -249,7 +260,7 @@ private fun PeriodButtons(
                 .fillMaxHeight()
         }
         val btnColor = if (selectedButton.value == MINUTE_SELECT) {
-            androidx.compose.material3.MaterialTheme.colorScheme.primary
+            colorScheme.primary
         } else {
             Color.LightGray
         }
@@ -258,7 +269,7 @@ private fun PeriodButtons(
             onClick = {
                 minuteVisibility.value = !minuteVisibility.value
             }, modifier = if (selectedButton.value == MINUTE_SELECT) buttonModifier
-                .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                .border(1.dp, colorScheme.primary)
                 .fillMaxHeight()
             else buttonModifier
         ) {
@@ -279,7 +290,8 @@ private fun PeriodButtons(
             isChartLastData = isChartLastData,
             period = DAY_SELECT,
             requestChartData = requestChartData,
-            market = market
+            market = market,
+            setLastPeriod
         )
         if (rootExchange != ROOT_EXCHANGE_BITTHUMB) {
             PeriodButton(
@@ -293,7 +305,8 @@ private fun PeriodButtons(
                 isChartLastData = isChartLastData,
                 period = WEEK_SELECT,
                 requestChartData = requestChartData,
-                market = market
+                market = market,
+                setLastPeriod
             )
             PeriodButton(
                 modifier = buttonModifier,
@@ -306,7 +319,8 @@ private fun PeriodButtons(
                 isChartLastData = isChartLastData,
                 period = MONTH_SELECT,
                 requestChartData = requestChartData,
-                market = market
+                market = market,
+                setLastPeriod
             )
         }
     }
@@ -324,17 +338,18 @@ fun PeriodButton(
     isChartLastData: MutableState<Boolean>,
     period: Int,
     requestChartData: (market: String) -> Unit,
-    market: String
+    market: String,
+    setLastPeriod: (period: String) -> Unit
 ) {
     val buttonColor = if (selectedButton.value == period) {
-        androidx.compose.material3.MaterialTheme.colorScheme.primary
+        colorScheme.primary
     } else {
         Color.LightGray
     }
 
     val modifierResult = if (selectedButton.value == period) {
         modifier
-            .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
+            .border(1.dp, colorScheme.primary)
             .fillMaxHeight()
     } else {
         modifier
@@ -344,9 +359,10 @@ fun PeriodButton(
         isChartLastData.value = false
         candleType.value = candleTypeValue
         minuteVisibility.value = false
-        minuteText.value = if (isKor) "분" else "m,h"
+        minuteText.value = "분"
         selectedButton.value = period
         requestChartData(market)
+        setLastPeriod(candleTypeValue)
     }, modifier = modifierResult) {
         Text(
             text = buttonText,
@@ -366,39 +382,42 @@ fun RowScope.MinuteButton(
     minuteTextValue: String,
     autoSizeText: Boolean,
     requestChartData: (market: String) -> Unit,
-    market: String
+    market: String,
+    setLastPeriod: (period: String) -> Unit
 ) {
-    TextButton(
-        onClick = {
-            isChartLastData.value = false
-            candleType.value = candleTypeValue
-            minuteVisibility.value = false
-            minuteText.value = minuteTextValue
-            selectedButton.value = MINUTE_SELECT
-            requestChartData(market)
-        }, modifier = Modifier
-            .weight(1f)
-            .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
-            .border(0.5.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary)
-            .fillMaxHeight()
-    ) {
-        if (autoSizeText) {
-            AutoSizeText(
-                text = minuteTextValue,
-                textStyle = MaterialTheme.typography.body1.copy(
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-                    fontSize = DpToSp(14.dp)
-                ),
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .wrapContentHeight()
-                    .weight(1f)
-            )
-        } else {
-            Text(
-                text = minuteTextValue,
-                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
-            )
+    Row {
+        TextButton(
+            onClick = {
+                isChartLastData.value = false
+                candleType.value = candleTypeValue
+                minuteVisibility.value = false
+                minuteText.value = minuteTextValue
+                selectedButton.value = MINUTE_SELECT
+                requestChartData(market)
+                setLastPeriod(candleTypeValue)
+            }, modifier = Modifier
+                .weight(1f)
+                .background(colorScheme.background)
+                .fillMaxHeight()
+        ) {
+            if (autoSizeText) {
+                AutoSizeText(
+                    text = minuteTextValue,
+                    textStyle = MaterialTheme.typography.body1.copy(
+                        color = colorScheme.onBackground,
+                        fontSize = DpToSp(14.dp)
+                    ),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentHeight()
+                        .weight(1f)
+                )
+            } else {
+                Text(
+                    text = minuteTextValue,
+                    style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
+                )
+            }
         }
     }
 }

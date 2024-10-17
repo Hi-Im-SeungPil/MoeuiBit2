@@ -167,7 +167,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     accData: HashMap<Int, Double>,
     requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
     isChartLastData: MutableState<Boolean>,
-    market: String\
+    market: String
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -206,13 +206,20 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                     null
                 }
 
-            val highestVisibleBar: BarEntry? = if (this.barData.xMax > this.highestVisibleX) {
-                this.data.barData.dataSets[0].getEntriesForXValue(
-                    round(this.highestVisibleX)
-                ).first()
-            } else {
-                null
-            }
+//            val highestVisibleBar: BarEntry? = if (this.barData.xMax > this.highestVisibleX) {
+//                val barEntry = this.data.barData.dataSets[0].getEntriesForXValue(
+//                    round(this.highestVisibleX)
+//                )
+//                if (barEntry.isEmpty()) {
+//                    this.data.barData.dataSets[1].getEntriesForXValue(
+//                        round(this.highestVisibleX)
+//                    ).first()
+//                } else {
+//                    barEntry.first()
+//                }
+//            } else {
+//                null
+//            }
 
             /**
              * 액션
@@ -273,32 +280,32 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                             color!!
                         )
                     }
-                    highestVisibleBar?.let {
-                        val tradePrice = highestVisibleBar.y
-                        if (color == null) {
-                            color = ContextCompat.getColor(
-                                this@setMBitChartTouchListener.context,
-                                R.color.increase_color
-                            )
-                        }
-
-                        val yp = this.getPosition(
-                            Entry(0f, tradePrice), rightAxis.axisDependency
-                        ).y
-
-                        chartCanvas?.realTimeLastBarClose(
-                            lastACCBarYPosition = yp,
-                            lastACCBarPrice = y.toString(),
-                            barColor = color!!
-                        )
-                    }
+//                    highestVisibleBar?.let {
+//                        val tradePrice = highestVisibleBar.y
+//                        if (color == null) {
+//                            color = ContextCompat.getColor(
+//                                this@setMBitChartTouchListener.context,
+//                                R.color.increase_color
+//                            )
+//                        }
+//
+//                        val yp = this.getPosition(
+//                            Entry(0f, tradePrice), rightAxis.axisDependency
+//                        ).y
+//
+//                        chartCanvas?.realTimeLastBarClose(
+//                            lastACCBarYPosition = yp,
+//                            lastACCBarPrice = y.toString(),
+//                            barColor = color!!
+//                        )
+//                    }
                     chartCanvas?.actionDownInvalidate(y, selectedPrice)
                     xAxis.addLimitLine(verticalLine)
                     rightAxis.addLimitLine(horizontalLine)
                 }
 
                 MotionEvent.ACTION_MOVE -> {
-                    var color:Int? = null
+                    var color: Int? = null
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
@@ -326,25 +333,25 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                             color!!
                         )
                     }
-                    highestVisibleBar?.let {
-                        val tradePrice = highestVisibleBar.y
-                        if (color == null) {
-                            color = ContextCompat.getColor(
-                                this@setMBitChartTouchListener.context,
-                                R.color.increase_color
-                            )
-                        }
-
-                        val yp = this.getPosition(
-                            Entry(0f, tradePrice), rightAxis.axisDependency
-                        ).y
-
-                        chartCanvas?.realTimeLastBarClose(
-                            lastACCBarYPosition = yp,
-                            lastACCBarPrice = y.toString(),
-                            barColor = color!!
-                        )
-                    }
+//                    highestVisibleBar?.let {
+//                        val tradePrice = highestVisibleBar.y
+//                        if (color == null) {
+//                            color = ContextCompat.getColor(
+//                                this@setMBitChartTouchListener.context,
+//                                R.color.increase_color
+//                            )
+//                        }
+//
+//                        val yp = this.getPosition(
+//                            Entry(0f, tradePrice), rightAxis.axisDependency
+//                        ).y
+//
+//                        chartCanvas?.realTimeLastBarClose(
+//                            lastACCBarYPosition = yp,
+//                            lastACCBarPrice = y.toString(),
+//                            barColor = color!!
+//                        )
+//                    }
                     chartCanvas?.actionMoveInvalidate(y, selectedPrice)
                     rightAxis.limitLines[rightAxis.limitLines.lastIndex] = horizontalLine
                 }

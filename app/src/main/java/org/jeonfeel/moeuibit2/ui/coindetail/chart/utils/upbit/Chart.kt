@@ -7,6 +7,7 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -26,6 +27,8 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
+import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -35,7 +38,7 @@ class ChartState {
     val loadingDialogState = mutableStateOf(false)
     val minuteVisible = mutableStateOf(false)
     val selectedButton = mutableStateOf(MINUTE_SELECT)
-    val minuteText = if (MoeuiBitDataStore.isKor) mutableStateOf("1분") else mutableStateOf("1m")
+    val minuteText = mutableStateOf("1분")
     val loadingOldData = mutableStateOf(false)
     val isLastData = mutableStateOf(false) // 더이상 불러올 과거 데이터가 없는지 FLAG값
 }
@@ -43,14 +46,16 @@ class ChartState {
 class Chart @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val upbitChartUseCase: UpbitChartUseCase
+    private val upbitChartUseCase: UpbitChartUseCase,
+    private val preferenceManager: PreferencesManager
 ) : BaseCommunicationModule() {
     val state = ChartState()
+    private var firstInit = true
     var market = ""
     var chartUpdateJob: Job? = null
     private var chartLastData = false
     private val _candleEntries = ArrayList<CandleEntry>()
-    val candleEntries:List<CandleEntry> get() = _candleEntries
+    val candleEntries: List<CandleEntry> get() = _candleEntries
     private val movingAverage = ArrayList<GetMovingAverage>()
     private val chartData = ArrayList<ChartModel>()
 
@@ -78,9 +83,34 @@ class Chart @Inject constructor(
     }
 
     suspend fun refresh(candleType: String = state.candleType.value, market: String) {
-        chartUpdateJob?.cancelAndJoin()
-        newRequestUpbitChartData(candleType, market)
-        getUserCoinPurchaseAverage(market)
+        if (firstInit) {
+            firstInit = false
+            preferenceManager.getString("lastPeriod").collect {
+                state.candleType.value = it
+                when {
+                    it.toIntOrNull() is Int -> {
+                        state.minuteText.value = it + "분"
+                    }
+
+                    else -> {
+                        state.minuteText.value = "분"
+                        state.selectedButton.value = when (it) {
+                            "days" -> DAY_SELECT
+                            "weeks" -> WEEK_SELECT
+                            "months" -> MONTH_SELECT
+                            else -> MINUTE_SELECT
+                        }
+                    }
+                }
+                chartUpdateJob?.cancelAndJoin()
+                newRequestUpbitChartData(state.candleType.value, market)
+                getUserCoinPurchaseAverage(market)
+            }
+        } else {
+            chartUpdateJob?.cancelAndJoin()
+            newRequestUpbitChartData(candleType, market)
+            getUserCoinPurchaseAverage(market)
+        }
     }
 
     private suspend fun newRequestUpbitChartData(
@@ -145,10 +175,14 @@ class Chart @Inject constructor(
                 }.also { it.start() }
             },
             onApiError = { apiResult ->
-                val message = JSONObject(apiResult.message ?: "")["name"]
-                if(message == "too_many_requests") {
-                    delay(1000L)
-                    newRequestUpbitChartData(market = market)
+                try {
+                    val message = JSONObject(apiResult.message ?: "")["name"]
+                    if (message == "too_many_requests") {
+                        delay(1000L)
+                        newRequestUpbitChartData(market = market)
+                    }
+                } catch (jsonException: JSONException) {
+                    Logger.e(jsonException.message.toString())
                 }
             }
         )
@@ -498,6 +532,10 @@ class Chart @Inject constructor(
             val yValue = candleEntries[candleEntries.lastIndex - i.getNumber()].y
             i.addLineData(lastCandle, yValue)
         }
+    }
+
+    suspend fun saveLastPeriod(period: String) {
+        preferenceManager.setValue("lastPeriod", period)
     }
 
     /**

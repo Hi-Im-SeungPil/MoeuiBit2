@@ -17,33 +17,33 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class SingletonModule {
 
-    @Singleton
-    @Provides
-    fun provideChart(
-        remoteRepository: UpbitRepository,
-        localRepository: LocalRepository,
-        upbitChartUseCase: UpbitChartUseCase
-    ): Chart {
-        return Chart(
-            upbitRepository = remoteRepository,
-            localRepository = localRepository,
-            upbitChartUseCase = upbitChartUseCase
-        )
-    }
-
-    @Provides
-    fun provideCoinOrder(
-        localRepository: LocalRepository,
-        prefrenceManager: PreferencesManager
-    ): CoinOrder {
-        return CoinOrder(
-            preferenceManager = prefrenceManager,
-            localRepository = localRepository
-        )
-    }
-
-    @Provides
-    fun provideCoinInfo(): CoinInfo {
-        return CoinInfo()
-    }
+//    @Singleton
+//    @Provides
+//    fun provideChart(
+//        remoteRepository: UpbitRepository,
+//        localRepository: LocalRepository,
+//        upbitChartUseCase: UpbitChartUseCase
+//    ): Chart {
+//        return Chart(
+//            upbitRepository = remoteRepository,
+//            localRepository = localRepository,
+//            upbitChartUseCase = upbitChartUseCase
+//        )
+//    }
+//
+//    @Provides
+//    fun provideCoinOrder(
+//        localRepository: LocalRepository,
+//        prefrenceManager: PreferencesManager
+//    ): CoinOrder {
+//        return CoinOrder(
+//            preferenceManager = prefrenceManager,
+//            localRepository = localRepository
+//        )
+//    }
+//
+//    @Provides
+//    fun provideCoinInfo(): CoinInfo {
+//        return CoinInfo()
+//    }
 }

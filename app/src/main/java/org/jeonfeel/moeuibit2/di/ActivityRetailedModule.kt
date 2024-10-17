@@ -29,6 +29,37 @@ class ActivityRetailedModule {
         return AdMobManager()
     }
 
+    @Provides
+    fun provideChart(
+        remoteRepository: UpbitRepository,
+        localRepository: LocalRepository,
+        upbitChartUseCase: UpbitChartUseCase,
+        prefrenceManager: PreferencesManager
+    ): Chart {
+        return Chart(
+            upbitRepository = remoteRepository,
+            localRepository = localRepository,
+            upbitChartUseCase = upbitChartUseCase,
+            preferenceManager = prefrenceManager
+        )
+    }
+
+    @Provides
+    fun provideCoinOrder(
+        localRepository: LocalRepository,
+        prefrenceManager: PreferencesManager
+    ): CoinOrder {
+        return CoinOrder(
+            preferenceManager = prefrenceManager,
+            localRepository = localRepository
+        )
+    }
+
+    @Provides
+    fun provideCoinInfo(): CoinInfo {
+        return CoinInfo()
+    }
+
 
 
 //    @Provides

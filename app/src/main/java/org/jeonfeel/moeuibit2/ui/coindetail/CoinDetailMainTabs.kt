@@ -111,7 +111,7 @@ fun TabRowMainNavigation(
         }
         composable(CoinDetailMainTabRowItem.Chart.screen_route) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                ChartScreen(market = market)
+                ChartScreen(coinDetailViewModel = viewModel,market = market)
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
