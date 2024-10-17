@@ -167,7 +167,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     accData: HashMap<Int, Double>,
     requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
     isChartLastData: MutableState<Boolean>,
-    market: String
+    market: String\
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -241,37 +241,55 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                     if (rightAxis.limitLines.size != 2 && rightAxis.limitLines.size != 0) {
                         rightAxis.removeLimitLine(rightAxis.limitLines.last())
                     }
+                    var color: Int? = null
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
 
-                        val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
-                            this@setMBitChartTouchListener.context,
-                            R.color.increase_color
-                        )
-                        else ContextCompat.getColor(
-                            this@setMBitChartTouchListener.context,
-                            R.color.decrease_color
-                        )
+                        color = if (tradePrice - openPrice >= 0.0) {
+                            ContextCompat.getColor(
+                                this@setMBitChartTouchListener.context,
+                                R.color.increase_color
+                            )
+                        } else {
+                            ContextCompat.getColor(
+                                this@setMBitChartTouchListener.context,
+                                R.color.decrease_color
+                            )
+                        }
                         val yp = this.getPosition(
                             Entry(0f, tradePrice), rightAxis.axisDependency
                         ).y
                         leftAxis.removeAllLimitLines()
                         this.addAccAmountLimitLine(
                             lastX = highestVisibleCandle.x,
-                            color = color,
+                            color = color!!,
                             marketState = marketState,
                             accData = accData
                         )
                         chartCanvas?.realTimeLastCandleClose(
                             yp,
                             CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
-                            color
+                            color!!
                         )
                     }
                     highestVisibleBar?.let {
-                        chartCanvas?.realTimeLastBarClose(
+                        val tradePrice = highestVisibleBar.y
+                        if (color == null) {
+                            color = ContextCompat.getColor(
+                                this@setMBitChartTouchListener.context,
+                                R.color.increase_color
+                            )
+                        }
 
+                        val yp = this.getPosition(
+                            Entry(0f, tradePrice), rightAxis.axisDependency
+                        ).y
+
+                        chartCanvas?.realTimeLastBarClose(
+                            lastACCBarYPosition = yp,
+                            lastACCBarPrice = y.toString(),
+                            barColor = color!!
                         )
                     }
                     chartCanvas?.actionDownInvalidate(y, selectedPrice)
@@ -280,10 +298,11 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                 }
 
                 MotionEvent.ACTION_MOVE -> {
+                    var color:Int? = null
                     highestVisibleCandle?.let {
                         val tradePrice = highestVisibleCandle.close
                         val openPrice = highestVisibleCandle.open
-                        val color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
+                        color = if (tradePrice - openPrice >= 0.0) ContextCompat.getColor(
                             this@setMBitChartTouchListener.context,
                             R.color.increase_color
                         )
@@ -296,7 +315,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         ).y
                         this.addAccAmountLimitLine(
                             lastX = highestVisibleCandle.x,
-                            color = color,
+                            color = color!!,
                             marketState = marketState,
                             accData = accData
                         )
@@ -304,7 +323,26 @@ fun MBitCombinedChart.setMBitChartTouchListener(
                         chartCanvas?.realTimeLastCandleClose(
                             yp,
                             CurrentCalculator.tradePriceCalculator(tradePrice, marketState),
-                            color
+                            color!!
+                        )
+                    }
+                    highestVisibleBar?.let {
+                        val tradePrice = highestVisibleBar.y
+                        if (color == null) {
+                            color = ContextCompat.getColor(
+                                this@setMBitChartTouchListener.context,
+                                R.color.increase_color
+                            )
+                        }
+
+                        val yp = this.getPosition(
+                            Entry(0f, tradePrice), rightAxis.axisDependency
+                        ).y
+
+                        chartCanvas?.realTimeLastBarClose(
+                            lastACCBarYPosition = yp,
+                            lastACCBarPrice = y.toString(),
+                            barColor = color!!
                         )
                     }
                     chartCanvas?.actionMoveInvalidate(y, selectedPrice)
