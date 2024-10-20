@@ -18,9 +18,7 @@ fun ExchangeScreenRoute(
         changeTradeCurrency = viewModel::changeTradeCurrency,
         onPaused = viewModel::onPause,
         onResume = viewModel::onResume,
-        needAnimationList = viewModel.getNeedAnimationList(),
-        stopAnimation = viewModel::stopAnimation,
         btcKrwPrice = viewModel.getBtcPrice(),
-        appNavController = appNavController
+        appNavController = appNavController,
     )
 }

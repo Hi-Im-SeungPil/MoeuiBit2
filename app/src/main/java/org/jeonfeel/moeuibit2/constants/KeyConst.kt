@@ -27,4 +27,6 @@ object KeyConst {
 
     const val NAV_ARGUMENTS_WARNING = "warning"
     const val NAV_ARGUMENTS_MARKET = "warning"
+
+    const val PREF_KEY_CHART_LAST_PERIOD = "chartLastPeriod"
 }

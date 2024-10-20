@@ -194,7 +194,10 @@ fun ExchangeScreenLazyColumnItem(
                 .align(Alignment.Bottom)
         ) {
             Text(
-                text = createCoinName(commonExchangeModel.warning.toString(), commonExchangeModel.koreanName),
+                text = createCoinName(
+                    commonExchangeModel.warning.toString(),
+                    commonExchangeModel.koreanName
+                ),
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -265,7 +268,11 @@ fun ExchangeScreenLazyColumnItem(
             )
         )
         // 거래대금
-        Volume(accTradePrice24h, commonExchangeModel.accTradePrice24h.toDouble(), commonExchangeModel.market)
+        Volume(
+            accTradePrice24h,
+            commonExchangeModel.accTradePrice24h.toDouble(),
+            commonExchangeModel.market
+        )
     }
 }
 
@@ -332,29 +339,13 @@ fun TradePrice(
                         .fillMaxHeight()
                 )
             } else {
-                if (MoeuiBitDataStore.isKor) {
-                    if (selectedMarket == SELECTED_BTC_MARKET) {
-                        AutoSizeText(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .fillMaxHeight(), text = btcToKrw.plus(" $SYMBOL_KRW"),
-                            TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.End),
-                            color = Color.Gray
-                        )
-                    }
-                } else {
+                if (selectedMarket == SELECTED_BTC_MARKET) {
                     AutoSizeText(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .fillMaxHeight(), text = "\$ ${
-                            CurrentCalculator.krwToUsd(
-                                Utils.removeComma(btcToKrw).toDouble(),
-                                MoeuiBitDataStore.usdPrice
-                            )
-                        }",
-                        TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.Start),
+                            .fillMaxHeight(), text = btcToKrw.plus(" $SYMBOL_KRW"),
+                        TextStyle(fontSize = DpToSp(dp = 13.dp), textAlign = TextAlign.End),
                         color = Color.Gray
                     )
                 }

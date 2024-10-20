@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
@@ -85,7 +86,7 @@ class Chart @Inject constructor(
     suspend fun refresh(candleType: String = state.candleType.value, market: String) {
         if (firstInit) {
             firstInit = false
-            preferenceManager.getString("lastPeriod").collect {
+            preferenceManager.getString(KeyConst.PREF_KEY_CHART_LAST_PERIOD).collect {
                 state.candleType.value = it
                 when {
                     it.toIntOrNull() is Int -> {
@@ -535,7 +536,7 @@ class Chart @Inject constructor(
     }
 
     suspend fun saveLastPeriod(period: String) {
-        preferenceManager.setValue("lastPeriod", period)
+        preferenceManager.setValue(KeyConst.PREF_KEY_CHART_LAST_PERIOD, period)
     }
 
     /**

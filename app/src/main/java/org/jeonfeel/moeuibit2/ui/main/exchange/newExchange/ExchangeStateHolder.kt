@@ -20,20 +20,21 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
+import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
 
 class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
-        val pagerState: PagerState,
-        val lazyScrollState: LazyListState,
-        val context: Context,
-        val isUpdateExchange: Boolean,
-        val sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
-        val focusManaManager: FocusManager,
-        private val changeTradeCurrency: (tradeCurrency: Int) -> Unit,
-        val coroutineScope: CoroutineScope,
-        private val tradeCurrencyState: State<Int>
+    val pagerState: PagerState,
+    val lazyScrollState: LazyListState,
+    val context: Context,
+    val isUpdateExchange: Boolean,
+    val sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    val focusManaManager: FocusManager,
+    private val changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    val coroutineScope: CoroutineScope,
+    private val tradeCurrencyState: State<Int>,
 ) {
     val textFieldValueState = mutableStateOf("")
     var selectedSortType = mutableStateOf(SortType.DEFAULT)
@@ -41,14 +42,15 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val coinTickerListVisibility = mutableStateOf(true)
 
     fun getFilteredList(tickerList: List<CommonExchangeModel>): List<CommonExchangeModel> {
-        return Utils.filterTickerList(
-                exchangeModelList = tickerList,
-                searchStr = textFieldValueState.value
+        val list = Utils.filterTickerList(
+            exchangeModelList = tickerList,
+            searchStr = textFieldValueState.value
         )
+        return list
     }
 
     fun onSortClick(
-            sortType: SortType,
+        sortType: SortType,
     ) {
         if (!isUpdateExchange) return
         when {
@@ -96,7 +98,7 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             }
         } else {
             coroutineScope.launch {
-                if(tradeCurrencyState.value != TRADE_CURRENCY_FAV) {
+                if (tradeCurrencyState.value != TRADE_CURRENCY_FAV) {
 //                    coinTickerListVisibility.value = false
 //                    delay(100)
                     changeTradeCurrency(tradeCurrencyState.value + 1)
@@ -112,25 +114,25 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun rememberExchangeStateHolder(
-        pagerState: PagerState = rememberPagerState(),
-        listScrollState: LazyListState = rememberLazyListState(),
-        context: Context = LocalContext.current,
-        focusManaManager: FocusManager = LocalFocusManager.current,
-        isUpdateExchange: Boolean,
-        sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
-        changeTradeCurrency: (tradeCurrency: Int) -> Unit,
-        coroutineScope: CoroutineScope = rememberCoroutineScope(),
-        tradeCurrencyState: State<Int>
+    pagerState: PagerState = rememberPagerState(),
+    listScrollState: LazyListState = rememberLazyListState(),
+    context: Context = LocalContext.current,
+    focusManaManager: FocusManager = LocalFocusManager.current,
+    isUpdateExchange: Boolean,
+    sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    tradeCurrencyState: State<Int>,
 ) = remember {
     ExchangeStateHolder(
-            pagerState = pagerState,
-            lazyScrollState = listScrollState,
-            context = context,
-            isUpdateExchange = isUpdateExchange,
-            sortTickerList = sortTickerList,
-            focusManaManager = focusManaManager,
-            changeTradeCurrency = changeTradeCurrency,
-            coroutineScope = coroutineScope,
-            tradeCurrencyState = tradeCurrencyState
+        pagerState = pagerState,
+        lazyScrollState = listScrollState,
+        context = context,
+        isUpdateExchange = isUpdateExchange,
+        sortTickerList = sortTickerList,
+        focusManaManager = focusManaManager,
+        changeTradeCurrency = changeTradeCurrency,
+        coroutineScope = coroutineScope,
+        tradeCurrencyState = tradeCurrencyState,
     )
 }

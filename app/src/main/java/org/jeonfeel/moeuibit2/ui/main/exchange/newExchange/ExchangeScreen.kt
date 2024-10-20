@@ -105,16 +105,14 @@ fun ExchangeScreen(
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     onResume: () -> Unit,
     onPaused: () -> Unit,
-    needAnimationList: List<State<String>>,
-    stopAnimation: (market: String) -> Unit,
     btcKrwPrice: BigDecimal,
-    appNavController: NavHostController
+    appNavController: NavHostController,
 ) {
     val state = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
         sortTickerList = sortTickerList,
         changeTradeCurrency = changeTradeCurrency,
-        tradeCurrencyState = tradeCurrencyState
+        tradeCurrencyState = tradeCurrencyState,
     )
 
     AddLifecycleEvent(
@@ -157,12 +155,11 @@ fun ExchangeScreen(
                 CoinTickerSection(
                     lazyScrollState = state.lazyScrollState,
                     tickerList = state.getFilteredList(tickerList = tickerList),
-                    needAnimationList = needAnimationList,
-                    stopAnimation = stopAnimation,
                     btcKrwPrice = btcKrwPrice,
                     coinTickerListSwipeAction = state::coinTickerListSwipeAction,
                     pagerState = state.pagerState,
-                    appNavController = appNavController
+                    appNavController = appNavController,
+                    strValue = state.textFieldValueState,
                 )
             }
         }
@@ -386,12 +383,11 @@ private fun RowScope.SortButton(
 private fun CoinTickerSection(
     tickerList: List<CommonExchangeModel>,
     lazyScrollState: LazyListState,
-    stopAnimation: (market: String) -> Unit,
-    needAnimationList: List<State<String>>,
     btcKrwPrice: BigDecimal,
     coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
     pagerState: PagerState,
-    appNavController: NavHostController
+    appNavController: NavHostController,
+    strValue: MutableState<String>
 ) {
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -416,13 +412,13 @@ private fun CoinTickerSection(
                     val warning = item.warning
                     appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning")
                 },
-                needAnimation = if (needAnimationList.isNotEmpty()) needAnimationList[index].value else TickerAskBidState.NONE.name,
+                needAnimation = item.needAnimation,
                 market = item.market,
-                stopAnimation = stopAnimation,
                 btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
                     .formattedStringForBtc(),
                 btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
-                    .formattedUnitStringForBtc()
+                    .formattedUnitStringForBtc(),
+                strValue = strValue
             )
         }
     }
@@ -439,11 +435,11 @@ fun CoinTickerView(
     acc24h: String,
     onClickEvent: () -> Unit,
     infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = ""),
-    needAnimation: String,
-    stopAnimation: (market: String) -> Unit,
+    needAnimation: MutableState<String>,
     market: String,
     btcPriceMultiplyCoinPrice: String,
     btcPriceMultiplyAcc: String,
+    strValue: MutableState<String>
 ) = Column {
     Row(
         modifier = modifier
@@ -466,12 +462,18 @@ fun CoinTickerView(
             label = "animation alpha"
         )
 
-        LaunchedEffect(key1 = needAnimation) {
-            if (needAnimation != TickerAskBidState.NONE.name) {
-                delay(animationDurationTimeMills.toLong())
-                stopAnimation(market)
-            }
+        LaunchedEffect(key1 = needAnimation.value) {
+//            if (needAnimation != TickerAskBidState.NONE.name) {
+            delay(animationDurationTimeMills.toLong())
+            needAnimation.value = TickerAskBidState.NONE.name
+//            stopAnimation(market)
+//            }
         }
+
+        LaunchedEffect(key1 = strValue.value) {
+            needAnimation.value = TickerAskBidState.NONE.name
+        }
+
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -502,7 +504,7 @@ fun CoinTickerView(
                     .background(Color.White)
                     .drawBehind {
                         drawLine(
-                            color = when (needAnimation) {
+                            color = when (needAnimation.value) {
                                 TickerAskBidState.ASK.name -> {
                                     FallColor.copy(alpha = alpha)
                                 }
@@ -517,7 +519,7 @@ fun CoinTickerView(
                             },
                             start = Offset(0f, size.height),
                             end = Offset(size.width, size.height),
-                            strokeWidth = if (needAnimation != TickerAskBidState.NONE.name) 2.dp.toPx() else 0.dp.toPx()
+                            strokeWidth = if (needAnimation.value != TickerAskBidState.NONE.name) 2.dp.toPx() else 0.dp.toPx()
                         )
                     }
                     .padding(2.dp),

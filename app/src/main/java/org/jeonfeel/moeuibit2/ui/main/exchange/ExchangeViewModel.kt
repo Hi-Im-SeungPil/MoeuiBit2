@@ -149,33 +149,6 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun getNeedAnimationList(): List<State<String>> {
-        return when (rootExchange) {
-            ROOT_EXCHANGE_UPBIT -> {
-                upBit.getNeedAnimationList()
-            }
-
-            ROOT_EXCHANGE_BITTHUMB -> {
-                upBit.getNeedAnimationList()
-            }
-
-            else -> {
-                upBit.getNeedAnimationList()
-            }
-        }
-    }
-
-    fun stopAnimation(market: String) {
-        rootExchangeBranch(
-                upbitAction = {
-                    upBit.stopAnimation(market)
-                },
-                bitthumbAction = {
-
-                }
-        )
-    }
-
     companion object {
         const val ROOT_EXCHANGE_UPBIT = "upbit"
         const val ROOT_EXCHANGE_BITTHUMB = "bitthumb"
