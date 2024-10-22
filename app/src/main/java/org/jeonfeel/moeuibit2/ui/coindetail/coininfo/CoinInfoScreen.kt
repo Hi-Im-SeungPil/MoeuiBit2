@@ -1,38 +1,38 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.dvkyun.flexhybridand.FlexWebView
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.CoinInfoContent
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.CoinInfoEmptyScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.initFlex
-import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
-@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
-    CommonLoadingDialog(
-        dialogState = coinDetailViewModel.coinInfo.state.coinInfoDialog,
-        text = stringResource(id = R.string.coinInfoLoading)
-    )
-    CommonLoadingDialog(
-        dialogState = coinDetailViewModel.coinInfo.state.webViewLoading,
-        text = "페이지 로드중..."
-    )
+fun CoinInfoScreen(
+    viewModel: NewCoinDetailViewModel,
+    market: String
+) {
+    if (viewModel.coinInfo.coinInfoLoading.value) {
+        CommonLoadingDialog(
+            dialogState = viewModel.coinInfo._coinInfoLoading,
+            text = stringResource(id = R.string.coinInfoLoading),
+        )
+    }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val coinInfoHashMap = remember {
-        mutableStateOf(HashMap<String, String>())
+    val coinInfoMap = remember {
+        mutableStateMapOf<String,String>()
     }
     val selected = remember {
         mutableStateOf("")
@@ -41,35 +41,34 @@ fun CoinInfoScreen(coinDetailViewModel: CoinDetailViewModel = viewModel()) {
         FlexWebView(context)
     }
     val selectedButton = remember {
-        mutableStateOf(-1)
+        mutableIntStateOf(-1)
     }
 
     AddLifecycleEvent(
-        onStopAction = {
-            coinDetailViewModel.coinInfo.state.coinInfoLoading.value = false
-        },
         onStartAction = {
-            flex.initFlex(coinDetailViewModel.coinInfo.state.webViewLoading)
-            coinDetailViewModel.getCoinInfo()
+            flex.initFlex()
+            viewModel.getCoinInfo(market = market)
+        },
+        onStopAction = {
+            viewModel.coinInfo._coinInfoLoading.value = false
         }
     )
 
     LaunchedEffect(true) {
-        coinDetailViewModel.coinInfo.coinInfoLiveData.observe(lifecycleOwner) {
-            coinInfoHashMap.value = it
-            coinDetailViewModel.coinInfo.state.coinInfoDialog.value = false
+        viewModel.coinInfo.coinInfoLiveData.observe(lifecycleOwner) {
+            coinInfoMap.putAll(it)
+            viewModel.coinInfo._coinInfoLoading.value = false
         }
     }
 
-    if (coinInfoHashMap.value.isNotEmpty() && coinDetailViewModel.coinInfo.state.coinInfoLoading.value) {
+    if (coinInfoMap.isNotEmpty() && !viewModel.coinInfo.coinInfoLoading.value) {
         CoinInfoContent(
             selected = selected,
             selectedButton = selectedButton,
-            coinInfoHashMap = coinInfoHashMap,
-            flex = flex,
-            webViewLoading = coinDetailViewModel.coinInfo.state.webViewLoading
+            coinInfoHashMap = coinInfoMap.toMap(),
+            flex = flex
         )
-    } else if (coinInfoHashMap.value.isEmpty() && coinDetailViewModel.coinInfo.state.coinInfoLoading.value) {
+    } else if (coinInfoMap.isEmpty() && !viewModel.coinInfo.coinInfoLoading.value) {
         CoinInfoEmptyScreen()
     }
 }

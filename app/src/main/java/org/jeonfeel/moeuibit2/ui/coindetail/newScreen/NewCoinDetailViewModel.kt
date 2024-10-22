@@ -22,6 +22,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTick
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
@@ -37,6 +38,7 @@ class NewCoinDetailViewModel @Inject constructor(
     private val upbitCoinOrder: UpbitCoinOrder,
     private val upbitUseCase: UpbitUseCase,
     private val cacheManager: CacheManager,
+    val coinInfo: CoinInfo,
     val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
@@ -331,6 +333,11 @@ class NewCoinDetailViewModel @Inject constructor(
             chart.saveLastPeriod(period)
         }
     }
+
+    fun getCoinInfo(market: String) {
+        coinInfo.getCoinInfo(market)
+    }
+
 
     private suspend fun collectTicker() {
         upbitUseCase.observeTickerResponse().onEach { result ->

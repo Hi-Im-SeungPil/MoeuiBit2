@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui
 import android.os.Message
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,9 +36,8 @@ import org.jeonfeel.moeuibit2.utils.moveUrl
 fun CoinInfoContent(
     selected: MutableState<String>,
     selectedButton: MutableState<Int>,
-    coinInfoHashMap: MutableState<HashMap<String, String>>,
-    flex: FlexWebView,
-    webViewLoading: MutableState<Boolean>
+    coinInfoHashMap: Map<String,String>,
+    flex: FlexWebView
 ) {
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxSize()) {
@@ -47,21 +47,20 @@ fun CoinInfoContent(
                 .wrapContentHeight()
         ) {
             MoveUrlText(text = stringResource(id = R.string.block), clickAction = {
-                selected.value = coinInfoHashMap.value[KeyConst.INFO_BLOCK_KEY]!!
+                selected.value = coinInfoHashMap[KeyConst.INFO_BLOCK_KEY]!!
                 context.moveUrl(selected.value)
             })
             MoveUrlText(text = stringResource(id = R.string.homePage), clickAction = {
-                selected.value = coinInfoHashMap.value[KeyConst.INFO_HOMEPAGE_KEY]!!
+                selected.value = coinInfoHashMap[KeyConst.INFO_HOMEPAGE_KEY]!!
                 context.moveUrl(selected.value)
             })
             MoveUrlText(text = stringResource(id = R.string.info), clickAction = {
-                selected.value = coinInfoHashMap.value[KeyConst.INFO_INFO_KEY]!!
+                selected.value = coinInfoHashMap[KeyConst.INFO_INFO_KEY]!!
                 context.moveUrl(selected.value)
             })
             LoadWebViewText(text = stringResource(id = R.string.twitter), clickAction = {
-                webViewLoading.value = true;
                 selectedButton.value = 4
-                selected.value = coinInfoHashMap.value[KeyConst.INFO_TWITTER_KEY]!!
+                selected.value = coinInfoHashMap[KeyConst.INFO_TWITTER_KEY]!!
                 flex.loadData(
                     twitterUrl(selected.value),
                     "text/html; charset=utf-8",
@@ -69,17 +68,18 @@ fun CoinInfoContent(
                 )
             }, selectedButton = selectedButton, buttonId = 4)
             LoadWebViewText(text = stringResource(id = R.string.amount), clickAction = {
-                webViewLoading.value = true;
                 selectedButton.value = 5
-                selected.value = coinInfoHashMap.value[KeyConst.INFO_AMOUNT_KEY]!!
-                flex.loadUrl(selected.value)
+                selected.value = coinInfoHashMap[KeyConst.INFO_AMOUNT_KEY]!!
+//                flex.loadUrl(selected.value)
             }, selectedButton = selectedButton, buttonId = 5)
         }
+
+
 
         if (selectedButton.value == -1) {
             GlideImage(
                 imageModel = R.drawable.img_default_wv, modifier = Modifier
-                    .fillMaxHeight()
+                    .weight(1f)
                     .wrapContentWidth()
                     .padding(10.dp, 0.dp, 10.dp, 10.dp)
             )
@@ -87,17 +87,17 @@ fun CoinInfoContent(
             || flex.url == null && selectedButton.value == 4
             || flex.url == null && selectedButton.value == 5
         ) {
-            if (!webViewLoading.value) {
-                AndroidView(
-                    factory = {
-                        flex
-                    }, modifier = Modifier
-                        .fillMaxHeight()
-                        .wrapContentWidth()
-                        .padding(10.dp, 0.dp)
-                        .background(Color.Transparent)
-                )
-            }
+            AndroidView(
+                factory = {
+                    val parentLayout = FrameLayout(context).apply {
+                        addView(flex)
+                    }
+                    parentLayout
+                }, modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth()
+                    .padding(10.dp, 0.dp)
+            )
         }
     }
 }
@@ -167,7 +167,7 @@ fun getTextColor(selectedButton: Int, buttonId: Int): Color {
     }
 }
 
-fun FlexWebView.initFlex(webViewLoading: MutableState<Boolean>) {
+fun FlexWebView.initFlex() {
     val flex = this
     flex.settings.setSupportMultipleWindows(true)
     flex.settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
@@ -191,7 +191,6 @@ fun FlexWebView.initFlex(webViewLoading: MutableState<Boolean>) {
     flex.webViewClient = object : FlexWebViewClient() {
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            webViewLoading.value = false;
         }
     }
 }

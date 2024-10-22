@@ -89,7 +89,7 @@ fun NewCoinDetailScreen(
         )
         CoinDetailMainTabRow(navController = state.navController)
         Box {
-            TabRowMainNavigation(navHostController = state.navController, market = market)
+            TabRowMainNavigation(navHostController = state.navController, market = market, viewModel = viewModel)
         }
     }
 }

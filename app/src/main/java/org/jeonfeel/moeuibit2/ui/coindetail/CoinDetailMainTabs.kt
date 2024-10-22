@@ -6,7 +6,7 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,8 +23,8 @@ import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.NewOrderScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
@@ -32,15 +32,15 @@ import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
 
-sealed class CoinDetailMainTabRowItem(var title: String, var screen_route: String) {
-    object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER, "order")
-    object Chart : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART, "Chart")
-    object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
+sealed class CoinDetailMainTabRowItem(var title: String, var screenRoute: String) {
+    data object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER, "order")
+    data object Chart : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART, "Chart")
+    data object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
 }
 
 @Composable
 fun CoinDetailMainTabRow(navController: NavController) {
-    val tabState = remember { mutableStateOf(0) }
+    val tabState = remember { mutableIntStateOf(0) }
     val items = listOf(
         CoinDetailMainTabRowItem.Order,
         CoinDetailMainTabRowItem.Chart,
@@ -48,20 +48,20 @@ fun CoinDetailMainTabRow(navController: NavController) {
     )
 
     TabRow(
-        selectedTabIndex = tabState.value,
+        selectedTabIndex = tabState.intValue,
         modifier = Modifier.height(35.dp),
         backgroundColor = MaterialTheme.colorScheme.background
     ) {
         items.forEachIndexed { index, tab ->
             Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp), fontWeight = FontWeight.W600) },
-                selected = tabState.value == index,
+                selected = tabState.intValue == index,
                 selectedContentColor = tabRowSelectedColor(),
                 unselectedContentColor = colorResource(id = R.color.CDCDCDC),
                 onClick = {
-                    if (tabState.value != index) {
-                        tabState.value = index
-                        navController.navigate(tab.screen_route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
+                    if (tabState.intValue != index) {
+                        tabState.intValue = index
+                        navController.navigate(tab.screenRoute) {
+                            popUpTo(navController.graph.id) {
                                 saveState = true
                                 inclusive = true
                             }
@@ -78,15 +78,15 @@ fun CoinDetailMainTabRow(navController: NavController) {
 @Composable
 fun TabRowMainNavigation(
     navHostController: NavHostController,
-    viewModel: NewCoinDetailViewModel = hiltViewModel(),
+    viewModel: NewCoinDetailViewModel,
     market: String
 ) {
     val context = LocalContext.current
     NavHost(
         navController = navHostController,
-        startDestination = CoinDetailMainTabRowItem.Order.screen_route,
+        startDestination = CoinDetailMainTabRowItem.Order.screenRoute,
     ) {
-        composable(CoinDetailMainTabRowItem.Order.screen_route) {
+        composable(CoinDetailMainTabRowItem.Order.screenRoute) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
                 OrderScreenRoute(
                     market = market,
@@ -109,16 +109,19 @@ fun TabRowMainNavigation(
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
         }
-        composable(CoinDetailMainTabRowItem.Chart.screen_route) {
+        composable(CoinDetailMainTabRowItem.Chart.screenRoute) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-                ChartScreen(coinDetailViewModel = viewModel,market = market)
+                ChartScreen(coinDetailViewModel = viewModel, market = market)
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
         }
-        composable(CoinDetailMainTabRowItem.CoinInfo.screen_route) {
+        composable(CoinDetailMainTabRowItem.CoinInfo.screenRoute) {
             if (NetworkMonitorUtil.currentNetworkState != NO_INTERNET_CONNECTION) {
-//                CoinInfoScreen(coinDetailViewModel)
+                CoinInfoScreen(
+                    viewModel = viewModel,
+                    market = market
+                )
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))
             }
