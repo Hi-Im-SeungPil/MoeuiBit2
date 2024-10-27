@@ -3,6 +3,8 @@ package org.jeonfeel.moeuibit2.utils.calculator
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.firstDecimal
@@ -12,6 +14,7 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.sevenDecimal
 import org.jeonfeel.moeuibit2.utils.sixthDecimal
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.floor
@@ -303,6 +306,14 @@ object Calculator {
             "0"
         } else {
             purchaseAverage.forthDecimal()
+        }
+    }
+
+    fun getTotalPurchase(myCoin: MyCoin): BigDecimal {
+        return if (Utils.getSelectedMarket(myCoin.market) == SELECTED_KRW_MARKET) {
+            (myCoin.quantity * myCoin.purchasePrice).toBigDecimal()
+        } else {
+            (myCoin.quantity * myCoin.purchasePrice * myCoin.purchaseAverageBtcPrice).toBigDecimal()
         }
     }
 }

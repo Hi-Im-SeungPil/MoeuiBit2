@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,7 +28,7 @@ import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 @Composable
 fun PortfolioPieChart(
     pieChartState: MutableState<Boolean>,
-    userSeedMoney: MutableState<Long>,
+    userSeedMoney: State<Long>,
     userHoldCoinList: List<MyCoin?>,
 ) {
     val imageVector = remember {

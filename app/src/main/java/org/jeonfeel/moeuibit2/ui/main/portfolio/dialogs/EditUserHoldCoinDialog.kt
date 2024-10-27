@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main.portfolio
+package org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

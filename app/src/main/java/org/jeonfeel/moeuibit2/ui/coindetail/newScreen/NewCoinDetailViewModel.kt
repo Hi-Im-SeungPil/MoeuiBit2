@@ -8,11 +8,14 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
@@ -43,35 +46,42 @@ class NewCoinDetailViewModel @Inject constructor(
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
+
     private val _koreanCoinName = mutableStateOf("")
     val koreanCoinName: State<String> get() = _koreanCoinName
+
     private val _orderBookIndication = mutableStateOf("quantity")
     val orderBookIndication: State<String> get() = _orderBookIndication
+
     private val _userSeedMoney = mutableLongStateOf(0L)
     val userSeedMoney: State<Long> get() = _userSeedMoney
 
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
+    private var tickerRealTimeUpdateJob: Job? = null
+    private var orderBookRealTimeUpdateJob: Job? = null
 
     fun init(market: String) {
         getOrderBookIndication()
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                _userSeedMoney.longValue = getUserSeedMoney()
-                _koreanCoinName.value =
-                    cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
-                requestCoinTicker(market)
-                requestSubscribeTicker(market)
-                collectTicker()
-            },
-            bitthumbAction = {
+        tickerRealTimeUpdateJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    _userSeedMoney.longValue = getUserSeedMoney()
+                    _koreanCoinName.value =
+                        cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
+                    requestCoinTicker(market)
+                    requestSubscribeTicker(market)
+                    collectTicker(market)
+                }
 
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
             }
-        )
+        }.also { it.start() }
     }
 
     private suspend fun requestCoinTicker(market: String) {
         delay(50)
-        Logger.e("market = $market")
         val getUpbitTickerReq = GetUpbitMarketTickerReq(
             market.coinOrderIsKrwMarket()
         )
@@ -91,14 +101,17 @@ class NewCoinDetailViewModel @Inject constructor(
      * coin Order 화면 초기화
      */
     fun initCoinOrder(market: String) {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upbitCoinOrder.initCoinOrder(market)
-            },
-            bitthumbAction = {
-            },
-            dispatcher = Dispatchers.IO
-        )
+        orderBookRealTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upbitCoinOrder.initCoinOrder(market)
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
+            }
+        }.also { it.start() }
     }
 
     /**
@@ -108,6 +121,7 @@ class NewCoinDetailViewModel @Inject constructor(
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upbitCoinOrder.onPause()
+                orderBookRealTimeUpdateJob?.cancelAndJoin()
             },
             bitthumbAction = {
 
@@ -116,14 +130,17 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun coinOrderScreenOnResume(market: String) {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upbitCoinOrder.onResume(market)
-            },
-            bitthumbAction = {
+        orderBookRealTimeUpdateJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upbitCoinOrder.onResume(market)
+                }
 
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
             }
-        )
+        }.also { it.start() }
     }
 
     /**
@@ -189,13 +206,14 @@ class NewCoinDetailViewModel @Inject constructor(
     fun onPause() {
         viewModelScope.launch {
             requestSubscribeTicker("")
+            tickerRealTimeUpdateJob?.cancelAndJoin()
         }
     }
 
     fun onResume(market: String) {
-        viewModelScope.launch {
+        tickerRealTimeUpdateJob = viewModelScope.launch {
             requestSubscribeTicker(market)
-        }
+        }.also { it.start() }
     }
 
     /**
@@ -241,7 +259,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun requestAsk(
-        market:String,
+        market: String,
         quantity: Double,
         totalPrice: Long,
         price: BigDecimal,
@@ -302,7 +320,10 @@ class NewCoinDetailViewModel @Inject constructor(
 
     // 차트 화면
     fun requestOldData(
-        positiveBarDataSet: IBarDataSet, negativeBarDataSet: IBarDataSet, candleXMin: Float, market: String
+        positiveBarDataSet: IBarDataSet,
+        negativeBarDataSet: IBarDataSet,
+        candleXMin: Float,
+        market: String
     ) {
         viewModelScope.launch {
             if (rootExchange == ROOT_EXCHANGE_UPBIT) {
@@ -319,7 +340,7 @@ class NewCoinDetailViewModel @Inject constructor(
     fun requestChartData(market: String) {
         viewModelScope.launch {
 //            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
-                chart.refresh(market = market)
+            chart.refresh(market = market)
 //            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
 //                Logger.e("requestChartData")
 //                chart.setBitthumbChart()
@@ -339,8 +360,9 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
 
-    private suspend fun collectTicker() {
+    private suspend fun collectTicker(market: String) {
         upbitUseCase.observeTickerResponse().onEach { result ->
+            if (market != result.code) return@onEach
             _tickerResponse.update {
                 result
             }

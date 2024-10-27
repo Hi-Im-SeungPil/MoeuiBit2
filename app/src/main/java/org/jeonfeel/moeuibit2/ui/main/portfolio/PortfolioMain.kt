@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.secondDecimal
+import java.math.BigDecimal
 import kotlin.math.round
 
 enum class PortfolioSortButton {
@@ -43,21 +45,19 @@ enum class PortfolioSortButton {
 
 @Composable
 fun PortfolioMain(
-    portfolioOrderState: MutableState<Int>,
-    totalValuedAssets: MutableState<Double>,
-    totalPurchase: MutableState<Double>,
-    userSeedMoney: MutableState<Long>,
+    portfolioOrderState: State<Int>,
+    totalValuedAssets: State<BigDecimal>,
+    totalPurchase: State<BigDecimal>,
+    userSeedMoney: State<Long>,
     orderByNameTextInfo: List<Any>,
     orderByRateTextInfo: List<Any>,
     adDialogState: MutableState<Boolean>,
     pieChartState: MutableState<Boolean>,
-    userHoldCoinList: List<MyCoin?>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
-    isPortfolioSocketRunning: MutableState<Boolean>,
     getPortFolioMainInfoMap: (
-        totalValuedAssets: MutableState<Double>,
-        totalPurchase: MutableState<Double>,
-        userSeedMoney: MutableState<Long>
+        totalValuedAssets: State<BigDecimal>,
+        totalPurchase: State<BigDecimal>,
+        userSeedMoney: State<Long>
     ) -> Map<String, String>
 ) {
     val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
@@ -164,15 +164,14 @@ fun PortfolioMain(
             )
 
         }
-        PortfolioPieChart(
-            pieChartState = pieChartState,
-            userSeedMoney = userSeedMoney,
-            userHoldCoinList = userHoldCoinList
-        )
+//        PortfolioPieChart(
+//            pieChartState = pieChartState,
+//            userSeedMoney = userSeedMoney,
+//            userHoldCoinList = userHoldCoinList
+//        )
         PortfolioMainSortButtons(
             orderByNameTextInfo = orderByNameTextInfo,
             orderByRateTextInfo = orderByRateTextInfo,
-            isPortfolioSocketRunning = isPortfolioSocketRunning,
             portfolioOrderState = portfolioOrderState,
             sortUserHoldCoin = sortUserHoldCoin
         )

@@ -4,8 +4,8 @@ import androidx.annotation.Keep
 
 @Keep
 data class UserHoldCoinDTO(
-    var myCoinsKoreanName: String,
-    var myCoinsEngName:String,
+    var myCoinKoreanName: String,
+    var myCoinEngName:String,
     var myCoinsSymbol: String,
     var myCoinsQuantity: Double,
     var myCoinsBuyingAverage: Double = 0.0,

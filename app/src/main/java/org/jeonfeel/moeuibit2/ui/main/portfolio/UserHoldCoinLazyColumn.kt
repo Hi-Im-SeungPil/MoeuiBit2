@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,37 +35,33 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.UserHoldCoinLazyColumnItemDialog
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eightDecimalCommaFormat
-import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.secondDecimal
+import java.math.BigDecimal
 
 @Composable
-fun UserHoldCoinLazyColumn(
+fun PortfolioScreen(
     startForActivityResult: ActivityResultLauncher<Intent>,
     columnItemDialogState: MutableState<Boolean>,
-    portfolioOrderState: MutableState<Int>,
-    totalValuedAssets: MutableState<Double>,
-    totalPurchase: MutableState<Double>,
-    userSeedMoney: MutableState<Long>,
+    portfolioOrderState: State<Int>,
+    totalValuedAssets: State<BigDecimal>,
+    totalPurchase: State<BigDecimal>,
+    userSeedMoney: State<Long>,
     adDialogState: MutableState<Boolean>,
     pieChartState: MutableState<Boolean>,
-    userHoldCoinList: List<MyCoin?>,
-    userHoldCoinDTOList: SnapshotStateList<UserHoldCoinDTO>,
+    userHoldCoinDTOList: List<UserHoldCoinDTO>,
     selectedCoinKoreanName: MutableState<String>,
-    isPortfolioSocketRunning: MutableState<Boolean>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
     getPortFolioMainInfoMap: (
-        totalValuedAssets: MutableState<Double>,
-        totalPurchase: MutableState<Double>,
-        userSeedMoney: MutableState<Long>
+        totalValuedAssets: State<BigDecimal>,
+        totalPurchase: State<BigDecimal>,
+        userSeedMoney: State<Long>
     ) -> Map<String, String>
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -84,8 +81,6 @@ fun UserHoldCoinLazyColumn(
                 ),
                 adDialogState = adDialogState,
                 pieChartState = pieChartState,
-                userHoldCoinList = userHoldCoinList,
-                isPortfolioSocketRunning = isPortfolioSocketRunning,
                 sortUserHoldCoin = sortUserHoldCoin,
                 getPortFolioMainInfoMap = getPortFolioMainInfoMap
             )
@@ -97,21 +92,29 @@ fun UserHoldCoinLazyColumn(
                     ?: 0f
             )
             UserHoldCoinLazyColumnItem(
-                coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME] ?: "",
-                coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME] ?: "",
+                coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
+                    ?: "",
+                coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
+                    ?: "",
                 symbol = item.myCoinsSymbol,
-                valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT] ?: "",
-                aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN] ?: "",
+                valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
+                    ?: "",
+                aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
+                    ?: "",
                 coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
-                purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE] ?: "",
-                purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT] ?: "",
-                evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT] ?: "",
+                purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
+                    ?: "",
+                purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
+                    ?: "",
+                evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
+                    ?: "",
                 color = increaseColorOrDecreaseColor,
                 openingPrice = item.openingPrice,
                 warning = item.warning,
                 isFavorite = item.isFavorite,
                 currentPrice = item.currentPrice,
-                marketState = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_MARKET_STATE]?.toInt() ?: 0,
+                marketState = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_MARKET_STATE]?.toInt()
+                    ?: 0,
                 startForActivityResult = startForActivityResult,
                 selectedCoinKoreanName = selectedCoinKoreanName,
                 dialogState = columnItemDialogState
@@ -196,54 +199,22 @@ fun UserHoldCoinLazyColumnItem(
                     .weight(1f)
                     .padding(8.dp)
             ) {
-                if (MoeuiBitDataStore.isKor) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = stringResource(id = R.string.valuationGainOrLoss),
-                            modifier = Modifier.wrapContentWidth(),
-                            style = TextStyle(
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontSize = DpToSp(dp = 15.dp)
-                            )
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(id = R.string.valuationGainOrLoss),
+                        modifier = Modifier.wrapContentWidth(),
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = DpToSp(dp = 15.dp)
                         )
-                        AutoSizeText(
-                            text = valuationGainOrLoss, modifier = Modifier
-                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                                .weight(1f, true), textStyle = TextStyle(
-                                textAlign = TextAlign.End, fontSize = DpToSp(15.dp)
-                            ), color = color
-                        )
-                    }
-                } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = stringResource(id = R.string.valuationGainOrLoss),
-                            style = TextStyle(
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        AutoSizeText(
-                            text = valuationGainOrLoss, modifier = Modifier
-                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                                .fillMaxWidth(), textStyle = TextStyle(
-                                textAlign = TextAlign.End, fontSize = DpToSp(15.dp)
-                            ), color = color
-                        )
-                        AutoSizeText(
-                            text = "= \$ ${
-                                CurrentCalculator.krwToUsd(
-                                    Utils.removeComma(valuationGainOrLoss).toDouble(),
-                                    MoeuiBitDataStore.usdPrice
-                                )
-                            }", modifier = Modifier
-                                .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                                .fillMaxWidth(), textStyle = TextStyle(
-                                textAlign = TextAlign.End, fontSize = DpToSp(15.dp)
-                            ), color = color
-                        )
-                    }
+                    )
+                    AutoSizeText(
+                        text = valuationGainOrLoss, modifier = Modifier
+                            .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                            .weight(1f, true), textStyle = TextStyle(
+                            textAlign = TextAlign.End, fontSize = DpToSp(15.dp)
+                        ), color = color
+                    )
                 }
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(

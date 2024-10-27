@@ -8,17 +8,22 @@ import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.round
 
 class PortfolioScreenStateHolder(
@@ -27,7 +32,7 @@ class PortfolioScreenStateHolder(
     val adMobManager: AdMobManager,
     val errorReward: () -> Unit,
     val earnReward: () -> Unit,
-    val btcTradePrice: MutableDoubleState
+    val btcTradePrice: State<Double>
 ) {
     val adLoadingDialogState = mutableStateOf(false)
     val adConfirmDialogState = mutableStateOf(false)
@@ -49,11 +54,13 @@ class PortfolioScreenStateHolder(
                 item.myCoinsQuantity * item.myCoinsBuyingAverage,
                 marketState
             )
+
         val evaluationAmount =
             CurrentCalculator.tradePriceCalculatorNoStringFormat(
                 item.myCoinsQuantity * currentPrice,
                 marketState
             )
+
         val valuationGainOrLoss = if (marketState == SELECTED_KRW_MARKET) {
             evaluationAmount - purchaseAmount
         } else {
@@ -68,6 +75,7 @@ class PortfolioScreenStateHolder(
                 SELECTED_KRW_MARKET
             )
         }
+
         val purchasePrice = if (marketState == SELECTED_KRW_MARKET) {
             CurrentCalculator.tradePriceCalculator(purchaseAverage, SELECTED_KRW_MARKET)
         } else {
@@ -76,11 +84,13 @@ class PortfolioScreenStateHolder(
                 SELECTED_KRW_MARKET
             )
         }
+
         val evaluationAmountFormat = if (marketState == SELECTED_KRW_MARKET) {
             Calculator.getDecimalFormat().format(evaluationAmount)
         } else {
             Calculator.getDecimalFormat().format(evaluationAmount * btcTradePrice.value)
         }
+
         val aReturn =
             if (marketState == SELECTED_KRW_MARKET) {
                 val tempAReturn =
@@ -101,17 +111,21 @@ class PortfolioScreenStateHolder(
                     tempAReturn.secondDecimal()
                 }
             }
+
         val valuationGainOrLossResult = Calculator.valuationGainOrLossDecimal(
             purchaseAverage = valuationGainOrLoss
         )
+
         val coinKoreanName = Utils.getPortfolioName(
             marketState = marketState,
-            name = item.myCoinsKoreanName
+            name = item.myCoinKoreanName
         )
+
         val coinEngName = Utils.getPortfolioName(
             marketState = marketState,
-            name = item.myCoinsEngName
+            name = item.myCoinEngName
         )
+
         val purchaseAmountResult = if (marketState == SELECTED_KRW_MARKET) {
             CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
         } else {
@@ -137,25 +151,31 @@ class PortfolioScreenStateHolder(
     }
 
     fun getPortfolioMainInfoMap(
-        totalValuedAssets: MutableState<Double>,
-        totalPurchase: MutableState<Double>,
-        userSeedMoney: MutableState<Long>,
+        totalValuedAssets: State<BigDecimal>,
+        totalPurchase: State<BigDecimal>,
+        userSeedMoney: State<Long>,
     ): Map<String, String> {
-        val calcTotalValuedAssets = Calculator.getDecimalFormat()
-            .format(round(totalValuedAssets.value).toLong())
-        val totalPurchaseValue =
-            Calculator.getDecimalFormat().format(round(totalPurchase.value).toLong())
+        val calcTotalValuedAssets = totalValuedAssets.value.formattedString()
+        val totalPurchaseValue = totalPurchase.value.formattedString()
         val calcUserSeedMoney = Calculator.getDecimalFormat().format(userSeedMoney.value)
-        val totalHoldings = Calculator.getDecimalFormat()
-            .format(round(userSeedMoney.value + totalValuedAssets.value).toLong())
-        val valuationGainOrLoss = Calculator.getDecimalFormat()
-            .format(round(totalValuedAssets.value - totalPurchase.value).toLong())
-        val aReturn = if (totalValuedAssets.value == 0.0) {
+        val totalHoldings =
+            totalValuedAssets.value.plus(userSeedMoney.value.toBigDecimal()).formattedString()
+        val valuationGainOrLoss =
+            totalValuedAssets.value.minus(totalPurchase.value).formattedString()
+        val aReturn = if (totalValuedAssets.value.toDouble() == 0.0) {
             "0"
         } else {
-            ((totalValuedAssets.value - totalPurchase.value) / totalPurchase.value * 100).secondDecimal()
+            ((totalValuedAssets.value
+                .minus(totalPurchase.value))
+                .divide(
+                totalPurchase.value
+                    .multiply(
+                    BigDecimal(100)
+                ))).setScale(2).toPlainString()
         }
-        val colorStandard = round(totalValuedAssets.value - totalPurchase.value).toLong()
+        val colorStandard =
+            totalValuedAssets.value.minus(totalPurchase.value)
+                .setScale(0, RoundingMode.HALF_UP)
 
         return mapOf(
             PORTFOLIO_MAIN_KEY_CALC_TOTAL_VALUED_ASSETS to calcTotalValuedAssets,
@@ -166,7 +186,6 @@ class PortfolioScreenStateHolder(
             PORTFOLIO_MAIN_KEY_A_RETURN to aReturn.plus("%"),
             PORTFOLIO_MAIN_KEY_COLOR_STANDARD to colorStandard.toString()
         )
-
     }
 
     fun showAd() {
@@ -223,7 +242,7 @@ fun rememberPortfolioScreenStateHolder(
     adMobManager: AdMobManager,
     errorReward: () -> Unit,
     earnReward: () -> Unit,
-    btcTradePrice: MutableDoubleState
+    btcTradePrice: State<Double>
 ) = remember() {
     PortfolioScreenStateHolder(
         context = context,

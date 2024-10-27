@@ -3,7 +3,12 @@ package org.jeonfeel.moeuibit2.ui.main.exchange
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
@@ -27,27 +32,29 @@ class ExchangeViewModelState {
 
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
-        private val upBit: UpBit,
-        private val localRepository: LocalRepository,
-        private val preferenceManager: PreferencesManager
+    private val upBit: UpBit,
+    private val localRepository: LocalRepository,
+    private val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
     val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
 
+    private var realTimeUpdateJob: Job? = null
+
     init {
         rootExchangeCoroutineBranch(
-                upbitAction = {
-                    upBit.initUpBit(
-                            tradeCurrencyState = tradeCurrencyState,
-                            isUpdateExchange = isUpdateExchange
-                    ).collect { upBitInitState ->
-                        processData(upBitInitState)
-                    }
-                },
-                bitthumbAction = {
-
+            upbitAction = {
+                upBit.initUpBit(
+                    tradeCurrencyState = tradeCurrencyState,
+                    isUpdateExchange = isUpdateExchange
+                ).collect { upBitInitState ->
+                    processData(upBitInitState)
                 }
+            },
+            bitthumbAction = {
+
+            }
         )
     }
 
@@ -90,9 +97,9 @@ class ExchangeViewModel @Inject constructor(
     fun sortTickerList(targetTradeCurrency: Int? = null, sortType: SortType, sortOrder: SortOrder) {
         state.isUpdateExchange.value = false
         upBit.sortTickerList(
-                tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-                sortType = sortType,
-                sortOrder = sortOrder
+            tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+            sortType = sortType,
+            sortOrder = sortOrder
         )
         state.isUpdateExchange.value = true
     }
@@ -101,36 +108,40 @@ class ExchangeViewModel @Inject constructor(
         if (tradeCurrency in 0..2) {
             state.tradeCurrencyState.intValue = tradeCurrency
             rootExchangeCoroutineBranch(
-                    upbitAction = {
-                        upBit.changeTradeCurrencyAction()
-                    },
-                    bitthumbAction = {
+                upbitAction = {
+                    upBit.changeTradeCurrencyAction()
+                },
+                bitthumbAction = {
 
-                    }
+                }
             )
         }
     }
 
     fun onPause() {
         rootExchangeCoroutineBranch(
-                upbitAction = {
-                    upBit.onPause()
-                },
-                bitthumbAction = {
+            upbitAction = {
+                upBit.onPause()
+                realTimeUpdateJob?.cancelAndJoin()
+            },
+            bitthumbAction = {
 
-                }
+            }
         )
     }
 
     fun onResume() {
-        rootExchangeCoroutineBranch(
-                upbitAction = {
+        realTimeUpdateJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
                     upBit.onResume()
-                },
-                bitthumbAction = {
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
 
                 }
-        )
+            }
+        }.also { it.start() }
     }
 
     fun getBtcPrice(): BigDecimal {

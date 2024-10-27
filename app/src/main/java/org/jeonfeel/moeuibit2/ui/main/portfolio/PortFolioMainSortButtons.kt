@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -19,8 +20,7 @@ import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 fun PortfolioMainSortButtons(
     orderByRateTextInfo: List<Any>,
     orderByNameTextInfo: List<Any>,
-    isPortfolioSocketRunning: MutableState<Boolean>,
-    portfolioOrderState: MutableState<Int>,
+    portfolioOrderState: State<Int>,
     sortUserHoldCoin: (orderState: Int) -> Unit
 ) {
     Row(
@@ -37,16 +37,14 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByNameTextInfo[2] as Color)
                 .clickable {
-                    if (isPortfolioSocketRunning.value) {
-                        if (portfolioOrderState.value != PortfolioViewModel.SORT_NAME_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_NAME_ASC) {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_NAME_DEC
-                        } else if (portfolioOrderState.value == PortfolioViewModel.SORT_NAME_DEC) {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_NAME_ASC
-                        } else {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
-                        }
-                        sortUserHoldCoin(portfolioOrderState.value)
+                    if (portfolioOrderState.value != PortfolioViewModel.SORT_NAME_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_NAME_ASC) {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_NAME_DEC
+                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_NAME_DEC) {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_NAME_ASC
+                    } else {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
                     }
+                    sortUserHoldCoin(portfolioOrderState.value)
                 }
                 .padding(0.dp, 8.dp),
             fontSize = DpToSp(15.dp),
@@ -60,16 +58,14 @@ fun PortfolioMainSortButtons(
                 .fillMaxHeight()
                 .background(color = orderByRateTextInfo[2] as Color)
                 .clickable {
-                    if (isPortfolioSocketRunning.value) {
-                        if (portfolioOrderState.value != PortfolioViewModel.SORT_RATE_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_RATE_ASC) {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_RATE_DEC
-                        } else if (portfolioOrderState.value == PortfolioViewModel.SORT_RATE_DEC) {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_RATE_ASC
-                        } else {
-                            portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
-                        }
-                        sortUserHoldCoin(portfolioOrderState.value)
+                    if (portfolioOrderState.value != PortfolioViewModel.SORT_RATE_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_RATE_ASC) {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_RATE_DEC
+                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_RATE_DEC) {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_RATE_ASC
+                    } else {
+                        portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
                     }
+                    sortUserHoldCoin(portfolioOrderState.value)
                 }
                 .padding(0.dp, 8.dp),
             fontSize = DpToSp(15.dp),

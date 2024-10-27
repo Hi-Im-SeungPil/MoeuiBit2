@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeRoute
-import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreen
+import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 
 @Composable
@@ -24,7 +24,7 @@ fun MainBottomNavGraph(
             CoinSiteScreen()
         }
         composable(MainBottomNavItem.Portfolio.screen_route) {
-            PortfolioScreen()
+            PortfolioScreenRoute()
         }
         composable(MainBottomNavItem.Setting.screen_route) {
             SettingScreen()
