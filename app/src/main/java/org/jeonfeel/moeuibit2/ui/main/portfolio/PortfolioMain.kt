@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -64,78 +66,14 @@ fun PortfolioMain(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = Color(0x80ECECEC))
+            .padding(top = 20.dp)
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Text(
-                text = stringResource(id = R.string.holdings),
-                modifier = Modifier
-                    .weight(1f, true)
-                    .padding(8.dp, 20.dp, 0.dp, 20.dp)
-                    .wrapContentHeight(),
-                style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = DpToSp(dp = 22.dp)
-                )
-            )
-            Card(
-                modifier = Modifier
-                    .background(color = Color.Transparent)
-                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
-                    .wrapContentWidth(),
-                elevation = 4.dp,
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.chargeMoney),
-                    modifier = Modifier
-                        .background(color = chargingKrwBackgroundColor())
-                        .padding(13.dp)
-                        .wrapContentWidth()
-                        .align(Alignment.CenterVertically)
-                        .clickable {
-                            adDialogState.value = true
-                        },
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = DpToSp(dp = 18.dp)
-                    )
-                )
-            }
-//            Card(
-//                modifier = Modifier
-//                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
-//                    .wrapContentWidth(),
-//                elevation = 4.dp,
-//            ) {
-//                Text(
-//                    text = "테스트 10조 충전 버튼",
-//                    modifier = Modifier
-//                        .wrapContentWidth()
-//                        .align(Alignment.CenterVertically)
-//                        .padding(8.dp)
-//                        .clickable {
-//
-//                        },
-//                    style = TextStyle(
-//                        color = Color.Black,
-//                        fontSize = 18.sp
-//                    )
-//                )
-//            }
-        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
         ) {
-
             PortfolioMainItem(
                 text1 = stringResource(id = R.string.userSeedMoney),
                 text2 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_CALC_USER_SEED_MONEY]
@@ -162,18 +100,42 @@ fun PortfolioMain(
                 colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
                     ?: 0L
             )
-
         }
-//        PortfolioPieChart(
-//            pieChartState = pieChartState,
-//            userSeedMoney = userSeedMoney,
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp), color = Color.White
+        )
+
+        PortfolioPieChart(
+            pieChartState = pieChartState,
+            userSeedMoney = userSeedMoney,
 //            userHoldCoinList = userHoldCoinList
-//        )
+        )
+
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp), color = Color.White
+        )
+
         PortfolioMainSortButtons(
             orderByNameTextInfo = orderByNameTextInfo,
             orderByRateTextInfo = orderByRateTextInfo,
             portfolioOrderState = portfolioOrderState,
             sortUserHoldCoin = sortUserHoldCoin
+        )
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .height(8.dp),
+            color = Color.White
+        )
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp),
+            color = Color.LightGray
         )
     }
 }
@@ -192,7 +154,7 @@ fun RowScope.PortfolioMainItem(
     Column(
         modifier = Modifier
             .padding()
-            .wrapContentHeight()
+            .wrapContentHeight(align = Alignment.CenterVertically)
             .weight(2f, true)
     ) {
         Text(
@@ -202,20 +164,21 @@ fun RowScope.PortfolioMainItem(
                 .wrapContentHeight()
                 .fillMaxWidth(),
             style = TextStyle(
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = DpToSp(18.dp),
+                color = Color.Black,
+                fontSize = DpToSp(15.dp),
             )
         )
         AutoSizeText(
             text = text2,
             modifier = Modifier
-                .padding(8.dp, 5.dp, 8.dp, 0.dp)
+                .padding(8.dp, 10.dp, 8.dp, 0.dp)
                 .fillMaxWidth()
                 .wrapContentHeight(),
             textStyle = TextStyle(
-                fontSize = DpToSp(22.dp),
-                fontWeight = FontWeight.Bold,
-            )
+                fontSize = DpToSp(20.dp),
+                fontWeight = FontWeight.W400,
+            ),
+            color = Color.Black
         )
         Row(
             modifier = Modifier
@@ -228,7 +191,8 @@ fun RowScope.PortfolioMainItem(
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .wrapContentHeight()
-                    .wrapContentWidth(),
+                    .wrapContentWidth()
+                    .align(Alignment.CenterVertically),
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = DpToSp(14.dp),
@@ -239,7 +203,8 @@ fun RowScope.PortfolioMainItem(
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .weight(1f, true)
-                    .wrapContentHeight(),
+                    .wrapContentHeight()
+                    .align(Alignment.CenterVertically),
                 textStyle = TextStyle(
                     fontSize = DpToSp(14.dp),
                     textAlign = TextAlign.End,
@@ -249,7 +214,7 @@ fun RowScope.PortfolioMainItem(
         }
         Row(
             modifier = Modifier
-                .padding(0.dp, 8.dp, 0.dp, 25.dp)
+                .padding(0.dp, 8.dp, 0.dp, 20.dp)
                 .wrapContentHeight()
         ) {
             Text(
@@ -257,7 +222,8 @@ fun RowScope.PortfolioMainItem(
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .wrapContentHeight()
-                    .wrapContentWidth(),
+                    .wrapContentWidth()
+                    .align(Alignment.CenterVertically),
                 style = TextStyle(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = DpToSp(14.dp),
@@ -268,7 +234,8 @@ fun RowScope.PortfolioMainItem(
                 modifier = Modifier
                     .padding(8.dp, 0.dp, 8.dp, 0.dp)
                     .weight(1f, true)
-                    .wrapContentHeight(),
+                    .wrapContentHeight()
+                    .align(Alignment.CenterVertically),
                 textStyle = TextStyle(
                     fontSize = DpToSp(14.dp),
                     textAlign = TextAlign.End
@@ -349,6 +316,7 @@ fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
             )
         },
         modifier = Modifier
+            .padding(7.dp)
             .fillMaxWidth()
             .height(300.dp)
             .background(color = MaterialTheme.colorScheme.background)

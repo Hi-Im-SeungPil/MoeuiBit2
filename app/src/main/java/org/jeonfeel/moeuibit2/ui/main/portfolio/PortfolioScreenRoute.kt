@@ -5,11 +5,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -22,7 +25,9 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.EditUserHoldCoinDialog
+import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -88,67 +93,31 @@ fun PortfolioScreenRoute(
             viewModel.onPause()
         }
     )
-
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        10.dp,
-                        ambientColor = MaterialTheme.colorScheme.onBackground,
-                        spotColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                backgroundColor = MaterialTheme.colorScheme.background
-            ) {
-                Text(
-                    text = stringResource(id = R.string.investmentDetail),
-                    modifier = Modifier
-                        .padding(5.dp, 0.dp, 0.dp, 0.dp)
-                        .weight(1f, true)
-                        .fillMaxHeight()
-                        .wrapContentHeight(),
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = DpToSp(25.dp),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                IconButton(onClick = {
-                    holder.editHoldCoinDialogState.value = true
-                }) {
-                    Icon(
-                        painterResource(id = R.drawable.img_eraser),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-            }
-        }
-    ) { contentPadding ->
-        Box(
-            modifier = Modifier
-                .padding(contentPadding)
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            PortfolioScreen(
-                startForActivityResult = startForActivityResult,
-                columnItemDialogState = holder.columnItemDialogState,
-                portfolioOrderState = viewModel.portfolioOrderState,
-                totalValuedAssets = viewModel.totalValuedAssets,
-                totalPurchase = viewModel.totalPurchase,
-                userSeedMoney = viewModel.userSeedMoney,
-                adDialogState = holder.adConfirmDialogState,
-                pieChartState = holder.pieChartState,
-                userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
-                selectedCoinKoreanName = holder.selectedCoinKoreanName,
-                sortUserHoldCoin = viewModel::sortUserHoldCoin,
-                getUserCoinInfo = holder::getUserCoinResultMap,
-                getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap
-            )
-        }
-    }
+    PortfolioScreen(
+        startForActivityResult = startForActivityResult,
+        columnItemDialogState = holder.columnItemDialogState,
+        portfolioOrderState = viewModel.portfolioOrderState,
+        totalValuedAssets = viewModel.totalValuedAssets,
+        totalPurchase = viewModel.totalPurchase,
+        userSeedMoney = viewModel.userSeedMoney,
+        adDialogState = holder.adConfirmDialogState,
+        pieChartState = holder.pieChartState,
+        userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
+        selectedCoinKoreanName = holder.selectedCoinKoreanName,
+        sortUserHoldCoin = viewModel::sortUserHoldCoin,
+        getUserCoinInfo = holder::getUserCoinResultMap,
+        getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
+        loadingState = viewModel.loadingState
+    )
 }
+//                IconButton(onClick = {
+//                    holder.editHoldCoinDialogState.value = true
+//                }) {
+//                    Icon(
+//                        painterResource(id = R.drawable.img_eraser),
+//                        contentDescription = null,
+//                        tint = MaterialTheme.colorScheme.onBackground,
+//                        modifier = Modifier.size(30.dp)
+//                    )
+//                }
 

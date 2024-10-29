@@ -39,7 +39,7 @@
     <string name="notRemovedCoin">정리된 코인이 없습니다.</string>
     <string name="networkError">네트워크 상태 오류입니다.</string>
     <string name="removedCoin">%1$d 종류의 코인이 정리되었습니다.</string>
-    <string name="investmentDetail">투자 내역</string>
+    <string name="investmentDetail">투자내역</string>
     <string name="holdings">보유자산</string>
     <string name="chargeMoney">KRW 충전</string>
     <string name="userSeedMoney">보유 KRW</string>

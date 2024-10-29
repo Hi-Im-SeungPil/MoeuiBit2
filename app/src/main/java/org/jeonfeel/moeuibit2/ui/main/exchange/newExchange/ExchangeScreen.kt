@@ -448,10 +448,10 @@ fun CoinTickerView(
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val animationDurationTimeMills = 200
+        val animationDurationTimeMills = 150
         val alpha by infiniteTransition.animateFloat(
-            initialValue = 0.0f,
-            targetValue = 0.8f,
+            initialValue = 0.3f,
+            targetValue = 1f,
             animationSpec = infiniteRepeatable(
                 animation = keyframes {
                     durationMillis = animationDurationTimeMills
@@ -463,11 +463,8 @@ fun CoinTickerView(
         )
 
         LaunchedEffect(key1 = needAnimation.value) {
-//            if (needAnimation != TickerAskBidState.NONE.name) {
             delay(animationDurationTimeMills.toLong())
             needAnimation.value = TickerAskBidState.NONE.name
-//            stopAnimation(market)
-//            }
         }
 
         LaunchedEffect(key1 = strValue.value) {

@@ -77,11 +77,15 @@ class UpbitUseCase @Inject constructor(
         )
     }
 
-    suspend fun getMarketTicker(getUpbitMarketTickerReq: GetUpbitMarketTickerReq): Flow<Any> {
+    suspend fun getMarketTicker(getUpbitMarketTickerReq: GetUpbitMarketTickerReq, isList: Boolean = false): Flow<Any> {
         return requestApiResult(
             result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
             onSuccess = { ticker ->
-                ticker[0]
+                if(isList) {
+                    ticker
+                } else {
+                    ticker[0]
+                }
             }
         )
     }

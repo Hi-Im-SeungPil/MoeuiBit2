@@ -24,12 +24,48 @@ fun AutoSizeText(
 
     Text(
         text,
-        modifier.drawWithContent {
+        modifier
+            .drawWithContent {
             if (readyToDraw.value) {
                 drawContent()
             }
-        },
-        style = rememberTextStyle.value!!.copy(color = color),
+        }
+        ,
+        style = rememberTextStyle.value!!,
+        color = color,
+        softWrap = false,
+        onTextLayout = { textLayoutResult ->
+            if (textLayoutResult.didOverflowWidth) {
+                rememberTextStyle.value =
+                    rememberTextStyle.value!!.copy(fontSize = rememberTextStyle.value!!.fontSize * 0.9)
+            } else {
+                readyToDraw.value = true
+            }
+        }
+    )
+}
+
+@Composable
+fun AutoSizeText2(
+    modifier: Modifier = Modifier,
+    text: String,
+    textStyle: TextStyle? = MaterialTheme.typography.body1,
+) {
+    val readyToDraw = remember { mutableStateOf(false) }
+    val rememberTextStyle = remember {
+        mutableStateOf(textStyle)
+    }
+
+    Text(
+        text,
+        modifier
+            .drawWithContent {
+                if (readyToDraw.value) {
+                    drawContent()
+                }
+            }
+        ,
+        style = rememberTextStyle.value!!,
         softWrap = false,
         onTextLayout = { textLayoutResult ->
             if (textLayoutResult.didOverflowWidth) {

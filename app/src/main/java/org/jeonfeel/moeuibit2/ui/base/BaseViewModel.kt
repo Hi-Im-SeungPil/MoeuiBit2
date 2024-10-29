@@ -26,7 +26,7 @@ abstract class BaseViewModel(
     private val _networkErrorState = mutableStateOf(NetworkState.NETWORK_ERROR)
     val networkErrorState: State<NetworkState> get() = _networkErrorState
 
-    private val _loadingState = mutableStateOf(false)
+    protected val _loadingState = mutableStateOf(false)
     val loadingState: State<Boolean> = _loadingState
 
     private val _errorDialogState = mutableStateOf(false)

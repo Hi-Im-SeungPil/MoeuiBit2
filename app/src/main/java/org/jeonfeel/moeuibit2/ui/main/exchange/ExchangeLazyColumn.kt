@@ -299,22 +299,6 @@ fun TradePrice(
                     textAlign = TextAlign.Center, color = textColor, fontSize = DpToSp(dp = 13.dp)
                 )
             )
-            if (!MoeuiBitDataStore.isKor) {
-                AutoSizeText(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    text = " $SYMBOL_USD ${
-                        CurrentCalculator.krwToUsd(
-                            doubleTradePrice,
-                            MoeuiBitDataStore.usdPrice
-                        )
-                    }",
-                    TextStyle(fontSize = 13.sp, textAlign = TextAlign.Start),
-                    color = Color.Gray
-                )
-            }
         }
     } else {
         Column(

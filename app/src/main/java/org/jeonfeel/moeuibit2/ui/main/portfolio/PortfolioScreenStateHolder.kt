@@ -12,6 +12,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
@@ -44,6 +45,7 @@ class PortfolioScreenStateHolder(
     fun getUserCoinResultMap(
         item: UserHoldCoinDTO,
     ): Map<String, String> {
+//        Logger.e("myCoin -> $item")
         val marketState = Utils.getSelectedMarket(item.market)
         val currentPrice = item.currentPrice
         val purchaseAverage = item.myCoinsBuyingAverage
@@ -165,13 +167,12 @@ class PortfolioScreenStateHolder(
         val aReturn = if (totalValuedAssets.value.toDouble() == 0.0) {
             "0"
         } else {
-            ((totalValuedAssets.value
+            (totalValuedAssets.value
                 .minus(totalPurchase.value))
-                .divide(
-                totalPurchase.value
-                    .multiply(
-                    BigDecimal(100)
-                ))).setScale(2).toPlainString()
+                .divide(totalPurchase.value, 10, RoundingMode.HALF_UP)
+                .multiply(BigDecimal(100))
+                .setScale(2, RoundingMode.HALF_UP)
+                .toString()
         }
         val colorStandard =
             totalValuedAssets.value.minus(totalPurchase.value)

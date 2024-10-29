@@ -18,15 +18,22 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -72,7 +79,6 @@ class PortfolioViewModel @Inject constructor(
 
     private val userHoldCoinsMarkets = StringBuilder()
     private val myCoinList = ArrayList<MyCoin?>()
-    private val tempUserHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
     private val myCoinHashMap = HashMap<String, MyCoin>()
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
 
@@ -88,13 +94,16 @@ class PortfolioViewModel @Inject constructor(
 
     fun onResume() {
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
+            _loadingState.value = true
             _isPortfolioSocketRunning.value = true
             resetPortfolio()
             getUserSeedMoney()
             getUserHoldCoins()
             parseMyCoinToUserHoldCoin()
+            requestTicker()
             setETC()
             requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+            _loadingState.value = false
             collectTicker()
         }.also { it.start() }
     }
@@ -107,8 +116,10 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    private fun resetPortfolio() {
+    private suspend fun resetPortfolio() {
         _isPortfolioSocketRunning.value = false
+        _totalPurchase.value = BigDecimal(0.0)
+        _totalValuedAssets.value = BigDecimal(0.0)
         _portfolioOrderState.intValue = SORT_DEFAULT
         userHoldCoinsMarkets.clear()
         userHoldCoinDtoListPositionHashMap.clear()
@@ -124,12 +135,13 @@ class PortfolioViewModel @Inject constructor(
         myCoinList.addAll(localRepository.getMyCoinDao().all ?: emptyList())
     }
 
-    private fun parseMyCoinToUserHoldCoin() {
+    private suspend fun parseMyCoinToUserHoldCoin() {
         myCoinList.ifEmpty {
             _totalValuedAssets.value = BigDecimal(0.0)
             _totalPurchase.value = BigDecimal(0.0)
             return
         }
+        Logger.e("${myCoinList[0]?.quantity}")
 
         val isFavorite = 0
         myCoinList.forEachIndexed { index, myCoin ->
@@ -137,9 +149,12 @@ class PortfolioViewModel @Inject constructor(
                 this.myCoinKoreanName = _koreanCoinNameMap[myCoin.symbol] ?: ""
                 this.myCoinEngName = _engCoinNameMap[myCoin.symbol] ?: ""
                 this.isFavorite = isFavorite
+                this.myCoinsBuyingAverage = myCoin.purchasePrice
+                this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
+                this.myCoinsSymbol = myCoin.symbol
+                this.market = myCoin.market
             }
-            tempUserHoldCoinDtoList.add(userHoldCoinDTO)
-
+            _userHoldCoinDtoList.add(userHoldCoinDTO)
             myCoinHashMap[myCoin.market] = myCoin
             _totalPurchase.value = _totalPurchase.value.plus(Calculator.getTotalPurchase(myCoin))
             userHoldCoinsMarkets.append(myCoin.market).append(",")
@@ -147,7 +162,58 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    private fun setETC() {
+    private suspend fun requestTicker() {
+        val marketCodes = myCoinList.map { it?.market ?: "" }.toList().mapToMarketCodesRequest()
+        val req = GetUpbitMarketTickerReq(
+            marketCodes = marketCodes
+        )
+        executeUseCase<List<GetUpbitMarketTickerRes>>(
+            target = upbitUseCase.getMarketTicker(
+                getUpbitMarketTickerReq = req,
+                isList = true
+            ),
+            onComplete = { result ->
+                runCatching {
+                    result.forEach {
+                        val position = userHoldCoinDtoListPositionHashMap[it.market] ?: 0
+                        val tempDto = userHoldCoinDtoList[position]
+                        _userHoldCoinDtoList[position] =
+                            UserHoldCoinDTO(
+                                currentPrice = it.tradePrice,
+                                openingPrice = it.prevClosingPrice,
+                                warning = "",
+                                market = it.market,
+                                isFavorite = 0,
+                                myCoinKoreanName = tempDto.myCoinKoreanName,
+                                myCoinEngName = tempDto.myCoinEngName,
+                                myCoinsQuantity = tempDto.myCoinsQuantity,
+                                myCoinsBuyingAverage = tempDto.myCoinsBuyingAverage,
+                                purchaseAverageBtcPrice = tempDto.purchaseAverageBtcPrice,
+                                myCoinsSymbol = tempDto.myCoinsSymbol
+                            )
+                    }
+                }.fold(
+                    onSuccess = {
+                        _totalValuedAssets.value = userHoldCoinDtoList.sumOf {
+                            if (it.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                                it.currentPrice.toBigDecimal()
+                                    .multiply(it.myCoinsQuantity.toBigDecimal())
+                            } else {
+                                it.currentPrice.toBigDecimal()
+                                    .multiply(it.myCoinsQuantity.toBigDecimal())
+                                    .multiply(btcTradePrice.value.toBigDecimal())
+                            }
+                        }
+                    },
+                    onFailure = {
+                        Logger.e(it.message.toString())
+                    }
+                )
+            }
+        )
+    }
+
+    private suspend fun setETC() {
         sortUserHoldCoin(SORT_DEFAULT)
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
@@ -381,21 +447,28 @@ class PortfolioViewModel @Inject constructor(
                 if (upbitSocketTickerRes.code == BTC_MARKET) {
                     _btcTradePrice.doubleValue = upbitSocketTickerRes.tradePrice
                     if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) return@collect
-
-                    val position =
-                        userHoldCoinDtoListPositionHashMap[upbitSocketTickerRes.code] ?: 0
-                    val isFavorite =
-                        MoeuiBitDataStore.upBitFavoriteHashMap[upbitSocketTickerRes.code]
-
-                    _userHoldCoinDtoList[position] =
-                        userHoldCoinDtoList[position].copy(
-                            currentPrice = upbitSocketTickerRes.tradePrice,
-                            openingPrice = upbitSocketTickerRes.prevClosingPrice,
-                            warning = upbitSocketTickerRes.marketWarning,
-                            market = upbitSocketTickerRes.code,
-                            isFavorite = isFavorite //TODO
-                        )
                 }
+
+                val position =
+                    userHoldCoinDtoListPositionHashMap[upbitSocketTickerRes.code] ?: 0
+                val isFavorite =
+                    MoeuiBitDataStore.upBitFavoriteHashMap[upbitSocketTickerRes.code]
+                val tempDto = userHoldCoinDtoList[position]
+
+                _userHoldCoinDtoList[position] =
+                    UserHoldCoinDTO(
+                        currentPrice = upbitSocketTickerRes.tradePrice,
+                        openingPrice = upbitSocketTickerRes.prevClosingPrice,
+                        warning = upbitSocketTickerRes.marketWarning,
+                        market = upbitSocketTickerRes.code,
+                        isFavorite = 0,
+                        myCoinKoreanName = tempDto.myCoinKoreanName,
+                        myCoinEngName = tempDto.myCoinEngName,
+                        myCoinsQuantity = tempDto.myCoinsQuantity,
+                        myCoinsBuyingAverage = tempDto.myCoinsBuyingAverage,
+                        purchaseAverageBtcPrice = tempDto.purchaseAverageBtcPrice,
+                        myCoinsSymbol = tempDto.myCoinsSymbol
+                    )
             }.fold(
                 onSuccess = {
                     _totalValuedAssets.value = userHoldCoinDtoList.sumOf {
