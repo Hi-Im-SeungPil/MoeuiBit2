@@ -52,10 +52,10 @@ fun MainBottomNavigation(navController: NavController) {
                         contentDescription = item.title,
                         modifier = Modifier
                             .padding(vertical = 7.dp)
-                            .size(28.dp)
+                            .size(20.dp)
                     )
                 },
-                label = { Text(text = item.title, fontSize = DpToSp(dp = 13.dp)) },
+                label = { Text(text = item.title, fontSize = DpToSp(dp = 10.dp)) },
                 selectedContentColor = bottomNavigatorSelectedColor(),
                 unselectedContentColor = Color.LightGray,
                 alwaysShowLabel = true,

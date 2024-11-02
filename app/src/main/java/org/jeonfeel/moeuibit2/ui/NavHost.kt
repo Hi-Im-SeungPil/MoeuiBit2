@@ -1,5 +1,10 @@
 package org.jeonfeel.moeuibit2.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.navigation.NavHostController
@@ -20,7 +25,10 @@ fun NavGraph(
     networkErrorState: MutableIntState
 ) {
     NavHost(navController, startDestination = AppScreen.Home.name) {
-        composable(AppScreen.Home.name) {
+        composable(
+            AppScreen.Home.name,
+            popExitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None }) {
             MoeuiBitApp(networkErrorState = networkErrorState, appNavController = navController)
         }
         composable(
@@ -28,7 +36,19 @@ fun NavGraph(
             arguments = listOf(
                 navArgument("market") { type = NavType.StringType },
                 navArgument("warning") { type = NavType.BoolType }
-            )
+            ),
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(400)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(400)
+                )
+            }
         ) { backStackEntry ->
             val market = backStackEntry.arguments?.getString("market") ?: ""
             val warning =

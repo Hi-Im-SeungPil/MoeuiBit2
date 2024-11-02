@@ -79,7 +79,7 @@ object BigDecimalMapper {
 
     fun BigDecimal.formattedString(): String {
         return when {
-            this >= BigDecimal("1000") -> format.format(this)
+            this.abs() >= BigDecimal("1000") -> format.format(this)
             else -> this.toPlainString()
         }
     }

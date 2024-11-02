@@ -88,6 +88,7 @@ class NewCoinDetailViewModel @Inject constructor(
         executeUseCase<GetUpbitMarketTickerRes>(
             target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
             onComplete = { ticker ->
+                if (ticker.market != market) return@executeUseCase
                 _coinTicker.value = ticker.mapTo()
             }
         )
@@ -367,12 +368,16 @@ class NewCoinDetailViewModel @Inject constructor(
                 result
             }
         }.collect { upbitSocketTickerRes ->
-            try {
+            runCatching {
                 _coinTicker.value = upbitSocketTickerRes.mapTo()
-                chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)
-            } catch (e: Exception) {
-                Logger.e(e.message.toString())
-            }
+            }.fold(
+                onSuccess = {
+                    chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)
+                },
+                onFailure = {
+                    Logger.e(it.message.toString())
+                }
+            )
         }
     }
 }

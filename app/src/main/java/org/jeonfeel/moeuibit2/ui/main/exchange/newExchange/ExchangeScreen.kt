@@ -1,11 +1,14 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.compiler.plugins.kotlin.EmptyFunctionMetrics.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,7 +62,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -72,6 +78,8 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.AppScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.newS.NewCoinDetailScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -410,7 +418,13 @@ private fun CoinTickerSection(
                 onClickEvent = {
                     val market = item.market
                     val warning = item.warning
-                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning")
+                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning") {
+                        popUpTo(appNavController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 needAnimation = item.needAnimation,
                 market = item.market,

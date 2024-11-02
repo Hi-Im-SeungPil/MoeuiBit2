@@ -166,12 +166,7 @@ fun PortfolioScreen(
                 }
             }
         }
-//        Divider(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(1.dp)
-//                .background(Color.LightGray)
-//        )
+
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
                 if (!loadingState.value) {

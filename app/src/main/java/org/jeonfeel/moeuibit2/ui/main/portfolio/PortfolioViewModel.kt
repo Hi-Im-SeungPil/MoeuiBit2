@@ -141,7 +141,6 @@ class PortfolioViewModel @Inject constructor(
             _totalPurchase.value = BigDecimal(0.0)
             return
         }
-        Logger.e("${myCoinList[0]?.quantity}")
 
         val isFavorite = 0
         myCoinList.forEachIndexed { index, myCoin ->
