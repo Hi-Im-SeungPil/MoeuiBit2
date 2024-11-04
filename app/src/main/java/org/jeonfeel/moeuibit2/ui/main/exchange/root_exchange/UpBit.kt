@@ -134,6 +134,59 @@ class UpBit @Inject constructor(
                     sortOrder = SortOrder.DESCENDING
                 )
             }
+
+        )
+    }
+
+    private suspend fun updateTickerData() {
+        val marketCodes =
+            if (tradeCurrencyState?.value == TRADE_CURRENCY_KRW) (krwList).mapToMarketCodesRequest() else btcList.mapToMarketCodesRequest()
+        val req = GetUpbitMarketTickerReq(
+            marketCodes = marketCodes
+        )
+        executeUseCase<List<CommonExchangeModel>>(
+            target = upbitUseCase.getMarketTicker(
+                getUpbitMarketTickerReq = req,
+                krwUpbitMarketCodeMap = krwMarketCodeMap.toMap(),
+                btcUpbitMarketCodeMap = btcMarketCodeMap.toMap(),
+            ),
+            onComplete = { result ->
+                when (tradeCurrencyState?.value) {
+                    TRADE_CURRENCY_KRW -> {
+                        result.forEach { res ->
+                            val position = krwExchangeModelPosition[res.market]
+                            position?.let {
+                                if (_krwExchangeModelList[position].tradePrice > res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.BID.name
+                                } else if (_krwExchangeModelList[position].tradePrice < res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.ASK.name
+                                } else {
+                                    res.needAnimation.value = TickerAskBidState.NONE.name
+                                }
+                                _krwExchangeModelList[position] = res
+                            }
+                        }
+                    }
+
+                    TRADE_CURRENCY_BTC -> {
+                        result.forEach { res ->
+                            val position = btcExchangeModelPosition[res.market]
+                            position?.let {
+                                if (_btcExchangeModelList[position].tradePrice > res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.BID.name
+                                } else if (_btcExchangeModelList[position].tradePrice < res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.ASK.name
+                                } else {
+                                    res.needAnimation.value = TickerAskBidState.NONE.name
+                                }
+                                _btcExchangeModelList[position] = res
+                            }
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
         )
     }
 
@@ -233,9 +286,16 @@ class UpBit @Inject constructor(
     /**
      * 웹소켓 티커 구독 요청
      */
-    private suspend fun requestSubscribeTicker() {
+    private suspend fun requestSubscribeTicker(isOnlySnapShot: Boolean = false) {
         when (tradeCurrencyState?.value) {
-            TRADE_CURRENCY_KRW -> upbitUseCase.requestSubscribeTicker(marketCodes = krwList.toList())
+            TRADE_CURRENCY_KRW -> {
+                upbitUseCase.requestSubscribeTicker(
+                    marketCodes = krwList.toList(),
+                    isOnlySnapShot = isOnlySnapShot
+                )
+//                is_only_snapshot
+            }
+
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
@@ -252,11 +312,12 @@ class UpBit @Inject constructor(
 
     suspend fun onResume() {
         if (!tickerDataIsEmpty() && successInit) {
-            requestSubscribeTicker()
+            updateTickerData()
+            requestSubscribeTicker(isOnlySnapShot = true)
         } else if (tickerDataIsEmpty() && successInit) {
             clearTickerData()
             init()
-            requestSubscribeTicker()
+            requestSubscribeTicker(isOnlySnapShot = true)
             collectTicker()
         }
     }
@@ -294,6 +355,10 @@ class UpBit @Inject constructor(
         } ?: BigDecimal.ZERO
     }
 
+    fun setData() {
+
+    }
+
     /**
      * 웹소켓 티커 수신
      */
@@ -304,6 +369,7 @@ class UpBit @Inject constructor(
             }
         }.collect { upbitSocketTickerRes ->
             try {
+                Logger.e("$upbitSocketTickerRes")
                 if (isUpdateExchange?.value == false) return@collect
 
                 var positionMap: MutableMap<String, Int>? = null

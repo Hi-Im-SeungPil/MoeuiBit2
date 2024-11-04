@@ -10,6 +10,9 @@ interface UpBitExchangeSocketService {
     @Send
     fun requestUpbitTickerRequest(request: List<UpBitSocketTickerReq>)
 
+    @Send
+    fun request(s: String)
+
     @Receive
     fun collectUpbitTickers(): Flow<UpbitSocketTickerRes>
 }

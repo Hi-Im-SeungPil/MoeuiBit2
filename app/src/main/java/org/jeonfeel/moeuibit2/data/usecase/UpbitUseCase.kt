@@ -20,6 +20,7 @@ class UpbitUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val upBitSocketService: UpBitExchangeSocketService
 ) : BaseUseCase() {
+    val ticket = UUID.randomUUID().toString()
 
     /**
      * 업비트 마켓 코드 조회
@@ -52,7 +53,8 @@ class UpbitUseCase @Inject constructor(
                 result.forEachIndexed { index, ticker ->
                     when {
                         ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
-                            val commonExchangeModel = ticker.mapTo(krwUpbitMarketCodeMap[ticker.market]!!)
+                            val commonExchangeModel =
+                                ticker.mapTo(krwUpbitMarketCodeMap[ticker.market]!!)
                             krwExchangeModelList.add(commonExchangeModel)
                             addExchangeModelPosition(
                                 commonExchangeModel.market,
@@ -62,7 +64,8 @@ class UpbitUseCase @Inject constructor(
                         }
 
                         ticker.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
-                            val commonExchangeModel = ticker.mapTo(btcUpbitMarketCodeMap[ticker.market]!!)
+                            val commonExchangeModel =
+                                ticker.mapTo(btcUpbitMarketCodeMap[ticker.market]!!)
                             btcExchangeModelList.add(commonExchangeModel)
                             addExchangeModelPosition(
                                 commonExchangeModel.market,
@@ -77,11 +80,43 @@ class UpbitUseCase @Inject constructor(
         )
     }
 
-    suspend fun getMarketTicker(getUpbitMarketTickerReq: GetUpbitMarketTickerReq, isList: Boolean = false): Flow<Any> {
+    suspend fun getMarketTicker(
+        getUpbitMarketTickerReq: GetUpbitMarketTickerReq,
+        krwUpbitMarketCodeMap: Map<String, UpbitMarketCodeRes>,
+        btcUpbitMarketCodeMap: Map<String, UpbitMarketCodeRes>,
+    ): Flow<Any> {
+        return requestApiResult(
+            result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
+            onSuccess = { result ->
+                val exchangeModelList = arrayListOf<CommonExchangeModel>()
+                result.forEachIndexed { index, ticker ->
+                    when {
+                        ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                            val commonExchangeModel =
+                                ticker.mapTo(krwUpbitMarketCodeMap[ticker.market]!!)
+                            exchangeModelList.add(commonExchangeModel)
+                        }
+
+                        ticker.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                            val commonExchangeModel =
+                                ticker.mapTo(btcUpbitMarketCodeMap[ticker.market]!!)
+                            exchangeModelList.add(commonExchangeModel)
+                        }
+                    }
+                }
+                exchangeModelList
+            }
+        )
+    }
+
+    suspend fun getMarketTicker(
+        getUpbitMarketTickerReq: GetUpbitMarketTickerReq,
+        isList: Boolean = false
+    ): Flow<Any> {
         return requestApiResult(
             result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
             onSuccess = { ticker ->
-                if(isList) {
+                if (isList) {
                     ticker
                 } else {
                     ticker[0]
@@ -94,14 +129,20 @@ class UpbitUseCase @Inject constructor(
      * 업비트 Ticker 구독 요청
      */
     suspend fun requestSubscribeTicker(
-        marketCodes: List<String>
+        marketCodes: List<String>,
+        isOnlySnapShot: Boolean = false
     ) {
+//        if (isOnlySnapShot) {
+//            upBitSocketService.request("")
+//            return
+//        }
+
         upBitSocketService.requestUpbitTickerRequest(
             listOf(
-                RequestTicketField(ticket = UUID.randomUUID().toString()),
+                RequestTicketField(ticket = ticket),
                 RequestTypeField(
                     type = "ticker",
-                    codes = marketCodes
+                    codes = marketCodes,
                 ),
                 RequestFormatField()
             )

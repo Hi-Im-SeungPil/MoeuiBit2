@@ -1,14 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.compiler.plugins.kotlin.EmptyFunctionMetrics.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -64,8 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
@@ -74,12 +69,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.AppScreen
-import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreen
-import org.jeonfeel.moeuibit2.ui.coindetail.newS.NewCoinDetailScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -116,7 +108,7 @@ fun ExchangeScreen(
     btcKrwPrice: BigDecimal,
     appNavController: NavHostController,
 ) {
-    val state = rememberExchangeStateHolder(
+    val stateHolder = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
         sortTickerList = sortTickerList,
         changeTradeCurrency = changeTradeCurrency,
@@ -134,40 +126,43 @@ fun ExchangeScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         SearchSection(
-            textFieldValueState = state.textFieldValueState,
-            focusManager = state.focusManaManager,
+            textFieldValueState = stateHolder.textFieldValueState,
+            focusManager = stateHolder.focusManaManager,
             modifier = Modifier
                 .background(color = Color.White)
                 .zIndex(1f)
         )
         CollapsingToolbarScaffold(
-            state = rememberCollapsingToolbarScaffoldState(),
-            scrollStrategy = ScrollStrategy.EnterAlwaysCollapsed,
+            state = stateHolder.toolbarState,
+            scrollStrategy = ScrollStrategy.EnterAlways,
             toolbar = {
                 SelectTradeCurrencySection(
-                    pagerState = state.pagerState,
-                    modifier = Modifier.zIndex(-1f),
+                    pagerState = stateHolder.pagerState,
+                    modifier = Modifier
+                        .zIndex(1f),
                     tradeCurrencyState = tradeCurrencyState,
-                    changeTradeCurrency = state::changeTradeCurrencyAction,
-                    coroutineScope = state.coroutineScope
+                    changeTradeCurrency = stateHolder::changeTradeCurrencyAction,
+                    coroutineScope = stateHolder.coroutineScope
                 )
             },
             modifier = Modifier
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
+                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
                 SortingSection(
-                    sortOrder = state.sortOrder.value,
-                    onSortClick = state::onSortClick,
-                    selectedSortType = state.selectedSortType
+                    sortOrder = stateHolder.sortOrder.value,
+                    onSortClick = stateHolder::onSortClick,
+                    selectedSortType = stateHolder.selectedSortType
                 )
+                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
                 CoinTickerSection(
-                    lazyScrollState = state.lazyScrollState,
-                    tickerList = state.getFilteredList(tickerList = tickerList),
+                    lazyScrollState = stateHolder.lazyScrollState,
+                    tickerList = stateHolder.getFilteredList(tickerList = tickerList),
                     btcKrwPrice = btcKrwPrice,
-                    coinTickerListSwipeAction = state::coinTickerListSwipeAction,
-                    pagerState = state.pagerState,
+                    coinTickerListSwipeAction = stateHolder::coinTickerListSwipeAction,
+                    pagerState = stateHolder.pagerState,
                     appNavController = appNavController,
-                    strValue = state.textFieldValueState,
+                    strValue = stateHolder.textFieldValueState,
                 )
             }
         }
@@ -253,10 +248,10 @@ private fun SelectTradeCurrencySection(
     coroutineScope: CoroutineScope
 ) {
     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+        Box(modifier = Modifier.height(0.dp))
         Row(
             modifier
                 .fillMaxWidth()
-                .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
         ) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
@@ -310,7 +305,6 @@ private fun SortingSection(
 ) {
     Row(
         modifier = Modifier
-            .drawUnderLine(Color(0xfff0f0f2), strokeWidth = 10f)
             .padding(top = 4.dp, bottom = 6.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -395,7 +389,7 @@ private fun CoinTickerSection(
     coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
     pagerState: PagerState,
     appNavController: NavHostController,
-    strValue: MutableState<String>
+    strValue: MutableState<String>,
 ) {
     LazyColumn(modifier = Modifier
         .fillMaxSize()

@@ -97,7 +97,7 @@ class SocketModule {
     @Provides
     @Singleton
     @CoinDetailTickerSocket
-    fun provideOrderBookTickerSocketService(
+    fun provideCoinDetailTickerSocketService(
         @CoinDetailTickerSocketType okHttpClient: OkHttpClient,
         @ApplicationContext context: Context
     ): UpBitExchangeSocketService {
