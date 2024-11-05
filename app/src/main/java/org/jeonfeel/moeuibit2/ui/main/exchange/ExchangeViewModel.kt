@@ -41,6 +41,7 @@ class ExchangeViewModel @Inject constructor(
     val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
 
     private var realTimeUpdateJob: Job? = null
+    private var marketChangeJob: Job? = null
 
     init {
         rootExchangeCoroutineBranch(
@@ -105,16 +106,24 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun changeTradeCurrency(tradeCurrency: Int) {
-        if (tradeCurrency in 0..2) {
+        if (tradeCurrency in TRADE_CURRENCY_KRW..TRADE_CURRENCY_FAV) {
             state.tradeCurrencyState.intValue = tradeCurrency
-            rootExchangeCoroutineBranch(
-                upbitAction = {
-                    upBit.changeTradeCurrencyAction()
-                },
-                bitthumbAction = {
+            marketChangeJob?.cancel()
+            marketChangeJob = viewModelScope.launch {
+                when (rootExchange) {
+                    ROOT_EXCHANGE_UPBIT -> {
+                        upBit.changeTradeCurrencyAction()
+                    }
 
+                    ROOT_EXCHANGE_BITTHUMB -> {
+                        upBit.changeTradeCurrencyAction()
+                    }
+
+                    else -> {
+                        upBit.changeTradeCurrencyAction()
+                    }
                 }
-            )
+            }.also { it.start() }
         }
     }
 

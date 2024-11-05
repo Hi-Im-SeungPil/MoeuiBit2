@@ -86,6 +86,7 @@ class PortfolioViewModel @Inject constructor(
     private var realTimeUpdateJob: Job? = null
 
     init {
+        _loadingState.value = true
         viewModelScope.launch {
             _koreanCoinNameMap.putAll(cacheManager.readKoreanCoinNameMap())
             _engCoinNameMap.putAll(cacheManager.readEnglishCoinNameMap())
@@ -93,8 +94,8 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun onResume() {
+        _loadingState.value = true
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            _loadingState.value = true
             _isPortfolioSocketRunning.value = true
             resetPortfolio()
             getUserSeedMoney()
@@ -110,6 +111,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun onPause() {
         viewModelScope.launch {
+            _loadingState.value = true
             _isPortfolioSocketRunning.value = false
             requestSubscribeTicker(listOf(""))
             realTimeUpdateJob?.cancelAndJoin()
@@ -438,6 +440,7 @@ class PortfolioViewModel @Inject constructor(
     private suspend fun collectTicker() {
         upbitUseCase.observeTickerResponse().onEach { result ->
             if (!isPortfolioSocketRunning.value) return@onEach
+
             _tickerResponse.update {
                 result
             }

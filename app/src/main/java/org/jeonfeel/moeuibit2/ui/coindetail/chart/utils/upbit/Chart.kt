@@ -176,15 +176,7 @@ class Chart @Inject constructor(
                 }.also { it.start() }
             },
             onApiError = { apiResult ->
-                try {
-                    val message = JSONObject(apiResult.message ?: "")["name"]
-                    if (message == "too_many_requests") {
-                        delay(1000L)
-                        newRequestUpbitChartData(market = market)
-                    }
-                } catch (jsonException: JSONException) {
-                    Logger.e(jsonException.message.toString())
-                }
+                Logger.e(apiResult.message.toString())
             }
         )
     }
@@ -414,7 +406,7 @@ class Chart @Inject constructor(
                     }
                 )
             }
-            delay(600)
+            delay(700)
         }
     }
 

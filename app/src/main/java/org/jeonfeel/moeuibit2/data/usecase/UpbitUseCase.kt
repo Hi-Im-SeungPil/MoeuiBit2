@@ -130,13 +130,7 @@ class UpbitUseCase @Inject constructor(
      */
     suspend fun requestSubscribeTicker(
         marketCodes: List<String>,
-        isOnlySnapShot: Boolean = false
     ) {
-//        if (isOnlySnapShot) {
-//            upBitSocketService.request("")
-//            return
-//        }
-
         upBitSocketService.requestUpbitTickerRequest(
             listOf(
                 RequestTicketField(ticket = ticket),

@@ -286,14 +286,12 @@ class UpBit @Inject constructor(
     /**
      * 웹소켓 티커 구독 요청
      */
-    private suspend fun requestSubscribeTicker(isOnlySnapShot: Boolean = false) {
+    private suspend fun requestSubscribeTicker() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> {
                 upbitUseCase.requestSubscribeTicker(
                     marketCodes = krwList.toList(),
-                    isOnlySnapShot = isOnlySnapShot
                 )
-//                is_only_snapshot
             }
 
             TRADE_CURRENCY_BTC -> {
@@ -313,11 +311,11 @@ class UpBit @Inject constructor(
     suspend fun onResume() {
         if (!tickerDataIsEmpty() && successInit) {
             updateTickerData()
-            requestSubscribeTicker(isOnlySnapShot = true)
+            requestSubscribeTicker()
         } else if (tickerDataIsEmpty() && successInit) {
             clearTickerData()
             init()
-            requestSubscribeTicker(isOnlySnapShot = true)
+            requestSubscribeTicker()
             collectTicker()
         }
     }
@@ -345,6 +343,7 @@ class UpBit @Inject constructor(
     }
 
     suspend fun changeTradeCurrencyAction() {
+        updateTickerData()
         requestSubscribeTicker()
     }
 

@@ -40,6 +40,9 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.playStoreUrl
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteLazyColumn
+import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
+import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
 fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
@@ -65,59 +68,57 @@ fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
     BackHandler(settingViewModel.state.openSourceState.value) {
         settingViewModel.state.openSourceState.value = false
     }
-
-    Scaffold(modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        10.dp,
-                        ambientColor = MaterialTheme.colorScheme.onBackground,
-                        spotColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                backgroundColor = MaterialTheme.colorScheme.background,
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.setting),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp, 0.dp, 0.dp, 0.dp)
-                            .fillMaxHeight()
-                            .wrapContentHeight()
-                            .weight(1f)
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = DpToSp(25.dp),
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    AndroidView(
-                        factory = {
-                            ImageView(it).apply {
-                                setImageResource(R.drawable.img_info)
-                                setOnClickListener {
-                                    showAlignBottom(balloon)
-                                }
-                            }
-                        }, modifier = Modifier
-                            .padding(0.dp, 0.dp, 10.dp, 0.dp)
-                            .fillMaxHeight()
-                            .size(25.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
-
-            }
+    AddLifecycleEvent(
+        onPauseAction = {
+            if (settingViewModel.state.openSourceState.value)
+                settingViewModel.state.openSourceState.value = false
         }
-    ) { contentPadding ->
-        Box(modifier = Modifier.padding(contentPadding)) {
+    )
+
+    Column {
+        Row {
+            Text(
+                text = stringResource(id = R.string.setting),
+                modifier = Modifier
+                    .padding(10.dp, 0.dp, 0.dp, 0.dp)
+                    .weight(1f, true)
+                    .align(Alignment.CenterVertically),
+                style = TextStyle(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = DpToSp(20.dp),
+                    fontWeight = FontWeight.W600
+                )
+            )
+            Text(
+                text = "",
+                modifier = Modifier
+                    .padding(21.dp)
+                    .wrapContentWidth(),
+                style = TextStyle(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = DpToSp(dp = 13.dp)
+                )
+            )
+            AndroidView(
+                factory = {
+                    ImageView(it).apply {
+                        setImageResource(R.drawable.img_info)
+                        setOnClickListener {
+                            showAlignBottom(balloon)
+                        }
+                    }
+                }, modifier = Modifier
+                    .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                    .size(25.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp), color = Color(0xFFDFDFDF)
+        )
+        Box(modifier = Modifier.fillMaxSize()) {
             SettingScreenLazyColumn(settingViewModel)
         }
     }
@@ -139,7 +140,7 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val themeDialogState = remember {
         mutableStateOf(false)
     }
-    ThemeDialog(themeDialogState,settingViewModel.preferenceManager)
+    ThemeDialog(themeDialogState, settingViewModel.preferenceManager)
     ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
         title = stringResource(id = R.string.init_title),
@@ -216,9 +217,11 @@ fun ResetDialog(
                     .wrapContentSize()
                     .padding(0.dp, 20.dp)
             ) {
-                Column(modifier = Modifier
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .wrapContentSize()) {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .wrapContentSize()
+                ) {
                     Text(
                         text = stringResource(id = R.string.resetDialogTitle),
                         modifier = Modifier

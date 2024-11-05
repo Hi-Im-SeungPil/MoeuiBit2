@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -52,10 +53,10 @@ fun MainBottomNavigation(navController: NavController) {
                         contentDescription = item.title,
                         modifier = Modifier
                             .padding(vertical = 7.dp)
-                            .size(20.dp)
+                            .size(24.dp)
                     )
                 },
-                label = { Text(text = item.title, fontSize = DpToSp(dp = 10.dp)) },
+                label = { Text(text = item.title, fontSize = DpToSp(dp = 12.dp), fontWeight = FontWeight.W600) },
                 selectedContentColor = bottomNavigatorSelectedColor(),
                 unselectedContentColor = Color.LightGray,
                 alwaysShowLabel = true,

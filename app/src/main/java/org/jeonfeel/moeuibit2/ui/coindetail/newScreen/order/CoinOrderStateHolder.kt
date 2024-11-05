@@ -156,9 +156,9 @@ class CoinOrderStateHolder(
      */
     fun getOrderBookIndicationText(orderBookIndicationState: String): String {
         return if (orderBookIndicationState == "quantity") {
-            "총액 기준 보기"
+            "수량 기준"
         } else {
-            "수량 기준 보기"
+            "총액 기준"
         }
     }
 

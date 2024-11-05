@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,30 +27,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.firebase.database.core.Constants
 import com.skydoves.landscapist.glide.GlideImage
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.UserHoldCoinLazyColumnItemDialog
@@ -60,11 +54,7 @@ import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
-import org.jeonfeel.moeuibit2.utils.decimalPoint
 import org.jeonfeel.moeuibit2.utils.eightDecimalCommaFormat
-import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 
 @Composable
@@ -166,10 +156,11 @@ fun PortfolioScreen(
                 }
             }
         }
+        Divider(Modifier.fillMaxWidth().height(1.dp), color = Color(0xFFDFDFDF))
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                if (!loadingState.value) {
+        if (!loadingState.value) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
                     PortfolioMain(
                         portfolioOrderState = portfolioOrderState,
                         totalValuedAssets = totalValuedAssets,
@@ -189,8 +180,6 @@ fun PortfolioScreen(
                         getPortFolioMainInfoMap = getPortFolioMainInfoMap
                     )
                 }
-            }
-            if (!loadingState.value) {
                 itemsIndexed(items = userHoldCoinDTOList) { _, item ->
                     val userCoinInfo = getUserCoinInfo(item)
                     val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(

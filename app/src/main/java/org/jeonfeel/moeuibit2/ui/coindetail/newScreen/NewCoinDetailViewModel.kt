@@ -59,6 +59,7 @@ class NewCoinDetailViewModel @Inject constructor(
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
     private var tickerRealTimeUpdateJob: Job? = null
     private var orderBookRealTimeUpdateJob: Job? = null
+    private var chartUpdateJob: Job? = null
 
     fun init(market: String) {
         getOrderBookIndication()
@@ -339,7 +340,8 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun requestChartData(market: String) {
-        viewModelScope.launch {
+        chartUpdateJob?.cancel()
+        chartUpdateJob = viewModelScope.launch {
 //            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
             chart.refresh(market = market)
 //            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
@@ -347,7 +349,7 @@ class NewCoinDetailViewModel @Inject constructor(
 //                chart.setBitthumbChart()
 //                chart.requestBitthumbChartData(market = market)
 //            }
-        }
+        }.also { it.start() }
     }
 
     fun setLastPeriod(period: String) {

@@ -53,9 +53,15 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
 
     fun onSortClick(
         sortType: SortType,
+        isChangeTradeCurrency: Boolean = false
     ) {
         if (!isUpdateExchange) return
         when {
+            isChangeTradeCurrency -> {
+                sortTickerList(null, this.selectedSortType.value, this.sortOrder.value)
+                return
+            }
+
             this.selectedSortType.value != sortType -> {
                 this.selectedSortType.value = sortType
                 this.sortOrder.value = SortOrder.DESCENDING
@@ -90,8 +96,9 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
         if (isSwipeLeft) {
             coroutineScope.launch {
                 if (tradeCurrencyState.value != TRADE_CURRENCY_KRW) {
-                    toolbarState.toolbarState.expand(50)
                     changeTradeCurrency(tradeCurrencyState.value - 1)
+                    onSortClick(sortType = selectedSortType.value, isChangeTradeCurrency = true)
+                    toolbarState.toolbarState.expand(50)
                     lazyScrollState.scrollToItem(0)
                     pagerState.animateScrollToPage(tradeCurrencyState.value)
                 }
@@ -99,8 +106,9 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
         } else {
             coroutineScope.launch {
                 if (tradeCurrencyState.value != TRADE_CURRENCY_FAV) {
-                    toolbarState.toolbarState.expand(50)
                     changeTradeCurrency(tradeCurrencyState.value + 1)
+                    onSortClick(sortType = selectedSortType.value, isChangeTradeCurrency = true)
+                    toolbarState.toolbarState.expand(50)
                     lazyScrollState.scrollToItem(0)
                     pagerState.animateScrollToPage(tradeCurrencyState.value)
                 }
