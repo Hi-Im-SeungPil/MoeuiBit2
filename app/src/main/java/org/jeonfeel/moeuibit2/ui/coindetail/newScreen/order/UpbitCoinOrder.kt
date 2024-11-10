@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
@@ -132,7 +133,9 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     ) {
         if (market.isTradeCurrencyKrw()) {
             upbitCoinOrderUseCase.requestKRWBid(
-                market = market, totalPrice = totalPrice, coin = MyCoin(
+                market = market,
+                totalPrice = totalPrice,
+                coin = MyCoin(
                     market = market,
                     purchasePrice = coinPrice.toDouble(),
                     koreanCoinName = koreanName,
@@ -144,7 +147,20 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
             getUserSeedMoney()
             getUserCoin(market)
         } else {
-
+            upbitCoinOrderUseCase.requestBTCBid(
+                market = market,
+                totalPrice = totalPrice.toDouble(),
+                coin = MyCoin(
+                    market = market,
+                    purchasePrice = coinPrice.toDouble(),
+                    koreanCoinName = koreanName,
+                    symbol = market.substring(4),
+                    quantity = quantity
+                ),
+                userSeedBTC = _userBtcCoin.value.quantity
+            )
+            getUserBtcCoin(market = BTC_MARKET)
+            getUserCoin(market)
         }
     }
 

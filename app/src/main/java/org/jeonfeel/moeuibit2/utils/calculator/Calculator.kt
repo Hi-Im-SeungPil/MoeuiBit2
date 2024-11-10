@@ -15,6 +15,7 @@ import org.jeonfeel.moeuibit2.utils.sevenDecimal
 import org.jeonfeel.moeuibit2.utils.sixthDecimal
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlin.math.abs
 import kotlin.math.floor
@@ -281,18 +282,24 @@ object Calculator {
         preCoinQuantity: Double,
         marketState: Int,
     ): Double {
-        val result =
-            ((preAveragePurchasePrice * preCoinQuantity) + (currentPrice * currentQuantity)) / (currentQuantity + preCoinQuantity)
+        val bdCurrentPrice = BigDecimal.valueOf(currentPrice)
+        val bdCurrentQuantity = BigDecimal.valueOf(currentQuantity)
+        val bdPreAveragePurchasePrice = BigDecimal.valueOf(preAveragePurchasePrice)
+        val bdPreCoinQuantity = BigDecimal.valueOf(preCoinQuantity)
+
+        val totalValue = bdPreAveragePurchasePrice.multiply(bdPreCoinQuantity)
+            .add(bdCurrentPrice.multiply(bdCurrentQuantity))
+        val totalQuantity = bdCurrentQuantity.add(bdPreCoinQuantity)
+        val result = totalValue.divide(totalQuantity, 8, RoundingMode.HALF_UP)
+
         return if (marketState == SELECTED_KRW_MARKET) {
-            if (result >= 100) {
-                round(result)
-            } else if (result < 100 && result >= 1) {
-                result.secondDecimal().toDouble()
-            } else {
-                result.forthDecimal().toDouble()
+            when {
+                result >= BigDecimal(100) -> result.setScale(0, RoundingMode.HALF_UP).toDouble()
+                result >= BigDecimal(1) -> result.setScale(2, RoundingMode.HALF_UP).toDouble()
+                else -> result.setScale(4, RoundingMode.HALF_UP).toDouble()
             }
         } else {
-            result.eighthDecimal().toDouble()
+            result.setScale(8, RoundingMode.HALF_UP).toDouble()
         }
     }
 

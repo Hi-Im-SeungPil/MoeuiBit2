@@ -39,11 +39,14 @@ import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
-import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.OrderScreenRoute
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
+import java.math.BigDecimal
 
 @Composable
 fun NewCoinDetailScreen(
@@ -75,7 +78,8 @@ fun NewCoinDetailScreen(
                 viewModel.coinTicker.value?.signedChangeRate ?: 1.0
             ),
             fluctuatePrice = state.getFluctuatePrice(
-                viewModel.coinTicker.value?.signedChangePrice ?: 0.0
+                viewModel.coinTicker.value?.signedChangePrice ?: 0.0,
+                market = market
             ),
             price = state.getCoinDetailPrice(
                 viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
@@ -85,11 +89,17 @@ fun NewCoinDetailScreen(
             symbol = market.substring(4),
             priceTextColor = state.getCoinDetailPriceTextColor(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
-            )
+            ),
+            btcPrice = viewModel.btcPrice.value,
+            market = market
         )
         CoinDetailMainTabRow(navController = state.navController)
         Box {
-            TabRowMainNavigation(navHostController = state.navController, market = market, viewModel = viewModel)
+            TabRowMainNavigation(
+                navHostController = state.navController,
+                market = market,
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -159,6 +169,8 @@ fun CoinDetailPriceSection(
     fluctuateRate: String,
     fluctuatePrice: String,
     symbol: String,
+    btcPrice: BigDecimal,
+    market: String
 ) {
     Column(
         modifier = Modifier
@@ -182,6 +194,17 @@ fun CoinDetailPriceSection(
                         text = price,
                         style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
                     )
+                    if (!market.isTradeCurrencyKrw()) {
+                        Text(
+                            modifier = Modifier.padding(start = 10.dp).align(Alignment.Bottom),
+                            text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
+                                .plus(" KRW"),
+                            style = TextStyle(
+                                color = Color.Gray,
+                                fontSize = DpToSp(dp = 11.dp)
+                            )
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier

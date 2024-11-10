@@ -103,7 +103,8 @@ fun TabRowMainNavigation(
                     getUserBTC = viewModel::getUserBtcCoin,
                     requestBid = viewModel::requestBid,
                     requestAsk = viewModel::requestAsk,
-                    getUserCoin = viewModel::getUserCoin
+                    getUserCoin = viewModel::getUserCoin,
+                    btcPrice = viewModel.btcPrice
                 )
             } else {
                 context.showToast(stringResource(id = R.string.NO_INTERNET_CONNECTION))

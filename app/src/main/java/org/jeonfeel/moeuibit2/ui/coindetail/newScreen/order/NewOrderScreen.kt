@@ -78,7 +78,8 @@ fun NewOrderScreen(
     getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Long) -> Unit,
     requestAsk: (String, Double, Long, BigDecimal) -> Unit,
-    getUserCoin: () -> MyCoin
+    getUserCoin: () -> MyCoin,
+    btcPrice: State<BigDecimal>
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -88,7 +89,8 @@ fun NewOrderScreen(
         requestAsk = requestAsk,
         market = market,
         getUserCoin = getUserCoin,
-        getUserBTC = getUserBTC
+        getUserBTC = getUserBTC,
+        btcPrice = btcPrice
     )
 
     AddLifecycleEvent(
@@ -121,7 +123,7 @@ fun NewOrderScreen(
                 getOrderBookBlockSize = state::getOrderBookBlockSize,
                 isMatchTradePrice = state::getIsMatchedTradePrice,
                 orderBookIndicationState = orderBookIndicationState,
-                getOrderBookIndicationText = state::getOrderBookIndicationText
+                getOrderBookIndicationText = state::getOrderBookIndicationText,
             )
             ChangeOrderBookIndicationSection(
                 orderBookIndicationText = state.getOrderBookIndicationText(
@@ -168,7 +170,7 @@ fun ColumnScope.OrderBookSection(
     getOrderBookIndicationText: (String, Double) -> String,
     getOrderBookBlockSize: (Double) -> Float,
     isMatchTradePrice: (BigDecimal) -> Boolean,
-    orderBookIndicationState: State<String>
+    orderBookIndicationState: State<String>,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -198,7 +200,7 @@ fun ColumnScope.OrderBookSection(
                 ),
                 orderBokBlockColor = getOrderBookBlockColor(orderBookModel.kind),
                 orderBookBlockSize = getOrderBookBlockSize(orderBookModel.size),
-                isMatchTradePrice = isMatchTradePrice(orderBookModel.price)
+                isMatchTradePrice = isMatchTradePrice(orderBookModel.price),
             )
         }
     }

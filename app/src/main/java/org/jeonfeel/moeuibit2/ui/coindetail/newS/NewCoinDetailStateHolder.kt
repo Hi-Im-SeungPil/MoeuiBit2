@@ -4,11 +4,8 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.EvenColor
@@ -16,7 +13,9 @@ import org.jeonfeel.moeuibit2.utils.FallColor
 import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.decimalPoint
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.getCoinDetailTitle
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import kotlin.math.abs
 
@@ -44,33 +43,37 @@ class CoinDetailStateHolder(
     }
 
     fun getFluctuateRate(fluctuateRate: Double): String {
-        return if(fluctuateRate > 0.0) {
+        return if (fluctuateRate > 0.0) {
             "+".plus(fluctuateRate.secondDecimal().plus("%"))
         } else {
             fluctuateRate.secondDecimal().plus("%")
         }
     }
 
-    fun getFluctuatePrice(fluctuatePrice: Double): String {
+    fun getFluctuatePrice(fluctuatePrice: Double, market: String): String {
         val absValue = abs(fluctuatePrice)
-        return if (absValue >= 1000) {
-            if (fluctuatePrice > 0) {
-                "+${fluctuatePrice.commaFormat()}"
+        return if (market.isTradeCurrencyKrw()) {
+            if (absValue >= 1000) {
+                if (fluctuatePrice > 0) {
+                    "+${fluctuatePrice.commaFormat()}"
+                } else {
+                    fluctuatePrice.commaFormat()
+                }
+            } else if (absValue >= 1.0) {
+                if (fluctuatePrice > 0) {
+                    "+${fluctuatePrice}"
+                } else {
+                    fluctuatePrice.toInt().toString()
+                }
             } else {
-                fluctuatePrice.commaFormat()
-            }
-        } else if (absValue >= 1.0) {
-            if (fluctuatePrice > 0) {
-                "+${fluctuatePrice}"
-            } else {
-                fluctuatePrice.toInt().toString()
+                if (fluctuatePrice > 0) {
+                    "+${fluctuatePrice.decimalPoint()}"
+                } else {
+                    fluctuatePrice.decimalPoint()
+                }
             }
         } else {
-            if (fluctuatePrice > 0) {
-                "+${fluctuatePrice.decimalPoint()}"
-            } else {
-                fluctuatePrice.decimalPoint()
-            }
+            fluctuatePrice.eighthDecimal()
         }
     }
 }

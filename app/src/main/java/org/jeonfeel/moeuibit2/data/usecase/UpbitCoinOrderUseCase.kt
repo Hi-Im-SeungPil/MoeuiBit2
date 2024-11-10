@@ -3,8 +3,10 @@ package org.jeonfeel.moeuibit2.data.usecase
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
+import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
+import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -146,5 +148,56 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 System.currentTimeMillis()
             )
         )
+    }
+
+    suspend fun requestBTCBid(
+        market: String,
+        coin: MyCoin,
+        totalPrice: Double,
+        userSeedBTC: Double
+    ) {
+        val coinDao = localRepository.getMyCoinDao()
+        val userCoin = coinDao.isInsert(market)
+        val commission = BigDecimal(totalPrice).multiply(BTC_COMMISSION_FEE.toBigDecimal())
+        val btcTotalPrice = BigDecimal(totalPrice).add(commission)
+        val minusBTCQuantity = BigDecimal(userSeedBTC).subtract(btcTotalPrice)
+
+        if (userCoin == null) {
+            coinDao.insert(coin)
+            coinDao.updatePlusQuantity(market, coin.quantity)
+            if (minusBTCQuantity < BigDecimal("0.0000001")) {
+                coinDao.delete(BTC_MARKET)
+            } else {
+                coinDao.updateMinusQuantity(BTC_MARKET, minusBTCQuantity.toDouble())
+            }
+        } else {
+            val preCoinQuantity = coin.quantity.toBigDecimal()
+            val prePurchaseAverageBtcPrice = coin.purchaseAverageBtcPrice.toBigDecimal()
+            val prePurchaseAveragePrice = coin.purchasePrice.toBigDecimal()
+
+            val purchaseAverage = Calculator.averagePurchasePriceCalculator(
+                currentPrice = coin.purchasePrice,
+                currentQuantity = coin.quantity,
+                preAveragePurchasePrice = prePurchaseAveragePrice.toDouble(),
+                preCoinQuantity = preCoinQuantity.toDouble(),
+                marketState = SELECTED_BTC_MARKET
+            )
+            val purchaseBTCAverage = Calculator.averagePurchasePriceCalculator(
+                currentPrice = coin.purchasePrice,
+                currentQuantity = coin.quantity,
+                preAveragePurchasePrice = prePurchaseAverageBtcPrice.toDouble(),
+                preCoinQuantity = preCoinQuantity.toDouble(),
+                marketState = SELECTED_KRW_MARKET
+            )
+
+            coinDao.updatePurchasePrice(market, purchaseAverage)
+            coinDao.updatePlusQuantity(market, coin.quantity)
+            if (minusBTCQuantity < BigDecimal("0.0000001")) {
+                coinDao.delete(BTC_MARKET)
+            } else {
+                coinDao.updateMinusQuantity(BTC_MARKET, minusBTCQuantity.toDouble())
+            }
+            coinDao.updatePurchaseAverageBtcPrice(market, purchaseBTCAverage)
+        }
     }
 }

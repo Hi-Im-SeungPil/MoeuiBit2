@@ -23,7 +23,8 @@ fun OrderScreenRoute(
     getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Long) -> Unit,
     requestAsk: (String, Double, Long, BigDecimal) -> Unit,
-    getUserCoin: () -> MyCoin
+    getUserCoin: () -> MyCoin,
+    btcPrice: State<BigDecimal>
 ) {
     NewOrderScreen(
         market = market,
@@ -40,6 +41,7 @@ fun OrderScreenRoute(
         getUserBTC = getUserBTC,
         requestBid = requestBid,
         requestAsk = requestAsk,
-        getUserCoin = getUserCoin
+        getUserCoin = getUserCoin,
+        btcPrice = btcPrice
     )
 }

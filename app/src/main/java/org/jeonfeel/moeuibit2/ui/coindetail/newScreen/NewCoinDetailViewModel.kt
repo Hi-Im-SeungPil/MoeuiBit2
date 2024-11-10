@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -30,6 +31,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import java.math.BigDecimal
@@ -46,6 +48,9 @@ class NewCoinDetailViewModel @Inject constructor(
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
+
+    private val _btcPrice = mutableStateOf(BigDecimal(0.0))
+    val btcPrice: State<BigDecimal> get() = _btcPrice
 
     private val _koreanCoinName = mutableStateOf("")
     val koreanCoinName: State<String> get() = _koreanCoinName
@@ -86,17 +91,24 @@ class NewCoinDetailViewModel @Inject constructor(
         val getUpbitTickerReq = GetUpbitMarketTickerReq(
             market.coinOrderIsKrwMarket()
         )
-        executeUseCase<GetUpbitMarketTickerRes>(
-            target = upbitUseCase.getMarketTicker(getUpbitTickerReq),
+        executeUseCase<List<GetUpbitMarketTickerRes>>(
+            target = upbitUseCase.getMarketTicker(getUpbitTickerReq, isList = true),
             onComplete = { ticker ->
-                if (ticker.market != market) return@executeUseCase
-                _coinTicker.value = ticker.mapTo()
+                ticker.forEach {
+                    if (!market.isTradeCurrencyKrw() && it.market == BTC_MARKET) {
+                        _btcPrice.value = it.mapTo().tradePrice
+                    }
+                    if (it.market == market) {
+                        _coinTicker.value = it.mapTo()
+                    }
+                }
             }
         )
     }
 
     private suspend fun requestSubscribeTicker(market: String) {
-        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(market))
+        val marketList = market.coinOrderIsKrwMarket()
+        upbitUseCase.requestSubscribeTicker(marketCodes = marketList.split(","))
     }
 
     /**
@@ -365,12 +377,15 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private suspend fun collectTicker(market: String) {
         upbitUseCase.observeTickerResponse().onEach { result ->
-            if (market != result.code) return@onEach
             _tickerResponse.update {
                 result
             }
         }.collect { upbitSocketTickerRes ->
             runCatching {
+                if (!market.isTradeCurrencyKrw() && upbitSocketTickerRes.code == BTC_MARKET) {
+                    _btcPrice.value = upbitSocketTickerRes.mapTo().tradePrice
+                }
+                if (market != upbitSocketTickerRes.code) return@runCatching
                 _coinTicker.value = upbitSocketTickerRes.mapTo()
             }.fold(
                 onSuccess = {

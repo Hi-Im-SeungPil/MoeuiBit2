@@ -43,7 +43,8 @@ class CoinOrderStateHolder(
     private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
     private val requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
     val market: String,
-    private val getUserCoin: () -> MyCoin
+    private val getUserCoin: () -> MyCoin,
+    private val btcPrice: State<BigDecimal>
 ) {
     private val toast: Toast? = null
     val percentageLabelList = listOf("최대", "75%", "50%", "25%", "10%")
@@ -145,9 +146,16 @@ class CoinOrderStateHolder(
         return if (orderBookIndicationState == "quantity") {
             quantity.thirdDecimal()
         } else {
-            commonExchangeModelState.value?.let {
-                ((it.tradePrice.toDouble() * (quantity))).commaFormat()
-            } ?: ""
+            if (market.isTradeCurrencyKrw()) {
+                commonExchangeModelState.value?.let {
+                    ((it.tradePrice.toDouble() * (quantity))).commaFormat()
+                } ?: ""
+            } else {
+                Logger.e(btcPrice.value.toDouble().toString())
+                commonExchangeModelState.value?.let {
+                    ((it.tradePrice.toDouble() * (quantity)) * btcPrice.value.toDouble()).commaFormat()
+                } ?: ""
+            }
         }
     }
 
@@ -386,7 +394,8 @@ fun rememberCoinOrderStateHolder(
     requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
     requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
     market: String,
-    getUserCoin: () -> MyCoin
+    getUserCoin: () -> MyCoin,
+    btcPrice: State<BigDecimal>
 ) = remember {
     CoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -397,6 +406,7 @@ fun rememberCoinOrderStateHolder(
         requestAsk = requestAsk,
         market = market,
         getUserCoin = getUserCoin,
-        getUserBTC = getUserBTC
+        getUserBTC = getUserBTC,
+        btcPrice = btcPrice
     )
 }
