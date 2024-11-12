@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -40,7 +42,7 @@ class CoinOrderStateHolder(
     val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
     val getUserSeedMoney: () -> Long,
     val getUserBTC: () -> Double,
-    private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
+    private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Double) -> Unit,
     private val requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
     val market: String,
     private val getUserCoin: () -> MyCoin,
@@ -151,7 +153,6 @@ class CoinOrderStateHolder(
                     ((it.tradePrice.toDouble() * (quantity))).commaFormat()
                 } ?: ""
             } else {
-                Logger.e(btcPrice.value.toDouble().toString())
                 commonExchangeModelState.value?.let {
                     ((it.tradePrice.toDouble() * (quantity)) * btcPrice.value.toDouble()).commaFormat()
                 } ?: ""
@@ -296,42 +297,83 @@ class CoinOrderStateHolder(
 
     fun bid() {
         if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
-            val totalPrice =
+            val totalPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
                 bidQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
                     .setScale(0, RoundingMode.FLOOR)
+            } else {
+                bidQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                    .multiply(commonExchangeModelState.value!!.tradePrice)
+                    .setScale(8, RoundingMode.FLOOR)
+            }
+
             when {
                 commonExchangeModelState.value == null -> {
                     Logger.e("requestBid1")
+                    return
                 }
 
                 commonExchangeModelState.value != null && commonExchangeModelState.value?.tradePrice?.toDouble() == 0.0 -> {
                     Logger.e("requestBid7")
-                }
-
-                totalPrice > (getUserSeedMoney() * 0.9995).newBigDecimal(0, RoundingMode.FLOOR) -> {
-                    Logger.e("requestBid2")
-                }
-
-                totalPrice.toDouble() < 5000 -> {
-                    Logger.e("requestBid3")
+                    return
                 }
 
                 OneTimeNetworkCheck.networkCheck(context) == null -> {
                     Logger.e("requestBid4")
+                    return
                 }
 
-                else -> {
-                    Logger.e("requestBid")
-                    requestBid(
-                        market,
-                        bidQuantity.value.replace(",", "").toDouble(),
-                        commonExchangeModelState.value?.tradePrice ?: 0.0.newBigDecimal(),
-                        totalPrice.toLong()
-                    )
-                    bidReset()
-                }
+                else -> {}
             }
+
+            when {
+                market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                    when {
+                        totalPrice > (getUserSeedMoney().toDouble().newBigDecimal()
+                            .multiply(BigDecimal(0.9995)).setScale(0, RoundingMode.FLOOR)) -> {
+                            Logger.e("requestBid2")
+                            return
+                        }
+
+                        totalPrice.toDouble() < 5000 -> {
+                            Logger.e("requestBid3")
+                            return
+                        }
+
+                        else -> {}
+                    }
+                }
+
+                market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                    when {
+                        totalPrice > (getUserBTC().newBigDecimal(8, RoundingMode.FLOOR)
+                            .multiply(BigDecimal("0.9975")).setScale(8, RoundingMode.FLOOR)) -> {
+                            Logger.e("requestBid2")
+                            Logger.e("${getUserBTC().newBigDecimal()} , ${getUserBTC().newBigDecimal()
+                                .multiply(BigDecimal(0.9975)).setScale(8, RoundingMode.FLOOR)} , $totalPrice")
+                            return
+                        }
+
+                        totalPrice.toDouble() < 0.00005 -> {
+                            Logger.e("requestBid3")
+                            return
+                        }
+
+                        else -> {}
+                    }
+                }
+
+                else -> {}
+            }
+
+            Logger.e("requestBid")
+            requestBid(
+                market,
+                bidQuantity.value.replace(",", "").toDouble(),
+                commonExchangeModelState.value?.tradePrice ?: 0.0.newBigDecimal(),
+                totalPrice.toDouble(),
+            )
+            bidReset()
         }
     }
 
@@ -391,7 +433,7 @@ fun rememberCoinOrderStateHolder(
     getUserSeedMoney: () -> Long,
     getUserBTC: () -> Double,
     context: Context = LocalContext.current,
-    requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Long) -> Unit,
+    requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Double) -> Unit,
     requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal) -> Unit,
     market: String,
     getUserCoin: () -> MyCoin,

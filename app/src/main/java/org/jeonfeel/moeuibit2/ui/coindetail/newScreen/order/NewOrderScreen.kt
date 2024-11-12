@@ -76,7 +76,7 @@ fun NewOrderScreen(
     changeOrderBookIndicationState: () -> Unit,
     getUserSeedMoney: () -> Long,
     getUserBTC: () -> Double,
-    requestBid: (String, Double, BigDecimal, Long) -> Unit,
+    requestBid: (String, Double, BigDecimal, Double) -> Unit,
     requestAsk: (String, Double, Long, BigDecimal) -> Unit,
     getUserCoin: () -> MyCoin,
     btcPrice: State<BigDecimal>

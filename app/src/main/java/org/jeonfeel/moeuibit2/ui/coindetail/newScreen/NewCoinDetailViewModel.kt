@@ -253,7 +253,7 @@ class NewCoinDetailViewModel @Inject constructor(
         market: String,
         quantity: Double,
         price: BigDecimal,
-        totalPrice: Long
+        totalPrice: Double,
     ) {
         rootExchangeCoroutineBranch(
             upbitAction = {
@@ -262,7 +262,8 @@ class NewCoinDetailViewModel @Inject constructor(
                     totalPrice = totalPrice,
                     quantity = quantity,
                     coinPrice = price,
-                    koreanName = koreanCoinName.value
+                    koreanName = koreanCoinName.value,
+                    btcPrice = btcPrice.value.toDouble()
                 )
             },
             bitthumbAction = {

@@ -126,15 +126,16 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      */
     suspend fun requestBid(
         market: String,
-        totalPrice: Long,
+        totalPrice: Double,
         quantity: Double,
         coinPrice: BigDecimal,
         koreanName: String,
+        btcPrice: Double = 1.0
     ) {
         if (market.isTradeCurrencyKrw()) {
             upbitCoinOrderUseCase.requestKRWBid(
                 market = market,
-                totalPrice = totalPrice,
+                totalPrice = totalPrice.toLong(),
                 coin = MyCoin(
                     market = market,
                     purchasePrice = coinPrice.toDouble(),
@@ -155,9 +156,10 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                     purchasePrice = coinPrice.toDouble(),
                     koreanCoinName = koreanName,
                     symbol = market.substring(4),
-                    quantity = quantity
+                    quantity = quantity,
                 ),
-                userSeedBTC = _userBtcCoin.value.quantity
+                userSeedBTC = _userBtcCoin.value.quantity,
+                btcPrice = btcPrice
             )
             getUserBtcCoin(market = BTC_MARKET)
             getUserCoin(market)

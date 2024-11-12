@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
@@ -154,22 +155,24 @@ class UpbitCoinOrderUseCase @Inject constructor(
         market: String,
         coin: MyCoin,
         totalPrice: Double,
-        userSeedBTC: Double
+        userSeedBTC: Double,
+        btcPrice: Double
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userCoin = coinDao.isInsert(market)
         val commission = BigDecimal(totalPrice).multiply(BTC_COMMISSION_FEE.toBigDecimal())
         val btcTotalPrice = BigDecimal(totalPrice).add(commission)
-        val minusBTCQuantity = BigDecimal(userSeedBTC).subtract(btcTotalPrice)
+        val minusBTCQuantity = BigDecimal(userSeedBTC).minus(btcTotalPrice)
 
         if (userCoin == null) {
             coinDao.insert(coin)
-            coinDao.updatePlusQuantity(market, coin.quantity)
+            coinDao.updatePurchaseAverageBtcPrice(market, btcPrice)
             if (minusBTCQuantity < BigDecimal("0.0000001")) {
                 coinDao.delete(BTC_MARKET)
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET, minusBTCQuantity.toDouble())
+                coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
             }
+            Logger.e("Db -> ${btcTotalPrice} , ${userSeedBTC}, ${commission}")
         } else {
             val preCoinQuantity = coin.quantity.toBigDecimal()
             val prePurchaseAverageBtcPrice = coin.purchaseAverageBtcPrice.toBigDecimal()
@@ -195,7 +198,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
             if (minusBTCQuantity < BigDecimal("0.0000001")) {
                 coinDao.delete(BTC_MARKET)
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET, minusBTCQuantity.toDouble())
+                coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
             }
             coinDao.updatePurchaseAverageBtcPrice(market, purchaseBTCAverage)
         }
