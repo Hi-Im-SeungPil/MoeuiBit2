@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newS
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,8 @@ class CoinDetailStateHolder(
     private val context: Context,
     val navController: NavHostController
 ) {
+    private var toast: Toast? = null
+
     fun getCoinDetailTitle(
         koreanCoinName: String,
         warning: Boolean
@@ -40,6 +43,11 @@ class CoinDetailStateHolder(
             changeRate < 0.0 -> FallColor
             else -> EvenColor
         }
+    }
+
+    fun showToast(message: String) {
+        toast?.cancel()
+        toast = Toast.makeText(context, message, Toast.LENGTH_SHORT).also { it.show() }
     }
 
     fun getFluctuateRate(fluctuateRate: Double): String {

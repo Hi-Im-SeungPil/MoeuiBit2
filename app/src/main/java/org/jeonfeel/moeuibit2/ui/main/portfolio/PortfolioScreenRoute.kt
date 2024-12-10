@@ -107,7 +107,8 @@ fun PortfolioScreenRoute(
         sortUserHoldCoin = viewModel::sortUserHoldCoin,
         getUserCoinInfo = holder::getUserCoinResultMap,
         getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
-        loadingState = viewModel.loadingState
+        loadingState = viewModel.loadingState,
+        currentBTCPrice = viewModel.btcTradePrice
     )
 }
 //                IconButton(onClick = {

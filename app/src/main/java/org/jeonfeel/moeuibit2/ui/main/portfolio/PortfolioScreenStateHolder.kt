@@ -17,9 +17,11 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringTo1000
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -63,13 +65,13 @@ class PortfolioScreenStateHolder(
                 marketState
             )
 
-        val valuationGainOrLoss = if (marketState == SELECTED_KRW_MARKET) {
+        val valuationGainOrLoss = if (item.market.isTradeCurrencyKrw()) {
             evaluationAmount - purchaseAmount
         } else {
             (evaluationAmount * btcTradePrice.value) - (item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice)
         }
 
-        val tradePrice = if (marketState == SELECTED_KRW_MARKET) {
+        val tradePrice = if (item.market.isTradeCurrencyKrw()) {
             CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(
@@ -78,7 +80,7 @@ class PortfolioScreenStateHolder(
             )
         }
 
-        val purchasePrice = if (marketState == SELECTED_KRW_MARKET) {
+        val purchasePrice = if (item.market.isTradeCurrencyKrw()) {
             CurrentCalculator.tradePriceCalculator(purchaseAverage, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(
@@ -87,14 +89,14 @@ class PortfolioScreenStateHolder(
             )
         }
 
-        val evaluationAmountFormat = if (marketState == SELECTED_KRW_MARKET) {
+        val evaluationAmountFormat = if (item.market.isTradeCurrencyKrw()) {
             Calculator.getDecimalFormat().format(evaluationAmount)
         } else {
             Calculator.getDecimalFormat().format(evaluationAmount * btcTradePrice.value)
         }
 
         val aReturn =
-            if (marketState == SELECTED_KRW_MARKET) {
+            if (item.market.isTradeCurrencyKrw()) {
                 val tempAReturn =
                     ((currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100)
                 if (tempAReturn.isNaN()) {
@@ -114,9 +116,7 @@ class PortfolioScreenStateHolder(
                 }
             }
 
-        val valuationGainOrLossResult = Calculator.valuationGainOrLossDecimal(
-            purchaseAverage = valuationGainOrLoss
-        )
+        val valuationGainOrLossResult = valuationGainOrLoss.toBigDecimal().formattedStringTo1000()
 
         val coinKoreanName = Utils.getPortfolioName(
             marketState = marketState,
@@ -128,7 +128,7 @@ class PortfolioScreenStateHolder(
             name = item.myCoinEngName
         )
 
-        val purchaseAmountResult = if (marketState == SELECTED_KRW_MARKET) {
+        val purchaseAmountResult = if (item.market.isTradeCurrencyKrw()) {
             CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(
@@ -157,13 +157,13 @@ class PortfolioScreenStateHolder(
         totalPurchase: State<BigDecimal>,
         userSeedMoney: State<Long>,
     ): Map<String, String> {
-        val calcTotalValuedAssets = totalValuedAssets.value.formattedString()
-        val totalPurchaseValue = totalPurchase.value.formattedString()
+        val calcTotalValuedAssets = totalValuedAssets.value.formattedStringTo1000()
+        val totalPurchaseValue = totalPurchase.value.formattedStringTo1000()
         val calcUserSeedMoney = Calculator.getDecimalFormat().format(userSeedMoney.value)
         val totalHoldings =
-            totalValuedAssets.value.plus(userSeedMoney.value.toBigDecimal()).formattedString()
+            totalValuedAssets.value.plus(userSeedMoney.value.toBigDecimal()).formattedStringTo1000()
         val valuationGainOrLoss =
-            totalValuedAssets.value.minus(totalPurchase.value).formattedString()
+            totalValuedAssets.value.minus(totalPurchase.value).formattedStringTo1000()
         val aReturn = if (totalValuedAssets.value.toDouble() == 0.0) {
             "0"
         } else {

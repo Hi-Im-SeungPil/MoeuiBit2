@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -79,6 +80,32 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
+    fun onPause() {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                upBit.onPause()
+                realTimeUpdateJob?.cancelAndJoin()
+            },
+            bitthumbAction = {
+
+            }
+        )
+    }
+
+    fun onResume() {
+        realTimeUpdateJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upBit.onResume()
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
+            }
+        }.also { it.start() }
+    }
+
     fun getTickerList(): List<CommonExchangeModel> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
@@ -127,30 +154,40 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun onPause() {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBit.onPause()
-                realTimeUpdateJob?.cancelAndJoin()
-            },
-            bitthumbAction = {
-
-            }
-        )
-    }
-
-    fun onResume() {
-        realTimeUpdateJob = viewModelScope.launch {
+    fun addFavorite(market: String) {
+        viewModelScope.launch {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    upBit.onResume()
+                    upBit.addFavorite(market)
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
+                    upBit.addFavorite(market)
+                }
 
+                else -> {
+                    upBit.addFavorite(market)
                 }
             }
-        }.also { it.start() }
+        }
+    }
+
+    fun removeFavorite(market: String) {
+        viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upBit.removeFavorite(market)
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+                    upBit.removeFavorite(market)
+                }
+
+                else -> {
+                    upBit.removeFavorite(market)
+                }
+            }
+        }
     }
 
     fun getBtcPrice(): BigDecimal {

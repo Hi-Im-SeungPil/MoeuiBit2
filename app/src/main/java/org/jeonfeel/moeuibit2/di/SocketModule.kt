@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
@@ -36,19 +37,19 @@ class SocketModule {
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
-    annotation class CoinDetailTickerSocketType
-
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class CoinDetailTickerSocket
-
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
     annotation class CoinDetailOrderBookSocketType
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class CoinDetailOrderBookSocket
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailSocketType
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class CoinDetailSocket
 
     @Singleton
     @Provides
@@ -81,35 +82,6 @@ class SocketModule {
 
     @Singleton
     @Provides
-    @CoinDetailTickerSocketType
-    fun provideCoinDetailOkHttpClient(): OkHttpClient {
-        val httpLoggingInterceptor =
-            HttpLoggingInterceptor { message -> Logger.d(message) }
-                .setLevel(HttpLoggingInterceptor.Level.BODY)
-        return OkHttpClient.Builder()
-            .addInterceptor(httpLoggingInterceptor)
-            .pingInterval(
-                10,
-                TimeUnit.SECONDS
-            ).build()
-    }
-
-    @Provides
-    @Singleton
-    @CoinDetailTickerSocket
-    fun provideCoinDetailTickerSocketService(
-        @CoinDetailTickerSocketType okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
-    ): UpBitExchangeSocketService {
-        return thunder {
-            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
-            setApplicationContext(context)
-            setConverterType(ConverterType.Serialization)
-        }.create()
-    }
-
-    @Singleton
-    @Provides
     @CoinDetailOrderBookSocketType
     fun provideOrderBookOkHttpClient(): OkHttpClient {
         val httpLoggingInterceptor =
@@ -130,6 +102,35 @@ class SocketModule {
         @CoinDetailOrderBookSocketType okHttpClient: OkHttpClient,
         @ApplicationContext context: Context
     ): UpbitOrderBookSocketService {
+        return thunder {
+            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            setApplicationContext(context)
+            setConverterType(ConverterType.Serialization)
+        }.create()
+    }
+
+    @Singleton
+    @Provides
+    @CoinDetailSocketType
+    fun provideCoinDetailOkHttpClientClient(): OkHttpClient {
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            .addInterceptor(httpLoggingInterceptor)
+            .pingInterval(
+                10,
+                TimeUnit.SECONDS
+            ).build()
+    }
+
+    @Singleton
+    @Provides
+    @CoinDetailSocket
+    fun provideCoinDetailSocketService(
+        @CoinDetailSocketType okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpbitCoinDetailSocketService {
         return thunder {
             setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
             setApplicationContext(context)

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
@@ -24,12 +25,16 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     BaseCommunicationModule() {
     private val _orderBookList = mutableStateListOf<OrderBookModel>()
     val orderBookList: List<OrderBookModel> get() = _orderBookList
+
     private val _userSeedMoney = mutableLongStateOf(0L)
-    val userSeedMoney: Long get() = _userSeedMoney.longValue
+    val userSeedMoney: State<Long> get() = _userSeedMoney
+
     private val _userCoin = mutableStateOf(MyCoin())
-    val userCoin: MyCoin get() = _userCoin.value
+    val userCoin: State<MyCoin> get() = _userCoin
+
     private val _userBtcCoin = mutableStateOf(MyCoin())
-    val userBtcCoin: MyCoin get() = _userBtcCoin.value
+    val userBtcCoin: State<MyCoin> get() = _userBtcCoin
+
     private val _tickerResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
     private val _maxOrderBookSize = mutableDoubleStateOf(0.0)
     val maxOrderBookSize: State<Double> get() = _maxOrderBookSize
@@ -161,7 +166,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 userSeedBTC = _userBtcCoin.value.quantity,
                 btcPrice = btcPrice
             )
-            getUserBtcCoin(market = BTC_MARKET)
+            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
             getUserCoin(market)
         }
     }
@@ -170,7 +175,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         market: String,
         quantity: Double,
         totalPrice: Long,
-        coinPrice: BigDecimal
+        coinPrice: BigDecimal,
+        totalPriceBTC: Double = 0.0
     ) {
         val updateUserCoin = MyCoin(
             market = market,
@@ -187,12 +193,21 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 market = market,
                 quantity = quantity,
                 totalPrice = totalPrice,
-                userCoinQuantity = userCoin.quantity.newBigDecimal(8, RoundingMode.FLOOR),
+                userCoinQuantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR),
                 currentPrice = coinPrice
             )
+            getUserSeedMoney()
+        } else {
+            upbitCoinOrderUseCase.requestBTCAsk(
+                market = market,
+                quantity = quantity,
+                totalPrice = totalPriceBTC,
+                userCoinQuantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR),
+                currentPrice = coinPrice
+            )
+            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
         }
         _userCoin.value = updateUserCoin
-        getUserSeedMoney()
     }
 
     private fun minusQuantity(currentQuantity: Double, quantity: Double): Double {

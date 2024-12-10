@@ -92,6 +92,22 @@ class UpBit @Inject constructor(
         requestTicker()
     }
 
+    suspend fun onPause() {
+        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
+    }
+
+    suspend fun onResume() {
+        if (!tickerDataIsEmpty() && successInit) {
+            updateTickerData()
+            requestSubscribeTicker()
+        } else if (tickerDataIsEmpty() && successInit) {
+            clearTickerData()
+            init()
+            requestSubscribeTicker()
+            collectTicker()
+        }
+    }
+
     /**
      * 업비트 마켓 코드 요청
      */
@@ -304,20 +320,12 @@ class UpBit @Inject constructor(
         }
     }
 
-    suspend fun onPause() {
-        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
+    suspend fun addFavorite(market: String) {
+        upbitUseCase.addFavorite(market)
     }
 
-    suspend fun onResume() {
-        if (!tickerDataIsEmpty() && successInit) {
-            updateTickerData()
-            requestSubscribeTicker()
-        } else if (tickerDataIsEmpty() && successInit) {
-            clearTickerData()
-            init()
-            requestSubscribeTicker()
-            collectTicker()
-        }
+    suspend fun removeFavorite(market: String) {
+        upbitUseCase.removeFavorite(market)
     }
 
     private fun tickerDataIsEmpty(): Boolean {
@@ -352,10 +360,6 @@ class UpBit @Inject constructor(
         return btcPosition?.let {
             _krwExchangeModelList[it].tradePrice
         } ?: BigDecimal.ZERO
-    }
-
-    fun setData() {
-
     }
 
     /**

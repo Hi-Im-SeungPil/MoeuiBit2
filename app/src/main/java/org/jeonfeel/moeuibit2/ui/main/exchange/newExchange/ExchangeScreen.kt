@@ -103,8 +103,6 @@ fun ExchangeScreen(
     sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
     tradeCurrencyState: State<Int>,
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
-    onResume: () -> Unit,
-    onPaused: () -> Unit,
     btcKrwPrice: BigDecimal,
     appNavController: NavHostController,
 ) {
@@ -113,15 +111,6 @@ fun ExchangeScreen(
         sortTickerList = sortTickerList,
         changeTradeCurrency = changeTradeCurrency,
         tradeCurrencyState = tradeCurrencyState,
-    )
-
-    AddLifecycleEvent(
-        onPauseAction = {
-            onPaused()
-        },
-        onResumeAction = {
-            onResume()
-        }
     )
 
     Column(modifier = Modifier.fillMaxSize()) {

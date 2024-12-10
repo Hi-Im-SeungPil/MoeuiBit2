@@ -50,8 +50,6 @@ data class UpbitSocketTickerRes(
     val lowest52WeekPrice: Double,
     @SerialName("market_state")
     val marketState: String,
-    @SerialName("market_warning")
-    val marketWarning: String,
     @SerialName("opening_price")
     val openingPrice: Double,
     @SerialName("prev_closing_price")
@@ -86,7 +84,7 @@ data class UpbitSocketTickerRes(
             symbol = code.substring(4),
             openingPrice = openingPrice,
             tradePrice = tradePrice.newBigDecimal(
-                ExchangeViewModel.ROOT_EXCHANGE_UPBIT,
+                ROOT_EXCHANGE_UPBIT,
                 market = code
             ),
             signedChangeRate = signedChangeRate * 100,

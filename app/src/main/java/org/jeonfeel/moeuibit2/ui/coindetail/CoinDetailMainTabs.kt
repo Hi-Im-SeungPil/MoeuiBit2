@@ -14,9 +14,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,7 +33,8 @@ import org.jeonfeel.moeuibit2.utils.showToast
 sealed class CoinDetailMainTabRowItem(var title: String, var screenRoute: String) {
     data object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER, "order")
     data object Chart : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART, "Chart")
-    data object CoinInfo : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
+    data object CoinInfo :
+        CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO, "CoinInfo")
 }
 
 @Composable
@@ -99,11 +98,11 @@ fun TabRowMainNavigation(
                     orderBookIndicationState = viewModel.orderBookIndication,
                     changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
                     saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
-                    getUserSeedMoney = viewModel::getUserSeedMoney,
-                    getUserBTC = viewModel::getUserBtcCoin,
+                    userSeedMoney = viewModel.getUserSeedMoney(),
+                    userBTC = viewModel.getUserBtcCoin(),
+                    userCoin = viewModel.getUserCoin(),
                     requestBid = viewModel::requestBid,
                     requestAsk = viewModel::requestAsk,
-                    getUserCoin = viewModel::getUserCoin,
                     btcPrice = viewModel.btcPrice
                 )
             } else {

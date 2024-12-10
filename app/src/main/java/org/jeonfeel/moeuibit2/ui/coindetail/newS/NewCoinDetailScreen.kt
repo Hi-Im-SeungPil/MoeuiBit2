@@ -16,10 +16,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +41,12 @@ import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.math.BigDecimal
+import kotlin.reflect.KFunction0
+import kotlin.reflect.KFunction1
 
 @Composable
 fun NewCoinDetailScreen(
@@ -71,7 +71,10 @@ fun NewCoinDetailScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         NewCoinDetailTopAppBar(
             coinSymbol = market.substring(4),
-            title = viewModel.koreanCoinName.value
+            title = viewModel.koreanCoinName.value,
+            showToast = state::showToast,
+            updateIsFavorite = viewModel::updateIsFavorite,
+            isFavorite = viewModel.isFavorite
         )
         CoinDetailPriceSection(
             fluctuateRate = state.getFluctuateRate(
@@ -104,62 +107,64 @@ fun NewCoinDetailScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewCoinDetailTopAppBar(
     coinSymbol: String,
-    title: String
+    title: String,
+    showToast: KFunction1<String, Unit>,
+    updateIsFavorite: KFunction0<Unit>,
+    isFavorite: State<Boolean>
 ) {
-    CenterAlignedTopAppBar(
-        modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
-        title = {
-            Column {
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = DpToSp(dp = 17.dp),
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier.fillMaxWidth(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = coinSymbol,
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = DpToSp(dp = 13.dp),
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier.fillMaxWidth(1f),
-                    maxLines = 1
-                )
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = {
+    Row {
+        IconButton(onClick = {
 
-            }) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = {
-
-            }) {
-                Icon(
-                    Icons.Default.Star,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
+        }) {
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = Color.Black
+            )
         }
-    )
+
+        Column {
+            Text(
+                text = title,
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = DpToSp(dp = 17.dp),
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.fillMaxWidth(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = coinSymbol,
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = DpToSp(dp = 13.dp),
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.fillMaxWidth(1f),
+                maxLines = 1
+            )
+        }
+
+        IconButton(onClick = {
+            updateIsFavorite()
+            if (isFavorite.value) {
+                showToast("관심목록에 추가되었습니다.")
+            } else {
+                showToast("관심목록에서 삭제되었습니다.")
+            }
+        }) {
+            Icon(
+                Icons.Default.Star,
+                contentDescription = null,
+                tint = Color.Black
+            )
+        }
+    }
 }
 
 @Composable
@@ -196,7 +201,9 @@ fun CoinDetailPriceSection(
                     )
                     if (!market.isTradeCurrencyKrw()) {
                         Text(
-                            modifier = Modifier.padding(start = 10.dp).align(Alignment.Bottom),
+                            modifier = Modifier
+                                .padding(start = 10.dp)
+                                .align(Alignment.Bottom),
                             text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
                                 .plus(" KRW"),
                             style = TextStyle(

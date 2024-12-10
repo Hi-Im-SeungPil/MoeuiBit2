@@ -19,12 +19,12 @@ fun OrderScreenRoute(
     orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
-    getUserSeedMoney: () -> Long,
-    getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Double) -> Unit,
-    requestAsk: (String, Double, Long, BigDecimal) -> Unit,
-    getUserCoin: () -> MyCoin,
-    btcPrice: State<BigDecimal>
+    requestAsk: (String, Double, Long, BigDecimal, Double) -> Unit,
+    btcPrice: State<BigDecimal>,
+    userSeedMoney: State<Long>,
+    userBTC: State<MyCoin>,
+    userCoin: State<MyCoin>,
 ) {
     NewOrderScreen(
         market = market,
@@ -37,11 +37,11 @@ fun OrderScreenRoute(
         orderBookIndicationState = orderBookIndicationState,
         saveOrderBookIndicationState = saveOrderBookIndicationState,
         changeOrderBookIndicationState = changeOrderBookIndicationState,
-        getUserSeedMoney = getUserSeedMoney,
-        getUserBTC = getUserBTC,
+        userSeedMoney = userSeedMoney,
+        userBTC = userBTC,
+        userCoin = userCoin,
         requestBid = requestBid,
         requestAsk = requestAsk,
-        getUserCoin = getUserCoin,
         btcPrice = btcPrice
     )
 }

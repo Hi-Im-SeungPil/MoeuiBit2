@@ -74,22 +74,22 @@ fun NewOrderScreen(
     orderBookIndicationState: State<String>,
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
-    getUserSeedMoney: () -> Long,
-    getUserBTC: () -> Double,
     requestBid: (String, Double, BigDecimal, Double) -> Unit,
-    requestAsk: (String, Double, Long, BigDecimal) -> Unit,
-    getUserCoin: () -> MyCoin,
+    requestAsk: (String, Double, Long, BigDecimal, Double) -> Unit,
+    userBTC: State<MyCoin>,
+    userSeedMoney: State<Long>,
+    userCoin: State<MyCoin>,
     btcPrice: State<BigDecimal>
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
         maxOrderBookSize = maxOrderBookSize,
-        getUserSeedMoney = getUserSeedMoney,
+        userSeedMoney = userSeedMoney,
         requestBid = requestBid,
         requestAsk = requestAsk,
         market = market,
-        getUserCoin = getUserCoin,
-        getUserBTC = getUserBTC,
+        userCoin = userCoin,
+        userBTC = userBTC,
         btcPrice = btcPrice
     )
 
@@ -138,7 +138,8 @@ fun NewOrderScreen(
         ) {
             OrderSection(
                 orderTabState = state.orderTabState,
-                userSeedMoney = state.getUserSeedMoneyOrBtc(),
+                userSeedMoney = userSeedMoney,
+                userBTC = userBTC,
                 isKrw = market.isTradeCurrencyKrw(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
                 currentPrice = commonExchangeModelState.value?.tradePrice,
@@ -151,7 +152,7 @@ fun NewOrderScreen(
                 getAskTotalPrice = state::getAskTotalPrice,
                 requestBid = state::bid,
                 requestAsk = state::ask,
-                getUserCoinQuantity = state::getUserCoinQuantity,
+                userCoin = userCoin,
                 dropdownLabelList = state.percentageLabelList,
                 askSelectedText = state.askQuantityPercentage.value,
                 bidSelectedText = state.bidQuantityPercentage.value

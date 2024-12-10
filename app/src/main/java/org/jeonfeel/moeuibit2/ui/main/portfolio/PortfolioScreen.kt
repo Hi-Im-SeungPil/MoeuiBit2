@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
@@ -55,6 +56,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.eightDecimalCommaFormat
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
 
 @Composable
@@ -72,6 +74,7 @@ fun PortfolioScreen(
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
     loadingState: State<Boolean>,
+    currentBTCPrice: State<Double>,
     getPortFolioMainInfoMap: (
         totalValuedAssets: State<BigDecimal>,
         totalPurchase: State<BigDecimal>,
@@ -207,7 +210,7 @@ fun PortfolioScreen(
                         openingPrice = item.openingPrice,
                         warning = item.warning,
                         isFavorite = item.isFavorite,
-                        currentPrice = item.currentPrice,
+                        currentPrice = if(item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal().multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
                         marketState = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_MARKET_STATE]?.toInt()
                             ?: 0,
                         startForActivityResult = startForActivityResult,
@@ -315,7 +318,7 @@ fun UserHoldCoinLazyColumnItem(
                         )
                     )
                     AutoSizeText(
-                        text = currentPrice.newBigDecimal(ROOT_EXCHANGE_UPBIT, market)
+                        text = currentPrice.newBigDecimal(ROOT_EXCHANGE_UPBIT, UPBIT_KRW_SYMBOL_PREFIX)
                             .formattedString(),
                         modifier = Modifier
                             .padding(start = 4.dp)

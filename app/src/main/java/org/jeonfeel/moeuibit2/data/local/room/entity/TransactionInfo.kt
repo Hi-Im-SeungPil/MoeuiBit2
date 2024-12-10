@@ -10,7 +10,8 @@ class TransactionInfo(
     var quantity: Double,
     var transactionAmount: Long,
     var transactionStatus: String,
-    var transactionTime: Long
+    var transactionTime: Long,
+    var transactionAmountBTC: Double = 0.0
 ) {
     @JvmField
     @PrimaryKey(autoGenerate = true)

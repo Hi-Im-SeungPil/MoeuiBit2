@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newScreen
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
@@ -10,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -23,7 +21,8 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTradeRes
+import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
@@ -41,13 +40,14 @@ import javax.inject.Inject
 class NewCoinDetailViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upbitCoinOrder: UpbitCoinOrder,
-    private val upbitUseCase: UpbitUseCase,
+    private val upbitCoinDetailUseCase: UpbitCoinDetailUseCase,
     private val cacheManager: CacheManager,
     val coinInfo: CoinInfo,
     val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
+    private var tempCoinTicker: CommonExchangeModel? = null
 
     private val _btcPrice = mutableStateOf(BigDecimal(0.0))
     val btcPrice: State<BigDecimal> get() = _btcPrice
@@ -58,22 +58,30 @@ class NewCoinDetailViewModel @Inject constructor(
     private val _orderBookIndication = mutableStateOf("quantity")
     val orderBookIndication: State<String> get() = _orderBookIndication
 
-    private val _userSeedMoney = mutableLongStateOf(0L)
-    val userSeedMoney: State<Long> get() = _userSeedMoney
+    private var initIsFavorite = false
+    private val _isFavorite = mutableStateOf(false)
+    val isFavorite: State<Boolean> get() = _isFavorite
 
-    private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
+    private val _tradeResponse = MutableStateFlow<UpbitSocketTradeRes?>(null)
+
     private var tickerRealTimeUpdateJob: Job? = null
+
     private var orderBookRealTimeUpdateJob: Job? = null
+
     private var chartUpdateJob: Job? = null
+
+    private var _market = ""
 
     fun init(market: String) {
         getOrderBookIndication()
         tickerRealTimeUpdateJob = viewModelScope.launch {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    _userSeedMoney.longValue = getUserSeedMoney()
                     _koreanCoinName.value =
                         cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
+                    initIsFavorite = upbitCoinDetailUseCase.getIsFavorite(market) != null
+                    _isFavorite.value = initIsFavorite
+                    _market = market
                     requestCoinTicker(market)
                     requestSubscribeTicker(market)
                     collectTicker(market)
@@ -87,19 +95,20 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun requestCoinTicker(market: String) {
-        delay(50)
         val getUpbitTickerReq = GetUpbitMarketTickerReq(
             market.coinOrderIsKrwMarket()
         )
         executeUseCase<List<GetUpbitMarketTickerRes>>(
-            target = upbitUseCase.getMarketTicker(getUpbitTickerReq, isList = true),
+            target = upbitCoinDetailUseCase.getMarketTicker(getUpbitTickerReq, isList = true),
             onComplete = { ticker ->
                 ticker.forEach {
                     if (!market.isTradeCurrencyKrw() && it.market == BTC_MARKET) {
                         _btcPrice.value = it.mapTo().tradePrice
                     }
                     if (it.market == market) {
-                        _coinTicker.value = it.mapTo()
+                        val commonExchangeModel = it.mapTo()
+                        tempCoinTicker = commonExchangeModel
+                        _coinTicker.value = commonExchangeModel
                     }
                 }
             }
@@ -108,7 +117,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private suspend fun requestSubscribeTicker(market: String) {
         val marketList = market.coinOrderIsKrwMarket()
-        upbitUseCase.requestSubscribeTicker(marketCodes = marketList.split(","))
+        upbitCoinDetailUseCase.requestSubscribeTrade(marketCodes = marketList.split(","))
     }
 
     /**
@@ -219,8 +228,15 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun onPause() {
         viewModelScope.launch {
-            requestSubscribeTicker("")
+            if (initIsFavorite != isFavorite.value) {
+                if (isFavorite.value) {
+                    upbitCoinDetailUseCase.addFavorite(market = _market)
+                } else {
+                    upbitCoinDetailUseCase.deleteFavorite(market = _market)
+                }
+            }
             tickerRealTimeUpdateJob?.cancelAndJoin()
+            requestSubscribeTicker("")
         }
     }
 
@@ -233,7 +249,7 @@ class NewCoinDetailViewModel @Inject constructor(
     /**
      * 사용자 시드머니 받아옴
      */
-    fun getUserSeedMoney(): Long {
+    fun getUserSeedMoney(): State<Long> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 upbitCoinOrder.userSeedMoney
@@ -244,7 +260,7 @@ class NewCoinDetailViewModel @Inject constructor(
             }
 
             else -> {
-                0L
+                upbitCoinOrder.userSeedMoney
             }
         }
     }
@@ -276,8 +292,9 @@ class NewCoinDetailViewModel @Inject constructor(
     fun requestAsk(
         market: String,
         quantity: Double,
-        totalPrice: Long,
+        totalPrice: Long = 0,
         price: BigDecimal,
+        totalPriceBTC: Double = 0.0
     ) {
         rootExchangeCoroutineBranch(
             upbitAction = {
@@ -286,6 +303,7 @@ class NewCoinDetailViewModel @Inject constructor(
                     totalPrice = totalPrice,
                     quantity = quantity,
                     coinPrice = price,
+                    totalPriceBTC = totalPriceBTC
                 )
             },
             bitthumbAction = {
@@ -298,7 +316,7 @@ class NewCoinDetailViewModel @Inject constructor(
     /**
      * 사용자 코인 받아옴
      */
-    fun getUserCoin(): MyCoin {
+    fun getUserCoin(): State<MyCoin> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 upbitCoinOrder.userCoin
@@ -317,18 +335,18 @@ class NewCoinDetailViewModel @Inject constructor(
     /**
      * BTC마켓 일 때 필요한데, 사용자 BTC 코인 받아옴
      */
-    fun getUserBtcCoin(): Double {
+    fun getUserBtcCoin(): State<MyCoin> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
-                upbitCoinOrder.userBtcCoin.quantity
+                upbitCoinOrder.userBtcCoin
             }
 
             ROOT_EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.userBtcCoin.quantity
+                upbitCoinOrder.userBtcCoin
             }
 
             else -> {
-                upbitCoinOrder.userBtcCoin.quantity
+                upbitCoinOrder.userBtcCoin
             }
         }
     }
@@ -365,6 +383,10 @@ class NewCoinDetailViewModel @Inject constructor(
         }.also { it.start() }
     }
 
+    fun updateIsFavorite() {
+        _isFavorite.value = !isFavorite.value
+    }
+
     fun setLastPeriod(period: String) {
         viewModelScope.launch {
             chart.saveLastPeriod(period)
@@ -377,17 +399,25 @@ class NewCoinDetailViewModel @Inject constructor(
 
 
     private suspend fun collectTicker(market: String) {
-        upbitUseCase.observeTickerResponse().onEach { result ->
-            _tickerResponse.update {
+        upbitCoinDetailUseCase.observeTradeResponse().onEach { result ->
+            _tradeResponse.update {
                 result
             }
-        }.collect { upbitSocketTickerRes ->
+        }.collect { upbitSocketTradeRes ->
             runCatching {
-                if (!market.isTradeCurrencyKrw() && upbitSocketTickerRes.code == BTC_MARKET) {
-                    _btcPrice.value = upbitSocketTickerRes.mapTo().tradePrice
+                tempCoinTicker?.let {
+                    val commonExchangeModel = upbitSocketTradeRes.mapTo(it)
+
+                    if (!market.isTradeCurrencyKrw() && upbitSocketTradeRes.code == BTC_MARKET) {
+                        _btcPrice.value = commonExchangeModel.tradePrice
+                    }
+
+                    if (market != upbitSocketTradeRes.code) return@runCatching
+
+                    tempCoinTicker?.let {
+                        _coinTicker.value = commonExchangeModel
+                    }
                 }
-                if (market != upbitSocketTickerRes.code) return@runCatching
-                _coinTicker.value = upbitSocketTickerRes.mapTo()
             }.fold(
                 onSuccess = {
                     chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)

@@ -203,4 +203,34 @@ class UpbitCoinOrderUseCase @Inject constructor(
             coinDao.updatePurchaseAverageBtcPrice(market, purchaseBTCAverage)
         }
     }
+
+    suspend fun requestBTCAsk(
+        market: String,
+        quantity: Double,
+        totalPrice: Double,
+        userCoinQuantity: BigDecimal,
+        currentPrice: BigDecimal
+    ) {
+        val coinDao = localRepository.getMyCoinDao()
+
+        coinDao.updatePlusQuantity(market = BTC_MARKET, afterQuantity = totalPrice)
+        if (userCoinQuantity.minus(quantity.newBigDecimal(8, RoundingMode.FLOOR))
+                .toDouble() <= 0.00000001
+        ) {
+            coinDao.delete(market = market)
+        } else {
+            coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
+        }
+        localRepository.getTransactionInfoDao().insert(
+            TransactionInfo(
+                market = market,
+                price = currentPrice.toDouble(),
+                quantity = quantity,
+                transactionAmount = 0,
+                transactionStatus = ASK,
+                transactionTime = System.currentTimeMillis(),
+                transactionAmountBTC = totalPrice
+            )
+        )
+    }
 }

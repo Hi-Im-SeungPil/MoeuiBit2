@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.orhanobut.logger.Logger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,11 +17,13 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
 import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
+import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
@@ -96,11 +97,22 @@ class NetowrkModule {
 
     @Singleton
     @Provides
-    fun provideUpbitUseCase(
+    fun providerCoinDetailUseCase(
+        localRepository: LocalRepository,
         upbitRepository: UpbitRepository,
-        @SocketModule.ExchangeTickerSocket upBitSocketService: UpBitExchangeSocketService
+        @SocketModule.CoinDetailSocket upbitSocketService: UpbitCoinDetailSocketService
+    ): UpbitCoinDetailUseCase {
+        return UpbitCoinDetailUseCase(localRepository, upbitRepository, upbitSocketService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideUpbitUseCase(
+        localRepository: LocalRepository,
+        upbitRepository: UpbitRepository,
+        @SocketModule.ExchangeTickerSocket upBitSocketService: UpBitExchangeSocketService,
     ): UpbitUseCase {
-        return UpbitUseCase(upbitRepository, upBitSocketService)
+        return UpbitUseCase(upbitRepository, localRepository, upBitSocketService)
     }
 
     @Singleton
@@ -110,7 +122,7 @@ class NetowrkModule {
         localRepository: LocalRepository,
         @SocketModule.CoinDetailOrderBookSocket upBitSocketService: UpbitOrderBookSocketService
     ): UpbitCoinOrderUseCase {
-        return UpbitCoinOrderUseCase(upbitRepository,localRepository, upBitSocketService)
+        return UpbitCoinOrderUseCase(upbitRepository, localRepository, upBitSocketService)
     }
 
     @Singleton

@@ -17,6 +17,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.formatWithComma
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -38,14 +40,14 @@ import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
-import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 
 @Composable
 fun OrderSection(
     orderTabState: MutableState<OrderTabState>,
-    userSeedMoney: Double,
+    userSeedMoney: State<Long>,
+    userBTC: State<MyCoin>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
@@ -58,10 +60,10 @@ fun OrderSection(
     getAskTotalPrice: () -> String,
     requestBid: () -> Unit,
     requestAsk: () -> Unit,
-    getUserCoinQuantity: () -> Double,
     dropdownLabelList: List<String>,
     askSelectedText: String,
-    bidSelectedText: String
+    bidSelectedText: String,
+    userCoin: State<MyCoin>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -69,6 +71,7 @@ fun OrderSection(
             when (orderTabState.value) {
                 OrderTabState.BID -> BidSection(
                     userSeedMoney = userSeedMoney,
+                    userBTC = userBTC,
                     isKrw = isKrw,
                     symbol = symbol,
                     currentPrice = currentPrice,
@@ -89,7 +92,7 @@ fun OrderSection(
                     askQuantity = askQuantity,
                     quantityOnValueChanged = quantityOnValueChanged,
                     getAskTotalPrice = getAskTotalPrice,
-                    getUserCoinQuantity = getUserCoinQuantity,
+                    userCoin = userCoin,
                     dropdownLabelList = dropdownLabelList,
                     selectedText = askSelectedText,
                     requestAsk = requestAsk
@@ -103,7 +106,7 @@ fun OrderSection(
 
 @Composable
 fun BidSection(
-    userSeedMoney: Double,
+    userSeedMoney: State<Long>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
@@ -113,11 +116,18 @@ fun BidSection(
     getBidTotalPrice: () -> String,
     requestBid: () -> Unit,
     dropdownLabelList: List<String>,
-    selectedText: String
+    selectedText: String,
+    userBTC: State<MyCoin>
 ) {
 
     Column(modifier = Modifier) {
-        OrderTabUserSeedMoneySection(userSeedMoney = userSeedMoney, isKrw = isKrw, symbol = symbol)
+        OrderTabUserSeedMoneySection(
+            userSeedMoney = userSeedMoney,
+            userBTC = userBTC,
+            isKrw = isKrw,
+            symbol = symbol,
+            isBid = true
+        )
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
         OrderTabQuantitySection(
             dropDownItemClickAction = updateBidCoinQuantity,
@@ -141,16 +151,17 @@ fun AskSection(
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getAskTotalPrice: () -> String,
-    getUserCoinQuantity: () -> Double,
     dropdownLabelList: List<String>,
     selectedText: String,
-    requestAsk: () -> Unit
+    requestAsk: () -> Unit,
+    userCoin: State<MyCoin>
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
-            userHoldingQuantity = getUserCoinQuantity(),
+            userCoin = userCoin,
             isKrw = isKrw,
-            symbol = symbol
+            symbol = symbol,
+            isBid = false
         )
         OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
         OrderTabQuantitySection(
@@ -196,10 +207,12 @@ fun OrderTabSection(
 
 @Composable
 fun OrderTabUserSeedMoneySection(
-    userSeedMoney: Double? = null,
-    userHoldingQuantity: Double? = null,
+    userSeedMoney: State<Long>? = null,
+    userCoin: State<MyCoin>? = null,
     isKrw: Boolean,
-    symbol: String
+    symbol: String,
+    userBTC: State<MyCoin>? = null,
+    isBid: Boolean
 ) {
     val tempSymbol = remember {
         if (userSeedMoney != null) {
@@ -222,11 +235,20 @@ fun OrderTabUserSeedMoneySection(
         )
         Spacer(modifier = Modifier.weight(1f))
         AutoSizeText(
-            text = if (isKrw) userSeedMoney?.toLong()
-                .formatWithComma() else userSeedMoney?.eighthDecimal()
-                ?: userHoldingQuantity?.newBigDecimal(scale = 8)
-                    ?.formattedStringForQuantity() ?: "0",
-            textStyle = TextStyle(fontSize = DpToSp(dp = 14.dp), textAlign = TextAlign.Center)
+            text = if (isBid) {
+                if (isKrw) {
+                    userSeedMoney?.value.formatWithComma()
+                } else {
+                    userBTC?.value?.quantity?.eighthDecimal() ?: "0"
+                }
+            } else {
+                userCoin?.value?.quantity?.newBigDecimal(scale = 8)
+                    ?.formattedStringForQuantity() ?: "0"
+            },
+            textStyle = TextStyle(
+                fontSize = DpToSp(dp = 14.dp),
+                textAlign = TextAlign.Center
+            )
         )
         Text(
             text = tempSymbol,

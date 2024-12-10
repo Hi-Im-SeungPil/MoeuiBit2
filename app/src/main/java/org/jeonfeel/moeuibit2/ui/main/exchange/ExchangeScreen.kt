@@ -100,33 +100,10 @@ fun ExchangeRoute(
             if (result.resultCode == Activity.RESULT_OK) {
                 val resultData = result.data
                 if (resultData != null) {
-                    val isFavorite = resultData.getBooleanExtra(KeyConst.INTENT_IS_FAVORITE, false)
-                    val market = resultData.getStringExtra(KeyConst.INTENT_MARKET) ?: ""
-//                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
+
                 }
             }
         }
-    // ui state, ui 로직
-//    val stateHolder = rememberExchangeScreenStateHolder(
-//        context = context,
-//        pagerState = pagerState,
-//        lazyScrollState = lazyScrollState,
-//        startForActivityResult = startForActivityResult,
-//        isUpdateExchange = viewModel.isUpdateExchange,
-//        marketChangeAction = viewModel::marketChangeAction,
-//        sortList = viewModel::sortList,
-//        selectedMarketState = viewModel.selectedMarketState,
-//        rootExchange = viewModel.currentRootExchange
-//    )
-    // init
-    AddLifecycleEvent(
-        onPauseAction = {
-//            viewModel.onPauseAction()
-        },
-        onResumeAction = {
-//            viewModel.onResumeAction()
-        }
-    )
     // 백핸들러
     ExchangeBackHandler(context)
     // main network watcher value sync
@@ -134,41 +111,6 @@ fun ExchangeRoute(
 //        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
     }
     ExchangeScreenRoute(appNavController = appNavController)
-//    Exchange(
-//        stateHolder = stateHolder,
-//        errorState = viewModel.networkErrorState,
-//        filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
-//        preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
-//        loadingFavorite = viewModel.getFavoriteLoadingState(),
-//        btcPrice = viewModel.getBtcPrice(),
-//        checkErrorScreen = viewModel::checkErrorScreen,
-//        changeSelectedMarketState = viewModel::changeSelectedMarketState,
-//        updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
-//        currentRootExchange = viewModel.currentRootExchange,
-//        changeRootExchangeAction = viewModel::changeRootExchangeAction
-//    )
-
-//    when (viewModel.loadingExchange.value) {
-//        true -> {
-//            ExchangeScreenLoading()
-//        }
-
-//        false -> {
-//            Exchange(
-//                stateHolder = stateHolder,
-//                errorState = viewModel.networkErrorState,
-//                filteredExchangeCoinList = viewModel.getFilteredCoinList(stateHolder.searchTextFieldValue),
-//                preCoinListAndPosition = viewModel.getPreCoinListAndPosition(),
-//                loadingFavorite = viewModel.getFavoriteLoadingState(),
-//                btcPrice = viewModel.getBtcPrice(),
-//                checkErrorScreen = viewModel::checkErrorScreen,
-//                changeSelectedMarketState = viewModel::changeSelectedMarketState,
-//                updateIsExchangeUpdate = viewModel::updateIsExchangeUpdateState,
-//                currentRootExchange = viewModel.currentRootExchange,
-//                changeRootExchangeAction = viewModel::changeRootExchangeAction
-//            )
-//        }
-
 }
 
 @OptIn(ExperimentalPagerApi::class)

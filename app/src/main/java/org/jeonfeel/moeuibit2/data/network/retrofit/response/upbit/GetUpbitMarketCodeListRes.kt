@@ -14,7 +14,7 @@ data class UpbitMarketCodeRes(
     @SerialName("market_event")
     val marketEvent: MarketEvent,
     @SerialName("market_warning")
-    val marketWarning: String
+    val marketWarning: String = ""
 )
 
 @Serializable
