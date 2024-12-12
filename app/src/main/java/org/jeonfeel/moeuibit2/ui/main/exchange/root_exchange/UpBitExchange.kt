@@ -1,21 +1,22 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
@@ -40,8 +41,8 @@ sealed class ExchangeInitState {
     ) : ExchangeInitState()
 }
 
-class UpBit @Inject constructor(
-    private val upbitUseCase: UpbitUseCase,
+class UpBitExchange @Inject constructor(
+    private val upbitUseCase: UpbitExchangeUseCase,
     private val cacheManager: CacheManager
 ) : BaseCommunicationModule() {
     private var successInit = false
@@ -55,6 +56,10 @@ class UpBit @Inject constructor(
     private val btcList = arrayListOf<String>()
     private val btcExchangeModelPosition = mutableMapOf<String, Int>()
     private val _btcExchangeModelList = mutableStateListOf<CommonExchangeModel>()
+
+    private val favoriteList = arrayListOf<String>()
+    private val favoriteModelPosition = mutableMapOf<String, Int>()
+    private val _favoriteExchangeModelList = mutableStateListOf<CommonExchangeModel>()
 
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
@@ -92,11 +97,8 @@ class UpBit @Inject constructor(
         requestTicker()
     }
 
-    suspend fun onPause() {
-        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
-    }
-
     suspend fun onResume() {
+        getFavoriteList()
         if (!tickerDataIsEmpty() && successInit) {
             updateTickerData()
             requestSubscribeTicker()
@@ -106,6 +108,10 @@ class UpBit @Inject constructor(
             requestSubscribeTicker()
             collectTicker()
         }
+    }
+
+    suspend fun onPause() {
+        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
     }
 
     /**
@@ -150,13 +156,24 @@ class UpBit @Inject constructor(
                     sortOrder = SortOrder.DESCENDING
                 )
             }
-
         )
     }
 
     private suspend fun updateTickerData() {
         val marketCodes =
-            if (tradeCurrencyState?.value == TRADE_CURRENCY_KRW) (krwList).mapToMarketCodesRequest() else btcList.mapToMarketCodesRequest()
+            when (tradeCurrencyState?.value) {
+                TRADE_CURRENCY_KRW -> {
+                    krwList.mapToMarketCodesRequest()
+                }
+
+                TRADE_CURRENCY_BTC -> {
+                    btcList.mapToMarketCodesRequest()
+                }
+
+                else -> {
+                    favoriteList.mapToMarketCodesRequest()
+                }
+            }
         val req = GetUpbitMarketTickerReq(
             marketCodes = marketCodes
         )
@@ -200,7 +217,21 @@ class UpBit @Inject constructor(
                         }
                     }
 
-                    else -> {}
+                    else -> { // favorite
+                        result.forEach { res ->
+                            val position = favoriteModelPosition[res.market]
+                            position?.let {
+                                if (_favoriteExchangeModelList[position].tradePrice > res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.BID.name
+                                } else if (_favoriteExchangeModelList[position].tradePrice < res.tradePrice) {
+                                    res.needAnimation.value = TickerAskBidState.ASK.name
+                                } else {
+                                    res.needAnimation.value = TickerAskBidState.NONE.name
+                                }
+                                _favoriteExchangeModelList[position] = res
+                            }
+                        }
+                    }
                 }
             }
         )
@@ -232,7 +263,7 @@ class UpBit @Inject constructor(
             }
 
             TRADE_CURRENCY_FAV -> {
-                emptyList()
+                _favoriteExchangeModelList.toList()
             }
 
             else -> {
@@ -259,7 +290,7 @@ class UpBit @Inject constructor(
             }
 
             TRADE_CURRENCY_FAV -> {
-                _krwExchangeModelList.toList()
+                _favoriteExchangeModelList.toList()
             }
 
             else -> {
@@ -284,17 +315,29 @@ class UpBit @Inject constructor(
                 }
 
                 TRADE_CURRENCY_FAV -> {
-
+                    _favoriteExchangeModelList[index] = ticker
+                    favoriteModelPosition[ticker.market] = index
                 }
             }
         }
-        if (tradeCurrencyState?.value == TRADE_CURRENCY_KRW) {
-            _krwExchangeModelList.forEach {
-                it.needAnimation.value = TickerAskBidState.NONE.name
+
+        when (tradeCurrencyState?.value) {
+            TRADE_CURRENCY_KRW -> {
+                _krwExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
             }
-        } else {
-            _btcExchangeModelList.forEach {
-                it.needAnimation.value = TickerAskBidState.NONE.name
+
+            TRADE_CURRENCY_BTC -> {
+                _btcExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
+            }
+
+            else -> {
+                _favoriteExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
             }
         }
     }
@@ -316,7 +359,11 @@ class UpBit @Inject constructor(
                 upbitUseCase.requestSubscribeTicker(marketCodes = tempBtcList.toList())
             }
 
-            TRADE_CURRENCY_FAV -> {}
+            TRADE_CURRENCY_FAV -> {
+                val tempFavoriteList = ArrayList(favoriteList)
+                tempFavoriteList.add(BTC_MARKET)
+                upbitUseCase.requestSubscribeTicker(marketCodes = tempFavoriteList.toList())
+            }
         }
     }
 
@@ -326,6 +373,13 @@ class UpBit @Inject constructor(
 
     suspend fun removeFavorite(market: String) {
         upbitUseCase.removeFavorite(market)
+    }
+
+    private suspend fun getFavoriteList() {
+        val list = upbitUseCase.getFavoriteList()?.let {
+            it.map { favorite -> favorite?.market ?: "" }
+        } ?: emptyList()
+        favoriteList.addAll(list)
     }
 
     private fun tickerDataIsEmpty(): Boolean {
@@ -348,11 +402,56 @@ class UpBit @Inject constructor(
         btcList.clear()
         btcExchangeModelPosition.clear()
         _btcExchangeModelList.clear()
+        favoriteList.clear()
+        favoriteModelPosition.clear()
+        _favoriteExchangeModelList.clear()
     }
 
     suspend fun changeTradeCurrencyAction() {
+        favoriteMarketChangeAction()
+
+        if (tradeCurrencyState?.value == SELECTED_FAVORITE) return
+
         updateTickerData()
         requestSubscribeTicker()
+    }
+
+    private suspend fun favoriteMarketChangeAction() {
+        if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
+            if (favoriteList.isNotEmpty()) {
+                favoriteList.forEachIndexed { index, market ->
+                    if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                        val krwPosition = krwExchangeModelPosition[market]
+                        krwPosition?.let {
+                            val favoritePosition = favoriteModelPosition[market]
+                            val commonExchangeModel = _krwExchangeModelList[krwPosition]
+
+                            if (favoritePosition != null) {
+                                _favoriteExchangeModelList[favoritePosition] = commonExchangeModel
+                            } else {
+                                favoriteModelPosition[market] = index
+                                _favoriteExchangeModelList.add(commonExchangeModel)
+                            }
+                        }
+                    } else {
+                        val btcPosition = btcExchangeModelPosition[market]
+                        btcPosition?.let {
+                            val favoritePosition = favoriteModelPosition[market]
+                            val commonExchangeModel = _btcExchangeModelList[btcPosition]
+
+                            if (favoritePosition != null) {
+                                _favoriteExchangeModelList[favoritePosition] = commonExchangeModel
+                            } else {
+                                favoriteModelPosition[market] = index
+                                _favoriteExchangeModelList.add(commonExchangeModel)
+                            }
+                        }
+                    }
+                }
+                updateTickerData()
+                requestSubscribeTicker()
+            }
+        }
     }
 
     fun getBtcPrice(): BigDecimal {
@@ -370,9 +469,9 @@ class UpBit @Inject constructor(
             _tickerResponse.update {
                 result
             }
-        }.collect { upbitSocketTickerRes ->
+        }.collectLatest { upbitSocketTickerRes ->
             try {
-                if (isUpdateExchange?.value == false) return@collect
+                if (isUpdateExchange?.value == false) return@collectLatest
 
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
@@ -396,17 +495,35 @@ class UpBit @Inject constructor(
                         }
                     }
 
-                    TRADE_CURRENCY_FAV -> {}
+                    TRADE_CURRENCY_FAV -> {
+                        if (upbitSocketTickerRes.code == BTC_MARKET) {
+                            positionMap = krwExchangeModelPosition
+                            upbitMarketCodeMap = krwMarketCodeMap
+                            targetModelList = _krwExchangeModelList
+                        } else {
+                            positionMap = favoriteModelPosition
+                            targetModelList = _favoriteExchangeModelList
+                            upbitMarketCodeMap =
+                                if (upbitSocketTickerRes.code.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                                    krwMarketCodeMap
+                                } else {
+                                    btcMarketCodeMap
+                                }
+                        }
+                    }
+
                     null -> {}
                 }
-                val position = positionMap?.get(upbitSocketTickerRes.code) ?: 0
-                val upbitMarketCodeRes = upbitMarketCodeMap?.get(upbitSocketTickerRes.code)
-                val commonExchangeModel = upbitMarketCodeRes?.let {
-                    upbitSocketTickerRes.mapTo(it).apply {
-                        needAnimation.value = upbitSocketTickerRes.askBid
+                val position = positionMap?.get(upbitSocketTickerRes.code)
+                position?.let {
+                    val upbitMarketCodeRes = upbitMarketCodeMap?.get(upbitSocketTickerRes.code)
+                    val commonExchangeModel = upbitMarketCodeRes?.let {
+                        upbitSocketTickerRes.mapTo(it).apply {
+                            needAnimation.value = upbitSocketTickerRes.askBid
+                        }
                     }
+                    commonExchangeModel?.let { targetModelList?.set(position, it) }
                 }
-                commonExchangeModel?.let { targetModelList?.set(position, it) }
             } catch (e: Exception) {
                 Logger.e(e.message.toString())
             }

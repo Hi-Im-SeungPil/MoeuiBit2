@@ -21,7 +21,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.Upbit
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
-import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
@@ -111,8 +111,8 @@ class NetowrkModule {
         localRepository: LocalRepository,
         upbitRepository: UpbitRepository,
         @SocketModule.ExchangeTickerSocket upBitSocketService: UpBitExchangeSocketService,
-    ): UpbitUseCase {
-        return UpbitUseCase(upbitRepository, localRepository, upBitSocketService)
+    ): UpbitExchangeUseCase {
+        return UpbitExchangeUseCase(upbitRepository, localRepository, upBitSocketService)
     }
 
     @Singleton

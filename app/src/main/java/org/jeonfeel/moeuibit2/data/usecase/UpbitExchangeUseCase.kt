@@ -3,11 +3,11 @@ package org.jeonfeel.moeuibit2.data.usecase
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTradeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTypeField
@@ -17,9 +17,8 @@ import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import java.util.UUID
 import javax.inject.Inject
-import javax.inject.Qualifier
 
-class UpbitUseCase @Inject constructor(
+class UpbitExchangeUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
     private val upBitSocketService: UpBitExchangeSocketService
@@ -156,6 +155,10 @@ class UpbitUseCase @Inject constructor(
 
     suspend fun removeFavorite(market: String) {
         localRepository.getFavoriteDao().delete(market)
+    }
+
+    suspend fun getFavoriteList(): List<Favorite?>? {
+        return localRepository.getFavoriteDao().all
     }
 
     /**

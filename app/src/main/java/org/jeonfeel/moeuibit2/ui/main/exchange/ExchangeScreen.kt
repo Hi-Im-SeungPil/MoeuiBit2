@@ -88,7 +88,6 @@ import kotlin.system.exitProcess
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ExchangeRoute(
-    viewModel: ExchangeViewModel = hiltViewModel(),
     networkErrorState: MutableIntState,
     appNavController: NavHostController,
 ) {

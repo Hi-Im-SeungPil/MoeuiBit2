@@ -18,16 +18,12 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.usecase.UpbitUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
-import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
-import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
@@ -45,7 +41,7 @@ class PortfolioViewModel @Inject constructor(
     val adMobManager: AdMobManager,
     val preferenceManager: PreferencesManager,
     private val localRepository: LocalRepository,
-    private val upbitUseCase: UpbitUseCase,
+    private val upbitUseCase: UpbitExchangeUseCase,
     private val cacheManager: CacheManager,
 ) : BaseViewModel(preferenceManager) {
 

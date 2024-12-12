@@ -14,6 +14,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -125,7 +126,8 @@ object Utils {
     fun sortTickerList(
         tickerList: List<CommonExchangeModel>,
         sortType: SortType,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
+        btcPriceForFavorite: BigDecimal? = null
     ): List<CommonExchangeModel> {
         return when (sortType) {
             SortType.DEFAULT -> {
@@ -133,13 +135,32 @@ object Utils {
             }
 
             SortType.PRICE -> {
+                if (btcPriceForFavorite != null) {
+
+                }
                 when (sortOrder) {
                     SortOrder.DESCENDING -> {
-                        tickerList.sortedByDescending { it.tradePrice }
+                        tickerList.sortedByDescending {
+                            if (btcPriceForFavorite != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.tradePrice * btcPriceForFavorite
+                            } else {
+                                it.tradePrice
+                            }
+                        }
                     }
 
                     SortOrder.ASCENDING -> {
-                        tickerList.sortedBy { it.tradePrice }
+                        tickerList.sortedBy {
+                            if (btcPriceForFavorite != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.tradePrice * btcPriceForFavorite
+                            } else {
+                                it.tradePrice
+                            }
+                        }
                     }
 
                     SortOrder.NONE -> {
