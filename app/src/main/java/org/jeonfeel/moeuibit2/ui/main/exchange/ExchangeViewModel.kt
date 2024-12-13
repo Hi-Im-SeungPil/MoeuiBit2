@@ -92,7 +92,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun onResume() {
-        realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
+        realTimeUpdateJob = viewModelScope.launch {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
                     upBitExchange.onResume()
@@ -135,7 +135,7 @@ class ExchangeViewModel @Inject constructor(
         if (tradeCurrency in TRADE_CURRENCY_KRW..TRADE_CURRENCY_FAV) {
             state.tradeCurrencyState.intValue = tradeCurrency
             marketChangeJob?.cancel()
-            marketChangeJob = viewModelScope.launch {
+            marketChangeJob = viewModelScope.launch(ioDispatcher) {
                 when (rootExchange) {
                     ROOT_EXCHANGE_UPBIT -> {
                         upBitExchange.changeTradeCurrencyAction()
