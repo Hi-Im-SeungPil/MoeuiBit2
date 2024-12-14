@@ -1,8 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -33,12 +35,13 @@ class ExchangeViewModelState {
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val upBitExchange: UpBitExchange,
-    private val localRepository: LocalRepository,
     private val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager) {
     private val state = ExchangeViewModelState()
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
     val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
+    val selectedSortType: MutableState<SortType> = mutableStateOf(SortType.DEFAULT)
+    val sortOrder: MutableState<SortOrder> = mutableStateOf(SortOrder.NONE)
 
     private var realTimeUpdateJob: Job? = null
     private var marketChangeJob: Job? = null
@@ -92,7 +95,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun onResume() {
-        realTimeUpdateJob = viewModelScope.launch {
+        realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
                     upBitExchange.onResume()

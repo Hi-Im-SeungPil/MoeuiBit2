@@ -22,8 +22,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbTickerWebS
 import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSocket
 import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
-import org.jeonfeel.moeuibit2.ui.NavGraph
+import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
@@ -55,10 +54,8 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         initActivity()
         setContent {
-            val navController = rememberNavController()
             MainTheme(isMainActivity = true, content = {
-                NavGraph(navController = navController, networkErrorState = networkErrorState)
-//                MoeuiBitApp(networkErrorState)
+                AppNavGraph(networkErrorState = networkErrorState)
             })
         }
     }

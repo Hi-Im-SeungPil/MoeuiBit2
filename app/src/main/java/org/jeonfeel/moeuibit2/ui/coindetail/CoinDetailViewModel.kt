@@ -34,8 +34,8 @@ import javax.inject.Inject
 class CoinDetailViewModel @Inject constructor(
     val coinOrder: CoinOrder,
     val chart: Chart,
-    val coinInfo: CoinInfo,
-    val remoteRepository: RemoteRepository,
+    private val coinInfo: CoinInfo,
+    private val remoteRepository: RemoteRepository,
     val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager = preferenceManager), OnTickerMessageReceiveListener {
     private var name = ""

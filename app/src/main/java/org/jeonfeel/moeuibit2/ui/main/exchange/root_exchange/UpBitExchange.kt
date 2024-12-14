@@ -99,6 +99,9 @@ class UpBitExchange @Inject constructor(
 
     suspend fun onResume() {
         if (!tickerDataIsEmpty() && successInit) {
+            if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
+                favoriteOnResume()
+            }
             updateTickerData()
             requestSubscribeTicker()
         } else if (tickerDataIsEmpty() && successInit) {
@@ -113,7 +116,8 @@ class UpBitExchange @Inject constructor(
         upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
     }
 
-    suspend fun favoriteOnResume() {
+    private suspend fun favoriteOnResume() {
+        getFavoriteList()
         if (favoriteList.size < _favoriteExchangeModelList.size) {
             val count = _favoriteExchangeModelList.size - favoriteList.size
             var removeCount = 0
@@ -132,10 +136,22 @@ class UpBitExchange @Inject constructor(
                 }
             }
 
+            val tempList = arrayListOf<CommonExchangeModel>().apply {
+                addAll(_favoriteExchangeModelList)
+            }
+
             if (removeKeyList.isNotEmpty()) {
+                favoriteModelPosition.clear()
+
                 removeKeyList.forEach { key ->
-                    favoriteModelPosition.remove(key)
-                    _favoriteExchangeModelList.removeIf { it.market == key }
+                    tempList.removeIf { it.market == key }
+                }
+
+                _favoriteExchangeModelList.clear()
+                _favoriteExchangeModelList.addAll(tempList)
+
+                tempList.forEachIndexed { index, commonExchangeModel ->
+                    favoriteModelPosition[commonExchangeModel.market] = index
                 }
             }
         }

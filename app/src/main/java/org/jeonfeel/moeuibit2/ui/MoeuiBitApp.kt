@@ -11,17 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import org.jeonfeel.moeuibit2.ui.main.MainBottomNavGraph
+import org.jeonfeel.moeuibit2.ui.nav.MainBottomNavGraph
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 
 @Composable
-fun MoeuiBitApp(networkErrorState: MutableIntState, appNavController: NavHostController) {
-    val navController = rememberNavController()
+fun MoeuiBitApp(
+    networkErrorState: MutableIntState,
+    appNavController: NavHostController,
+    bottomNavController: NavHostController
+) {
     val scaffoldState = rememberScaffoldState()
+
     Scaffold(
         scaffoldState = scaffoldState,
-        bottomBar = { MainBottomNavigation(navController) },
+        bottomBar = { MainBottomNavigation(bottomNavController) },
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) { contentPadding ->
         Box(
@@ -30,7 +33,7 @@ fun MoeuiBitApp(networkErrorState: MutableIntState, appNavController: NavHostCon
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            MainBottomNavGraph(navController, networkErrorState, appNavController)
+            MainBottomNavGraph(appNavController = appNavController, bottomNavController = bottomNavController, networkErrorState = networkErrorState)
         }
     }
 }

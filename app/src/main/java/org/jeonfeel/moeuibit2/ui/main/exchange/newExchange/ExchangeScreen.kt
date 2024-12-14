@@ -51,6 +51,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -64,6 +65,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -71,13 +73,12 @@ import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.ui.AppScreen
+import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.SwipeDetector
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
-import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.NoRippleTheme
 import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
@@ -105,11 +106,16 @@ fun ExchangeScreen(
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     btcKrwPrice: BigDecimal,
     appNavController: NavHostController,
+    selectedSortType: MutableState<SortType>,
+    sortOrder: MutableState<SortOrder>
 ) {
+
     val stateHolder = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
         sortTickerList = sortTickerList,
         changeTradeCurrency = changeTradeCurrency,
+        selectedSortType = selectedSortType,
+        sortOrder = sortOrder,
         tradeCurrencyState = tradeCurrencyState,
     )
 
@@ -139,9 +145,9 @@ fun ExchangeScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
                 SortingSection(
-                    sortOrder = stateHolder.sortOrder.value,
+                    sortOrder = sortOrder.value,
                     onSortClick = stateHolder::onSortClick,
-                    selectedSortType = stateHolder.selectedSortType
+                    selectedSortType = selectedSortType
                 )
                 Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
                 CoinTickerSection(
@@ -402,10 +408,10 @@ private fun CoinTickerSection(
                     val market = item.market
                     val warning = item.warning
                     appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning") {
+                        launchSingleTop = true
                         popUpTo(appNavController.graph.findStartDestination().id) {
                             saveState = true
                         }
-                        launchSingleTop = true
                         restoreState = true
                     }
                 },

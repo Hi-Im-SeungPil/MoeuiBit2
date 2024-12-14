@@ -20,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
@@ -82,6 +83,9 @@ fun PortfolioScreenRoute(
     )
 
     AddLifecycleEvent(
+        onCreateAction = {
+            Logger.e("onCreate")
+        },
         onResumeAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
                 viewModel.onResume()

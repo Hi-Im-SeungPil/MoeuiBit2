@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main
+package org.jeonfeel.moeuibit2.ui.nav
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -7,35 +7,32 @@ import androidx.compose.runtime.MutableIntState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import org.jeonfeel.moeuibit2.ui.AppScreen
-import org.jeonfeel.moeuibit2.ui.coindetail.newS.NewCoinDetailScreen
+import androidx.navigation.compose.rememberNavController
+import org.jeonfeel.moeuibit2.ui.main.MainBottomNavItem
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeRoute
+import org.jeonfeel.moeuibit2.ui.main.exchange.newExchange.ExchangeScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 
 @Composable
 fun MainBottomNavGraph(
-    navController: NavHostController,
+    bottomNavController: NavHostController,
+    appNavController: NavHostController,
     networkErrorState: MutableIntState,
-    appNavController: NavHostController
 ) {
-    NavHost(navController, startDestination = MainBottomNavItem.Exchange.screen_route,
+    NavHost(bottomNavController, startDestination = MainBottomNavItem.Exchange.screenRoute.name,
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }) {
-        composable(MainBottomNavItem.Exchange.screen_route) {
-            ExchangeRoute(
-                networkErrorState = networkErrorState,
-                appNavController = appNavController
-            )
+        composable(MainBottomNavItem.Exchange.screenRoute.name) {
+            ExchangeScreenRoute(appNavController = appNavController)
         }
-        composable(MainBottomNavItem.CoinSite.screen_route) {
+        composable(MainBottomNavItem.CoinSite.screenRoute.name) {
             CoinSiteScreen()
         }
-        composable(MainBottomNavItem.Portfolio.screen_route) {
+        composable(MainBottomNavItem.Portfolio.screenRoute.name) {
             PortfolioScreenRoute()
         }
-        composable(MainBottomNavItem.Setting.screen_route) {
+        composable(MainBottomNavItem.Setting.screenRoute.name) {
             SettingScreen()
         }
     }

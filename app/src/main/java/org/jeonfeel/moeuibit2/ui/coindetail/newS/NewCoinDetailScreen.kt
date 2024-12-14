@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
@@ -52,7 +53,8 @@ import kotlin.reflect.KFunction1
 fun NewCoinDetailScreen(
     viewModel: NewCoinDetailViewModel = hiltViewModel(),
     market: String,
-    warning: Boolean
+    warning: Boolean,
+    navController: NavHostController
 ) {
     val state = rememberCoinDetailStateHolder(context = LocalContext.current)
 
@@ -74,7 +76,8 @@ fun NewCoinDetailScreen(
             title = viewModel.koreanCoinName.value,
             showToast = state::showToast,
             updateIsFavorite = viewModel::updateIsFavorite,
-            isFavorite = viewModel.isFavorite
+            isFavorite = viewModel.isFavorite,
+            backPressed = { navController.popBackStack() }
         )
         CoinDetailPriceSection(
             fluctuateRate = state.getFluctuateRate(
@@ -113,11 +116,12 @@ fun NewCoinDetailTopAppBar(
     title: String,
     showToast: KFunction1<String, Unit>,
     updateIsFavorite: KFunction0<Unit>,
-    isFavorite: State<Boolean>
+    isFavorite: State<Boolean>,
+    backPressed: () -> Boolean
 ) {
     Row {
         IconButton(onClick = {
-
+            backPressed()
         }) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,

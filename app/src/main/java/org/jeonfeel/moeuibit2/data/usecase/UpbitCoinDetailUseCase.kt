@@ -3,7 +3,7 @@ package org.jeonfeel.moeuibit2.data.usecase
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTradeRes
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTypeField
@@ -48,14 +48,14 @@ class UpbitCoinDetailUseCase @Inject constructor(
         )
     }
 
-    suspend fun requestSubscribeTrade(
+    suspend fun requestSubscribeTicker(
         marketCodes: List<String>,
     ) {
         upbitCoinDetailSocketService.requestUpbitTradeRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(
-                    type = "trade",
+                    type = "ticker",
                     codes = marketCodes,
                 ),
                 RequestFormatField()
@@ -63,7 +63,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
         )
     }
 
-    fun observeTradeResponse(): Flow<UpbitSocketTradeRes> {
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes> {
         return upbitCoinDetailSocketService.collectUpbitTrade()
     }
 }

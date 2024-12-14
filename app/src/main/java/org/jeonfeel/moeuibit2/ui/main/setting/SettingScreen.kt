@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.orhanobut.logger.Logger
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonSizeSpec
@@ -69,6 +70,9 @@ fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
         settingViewModel.state.openSourceState.value = false
     }
     AddLifecycleEvent(
+        onCreateAction = {
+            Logger.e("onCreate")
+        },
         onPauseAction = {
             if (settingViewModel.state.openSourceState.value)
                 settingViewModel.state.openSourceState.value = false

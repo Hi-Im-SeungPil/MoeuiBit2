@@ -1,17 +1,17 @@
-package org.jeonfeel.moeuibit2.ui
+package org.jeonfeel.moeuibit2.ui.nav
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.coindetail.newS.CoinDetailScreenRoute
 
 enum class AppScreen {
@@ -20,17 +20,20 @@ enum class AppScreen {
 }
 
 @Composable
-fun NavGraph(
-    navController: NavHostController,
+fun AppNavGraph(
     networkErrorState: MutableIntState
 ) {
-    NavHost(navController, startDestination = AppScreen.Home.name) {
+    val appNavController = rememberNavController()
+    val bottomNavController = rememberNavController()
+
+    NavHost(appNavController, startDestination = AppScreen.Home.name) {
         composable(
             AppScreen.Home.name,
             popExitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None }) {
-            MoeuiBitApp(networkErrorState = networkErrorState, appNavController = navController)
+            MoeuiBitApp(networkErrorState = networkErrorState, appNavController = appNavController, bottomNavController = bottomNavController)
         }
+
         composable(
             "${AppScreen.CoinDetail.name}/{market}/{warning}",
             arguments = listOf(
@@ -53,7 +56,7 @@ fun NavGraph(
             val market = backStackEntry.arguments?.getString("market") ?: ""
             val warning =
                 backStackEntry.arguments?.getBoolean("warning") ?: false
-            CoinDetailScreenRoute(market = market, warning = warning, navController = navController)
+            CoinDetailScreenRoute(market = market, warning = warning, appNavController = appNavController)
         }
     }
 }

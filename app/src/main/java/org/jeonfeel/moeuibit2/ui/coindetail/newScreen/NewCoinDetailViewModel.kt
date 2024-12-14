@@ -47,7 +47,6 @@ class NewCoinDetailViewModel @Inject constructor(
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
     val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
-    private var tempCoinTicker: CommonExchangeModel? = null
 
     private val _btcPrice = mutableStateOf(BigDecimal(0.0))
     val btcPrice: State<BigDecimal> get() = _btcPrice
@@ -62,7 +61,7 @@ class NewCoinDetailViewModel @Inject constructor(
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
 
-    private val _tradeResponse = MutableStateFlow<UpbitSocketTradeRes?>(null)
+    private val _tradeResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
     private var tickerRealTimeUpdateJob: Job? = null
 
@@ -106,9 +105,7 @@ class NewCoinDetailViewModel @Inject constructor(
                         _btcPrice.value = it.mapTo().tradePrice
                     }
                     if (it.market == market) {
-                        val commonExchangeModel = it.mapTo()
-                        tempCoinTicker = commonExchangeModel
-                        _coinTicker.value = commonExchangeModel
+                        _coinTicker.value = it.mapTo()
                     }
                 }
             }
@@ -117,7 +114,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private suspend fun requestSubscribeTicker(market: String) {
         val marketList = market.coinOrderIsKrwMarket()
-        upbitCoinDetailUseCase.requestSubscribeTrade(marketCodes = marketList.split(","))
+        upbitCoinDetailUseCase.requestSubscribeTicker(marketCodes = marketList.split(","))
     }
 
     /**
@@ -399,25 +396,21 @@ class NewCoinDetailViewModel @Inject constructor(
 
 
     private suspend fun collectTicker(market: String) {
-        upbitCoinDetailUseCase.observeTradeResponse().onEach { result ->
+        upbitCoinDetailUseCase.observeTickerResponse().onEach { result ->
             _tradeResponse.update {
                 result
             }
         }.collect { upbitSocketTradeRes ->
             runCatching {
-                tempCoinTicker?.let {
-                    val commonExchangeModel = upbitSocketTradeRes.mapTo(it)
+                val commonExchangeModel = upbitSocketTradeRes.mapTo()
 
-                    if (!market.isTradeCurrencyKrw() && upbitSocketTradeRes.code == BTC_MARKET) {
-                        _btcPrice.value = commonExchangeModel.tradePrice
-                    }
-
-                    if (market != upbitSocketTradeRes.code) return@runCatching
-
-                    tempCoinTicker?.let {
-                        _coinTicker.value = commonExchangeModel
-                    }
+                if (!market.isTradeCurrencyKrw() && upbitSocketTradeRes.code == BTC_MARKET) {
+                    _btcPrice.value = commonExchangeModel.tradePrice
                 }
+
+                if (market != upbitSocketTradeRes.code) return@runCatching
+
+                _coinTicker.value = commonExchangeModel
             }.fold(
                 onSuccess = {
                     chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)

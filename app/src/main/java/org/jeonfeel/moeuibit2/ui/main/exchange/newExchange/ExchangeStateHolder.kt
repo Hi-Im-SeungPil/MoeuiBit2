@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,6 +15,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffoldState
@@ -35,13 +37,12 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val focusManaManager: FocusManager,
     val coroutineScope: CoroutineScope,
     val toolbarState: CollapsingToolbarScaffoldState,
+    val selectedSortType: MutableState<SortType>,
+    val sortOrder: MutableState<SortOrder>,
     private val changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     private val tradeCurrencyState: State<Int>,
 ) {
     val textFieldValueState = mutableStateOf("")
-    var selectedSortType = mutableStateOf(SortType.DEFAULT)
-    var sortOrder = mutableStateOf(SortOrder.DESCENDING)
-    val coinTickerListVisibility = mutableStateOf(true)
 
     fun getFilteredList(tickerList: List<CommonExchangeModel>): List<CommonExchangeModel> {
         val list = Utils.filterTickerList(
@@ -55,7 +56,9 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
         sortType: SortType,
         isChangeTradeCurrency: Boolean = false
     ) {
+        Logger.e("${selectedSortType.value} ${sortOrder.value}")
         if (!isUpdateExchange) return
+
         when {
             isChangeTradeCurrency -> {
                 sortTickerList(null, this.selectedSortType.value, this.sortOrder.value)
@@ -128,6 +131,8 @@ fun rememberExchangeStateHolder(
     sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    selectedSortType: MutableState<SortType>,
+    sortOrder: MutableState<SortOrder>,
     tradeCurrencyState: State<Int>,
     toolbarState: CollapsingToolbarScaffoldState = rememberCollapsingToolbarScaffoldState()
 ) = remember {
@@ -140,6 +145,8 @@ fun rememberExchangeStateHolder(
         focusManaManager = focusManaManager,
         changeTradeCurrency = changeTradeCurrency,
         coroutineScope = coroutineScope,
+        selectedSortType = selectedSortType,
+        sortOrder = sortOrder,
         tradeCurrencyState = tradeCurrencyState,
         toolbarState = toolbarState
     )

@@ -109,7 +109,7 @@ fun ExchangeRoute(
     LaunchedEffect(key1 = networkErrorState.value) {
 //        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
     }
-    ExchangeScreenRoute(appNavController = appNavController)
+//    ExchangeScreenRoute(appNavController = appNavController)
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -548,7 +548,7 @@ object NoRippleTheme : RippleTheme {
 }
 
 @Composable
-private fun ExchangeBackHandler(context: Context) {
+fun ExchangeBackHandler(context: Context) {
     var backBtnTime = remember { 0L }
     BackHandler(true) {
         val curTime = System.currentTimeMillis()
