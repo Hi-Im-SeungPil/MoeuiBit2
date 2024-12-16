@@ -521,6 +521,8 @@ class UpBitExchange @Inject constructor(
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 
+                if(upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
+
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
                 var targetModelList: MutableList<CommonExchangeModel>? = null

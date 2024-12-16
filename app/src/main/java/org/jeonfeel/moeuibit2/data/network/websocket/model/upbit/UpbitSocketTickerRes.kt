@@ -13,67 +13,98 @@ import org.jeonfeel.moeuibit2.utils.Utils
 @Serializable
 data class UpbitSocketTickerRes(
     @SerialName("acc_ask_volume")
-    val accAskVolume: Double,
+    val accAskVolume: Double = 0.0,
+
     @SerialName("acc_bid_volume")
-    val accBidVolume: Double,
+    val accBidVolume: Double = 0.0,
+
     @SerialName("acc_trade_price")
-    val accTradePrice: Double,
+    val accTradePrice: Double = 0.0,
+
     @SerialName("acc_trade_price_24h")
-    val accTradePrice24h: Double,
+    val accTradePrice24h: Double = 0.0,
+
     @SerialName("acc_trade_volume")
-    val accTradeVolume: Double,
+    val accTradeVolume: Double = 0.0,
+
     @SerialName("acc_trade_volume_24h")
-    val accTradeVolume24h: Double,
+    val accTradeVolume24h: Double = 0.0,
+
     @SerialName("ask_bid")
-    val askBid: String,
+    val askBid: String = "",
+
     @SerialName("change")
-    val change: String,
+    val change: String = "",
+
     @SerialName("change_price")
-    val changePrice: Double,
+    val changePrice: Double = 0.0,
+
     @SerialName("change_rate")
-    val changeRate: Double,
+    val changeRate: Double = 0.0,
+
     @SerialName("code")
-    val code: String,
+    val code: String = "",
+
     @SerialName("high_price")
-    val highPrice: Double,
+    val highPrice: Double = 0.0,
+
     @SerialName("highest_52_week_date")
-    val highest52WeekDate: String,
+    val highest52WeekDate: String = "",
+
     @SerialName("highest_52_week_price")
-    val highest52WeekPrice: Double,
+    val highest52WeekPrice: Double = 0.0,
+
     @SerialName("is_trading_suspended")
-    val isTradingSuspended: Boolean,
+    val isTradingSuspended: Boolean = false,
+
     @SerialName("low_price")
-    val lowPrice: Double,
+    val lowPrice: Double = 0.0,
+
     @SerialName("lowest_52_week_date")
-    val lowest52WeekDate: String,
+    val lowest52WeekDate: String = "",
+
     @SerialName("lowest_52_week_price")
-    val lowest52WeekPrice: Double,
+    val lowest52WeekPrice: Double = 0.0,
+
     @SerialName("market_state")
-    val marketState: String,
+    val marketState: String = "",
+
     @SerialName("opening_price")
-    val openingPrice: Double,
+    val openingPrice: Double = 0.0,
+
     @SerialName("prev_closing_price")
-    val prevClosingPrice: Double,
+    val prevClosingPrice: Double = 0.0,
+
     @SerialName("signed_change_price")
-    val signedChangePrice: Double,
+    val signedChangePrice: Double = 0.0,
+
     @SerialName("signed_change_rate")
-    val signedChangeRate: Double,
+    val signedChangeRate: Double = 0.0,
+
     @SerialName("stream_type")
-    val streamType: String,
+    val streamType: String = "",
+
     @SerialName("timestamp")
-    val timestamp: Long,
+    val timestamp: Long = 0L,
+
     @SerialName("trade_date")
-    val tradeDate: String,
+    val tradeDate: String = "",
+
     @SerialName("trade_price")
-    val tradePrice: Double,
+    val tradePrice: Double = 0.0,
+
     @SerialName("trade_time")
-    val tradeTime: String,
+    val tradeTime: String = "",
+
     @SerialName("trade_timestamp")
-    val tradeTimestamp: Long,
+    val tradeTimestamp: Long = 0L,
+
     @SerialName("trade_volume")
-    val tradeVolume: Double,
+    val tradeVolume: Double = 0.0,
+
     @SerialName("type")
-    val type: String
+    val type: String = ""
+
 ) {
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {
         return CommonExchangeModel(

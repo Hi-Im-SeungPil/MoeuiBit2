@@ -52,7 +52,8 @@ class UpbitExchangeUseCase @Inject constructor(
                 val btcExchangeModelList = arrayListOf<CommonExchangeModel>()
                 var krwIndex = 0
                 var btcIndex = 0
-                result.forEachIndexed { index, ticker ->
+                result.forEachIndexed loop@{ index, ticker ->
+
                     when {
                         ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =
@@ -91,7 +92,9 @@ class UpbitExchangeUseCase @Inject constructor(
             result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
             onSuccess = { result ->
                 val exchangeModelList = arrayListOf<CommonExchangeModel>()
-                result.forEachIndexed { index, ticker ->
+                result.forEachIndexed loop@{ index, ticker ->
+                    if (ticker.tradePrice == 0.0) return@loop
+
                     when {
                         ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =

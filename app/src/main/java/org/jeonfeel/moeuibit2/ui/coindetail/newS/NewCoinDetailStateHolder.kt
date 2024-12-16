@@ -15,7 +15,6 @@ import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.decimalPoint
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.getCoinDetailTitle
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import kotlin.math.abs
@@ -25,13 +24,6 @@ class CoinDetailStateHolder(
     val navController: NavHostController
 ) {
     private var toast: Toast? = null
-
-    fun getCoinDetailTitle(
-        koreanCoinName: String,
-        warning: Boolean
-    ) {
-        return getCoinDetailTitle(warning, context, koreanCoinName)
-    }
 
     fun getCoinDetailPrice(price: Double, rootExchange: String, market: String): String {
         return price.newBigDecimal(rootExchange, market).formattedString()

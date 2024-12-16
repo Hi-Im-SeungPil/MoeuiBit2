@@ -130,7 +130,7 @@ fun NewCoinDetailTopAppBar(
             )
         }
 
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = TextStyle(
@@ -138,7 +138,7 @@ fun NewCoinDetailTopAppBar(
                     fontSize = DpToSp(dp = 17.dp),
                     textAlign = TextAlign.Center
                 ),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.ConnectionPool
 import okhttp3.MediaType.Companion.toMediaType
@@ -52,6 +53,7 @@ class NetowrkModule {
             .build()
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Singleton
     @Provides
     fun provideUpBitRetrofit(okHttpClient: OkHttpClient): Retrofit {
@@ -59,7 +61,10 @@ class NetowrkModule {
         return Retrofit.Builder()
             .baseUrl(retrofitBaseUrl)
             .client(okHttpClient)
-            .addConverterFactory(Json.asConverterFactory(contentType))
+            .addConverterFactory(Json {
+                ignoreUnknownKeys = true
+                explicitNulls = false
+            }.asConverterFactory(contentType))
             .build()
     }
 
