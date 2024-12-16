@@ -51,7 +51,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -65,7 +64,6 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -84,7 +82,6 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.NoRippleTheme
 import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
-import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
@@ -95,6 +92,7 @@ import org.jeonfeel.moeuibit2.utils.RiseColor
 import org.jeonfeel.moeuibit2.utils.getFluctuateColor
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
+import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -106,8 +104,10 @@ fun ExchangeScreen(
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     btcKrwPrice: BigDecimal,
     appNavController: NavHostController,
-    selectedSortType: MutableState<SortType>,
-    sortOrder: MutableState<SortOrder>
+    selectedSortType: State<SortType>,
+    sortOrder: State<SortOrder>,
+    updateSortType: KFunction1<SortType, Unit>,
+    updateSortOrder: KFunction1<SortOrder, Unit>
 ) {
 
     val stateHolder = rememberExchangeStateHolder(
@@ -117,6 +117,8 @@ fun ExchangeScreen(
         selectedSortType = selectedSortType,
         sortOrder = sortOrder,
         tradeCurrencyState = tradeCurrencyState,
+        updateSortType = updateSortType,
+        updateSortOrder = updateSortOrder
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -296,7 +298,7 @@ private fun SelectTradeCurrencySection(
 private fun SortingSection(
     sortOrder: SortOrder,
     onSortClick: (sortType: SortType) -> Unit,
-    selectedSortType: MutableState<SortType>
+    selectedSortType: State<SortType>
 ) {
     Row(
         modifier = Modifier
@@ -332,7 +334,7 @@ private fun RowScope.SortButton(
     text: String,
     sortType: SortType,
     sortOrder: SortOrder,
-    selectedSortType: MutableState<SortType>,
+    selectedSortType: State<SortType>,
     onSortClick: (SortType) -> Unit
 ) {
     Row(

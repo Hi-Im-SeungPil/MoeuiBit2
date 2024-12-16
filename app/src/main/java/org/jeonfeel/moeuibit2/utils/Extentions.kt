@@ -11,11 +11,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
 
+private var appToast: Toast? = null
+
 /**
  * 토스트 보여줌
  */
 fun Context.showToast(text: String) {
-    Toast.makeText(this,text,Toast.LENGTH_SHORT).show()
+    appToast?.cancel()
+    appToast = Toast.makeText(this, text, Toast.LENGTH_SHORT).also { it.show() }
 }
 
 /**

@@ -97,6 +97,7 @@ fun PortfolioScreenRoute(
             viewModel.onPause()
         }
     )
+
     PortfolioScreen(
         startForActivityResult = startForActivityResult,
         columnItemDialogState = holder.columnItemDialogState,
@@ -115,14 +116,3 @@ fun PortfolioScreenRoute(
         currentBTCPrice = viewModel.btcTradePrice
     )
 }
-//                IconButton(onClick = {
-//                    holder.editHoldCoinDialogState.value = true
-//                }) {
-//                    Icon(
-//                        painterResource(id = R.drawable.img_eraser),
-//                        contentDescription = null,
-//                        tint = MaterialTheme.colorScheme.onBackground,
-//                        modifier = Modifier.size(30.dp)
-//                    )
-//                }
-

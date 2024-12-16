@@ -1,9 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.newExchange
 
-import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -12,7 +10,6 @@ import androidx.navigation.NavHostController
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeBackHandler
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -60,12 +57,8 @@ fun ExchangeScreenRoute(
         btcKrwPrice = viewModel.getBtcPrice(),
         appNavController = appNavController,
         selectedSortType = viewModel.selectedSortType,
-        sortOrder = viewModel.sortOrder
+        sortOrder = viewModel.sortOrder,
+        updateSortType = viewModel::updateSortType,
+        updateSortOrder = viewModel::updateSortOrder
     )
-}
-
-@Composable
-fun ExchangeBackHandle2r(context: Context) {
-
-
 }

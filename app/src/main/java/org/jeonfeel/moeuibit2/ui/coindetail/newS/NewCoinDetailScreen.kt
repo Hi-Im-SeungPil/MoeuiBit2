@@ -138,7 +138,7 @@ fun NewCoinDetailTopAppBar(
                     fontSize = DpToSp(dp = 17.dp),
                     textAlign = TextAlign.Center
                 ),
-                modifier = Modifier.fillMaxWidth(1f),
+                modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
+import kotlin.reflect.KFunction1
 
 class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val pagerState: PagerState,
@@ -37,10 +37,12 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     val focusManaManager: FocusManager,
     val coroutineScope: CoroutineScope,
     val toolbarState: CollapsingToolbarScaffoldState,
-    val selectedSortType: MutableState<SortType>,
-    val sortOrder: MutableState<SortOrder>,
+    val selectedSortType: State<SortType>,
+    val sortOrder: State<SortOrder>,
     private val changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     private val tradeCurrencyState: State<Int>,
+    private val updateSortType: KFunction1<SortType, Unit>,
+    private val updateSortOrder: KFunction1<SortOrder, Unit>,
 ) {
     val textFieldValueState = mutableStateOf("")
 
@@ -66,19 +68,21 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
             }
 
             this.selectedSortType.value != sortType -> {
-                this.selectedSortType.value = sortType
-                this.sortOrder.value = SortOrder.DESCENDING
+                updateSortType(sortType)
+                updateSortOrder(SortOrder.DESCENDING)
             }
 
             else -> {
-                this.sortOrder.value = when (this.sortOrder.value) {
+                when (this.sortOrder.value) {
                     SortOrder.DESCENDING -> SortOrder.ASCENDING
                     SortOrder.ASCENDING -> {
-                        this.selectedSortType.value = SortType.DEFAULT
-                        SortOrder.NONE
+                        updateSortType(SortType.DEFAULT)
+                        updateSortOrder(SortOrder.NONE)
                     }
 
-                    SortOrder.NONE -> SortOrder.DESCENDING
+                    SortOrder.NONE -> {
+                        updateSortOrder(SortOrder.DESCENDING)
+                    }
                 }
             }
         }
@@ -131,10 +135,12 @@ fun rememberExchangeStateHolder(
     sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
     changeTradeCurrency: (tradeCurrency: Int) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    selectedSortType: MutableState<SortType>,
-    sortOrder: MutableState<SortOrder>,
+    selectedSortType: State<SortType>,
+    sortOrder: State<SortOrder>,
     tradeCurrencyState: State<Int>,
-    toolbarState: CollapsingToolbarScaffoldState = rememberCollapsingToolbarScaffoldState()
+    toolbarState: CollapsingToolbarScaffoldState = rememberCollapsingToolbarScaffoldState(),
+    updateSortType: KFunction1<SortType, Unit>,
+    updateSortOrder: KFunction1<SortOrder, Unit>
 ) = remember {
     ExchangeStateHolder(
         pagerState = pagerState,
@@ -148,6 +154,8 @@ fun rememberExchangeStateHolder(
         selectedSortType = selectedSortType,
         sortOrder = sortOrder,
         tradeCurrencyState = tradeCurrencyState,
-        toolbarState = toolbarState
+        toolbarState = toolbarState,
+        updateSortType = updateSortType,
+        updateSortOrder = updateSortOrder
     )
 }

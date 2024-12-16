@@ -119,20 +119,3 @@ fun Float.eighthDecimal(): String {
 fun Double.decimalPoint(): String {
     return decimalPoint.format(this)
 }
-
-fun getCoinDetailTitle(warning: Boolean, context: Context, koreanCoinName: String) {
-//    Logger.e("koreanCoinName3 $koreanCoinName")
-//    return buildAnnotatedString {
-//        if (warning) {
-//            withStyle(
-//                style = SpanStyle(
-//                    color = Color.Yellow,
-//                    fontWeight = FontWeight.Bold
-//                )
-//            ) {
-//                append(context.getString(R.string.CAUTION_KOREAN))
-//            }
-//        }
-//        append(koreanCoinName)
-//    }
-}

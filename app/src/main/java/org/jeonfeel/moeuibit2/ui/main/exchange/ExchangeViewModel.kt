@@ -29,7 +29,12 @@ enum class TickerAskBidState {
 
 class ExchangeViewModelState {
     val isUpdateExchange = mutableStateOf(true)
+
     val tradeCurrencyState = mutableIntStateOf(TRADE_CURRENCY_KRW)
+
+    val selectedSortType: MutableState<SortType> = mutableStateOf(SortType.DEFAULT)
+
+    val sortOrder: MutableState<SortOrder> = mutableStateOf(SortOrder.NONE)
 }
 
 @HiltViewModel
@@ -37,13 +42,19 @@ class ExchangeViewModel @Inject constructor(
     private val upBitExchange: UpBitExchange,
     private val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager) {
+
     private val state = ExchangeViewModelState()
+
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
+
     val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
-    val selectedSortType: MutableState<SortType> = mutableStateOf(SortType.DEFAULT)
-    val sortOrder: MutableState<SortOrder> = mutableStateOf(SortOrder.NONE)
+
+    val selectedSortType: State<SortType> get() = state.selectedSortType
+
+    val sortOrder: State<SortOrder> get() = state.sortOrder
 
     private var realTimeUpdateJob: Job? = null
+
     private var marketChangeJob: Job? = null
 
     init {
@@ -106,6 +117,14 @@ class ExchangeViewModel @Inject constructor(
                 }
             }
         }.also { it.start() }
+    }
+
+    fun updateSortType(sortType: SortType) {
+        state.selectedSortType.value = sortType
+    }
+
+    fun updateSortOrder(sortOrder: SortOrder) {
+        state.sortOrder.value = sortOrder
     }
 
     fun getTickerList(): List<CommonExchangeModel> {
