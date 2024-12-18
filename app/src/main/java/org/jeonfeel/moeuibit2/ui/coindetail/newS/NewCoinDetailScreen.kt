@@ -130,7 +130,9 @@ fun NewCoinDetailTopAppBar(
             )
         }
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier
+            .weight(1f)
+            .align(Alignment.CenterVertically)) {
             Text(
                 text = title,
                 style = TextStyle(

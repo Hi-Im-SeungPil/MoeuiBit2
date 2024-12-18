@@ -17,7 +17,11 @@ object KeyConst {
     const val PREF_KEY_BTC_ASK_COMMISSION = "btcAskFee"
     const val PREF_KEY_THEME_MODE = "themeMode"
     const val PREF_KEY_ROOT_EXCHANGE = "rootExchange"
-    val PREF_KEY_FEE_LIST = arrayOf(PREF_KEY_KRW_BID_COMMISSION, PREF_KEY_KRW_ASK_COMMISSION, PREF_KEY_BTC_BID_COMMISSION, PREF_KEY_BTC_ASK_COMMISSION)
+    const val PREF_KEY_COIN_SITE_EXCHANGE_IS_OPEN = "coinSiteExchangeIsOpen"
+    const val PREF_KEY_COIN_SITE_COMMUNITY_IS_OPEN = "coinSiteCommunityIsOpen"
+    const val PREF_KEY_COIN_SITE_INFO_IS_OPEN = "coinSiteInfoIsOpen"
+    const val PREF_KEY_COIN_SITE_KIMP_IS_OPEN = "coinSiteKimpIsOpen"
+    const val PREF_KEY_COIN_SITE_NEWS_IS_OPEN = "coinSiteNewsIsOpen"
 
     const val INFO_BLOCK_KEY = "block"
     const val INFO_HOMEPAGE_KEY = "homepage"

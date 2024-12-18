@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -25,9 +24,10 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
+import kotlin.reflect.KFunction1
 
 @Composable
-fun KimpItem(kimpState: MutableState<Boolean>, context: Context) {
+fun KimpItem(updateIsOpen: KFunction1<String, Unit>, kimpIsOpen: Boolean, context: Context) {
     val coinInfoImageUrl = getKimpImageArray()
     val coinInfoUrl = stringArrayResource(id = R.array.kimpUrl)
     val packageMap = getKimpPackageMap()
@@ -40,7 +40,7 @@ fun KimpItem(kimpState: MutableState<Boolean>, context: Context) {
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .clickable { kimpState.value = !kimpState.value }) {
+            .clickable { updateIsOpen("kimp") }) {
             Text(
                 text = "김프 정보 (한국 프리미엄)", modifier = Modifier
                     .padding(10.dp, 5.dp, 0.dp, 5.dp)
@@ -49,9 +49,9 @@ fun KimpItem(kimpState: MutableState<Boolean>, context: Context) {
                 fontSize = DpToSp(20.dp),
                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
-            IconButton(onClick = { kimpState.value = !kimpState.value }) {
+            IconButton(onClick = { updateIsOpen("kimp") }) {
                 Icon(
-                    if (kimpState.value) {
+                    if (kimpIsOpen) {
                         Icons.Filled.KeyboardArrowUp
                     } else {
                         Icons.Filled.KeyboardArrowDown
@@ -64,7 +64,7 @@ fun KimpItem(kimpState: MutableState<Boolean>, context: Context) {
             color = MaterialTheme.colorScheme.primary,
             1.dp
         )
-        if (kimpState.value) {
+        if (kimpIsOpen) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (i in 0 until 2) {
                     Column(modifier = Modifier

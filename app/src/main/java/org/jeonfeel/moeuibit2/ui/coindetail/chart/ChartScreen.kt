@@ -385,39 +385,38 @@ fun RowScope.MinuteButton(
     market: String,
     setLastPeriod: (period: String) -> Unit
 ) {
-    Row {
-        TextButton(
-            onClick = {
-                isChartLastData.value = false
-                candleType.value = candleTypeValue
-                minuteVisibility.value = false
-                minuteText.value = minuteTextValue
-                selectedButton.value = MINUTE_SELECT
-                requestChartData(market)
-                setLastPeriod(candleTypeValue)
-            }, modifier = Modifier
-                .weight(1f)
-                .background(colorScheme.background)
-                .fillMaxHeight()
-        ) {
-            if (autoSizeText) {
-                AutoSizeText(
-                    text = minuteTextValue,
-                    textStyle = MaterialTheme.typography.body1.copy(
-                        color = colorScheme.onBackground,
-                        fontSize = DpToSp(14.dp)
-                    ),
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .wrapContentHeight()
-                        .weight(1f)
-                )
-            } else {
-                Text(
-                    text = minuteTextValue,
-                    style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp))
-                )
-            }
+    TextButton(
+        onClick = {
+            isChartLastData.value = false
+            candleType.value = candleTypeValue
+            minuteVisibility.value = false
+            minuteText.value = minuteTextValue
+            selectedButton.value = MINUTE_SELECT
+            requestChartData(market)
+            setLastPeriod(candleTypeValue)
+        }, modifier = Modifier
+            .background(colorScheme.background)
+            .fillMaxHeight()
+            .weight(1f)
+    ) {
+        if (autoSizeText) {
+            AutoSizeText(
+                text = minuteTextValue,
+                textStyle = MaterialTheme.typography.body1.copy(
+                    color = colorScheme.onBackground,
+                    fontSize = DpToSp(14.dp)
+                ),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .wrapContentHeight()
+//                        .weight(1f)
+            )
+        } else {
+            Text(
+                text = minuteTextValue,
+                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp)),
+//                    modifier = Modifier.weight(1f)
+            )
         }
     }
 }

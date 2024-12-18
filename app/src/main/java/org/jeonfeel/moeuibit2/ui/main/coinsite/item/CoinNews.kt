@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -25,9 +24,10 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
+import kotlin.reflect.KFunction1
 
 @Composable
-fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
+fun CoinNews(updateIsOpen: KFunction1<String, Unit>, coinNewsIsOpen: Boolean, context: Context) {
     val coinInfoImageUrl = getCoinNewsImageArray()
     val coinInfoUrl = stringArrayResource(id = R.array.coinNewsUrl)
     val packageMap = getCoinNewsPackageMap()
@@ -40,7 +40,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .clickable { coinNewsState.value = !coinNewsState.value }) {
+            .clickable { updateIsOpen("news") }) {
             Text(
                 text = "코인 뉴스 / 호재", modifier = Modifier
                     .padding(10.dp, 5.dp, 0.dp, 5.dp)
@@ -49,9 +49,9 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
                 fontSize = DpToSp(20.dp),
                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
-            IconButton(onClick = { coinNewsState.value = !coinNewsState.value }) {
+            IconButton(onClick = { updateIsOpen("news") }) {
                 Icon(
-                    if (coinNewsState.value) {
+                    if (coinNewsIsOpen) {
                         Icons.Filled.KeyboardArrowUp
                     } else {
                         Icons.Filled.KeyboardArrowDown
@@ -64,7 +64,7 @@ fun CoinNews(coinNewsState: MutableState<Boolean>, context: Context) {
             color = MaterialTheme.colorScheme.primary,
             1.dp
         )
-        if (coinNewsState.value) {
+        if (coinNewsIsOpen) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (i in 0 until 3) {
                     Column(modifier = Modifier

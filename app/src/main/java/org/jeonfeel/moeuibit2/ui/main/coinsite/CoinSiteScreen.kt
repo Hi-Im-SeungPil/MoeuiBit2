@@ -1,11 +1,8 @@
 package org.jeonfeel.moeuibit2.ui.main.coinsite
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Card
@@ -13,19 +10,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
+import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
-fun CoinSiteScreen() {
+fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
+    AddLifecycleEvent(
+        onStartAction = {
+            viewModel.getIsOpen()
+        },
+        onStopAction = {
+            viewModel.saveIsOpen()
+        }
+    )
+
     Column {
         Row {
             Text(
@@ -61,7 +67,14 @@ fun CoinSiteScreen() {
         }
         Divider(Modifier.fillMaxWidth().height(1.dp), color = Color(0xFFDFDFDF))
         Box(modifier = Modifier.fillMaxSize()) {
-            CoinSiteLazyColumn()
+            CoinSiteLazyColumn(
+                exchangeIsOpen = viewModel.coinSiteExchangeIsOpen.value,
+                infoIsOpen = viewModel.coinSiteInfoIsOpen.value,
+                kimpIsOpen = viewModel.coinSiteKimpIsOpen.value,
+                newsIsOpen = viewModel.coinSiteNewsIsOpen.value,
+                communityIsOpen = viewModel.coinSiteCommunityIsOpen.value,
+                updateIsOpen = viewModel::updateIsOpen
+            )
         }
     }
 }

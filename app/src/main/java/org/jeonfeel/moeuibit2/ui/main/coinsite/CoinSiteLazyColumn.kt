@@ -8,44 +8,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import org.jeonfeel.moeuibit2.ui.main.coinsite.item.*
+import kotlin.reflect.KFunction1
 
 
 @Composable
-fun CoinSiteLazyColumn() {
+fun CoinSiteLazyColumn(
+    exchangeIsOpen: Boolean,
+    infoIsOpen: Boolean,
+    kimpIsOpen: Boolean,
+    newsIsOpen: Boolean,
+    communityIsOpen: Boolean,
+    updateIsOpen: KFunction1<String, Unit>
+) {
     val context = LocalContext.current
-    val exchangeState = remember {
-        mutableStateOf(false)
-    }
-    val communityState = remember {
-        mutableStateOf(false)
-    }
-    val coinInfoState = remember {
-        mutableStateOf(false)
-    }
-    val kimpState = remember {
-        mutableStateOf(false)
-    }
-    val coinNewsState = remember {
-        mutableStateOf(false)
-    }
-    LazyColumn(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background)) {
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+    ) {
         item {
-            ExchangeItem(exchangeState,context)
-            CommunityItem(communityState,context)
-            CoinInfoItem(coinInfoState,context)
-            KimpItem(kimpState,context)
-            CoinNews(coinNewsState,context)
+            ExchangeItem(updateIsOpen, exchangeIsOpen, context)
+            CommunityItem(updateIsOpen, communityIsOpen, context)
+            CoinInfoItem(updateIsOpen ,infoIsOpen, context)
+            KimpItem(updateIsOpen ,kimpIsOpen, context)
+            CoinNews(updateIsOpen, newsIsOpen, context)
         }
     }
 }
 
-fun moveUrlOrApp(context: Context,url: String,packageName: String?) {
-    if(packageName == null) {
+fun moveUrlOrApp(context: Context, url: String, packageName: String?) {
+    if (packageName == null) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     } else {
         var intent = context.packageManager.getLaunchIntentForPackage(packageName)

@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -25,9 +24,14 @@ import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
+import kotlin.reflect.KFunction1
 
 @Composable
-fun CommunityItem(communityState: MutableState<Boolean>, context: Context) {
+fun CommunityItem(
+    updateIsOpen: KFunction1<String, Unit>,
+    communityIsOpen: Boolean,
+    context: Context
+) {
     val communityImageUrl = getCommunityImageArray()
     val communityUrl = stringArrayResource(id = R.array.communityUrl)
     val packageMap = getCommunityPackageMap()
@@ -41,7 +45,7 @@ fun CommunityItem(communityState: MutableState<Boolean>, context: Context) {
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .clickable { communityState.value = !communityState.value }) {
+            .clickable { updateIsOpen("community") }) {
             Text(
                 text = "커뮤니티", modifier = Modifier
                     .padding(10.dp, 5.dp, 0.dp, 5.dp)
@@ -50,9 +54,9 @@ fun CommunityItem(communityState: MutableState<Boolean>, context: Context) {
                 fontSize = DpToSp(20.dp),
                 style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
             )
-            IconButton(onClick = { communityState.value = !communityState.value }) {
+            IconButton(onClick = { updateIsOpen("community") }) {
                 Icon(
-                    if (communityState.value) {
+                    if (communityIsOpen) {
                         Icons.Filled.KeyboardArrowUp
                     } else {
                         Icons.Filled.KeyboardArrowDown
@@ -65,9 +69,7 @@ fun CommunityItem(communityState: MutableState<Boolean>, context: Context) {
             color = MaterialTheme.colorScheme.primary,
             1.dp
         )
-        if (communityState.value) {
-
-
+        if (communityIsOpen) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (i in 0 until 3) {
                     Column(modifier = Modifier
