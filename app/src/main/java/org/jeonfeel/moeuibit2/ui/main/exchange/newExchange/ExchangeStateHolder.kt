@@ -58,7 +58,6 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
         sortType: SortType,
         isChangeTradeCurrency: Boolean = false
     ) {
-        Logger.e("${selectedSortType.value} ${sortOrder.value}")
         if (!isUpdateExchange) return
 
         when {
@@ -74,7 +73,9 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
 
             else -> {
                 when (this.sortOrder.value) {
-                    SortOrder.DESCENDING -> SortOrder.ASCENDING
+                    SortOrder.DESCENDING -> {
+                        updateSortOrder(SortOrder.ASCENDING)
+                    }
                     SortOrder.ASCENDING -> {
                         updateSortType(SortType.DEFAULT)
                         updateSortOrder(SortOrder.NONE)

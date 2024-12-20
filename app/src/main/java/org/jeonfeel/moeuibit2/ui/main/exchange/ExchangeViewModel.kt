@@ -147,8 +147,8 @@ class ExchangeViewModel @Inject constructor(
         state.isUpdateExchange.value = false
         upBitExchange.sortTickerList(
             tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-            sortType = sortType,
-            sortOrder = sortOrder
+            sortType = state.selectedSortType.value,
+            sortOrder = state.sortOrder.value
         )
         state.isUpdateExchange.value = true
     }

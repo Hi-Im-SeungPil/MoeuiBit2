@@ -5,14 +5,20 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -23,16 +29,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore.isKor
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activities.MainActivity
-import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.constants.KeyConst
+import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
+import org.jeonfeel.moeuibit2.constants.SYMBOL_BTC
+import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
-import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.secondDecimal
@@ -63,7 +69,7 @@ fun UserHoldCoinLazyColumnItemDialog(
         MaterialTheme.colorScheme.onBackground
     }
 
-    var name = if (isKor) koreanName else engName
+    var name = koreanName
     if (name.startsWith("[BTC]")) {
         name = name.substring(5)
     }
@@ -126,24 +132,6 @@ fun UserHoldCoinLazyColumnItemDialog(
                             color = MaterialTheme.colorScheme.onBackground,
                             fontSize = DpToSp(18.dp),
                             fontWeight = FontWeight.Bold
-                        )
-                    )
-                }
-                if (!isKor && marketState == SELECTED_KRW_MARKET) {
-                    Text(
-                        text = "= \$ ${
-                            CurrentCalculator.krwToUsd(
-                                Utils.removeComma(tradePrice).toDouble(),
-                                MoeuiBitDataStore.usdPrice
-                            )
-                        }",
-                        modifier = Modifier
-                            .padding(0.dp, 3.dp, 20.dp, 20.dp)
-                            .align(Alignment.End),
-                        style = TextStyle(
-                            color = Color.Gray,
-                            fontSize = DpToSp(16.dp),
-                            fontWeight = FontWeight.Bold,
                         )
                     )
                 }

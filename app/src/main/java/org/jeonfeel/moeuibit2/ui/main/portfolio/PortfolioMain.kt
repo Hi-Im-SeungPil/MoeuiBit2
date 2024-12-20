@@ -1,10 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -19,27 +16,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
-import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
-import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.math.BigDecimal
-import kotlin.math.round
 
 enum class PortfolioSortButton {
     BUTTON_NAME, BUTTON_RATE
@@ -53,14 +38,8 @@ fun PortfolioMain(
     userSeedMoney: State<Long>,
     orderByNameTextInfo: List<Any>,
     orderByRateTextInfo: List<Any>,
-    adDialogState: MutableState<Boolean>,
-    pieChartState: MutableState<Boolean>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
-    getPortFolioMainInfoMap: (
-        totalValuedAssets: State<BigDecimal>,
-        totalPurchase: State<BigDecimal>,
-        userSeedMoney: State<Long>
-    ) -> Map<String, String>
+    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Long>) -> Map<String, String>,
 ) {
     val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
     Column(
@@ -101,17 +80,17 @@ fun PortfolioMain(
                     ?: 0L
             )
         }
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp), color = Color.White
-        )
-
-        PortfolioPieChart(
-            pieChartState = pieChartState,
-            userSeedMoney = userSeedMoney,
-//            userHoldCoinList = userHoldCoinList
-        )
+//        Divider(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(8.dp), color = Color.White
+//        )
+//
+//        PortfolioPieChart(
+//            pieChartState = pieChartState,
+//            userSeedMoney = userSeedMoney,
+////            userHoldCoinList = userHoldCoinList
+//        )
 
         Divider(
             modifier = Modifier

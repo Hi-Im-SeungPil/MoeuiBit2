@@ -38,40 +38,39 @@ fun PortfolioMainSortButtons(
                 .weight(1f)
                 .align(Alignment.CenterVertically)
                 .noRippleClickable {
-//                    if (portfolioOrderState.value != PortfolioViewModel.SORT_NAME_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_NAME_ASC) {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_NAME_DEC
-//                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_NAME_DEC) {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_NAME_ASC
-//                    } else {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
-//                    }
-                    sortUserHoldCoin(portfolioOrderState.value)
+                    if (portfolioOrderState.value != PortfolioViewModel.SORT_NAME_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_NAME_ASC) {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_NAME_DEC)
+                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_NAME_DEC) {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_NAME_ASC)
+                    } else {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_DEFAULT)
+                    }
                 },
             fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center,
             style = TextStyle(color = orderByNameTextInfo[1] as Color)
         )
+
         Divider(
             Modifier
                 .width(1.dp)
                 .height(30.dp)
                 .align(Alignment.CenterVertically), color = Color.LightGray
         )
+
         Text(
             text = orderByRateTextInfo[0] as String,
             modifier = Modifier
                 .weight(1f)
                 .align(Alignment.CenterVertically)
-//                .padding(vertical = 10.dp)
                 .noRippleClickable {
-//                    if (portfolioOrderState.value != PortfolioViewModel.SORT_RATE_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_RATE_ASC) {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_RATE_DEC
-//                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_RATE_DEC) {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_RATE_ASC
-//                    } else {
-//                        portfolioOrderState.value = PortfolioViewModel.SORT_DEFAULT
-//                    }
-                    sortUserHoldCoin(portfolioOrderState.value)
+                    if (portfolioOrderState.value != PortfolioViewModel.SORT_RATE_DEC && portfolioOrderState.value != PortfolioViewModel.SORT_RATE_ASC) {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_RATE_DEC)
+                    } else if (portfolioOrderState.value == PortfolioViewModel.SORT_RATE_DEC) {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_RATE_ASC)
+                    } else {
+                        sortUserHoldCoin(PortfolioViewModel.SORT_DEFAULT)
+                    }
                 },
             fontSize = DpToSp(15.dp),
             textAlign = TextAlign.Center,

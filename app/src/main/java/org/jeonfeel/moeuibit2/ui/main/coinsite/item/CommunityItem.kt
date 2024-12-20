@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.TextStyle
@@ -41,10 +42,11 @@ fun CommunityItem(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background)
+
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
+            .background(Color(0xffFEF7FF))
             .clickable { updateIsOpen("community") }) {
             Text(
                 text = "커뮤니티", modifier = Modifier

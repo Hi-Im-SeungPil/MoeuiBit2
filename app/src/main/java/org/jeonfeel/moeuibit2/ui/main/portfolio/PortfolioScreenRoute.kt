@@ -3,32 +3,17 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
-import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.EditUserHoldCoinDialog
-import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
@@ -36,6 +21,7 @@ import org.jeonfeel.moeuibit2.utils.showToast
 @Composable
 fun PortfolioScreenRoute(
     viewModel: PortfolioViewModel = hiltViewModel(),
+    appNavController: NavHostController,
 ) {
     val context = LocalContext.current
     val startForActivityResult =
@@ -99,20 +85,17 @@ fun PortfolioScreenRoute(
     )
 
     PortfolioScreen(
-        startForActivityResult = startForActivityResult,
-        columnItemDialogState = holder.columnItemDialogState,
         portfolioOrderState = viewModel.portfolioOrderState,
         totalValuedAssets = viewModel.totalValuedAssets,
         totalPurchase = viewModel.totalPurchase,
         userSeedMoney = viewModel.userSeedMoney,
         adDialogState = holder.adConfirmDialogState,
-        pieChartState = holder.pieChartState,
         userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
-        selectedCoinKoreanName = holder.selectedCoinKoreanName,
         sortUserHoldCoin = viewModel::sortUserHoldCoin,
         getUserCoinInfo = holder::getUserCoinResultMap,
         getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
         loadingState = viewModel.loadingState,
-        currentBTCPrice = viewModel.btcTradePrice
+        currentBTCPrice = viewModel.btcTradePrice,
+        appNavController = appNavController
     )
 }

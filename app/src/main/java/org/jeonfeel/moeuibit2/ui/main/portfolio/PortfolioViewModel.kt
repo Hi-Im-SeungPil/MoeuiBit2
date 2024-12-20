@@ -84,32 +84,96 @@ class PortfolioViewModel @Inject constructor(
     init {
         _loadingState.value = true
         viewModelScope.launch {
-            _koreanCoinNameMap.putAll(cacheManager.readKoreanCoinNameMap())
-            _engCoinNameMap.putAll(cacheManager.readEnglishCoinNameMap())
+            getCoinName()
+            resetPortfolio()
         }
     }
 
     fun onResume() {
-        _loadingState.value = true
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            _isPortfolioSocketRunning.value = true
-            resetPortfolio()
-            getUserSeedMoney()
-            getUserHoldCoins()
-            parseMyCoinToUserHoldCoin()
-            requestTicker()
-            setETC()
-            requestSubscribeTicker(userHoldCoinsMarkets.split(","))
-            collectTicker()
+//            _isPortfolioSocketRunning.value = true
+            getCoinName()
+            compareUserHoldCoinList()
         }.also { it.start() }
     }
 
     fun onPause() {
         viewModelScope.launch {
-            _loadingState.value = true
+//            _loadingState.value = true
             _isPortfolioSocketRunning.value = false
             requestSubscribeTicker(listOf(""))
             realTimeUpdateJob?.cancelAndJoin()
+        }
+    }
+
+    fun compareUserHoldCoinList() {
+        viewModelScope.launch(ioDispatcher) {
+            _isPortfolioSocketRunning.value = false
+            getUserSeedMoney()
+            if (myCoinList.isNotEmpty()) {
+                val beforeMap = myCoinList.associateBy { it?.market }
+                val beforeMap2 = myCoinList.associateBy { Pair(it?.market, it) }
+                getUserHoldCoins()
+                val tempMyCoinMap = myCoinList.associateBy { it?.market }
+
+                val addCoinList = tempMyCoinMap.keys - beforeMap.keys
+                val removeCoinList = beforeMap.keys - tempMyCoinMap.keys
+
+                val realAddCoinList = arrayListOf<MyCoin?>()
+
+                Logger.e("추가된 코인: ${addCoinList}")
+                Logger.e("제거된 코인: ${removeCoinList}")
+
+                removeCoinList.forEach { removeCoin ->
+                    _userHoldCoinDtoList.removeIf { it.market == removeCoin }
+                    myCoinList.removeIf { it?.market == removeCoin }
+                    myCoinHashMap.remove(removeCoin)
+                    userHoldCoinDtoListPositionHashMap.remove(removeCoin)
+                }
+
+                addCoinList.forEach { addCoin ->
+                    tempMyCoinMap[addCoin]?.let {
+                        myCoinList.add(it)
+                        realAddCoinList.add(it)
+                    }
+                }
+
+
+                parseMyCoinToUserHoldCoin(realAddCoinList.toList())
+                requestTicker()
+                setETC()
+
+                userHoldCoinsMarkets.clear()
+                myCoinList.forEach {
+                    userHoldCoinsMarkets.append(it?.market).append(",")
+                }
+
+                if (_userHoldCoinDtoList.find { it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) } != null
+                    && myCoinHashMap[BTC_MARKET] == null) {
+                    userHoldCoinsMarkets.append(BTC_MARKET)
+                }
+
+                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+                collectTicker()
+                _isPortfolioSocketRunning.value = true
+            } else {
+                resetPortfolio()
+                getUserSeedMoney()
+                getUserHoldCoins()
+                parseMyCoinToUserHoldCoin()
+                requestTicker()
+                setETC()
+                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+                collectTicker()
+                _isPortfolioSocketRunning.value = true
+            }
+        }
+    }
+
+    private suspend fun getCoinName() {
+        if (_koreanCoinNameMap.isEmpty() || _engCoinNameMap.isEmpty()) {
+            _koreanCoinNameMap.putAll(cacheManager.readKoreanCoinNameMap())
+            _engCoinNameMap.putAll(cacheManager.readEnglishCoinNameMap())
         }
     }
 
@@ -129,18 +193,24 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserHoldCoins() {
+        myCoinList.clear()
         myCoinList.addAll(localRepository.getMyCoinDao().all ?: emptyList())
     }
 
-    private suspend fun parseMyCoinToUserHoldCoin() {
-        myCoinList.ifEmpty {
-            _totalValuedAssets.value = BigDecimal(0.0)
-            _totalPurchase.value = BigDecimal(0.0)
-            return
+    private suspend fun parseMyCoinToUserHoldCoin(list: List<MyCoin?>? = null) {
+        val targetList = list ?: myCoinList
+
+        if(list == null) {
+            targetList.ifEmpty {
+                _totalValuedAssets.value = BigDecimal(0.0)
+                _totalPurchase.value = BigDecimal(0.0)
+                return
+            }
         }
 
         val isFavorite = 0
-        myCoinList.forEachIndexed { index, myCoin ->
+
+        targetList.forEachIndexed { index, myCoin ->
             val userHoldCoinDTO = myCoin!!.parseUserHoldsModel().apply {
                 this.myCoinKoreanName = _koreanCoinNameMap[myCoin.symbol] ?: ""
                 this.myCoinEngName = _engCoinNameMap[myCoin.symbol] ?: ""
@@ -156,6 +226,7 @@ class PortfolioViewModel @Inject constructor(
             userHoldCoinsMarkets.append(myCoin.market).append(",")
             userHoldCoinDtoListPositionHashMap[myCoin.market] = index
         }
+
         if (_userHoldCoinDtoList.find { it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) } != null
             && myCoinHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
@@ -222,7 +293,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun setETC() {
-        sortUserHoldCoin(SORT_DEFAULT)
+//        sortUserHoldCoin(SORT_DEFAULT)
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
         } else {
@@ -234,60 +305,10 @@ class PortfolioViewModel @Inject constructor(
         upbitUseCase.requestPortfolioSubscribeTicker(marketCodes = markets)
     }
 
-//    private fun getUserHoldCoins() {
-//        viewModelScope.launch(ioDispatcher) {
-//            resetPortfolio()
-//            var localTotalPurchase = 0.0
-//            if (myCoinList.isNotEmpty()) {
-//                for (i in myCoinList.indices) {
-//                    val userHoldCoin = myCoinList[i] ?: MyCoin("", 0.0, "", "", 0.0)
-//                    val market = userHoldCoin.market
-//                    val marketState = Utils.getSelectedMarket(market)
-//                    val isFavorite = MoeuiBitDataStore.upBitFavoriteHashMap[market]
-//                    myCoinHashMap[market] = userHoldCoin
-//                    localTotalPurchase = if (marketState == SELECTED_KRW_MARKET) {
-//                        localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice)
-//                    } else {
-//                        localTotalPurchase + (userHoldCoin.quantity * userHoldCoin.purchasePrice * userHoldCoin.purchaseAverageBtcPrice)
-//                    }
-//                    userHoldCoinsMarket.append(userHoldCoin.market).append(",")
-//                    userHoldCoinDtoListPositionHashMap[userHoldCoin.market] = i
-//                    tempUserHoldCoinDtoList.add(
-//                        UserHoldCoinDTO(
-//                            myCoinKoreanName = MoeuiBitDataStore.upBitCoinName[userHoldCoin.market]?.first
-//                                ?: "",
-//                            myCoinEngName = MoeuiBitDataStore.upBitCoinName[userHoldCoin.market]?.second
-//                                ?: "",
-//                            myCoinsSymbol = userHoldCoin.symbol,
-//                            myCoinsQuantity = 0.0,
-//                            myCoinsBuyingAverage = 0.0,
-//                            currentPrice = 0.0,
-//                            openingPrice = 0.0,
-//                            warning = "",
-//                            isFavorite = isFavorite,
-//                            market = userHoldCoin.market,
-//                            purchaseAverageBtcPrice = userHoldCoin.purchaseAverageBtcPrice
-//                        )
-//                    )
-//                }
-//                sortUserHoldCoin(SORT_DEFAULT)
-//                if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
-//                    userHoldCoinsMarket.append(BTC_MARKET)
-//                } else {
-//                    userHoldCoinsMarket.deleteCharAt(userHoldCoinsMarket.lastIndex)
-//                }
-//                state.totalPurchase.value = localTotalPurchase
-//                updateUserHoldCoins()
-//            } else {
-//                swapList()
-//                state.totalValuedAssets.value = 0.0
-//                state.totalPurchase.value = 0.0
-//            }
-//        }
-//    }
-
     fun sortUserHoldCoin(sortStandard: Int) {
         _isPortfolioSocketRunning.value = false
+        _portfolioOrderState.intValue = sortStandard
+
         viewModelScope.launch(defaultDispatcher) {
             when (sortStandard) {
                 SORT_NAME_DEC -> {
@@ -415,35 +436,6 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-//    override fun onTickerMessageReceiveListener(tickerJsonObject: String) {
-//        if (state.isPortfolioSocketRunning.value && UpBitTickerWebSocket.currentPage == IS_PORTFOLIO_SCREEN) {
-//            val model = Gson().fromJson(tickerJsonObject, PortfolioTickerModel::class.java)
-//            if (model.code == BTC_MARKET && userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
-//                state.btcTradePrice.doubleValue = model.tradePrice
-//                return
-//            } else if (model.code == BTC_MARKET) {
-//                state.btcTradePrice.doubleValue = model.tradePrice
-//            }
-//            val position = userHoldCoinDtoListPositionHashMap[model.code] ?: 0
-//            val userHoldCoin = myCoinHashMap[model.code]!!
-//            val isFavorite = MoeuiBitDataStore.upBitFavoriteHashMap[model.code]
-//            tempUserHoldCoinDtoList[position] =
-//                UserHoldCoinDTO(
-//                    myCoinKoreanName = MoeuiBitDataStore.upBitCoinName[model.code]?.first ?: "",
-//                    myCoinEngName = MoeuiBitDataStore.upBitCoinName[model.code]?.second ?: "",
-//                    myCoinsSymbol = userHoldCoin.symbol,
-//                    myCoinsQuantity = userHoldCoin.quantity,
-//                    myCoinsBuyingAverage = userHoldCoin.purchasePrice,
-//                    currentPrice = model.tradePrice,
-//                    openingPrice = model.preClosingPrice,
-//                    warning = model.marketWarning,
-//                    isFavorite = isFavorite,
-//                    market = model.code,
-//                    purchaseAverageBtcPrice = userHoldCoin.purchaseAverageBtcPrice
-//                )
-//        }
-//    }
-
     private suspend fun collectTicker() {
         upbitUseCase.observePotfolioTickerResponse().onEach { result ->
             if (!isPortfolioSocketRunning.value) return@onEach
@@ -462,8 +454,6 @@ class PortfolioViewModel @Inject constructor(
 
                 val position =
                     userHoldCoinDtoListPositionHashMap[upbitSocketTickerRes.code] ?: 0
-                val isFavorite =
-                    MoeuiBitDataStore.upBitFavoriteHashMap[upbitSocketTickerRes.code]
                 val tempDto = userHoldCoinDtoList[position]
 
                 _userHoldCoinDtoList[position] =

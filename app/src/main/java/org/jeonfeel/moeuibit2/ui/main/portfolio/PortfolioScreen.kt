@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
@@ -49,6 +50,7 @@ import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.UserHoldCoinLazyColumnItemDialog
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
@@ -61,25 +63,18 @@ import java.math.BigDecimal
 
 @Composable
 fun PortfolioScreen(
-    startForActivityResult: ActivityResultLauncher<Intent>,
-    columnItemDialogState: MutableState<Boolean>,
     portfolioOrderState: State<Int>,
     totalValuedAssets: State<BigDecimal>,
     totalPurchase: State<BigDecimal>,
     userSeedMoney: State<Long>,
     adDialogState: MutableState<Boolean>,
-    pieChartState: MutableState<Boolean>,
     userHoldCoinDTOList: List<UserHoldCoinDTO>,
-    selectedCoinKoreanName: MutableState<String>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
     loadingState: State<Boolean>,
     currentBTCPrice: State<Double>,
-    getPortFolioMainInfoMap: (
-        totalValuedAssets: State<BigDecimal>,
-        totalPurchase: State<BigDecimal>,
-        userSeedMoney: State<Long>
-    ) -> Map<String, String>
+    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Long>) -> Map<String, String>,
+    appNavController: NavHostController
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -159,7 +154,10 @@ fun PortfolioScreen(
                 }
             }
         }
-        Divider(Modifier.fillMaxWidth().height(1.dp), color = Color(0xFFDFDFDF))
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp), color = Color(0xFFDFDFDF))
 
         if (!loadingState.value) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -177,8 +175,6 @@ fun PortfolioScreen(
                             button = PortfolioSortButton.BUTTON_RATE,
                             textState = portfolioOrderState.value
                         ),
-                        adDialogState = adDialogState,
-                        pieChartState = pieChartState,
                         sortUserHoldCoin = sortUserHoldCoin,
                         getPortFolioMainInfoMap = getPortFolioMainInfoMap
                     )
@@ -207,16 +203,11 @@ fun PortfolioScreen(
                         evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
                             ?: "",
                         color = increaseColorOrDecreaseColor,
-                        openingPrice = item.openingPrice,
                         warning = item.warning,
-                        isFavorite = item.isFavorite,
-                        currentPrice = if(item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal().multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
-                        marketState = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_MARKET_STATE]?.toInt()
-                            ?: 0,
-                        startForActivityResult = startForActivityResult,
-                        selectedCoinKoreanName = selectedCoinKoreanName,
-                        dialogState = columnItemDialogState,
-                        market = item.market
+                        currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
+                            .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
+                        market = item.market,
+                        appNavController = appNavController
                     )
                 }
             }
@@ -236,38 +227,24 @@ fun UserHoldCoinLazyColumnItem(
     purchaseAmount: String,
     evaluationAmount: String,
     color: Color,
-    openingPrice: Double,
     warning: String,
-    isFavorite: Int?,
     currentPrice: Double,
-    marketState: Int,
-    startForActivityResult: ActivityResultLauncher<Intent>,
-    selectedCoinKoreanName: MutableState<String>,
-    dialogState: MutableState<Boolean>,
-    market: String
+    market: String,
+    appNavController: NavHostController
 ) {
-    if (dialogState.value && coinKoreanName == selectedCoinKoreanName.value) {
-        UserHoldCoinLazyColumnItemDialog(
-            dialogState,
-            koreanName = coinKoreanName,
-            engName = coinEngName,
-            currentPrice,
-            symbol,
-            openingPrice,
-            isFavorite,
-            warning,
-            marketState,
-            startForActivityResult
-        )
-    }
-
+    val warning2 = false
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
         .background(color = MaterialTheme.colorScheme.background)
         .clickable {
-            selectedCoinKoreanName.value = coinKoreanName
-            dialogState.value = true
+            appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning2") {
+                launchSingleTop = true
+                popUpTo(appNavController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                restoreState = true
+            }
         }) {
         Row(
             modifier = Modifier
@@ -318,7 +295,10 @@ fun UserHoldCoinLazyColumnItem(
                         )
                     )
                     AutoSizeText(
-                        text = currentPrice.newBigDecimal(ROOT_EXCHANGE_UPBIT, UPBIT_KRW_SYMBOL_PREFIX)
+                        text = currentPrice.newBigDecimal(
+                            ROOT_EXCHANGE_UPBIT,
+                            UPBIT_KRW_SYMBOL_PREFIX
+                        )
                             .formattedString(),
                         modifier = Modifier
                             .padding(start = 4.dp)
