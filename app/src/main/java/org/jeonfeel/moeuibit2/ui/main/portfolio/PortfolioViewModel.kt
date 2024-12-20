@@ -138,6 +138,14 @@ class PortfolioViewModel @Inject constructor(
                     }
                 }
 
+                myCoinList.forEachIndexed { index, myCoin ->
+                    myCoin?.let {
+                        userHoldCoinDtoListPositionHashMap[it.market] = index
+                    }
+                }
+
+//                userHoldCoinDtoListPositionHashMap
+
 
                 parseMyCoinToUserHoldCoin(realAddCoinList.toList())
                 requestTicker()
@@ -152,6 +160,8 @@ class PortfolioViewModel @Inject constructor(
                     && myCoinHashMap[BTC_MARKET] == null) {
                     userHoldCoinsMarkets.append(BTC_MARKET)
                 }
+
+//                sortUserHoldCoin(sortStandard = portfolioOrderState.value)
 
                 requestSubscribeTicker(userHoldCoinsMarkets.split(","))
                 collectTicker()
