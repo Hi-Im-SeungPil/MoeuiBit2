@@ -82,16 +82,13 @@ class PortfolioViewModel @Inject constructor(
     private var realTimeUpdateJob: Job? = null
 
     init {
-        _loadingState.value = true
         viewModelScope.launch {
             getCoinName()
-            resetPortfolio()
         }
     }
 
     fun onResume() {
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-//            _isPortfolioSocketRunning.value = true
             getCoinName()
             compareUserHoldCoinList()
         }.also { it.start() }
@@ -99,70 +96,33 @@ class PortfolioViewModel @Inject constructor(
 
     fun onPause() {
         viewModelScope.launch {
-//            _loadingState.value = true
             _isPortfolioSocketRunning.value = false
             requestSubscribeTicker(listOf(""))
             realTimeUpdateJob?.cancelAndJoin()
         }
     }
 
-    fun compareUserHoldCoinList() {
+    private fun compareUserHoldCoinList() {
         viewModelScope.launch(ioDispatcher) {
             _isPortfolioSocketRunning.value = false
             getUserSeedMoney()
             if (myCoinList.isNotEmpty()) {
-                val beforeMap = myCoinList.associateBy { it?.market }
-                val beforeMap2 = myCoinList.associateBy { Pair(it?.market, it) }
+                val beforeMyCoinMap = myCoinList.associateBy { it?.market }
                 getUserHoldCoins()
-                val tempMyCoinMap = myCoinList.associateBy { it?.market }
 
-                val addCoinList = tempMyCoinMap.keys - beforeMap.keys
-                val removeCoinList = beforeMap.keys - tempMyCoinMap.keys
+                val newMyCoinMap = myCoinList.associateBy { it?.market }
 
-                val realAddCoinList = arrayListOf<MyCoin?>()
+                modifyCoin(beforeMyCoinMap, newMyCoinMap)
 
-                Logger.e("추가된 코인: ${addCoinList}")
-                Logger.e("제거된 코인: ${removeCoinList}")
-
-                removeCoinList.forEach { removeCoin ->
-                    _userHoldCoinDtoList.removeIf { it.market == removeCoin }
-                    myCoinList.removeIf { it?.market == removeCoin }
-                    myCoinHashMap.remove(removeCoin)
-                    userHoldCoinDtoListPositionHashMap.remove(removeCoin)
-                }
-
-                addCoinList.forEach { addCoin ->
-                    tempMyCoinMap[addCoin]?.let {
-                        myCoinList.add(it)
-                        realAddCoinList.add(it)
-                    }
-                }
-
-                myCoinList.forEachIndexed { index, myCoin ->
-                    myCoin?.let {
-                        userHoldCoinDtoListPositionHashMap[it.market] = index
-                    }
-                }
-
-//                userHoldCoinDtoListPositionHashMap
-
-
-                parseMyCoinToUserHoldCoin(realAddCoinList.toList())
-                requestTicker()
-                setETC()
+                updateCoin()
 
                 userHoldCoinsMarkets.clear()
                 myCoinList.forEach {
                     userHoldCoinsMarkets.append(it?.market).append(",")
                 }
 
-                if (_userHoldCoinDtoList.find { it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) } != null
-                    && myCoinHashMap[BTC_MARKET] == null) {
-                    userHoldCoinsMarkets.append(BTC_MARKET)
-                }
-
-//                sortUserHoldCoin(sortStandard = portfolioOrderState.value)
-
+                requestTicker()
+                setETC()
                 requestSubscribeTicker(userHoldCoinsMarkets.split(","))
                 collectTicker()
                 _isPortfolioSocketRunning.value = true
@@ -178,6 +138,70 @@ class PortfolioViewModel @Inject constructor(
                 _isPortfolioSocketRunning.value = true
             }
         }
+    }
+
+    private fun modifyCoin(
+        beforeMyCoinMap: Map<String?, MyCoin?>,
+        newMyCoinMap: Map<String?, MyCoin?>
+    ) {
+        val removeCoinListMarket = beforeMyCoinMap.keys - newMyCoinMap.keys
+        val addCoinListMarket = newMyCoinMap.keys - beforeMyCoinMap.keys
+
+        removeCoinListMarket.forEach { removeCoin ->
+            _userHoldCoinDtoList.removeIf { it.market == removeCoin }
+            myCoinList.remove(beforeMyCoinMap[removeCoin])
+            myCoinHashMap.remove(removeCoin)
+            userHoldCoinDtoListPositionHashMap.remove(removeCoin)
+        }
+
+        addCoinListMarket.forEachIndexed { index, market ->
+            val myCoin = newMyCoinMap[market]
+
+            val userHoldCoinDTO = myCoin!!.parseUserHoldsModel().apply {
+                this.myCoinKoreanName = _koreanCoinNameMap[myCoin.symbol] ?: ""
+                this.myCoinEngName = _engCoinNameMap[myCoin.symbol] ?: ""
+                this.isFavorite = 0
+                this.myCoinsBuyingAverage = myCoin.purchasePrice
+                this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
+                this.myCoinsSymbol = myCoin.symbol
+                this.market = myCoin.market
+            }
+            myCoinList.add(myCoin)
+            _userHoldCoinDtoList.add(userHoldCoinDTO)
+            myCoinHashMap[myCoin.market] = myCoin
+        }
+
+        _userHoldCoinDtoList.forEachIndexed { index, userHoldCoin ->
+            userHoldCoin.let {
+                userHoldCoinDtoListPositionHashMap[it.market] = index
+            }
+        }
+    }
+
+    private fun updateCoin() {
+        myCoinList.forEachIndexed { index, myCoin ->
+            userHoldCoinDtoListPositionHashMap[myCoin?.market]?.let {
+                val userHoldCoinDTO = myCoin!!.parseUserHoldsModel().apply {
+                    this.myCoinKoreanName = _koreanCoinNameMap[myCoin.symbol] ?: ""
+                    this.myCoinEngName = _engCoinNameMap[myCoin.symbol] ?: ""
+                    this.isFavorite = 0
+                    this.myCoinsBuyingAverage = myCoin.purchasePrice
+                    this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
+                    this.myCoinsSymbol = myCoin.symbol
+                    this.market = myCoin.market
+                }
+
+                _userHoldCoinDtoList[it] = userHoldCoinDTO
+            }
+        }
+
+        Logger.e(_totalPurchase.value.toString())
+
+        val tempTotalPurchase = myCoinList.sumOf { Calculator.getTotalPurchase(it!!) }
+        Logger.e(tempTotalPurchase.toString())
+
+
+        _totalPurchase.value = tempTotalPurchase
     }
 
     private suspend fun getCoinName() {
@@ -210,7 +234,7 @@ class PortfolioViewModel @Inject constructor(
     private suspend fun parseMyCoinToUserHoldCoin(list: List<MyCoin?>? = null) {
         val targetList = list ?: myCoinList
 
-        if(list == null) {
+        if (list == null) {
             targetList.ifEmpty {
                 _totalValuedAssets.value = BigDecimal(0.0)
                 _totalPurchase.value = BigDecimal(0.0)
@@ -303,7 +327,6 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun setETC() {
-//        sortUserHoldCoin(SORT_DEFAULT)
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
         } else {
@@ -316,40 +339,47 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
+        Logger.e("${isPortfolioSocketRunning.value}")
         _isPortfolioSocketRunning.value = false
         _portfolioOrderState.intValue = sortStandard
+
+        val sortList = arrayListOf<UserHoldCoinDTO>().apply { addAll(_userHoldCoinDtoList) }
 
         viewModelScope.launch(defaultDispatcher) {
             when (sortStandard) {
                 SORT_NAME_DEC -> {
-                    _userHoldCoinDtoList.sortBy { element ->
+                    sortList.sortBy { element ->
                         element.myCoinKoreanName
                     }
                 }
 
                 SORT_NAME_ASC -> {
-                    _userHoldCoinDtoList.sortByDescending { element ->
+                    sortList.sortByDescending { element ->
                         element.myCoinKoreanName
                     }
                 }
 
                 SORT_RATE_ASC -> {
-                    _userHoldCoinDtoList.sortByDescending { element ->
+                    sortList.sortByDescending { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
 
                 SORT_RATE_DEC -> {
-                    _userHoldCoinDtoList.sortBy { element ->
+                    sortList.sortBy { element ->
                         element.myCoinsBuyingAverage / element.currentPrice
                     }
                 }
 
                 else -> {
-                    _userHoldCoinDtoList.sortBy { element ->
+                    sortList.sortBy { element ->
                         element.myCoinKoreanName
                     }
                 }
+            }
+
+            sortList.forEachIndexed { index, userHoldCoinDTO ->
+                _userHoldCoinDtoList[index] = userHoldCoinDTO
             }
 
             _userHoldCoinDtoList.forEachIndexed { index, item ->
