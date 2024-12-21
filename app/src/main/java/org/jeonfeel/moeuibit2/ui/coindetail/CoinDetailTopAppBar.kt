@@ -46,7 +46,7 @@ fun CoinDetailTopAppBar(
     val unit = Utils.getUnit(marketState)
 
     TopAppBar(
-        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+        backgroundColor = Color.White,
         title = {
             Text(
                 if (warning == CAUTION) {

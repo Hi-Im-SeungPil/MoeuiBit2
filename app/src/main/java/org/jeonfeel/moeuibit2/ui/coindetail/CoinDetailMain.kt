@@ -2,12 +2,14 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -109,7 +111,8 @@ fun CoinDetailMain(
                 imageModel = coinImageUrl.plus("$symbol.png"),
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 0.dp, 10.dp)
-                    .weight(1f),
+                    .weight(1f)
+                    .clip(CircleShape),
                 contentScale = ContentScale.FillHeight,
                 error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
             )

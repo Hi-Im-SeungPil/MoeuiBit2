@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -119,7 +122,7 @@ fun NewCoinDetailTopAppBar(
     isFavorite: State<Boolean>,
     backPressed: () -> Boolean
 ) {
-    Row {
+    Row(modifier = Modifier.background(Color.White)) {
         IconButton(onClick = {
             backPressed()
         }) {
@@ -130,9 +133,11 @@ fun NewCoinDetailTopAppBar(
             )
         }
 
-        Column(modifier = Modifier
-            .weight(1f)
-            .align(Alignment.CenterVertically)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically)
+        ) {
             Text(
                 text = title,
                 style = TextStyle(
@@ -183,17 +188,18 @@ fun CoinDetailPriceSection(
     btcPrice: BigDecimal,
     market: String
 ) {
-    Column(
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(0.dp, 10.dp, 0.dp, 0.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
+//    Column(
+//        modifier = Modifier
+//            .background(color = MaterialTheme.colorScheme.background)
+//            .padding(0.dp, 10.dp, 0.dp, 0.dp)
+//            .fillMaxWidth()
+//            .wrapContentHeight()
+//    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .background(Color.White)
         ) {
             Column(
                 modifier = Modifier
@@ -257,12 +263,13 @@ fun CoinDetailPriceSection(
             GlideImage(
                 imageModel = coinImageUrl.plus("$symbol.png"),
                 modifier = Modifier
+                    .padding(end = 20.dp)
+                    .clip(CircleShape)
                     .size(65.dp)
-                    .padding(end = 20.dp),
-                contentScale = ContentScale.Inside,
+                    .background(Color.White),
                 error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
             )
         }
         // 코인 상세화면 주문 ,차트 ,정보 버튼
-    }
+//    }
 }
