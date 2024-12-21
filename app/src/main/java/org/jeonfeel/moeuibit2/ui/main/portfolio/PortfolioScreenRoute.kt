@@ -42,7 +42,9 @@ fun PortfolioScreenRoute(
         adMobManager = viewModel.adMobManager,
         errorReward = viewModel::errorReward,
         earnReward = viewModel::earnReward,
-        btcTradePrice = viewModel.btcTradePrice
+        btcTradePrice = viewModel.btcTradePrice,
+        userHoldCoinDtoList = viewModel.userHoldCoinDtoList,
+        portfolioSearchTextState = viewModel.portfolioSearchTextState,
     )
 
     EditUserHoldCoinDialog(
@@ -96,6 +98,9 @@ fun PortfolioScreenRoute(
         getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
         loadingState = viewModel.loadingState,
         currentBTCPrice = viewModel.btcTradePrice,
-        appNavController = appNavController
+        appNavController = appNavController,
+        earnReward = viewModel::earnReward,
+        portfolioSearchTextState = viewModel.portfolioSearchTextState,
+        getList = holder::getList
     )
 }

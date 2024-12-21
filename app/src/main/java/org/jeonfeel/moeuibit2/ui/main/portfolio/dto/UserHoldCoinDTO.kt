@@ -5,7 +5,7 @@ import androidx.annotation.Keep
 @Keep
 data class UserHoldCoinDTO(
     var myCoinKoreanName: String,
-    var myCoinEngName:String,
+    var myCoinEngName: String,
     var myCoinsSymbol: String,
     var myCoinsQuantity: Double,
     var myCoinsBuyingAverage: Double = 0.0,
@@ -14,5 +14,6 @@ data class UserHoldCoinDTO(
     var warning: String,
     var isFavorite: Int? = null,
     var market: String,
-    var purchaseAverageBtcPrice: Double = 0.0
+    var purchaseAverageBtcPrice: Double = 0.0,
+    var initialConstant: String = ""
 )

@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -31,14 +32,10 @@ enum class PortfolioSortButton {
 }
 
 @Composable
-fun PortfolioMain(
-    portfolioOrderState: State<Int>,
+fun LazyItemScope.PortfolioMain(
     totalValuedAssets: State<BigDecimal>,
     totalPurchase: State<BigDecimal>,
     userSeedMoney: State<Long>,
-    orderByNameTextInfo: List<Any>,
-    orderByRateTextInfo: List<Any>,
-    sortUserHoldCoin: (orderState: Int) -> Unit,
     getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Long>) -> Map<String, String>,
 ) {
     val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
@@ -91,31 +88,6 @@ fun PortfolioMain(
 //            userSeedMoney = userSeedMoney,
 ////            userHoldCoinList = userHoldCoinList
 //        )
-
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp), color = Color.White
-        )
-
-        PortfolioMainSortButtons(
-            orderByNameTextInfo = orderByNameTextInfo,
-            orderByRateTextInfo = orderByRateTextInfo,
-            portfolioOrderState = portfolioOrderState,
-            sortUserHoldCoin = sortUserHoldCoin
-        )
-        Divider(
-            Modifier
-                .fillMaxWidth()
-                .height(8.dp),
-            color = Color.White
-        )
-        Divider(
-            Modifier
-                .fillMaxWidth()
-                .height(1.dp),
-            color = Color.LightGray
-        )
     }
 }
 

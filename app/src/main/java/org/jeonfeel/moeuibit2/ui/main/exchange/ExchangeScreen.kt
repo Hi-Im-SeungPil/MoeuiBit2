@@ -303,6 +303,7 @@ fun ExchangeScreenSearchTextField(
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable (onClick: () -> Unit) -> Unit)? = null,
     placeholderText: String = "",
+    placeholderTextColor: Color = MaterialTheme.colorScheme.primary,
     fontSize: TextUnit = androidx.compose.material.MaterialTheme.typography.body2.fontSize,
 ) {
     val focusManager = LocalFocusManager.current
@@ -330,7 +331,7 @@ fun ExchangeScreenSearchTextField(
                         Text(
                             placeholderText,
                             style = LocalTextStyle.current.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = placeholderTextColor,
                                 fontSize = fontSize
                             )
                         )

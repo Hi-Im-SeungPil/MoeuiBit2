@@ -6,9 +6,7 @@ import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableDoubleState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,7 +14,6 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringTo1000
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -27,7 +24,6 @@ import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.showToast
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.round
 
 class PortfolioScreenStateHolder(
     val context: Context,
@@ -35,7 +31,9 @@ class PortfolioScreenStateHolder(
     val adMobManager: AdMobManager,
     val errorReward: () -> Unit,
     val earnReward: () -> Unit,
-    val btcTradePrice: State<Double>
+    val btcTradePrice: State<Double>,
+    val portfolioSearchTextState: MutableState<String> = mutableStateOf(""),
+    val userHoldCoinDtoList: List<UserHoldCoinDTO>
 ) {
     val adLoadingDialogState = mutableStateOf(false)
     val adConfirmDialogState = mutableStateOf(false)
@@ -152,6 +150,21 @@ class PortfolioScreenStateHolder(
         )
     }
 
+    fun getList(): List<UserHoldCoinDTO> {
+        val strResult = portfolioSearchTextState.value.uppercase()
+        return when {
+            strResult.isEmpty() -> userHoldCoinDtoList
+            else -> {
+                userHoldCoinDtoList.filter {
+                    it.myCoinsSymbol.uppercase().contains(strResult)
+                            || it.myCoinKoreanName.uppercase().contains(strResult)
+                            || it.myCoinEngName.uppercase().contains(strResult)
+                            || it.initialConstant.uppercase().contains(strResult)
+                }
+            }
+        }
+    }
+
     fun getPortfolioMainInfoMap(
         totalValuedAssets: State<BigDecimal>,
         totalPurchase: State<BigDecimal>,
@@ -243,7 +256,9 @@ fun rememberPortfolioScreenStateHolder(
     adMobManager: AdMobManager,
     errorReward: () -> Unit,
     earnReward: () -> Unit,
-    btcTradePrice: State<Double>
+    btcTradePrice: State<Double>,
+    userHoldCoinDtoList: List<UserHoldCoinDTO>,
+    portfolioSearchTextState: MutableState<String>
 ) = remember() {
     PortfolioScreenStateHolder(
         context = context,
@@ -251,6 +266,8 @@ fun rememberPortfolioScreenStateHolder(
         adMobManager = adMobManager,
         errorReward = errorReward,
         earnReward = earnReward,
-        btcTradePrice = btcTradePrice
+        btcTradePrice = btcTradePrice,
+        userHoldCoinDtoList = userHoldCoinDtoList,
+        portfolioSearchTextState = portfolioSearchTextState
     )
 }

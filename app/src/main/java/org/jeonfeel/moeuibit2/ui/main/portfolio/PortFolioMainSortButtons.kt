@@ -1,13 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +13,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 
 @Composable
@@ -24,12 +20,12 @@ fun PortfolioMainSortButtons(
     orderByRateTextInfo: List<Any>,
     orderByNameTextInfo: List<Any>,
     portfolioOrderState: State<Int>,
-    sortUserHoldCoin: (orderState: Int) -> Unit
+    sortUserHoldCoin: (orderState: Int) -> Unit,
 ) {
     Row(
-        Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color(0x80ECECEC))
+            .background(color = Color(0xffECECEC))
             .padding(vertical = 7.dp)
     ) {
         Text(

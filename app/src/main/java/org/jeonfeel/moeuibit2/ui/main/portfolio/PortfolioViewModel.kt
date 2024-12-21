@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +26,7 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
@@ -63,11 +65,13 @@ class PortfolioViewModel @Inject constructor(
     private val _portfolioOrderState = mutableIntStateOf(SORT_NONE)
     val portfolioOrderState: State<Int> get() = _portfolioOrderState
 
+    val portfolioSearchTextState: MutableState<String> = mutableStateOf("")
+
     private val _btcTradePrice = mutableDoubleStateOf(0.0)
     val btcTradePrice: State<Double> get() = _btcTradePrice
 
     private val _isPortfolioSocketRunning = mutableStateOf(true)
-    val isPortfolioSocketRunning: State<Boolean> get() = _isPortfolioSocketRunning
+    private val isPortfolioSocketRunning: State<Boolean> get() = _isPortfolioSocketRunning
 
     private val _koreanCoinNameMap = mutableMapOf<String, String>()
 
@@ -102,41 +106,29 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    private fun compareUserHoldCoinList() {
-        viewModelScope.launch(ioDispatcher) {
-            _isPortfolioSocketRunning.value = false
+    private suspend fun compareUserHoldCoinList() {
+        _isPortfolioSocketRunning.value = false
+
+        getUserSeedMoney()
+        if (myCoinList.isNotEmpty()) {
+            val (beforeMyCoinMap, newMyCoinMap) = getBeforeCoinMapAndNewCoinMap()
+            modifyCoin(beforeMyCoinMap, newMyCoinMap)
+            updateCoin()
+            requestTicker()
+            setETC()
+            requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+            _isPortfolioSocketRunning.value = true
+            collectTicker()
+        } else {
+            resetPortfolio()
             getUserSeedMoney()
-            if (myCoinList.isNotEmpty()) {
-                val beforeMyCoinMap = myCoinList.associateBy { it?.market }
-                getUserHoldCoins()
-
-                val newMyCoinMap = myCoinList.associateBy { it?.market }
-
-                modifyCoin(beforeMyCoinMap, newMyCoinMap)
-
-                updateCoin()
-
-                userHoldCoinsMarkets.clear()
-                myCoinList.forEach {
-                    userHoldCoinsMarkets.append(it?.market).append(",")
-                }
-
-                requestTicker()
-                setETC()
-                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
-                collectTicker()
-                _isPortfolioSocketRunning.value = true
-            } else {
-                resetPortfolio()
-                getUserSeedMoney()
-                getUserHoldCoins()
-                parseMyCoinToUserHoldCoin()
-                requestTicker()
-                setETC()
-                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
-                collectTicker()
-                _isPortfolioSocketRunning.value = true
-            }
+            getUserHoldCoins()
+            parseMyCoinToUserHoldCoin()
+            requestTicker()
+            setETC()
+            requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+            _isPortfolioSocketRunning.value = true
+            collectTicker()
         }
     }
 
@@ -166,7 +158,6 @@ class PortfolioViewModel @Inject constructor(
                 this.myCoinsSymbol = myCoin.symbol
                 this.market = myCoin.market
             }
-            myCoinList.add(myCoin)
             _userHoldCoinDtoList.add(userHoldCoinDTO)
             myCoinHashMap[myCoin.market] = myCoin
         }
@@ -179,8 +170,12 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private fun updateCoin() {
+        var tempTotalPurchase = BigDecimal(0L)
+
         myCoinList.forEachIndexed { index, myCoin ->
             userHoldCoinDtoListPositionHashMap[myCoin?.market]?.let {
+                val beforeUserHoldCoinDTO = _userHoldCoinDtoList[it]
+
                 val userHoldCoinDTO = myCoin!!.parseUserHoldsModel().apply {
                     this.myCoinKoreanName = _koreanCoinNameMap[myCoin.symbol] ?: ""
                     this.myCoinEngName = _engCoinNameMap[myCoin.symbol] ?: ""
@@ -191,17 +186,42 @@ class PortfolioViewModel @Inject constructor(
                     this.market = myCoin.market
                 }
 
-                _userHoldCoinDtoList[it] = userHoldCoinDTO
+                _userHoldCoinDtoList[it] =
+                    UserHoldCoinDTO(
+                        currentPrice = beforeUserHoldCoinDTO.currentPrice,
+                        openingPrice = beforeUserHoldCoinDTO.openingPrice,
+                        warning = "",
+                        market = userHoldCoinDTO.market,
+                        isFavorite = 0,
+                        myCoinKoreanName = userHoldCoinDTO.myCoinKoreanName,
+                        myCoinEngName = userHoldCoinDTO.myCoinEngName,
+                        myCoinsQuantity = userHoldCoinDTO.myCoinsQuantity,
+                        myCoinsBuyingAverage = userHoldCoinDTO.myCoinsBuyingAverage,
+                        purchaseAverageBtcPrice = userHoldCoinDTO.purchaseAverageBtcPrice,
+                        myCoinsSymbol = userHoldCoinDTO.myCoinsSymbol,
+                    )
             }
+
+            tempTotalPurchase = tempTotalPurchase.plus(Calculator.getTotalPurchase(myCoin!!))
         }
 
         Logger.e(_totalPurchase.value.toString())
-
-        val tempTotalPurchase = myCoinList.sumOf { Calculator.getTotalPurchase(it!!) }
+//        val tempTotalPurchase = myCoinList.sumOf { Calculator.getTotalPurchase(it!!) }
         Logger.e(tempTotalPurchase.toString())
 
-
         _totalPurchase.value = tempTotalPurchase
+
+        userHoldCoinsMarkets.clear()
+        myCoinList.forEach {
+            userHoldCoinsMarkets.append(it?.market).append(",")
+        }
+    }
+
+    private suspend fun getBeforeCoinMapAndNewCoinMap(): Pair<Map<String?, MyCoin?>, Map<String?, MyCoin?>> {
+        val beforeMyCoinMap = myCoinList.associateBy { it?.market }
+        getUserHoldCoins()
+        val newMyCoinMap = myCoinList.associateBy { it?.market }
+        return beforeMyCoinMap to newMyCoinMap
     }
 
     private suspend fun getCoinName() {
@@ -300,8 +320,10 @@ class PortfolioViewModel @Inject constructor(
                                 myCoinsQuantity = tempDto.myCoinsQuantity,
                                 myCoinsBuyingAverage = tempDto.myCoinsBuyingAverage,
                                 purchaseAverageBtcPrice = tempDto.purchaseAverageBtcPrice,
-                                myCoinsSymbol = tempDto.myCoinsSymbol
+                                myCoinsSymbol = tempDto.myCoinsSymbol,
+                                initialConstant = Utils.extractInitials(tempDto.myCoinKoreanName)
                             )
+                        Logger.e("${Utils.extractInitials(tempDto.myCoinKoreanName)}")
                     }
                 }.fold(
                     onSuccess = {
@@ -315,11 +337,9 @@ class PortfolioViewModel @Inject constructor(
                                     .multiply(btcTradePrice.value.toBigDecimal())
                             }
                         }
-                        _loadingState.value = false
                     },
                     onFailure = {
                         Logger.e(it.message.toString())
-                        _loadingState.value = false
                     }
                 )
             }
@@ -478,12 +498,12 @@ class PortfolioViewModel @Inject constructor(
 
     private suspend fun collectTicker() {
         upbitUseCase.observePotfolioTickerResponse().onEach { result ->
-            if (!isPortfolioSocketRunning.value) return@onEach
-
             _tickerResponse.update {
                 result
             }
         }.collect { upbitSocketTickerRes ->
+            if (!isPortfolioSocketRunning.value) return@collect
+
             runCatching {
                 if (upbitSocketTickerRes.code == BTC_MARKET) {
                     _btcTradePrice.doubleValue = upbitSocketTickerRes.tradePrice
@@ -508,7 +528,8 @@ class PortfolioViewModel @Inject constructor(
                         myCoinsQuantity = tempDto.myCoinsQuantity,
                         myCoinsBuyingAverage = tempDto.myCoinsBuyingAverage,
                         purchaseAverageBtcPrice = tempDto.purchaseAverageBtcPrice,
-                        myCoinsSymbol = tempDto.myCoinsSymbol
+                        myCoinsSymbol = tempDto.myCoinsSymbol,
+                        initialConstant = Utils.extractInitials(tempDto.myCoinKoreanName)
                     )
             }.fold(
                 onSuccess = {
