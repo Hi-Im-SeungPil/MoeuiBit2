@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -25,6 +26,7 @@ import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
@@ -85,9 +87,6 @@ class PortfolioViewModel @Inject constructor(
     private val _totalValuedAssets = mutableStateOf(BigDecimal(0.0))
     val totalValuedAssets: State<BigDecimal> get() = _totalValuedAssets
 
-    private val _removeCoinCount = mutableIntStateOf(0)
-    val removeCoinCount: State<Int> get() = _removeCoinCount
-
     private val _portfolioOrderState = mutableIntStateOf(SORT_NONE)
     val portfolioOrderState: State<Int> get() = _portfolioOrderState
 
@@ -100,13 +99,20 @@ class PortfolioViewModel @Inject constructor(
     private val isPortfolioSocketRunning: State<Boolean> get() = _isPortfolioSocketRunning
 
     private val _koreanCoinNameMap = mutableMapOf<String, String>()
-
     private val _engCoinNameMap = mutableMapOf<String, String>()
 
     private val userHoldCoinsMarkets = StringBuilder()
     private val myCoinList = ArrayList<MyCoin?>()
+
     private val myCoinHashMap = HashMap<String, MyCoin>()
+
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
+
+    private val _removeCoinInfo = SnapshotStateList<String>()
+    val removeCoinInfo: List<String> get() = _removeCoinInfo
+
+    private val showRemoveCoinDialog = mutableStateOf(false)
+    val showRemoveCoinDialogState: State<Boolean> get() = showRemoveCoinDialog
 
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
     private var realTimeUpdateJob: Job? = null
@@ -432,10 +438,47 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
+    fun hideBottomSheet() {
+        showRemoveCoinDialog.value = false
+    }
+
     fun findWrongCoin() {
         // 바텀 시트 에서 잘못 된 코인 리스트 보여주고 체크 후 삭제 버튼 누르기.
         //  marketAll 받아와서 map으로 만들고, 체크 후 상폐여부 결정
         // 그 외에 무한대, 수량 0인것 등등 체크 해보자.
+        if (myCoinList.isEmpty()) return
+
+        viewModelScope.launch {
+            _removeCoinInfo.clear()
+
+            executeUseCase<List<UpbitMarketCodeRes>>(
+                target = upbitUseCase.getMarketCode(),
+                onLoading = {
+
+                },
+                onComplete = {
+                    val marketAll = it.map { it.market }.associateBy { it }
+
+                    myCoinList.forEach {
+                        if (!marketAll.containsKey(it?.market)
+                            || it?.quantity == 0.0
+                            || it?.purchasePrice == 0.0
+                            || it?.quantity == Double.POSITIVE_INFINITY
+                            || it?.quantity == Double.NEGATIVE_INFINITY
+                        ) {
+                            _removeCoinInfo.add(it!!.market)
+                        }
+                    }
+                    _removeCoinInfo.add("KRW-BTC")
+                    _removeCoinInfo.add("KRW-BTC")
+                    _removeCoinInfo.add("KRW-BTC")
+                    _removeCoinInfo.add("KRW-BTC")
+                    _removeCoinInfo.add("KRW-BTC")
+
+                    showRemoveCoinDialog.value = true
+                }
+            )
+        }
     }
 
     fun editUserHoldCoin() {
@@ -459,7 +502,7 @@ class PortfolioViewModel @Inject constructor(
 //                        localRepository.getMyCoinDao().delete(i.market)
 //                        localRepository.getTransactionInfoDao().delete(i.market)
 //                        count += 1
-//                    } else if (i.quantity == 0.0 || i.purchasePrice == 0.0 || i.quantity == Double.POSITIVE_INFINITY || i.quantity == Double.NEGATIVE_INFINITY) {
+//                    } else if () {
 //                        localRepository.getMyCoinDao().delete(i.market)
 //                        localRepository.getTransactionInfoDao().delete(i.market)
 //                        count += 1

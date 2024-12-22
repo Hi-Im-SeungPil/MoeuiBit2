@@ -109,7 +109,7 @@ class ExchangeViewModel @Inject constructor(
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    upBitExchange.onResume()
+                    upBitExchange.onResume(sortType = selectedSortType.value, sortOrder = sortOrder.value)
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
@@ -147,8 +147,8 @@ class ExchangeViewModel @Inject constructor(
         state.isUpdateExchange.value = false
         upBitExchange.sortTickerList(
             tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-            sortType = state.selectedSortType.value,
-            sortOrder = state.sortOrder.value
+            sortType = sortType,
+            sortOrder = sortOrder
         )
         state.isUpdateExchange.value = true
     }
@@ -158,10 +158,9 @@ class ExchangeViewModel @Inject constructor(
             state.tradeCurrencyState.intValue = tradeCurrency
             marketChangeJob?.cancel()
             marketChangeJob = viewModelScope.launch(ioDispatcher) {
-                state.isUpdateExchange.value = false
                 when (rootExchange) {
                     ROOT_EXCHANGE_UPBIT -> {
-                        upBitExchange.changeTradeCurrencyAction()
+                        upBitExchange.changeTradeCurrencyAction(sortType = selectedSortType.value, sortOrder = sortOrder.value)
                     }
 
                     ROOT_EXCHANGE_BITTHUMB -> {

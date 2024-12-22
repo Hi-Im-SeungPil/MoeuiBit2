@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main.portfolio
+package org.jeonfeel.moeuibit2.ui.main.portfolio.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioViewModel
 
 @Composable
 fun PortfolioMainSortButtons(

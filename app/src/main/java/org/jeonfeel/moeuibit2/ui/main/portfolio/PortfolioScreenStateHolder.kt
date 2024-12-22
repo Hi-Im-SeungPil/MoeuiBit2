@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -32,7 +36,7 @@ class PortfolioScreenStateHolder(
     val earnReward: () -> Unit,
     val btcTradePrice: State<Double>,
     val portfolioSearchTextState: MutableState<String> = mutableStateOf(""),
-    val userHoldCoinDtoList: List<UserHoldCoinDTO>
+    val userHoldCoinDtoList: List<UserHoldCoinDTO>,
 ) {
     val adLoadingDialogState = mutableStateOf(false)
     val adConfirmDialogState = mutableStateOf(false)

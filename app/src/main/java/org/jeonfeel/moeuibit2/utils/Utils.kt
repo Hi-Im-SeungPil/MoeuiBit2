@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.toUpperCase
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -127,7 +126,7 @@ object Utils {
         tickerList: List<CommonExchangeModel>,
         sortType: SortType,
         sortOrder: SortOrder,
-        btcPriceForFavorite: BigDecimal? = null
+        btcPrice: BigDecimal? = null
     ): List<CommonExchangeModel> {
         return when (sortType) {
             SortType.DEFAULT -> {
@@ -135,16 +134,13 @@ object Utils {
             }
 
             SortType.PRICE -> {
-                if (btcPriceForFavorite != null) {
-
-                }
                 when (sortOrder) {
                     SortOrder.DESCENDING -> {
                         tickerList.sortedByDescending {
-                            if (btcPriceForFavorite != null
+                            if (btcPrice != null
                                 && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
                             ) {
-                                it.tradePrice * btcPriceForFavorite
+                                it.tradePrice * btcPrice
                             } else {
                                 it.tradePrice
                             }
@@ -153,10 +149,10 @@ object Utils {
 
                     SortOrder.ASCENDING -> {
                         tickerList.sortedBy {
-                            if (btcPriceForFavorite != null
+                            if (btcPrice != null
                                 && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
                             ) {
-                                it.tradePrice * btcPriceForFavorite
+                                it.tradePrice * btcPrice
                             } else {
                                 it.tradePrice
                             }
@@ -164,7 +160,15 @@ object Utils {
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedByDescending { it.accTradePrice24h }
+                        tickerList.sortedByDescending {
+                            if (btcPrice != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.accTradePrice24h * btcPrice
+                            } else {
+                                it.accTradePrice24h
+                            }
+                        }
                     }
                 }
             }
@@ -180,7 +184,15 @@ object Utils {
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedByDescending { it.accTradePrice24h }
+                        tickerList.sortedByDescending {
+                            if (btcPrice != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.accTradePrice24h * btcPrice
+                            } else {
+                                it.accTradePrice24h
+                            }
+                        }
                     }
                 }
             }
@@ -188,15 +200,39 @@ object Utils {
             SortType.VOLUME -> {
                 when (sortOrder) {
                     SortOrder.DESCENDING -> {
-                        tickerList.sortedByDescending { it.accTradePrice24h }
+                        tickerList.sortedByDescending {
+                            if (btcPrice != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.accTradePrice24h * btcPrice
+                            } else {
+                                it.accTradePrice24h
+                            }
+                        }
                     }
 
                     SortOrder.ASCENDING -> {
-                        tickerList.sortedBy { it.accTradePrice24h }
+                        tickerList.sortedBy {
+                            if (btcPrice != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.accTradePrice24h * btcPrice
+                            } else {
+                                it.accTradePrice24h
+                            }
+                        }
                     }
 
                     SortOrder.NONE -> {
-                        tickerList.sortedByDescending { it.accTradePrice24h }
+                        tickerList.sortedByDescending {
+                            if (btcPrice != null
+                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                            ) {
+                                it.accTradePrice24h * btcPrice
+                            } else {
+                                it.accTradePrice24h
+                            }
+                        }
                     }
                 }
             }

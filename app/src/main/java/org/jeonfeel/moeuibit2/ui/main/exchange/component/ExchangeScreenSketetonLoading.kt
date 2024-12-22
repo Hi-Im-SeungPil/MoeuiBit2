@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main.exchange
+package org.jeonfeel.moeuibit2.ui.main.exchange.component
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable

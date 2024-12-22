@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -31,13 +30,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +54,10 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreenSearchTextField
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioMain
+import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioMainSortButtons
+import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioSortButton
+import org.jeonfeel.moeuibit2.ui.main.portfolio.component.getTextColors
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
@@ -69,6 +69,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.eightDecimalCommaFormat
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
+import kotlin.reflect.KFunction0
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,7 +88,8 @@ fun PortfolioScreen(
     appNavController: NavHostController,
     earnReward: () -> Unit,
     portfolioSearchTextState: MutableState<String>,
-    getList: () -> List<UserHoldCoinDTO>
+    getList: () -> List<UserHoldCoinDTO>,
+    findWrongCoin: KFunction0<Unit>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -160,6 +162,7 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
 //                            adDialogState.value = true
+                                findWrongCoin()
                             },
                         style = TextStyle(
                             color = MaterialTheme.colorScheme.onBackground,

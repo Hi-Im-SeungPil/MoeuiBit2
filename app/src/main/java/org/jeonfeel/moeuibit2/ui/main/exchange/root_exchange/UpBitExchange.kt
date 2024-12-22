@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
@@ -97,12 +96,12 @@ class UpBitExchange @Inject constructor(
         requestTicker()
     }
 
-    suspend fun onResume() {
+    suspend fun onResume(sortType: SortType? = null, sortOrder: SortOrder? = null) {
         if (!tickerDataIsEmpty() && successInit) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
-            updateTickerData()
+            updateTickerData(sortType = sortType, sortOrder = sortOrder)
             requestSubscribeTicker()
         } else if (tickerDataIsEmpty() && successInit) {
             clearTickerData()
@@ -117,10 +116,8 @@ class UpBitExchange @Inject constructor(
     }
 
     private suspend fun favoriteOnResume() {
-        // 즐겨찾기 목록을 가져옵니다.
         getFavoriteList()
 
-        // 제거된 코인 처리
         val favoriteSet = favoriteList.toSet()
         val removeKeyList = _favoriteExchangeModelList
             .map { it.market }
@@ -135,7 +132,6 @@ class UpBitExchange @Inject constructor(
             }
         }
 
-        // 추가된 코인 처리
         val newFavorites =
             favoriteList.filterNot { it in _favoriteExchangeModelList.map { model -> model.market } }
 
@@ -197,7 +193,7 @@ class UpBitExchange @Inject constructor(
         )
     }
 
-    private suspend fun updateTickerData() {
+    private suspend fun updateTickerData(sortOrder: SortOrder? = null, sortType: SortType? = null) {
         val marketCodes =
             when (tradeCurrencyState?.value) {
                 TRADE_CURRENCY_KRW -> {
@@ -269,6 +265,13 @@ class UpBitExchange @Inject constructor(
                                 _favoriteExchangeModelList[position] = res
                             }
                         }
+                        if (sortOrder != null && sortType != null) {
+                            sortTickerList(
+                                tradeCurrency = TRADE_CURRENCY_FAV,
+                                sortOrder = sortOrder,
+                                sortType = sortType
+                            )
+                        }
                     }
                 }
             }
@@ -336,9 +339,18 @@ class UpBitExchange @Inject constructor(
             }
         }
 
-        val sortedList = Utils.sortTickerList(
-            tickerList = tickerList.toList(), sortType = sortType, sortOrder = sortOrder
-        )
+        val sortedList = if (tradeCurrency == TRADE_CURRENCY_FAV) {
+            Utils.sortTickerList(
+                tickerList = tickerList.toList(),
+                sortType = sortType,
+                sortOrder = sortOrder,
+                btcPrice = getBtcPrice()
+            )
+        } else {
+            Utils.sortTickerList(
+                tickerList = tickerList.toList(), sortType = sortType, sortOrder = sortOrder
+            )
+        }
 
         sortedList.forEachIndexed { index, ticker ->
             when (tradeCurrency) {
@@ -448,8 +460,11 @@ class UpBitExchange @Inject constructor(
         _favoriteExchangeModelList.clear()
     }
 
-    suspend fun changeTradeCurrencyAction() {
-        favoriteMarketChangeAction()
+    suspend fun changeTradeCurrencyAction(
+        sortOrder: SortOrder? = null,
+        sortType: SortType? = null
+    ) {
+        favoriteMarketChangeAction(sortOrder, sortType)
 
         if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
@@ -457,7 +472,7 @@ class UpBitExchange @Inject constructor(
         requestSubscribeTicker()
     }
 
-    private suspend fun favoriteMarketChangeAction() {
+    private suspend fun favoriteMarketChangeAction(sortOrder: SortOrder?, sortType: SortType?) {
         getFavoriteList()
         _favoriteExchangeModelList.clear()
         favoriteModelPosition.clear()
@@ -492,7 +507,7 @@ class UpBitExchange @Inject constructor(
                 }
             }
 
-            updateTickerData()
+            updateTickerData(sortOrder, sortType)
             requestSubscribeTicker()
         }
     }

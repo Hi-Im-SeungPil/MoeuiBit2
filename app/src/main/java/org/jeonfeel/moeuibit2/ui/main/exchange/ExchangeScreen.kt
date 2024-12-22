@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
@@ -69,7 +68,6 @@ import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -77,10 +75,10 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.ui.main.exchange.newExchange.ExchangeScreenRoute
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeErrorScreen
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeScreenLazyColumns
 import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
-import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.showToast
 import kotlin.system.exitProcess
 

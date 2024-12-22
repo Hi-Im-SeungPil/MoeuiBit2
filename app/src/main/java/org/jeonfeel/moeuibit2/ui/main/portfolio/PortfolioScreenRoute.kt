@@ -1,8 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -14,10 +12,12 @@ import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.EditUserHoldCoinDialog
+import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.RemoveCoinBottomSheet
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioScreenRoute(
     viewModel: PortfolioViewModel = hiltViewModel(),
@@ -58,6 +58,13 @@ fun PortfolioScreenRoute(
         stringResource(id = R.string.loadAd)
     )
 
+    if (viewModel.showRemoveCoinDialogState.value) {
+        RemoveCoinBottomSheet(
+            removeCoinList = viewModel.removeCoinInfo,
+            hideSheet = viewModel::hideBottomSheet
+        )
+    }
+
     AddLifecycleEvent(
         onCreateAction = {
             Logger.e("onCreate")
@@ -89,6 +96,7 @@ fun PortfolioScreenRoute(
         appNavController = appNavController,
         earnReward = viewModel::earnReward,
         portfolioSearchTextState = viewModel.portfolioSearchTextState,
-        getList = holder::getList
+        getList = holder::getList,
+        findWrongCoin = viewModel::findWrongCoin
     )
 }

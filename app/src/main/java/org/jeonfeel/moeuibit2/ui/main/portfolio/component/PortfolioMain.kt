@@ -1,13 +1,11 @@
-package org.jeonfeel.moeuibit2.ui.main.portfolio
+package org.jeonfeel.moeuibit2.ui.main.portfolio.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +22,8 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.UserHoldCoinPieChart
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
+import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenStateHolder
+import org.jeonfeel.moeuibit2.ui.main.portfolio.getReturnTextColor
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
 import java.math.BigDecimal
 

@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main.exchange
+package org.jeonfeel.moeuibit2.ui.main.exchange.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,14 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
-import org.jeonfeel.moeuibit2.constants.SYMBOL_USD
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
