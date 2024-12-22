@@ -331,9 +331,9 @@ fun UserHoldCoinLazyColumnItem(
                 imageModel = coinImageUrl.plus("$symbol.png"), modifier = Modifier
                     .padding(start = 8.dp, bottom = 12.dp)
                     .size(30.dp)
-                    .clip(
-                        CircleShape
-                    )
+                    .clip(CircleShape)
+                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+                    .background(Color.White)
                     .align(Alignment.CenterVertically)
             )
             Column(

@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.lifecycle.*
+import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -17,13 +17,17 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
-import org.jeonfeel.moeuibit2.constants.*
+import org.jeonfeel.moeuibit2.constants.BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.defaultDispatcher
+import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -34,6 +38,29 @@ import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
 import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.arrayListOf
+import kotlin.collections.associateBy
+import kotlin.collections.emptyList
+import kotlin.collections.find
+import kotlin.collections.forEach
+import kotlin.collections.forEachIndexed
+import kotlin.collections.get
+import kotlin.collections.ifEmpty
+import kotlin.collections.isNotEmpty
+import kotlin.collections.listOf
+import kotlin.collections.map
+import kotlin.collections.minus
+import kotlin.collections.mutableMapOf
+import kotlin.collections.remove
+import kotlin.collections.set
+import kotlin.collections.sortBy
+import kotlin.collections.sortByDescending
+import kotlin.collections.sumOf
+import kotlin.collections.toList
 
 class PortfolioState {
 }
@@ -42,8 +69,7 @@ class PortfolioState {
 class PortfolioViewModel @Inject constructor(
     val adMobManager: AdMobManager,
     val preferenceManager: PreferencesManager,
-    private val localRepository: LocalRepository,
-    private val upbitUseCase: UpbitExchangeUseCase,
+    private val upbitUseCase: UpbitPortfolioUsecase,
     private val cacheManager: CacheManager,
 ) : BaseViewModel(preferenceManager) {
 
@@ -205,10 +231,6 @@ class PortfolioViewModel @Inject constructor(
             tempTotalPurchase = tempTotalPurchase.plus(Calculator.getTotalPurchase(myCoin!!))
         }
 
-        Logger.e(_totalPurchase.value.toString())
-//        val tempTotalPurchase = myCoinList.sumOf { Calculator.getTotalPurchase(it!!) }
-        Logger.e(tempTotalPurchase.toString())
-
         _totalPurchase.value = tempTotalPurchase
 
         userHoldCoinsMarkets.clear()
@@ -243,12 +265,12 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
-        _userSeedMoney.longValue = localRepository.getUserDao().all?.krw ?: 0L
+        _userSeedMoney.longValue = upbitUseCase.getUserSeedMoney()
     }
 
     private suspend fun getUserHoldCoins() {
         myCoinList.clear()
-        myCoinList.addAll(localRepository.getMyCoinDao().all ?: emptyList())
+        myCoinList.addAll(upbitUseCase.getMyCoins())
     }
 
     private suspend fun parseMyCoinToUserHoldCoin(list: List<MyCoin?>? = null) {
@@ -355,7 +377,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun requestSubscribeTicker(markets: List<String>) {
-        upbitUseCase.requestPortfolioSubscribeTicker(marketCodes = markets)
+        upbitUseCase.requestSubscribeTicker(marketCodes = markets)
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
@@ -410,6 +432,12 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
+    fun findWrongCoin() {
+        // 바텀 시트 에서 잘못 된 코인 리스트 보여주고 체크 후 삭제 버튼 누르기.
+        //  marketAll 받아와서 map으로 만들고, 체크 후 상폐여부 결정
+        // 그 외에 무한대, 수량 0인것 등등 체크 해보자.
+    }
+
     fun editUserHoldCoin() {
 //        var count = 0
 //        _isPortfolioSocketRunning.value = false
@@ -441,16 +469,13 @@ class PortfolioViewModel @Inject constructor(
 //                    _isPortfolioSocketRunning.value = false
 //                    getUserHoldCoins()
 //                }
-//                state.removeCoinCount.value = count
-//                delay(100L)
-//                state.removeCoinCount.value = 0
 //            }
 //        }
     }
 
     fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
-            val userDao = localRepository.getUserDao()
+            val userDao = upbitUseCase.getUserDao()
             if (userDao.all == null) {
                 userDao.insert()
             } else {
@@ -461,7 +486,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun errorReward() {
         viewModelScope.launch(ioDispatcher) {
-            val userDao = localRepository.getUserDao()
+            val userDao = upbitUseCase.getUserDao()
             if (userDao.all == null) {
                 userDao.errorInsert()
             } else {
@@ -470,34 +495,8 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
-    fun updateFavorite(market: String, isFavorite: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
-            if (market.isNotEmpty()) {
-                when {
-                    MoeuiBitDataStore.upBitFavoriteHashMap[market] == null && isFavorite -> {
-                        MoeuiBitDataStore.upBitFavoriteHashMap[market] = 0
-                        try {
-                            localRepository.getFavoriteDao().insert(market)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-
-                    MoeuiBitDataStore.upBitFavoriteHashMap[market] != null && !isFavorite -> {
-                        MoeuiBitDataStore.upBitFavoriteHashMap.remove(market)
-                        try {
-                            localRepository.getFavoriteDao().delete(market)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private suspend fun collectTicker() {
-        upbitUseCase.observePotfolioTickerResponse().onEach { result ->
+        upbitUseCase.observeTickerResponse().onEach { result ->
             _tickerResponse.update {
                 result
             }

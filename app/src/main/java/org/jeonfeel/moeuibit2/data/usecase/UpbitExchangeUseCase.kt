@@ -164,25 +164,25 @@ class UpbitExchangeUseCase @Inject constructor(
         return localRepository.getFavoriteDao().all
     }
 
-    /**
-     * 업비트 Ticker 구독 요청
-     */
-    suspend fun requestPortfolioSubscribeTicker(
-        marketCodes: List<String>,
-    ) {
-        upBitSocketService.requestUpbitPortfolioTickerRequest(
-            listOf(
-                RequestTicketField(ticket = UUID.randomUUID().toString()),
-                RequestTypeField(
-                    type = "ticker",
-                    codes = marketCodes,
-                ),
-                RequestFormatField()
-            )
-        )
-    }
-
-    fun observePotfolioTickerResponse(): Flow<UpbitSocketTickerRes> {
-        return upBitSocketService.collectUpbitPortfolioTickers()
-    }
+//    /**
+//     * 업비트 Ticker 구독 요청
+//     */
+//    suspend fun requestPortfolioSubscribeTicker(
+//        marketCodes: List<String>,
+//    ) {
+//        upBitSocketService.requestUpbitPortfolioTickerRequest(
+//            listOf(
+//                RequestTicketField(ticket = UUID.randomUUID().toString()),
+//                RequestTypeField(
+//                    type = "ticker",
+//                    codes = marketCodes,
+//                ),
+//                RequestFormatField()
+//            )
+//        )
+//    }
+//
+//    fun observePotfolioTickerResponse(): Flow<UpbitSocketTickerRes> {
+//        return upBitSocketService.collectUpbitPortfolioTickers()
+//    }
 }

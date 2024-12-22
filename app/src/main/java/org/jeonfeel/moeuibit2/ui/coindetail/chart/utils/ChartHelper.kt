@@ -444,8 +444,11 @@ fun CombinedChart.chartRefreshSettings(
 
         val candleData = CandleData(candleDataSet)
         val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
-        if (barData.entryCount == 1) {
+        if (barData.entryCount == 1 || barData.entryCount == 2) {
             this.axisLeft.axisMaximum = barData.yMax * 5
+        } else {
+            this.axisLeft.resetAxisMaximum()
+            this.axisLeft.spaceTop = 400f
         }
         val combinedData = CombinedData()
         combinedData.setData(candleData)

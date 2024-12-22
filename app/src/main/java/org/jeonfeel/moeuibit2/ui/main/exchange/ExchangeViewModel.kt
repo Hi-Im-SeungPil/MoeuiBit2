@@ -158,6 +158,7 @@ class ExchangeViewModel @Inject constructor(
             state.tradeCurrencyState.intValue = tradeCurrency
             marketChangeJob?.cancel()
             marketChangeJob = viewModelScope.launch(ioDispatcher) {
+                state.isUpdateExchange.value = false
                 when (rootExchange) {
                     ROOT_EXCHANGE_UPBIT -> {
                         upBitExchange.changeTradeCurrencyAction()

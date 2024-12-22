@@ -117,42 +117,37 @@ class UpBitExchange @Inject constructor(
     }
 
     private suspend fun favoriteOnResume() {
+        // 즐겨찾기 목록을 가져옵니다.
         getFavoriteList()
-        if (favoriteList.size < _favoriteExchangeModelList.size) {
-            val count = _favoriteExchangeModelList.size - favoriteList.size
-            var removeCount = 0
 
-            val tempFavoriteList = favoriteList.associateWith { true }
-            val removeKeyList = arrayListOf<String>()
+        // 제거된 코인 처리
+        val favoriteSet = favoriteList.toSet()
+        val removeKeyList = _favoriteExchangeModelList
+            .map { it.market }
+            .filterNot { it in favoriteSet }
 
-            favoriteModelPosition.keys.forEach { key ->
-                if (tempFavoriteList[key] == null) {
-                    removeKeyList.add(key)
-                    removeCount++
+        if (removeKeyList.isNotEmpty()) {
+            _favoriteExchangeModelList.removeAll { it.market in removeKeyList }
+            favoriteModelPosition.clear()
 
-                    if (count == removeCount) {
-                        return@forEach
-                    }
-                }
+            _favoriteExchangeModelList.forEachIndexed { index, model ->
+                favoriteModelPosition[model.market] = index
+            }
+        }
+
+        // 추가된 코인 처리
+        val newFavorites =
+            favoriteList.filterNot { it in _favoriteExchangeModelList.map { model -> model.market } }
+
+        if (newFavorites.isNotEmpty()) {
+            val newModels = newFavorites.map { market ->
+                CommonExchangeModel(market = market) // 필요한 데이터를 생성
             }
 
-            val tempList = arrayListOf<CommonExchangeModel>().apply {
-                addAll(_favoriteExchangeModelList)
-            }
+            _favoriteExchangeModelList.addAll(newModels)
 
-            if (removeKeyList.isNotEmpty()) {
-                favoriteModelPosition.clear()
-
-                removeKeyList.forEach { key ->
-                    tempList.removeIf { it.market == key }
-                }
-
-                _favoriteExchangeModelList.clear()
-                _favoriteExchangeModelList.addAll(tempList)
-
-                tempList.forEachIndexed { index, commonExchangeModel ->
-                    favoriteModelPosition[commonExchangeModel.market] = index
-                }
+            _favoriteExchangeModelList.forEachIndexed { index, model ->
+                favoriteModelPosition[model.market] = index
             }
         }
     }
@@ -456,7 +451,7 @@ class UpBitExchange @Inject constructor(
     suspend fun changeTradeCurrencyAction() {
         favoriteMarketChangeAction()
 
-        if (tradeCurrencyState?.value == SELECTED_FAVORITE) return
+        if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
         updateTickerData()
         requestSubscribeTicker()
@@ -521,7 +516,7 @@ class UpBitExchange @Inject constructor(
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 
-                if(upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
+                if (upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
 
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null

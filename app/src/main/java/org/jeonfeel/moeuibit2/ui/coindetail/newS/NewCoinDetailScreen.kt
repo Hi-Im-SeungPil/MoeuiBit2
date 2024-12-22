@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newS
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -123,9 +125,14 @@ fun NewCoinDetailTopAppBar(
     backPressed: () -> Boolean
 ) {
     Row(modifier = Modifier.background(Color.White)) {
-        IconButton(onClick = {
-            backPressed()
-        }) {
+        IconButton(
+            modifier = Modifier
+                .padding(start = 15.dp)
+                .size(25.dp)
+                .align(Alignment.CenterVertically),
+            onClick = {
+                backPressed()
+            }) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
@@ -161,18 +168,24 @@ fun NewCoinDetailTopAppBar(
             )
         }
 
-        IconButton(onClick = {
-            updateIsFavorite()
-            if (isFavorite.value) {
-                showToast("관심목록에 추가되었습니다.")
-            } else {
-                showToast("관심목록에서 삭제되었습니다.")
-            }
-        }) {
+        IconButton(
+            modifier = Modifier
+                .padding(end = 15.dp)
+                .size(25.dp)
+                .align(Alignment.CenterVertically),
+            onClick = {
+                updateIsFavorite()
+                if (isFavorite.value) {
+                    showToast("관심목록에 추가되었습니다.")
+                } else {
+                    showToast("관심목록에서 삭제되었습니다.")
+                }
+            }) {
             Icon(
-                Icons.Default.Star,
+                painter = if (isFavorite.value) painterResource(R.drawable.img_filled_star)
+                else painterResource(R.drawable.img_empty_star),
                 contentDescription = null,
-                tint = Color.Black
+                tint = Color.Unspecified
             )
         }
     }
@@ -195,81 +208,82 @@ fun CoinDetailPriceSection(
 //            .fillMaxWidth()
 //            .wrapContentHeight()
 //    ) {
-        Row(
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .background(Color.White)
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(1f)
                 .wrapContentHeight()
-                .background(Color.White)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentHeight()
-            ) {
-                Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
+            Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
+                Text(
+                    text = price,
+                    style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
+                )
+                if (!market.isTradeCurrencyKrw()) {
                     Text(
-                        text = price,
-                        style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
-                    )
-                    if (!market.isTradeCurrencyKrw()) {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 10.dp)
-                                .align(Alignment.Bottom),
-                            text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
-                                .plus(" KRW"),
-                            style = TextStyle(
-                                color = Color.Gray,
-                                fontSize = DpToSp(dp = 11.dp)
-                            )
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .padding(20.dp, 7.dp, 0.dp, 10.dp)
-                        .wrapContentHeight()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.netChange), modifier = Modifier
-                            .wrapContentWidth()
-                            .padding(0.dp, 0.dp, 10.dp, 0.dp),
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                            .align(Alignment.Bottom),
+                        text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
+                            .plus(" KRW"),
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = DpToSp(13.dp)
+                            color = Color.Gray,
+                            fontSize = DpToSp(dp = 11.dp)
                         )
-                    )
-                    Text(
-                        text = fluctuateRate,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(color = priceTextColor, fontSize = DpToSp(13.dp)),
-                        maxLines = 1
-                    )
-                    AutoSizeText(
-                        text = fluctuatePrice,
-                        modifier = Modifier
-                            .padding(start = 30.dp)
-                            .align(Alignment.CenterVertically),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.Start,
-                            fontSize = DpToSp(13.dp)
-                        ),
-                        color = priceTextColor
                     )
                 }
             }
-            // 코인 상세화면 코인 이미지
-            GlideImage(
-                imageModel = coinImageUrl.plus("$symbol.png"),
+            Row(
                 modifier = Modifier
-                    .padding(end = 20.dp)
-                    .clip(CircleShape)
-                    .size(65.dp)
-                    .background(Color.White),
-                error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
-            )
+                    .padding(20.dp, 7.dp, 0.dp, 10.dp)
+                    .wrapContentHeight()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.netChange), modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(0.dp, 0.dp, 10.dp, 0.dp),
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = DpToSp(13.dp)
+                    )
+                )
+                Text(
+                    text = fluctuateRate,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(color = priceTextColor, fontSize = DpToSp(13.dp)),
+                    maxLines = 1
+                )
+                AutoSizeText(
+                    text = fluctuatePrice,
+                    modifier = Modifier
+                        .padding(start = 30.dp)
+                        .align(Alignment.CenterVertically),
+                    textStyle = TextStyle(
+                        textAlign = TextAlign.Start,
+                        fontSize = DpToSp(13.dp)
+                    ),
+                    color = priceTextColor
+                )
+            }
         }
-        // 코인 상세화면 주문 ,차트 ,정보 버튼
+        // 코인 상세화면 코인 이미지
+        GlideImage(
+            imageModel = coinImageUrl.plus("$symbol.png"),
+            modifier = Modifier
+                .padding(end = 20.dp)
+                .clip(CircleShape)
+                .size(55.dp)
+                .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+                .background(Color.White),
+            error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
+        )
+    }
+    // 코인 상세화면 주문 ,차트 ,정보 버튼
 //    }
 }

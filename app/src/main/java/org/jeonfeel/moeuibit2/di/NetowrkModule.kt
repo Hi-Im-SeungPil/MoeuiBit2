@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitPortfolioSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
@@ -26,6 +27,7 @@ import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.repository.network.RemoteRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -147,5 +149,19 @@ class NetowrkModule {
         bitThumbService: BitThumbService
     ): RemoteRepository {
         return RemoteRepository(upBitService, usdtService, binanceService, bitThumbService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideUpbitPortfolioUsecase(
+        upbitRepository: UpbitRepository,
+        localRepository: LocalRepository,
+        @SocketModule.PortfolioSocket upbitSocketService: UpbitPortfolioSocketService
+    ): UpbitPortfolioUsecase {
+        return UpbitPortfolioUsecase(
+            upbitRepository = upbitRepository,
+            localRepository = localRepository,
+            upBitSocketService = upbitSocketService
+        )
     }
 }

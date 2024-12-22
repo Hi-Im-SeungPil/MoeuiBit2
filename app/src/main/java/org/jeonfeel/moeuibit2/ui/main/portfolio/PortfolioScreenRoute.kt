@@ -24,21 +24,9 @@ fun PortfolioScreenRoute(
     appNavController: NavHostController,
 ) {
     val context = LocalContext.current
-    val startForActivityResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val resultData = result.data
-                if (resultData != null) {
-                    val isFavorite = resultData.getBooleanExtra(KeyConst.INTENT_IS_FAVORITE, false)
-                    val market = resultData.getStringExtra(KeyConst.INTENT_MARKET) ?: ""
-                    viewModel.updateFavorite(market = market, isFavorite = isFavorite)
-                }
-            }
-        }
 
     val holder = rememberPortfolioScreenStateHolder(
         context = context,
-        resultLauncher = startForActivityResult,
         adMobManager = viewModel.adMobManager,
         errorReward = viewModel::errorReward,
         earnReward = viewModel::earnReward,

@@ -27,7 +27,6 @@ import java.math.RoundingMode
 
 class PortfolioScreenStateHolder(
     val context: Context,
-    val resultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     val adMobManager: AdMobManager,
     val errorReward: () -> Unit,
     val earnReward: () -> Unit,
@@ -252,7 +251,6 @@ class PortfolioScreenStateHolder(
 @Composable
 fun rememberPortfolioScreenStateHolder(
     context: Context,
-    resultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     adMobManager: AdMobManager,
     errorReward: () -> Unit,
     earnReward: () -> Unit,
@@ -262,7 +260,6 @@ fun rememberPortfolioScreenStateHolder(
 ) = remember() {
     PortfolioScreenStateHolder(
         context = context,
-        resultLauncher = resultLauncher,
         adMobManager = adMobManager,
         errorReward = errorReward,
         earnReward = earnReward,

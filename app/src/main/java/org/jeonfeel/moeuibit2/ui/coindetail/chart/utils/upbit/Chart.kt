@@ -89,6 +89,12 @@ class Chart @Inject constructor(
             preferenceManager.getString(KeyConst.PREF_KEY_CHART_LAST_PERIOD).collect {
                 state.candleType.value = it
                 when {
+                    it.isEmpty() -> {
+                        state.candleType.value = "1"
+                        state.selectedButton.value = MINUTE_SELECT
+                        state.minuteText.value = "1분"
+                    }
+
                     it.toIntOrNull() is Int -> {
                         state.minuteText.value = it + "분"
                     }
@@ -118,7 +124,6 @@ class Chart @Inject constructor(
         candleType: String = state.candleType.value,
         market: String
     ) {
-        Logger.e("${System.identityHashCode(this)}")
         state.isUpdateChart.value = false
         state.loadingDialogState.value = true
         val getChartCandleReq = GetChartCandleReq(

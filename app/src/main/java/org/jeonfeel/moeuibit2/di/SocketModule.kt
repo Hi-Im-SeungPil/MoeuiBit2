@@ -15,6 +15,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
+import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitPortfolioSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
@@ -50,6 +51,14 @@ class SocketModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class CoinDetailSocket
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class PortfolioSocketType
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class PortfolioSocket
 
     @Singleton
     @Provides
@@ -131,6 +140,35 @@ class SocketModule {
         @CoinDetailSocketType okHttpClient: OkHttpClient,
         @ApplicationContext context: Context
     ): UpbitCoinDetailSocketService {
+        return thunder {
+            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            setApplicationContext(context)
+            setConverterType(ConverterType.Serialization)
+        }.create()
+    }
+
+    @Singleton
+    @Provides
+    @PortfolioSocketType
+    fun providePortfolioOkHttpClientClient(): OkHttpClient {
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            .addInterceptor(httpLoggingInterceptor)
+            .pingInterval(
+                10,
+                TimeUnit.SECONDS
+            ).build()
+    }
+
+    @Singleton
+    @Provides
+    @PortfolioSocket
+    fun providePortfolioSocketService(
+        @CoinDetailSocketType okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpbitPortfolioSocketService {
         return thunder {
             setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
             setApplicationContext(context)
