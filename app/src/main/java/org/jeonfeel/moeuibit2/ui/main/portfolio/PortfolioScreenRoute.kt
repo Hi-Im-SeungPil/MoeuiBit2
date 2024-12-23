@@ -1,7 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +28,14 @@ fun PortfolioScreenRoute(
     appNavController: NavHostController,
 ) {
     val context = LocalContext.current
+
+    BackHandler {
+        if (viewModel.showRemoveCoinDialogState.value) {
+            viewModel.hideBottomSheet()
+        } else {
+            appNavController.popBackStack()
+        }
+    }
 
     val holder = rememberPortfolioScreenStateHolder(
         context = context,
@@ -58,13 +70,6 @@ fun PortfolioScreenRoute(
         stringResource(id = R.string.loadAd)
     )
 
-    if (viewModel.showRemoveCoinDialogState.value) {
-        RemoveCoinBottomSheet(
-            removeCoinList = viewModel.removeCoinInfo,
-            hideSheet = viewModel::hideBottomSheet
-        )
-    }
-
     AddLifecycleEvent(
         onCreateAction = {
             Logger.e("onCreate")
@@ -77,26 +82,39 @@ fun PortfolioScreenRoute(
             }
         },
         onPauseAction = {
+            if (viewModel.showRemoveCoinDialogState.value) {
+                viewModel.hideBottomSheet()
+            }
             viewModel.onPause()
         }
     )
 
-    PortfolioScreen(
-        portfolioOrderState = viewModel.portfolioOrderState,
-        totalValuedAssets = viewModel.totalValuedAssets,
-        totalPurchase = viewModel.totalPurchase,
-        userSeedMoney = viewModel.userSeedMoney,
-        adDialogState = holder.adConfirmDialogState,
-        userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
-        sortUserHoldCoin = viewModel::sortUserHoldCoin,
-        getUserCoinInfo = holder::getUserCoinResultMap,
-        getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
-        loadingState = viewModel.loadingState,
-        currentBTCPrice = viewModel.btcTradePrice,
-        appNavController = appNavController,
-        earnReward = viewModel::earnReward,
-        portfolioSearchTextState = viewModel.portfolioSearchTextState,
-        getList = holder::getList,
-        findWrongCoin = viewModel::findWrongCoin
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        PortfolioScreen(
+            portfolioOrderState = viewModel.portfolioOrderState,
+            totalValuedAssets = viewModel.totalValuedAssets,
+            totalPurchase = viewModel.totalPurchase,
+            userSeedMoney = viewModel.userSeedMoney,
+            adDialogState = holder.adConfirmDialogState,
+            userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
+            sortUserHoldCoin = viewModel::sortUserHoldCoin,
+            getUserCoinInfo = holder::getUserCoinResultMap,
+            getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
+            loadingState = viewModel.loadingState,
+            currentBTCPrice = viewModel.btcTradePrice,
+            appNavController = appNavController,
+            earnReward = viewModel::earnReward,
+            portfolioSearchTextState = viewModel.portfolioSearchTextState,
+            getList = holder::getList,
+            findWrongCoin = viewModel::findWrongCoin
+        )
+
+        RemoveCoinBottomSheet(
+            removeCoinList = viewModel.removeCoinInfo,
+            hideSheet = viewModel::hideBottomSheet,
+            dialogState = viewModel.showRemoveCoinDialogState,
+            checkList = viewModel.removeCoinCheckedState,
+            updateCheckedList = viewModel::updateRemoveCoinCheckState
+        )
+    }
 }

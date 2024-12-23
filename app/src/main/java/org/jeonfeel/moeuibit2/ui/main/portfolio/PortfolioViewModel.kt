@@ -108,8 +108,11 @@ class PortfolioViewModel @Inject constructor(
 
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
 
-    private val _removeCoinInfo = SnapshotStateList<String>()
-    val removeCoinInfo: List<String> get() = _removeCoinInfo
+    private val _removeCoinInfo = SnapshotStateList<Pair<String, String>>()
+    val removeCoinInfo: List<Pair<String, String>> get() = _removeCoinInfo
+
+    private val _removeCoinCheckedList = SnapshotStateList<Boolean>()
+    val removeCoinCheckedState: List<Boolean> get() = _removeCoinCheckedList
 
     private val showRemoveCoinDialog = mutableStateOf(false)
     val showRemoveCoinDialogState: State<Boolean> get() = showRemoveCoinDialog
@@ -442,6 +445,20 @@ class PortfolioViewModel @Inject constructor(
         showRemoveCoinDialog.value = false
     }
 
+    fun updateRemoveCoinCheckState(index: Int = 0) { //-1 은 selectAll
+        if (index == -1) {
+            _removeCoinCheckedList.replaceAll { true }
+            return
+        }
+
+        if (index == -2) {
+            _removeCoinCheckedList.replaceAll { false }
+            return
+        }
+
+        _removeCoinCheckedList[index] = !_removeCoinCheckedList[index]
+    }
+
     fun findWrongCoin() {
         // 바텀 시트 에서 잘못 된 코인 리스트 보여주고 체크 후 삭제 버튼 누르기.
         //  marketAll 받아와서 map으로 만들고, 체크 후 상폐여부 결정
@@ -450,6 +467,7 @@ class PortfolioViewModel @Inject constructor(
 
         viewModelScope.launch {
             _removeCoinInfo.clear()
+            _removeCoinCheckedList.clear()
 
             executeUseCase<List<UpbitMarketCodeRes>>(
                 target = upbitUseCase.getMarketCode(),
@@ -460,20 +478,47 @@ class PortfolioViewModel @Inject constructor(
                     val marketAll = it.map { it.market }.associateBy { it }
 
                     myCoinList.forEach {
-                        if (!marketAll.containsKey(it?.market)
-                            || it?.quantity == 0.0
-                            || it?.purchasePrice == 0.0
-                            || it?.quantity == Double.POSITIVE_INFINITY
-                            || it?.quantity == Double.NEGATIVE_INFINITY
-                        ) {
-                            _removeCoinInfo.add(it!!.market)
+                        val reason = when {
+                            !marketAll.containsKey(it?.market) -> {
+                                "거래를 지원하지 않는 코인입니다."
+                            }
+
+                            it?.quantity == 0.0 -> {
+                                "보유 수량이 0입니다."
+                            }
+
+                            it?.purchasePrice == 0.0 -> {
+                                "매수 가격이 0입니다."
+                            }
+
+                            it?.quantity == Double.POSITIVE_INFINITY
+                                    || it?.quantity == Double.NEGATIVE_INFINITY -> {
+                                "수량이 무한대 입니다."
+                            }
+
+                            else -> {
+                                ""
+                            }
+                        }
+
+                        if (reason.isNotEmpty()) {
+                            _removeCoinInfo.add(it!!.market to reason)
                         }
                     }
-                    _removeCoinInfo.add("KRW-BTC")
-                    _removeCoinInfo.add("KRW-BTC")
-                    _removeCoinInfo.add("KRW-BTC")
-                    _removeCoinInfo.add("KRW-BTC")
-                    _removeCoinInfo.add("KRW-BTC")
+                    _removeCoinInfo.add("KRW-BTC" to "보유 수량이 0입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "매수가격이 0입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+
+                    _removeCoinCheckedList.addAll(List(removeCoinInfo.size) { false })
 
                     showRemoveCoinDialog.value = true
                 }
