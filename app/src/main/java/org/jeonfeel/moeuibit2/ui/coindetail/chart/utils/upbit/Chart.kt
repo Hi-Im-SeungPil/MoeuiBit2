@@ -110,13 +110,13 @@ class Chart @Inject constructor(
                     }
                 }
                 chartUpdateJob?.cancelAndJoin()
-                newRequestUpbitChartData(state.candleType.value, market)
                 getUserCoinPurchaseAverage(market)
+                newRequestUpbitChartData(state.candleType.value, market)
             }
         } else {
             chartUpdateJob?.cancelAndJoin()
-            newRequestUpbitChartData(candleType, market)
             getUserCoinPurchaseAverage(market)
+            newRequestUpbitChartData(candleType, market)
         }
     }
 

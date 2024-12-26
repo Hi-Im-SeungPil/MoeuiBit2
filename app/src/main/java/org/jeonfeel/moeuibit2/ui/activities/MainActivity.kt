@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.ui.activities
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.ViewGroup
+import android.widget.Button
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.navigation.compose.rememberNavController
