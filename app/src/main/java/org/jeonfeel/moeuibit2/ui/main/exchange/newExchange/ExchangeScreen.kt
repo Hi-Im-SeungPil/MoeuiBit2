@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -43,6 +45,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -54,11 +57,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -159,7 +164,7 @@ fun ExchangeScreen(
                     coinTickerListSwipeAction = stateHolder::coinTickerListSwipeAction,
                     pagerState = stateHolder.pagerState,
                     appNavController = appNavController,
-                    strValue = stateHolder.textFieldValueState,
+                    strValue = stateHolder.textFieldValueState
                 )
             }
         }
@@ -406,24 +411,26 @@ private fun CoinTickerSection(
                 fluctuateRate = item.signedChangeRate.toFloat(),
                 fluctuatePrice = item.signedChangePrice.toFloat(),
                 acc24h = item.accTradePrice24h.formattedUnitString(),
-                onClickEvent = {
-                    val market = item.market
-                    val warning = item.warning
-                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning") {
-                        launchSingleTop = true
-                        popUpTo(appNavController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        restoreState = true
-                    }
-                },
                 needAnimation = item.needAnimation,
                 market = item.market,
                 btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
                     .formattedStringForBtc(),
                 btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
                     .formattedUnitStringForBtc(),
-                strValue = strValue
+                strValue = strValue,
+                warning = item.warning,
+                onClickEvent = {
+                    val market = item.market
+                    val warning = item.warning
+                    val caution = item.caution
+                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
+                        launchSingleTop = true
+                        popUpTo(appNavController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }
             )
         }
     }
@@ -444,7 +451,8 @@ fun CoinTickerView(
     market: String,
     btcPriceMultiplyCoinPrice: String,
     btcPriceMultiplyAcc: String,
-    strValue: MutableState<String>
+    strValue: MutableState<String>,
+    warning: Boolean
 ) = Column {
     Row(
         modifier = modifier
@@ -489,15 +497,44 @@ fun CoinTickerView(
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(fontWeight = FontWeight.W600)
             )
-            Text(
-                modifier = Modifier.fillMaxSize(),
-                text = symbol,
-                textAlign = TextAlign.Center,
-                fontSize = DpToSp(11.dp),
-                style = TextStyle(
-                    color = Color(0xff8C939E)
+            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+                val (symbolRef, cautionRef) = createRefs()
+
+                Text(
+                    modifier = Modifier.constrainAs(symbolRef) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    },
+                    text = symbol,
+                    textAlign = TextAlign.Center,
+                    fontSize = DpToSp(11.dp),
+                    style = TextStyle(
+                        color = Color(0xff8C939E)
+                    )
                 )
-            )
+
+                if (warning) {
+                    Text(
+                        modifier = Modifier
+                            .constrainAs(cautionRef) {
+                                start.linkTo(symbolRef.end, margin = 4.dp)
+                                top.linkTo(symbolRef.top)
+                                bottom.linkTo(symbolRef.bottom)
+                            }
+                            .background(color = Color.Red)
+                            .padding(horizontal = 3.dp),
+                        text = "유",
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(
+                            color = Color.White,
+                            fontWeight = FontWeight.W600,
+                        ),
+                        fontSize = DpToSp(11.dp),
+                    )
+                }
+            }
         }
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             AutoSizeText(

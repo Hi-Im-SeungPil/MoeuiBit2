@@ -35,10 +35,11 @@ fun AppNavGraph(
         }
 
         composable(
-            "${AppScreen.CoinDetail.name}/{market}/{warning}",
+            "${AppScreen.CoinDetail.name}/{market}/{warning}/{caution}",
             arguments = listOf(
                 navArgument("market") { type = NavType.StringType },
-                navArgument("warning") { type = NavType.BoolType }
+                navArgument("warning") { type = NavType.BoolType },
+                navArgument("caution") { type = NavType. }
             ),
             enterTransition = {
                 slideIntoContainer(

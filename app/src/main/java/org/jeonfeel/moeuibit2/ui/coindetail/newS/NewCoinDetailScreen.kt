@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -21,7 +24,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,12 +38,15 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
@@ -199,91 +207,143 @@ fun CoinDetailPriceSection(
     fluctuatePrice: String,
     symbol: String,
     btcPrice: BigDecimal,
-    market: String
+    market: String,
+    cautionMessageList: List<String>
 ) {
-//    Column(
-//        modifier = Modifier
-//            .background(color = MaterialTheme.colorScheme.background)
-//            .padding(0.dp, 10.dp, 0.dp, 0.dp)
-//            .fillMaxWidth()
-//            .wrapContentHeight()
-//    ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .background(Color.White)
-    ) {
-        Column(
+    Column {
+
+
+        Row(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
                 .wrapContentHeight()
+                .background(Color.White)
         ) {
-            Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
-                Text(
-                    text = price,
-                    style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
-                )
-                if (!market.isTradeCurrencyKrw()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentHeight()
+            ) {
+                Row(modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)) {
                     Text(
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .align(Alignment.Bottom),
-                        text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
-                            .plus(" KRW"),
-                        style = TextStyle(
-                            color = Color.Gray,
-                            fontSize = DpToSp(dp = 11.dp)
+                        text = price,
+                        style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
+                    )
+                    if (!market.isTradeCurrencyKrw()) {
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 10.dp)
+                                .align(Alignment.Bottom),
+                            text = btcPrice.multiply(BigDecimal(price)).formattedStringForBtc()
+                                .plus(" KRW"),
+                            style = TextStyle(
+                                color = Color.Gray,
+                                fontSize = DpToSp(dp = 11.dp)
+                            )
                         )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(20.dp, 7.dp, 0.dp, 10.dp)
+                        .wrapContentHeight()
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.netChange), modifier = Modifier
+                            .wrapContentWidth()
+                            .padding(0.dp, 0.dp, 10.dp, 0.dp),
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = DpToSp(13.dp)
+                        )
+                    )
+                    Text(
+                        text = fluctuateRate,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically),
+                        style = TextStyle(color = priceTextColor, fontSize = DpToSp(13.dp)),
+                        maxLines = 1
+                    )
+                    AutoSizeText(
+                        text = fluctuatePrice,
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .align(Alignment.CenterVertically),
+                        textStyle = TextStyle(
+                            textAlign = TextAlign.Start,
+                            fontSize = DpToSp(13.dp)
+                        ),
+                        color = priceTextColor
                     )
                 }
             }
+            // 코인 상세화면 코인 이미지
+            GlideImage(
+                imageModel = coinImageUrl.plus("$symbol.png"),
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .clip(CircleShape)
+                    .size(55.dp)
+                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+                    .background(Color.White),
+                error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
+            )
+        }
+
+        if (cautionMessageList.isNotEmpty()) {
+            AutoScrollingBanner(cautionMessageList)
+        }
+    }
+}
+
+@Composable
+fun AutoScrollingBanner(items: List<String>) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        if (items.size <= 1) return@LaunchedEffect
+
+        while (true) {
+            delay(3000) // 3초마다 다음 아이템으로 이동
+            val nextIndex = (listState.firstVisibleItemIndex + 1) % items.size
+            coroutineScope.launch {
+                listState.animateScrollToItem(nextIndex)
+            }
+        }
+    }
+
+    LazyRow(
+        state = listState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+    ) {
+        items(items.size) { index ->
             Row(
                 modifier = Modifier
-                    .padding(20.dp, 7.dp, 0.dp, 10.dp)
-                    .wrapContentHeight()
+                    .fillParentMaxWidth()
+                    .padding(8.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.netChange), modifier = Modifier
-                        .wrapContentWidth()
-                        .padding(0.dp, 0.dp, 10.dp, 0.dp),
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = DpToSp(13.dp)
-                    )
+                    text = "주의",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(color = Color.Red, fontWeight = FontWeight.W700),
+                    fontSize = DpToSp(13.dp),
                 )
+
                 Text(
-                    text = fluctuateRate,
+                    text = items[index],
                     modifier = Modifier
+                        .padding(start = 4.dp)
+                        .fillMaxSize()
                         .align(Alignment.CenterVertically),
-                    style = TextStyle(color = priceTextColor, fontSize = DpToSp(13.dp)),
-                    maxLines = 1
-                )
-                AutoSizeText(
-                    text = fluctuatePrice,
-                    modifier = Modifier
-                        .padding(start = 30.dp)
-                        .align(Alignment.CenterVertically),
-                    textStyle = TextStyle(
-                        textAlign = TextAlign.Start,
-                        fontSize = DpToSp(13.dp)
-                    ),
-                    color = priceTextColor
+                    style = TextStyle(color = Color.Black),
+                    fontSize = DpToSp(11.dp)
                 )
             }
         }
-        // 코인 상세화면 코인 이미지
-        GlideImage(
-            imageModel = coinImageUrl.plus("$symbol.png"),
-            modifier = Modifier
-                .padding(end = 20.dp)
-                .clip(CircleShape)
-                .size(55.dp)
-                .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
-                .background(Color.White),
-            error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
-        )
     }
-    // 코인 상세화면 주문 ,차트 ,정보 버튼
-//    }
 }

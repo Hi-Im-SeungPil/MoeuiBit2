@@ -21,7 +21,6 @@ import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
 import org.jeonfeel.moeuibit2.utils.showToast
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioScreenRoute(
     viewModel: PortfolioViewModel = hiltViewModel(),

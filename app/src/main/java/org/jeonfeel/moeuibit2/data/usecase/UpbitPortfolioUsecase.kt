@@ -81,4 +81,10 @@ class UpbitPortfolioUsecase @Inject constructor(
     suspend fun getUserDao(): UserDAO {
         return localRepository.getUserDao()
     }
+
+    suspend fun removeCoin(market: String) {
+        localRepository.getFavoriteDao().delete(market)
+        localRepository.getMyCoinDao().delete(market)
+        localRepository.getTransactionInfoDao().delete(market)
+    }
 }

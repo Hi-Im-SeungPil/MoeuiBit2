@@ -93,6 +93,10 @@ class NewCoinDetailViewModel @Inject constructor(
         }.also { it.start() }
     }
 
+    private suspend fun requestMarketCode() {
+
+    }
+
     private suspend fun requestCoinTicker(market: String) {
         val getUpbitTickerReq = GetUpbitMarketTickerReq(
             market.coinOrderIsKrwMarket()

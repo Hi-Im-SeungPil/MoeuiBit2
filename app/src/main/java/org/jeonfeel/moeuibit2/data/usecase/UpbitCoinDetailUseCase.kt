@@ -32,6 +32,15 @@ class UpbitCoinDetailUseCase @Inject constructor(
         localRepository.getFavoriteDao().delete(market)
     }
 
+    suspend fun getMarketCode(): Flow<Any> {
+        return requestApiResult(
+            result = upbitRepository.getUpbitMarketCodeList(),
+            onSuccess = { result ->
+                result
+            }
+        )
+    }
+
     suspend fun getMarketTicker(
         getUpbitMarketTickerReq: GetUpbitMarketTickerReq,
         isList: Boolean = false

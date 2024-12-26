@@ -109,7 +109,7 @@ class PortfolioViewModel @Inject constructor(
     private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
 
     private val _removeCoinInfo = SnapshotStateList<Pair<String, String>>()
-    val removeCoinInfo: List<Pair<String, String>> get() = _removeCoinInfo
+    val removeCoinInfo: List<Pair<String, String>> get() = _removeCoinInfo // market reason
 
     private val _removeCoinCheckedList = SnapshotStateList<Boolean>()
     val removeCoinCheckedState: List<Boolean> get() = _removeCoinCheckedList
@@ -460,11 +460,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun findWrongCoin() {
-        // 바텀 시트 에서 잘못 된 코인 리스트 보여주고 체크 후 삭제 버튼 누르기.
-        //  marketAll 받아와서 map으로 만들고, 체크 후 상폐여부 결정
-        // 그 외에 무한대, 수량 0인것 등등 체크 해보자.
-        if (myCoinList.isEmpty()) return
-
+        //TODO TEST해야함 꼭
         viewModelScope.launch {
             _removeCoinInfo.clear()
             _removeCoinCheckedList.clear()
@@ -505,18 +501,18 @@ class PortfolioViewModel @Inject constructor(
                             _removeCoinInfo.add(it!!.market to reason)
                         }
                     }
-                    _removeCoinInfo.add("KRW-BTC" to "보유 수량이 0입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "매수가격이 0입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "보유 수량이 0입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "매수가격이 0입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
+//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
 
                     _removeCoinCheckedList.addAll(List(removeCoinInfo.size) { false })
 
@@ -527,38 +523,18 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun editUserHoldCoin() {
-//        var count = 0
-//        _isPortfolioSocketRunning.value = false
-//
-//        viewModelScope.launch(ioDispatcher) {
-//            if (UpBitTickerWebSocket.currentSocketState != SOCKET_IS_CONNECTED || NetworkMonitorUtil.currentNetworkState != INTERNET_CONNECTION) {
-//                _removeCoinCount.intValue = -1
-//                delay(100L)
-//                _removeCoinCount.intValue = -2
-//            } else {
-//                for (i in myCoinList) {
-//                    val targetList = if (i!!.market.startsWith(SYMBOL_KRW)) {
-//                        MoeuiBitDataStore.upBitKrwMarkets
-//                    } else {
-//                        MoeuiBitDataStore.upBitBtcMarkets
-//                    }
-//                    if (targetList[i.market] == null) {
-//                        localRepository.getFavoriteDao().delete(i.market)
-//                        localRepository.getMyCoinDao().delete(i.market)
-//                        localRepository.getTransactionInfoDao().delete(i.market)
-//                        count += 1
-//                    } else if () {
-//                        localRepository.getMyCoinDao().delete(i.market)
-//                        localRepository.getTransactionInfoDao().delete(i.market)
-//                        count += 1
-//                    }
-//                }
-//                if (count > 1) {
-//                    _isPortfolioSocketRunning.value = false
-//                    getUserHoldCoins()
-//                }
-//            }
-//        }
+        _isPortfolioSocketRunning.value = false
+
+        viewModelScope.launch(ioDispatcher) {
+            removeCoinInfo.forEachIndexed { index, pair ->
+                if (_removeCoinCheckedList[index]) {
+                    upbitUseCase.removeCoin(pair.first)
+                }
+            }
+
+            myCoinList.clear()
+            compareUserHoldCoinList()
+        }
     }
 
     fun earnReward() {

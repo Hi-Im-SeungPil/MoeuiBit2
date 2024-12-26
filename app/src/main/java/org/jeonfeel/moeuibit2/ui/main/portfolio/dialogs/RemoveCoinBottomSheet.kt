@@ -53,11 +53,11 @@ fun RemoveCoinBottomSheet(
     val context = LocalContext.current
 
     if (dialogState.value && removeCoinList.isEmpty()) {
-        hideSheet()
         context.showToast("삭제할 코인이 없습니다.")
-    } else if (OneTimeNetworkCheck.networkCheck(context) == null) {
         hideSheet()
+    } else if (OneTimeNetworkCheck.networkCheck(context) == null) {
         context.showToast("인터넷 상태를 확인해주세요.")
+        hideSheet()
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (dialogState.value) {
@@ -81,7 +81,7 @@ fun RemoveCoinBottomSheet(
             ) {
                 Column(
                     modifier = Modifier
-                        .requiredHeightIn(max = 700.dp)
+                        .requiredHeightIn(max = 600.dp)
                         .background(
                             color = Color.White,
                             shape = RoundedCornerShape(
@@ -146,6 +146,14 @@ fun RemoveCoinBottomSheet(
                                 fontWeight = FontWeight.Medium
                             )
                         )
+
+                        Text(
+                            text = "(${checkList.count { it }} / ${removeCoinList.size} )",
+                            modifier = Modifier
+                                .padding(end = 10.dp)
+                                .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = DpToSp(16.dp))
+                        )
                     }
 
                     LazyColumn(
@@ -208,12 +216,10 @@ fun RemoveCoinBottomSheet(
                             )
                             .padding(vertical = 20.dp)
                             .noRippleClickable {
-                                if (checkList.none { it }) {
-                                    hideSheet()
-                                    context.showToast("삭제할 코인이 없습니다.")
-                                } else {
-                                    // 코인 삭제
-                                }
+                                if (checkList.none { it }) return@noRippleClickable
+
+
+                                // 코인 삭제
                             }
                     ) {
                         Text(

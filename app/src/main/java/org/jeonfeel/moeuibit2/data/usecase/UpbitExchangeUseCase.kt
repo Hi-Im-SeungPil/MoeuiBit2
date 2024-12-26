@@ -114,22 +114,6 @@ class UpbitExchangeUseCase @Inject constructor(
         )
     }
 
-    suspend fun getMarketTicker(
-        getUpbitMarketTickerReq: GetUpbitMarketTickerReq,
-        isList: Boolean = false
-    ): Flow<Any> {
-        return requestApiResult(
-            result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),
-            onSuccess = { ticker ->
-                if (isList) {
-                    ticker
-                } else {
-                    ticker[0]
-                }
-            }
-        )
-    }
-
     /**
      * 업비트 Ticker 구독 요청
      */

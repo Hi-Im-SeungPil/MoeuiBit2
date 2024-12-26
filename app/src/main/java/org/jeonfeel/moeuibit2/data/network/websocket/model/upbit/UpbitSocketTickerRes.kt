@@ -103,7 +103,10 @@ data class UpbitSocketTickerRes(
     val tradeVolume: Double = 0.0,
 
     @SerialName("type")
-    val type: String = ""
+    val type: String = "",
+
+    @SerialName("market_warning")
+    val marketWarning: String = "NONE"
 
 ) {
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {
@@ -130,7 +133,8 @@ data class UpbitSocketTickerRes(
             lowPrice = lowPrice,
             signedChangePrice = signedChangePrice,
             timestamp = timestamp,
-            warning = getUpbitMarketCodeRes?.marketEvent?.warning ?: false,
+            warning = marketWarning == "CAUTION",
+            caution = getUpbitMarketCodeRes?.marketEvent?.caution,
             askBid = "NONE",
             prevClosingPrice = prevClosingPrice
         )
