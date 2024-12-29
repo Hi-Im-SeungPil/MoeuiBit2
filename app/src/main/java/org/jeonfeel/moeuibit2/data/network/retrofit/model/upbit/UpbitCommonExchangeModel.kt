@@ -33,4 +33,15 @@ data class CommonExchangeModel(
     val needAnimation: MutableState<String> = mutableStateOf(TickerAskBidState.NONE.name),
     val warning: Boolean = false,
     val caution: Caution? = null
-)
+) {
+    fun getIsCaution(): Boolean {
+        return if (caution != null) {
+            caution.concentrationOfSmallAccounts
+                    || caution.depositAmountSoaring
+                    || caution.priceFluctuations
+                    || caution.tradingVolumeSoaring
+        } else {
+            false
+        }
+    }
+}

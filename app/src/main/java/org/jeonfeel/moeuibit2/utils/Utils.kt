@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitDataStore
@@ -18,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object Utils {
+    val gson = Gson()
 
     fun String.coinOrderIsKrwMarket(): String {
         return when (this.isTradeCurrencyKrw()) {

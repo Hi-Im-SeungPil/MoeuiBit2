@@ -11,8 +11,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.coindetail.newS.CoinDetailScreenRoute
+import org.jeonfeel.moeuibit2.utils.Utils
 
 enum class AppScreen {
     Home,
@@ -31,7 +33,11 @@ fun AppNavGraph(
             AppScreen.Home.name,
             popExitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None }) {
-            MoeuiBitApp(networkErrorState = networkErrorState, appNavController = appNavController, bottomNavController = bottomNavController)
+            MoeuiBitApp(
+                networkErrorState = networkErrorState,
+                appNavController = appNavController,
+                bottomNavController = bottomNavController
+            )
         }
 
         composable(
@@ -39,7 +45,7 @@ fun AppNavGraph(
             arguments = listOf(
                 navArgument("market") { type = NavType.StringType },
                 navArgument("warning") { type = NavType.BoolType },
-                navArgument("caution") { type = NavType. }
+                navArgument("caution") { type = NavType.StringType }
             ),
             enterTransition = {
                 slideIntoContainer(
@@ -57,7 +63,14 @@ fun AppNavGraph(
             val market = backStackEntry.arguments?.getString("market") ?: ""
             val warning =
                 backStackEntry.arguments?.getBoolean("warning") ?: false
-            CoinDetailScreenRoute(market = market, warning = warning, appNavController = appNavController)
+            val caution = backStackEntry.arguments?.getString("caution") ?: ""
+            val cautionModel = Utils.gson.fromJson(caution, Caution::class.java)
+            CoinDetailScreenRoute(
+                market = market,
+                warning = warning,
+                cautionModel = cautionModel,
+                appNavController = appNavController
+            )
         }
     }
 }

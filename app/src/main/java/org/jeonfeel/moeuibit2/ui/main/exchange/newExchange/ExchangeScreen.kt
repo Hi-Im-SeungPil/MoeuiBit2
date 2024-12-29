@@ -8,6 +8,7 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -94,6 +96,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
 import org.jeonfeel.moeuibit2.utils.FallColor
 import org.jeonfeel.moeuibit2.utils.RiseColor
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.getFluctuateColor
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
@@ -309,7 +312,35 @@ private fun SortingSection(
         modifier = Modifier
             .padding(top = 4.dp, bottom = 6.dp)
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically), horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(9.dp)
+                    .background(color = Color.Red, shape = CircleShape)
+                    .align(Alignment.CenterVertically)
+            )
+            Text(
+                text = " 유의",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(color = Color.Red, fontSize = DpToSp(dp = 11.dp))
+            )
+            Spacer(modifier = Modifier.size(5.dp))
+            Box(
+                modifier = Modifier
+                    .size(9.dp)
+                    .align(Alignment.CenterVertically)
+                    .background(color = Color(0xffF2AD24), shape = CircleShape)
+            )
+            Text(
+                text = " 주의",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(color = Color(0xffF2AD24), fontSize = DpToSp(dp = 11.dp))
+            )
+        }
         SortButton(
             text = "현재가",
             sortType = SortType.PRICE,
@@ -419,10 +450,11 @@ private fun CoinTickerSection(
                     .formattedUnitStringForBtc(),
                 strValue = strValue,
                 warning = item.warning,
+                caution = item.getIsCaution(),
                 onClickEvent = {
                     val market = item.market
                     val warning = item.warning
-                    val caution = item.caution
+                    val caution = Utils.gson.toJson(item.caution)
                     appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
                         launchSingleTop = true
                         popUpTo(appNavController.graph.findStartDestination().id) {
@@ -452,7 +484,8 @@ fun CoinTickerView(
     btcPriceMultiplyCoinPrice: String,
     btcPriceMultiplyAcc: String,
     strValue: MutableState<String>,
-    warning: Boolean
+    warning: Boolean,
+    caution: Boolean
 ) = Column {
     Row(
         modifier = modifier
@@ -498,7 +531,7 @@ fun CoinTickerView(
                 style = TextStyle(fontWeight = FontWeight.W600)
             )
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-                val (symbolRef, cautionRef) = createRefs()
+                val (symbolRef, warningRef, cautionRef) = createRefs()
 
                 Text(
                     modifier = Modifier.constrainAs(symbolRef) {
@@ -516,22 +549,27 @@ fun CoinTickerView(
                 )
 
                 if (warning) {
-                    Text(
+                    Box(
                         modifier = Modifier
-                            .constrainAs(cautionRef) {
-                                start.linkTo(symbolRef.end, margin = 4.dp)
+                            .size(7.dp)
+                            .constrainAs(warningRef) {
+                                start.linkTo(symbolRef.end, margin = 3.dp)
                                 top.linkTo(symbolRef.top)
                                 bottom.linkTo(symbolRef.bottom)
                             }
-                            .background(color = Color.Red)
-                            .padding(horizontal = 3.dp),
-                        text = "유",
-                        textAlign = TextAlign.Center,
-                        style = TextStyle(
-                            color = Color.White,
-                            fontWeight = FontWeight.W600,
-                        ),
-                        fontSize = DpToSp(11.dp),
+                            .background(color = Color.Red, shape = CircleShape),
+                    )
+                }
+                if (caution) {
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .constrainAs(cautionRef) {
+                                start.linkTo(symbolRef.end, margin = if (warning) 13.dp else 3.dp)
+                                top.linkTo(symbolRef.top)
+                                bottom.linkTo(symbolRef.bottom)
+                            }
+                            .background(color = Color(0xffF2AD24), shape = CircleShape),
                     )
                 }
             }

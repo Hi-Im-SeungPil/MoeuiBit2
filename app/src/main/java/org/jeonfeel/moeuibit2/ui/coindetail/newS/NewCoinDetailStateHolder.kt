@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.EvenColor
@@ -17,11 +18,13 @@ import org.jeonfeel.moeuibit2.utils.decimalPoint
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
+import java.util.ArrayList
 import kotlin.math.abs
 
 class CoinDetailStateHolder(
     private val context: Context,
-    val navController: NavHostController
+    val navController: NavHostController,
+    private val caution: Caution
 ) {
     private var toast: Toast? = null
 
@@ -76,15 +79,35 @@ class CoinDetailStateHolder(
             fluctuatePrice.eighthDecimal()
         }
     }
+
+    fun getCautionMessageList(fluctuateRate: Double): List<String> {
+        val list = ArrayList<String>()
+
+//        when {
+//            abs(fluctuateRate) >= 50 -> list.add("가격 급등락 발생")
+//            caution.tradingVolumeSoaring -> list.add("거래량 급등 발생")
+//            caution.depositAmountSoaring -> list.add("입금량 급등 발생")
+//            caution.concentrationOfSmallAccounts -> list.add("소수 계정 거래 집중")
+//        }
+
+        list.add("가격 급등락 발생")
+        list.add("거래량 급등 발생")
+        list.add("입금량 급등 발생")
+        list.add("소수 계정 거래 집중")
+
+        return list
+    }
 }
 
 @Composable
 fun rememberCoinDetailStateHolder(
     context: Context,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    caution: Caution
 ) = remember {
     CoinDetailStateHolder(
         context = context,
-        navController = navController
+        navController = navController,
+        caution = caution
     )
 }

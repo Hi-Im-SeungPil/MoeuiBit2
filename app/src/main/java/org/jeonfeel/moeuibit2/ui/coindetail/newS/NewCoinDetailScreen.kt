@@ -1,11 +1,13 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.newS
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -21,19 +24,20 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,11 +48,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
@@ -59,6 +65,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.math.BigDecimal
+import kotlin.math.abs
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 
@@ -67,9 +74,10 @@ fun NewCoinDetailScreen(
     viewModel: NewCoinDetailViewModel = hiltViewModel(),
     market: String,
     warning: Boolean,
-    navController: NavHostController
+    navController: NavHostController,
+    caution: Caution
 ) {
-    val state = rememberCoinDetailStateHolder(context = LocalContext.current)
+    val state = rememberCoinDetailStateHolder(context = LocalContext.current, caution = caution)
 
     AddLifecycleEvent(
         onCreateAction = {
@@ -110,7 +118,10 @@ fun NewCoinDetailScreen(
                 viewModel.coinTicker.value?.signedChangeRate?.secondDecimal()?.toDouble() ?: 0.0
             ),
             btcPrice = viewModel.btcPrice.value,
-            market = market
+            market = market,
+            cautionMessageList = state.getCautionMessageList(
+                viewModel.coinTicker.value?.signedChangeRate ?: 0.0
+            )
         )
         CoinDetailMainTabRow(navController = state.navController)
         Box {
@@ -211,8 +222,6 @@ fun CoinDetailPriceSection(
     cautionMessageList: List<String>
 ) {
     Column {
-
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -301,47 +310,79 @@ fun AutoScrollingBanner(items: List<String>) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val itemSize = 25.dp
+    val density = LocalDensity.current
+    val itemSizePx = with(density) { itemSize.toPx() }
+    val itemsScrollCount = items.size
+
+    var currentIndex = remember { 0 }
+
     LaunchedEffect(Unit) {
         if (items.size <= 1) return@LaunchedEffect
 
         while (true) {
             delay(3000) // 3초마다 다음 아이템으로 이동
-            val nextIndex = (listState.firstVisibleItemIndex + 1) % items.size
             coroutineScope.launch {
-                listState.animateScrollToItem(nextIndex)
+                val isAtLastItem = currentIndex == itemsScrollCount
+                val scrollValue = if (isAtLastItem) itemSizePx else itemSizePx
+
+                listState.animateScrollBy(
+                    value = itemSizePx,
+                    animationSpec = tween(durationMillis = 1500)
+                )
+
+                if (currentIndex + 1 == itemsScrollCount) {
+                    listState.scrollToItem(0)
+                    currentIndex = 0
+                } else {
+                    currentIndex += 1
+                }
+
+//                if (isAtLastItem) {
+//                    // 스크롤 후 첫 번째 아이템으로 리셋
+////                    delay(300) // 애니메이션 후 짧은 딜레이
+//
+//                } else {
+//                    currentIndex += 1
+//                }
             }
         }
     }
 
-    LazyRow(
+    LazyColumn(
         state = listState,
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .height(25.dp)
+            .background(Color.White),
+        userScrollEnabled = false
     ) {
-        items(items.size) { index ->
+        items(items + items.first()) { item ->
             Row(
                 modifier = Modifier
                     .fillParentMaxWidth()
-                    .padding(8.dp)
+                    .height(25.dp)
             ) {
                 Text(
                     text = "주의",
                     modifier = Modifier
-                        .fillMaxSize()
+                        .padding(start = 20.dp, end = 10.dp)
                         .align(Alignment.CenterVertically),
-                    style = TextStyle(color = Color.Red, fontWeight = FontWeight.W700),
+                    style = TextStyle(
+                        color = Color.Red,
+                        fontWeight = FontWeight.W700,
+                        textAlign = TextAlign.Center
+                    ),
                     fontSize = DpToSp(13.dp),
                 )
 
                 Text(
-                    text = items[index],
+                    text = item,
                     modifier = Modifier
                         .padding(start = 4.dp)
-                        .fillMaxSize()
                         .align(Alignment.CenterVertically),
-                    style = TextStyle(color = Color.Black),
-                    fontSize = DpToSp(11.dp)
+                    style = TextStyle(color = Color.Black, textAlign = TextAlign.Center),
+                    fontSize = DpToSp(13.dp)
                 )
             }
         }
