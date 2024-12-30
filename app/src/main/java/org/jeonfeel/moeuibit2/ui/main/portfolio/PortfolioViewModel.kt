@@ -84,6 +84,9 @@ class PortfolioViewModel @Inject constructor(
     private val _userHoldCoinDtoList = SnapshotStateList<UserHoldCoinDTO>()
     val userHoldCoinDtoList: List<UserHoldCoinDTO> get() = _userHoldCoinDtoList
 
+    private val _marketCodeRes = mutableMapOf<String, UpbitMarketCodeRes>()
+    val marketCodeRes: Map<String, UpbitMarketCodeRes> get() = _marketCodeRes
+
     private val _totalValuedAssets = mutableStateOf(BigDecimal(0.0))
     val totalValuedAssets: State<BigDecimal> get() = _totalValuedAssets
 
@@ -129,6 +132,7 @@ class PortfolioViewModel @Inject constructor(
     fun onResume() {
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             getCoinName()
+            getMarketCodeRes()
             compareUserHoldCoinList()
         }.also { it.start() }
     }
@@ -225,7 +229,9 @@ class PortfolioViewModel @Inject constructor(
                     UserHoldCoinDTO(
                         currentPrice = beforeUserHoldCoinDTO.currentPrice,
                         openingPrice = beforeUserHoldCoinDTO.openingPrice,
-                        warning = "",
+                        warning = marketCodeRes[beforeUserHoldCoinDTO.market]?.marketEvent?.warning
+                            ?: false,
+                        caution = marketCodeRes[beforeUserHoldCoinDTO.market]?.marketEvent?.caution,
                         market = userHoldCoinDTO.market,
                         isFavorite = 0,
                         myCoinKoreanName = userHoldCoinDTO.myCoinKoreanName,
@@ -343,7 +349,7 @@ class PortfolioViewModel @Inject constructor(
                             UserHoldCoinDTO(
                                 currentPrice = it.tradePrice,
                                 openingPrice = it.prevClosingPrice,
-                                warning = "",
+                                warning = marketCodeRes[it.market]?.marketEvent?.warning ?: false,
                                 market = it.market,
                                 isFavorite = 0,
                                 myCoinKoreanName = tempDto.myCoinKoreanName,
@@ -352,9 +358,9 @@ class PortfolioViewModel @Inject constructor(
                                 myCoinsBuyingAverage = tempDto.myCoinsBuyingAverage,
                                 purchaseAverageBtcPrice = tempDto.purchaseAverageBtcPrice,
                                 myCoinsSymbol = tempDto.myCoinsSymbol,
-                                initialConstant = Utils.extractInitials(tempDto.myCoinKoreanName)
+                                initialConstant = Utils.extractInitials(tempDto.myCoinKoreanName),
+                                caution = marketCodeRes[it.market]?.marketEvent?.caution
                             )
-                        Logger.e("${Utils.extractInitials(tempDto.myCoinKoreanName)}")
                     }
                 }.fold(
                     onSuccess = {
@@ -459,18 +465,37 @@ class PortfolioViewModel @Inject constructor(
         _removeCoinCheckedList[index] = !_removeCoinCheckedList[index]
     }
 
+    private fun getMarketCodeRes() {
+        if (_marketCodeRes.isNotEmpty()) return
+
+        viewModelScope.launch {
+            executeUseCase<List<UpbitMarketCodeRes>>(
+                target = upbitUseCase.getMarketCode(),
+                onComplete = {
+                    it.associateBy { it.market }.forEach { (key, value) ->
+                        _marketCodeRes[key] = value
+                    }
+                }
+            )
+        }
+    }
+
     fun findWrongCoin() {
         //TODO TEST해야함 꼭
         viewModelScope.launch {
-            _removeCoinInfo.clear()
-            _removeCoinCheckedList.clear()
-
             executeUseCase<List<UpbitMarketCodeRes>>(
                 target = upbitUseCase.getMarketCode(),
                 onLoading = {
 
                 },
                 onComplete = {
+                    _removeCoinInfo.clear()
+                    _removeCoinCheckedList.clear()
+
+                    it.associateBy { it.market }.forEach { (key, value) ->
+                        _marketCodeRes[key] = value
+                    }
+
                     val marketAll = it.map { it.market }.associateBy { it }
 
                     myCoinList.forEach {
@@ -501,18 +526,6 @@ class PortfolioViewModel @Inject constructor(
                             _removeCoinInfo.add(it!!.market to reason)
                         }
                     }
-//                    _removeCoinInfo.add("KRW-BTC" to "보유 수량이 0입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "매수가격이 0입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "수량이 무한대 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
-//                    _removeCoinInfo.add("KRW-BTC" to "거래를 지원하지 않는 코인 입니다.")
 
                     _removeCoinCheckedList.addAll(List(removeCoinInfo.size) { false })
 
@@ -583,7 +596,9 @@ class PortfolioViewModel @Inject constructor(
                     UserHoldCoinDTO(
                         currentPrice = upbitSocketTickerRes.tradePrice,
                         openingPrice = upbitSocketTickerRes.prevClosingPrice,
-                        warning = "",
+                        warning = marketCodeRes[upbitSocketTickerRes.code]?.marketEvent?.warning
+                            ?: false,
+                        caution = marketCodeRes[upbitSocketTickerRes.code]?.marketEvent?.caution,
                         market = upbitSocketTickerRes.code,
                         isFavorite = 0,
                         myCoinKoreanName = tempDto.myCoinKoreanName,

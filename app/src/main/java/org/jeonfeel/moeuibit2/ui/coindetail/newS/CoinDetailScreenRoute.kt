@@ -10,7 +10,7 @@ fun CoinDetailScreenRoute(
     market: String,
     warning: Boolean,
     appNavController: NavHostController,
-    cautionModel: Caution
+    cautionModel: Caution?
 ) {
     BackHandler {
         appNavController.popBackStack()

@@ -64,7 +64,8 @@ fun AppNavGraph(
             val warning =
                 backStackEntry.arguments?.getBoolean("warning") ?: false
             val caution = backStackEntry.arguments?.getString("caution") ?: ""
-            val cautionModel = Utils.gson.fromJson(caution, Caution::class.java)
+            val cautionModel =
+                caution?.let { Utils.gson.fromJson(caution, Caution::class.java) } ?: null
             CoinDetailScreenRoute(
                 market = market,
                 warning = warning,

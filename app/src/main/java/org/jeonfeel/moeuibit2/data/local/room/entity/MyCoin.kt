@@ -23,8 +23,9 @@ class MyCoin(
             myCoinsBuyingAverage = purchasePrice,
             currentPrice = 0.0,
             openingPrice = 0.0,
-            warning = "",
+            warning = false,
             isFavorite = 0,
+            caution = null,
             market = this.market,
             purchaseAverageBtcPrice = this.purchaseAverageBtcPrice
         )

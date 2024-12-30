@@ -47,6 +47,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -89,7 +90,7 @@ fun PortfolioScreen(
     earnReward: () -> Unit,
     portfolioSearchTextState: MutableState<String>,
     getList: () -> List<UserHoldCoinDTO>,
-    findWrongCoin: KFunction0<Unit>
+    findWrongCoin: KFunction0<Unit>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -244,6 +245,7 @@ fun PortfolioScreen(
                         ?: "",
                     color = increaseColorOrDecreaseColor,
                     warning = item.warning,
+                    caution = item.caution,
                     currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
                         .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
                     market = item.market,
@@ -305,18 +307,21 @@ fun UserHoldCoinLazyColumnItem(
     purchaseAmount: String,
     evaluationAmount: String,
     color: Color,
-    warning: String,
+    warning: Boolean,
+    caution: Caution?,
     currentPrice: Double,
     market: String,
     appNavController: NavHostController
 ) {
-    val warning2 = false
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
         .background(color = MaterialTheme.colorScheme.background)
         .clickable {
-            appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning2") {
+            val cautionJson = caution?.let {
+                Utils.gson.toJson(caution)
+            } ?: ""
+            appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$cautionJson") {
                 launchSingleTop = true
                 popUpTo(appNavController.graph.findStartDestination().id) {
                     saveState = true
