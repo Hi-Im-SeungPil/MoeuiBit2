@@ -382,7 +382,6 @@ fun OrderScreenQuantityTextField(
 private fun LazyListState.scrollToCentralizeItem(index: Int, scope: CoroutineScope) {
     val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
     scope.launch {
-        Logger.e("itemInfo -> " + itemInfo.toString())
         if (itemInfo != null) {
             val center = this@scrollToCentralizeItem.layoutInfo.viewportEndOffset / 2
             val childCenter = itemInfo.offset + itemInfo.size / 2

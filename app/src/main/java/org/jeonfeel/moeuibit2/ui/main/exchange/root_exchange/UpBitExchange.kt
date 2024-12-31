@@ -27,6 +27,7 @@ import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
+import kotlin.reflect.KFunction1
 
 sealed class ExchangeInitState {
     data object Wait : ExchangeInitState()
@@ -96,7 +97,11 @@ class UpBitExchange @Inject constructor(
         requestTicker()
     }
 
-    suspend fun onResume(sortType: SortType? = null, sortOrder: SortOrder? = null) {
+    suspend fun onResume(
+        sortType: SortType? = null,
+        sortOrder: SortOrder? = null,
+        updateLoadingState: KFunction1<Boolean, Unit>
+    ) {
         if (!tickerDataIsEmpty() && successInit) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
@@ -104,9 +109,11 @@ class UpBitExchange @Inject constructor(
             updateTickerData(sortType = sortType, sortOrder = sortOrder)
             requestSubscribeTicker()
         } else if (tickerDataIsEmpty() && successInit) {
+            updateLoadingState(true)
             clearTickerData()
             init()
             requestSubscribeTicker()
+            updateLoadingState(false)
             collectTicker()
         }
     }

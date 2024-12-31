@@ -77,17 +77,6 @@ fun LazyItemScope.PortfolioMain(
                     ?: 0L
             )
         }
-//        Divider(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(8.dp), color = Color.White
-//        )
-//
-//        PortfolioPieChart(
-//            pieChartState = pieChartState,
-//            userSeedMoney = userSeedMoney,
-////            userHoldCoinList = userHoldCoinList
-//        )
     }
 }
 

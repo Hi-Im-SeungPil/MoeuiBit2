@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,7 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
@@ -91,7 +94,11 @@ fun PortfolioScreen(
     portfolioSearchTextState: MutableState<String>,
     getList: () -> List<UserHoldCoinDTO>,
     findWrongCoin: KFunction0<Unit>,
+    id: Int,
+    loading: MutableStateFlow<Boolean>
 ) {
+    val loading2 = loading.collectAsState()
+
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -173,12 +180,18 @@ fun PortfolioScreen(
                 }
             }
         }
+
         Divider(
             Modifier
                 .fillMaxWidth()
                 .height(1.dp), color = Color(0xFFDFDFDF)
         )
 
+        if (loading2.value) {
+            Logger.e("호출호출 $id")
+            Logger.e(loadingState.toString())
+            PortfolioLoadingScreen()
+        } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
                 PortfolioMain(
@@ -252,6 +265,7 @@ fun PortfolioScreen(
                     appNavController = appNavController
                 )
             }
+            }
         }
     }
 }
@@ -320,7 +334,7 @@ fun UserHoldCoinLazyColumnItem(
         .clickable {
             val cautionJson = caution?.let {
                 Utils.gson.toJson(caution)
-            } ?: ""
+            } ?: " "
             appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$cautionJson") {
                 launchSingleTop = true
                 popUpTo(appNavController.graph.findStartDestination().id) {

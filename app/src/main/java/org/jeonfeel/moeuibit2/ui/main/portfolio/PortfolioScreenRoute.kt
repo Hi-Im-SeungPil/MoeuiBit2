@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.ui.main.portfolio
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +24,7 @@ import org.jeonfeel.moeuibit2.utils.showToast
 fun PortfolioScreenRoute(
     viewModel: PortfolioViewModel = hiltViewModel(),
     appNavController: NavHostController,
+    bottomNavController: NavHostController,
 ) {
     val context = LocalContext.current
 
@@ -32,7 +32,7 @@ fun PortfolioScreenRoute(
         if (viewModel.showRemoveCoinDialogState.value) {
             viewModel.hideBottomSheet()
         } else {
-            appNavController.popBackStack()
+            bottomNavController.popBackStack()
         }
     }
 
@@ -73,7 +73,7 @@ fun PortfolioScreenRoute(
         onCreateAction = {
             Logger.e("onCreate")
         },
-        onResumeAction = {
+        onStartAction = {
             if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
                 viewModel.onResume()
             } else {
@@ -105,7 +105,9 @@ fun PortfolioScreenRoute(
             earnReward = viewModel::earnReward,
             portfolioSearchTextState = viewModel.portfolioSearchTextState,
             getList = holder::getList,
-            findWrongCoin = viewModel::findWrongCoin
+            findWrongCoin = viewModel::findWrongCoin,
+            id = System.identityHashCode(viewModel),
+            loading = viewModel.loading
         )
 
         RemoveCoinBottomSheet(

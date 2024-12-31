@@ -180,7 +180,7 @@ class PortfolioScreenStateHolder(
             totalValuedAssets.value.plus(userSeedMoney.value.toBigDecimal()).formattedStringTo1000()
         val valuationGainOrLoss =
             totalValuedAssets.value.minus(totalPurchase.value).formattedStringTo1000()
-        val aReturn = if (totalValuedAssets.value.toDouble() == 0.0) {
+        val aReturn = if (totalPurchase.value.toDouble() == 0.0) {
             "0"
         } else {
             (totalValuedAssets.value

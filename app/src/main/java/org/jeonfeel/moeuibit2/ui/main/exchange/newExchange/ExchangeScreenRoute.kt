@@ -11,6 +11,7 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeLoadingScreen
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.showToast
 import kotlin.system.exitProcess
@@ -47,18 +48,21 @@ fun ExchangeScreenRoute(
             viewModel.onResume()
         }
     )
-
-    ExchangeScreen(
-        tickerList = viewModel.getTickerList(),
-        isUpdateExchange = viewModel.isUpdateExchange,
-        sortTickerList = viewModel::sortTickerList,
-        tradeCurrencyState = viewModel.tradeCurrencyState,
-        changeTradeCurrency = viewModel::changeTradeCurrency,
-        btcKrwPrice = viewModel.getBtcPrice(),
-        appNavController = appNavController,
-        selectedSortType = viewModel.selectedSortType,
-        sortOrder = viewModel.sortOrder,
-        updateSortType = viewModel::updateSortType,
-        updateSortOrder = viewModel::updateSortOrder
-    )
+    if (viewModel.loadingState.value) {
+        ExchangeLoadingScreen()
+    } else {
+        ExchangeScreen(
+            tickerList = viewModel.getTickerList(),
+            isUpdateExchange = viewModel.isUpdateExchange,
+            sortTickerList = viewModel::sortTickerList,
+            tradeCurrencyState = viewModel.tradeCurrencyState,
+            changeTradeCurrency = viewModel::changeTradeCurrency,
+            btcKrwPrice = viewModel.getBtcPrice(),
+            appNavController = appNavController,
+            selectedSortType = viewModel.selectedSortType,
+            sortOrder = viewModel.sortOrder,
+            updateSortType = viewModel::updateSortType,
+            updateSortOrder = viewModel::updateSortOrder
+        )
+    }
 }

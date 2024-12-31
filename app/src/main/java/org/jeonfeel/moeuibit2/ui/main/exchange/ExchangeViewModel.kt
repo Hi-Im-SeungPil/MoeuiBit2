@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -12,7 +11,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
@@ -58,6 +56,7 @@ class ExchangeViewModel @Inject constructor(
     private var marketChangeJob: Job? = null
 
     init {
+        _loadingState.value = true
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upBitExchange.initUpBit(
@@ -80,15 +79,14 @@ class ExchangeViewModel @Inject constructor(
             }
 
             is ExchangeInitState.Success -> {
-
+                _loadingState.value = false
             }
 
             is ExchangeInitState.Error -> {
-                // 에러 처리
+                _loadingState.value = false
             }
 
             is ExchangeInitState.Wait -> {
-
             }
         }
     }
@@ -109,7 +107,11 @@ class ExchangeViewModel @Inject constructor(
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    upBitExchange.onResume(sortType = selectedSortType.value, sortOrder = sortOrder.value)
+                    upBitExchange.onResume(
+                        sortType = selectedSortType.value,
+                        sortOrder = sortOrder.value,
+                        updateLoadingState = ::updateLoadingState
+                    )
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
@@ -117,6 +119,10 @@ class ExchangeViewModel @Inject constructor(
                 }
             }
         }.also { it.start() }
+    }
+
+    private fun updateLoadingState(state: Boolean) {
+        _loadingState.value = state
     }
 
     fun updateSortType(sortType: SortType) {
@@ -160,7 +166,10 @@ class ExchangeViewModel @Inject constructor(
             marketChangeJob = viewModelScope.launch(ioDispatcher) {
                 when (rootExchange) {
                     ROOT_EXCHANGE_UPBIT -> {
-                        upBitExchange.changeTradeCurrencyAction(sortType = selectedSortType.value, sortOrder = sortOrder.value)
+                        upBitExchange.changeTradeCurrencyAction(
+                            sortType = selectedSortType.value,
+                            sortOrder = sortOrder.value
+                        )
                     }
 
                     ROOT_EXCHANGE_BITTHUMB -> {

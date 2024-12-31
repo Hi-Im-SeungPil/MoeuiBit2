@@ -29,7 +29,7 @@ fun MainBottomNavGraph(
             CoinSiteScreen()
         }
         composable(MainBottomNavItem.Portfolio.screenRoute.name) {
-            PortfolioScreenRoute(appNavController = appNavController)
+            PortfolioScreenRoute(appNavController = appNavController, bottomNavController = bottomNavController)
         }
         composable(MainBottomNavItem.Setting.screenRoute.name) {
             SettingScreen()

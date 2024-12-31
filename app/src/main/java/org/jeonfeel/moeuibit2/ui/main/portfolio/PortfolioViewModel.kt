@@ -64,9 +64,6 @@ import kotlin.collections.sortByDescending
 import kotlin.collections.sumOf
 import kotlin.collections.toList
 
-class PortfolioState {
-}
-
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
     val adMobManager: AdMobManager,
@@ -105,7 +102,7 @@ class PortfolioViewModel @Inject constructor(
     private val _engCoinNameMap = mutableMapOf<String, String>()
 
     private val userHoldCoinsMarkets = StringBuilder()
-    private val myCoinList = ArrayList<MyCoin?>()
+    private var myCoinList = ArrayList<MyCoin?>()
 
     private val myCoinHashMap = HashMap<String, MyCoin>()
 
@@ -123,7 +120,11 @@ class PortfolioViewModel @Inject constructor(
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
     private var realTimeUpdateJob: Job? = null
 
+    val loading = MutableStateFlow<Boolean>(true)
+
     init {
+        Logger.e("init")
+//        _loadingState.value = true
         viewModelScope.launch {
             getCoinName()
         }
@@ -145,12 +146,23 @@ class PortfolioViewModel @Inject constructor(
         }
     }
 
+//    suspend fun a() {
+//        if (myCoinList.isEmpty())
+//    }
+
     private suspend fun compareUserHoldCoinList() {
         _isPortfolioSocketRunning.value = false
 
-        getUserSeedMoney()
         if (myCoinList.isNotEmpty()) {
             val (beforeMyCoinMap, newMyCoinMap) = getBeforeCoinMapAndNewCoinMap()
+            if (myCoinList.isEmpty()) {
+                getUserSeedMoney()
+                resetPortfolio()
+                return
+            } else {
+                getUserSeedMoney()
+            }
+            Logger.e("isNotEmpty")
             modifyCoin(beforeMyCoinMap, newMyCoinMap)
             updateCoin()
             requestTicker()
@@ -159,6 +171,8 @@ class PortfolioViewModel @Inject constructor(
             _isPortfolioSocketRunning.value = true
             collectTicker()
         } else {
+//            _loadingState.value = true
+            loading.update { true }
             resetPortfolio()
             getUserSeedMoney()
             getUserHoldCoins()
@@ -166,6 +180,9 @@ class PortfolioViewModel @Inject constructor(
             requestTicker()
             setETC()
             requestSubscribeTicker(userHoldCoinsMarkets.split(","))
+            if (loading.value) {
+                loading.update { false }
+            }
             _isPortfolioSocketRunning.value = true
             collectTicker()
         }
@@ -284,8 +301,11 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserHoldCoins() {
-        myCoinList.clear()
-        myCoinList.addAll(upbitUseCase.getMyCoins())
+//        myCoinList.clear()
+//        myCoinList.addAll()
+        val tempList = arrayListOf<MyCoin?>()
+        tempList.addAll(upbitUseCase.getMyCoins())
+        myCoinList = tempList
     }
 
     private suspend fun parseMyCoinToUserHoldCoin(list: List<MyCoin?>? = null) {
