@@ -14,8 +14,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.utils.showToast
 import kotlin.math.abs
 
 fun Modifier.drawUnderLine(

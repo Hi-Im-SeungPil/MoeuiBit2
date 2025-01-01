@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
-import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.runtime.MutableState
 import androidx.core.content.ContextCompat
@@ -13,17 +12,14 @@ import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.*
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.MoeuiBitApp
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
-import org.jeonfeel.moeuibit2.constants.movingAverageLineColorArray
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.POSITIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.NEGATIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.POSITIVE_BAR
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.marker.ChartMarkerView
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.ChartCanvas
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
@@ -120,7 +116,7 @@ class ChartHelper(private val context: Context?) {
         val legendArray = ArrayList<LegendEntry>()
         legendArray.add(
             LegendEntry().apply {
-                label = if (MoeuiBitDataStore.isKor) "단순 MA" else "MA"
+                label = "단순 MA"
             }
         )
         for (i in movingAverageLineArray.indices) {

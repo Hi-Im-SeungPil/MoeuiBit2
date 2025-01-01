@@ -17,7 +17,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBitExchange
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.ExchangeInitState
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import java.math.BigDecimal
 import javax.inject.Inject
 

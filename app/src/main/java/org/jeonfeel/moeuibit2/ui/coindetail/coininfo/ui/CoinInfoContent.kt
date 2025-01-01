@@ -4,7 +4,6 @@ import android.os.Message
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.widget.FrameLayout
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,16 +26,16 @@ import app.dvkyun.flexhybridand.FlexWebViewClient
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.ui.activities.CoinDetailActivity
+import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
-import org.jeonfeel.moeuibit2.utils.moveUrl
+import org.jeonfeel.moeuibit2.utils.ext.moveUrl
 
 @Composable
 fun CoinInfoContent(
     selected: MutableState<String>,
     selectedButton: MutableState<Int>,
-    coinInfoHashMap: Map<String,String>,
+    coinInfoHashMap: Map<String, String>,
     flex: FlexWebView
 ) {
     val context = LocalContext.current
@@ -174,7 +173,7 @@ fun FlexWebView.initFlex() {
     flex.settings.useWideViewPort = false
     flex.settings.loadWithOverviewMode = true
     flex.webChromeClient =
-        object : FlexWebChromeClient(CoinDetailActivity::class.java.newInstance()) {
+        object : FlexWebChromeClient(MainActivity::class.java.newInstance()) {
             override fun onCreateWindow(
                 view: WebView?,
                 dialog: Boolean,

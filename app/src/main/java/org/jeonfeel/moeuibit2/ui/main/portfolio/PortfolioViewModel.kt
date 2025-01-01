@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
@@ -28,7 +26,6 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarket
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
@@ -36,8 +33,8 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
-import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -46,7 +43,6 @@ import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.arrayListOf
 import kotlin.collections.associateBy
-import kotlin.collections.emptyList
 import kotlin.collections.find
 import kotlin.collections.forEach
 import kotlin.collections.forEachIndexed

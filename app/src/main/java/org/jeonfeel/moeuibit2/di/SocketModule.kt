@@ -133,19 +133,19 @@ class SocketModule {
             ).build()
     }
 
-    @Singleton
-    @Provides
-    @CoinDetailSocket
-    fun provideCoinDetailSocketService(
-        @CoinDetailSocketType okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
-    ): UpbitCoinDetailSocketService {
-        return thunder {
-            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
-            setApplicationContext(context)
-            setConverterType(ConverterType.Serialization)
-        }.create()
-    }
+//    @Singleton
+//    @Provides
+//    @CoinDetailSocket
+//    fun provideCoinDetailSocketService(
+//        @CoinDetailSocketType okHttpClient: OkHttpClient,
+//        @ApplicationContext context: Context
+//    ): UpbitCoinDetailSocketService {
+//        return thunder {
+//            setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+//            setApplicationContext(context)
+//            setConverterType(ConverterType.Serialization)
+//        }.create()
+//    }
 
     @Singleton
     @Provides

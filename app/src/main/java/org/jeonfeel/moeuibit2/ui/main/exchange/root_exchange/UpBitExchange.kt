@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarket
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
+import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
@@ -24,7 +25,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
-import org.jeonfeel.moeuibit2.utils.mapToMarketCodesRequest
+import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.reflect.KFunction1

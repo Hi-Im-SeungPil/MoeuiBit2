@@ -8,9 +8,9 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.CHART_SET_ALL
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.NEGATIVE_BAR
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.POSITIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_SET_ALL
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.NEGATIVE_BAR
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.POSITIVE_BAR
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.ChartHelper
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.addAccAmountLimitLine

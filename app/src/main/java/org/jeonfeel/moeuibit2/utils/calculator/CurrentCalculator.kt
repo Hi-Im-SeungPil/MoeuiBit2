@@ -9,8 +9,8 @@ import kotlin.math.round
 object CurrentCalculator {
 
     fun tradePriceCalculator(tradePrice: Double, marketState: Int): String {
-        return if(marketState == SELECTED_KRW_MARKET) {
-            if(tradePrice == 0.0 || tradePrice < 0.00000001) {
+        return if (marketState == SELECTED_KRW_MARKET) {
+            if (tradePrice == 0.0 || tradePrice < 0.00000001) {
                 "0"
             } else {
                 if (tradePrice >= 1_000) {
@@ -23,26 +23,26 @@ object CurrentCalculator {
                     tradePrice.thirdDecimal()
                 } else if (tradePrice >= 0.1 && tradePrice < 1) {
                     tradePrice.forthDecimal()
-                } else if(tradePrice >= 0.01 && tradePrice < 0.1) {
+                } else if (tradePrice >= 0.01 && tradePrice < 0.1) {
                     tradePrice.fiveDecimal()
-                } else if(tradePrice >= 0.001 && tradePrice < 0.01) {
+                } else if (tradePrice >= 0.001 && tradePrice < 0.01) {
                     tradePrice.sixthDecimal()
-                } else if(tradePrice >= 0.0001 && tradePrice < 0.001) {
+                } else if (tradePrice >= 0.0001 && tradePrice < 0.001) {
                     tradePrice.sevenDecimal()
                 } else {
                     tradePrice.eighthDecimal()
                 }
             }
-        } else if(marketState == SELECTED_BTC_MARKET) {
-                tradePrice.eighthDecimal()
+        } else if (marketState == SELECTED_BTC_MARKET) {
+            tradePrice.eighthDecimal()
         } else {
             ""
         }
     }
 
     fun tradePriceCalculator(tradePrice: Float, marketState: Int): String {
-        return if(marketState == SELECTED_KRW_MARKET) {
-            if(tradePrice == 0.0f || tradePrice < 0.00000001) {
+        return if (marketState == SELECTED_KRW_MARKET) {
+            if (tradePrice == 0.0f || tradePrice < 0.00000001) {
                 "0"
             } else {
                 if (tradePrice >= 1000) {
@@ -55,17 +55,17 @@ object CurrentCalculator {
                     tradePrice.thirdDecimal()
                 } else if (tradePrice >= 0.1 && tradePrice < 1) {
                     tradePrice.forthDecimal()
-                } else if(tradePrice >= 0.01 && tradePrice < 0.1) {
+                } else if (tradePrice >= 0.01 && tradePrice < 0.1) {
                     tradePrice.fiveDecimal()
-                } else if(tradePrice >= 0.001 && tradePrice < 0.01) {
+                } else if (tradePrice >= 0.001 && tradePrice < 0.01) {
                     tradePrice.sixthDecimal()
-                } else if(tradePrice >= 0.0001 && tradePrice < 0.001) {
+                } else if (tradePrice >= 0.0001 && tradePrice < 0.001) {
                     tradePrice.sevenDecimal()
                 } else {
                     tradePrice.eighthDecimal()
                 }
             }
-        } else if(marketState == SELECTED_BTC_MARKET) {
+        } else if (marketState == SELECTED_BTC_MARKET) {
             tradePrice.eighthDecimal()
         } else {
             ""
@@ -73,8 +73,8 @@ object CurrentCalculator {
     }
 
     fun tradePriceCalculatorNoStringFormat(tradePrice: Double, marketState: Int): Double {
-        return if(marketState == SELECTED_KRW_MARKET) {
-            if(tradePrice == 0.0 || tradePrice < 0.00000001) {
+        return if (marketState == SELECTED_KRW_MARKET) {
+            if (tradePrice == 0.0 || tradePrice < 0.00000001) {
                 0.0
             } else {
                 if (tradePrice >= 100) {
@@ -85,7 +85,7 @@ object CurrentCalculator {
                     tradePrice.forthDecimal().toDouble()
                 }
             }
-        } else if(marketState == SELECTED_BTC_MARKET) {
+        } else if (marketState == SELECTED_BTC_MARKET) {
             tradePrice.eighthDecimal().toDouble()
         } else {
             -1.0
@@ -101,35 +101,19 @@ object CurrentCalculator {
             SELECTED_KRW_MARKET -> {
                 round(accTradePrice24h * 0.000001).commaFormat()
             }
+
             SELECTED_BTC_MARKET -> {
                 accTradePrice24h.thirdDecimal()
             }
+
             else -> {
                 ""
             }
         }
     }
 
-    fun krwToUsd(krw: Double,usd: Double): String {
-        return if (krw == 0.0) {
-            "0"
-        } else {
-            val tradePrice = krw / usd
-            val absTradePrice = abs(tradePrice)
-            if (absTradePrice >= 1000) {
-                tradePrice.secondDecimal().toDouble().commaDecimalFormat()
-            } else if (absTradePrice < 1000 && absTradePrice >= 1) {
-                tradePrice.secondDecimal()
-            } else if(absTradePrice < 1 && absTradePrice >= 0.0001 ){
-                tradePrice.sixthDecimal()
-            } else {
-                tradePrice.eighthDecimal()
-            }
-        }
-    }
-
     fun btcToKrw(price: Double, marketState: Int): String {
-        return if(marketState == SELECTED_BTC_MARKET) {
+        return if (marketState == SELECTED_BTC_MARKET) {
             tradePriceCalculator(price, SELECTED_KRW_MARKET)
         } else {
             ""

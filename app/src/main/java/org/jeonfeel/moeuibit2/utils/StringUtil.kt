@@ -1,15 +1,5 @@
 package org.jeonfeel.moeuibit2.utils
 
-import android.content.Context
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.CAUTION
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import java.text.DecimalFormat
@@ -19,6 +9,12 @@ val decimalFormat = DecimalFormat("###,###.##")
 val eightDecimalFormat = DecimalFormat("###,###.########")
 val percentFormat = DecimalFormat("0.00%")
 val decimalPoint = DecimalFormat("0.######")
+
+fun getPostposition(subject: String): String {
+    val lastChar = subject.lastOrNull() ?: return "는" // 빈 문자열 처리
+    val unicode = lastChar.code
+    return if ((unicode - 0xAC00) % 28 == 0) "는" else "은"
+}
 
 fun Long.commaFormat(): String {
     return commaFormat.format(this)
@@ -81,7 +77,7 @@ fun Double.sevenDecimal(): String {
 }
 
 fun Double.eighthDecimal(): String {
-    return String.format("%.8f", this)
+    return if(this == 0.0) "0" else String.format("%.8f", this)
 }
 
 fun Float.firstDecimal(): String {

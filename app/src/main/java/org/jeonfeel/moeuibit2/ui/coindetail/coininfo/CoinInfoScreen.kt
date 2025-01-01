@@ -14,7 +14,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.CoinInfoContent
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.CoinInfoEmptyScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.ui.initFlex
-import org.jeonfeel.moeuibit2.ui.coindetail.newScreen.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 

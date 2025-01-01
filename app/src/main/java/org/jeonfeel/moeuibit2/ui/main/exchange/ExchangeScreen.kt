@@ -1,25 +1,32 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
-import android.app.Activity
-import android.content.Context
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.InfiniteTransition
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
@@ -30,264 +37,133 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
-import com.orhanobut.logger.Logger
-import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
+import me.onebone.toolbar.CollapsingToolbarScaffold
+import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.ui.activities.MainActivity
+import org.jeonfeel.moeuibit2.ui.nav.AppScreen
+import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.SwipeDetector
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
-import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeErrorScreen
-import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeScreenLazyColumns
-import org.jeonfeel.moeuibit2.ui.theme.exchangeMarketButtonTextColor
-import org.jeonfeel.moeuibit2.ui.theme.sortButtonSelectedBackgroundColor
-import org.jeonfeel.moeuibit2.utils.showToast
-import kotlin.system.exitProcess
-
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
+import org.jeonfeel.moeuibit2.utils.ext.FallColor
+import org.jeonfeel.moeuibit2.utils.ext.RiseColor
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
+import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import java.math.BigDecimal
+import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ExchangeRoute(
-    networkErrorState: MutableIntState,
+fun ExchangeScreen(
+    tickerList: List<CommonExchangeModel>,
+    isUpdateExchange: State<Boolean>,
+    sortTickerList: (targetTradeCurrency: Int?, sortType: SortType, sortOrder: SortOrder) -> Unit,
+    tradeCurrencyState: State<Int>,
+    changeTradeCurrency: (tradeCurrency: Int) -> Unit,
+    btcKrwPrice: BigDecimal,
     appNavController: NavHostController,
+    selectedSortType: State<SortType>,
+    sortOrder: State<SortOrder>,
+    updateSortType: KFunction1<SortType, Unit>,
+    updateSortOrder: KFunction1<SortOrder, Unit>
 ) {
-    val context = LocalContext.current
-    val pagerState = rememberPagerState()
-    val lazyScrollState = rememberLazyListState()
-    val startForActivityResult =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val resultData = result.data
-                if (resultData != null) {
 
-                }
-            }
-        }
-    // 백핸들러
-    ExchangeBackHandler(context)
-    // main network watcher value sync
-    LaunchedEffect(key1 = networkErrorState.value) {
-//        viewModel.changeNetworkErrorState(networkState = networkErrorState.value)
-    }
-//    ExchangeScreenRoute(appNavController = appNavController)
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun Exchange(
-    stateHolder: ExchangeScreenStateHolder,
-    errorState: State<Int>,
-    filteredExchangeCoinList: List<CommonExchangeModel>,
-    preCoinListAndPosition: Pair<ArrayList<CommonExchangeModel>, HashMap<String, Int>>,
-    loadingFavorite: MutableState<Boolean>? = null,
-    btcPrice: State<Double>,
-    checkErrorScreen: () -> Unit,
-    changeSelectedMarketState: (Int) -> Unit,
-    updateIsExchangeUpdate: (Boolean) -> Unit,
-    currentRootExchange: State<String>,
-    changeRootExchangeAction: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
-    ) {
-        if (errorState.value == INTERNET_CONNECTION) {
-            LaunchedEffect(key1 = stateHolder.selectedMarketState.value) {
-                stateHolder.selectMarketButtonClickAction()
-            }
-            SearchTextBox(searchTextFieldValue = stateHolder.searchTextFieldValue)
-            MarketButtons(
-                selectedMarketState = stateHolder.selectedMarketState,
-                pagerState = stateHolder.pagerState,
-                tabTitleList = stateHolder.tabTitleList,
-                changeSelectedMarketState = changeSelectedMarketState,
-                currentRootExchange = currentRootExchange,
-                changeRootExchangeAction = changeRootExchangeAction
-            )
-            ExchangeSortButtons(
-                sortButtonClickAction = stateHolder::sortButtonClickAction,
-                sortButtonLaunchEffectAction = stateHolder::sortButtonLaunchEffectAction,
-                sortButtonState = stateHolder.sortButtonState
-            )
-            ExchangeScreenLazyColumns(
-                filteredExchangeCoinList = filteredExchangeCoinList,
-                preCoinListAndPosition = preCoinListAndPosition,
-                textFieldValueState = stateHolder.searchTextFieldValue,
-                loadingFavorite = loadingFavorite,
-                btcPrice = btcPrice,
-                scrollState = stateHolder.lazyScrollState,
-                lazyColumnItemClickAction = stateHolder::lazyColumnItemClickAction,
-                createCoinName = stateHolder::createCoinName,
-                changeSelectedMarketState = changeSelectedMarketState,
-                selectedMarketState = stateHolder.selectedMarketState,
-            )
-        } else {
-            updateIsExchangeUpdate(false)
-            ExchangeErrorScreen(
-                checkErrorScreen = checkErrorScreen,
-                context = stateHolder.context
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchTextBox(
-    searchTextFieldValue: MutableState<String>
-) {
-    ExchangeScreenSearchTextField(
-        textFieldValueState = searchTextFieldValue,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(45.dp)
-            .clearFocusOnKeyboardDismiss(),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(25.dp),
-                tint = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        trailingIcon = {
-            IconButton(onClick = { it.invoke() }) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .size(25.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        },
-        placeholderText = stringResource(id = R.string.textFieldText),
-        fontSize = DpToSp(dp = 17.dp)
+    val stateHolder = rememberExchangeStateHolder(
+        isUpdateExchange = isUpdateExchange.value,
+        sortTickerList = sortTickerList,
+        changeTradeCurrency = changeTradeCurrency,
+        selectedSortType = selectedSortType,
+        sortOrder = sortOrder,
+        tradeCurrencyState = tradeCurrencyState,
+        updateSortType = updateSortType,
+        updateSortOrder = updateSortOrder
     )
-}
 
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun MarketButtons(
-    selectedMarketState: State<Int>,
-    pagerState: PagerState,
-    tabTitleList: List<String>,
-    changeSelectedMarketState: (Int) -> Unit,
-    changeRootExchangeAction: (String) -> Unit,
-    currentRootExchange: State<String>
-) {
-    val changeRootExchangeDialogState = remember {
-        mutableStateOf(false)
-    }
-    val menuList = remember {
-        listOf(
-            Pair("업비트", R.drawable.img_up_bit),
-            Pair("빗썸", R.drawable.img_bit_thumb)
+    Column(modifier = Modifier.fillMaxSize()) {
+        SearchSection(
+            textFieldValueState = stateHolder.textFieldValueState,
+            focusManager = stateHolder.focusManaManager,
+            modifier = Modifier
+                .background(color = Color.White)
+                .zIndex(1f)
         )
-    }
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .drawUnderLine(lineColor = MaterialTheme.colorScheme.outline)
-    ) {
-        CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-            TabRow(
-                selectedTabIndex = pagerState.currentPage,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                        color = Color.Transparent
-                    )
-                },
-                modifier = Modifier
-                    .weight(3f),
-                backgroundColor = MaterialTheme.colorScheme.background,
-                divider = {}
-            ) {
-                tabTitleList.forEachIndexed { index, title ->
-                    Tab(
-                        text = {
-                            Text(
-                                text = title,
-                                fontSize = DpToSp(17.dp),
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                            )
-                        },
-                        selectedContentColor = exchangeMarketButtonTextColor(selected = true),
-                        unselectedContentColor = exchangeMarketButtonTextColor(selected = false),
-                        selected = selectedMarketState.value == index,
-                        onClick = {
-                            if (selectedMarketState.value != index) {
-                                changeSelectedMarketState(index)
-                            }
-                        },
-                    )
-                }
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable {
-//                    changeRootExchangeDialogState.value = true
-                    if (currentRootExchange.value == ROOT_EXCHANGE_UPBIT) {
-                        changeRootExchangeAction(ROOT_EXCHANGE_BITTHUMB)
-                    } else {
-                        changeRootExchangeAction(ROOT_EXCHANGE_UPBIT)
-                    }
-                }
-            ) {
-                GlideImage(
-                    imageModel = if (currentRootExchange.value == "bitThumb") menuList[1].second else menuList[0].second,
-                    modifier = Modifier.size(28.dp)
+        CollapsingToolbarScaffold(
+            state = stateHolder.toolbarState,
+            scrollStrategy = ScrollStrategy.EnterAlways,
+            toolbar = {
+                SelectTradeCurrencySection(
+                    pagerState = stateHolder.pagerState,
+                    modifier = Modifier
+                        .zIndex(1f),
+                    tradeCurrencyState = tradeCurrencyState,
+                    changeTradeCurrency = stateHolder::changeTradeCurrencyAction,
+                    coroutineScope = stateHolder.coroutineScope
                 )
-                Text(
-                    text = if (currentRootExchange.value == "bitThumb") menuList[1].first else menuList[0].first,
-                    style = TextStyle(
-                        fontSize = 24.sp,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+            },
+            modifier = Modifier
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
+                SortingSection(
+                    sortOrder = sortOrder.value,
+                    onSortClick = stateHolder::onSortClick,
+                    selectedSortType = selectedSortType
+                )
+                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
+                CoinTickerSection(
+                    lazyScrollState = stateHolder.lazyScrollState,
+                    tickerList = stateHolder.getFilteredList(tickerList = tickerList),
+                    btcKrwPrice = btcKrwPrice,
+                    coinTickerListSwipeAction = stateHolder::coinTickerListSwipeAction,
+                    pagerState = stateHolder.pagerState,
+                    appNavController = appNavController,
+                    strValue = stateHolder.textFieldValueState
                 )
             }
         }
@@ -295,269 +171,488 @@ private fun MarketButtons(
 }
 
 @Composable
-fun ExchangeScreenSearchTextField(
+private fun SearchSection(
     textFieldValueState: MutableState<String>,
-    modifier: Modifier = Modifier,
-    leadingIcon: (@Composable () -> Unit)? = null,
-    trailingIcon: (@Composable (onClick: () -> Unit) -> Unit)? = null,
-    placeholderText: String = "",
-    placeholderTextColor: Color = MaterialTheme.colorScheme.primary,
-    fontSize: TextUnit = androidx.compose.material.MaterialTheme.typography.body2.fontSize,
+    focusManager: FocusManager,
+    modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
-    val trailingIconOnClick = {
-        textFieldValueState.value = ""
-        focusManager.clearFocus(true)
-    }
+    val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
     BasicTextField(value = textFieldValueState.value, onValueChange = {
         textFieldValueState.value = it
     }, singleLine = true,
-        modifier = modifier.clearFocusOnKeyboardDismiss(),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(45.dp)
+            .clearFocusOnKeyboardDismiss()
+            .onFocusChanged { focusState ->
+                hintFocusState.value = focusState.isFocused
+            },
         textStyle = TextStyle(
             color = MaterialTheme.colorScheme.primary,
             fontSize = DpToSp(17.dp)
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         decorationBox = { innerTextField ->
-            Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-                if (leadingIcon != null) {
-                    leadingIcon()
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(45.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(25.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
                 Box(Modifier.weight(1f)) {
-                    if (textFieldValueState.value.isEmpty()) {
-                        Text(
-                            placeholderText,
-                            style = LocalTextStyle.current.copy(
-                                color = placeholderTextColor,
-                                fontSize = fontSize
-                            )
+                    if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
+                        CommonText(
+                            stringResource(id = R.string.textFieldText),
+                            textStyle = LocalTextStyle.current.copy(
+                                color = Color(0xff8f9297),
+                            ),
+                            fontSize = 17.dp,
                         )
                     }
                     innerTextField()
                 }
-                if (trailingIcon != null && textFieldValueState.value.isNotEmpty()) {
-                    trailingIcon(onClick = trailingIconOnClick)
+                if (textFieldValueState.value.isNotEmpty()) {
+                    IconButton(onClick = {
+                        textFieldValueState.value = ""
+                        focusManager.clearFocus(true)
+                    }) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .size(25.dp),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             }
         })
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ExchangeSortButtons(
-    sortButtonClickAction: (buttonId: SortButtons) -> Unit,
-    sortButtonLaunchEffectAction: (
-        buttonId: SortButtons,
-        buttonText: MutableState<String>,
-        textColor: MutableState<Color>,
-        textBackground: MutableState<Color>,
-        sortButtonSelectedBackgroundColor: Color,
-        onBackground: Color,
-        background: Color
-    ) -> Unit,
-    sortButtonState: MutableIntState
+private fun SelectTradeCurrencySection(
+    tradeCurrencyState: State<Int>,
+    pagerState: PagerState,
+    tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
+    modifier: Modifier = Modifier,
+    changeTradeCurrency: (Int) -> Unit,
+    coroutineScope: CoroutineScope
+) {
+
+    Box(modifier = Modifier.height(0.dp))
+    Row(
+        modifier.fillMaxWidth()
+    ) {
+        TabRow(
+            selectedTabIndex = pagerState.currentPage,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
+                    color = Color.Transparent
+                )
+            },
+            modifier = Modifier
+                .weight(3f),
+            backgroundColor = MaterialTheme.colorScheme.background,
+            divider = {}
+        ) {
+            tabTitleList.forEachIndexed { index, title ->
+                Tab(
+                    interactionSource = object : MutableInteractionSource {
+                        override val interactions: Flow<Interaction> = emptyFlow()
+                        override suspend fun emit(interaction: Interaction) {}
+                        override fun tryEmit(interaction: Interaction) = true
+                    },
+                    text = {
+                        Text(
+                            text = title,
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                            ),
+                            fontSize = DpToSp(dp = 17.dp),
+                            modifier = Modifier.weight(1f)
+                        )
+                    },
+                    selectedContentColor = Color.Black,
+                    unselectedContentColor = Color(0xff8C939E),
+                    selected = tradeCurrencyState.value == index,
+                    onClick = {
+                        if (tradeCurrencyState.value != index) {
+                            coroutineScope.launch {
+                                changeTradeCurrency(index)
+                            }
+                        }
+                    },
+                )
+            }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun SortingSection(
+    sortOrder: SortOrder,
+    onSortClick: (sortType: SortType) -> Unit,
+    selectedSortType: State<SortType>
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .drawUnderLine(lineColor = MaterialTheme.colorScheme.outline),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(top = 4.dp, bottom = 6.dp)
     ) {
-//        Text(text = "hello")
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically), horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(9.dp)
+                    .background(color = Color.Red, shape = CircleShape)
+                    .align(Alignment.CenterVertically)
+            )
+            Text(
+                text = " 유의",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(color = Color.Red, fontSize = DpToSp(dp = 11.dp))
+            )
+            Spacer(modifier = Modifier.size(5.dp))
+            Box(
+                modifier = Modifier
+                    .size(9.dp)
+                    .align(Alignment.CenterVertically)
+                    .background(color = Color(0xffF2AD24), shape = CircleShape)
+            )
+            Text(
+                text = " 주의",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(color = Color(0xffF2AD24), fontSize = DpToSp(dp = 11.dp))
+            )
+        }
+        SortButton(
+            text = "현재가",
+            sortType = SortType.PRICE,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
+        )
+        SortButton(
+            text = "변동",
+            sortType = SortType.RATE,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
+        )
+        SortButton(
+            text = "거래량",
+            sortType = SortType.VOLUME,
+            sortOrder = sortOrder,
+            onSortClick = onSortClick,
+            selectedSortType = selectedSortType
+        )
+    }
+}
 
+@Composable
+private fun RowScope.SortButton(
+    text: String,
+    sortType: SortType,
+    sortOrder: SortOrder,
+    selectedSortType: State<SortType>,
+    onSortClick: (SortType) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .noRippleClickable {
+                onSortClick(sortType)
+            }, verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = text,
+            modifier = Modifier,
+            style = TextStyle(
+                fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
+                if (selectedSortType.value == sortType) Color(0xff2454E6) else Color(0xff91959E)
+            )
+        )
+        Column(modifier = Modifier.padding(start = 4.dp)) {
+            Text(
+                text = "▲",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
+            )
+            Text(
+                text = "▼",
+                fontSize = DpToSp(dp = 6.dp),
+                style = TextStyle(
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) Color(
+                        0xff2454E6
+                    ) else Color(0xff91959E)
+                )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
 
-        val values = SortButtons.entries.toTypedArray()
-        for (i in values.indices) {
-            SortButton(
-                buttonId = values[i],
-                materialTextColor = MaterialTheme.colorScheme.onBackground,
-                materialBackground = MaterialTheme.colorScheme.background,
-                sortButtonClickAction = sortButtonClickAction,
-                sortButtonLaunchEffectAction = sortButtonLaunchEffectAction,
-                sortButtonState = sortButtonState
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+private fun CoinTickerSection(
+    tickerList: List<CommonExchangeModel>,
+    lazyScrollState: LazyListState,
+    btcKrwPrice: BigDecimal,
+    coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
+    pagerState: PagerState,
+    appNavController: NavHostController,
+    strValue: MutableState<String>,
+) {
+    LazyColumn(modifier = Modifier
+        .fillMaxSize()
+        .SwipeDetector(
+            onSwipeLeftAction = {
+                coinTickerListSwipeAction(true)
+            },
+            onSwipeRightAction = {
+                coinTickerListSwipeAction(false)
+            }
+        ), state = lazyScrollState) {
+        itemsIndexed(items = tickerList) { index, item ->
+            CoinTickerView(
+                name = item.koreanName,
+                symbol = item.symbol,
+                lastPrice = item.tradePrice.formattedString(),
+                fluctuateRate = item.signedChangeRate.toFloat(),
+                fluctuatePrice = item.signedChangePrice.toFloat(),
+                acc24h = item.accTradePrice24h.formattedUnitString(),
+                needAnimation = item.needAnimation,
+                market = item.market,
+                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
+                    .formattedStringForBtc(),
+                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
+                    .formattedUnitStringForBtc(),
+                strValue = strValue,
+                warning = item.warning,
+                caution = item.getIsCaution(),
+                onClickEvent = {
+                    val market = item.market
+                    val warning = item.warning
+                    val caution = Utils.gson.toJson(item.caution)
+                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
+                        launchSingleTop = true
+                        popUpTo(appNavController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }
             )
         }
     }
 }
 
 @Composable
-private fun RowScope.SortButton(
-    buttonId: SortButtons,
-    materialTextColor: Color,
-    materialBackground: Color,
-    sortButtonClickAction: (buttonId: SortButtons) -> Unit,
-    sortButtonLaunchEffectAction: (
-        buttonId: SortButtons,
-        buttonText: MutableState<String>,
-        textColor: MutableState<Color>,
-        textBackground: MutableState<Color>,
-        sortButtonSelectedBackgroundColor: Color,
-        onBackground: Color,
-        background: Color
-    ) -> Unit,
-    sortButtonState: MutableIntState
-) {
-    val buttonText = remember {
-        mutableStateOf("")
-    }
-    val textColor = remember {
-        mutableStateOf(materialTextColor)
-    }
-    val textBackground = remember {
-        mutableStateOf(materialBackground)
-    }
-    val sortButtonSelectedBackgroundColor = sortButtonSelectedBackgroundColor()
-
-    LaunchedEffect(key1 = sortButtonState.intValue) {
-        sortButtonLaunchEffectAction(
-            buttonId,
-            buttonText,
-            textColor,
-            textBackground,
-            sortButtonSelectedBackgroundColor,
-            materialTextColor,
-            materialBackground
+fun CoinTickerView(
+    modifier: Modifier = Modifier,
+    name: String,
+    symbol: String,
+    lastPrice: String,
+    fluctuateRate: Float,
+    fluctuatePrice: Float,
+    acc24h: String,
+    onClickEvent: () -> Unit,
+    infiniteTransition: InfiniteTransition = rememberInfiniteTransition(label = ""),
+    needAnimation: MutableState<String>,
+    market: String,
+    btcPriceMultiplyCoinPrice: String,
+    btcPriceMultiplyAcc: String,
+    strValue: MutableState<String>,
+    warning: Boolean,
+    caution: Boolean
+) = Column {
+    Row(
+        modifier = modifier
+            .clickable { onClickEvent.invoke() }
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val animationDurationTimeMills = 150
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = animationDurationTimeMills
+                    0.5f at 100
+                },
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "animation alpha"
         )
-    }
 
-    Text(text = buttonText.value,
-        modifier = Modifier
-            .weight(1f)
-            .clickable {
-                Logger.e("sortbutton ${buttonId.name}")
-                sortButtonClickAction(
-                    buttonId
+        LaunchedEffect(key1 = needAnimation.value) {
+            delay(animationDurationTimeMills.toLong())
+            needAnimation.value = TickerAskBidState.NONE.name
+        }
+
+        LaunchedEffect(key1 = strValue.value) {
+            needAnimation.value = TickerAskBidState.NONE.name
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            Text(
+                text = name,
+                modifier = Modifier.fillMaxSize(),
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(13.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(fontWeight = FontWeight.W600)
+            )
+            ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+                val (symbolRef, warningRef, cautionRef) = createRefs()
+
+                Text(
+                    modifier = Modifier.constrainAs(symbolRef) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    },
+                    text = symbol,
+                    textAlign = TextAlign.Center,
+                    fontSize = DpToSp(11.dp),
+                    style = TextStyle(
+                        color = Color(0xff8C939E)
+                    )
+                )
+
+                if (warning) {
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .constrainAs(warningRef) {
+                                start.linkTo(symbolRef.end, margin = 3.dp)
+                                top.linkTo(symbolRef.top)
+                                bottom.linkTo(symbolRef.bottom)
+                            }
+                            .background(color = Color.Red, shape = CircleShape),
+                    )
+                }
+                if (caution) {
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .constrainAs(cautionRef) {
+                                start.linkTo(symbolRef.end, margin = if (warning) 13.dp else 3.dp)
+                                top.linkTo(symbolRef.top)
+                                bottom.linkTo(symbolRef.bottom)
+                            }
+                            .background(color = Color(0xffF2AD24), shape = CircleShape),
+                    )
+                }
+            }
+        }
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            AutoSizeText(
+                text = lastPrice,
+                modifier = Modifier
+                    .background(Color.White)
+                    .drawBehind {
+                        drawLine(
+                            color = when (needAnimation.value) {
+                                TickerAskBidState.ASK.name -> {
+                                    FallColor.copy(alpha = alpha)
+                                }
+
+                                TickerAskBidState.BID.name -> {
+                                    RiseColor.copy(alpha = alpha)
+                                }
+
+                                else -> {
+                                    Color.White
+                                }
+                            },
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = if (needAnimation.value != TickerAskBidState.NONE.name) 2.dp.toPx() else 0.dp.toPx()
+                        )
+                    }
+                    .padding(2.dp),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    fontSize = DpToSp(14.dp),
+                    fontWeight = FontWeight.W400,
+                ),
+                color = fluctuatePrice.getFluctuateColor()
+            )
+            if (!market.isTradeCurrencyKrw()) {
+                AutoSizeText(
+                    text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(
+                        textAlign = TextAlign.End,
+                        fontSize = DpToSp(11.dp)
+                    ),
+                    color = Color(0xff91959E)
                 )
             }
-            .align(Alignment.CenterVertically)
-            .background(textBackground.value)
-            .padding(0.dp, 7.dp),
-        style = TextStyle(
-            color = textColor.value,
-            fontSize = DpToSp(dp = 13.dp),
-            textAlign = TextAlign.Center
-        ))
-}
-
-@Composable
-fun RootExchangeDialog(
-    dialogState: MutableState<Boolean>,
-    getRootExchange: () -> String,
-    setRootExchange: (String) -> Unit
-) {
-    val menuList = remember {
-        listOf(
-            Pair("업비트", R.drawable.img_up_bit),
-            Pair("빗썸", R.drawable.img_bit_thumb)
+        }
+        AutoSizeText(
+            text = fluctuateRate.formattedFluctuateString() + "%",
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center,
+                fontSize = DpToSp(14.dp),
+                fontWeight = FontWeight.W400,
+            ),
+            color = fluctuatePrice.getFluctuateColor(),
+            modifier = Modifier.weight(1f)
         )
-    }
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(menuList[0].first) }
-
-    if (dialogState.value) {
-        Dialog(onDismissRequest = {
-            dialogState.value
-        }) {
-            LaunchedEffect(key1 = dialogState.value) {
-                when (getRootExchange()) {
-                    ExchangeViewModel.ROOT_EXCHANGE_UPBIT -> onOptionSelected(menuList[0].first)
-                    ExchangeViewModel.ROOT_EXCHANGE_BITTHUMB -> onOptionSelected(menuList[1].first)
-                    else -> onOptionSelected(menuList[0].first)
-                }
-            }
-
-            Card {
-                Column {
-                    menuList.forEach { list ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .selectable(selected = (list.first == selectedOption), onClick = {
-                                    onOptionSelected(list.first)
-                                })
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            RadioButton(
-                                selected = list.first == selectedOption,
-                                onClick = { onOptionSelected(list.first) })
-                            Text(
-                                text = list.first,
-                                modifier = Modifier
-                                    .padding(start = 16.dp)
-                                    .align(Alignment.CenterVertically),
-                                style = TextStyle(
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = DpToSp(
-                                        dp = 15.dp
-                                    )
-                                )
-                            )
-                        }
-                    }
-                    Row {
-                        TextButton(
-                            onClick = {
-                                val selectedText =
-                                    when (getRootExchange()) {
-                                        ExchangeViewModel.ROOT_EXCHANGE_UPBIT -> menuList[0].first
-                                        ExchangeViewModel.ROOT_EXCHANGE_BITTHUMB -> menuList[1].first
-                                        else -> menuList[0].first
-                                    }
-                                onOptionSelected(selectedText)
-                                dialogState.value = false
-                            }, modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.cancel), style = TextStyle(
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = DpToSp(
-                                        dp = 15.dp
-                                    )
-                                )
-                            )
-                        }
-                        TextButton(onClick = {
-                            setRootExchange(selectedOption)
-                            dialogState.value = false
-                        }, modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(id = R.string.confirm),
-                                style = TextStyle(
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = DpToSp(
-                                        dp = 15.dp
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            AutoSizeText(
+                text = acc24h,
+                textStyle = TextStyle(
+                    fontSize = DpToSp(14.dp),
+                    fontWeight = FontWeight.W400,
+                    textAlign = TextAlign.Center
+                )
+            )
+            if (!market.isTradeCurrencyKrw()) {
+                AutoSizeText(
+                    text = btcPriceMultiplyAcc,
+                    textStyle = TextStyle(
+                        fontSize = DpToSp(11.dp),
+                        textAlign = TextAlign.End
+                    ),
+                    color = Color(0xff91959E)
+                )
             }
         }
     }
-}
-
-object NoRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = Color.Unspecified
-
-    @Composable
-    override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
-}
-
-@Composable
-fun ExchangeBackHandler(context: Context) {
-    var backBtnTime = remember { 0L }
-    BackHandler(true) {
-        val curTime = System.currentTimeMillis()
-        val gapTime = curTime - backBtnTime
-        if (gapTime in 0..2000) {
-            (context as MainActivity).moveTaskToBack(true)
-            context.finishAndRemoveTask()
-            exitProcess(0)
-        } else {
-            backBtnTime = curTime
-            context.showToast(context.getString(R.string.backPressText))
-        }
-    }
+    Divider(
+        modifier = Modifier
+            .padding(horizontal = 9.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(color = Color(0xfff0f0f2))
+    )
 }

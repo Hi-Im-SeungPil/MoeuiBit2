@@ -12,7 +12,7 @@ import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase
 import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_2_3
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import javax.inject.Singleton
 
 @Module
@@ -50,7 +50,7 @@ class LocalModule {
     }
 
     /**
-     * dataStore
+     * dataStore proto
      */
     @Singleton
     @Provides

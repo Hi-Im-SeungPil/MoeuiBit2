@@ -106,9 +106,19 @@ data class UpbitSocketTickerRes(
     val type: String = "",
 
     @SerialName("market_warning")
-    val marketWarning: String = "NONE"
+    val marketWarning: String = "NONE",
 
-) {
+    @SerialName("delisting_date")
+    val delistingDate: DeListingDate? = null,
+
+    ) {
+    @Serializable
+    data class DeListingDate(
+        val year: String,
+        val month: String,
+        val day: String,
+    )
+
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {
         return CommonExchangeModel(
             koreanName = getUpbitMarketCodeRes?.koreanName ?: "",

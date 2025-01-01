@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -18,10 +19,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -31,10 +34,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,10 +62,10 @@ import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
+import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreenSearchTextField
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioMain
 import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioMainSortButtons
@@ -97,6 +106,7 @@ fun PortfolioScreen(
     id: Int,
     loading: MutableStateFlow<Boolean>
 ) {
+    val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -191,121 +201,151 @@ fun PortfolioScreen(
             Logger.e(loadingState.toString())
             PortfolioLoadingScreen()
         } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            item {
-                PortfolioMain(
-                    totalValuedAssets = totalValuedAssets,
-                    totalPurchase = totalPurchase,
-                    userSeedMoney = userSeedMoney,
-                    getPortFolioMainInfoMap = getPortFolioMainInfoMap
-                )
-            }
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    PortfolioMain(
+                        totalValuedAssets = totalValuedAssets,
+                        totalPurchase = totalPurchase,
+                        userSeedMoney = userSeedMoney,
+                        getPortFolioMainInfoMap = getPortFolioMainInfoMap
+                    )
+                }
 
-            stickyHeader {
-                SearchTextBox(portfolioSearchTextState)
-                PortfolioMainSortButtons(
-                    orderByNameTextInfo = getTextColors(
-                        button = PortfolioSortButton.BUTTON_NAME,
-                        textState = portfolioOrderState.value
-                    ),
-                    orderByRateTextInfo = getTextColors(
-                        button = PortfolioSortButton.BUTTON_RATE,
-                        textState = portfolioOrderState.value
-                    ),
-                    portfolioOrderState = portfolioOrderState,
-                    sortUserHoldCoin = sortUserHoldCoin,
-                )
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(8.dp),
-                    color = Color.Transparent
-                )
-            }
+                stickyHeader {
+                    SearchSection(portfolioSearchTextState, focusManager = focusManager)
+                    PortfolioMainSortButtons(
+                        orderByNameTextInfo = getTextColors(
+                            button = PortfolioSortButton.BUTTON_NAME,
+                            textState = portfolioOrderState.value
+                        ),
+                        orderByRateTextInfo = getTextColors(
+                            button = PortfolioSortButton.BUTTON_RATE,
+                            textState = portfolioOrderState.value
+                        ),
+                        portfolioOrderState = portfolioOrderState,
+                        sortUserHoldCoin = sortUserHoldCoin,
+                    )
+                    Divider(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = Color.Transparent
+                    )
+                }
 
-            item {
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(1.dp),
-                    color = Color.LightGray
-                )
-            }
+                item {
+                    Divider(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp),
+                        color = Color.LightGray
+                    )
+                }
 
-            itemsIndexed(items = getList()) { _, item ->
-                val userCoinInfo = getUserCoinInfo(item)
-                val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
-                    value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
-                        ?: 0f
-                )
-                UserHoldCoinLazyColumnItem(
-                    coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
-                        ?: "",
-                    coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
-                        ?: "",
-                    symbol = item.myCoinsSymbol,
-                    valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
-                        ?: "",
-                    aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
-                        ?: "",
-                    coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
-                    purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
-                        ?: "",
-                    purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
-                        ?: "",
-                    evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
-                        ?: "",
-                    color = increaseColorOrDecreaseColor,
-                    warning = item.warning,
-                    caution = item.caution,
-                    currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
-                        .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
-                    market = item.market,
-                    appNavController = appNavController
-                )
-            }
+                itemsIndexed(items = getList()) { _, item ->
+                    val userCoinInfo = getUserCoinInfo(item)
+                    val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
+                        value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
+                            ?: 0f
+                    )
+                    UserHoldCoinLazyColumnItem(
+                        coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
+                            ?: "",
+                        coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
+                            ?: "",
+                        symbol = item.myCoinsSymbol,
+                        valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
+                            ?: "",
+                        aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
+                            ?: "",
+                        coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
+                        purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
+                            ?: "",
+                        purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
+                            ?: "",
+                        evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
+                            ?: "",
+                        color = increaseColorOrDecreaseColor,
+                        warning = item.warning,
+                        caution = item.caution,
+                        currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
+                            .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
+                        market = item.market,
+                        appNavController = appNavController
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun SearchTextBox(
-    searchTextFieldValue: MutableState<String>
+private fun SearchSection(
+    textFieldValueState: MutableState<String>,
+    focusManager: FocusManager,
+    modifier: Modifier = Modifier
 ) {
-    ExchangeScreenSearchTextField(
-        textFieldValueState = searchTextFieldValue,
-        modifier = Modifier
+    val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
+
+    BasicTextField(value = textFieldValueState.value, onValueChange = {
+        textFieldValueState.value = it
+    }, singleLine = true,
+        modifier = modifier
             .fillMaxWidth()
             .height(45.dp)
             .background(Color.White)
-            .clearFocusOnKeyboardDismiss(),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = null,
+            .clearFocusOnKeyboardDismiss()
+            .onFocusChanged { focusState ->
+                hintFocusState.value = focusState.isFocused
+            },
+        textStyle = TextStyle(
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = DpToSp(17.dp)
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        decorationBox = { innerTextField ->
+            Row(
                 modifier = Modifier
-                    .padding(10.dp)
-                    .size(25.dp),
-                tint = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        trailingIcon = {
-            IconButton(onClick = { it.invoke() }) {
+                    .fillMaxWidth()
+                    .height(45.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
-                    Icons.Default.Close,
+                    Icons.Default.Search,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(10.dp)
                         .size(25.dp),
                     tint = MaterialTheme.colorScheme.onBackground
                 )
+                Box(Modifier.weight(1f)) {
+                    if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
+                        CommonText(
+                            stringResource(id = R.string.textFieldText),
+                            textStyle = LocalTextStyle.current.copy(
+                                color = Color(0xff8f9297),
+                            ),
+                            fontSize = 17.dp,
+                        )
+                    }
+                    innerTextField()
+                }
+                if (textFieldValueState.value.isNotEmpty()) {
+                    IconButton(onClick = {
+                        textFieldValueState.value = ""
+                        focusManager.clearFocus(true)
+                    }) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .size(25.dp),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
             }
-        },
-        placeholderText = stringResource(id = R.string.textFieldText),
-        fontSize = DpToSp(dp = 17.dp),
-        placeholderTextColor = Color.Gray
-    )
+        })
 }
 
 @Composable

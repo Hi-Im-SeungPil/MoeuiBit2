@@ -14,9 +14,6 @@ class CoinInfo {
     private val _coinInfoMutableLiveData = MutableLiveData<HashMap<String, String>>()
     val coinInfoLiveData: LiveData<HashMap<String, String>> get() = _coinInfoMutableLiveData
 
-//    val _coinInfoDialog = mutableStateOf(false)
-//    val coinInfoDialog: State<Boolean> get() = _coinInfoDialog
-
     val _coinInfoLoading = mutableStateOf(false)
     val coinInfoLoading: State<Boolean> get() = _coinInfoLoading
 

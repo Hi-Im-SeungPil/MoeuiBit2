@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
-import org.jeonfeel.moeuibit2.utils.showToast
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 @Composable
 fun OrderScreenQuantityTextField(

@@ -9,15 +9,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.ui.main.MainBottomNavItem
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
-import org.jeonfeel.moeuibit2.ui.main.exchange.newExchange.ExchangeScreenRoute
+import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.setting.SettingScreen
 
 @Composable
 fun MainBottomNavGraph(
     bottomNavController: NavHostController,
-    appNavController: NavHostController,
-    networkErrorState: MutableIntState,
+    appNavController: NavHostController
 ) {
     NavHost(bottomNavController, startDestination = MainBottomNavItem.Exchange.screenRoute.name,
         enterTransition = { EnterTransition.None },
@@ -29,7 +28,10 @@ fun MainBottomNavGraph(
             CoinSiteScreen()
         }
         composable(MainBottomNavItem.Portfolio.screenRoute.name) {
-            PortfolioScreenRoute(appNavController = appNavController, bottomNavController = bottomNavController)
+            PortfolioScreenRoute(
+                appNavController = appNavController,
+                bottomNavController = bottomNavController
+            )
         }
         composable(MainBottomNavItem.Setting.screenRoute.name) {
             SettingScreen()

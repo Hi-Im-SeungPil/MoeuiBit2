@@ -13,7 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
-import org.jeonfeel.moeuibit2.ui.coindetail.newS.CoinDetailScreenRoute
+import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreenRoute
 import org.jeonfeel.moeuibit2.utils.Utils
 
 enum class AppScreen {
@@ -22,9 +22,7 @@ enum class AppScreen {
 }
 
 @Composable
-fun AppNavGraph(
-    networkErrorState: MutableIntState
-) {
+fun AppNavGraph() {
     val appNavController = rememberNavController()
     val bottomNavController = rememberNavController()
 
@@ -34,7 +32,6 @@ fun AppNavGraph(
             popExitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None }) {
             MoeuiBitApp(
-                networkErrorState = networkErrorState,
                 appNavController = appNavController,
                 bottomNavController = bottomNavController
             )

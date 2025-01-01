@@ -27,8 +27,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,8 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.utils.OneTimeNetworkCheck
-import org.jeonfeel.moeuibit2.utils.showToast
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 import kotlin.reflect.KFunction1
 
 @Composable
@@ -55,7 +53,7 @@ fun RemoveCoinBottomSheet(
     if (dialogState.value && removeCoinList.isEmpty()) {
         context.showToast("삭제할 코인이 없습니다.")
         hideSheet()
-    } else if (OneTimeNetworkCheck.networkCheck(context) == null) {
+    } else if (!Utils.isNetworkAvailable(context)) {
         context.showToast("인터넷 상태를 확인해주세요.")
         hideSheet()
     } else {

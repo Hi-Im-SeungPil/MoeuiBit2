@@ -1,6 +1,10 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import com.jeremy.thunder.event.converter.ConverterType
+import com.jeremy.thunder.makeWebSocketCore
+import com.jeremy.thunder.thunder
 import kotlinx.coroutines.flow.Flow
+import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite

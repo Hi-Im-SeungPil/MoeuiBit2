@@ -14,4 +14,7 @@ interface UpbitCoinDetailSocketService {
 
     @Receive
     fun collectUpbitTrade(): Flow<UpbitSocketTickerRes>
+
+    @Send
+    fun requestUpbitTradeRequestPause(request: String)
 }

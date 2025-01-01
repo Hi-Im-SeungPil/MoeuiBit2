@@ -16,7 +16,6 @@ import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
 
 @Composable
 fun MoeuiBitApp(
-    networkErrorState: MutableIntState,
     appNavController: NavHostController,
     bottomNavController: NavHostController
 ) {
@@ -33,7 +32,7 @@ fun MoeuiBitApp(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            MainBottomNavGraph(appNavController = appNavController, bottomNavController = bottomNavController, networkErrorState = networkErrorState)
+            MainBottomNavGraph(appNavController = appNavController, bottomNavController = bottomNavController)
         }
     }
 }

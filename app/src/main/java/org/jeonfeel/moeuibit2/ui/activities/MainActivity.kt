@@ -2,92 +2,36 @@ package org.jeonfeel.moeuibit2.ui.activities
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.view.ViewGroup
-import android.widget.Button
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.constants.KeyConst
-import org.jeonfeel.moeuibit2.constants.NO_INTERNET_CONNECTION
-import org.jeonfeel.moeuibit2.data.network.websocket.bitthumb.BitthumbTickerWebSocket
-import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitOrderBookWebSocket
-import org.jeonfeel.moeuibit2.data.network.websocket.upbit.UpBitTickerWebSocket
-import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
 import org.jeonfeel.moeuibit2.ui.base.BaseActivity
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
-import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil.Companion.currentNetworkState
-import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
-import org.jeonfeel.moeuibit2.utils.showToast
-import javax.inject.Inject
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 const val APP_UPDATE_CODE = 123
 const val APP_UPDATE_FLEXIBLE_CODE = 124
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
-    @Inject
-    lateinit var localRepository: LocalRepository
-
-    @Inject
-    lateinit var preferenceManager: PreferencesManager
 
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
-    private val networkErrorState by lazy {
-        mutableIntStateOf(INTERNET_CONNECTION)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initActivity()
         setContent {
             MainTheme(isMainActivity = true, content = {
-                AppNavGraph(networkErrorState = networkErrorState)
+                AppNavGraph()
             })
         }
-    }
-
-    /**
-     * 초기화
-     */
-    private fun initActivity() {
-        initNetworkStateMonitor(
-            connected5G = {
-                currentNetworkState = INTERNET_CONNECTION
-            },
-            connectedWifiAction = {
-                currentNetworkState = INTERNET_CONNECTION
-            },
-            noInternetAction = {
-                networkErrorState.value = NO_INTERNET_CONNECTION
-                CoroutineScope(Dispatchers.Main).launch {
-                    preferenceManager.getString(KeyConst.PREF_KEY_ROOT_EXCHANGE)
-                        .collect { currentRootExchange ->
-                            if (currentRootExchange == ROOT_EXCHANGE_UPBIT) {
-                                UpBitTickerWebSocket.onPause()
-                            } else {
-                                BitthumbTickerWebSocket.onPause()
-                            }
-                        }
-                }
-            }
-        )
-        checkUpdate()
     }
 
     /**
@@ -116,13 +60,11 @@ class MainActivity : BaseActivity() {
                 requestUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE)
             }
         }
-        Utils.getLocale()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        UpBitTickerWebSocket.socket.cancel()
-        UpBitOrderBookWebSocket.socket.cancel()
+
     }
 
     private fun requestUpdate(appUpdateInfo: AppUpdateInfo, appUpdateType: Int) {

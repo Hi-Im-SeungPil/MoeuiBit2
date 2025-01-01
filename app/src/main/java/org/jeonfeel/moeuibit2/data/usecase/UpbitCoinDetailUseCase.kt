@@ -67,7 +67,20 @@ class UpbitCoinDetailUseCase @Inject constructor(
                     type = "ticker",
                     codes = marketCodes,
                 ),
-                RequestFormatField()
+                RequestFormatField(),
+            )
+        )
+    }
+
+    suspend fun requestSubscribeTickerPause() {
+        upbitCoinDetailSocketService.requestUpbitTradeRequest(
+            listOf(
+                RequestTicketField(ticket = UUID.randomUUID().toString()),
+                RequestTypeField(
+                    type = "pause",
+                    codes = listOf(""),
+                ),
+                RequestFormatField(),
             )
         )
     }

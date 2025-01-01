@@ -7,12 +7,10 @@ import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.MoeuiBitDataStore
 import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
@@ -24,13 +22,19 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandl
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.*
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
-import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BaseCommunicationModule
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
-import org.json.JSONException
-import org.json.JSONObject
+import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_ADD
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_INIT
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_OLD_DATA
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_SET_ALL
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_SET_CANDLE
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.DAY_SELECT
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MINUTE_SELECT
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MONTH_SELECT
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.WEEK_SELECT
 import javax.inject.Inject
 
 class ChartState {

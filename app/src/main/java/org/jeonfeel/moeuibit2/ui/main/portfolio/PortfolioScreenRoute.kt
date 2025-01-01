@@ -11,14 +11,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
-import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.EditUserHoldCoinDialog
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.RemoveCoinBottomSheet
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
-import org.jeonfeel.moeuibit2.utils.NetworkMonitorUtil
-import org.jeonfeel.moeuibit2.utils.showToast
 
 @Composable
 fun PortfolioScreenRoute(
@@ -46,11 +42,6 @@ fun PortfolioScreenRoute(
         portfolioSearchTextState = viewModel.portfolioSearchTextState,
     )
 
-    EditUserHoldCoinDialog(
-        dialogState = holder.editHoldCoinDialogState,
-        editUserHoldCoin = viewModel::editUserHoldCoin
-    )
-
     TwoButtonCommonDialog(
         dialogState = holder.adConfirmDialogState,
         title = stringResource(id = R.string.chargeMoney),
@@ -74,11 +65,7 @@ fun PortfolioScreenRoute(
             Logger.e("onCreate")
         },
         onStartAction = {
-            if (NetworkMonitorUtil.currentNetworkState == INTERNET_CONNECTION) {
-                viewModel.onResume()
-            } else {
-                context.showToast(context.getString(R.string.NO_INTERNET_CONNECTION))
-            }
+            viewModel.onResume()
         },
         onPauseAction = {
             if (viewModel.showRemoveCoinDialogState.value) {

@@ -13,5 +13,3 @@ data class OrderBookIsOnlyRealTimeField(
 data class OrderBookTicketField(
     val ticket: String
 ): UpbitSocketOrderBookReq
-
-//RequestTicketField(ticket = UUID.randomUUID().toString())

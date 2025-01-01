@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import javax.inject.Inject
 
 data class SettingScreenState(

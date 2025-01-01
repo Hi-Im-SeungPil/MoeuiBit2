@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.manager.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 
 enum class NetworkState {
     CONNECTED,
