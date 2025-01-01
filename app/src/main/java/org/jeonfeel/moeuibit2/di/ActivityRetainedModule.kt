@@ -22,7 +22,6 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
-import javax.inject.Singleton
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)
@@ -75,8 +74,10 @@ class ActivityRetailedModule {
     fun providerCoinDetailUseCase(
         localRepository: LocalRepository,
         upbitRepository: UpbitRepository,
-        @SocketModule.CoinDetailSocket upbitSocketService: UpbitCoinDetailSocketService
+        @CoinDetailSocketType okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+//        @SocketModule.CoinDetailSocket upbitSocketService: UpbitCoinDetailSocketService
     ): UpbitCoinDetailUseCase {
-        return UpbitCoinDetailUseCase(localRepository, upbitRepository, upbitSocketService)
+        return UpbitCoinDetailUseCase(localRepository, upbitRepository, okHttpClient, context)
     }
 }

@@ -1,6 +1,12 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import android.content.Context
+import com.jeremy.thunder.Thunder
+import com.jeremy.thunder.event.converter.ConverterType
+import com.jeremy.thunder.makeWebSocketCore
+import com.jeremy.thunder.thunder
 import kotlinx.coroutines.flow.Flow
+import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
@@ -17,8 +23,24 @@ import javax.inject.Inject
 class UpbitCoinDetailUseCase @Inject constructor(
     private val localRepository: LocalRepository,
     private val upbitRepository: UpbitRepository,
-    private val upbitCoinDetailSocketService: UpbitCoinDetailSocketService
+    private val okHttpClient: OkHttpClient,
+    private val context: Context
 ) : BaseUseCase() {
+
+    private var socketService: UpbitCoinDetailSocketService? = null
+
+    suspend fun onResume() {
+        socketService = Thunder.Builder()
+            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            .setApplicationContext(context)
+            .setConverterType(ConverterType.Serialization)
+            .build()
+            .create()
+    }
+
+    suspend fun onPause() {
+        socketService = null
+    }
 
     suspend fun getIsFavorite(market: String): Favorite? {
         return localRepository.getFavoriteDao().select(market)
@@ -60,7 +82,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
     suspend fun requestSubscribeTicker(
         marketCodes: List<String>,
     ) {
-        upbitCoinDetailSocketService.requestUpbitTradeRequest(
+        socketService?.requestUpbitTradeRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(
@@ -73,7 +95,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
     }
 
     suspend fun requestSubscribeTickerPause() {
-        upbitCoinDetailSocketService.requestUpbitTradeRequest(
+        socketService?.requestUpbitTradeRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(
@@ -85,7 +107,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
         )
     }
 
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes> {
-        return upbitCoinDetailSocketService.collectUpbitTrade()
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes>? {
+        return socketService?.collectUpbitTrade()
     }
 }

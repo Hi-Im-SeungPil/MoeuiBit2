@@ -247,6 +247,7 @@ class NewCoinDetailViewModel @Inject constructor(
                 }
             }
             requestSubscribeTickerPause()
+            upbitCoinDetailUseCase.onPause()
             tickerRealTimeUpdateJob?.cancelAndJoin()
             tickerRealTimeUpdateJob = null
         }
@@ -254,9 +255,10 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun onResume(market: String) {
 //        if (tickerRealTimeUpdateJob != null) return
-
         tickerRealTimeUpdateJob = viewModelScope.launch {
+            upbitCoinDetailUseCase.onResume()
             requestSubscribeTicker(market)
+            collectTicker(market)
         }.also { it.start() }
     }
 
@@ -413,11 +415,11 @@ class NewCoinDetailViewModel @Inject constructor(
 
 
     private suspend fun collectTicker(market: String) {
-        upbitCoinDetailUseCase.observeTickerResponse().onEach { result ->
+        upbitCoinDetailUseCase.observeTickerResponse()?.onEach { result ->
             _tradeResponse.update {
                 result
             }
-        }.collect { upbitSocketTradeRes ->
+        }?.collect { upbitSocketTradeRes ->
             runCatching {
                 Logger.e(upbitSocketTradeRes.toString())
                 if (upbitSocketTradeRes.delistingDate != null && !isShowDeListingSnackBar.value) {
