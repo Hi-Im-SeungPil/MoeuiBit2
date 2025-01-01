@@ -57,18 +57,15 @@ abstract class BaseViewModel(
                         onLoading?.let {
                             it(result)
                         }
-                        _loadingState.value = true
                     }
 
                     ApiResult.Status.SUCCESS -> {
-                        _loadingState.value = false
                     }
 
                     ApiResult.Status.API_ERROR -> {
                         onApiError?.let {
                             it(result)
                         }
-                        _loadingState.value = false
                         Logger.e("api error" + result.message.toString())
                     }
 
@@ -76,7 +73,6 @@ abstract class BaseViewModel(
                         onNetworkError?.let {
                             it(result)
                         }
-                        _loadingState.value = false
                         Logger.e("network error " + result.message.toString())
                     }
                 }
@@ -85,7 +81,6 @@ abstract class BaseViewModel(
                 data?.let {
                     onComplete(it)
                 }
-                _loadingState.value = false
             }
         }
     }

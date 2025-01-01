@@ -16,7 +16,8 @@ import kotlin.reflect.KFunction1
 
 @Composable
 fun CoinSiteLazyColumn(
-    exchangeIsOpen: Boolean,
+    koreaExchangeIsOpen: Boolean,
+    globalExchangeIsOpen: Boolean,
     infoIsOpen: Boolean,
     kimpIsOpen: Boolean,
     newsIsOpen: Boolean,
@@ -31,10 +32,11 @@ fun CoinSiteLazyColumn(
             .background(color = MaterialTheme.colorScheme.background)
     ) {
         item {
-            ExchangeItem(updateIsOpen, exchangeIsOpen, context)
+            KoreanExchangeItem(updateIsOpen, koreaExchangeIsOpen, context)
+            GlobalExchangeItem(updateIsOpen, globalExchangeIsOpen, context)
             CommunityItem(updateIsOpen, communityIsOpen, context)
-            CoinInfoItem(updateIsOpen ,infoIsOpen, context)
-            KimpItem(updateIsOpen ,kimpIsOpen, context)
+            CoinInfoItem(updateIsOpen, infoIsOpen, context)
+            KimpItem(updateIsOpen, kimpIsOpen, context)
             CoinNews(updateIsOpen, newsIsOpen, context)
         }
     }

@@ -125,12 +125,9 @@ fun NewCoinDetailScreen(
             ),
             btcPrice = viewModel.btcPrice.value,
             market = market,
+            cautionMessageList = cautionMessageList
         )
         CoinDetailMainTabRow(navController = state.navController)
-
-        if (cautionMessageList.isNotEmpty()) {
-            AutoScrollingBanner(cautionMessageList)
-        }
 
         Box {
             TabRowMainNavigation(
@@ -282,6 +279,7 @@ fun CoinDetailPriceSection(
     symbol: String,
     btcPrice: BigDecimal,
     market: String,
+    cautionMessageList: List<String>,
 ) {
     Column {
         Row(
@@ -347,6 +345,10 @@ fun CoinDetailPriceSection(
                         color = priceTextColor
                     )
                 }
+
+                if (cautionMessageList.isNotEmpty()) {
+                    AutoScrollingBanner(cautionMessageList)
+                }
             }
             // 코인 상세화면 코인 이미지
             GlideImage(
@@ -401,7 +403,7 @@ fun AutoScrollingBanner(items: List<String>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(25.dp)
-            .background(Color(0x0DFF0000)),
+            .background(Color.White),
         userScrollEnabled = false
     ) {
         items(items + items.first()) { item ->

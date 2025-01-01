@@ -65,10 +65,14 @@ fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
                 )
             }
         }
-        Divider(Modifier.fillMaxWidth().height(1.dp), color = Color(0xFFDFDFDF))
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp), color = Color(0xFFDFDFDF))
         Box(modifier = Modifier.fillMaxSize()) {
             CoinSiteLazyColumn(
-                exchangeIsOpen = viewModel.coinSiteExchangeIsOpen.value,
+                koreaExchangeIsOpen = viewModel.coinSiteKoreaExchangeIsOpen.value,
+                globalExchangeIsOpen = viewModel.coinSiteGlobalExchangeIsOpen.value,
                 infoIsOpen = viewModel.coinSiteInfoIsOpen.value,
                 kimpIsOpen = viewModel.coinSiteKimpIsOpen.value,
                 newsIsOpen = viewModel.coinSiteNewsIsOpen.value,

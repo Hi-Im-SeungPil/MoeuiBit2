@@ -2,9 +2,7 @@ package org.jeonfeel.moeuibit2.ui.main.coinsite
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewModelScope
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.KeyConst
@@ -16,8 +14,11 @@ import javax.inject.Inject
 class CoinSiteViewModel @Inject constructor(
     private val preferencesManager: PreferencesManager
 ) : BaseViewModel(preferencesManager) {
-    private val _coinSiteExchangeIsOpen = mutableStateOf(false)
-    val coinSiteExchangeIsOpen: State<Boolean> = _coinSiteExchangeIsOpen
+    private val _coinSiteKoreaExchangeIsOpen = mutableStateOf(false)
+    val coinSiteKoreaExchangeIsOpen: State<Boolean> = _coinSiteKoreaExchangeIsOpen
+
+    private val _coinSiteGlobalExchangeIsOpen = mutableStateOf(false)
+    val coinSiteGlobalExchangeIsOpen: State<Boolean> = _coinSiteGlobalExchangeIsOpen
 
     private val _coinSiteCommunityIsOpen = mutableStateOf(false)
     val coinSiteCommunityIsOpen: State<Boolean> = _coinSiteCommunityIsOpen
@@ -33,8 +34,12 @@ class CoinSiteViewModel @Inject constructor(
 
     fun updateIsOpen(name: String) {
         when (name) {
-            "exchange" -> {
-                _coinSiteExchangeIsOpen.value = !_coinSiteExchangeIsOpen.value
+            "koreaExchange" -> {
+                _coinSiteKoreaExchangeIsOpen.value = !_coinSiteKoreaExchangeIsOpen.value
+            }
+
+            "globalExchange" -> {
+                _coinSiteGlobalExchangeIsOpen.value = !_coinSiteGlobalExchangeIsOpen.value
             }
 
             "info" -> {
@@ -57,7 +62,8 @@ class CoinSiteViewModel @Inject constructor(
 
     fun saveIsOpen() {
         listOf(
-            KeyConst.PREF_KEY_COIN_SITE_EXCHANGE_IS_OPEN,
+            KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN,
+            KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_KIMP_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_NEWS_IS_OPEN,
@@ -65,8 +71,12 @@ class CoinSiteViewModel @Inject constructor(
         ).forEach {
             viewModelScope.launch {
                 val value = when (it) {
-                    KeyConst.PREF_KEY_COIN_SITE_EXCHANGE_IS_OPEN -> {
-                        _coinSiteExchangeIsOpen.value
+                    KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN -> {
+                        _coinSiteKoreaExchangeIsOpen.value
+                    }
+
+                    KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN -> {
+                        _coinSiteGlobalExchangeIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN -> {
@@ -95,7 +105,8 @@ class CoinSiteViewModel @Inject constructor(
 
     fun getIsOpen() {
         listOf(
-            KeyConst.PREF_KEY_COIN_SITE_EXCHANGE_IS_OPEN,
+            KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN,
+            KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_KIMP_IS_OPEN,
             KeyConst.PREF_KEY_COIN_SITE_NEWS_IS_OPEN,
@@ -105,8 +116,12 @@ class CoinSiteViewModel @Inject constructor(
                 preferencesManager.getBoolean(it)
                     .collect { isOpen ->
                         when (it) {
-                            KeyConst.PREF_KEY_COIN_SITE_EXCHANGE_IS_OPEN -> {
-                                _coinSiteExchangeIsOpen.value = isOpen
+                            KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN -> {
+                                _coinSiteKoreaExchangeIsOpen.value = isOpen
+                            }
+
+                            KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN -> {
+                                _coinSiteGlobalExchangeIsOpen.value = isOpen
                             }
 
                             KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN -> {

@@ -169,7 +169,6 @@ fun PortfolioScreen(
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
-//                            adDialogState.value = true
                                 findWrongCoin()
                             },
                         style = TextStyle(

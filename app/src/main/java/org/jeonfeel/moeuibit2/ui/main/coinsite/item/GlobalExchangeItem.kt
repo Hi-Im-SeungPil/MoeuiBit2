@@ -1,26 +1,23 @@
 package org.jeonfeel.moeuibit2.ui.main.coinsite.item
 
 import android.content.Context
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,20 +26,17 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
 import kotlin.reflect.KFunction1
 
-const val BYBIT_COLOR = 0xffF7A600
-
 @Composable
-fun KoreanExchangeItem(
+fun GlobalExchangeItem(
     updateIsOpen: KFunction1<String, Unit>,
     exchangeIsOpen: Boolean,
     context: Context
 ) {
-    val exchangeImageUrl = getKoreaExchangeImageArray()
+    val exchangeImageUrl = getGlobalExchangeImageArray()
     val exchangeUrl = stringArrayResource(id = R.array.exchangeUrl)
-    val packageMap = getExchangePackageMap()
+    val packageMap = getGlobalExchangePackageMap()
     val titles = packageMap.keys.toList()
     Column(
         modifier = Modifier
@@ -53,9 +47,9 @@ fun KoreanExchangeItem(
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .noRippleClickable { updateIsOpen("koreaExchange") }) {
+            .noRippleClickable { updateIsOpen("globalExchange") }) {
             Text(
-                text = "국내 거래소",
+                text = "해외 거래소",
                 modifier = Modifier
                     .padding(10.dp, 0.dp, 10.dp, 0.dp)
                     .align(Alignment.CenterVertically),
@@ -66,7 +60,7 @@ fun KoreanExchangeItem(
                     textAlign = TextAlign.Center
                 )
             )
-            IconButton(onClick = { updateIsOpen("koreaExchange") }) {
+            IconButton(onClick = { updateIsOpen("globalExchange") }) {
                 Icon(
                     if (exchangeIsOpen) {
                         Icons.Filled.KeyboardArrowUp
@@ -95,66 +89,66 @@ fun KoreanExchangeItem(
     }
 }
 
-@Composable
-fun CoinSiteCommonItem(
-    image: Int,
-    title: String,
-    url: String,
-    packageName: String?,
-    context: Context
-) {
-    Row(
-        modifier = Modifier
-            .padding(top = 15.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 15.dp)
-            .background(color = Color.White)
-            .clickable { moveUrlOrApp(context, url, packageName) }
-    ) {
-        Image(
-            painterResource(image),
-            "",
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, color = Color(0xFFF1EFEF), RoundedCornerShape(10.dp))
-                .align(Alignment.CenterVertically)
-        )
+//@Composable
+//fun CoinSiteCommonItem(
+//    image: Int,
+//    title: String,
+//    url: String,
+//    packageName: String?,
+//    context: Context
+//) {
+//    Row(
+//        modifier = Modifier
+//            .padding(top = 15.dp)
+//            .fillMaxWidth()
+//            .padding(horizontal = 15.dp)
+//            .background(color = Color.White)
+//            .clickable { moveUrlOrApp(context, url, packageName) }
+//    ) {
+//        Image(
+//            painterResource(image),
+//            "",
+//            modifier = Modifier
+//                .size(40.dp)
+//                .clip(RoundedCornerShape(10.dp))
+//                .border(1.dp, color = Color(0xFFF1EFEF), RoundedCornerShape(10.dp))
+//                .align(Alignment.CenterVertically)
+//        )
+//
+//        Text(
+//            text = title,
+//            style = TextStyle(fontSize = DpToSp(14.dp)),
+//            modifier = Modifier
+//                .padding(start = 15.dp)
+//                .weight(1f)
+//                .align(Alignment.CenterVertically)
+//        )
+//
+//        Icon(
+//            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+//            "",
+//            modifier = Modifier.align(Alignment.CenterVertically)
+//        )
+//    }
+//}
 
-        Text(
-            text = title,
-            style = TextStyle(fontSize = DpToSp(14.dp)),
-            modifier = Modifier
-                .padding(start = 15.dp)
-                .weight(1f)
-                .align(Alignment.CenterVertically)
-        )
-
-        Icon(
-            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            "",
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-    }
-}
-
-fun getKoreaExchangeImageArray(): Array<Int> {
+private fun getGlobalExchangeImageArray(): Array<Int> {
     return arrayOf(
-        R.drawable.img_upbit,
-        R.drawable.img_bitthumb,
-        R.drawable.img_coinone,
-        R.drawable.img_korbit,
-        R.drawable.img_gopax,
+        R.drawable.img_binance,
+        R.drawable.img_bybit,
+        R.drawable.img_okx,
+        R.drawable.img_gateio,
+        R.drawable.img_bitget,
     )
 }
 
-fun getExchangePackageMap(): Map<String, String?> {
+private fun getGlobalExchangePackageMap(): Map<String, String?> {
     return mapOf(
-        "업비트" to "com.dunamu.exchange",
-        "빗썸" to "com.btckorea.bithumb",
-        "코인원" to "coinone.co.kr.official",
-        "코빗" to "com.korbit.exchange",
-        "고팍스" to "kr.co.gopax",
+        "바이낸스" to "com.dunamu.exchange",
+        "바이비트" to "com.btckorea.bithumb",
+        "OKX" to "coinone.co.kr.official",
+        "게이트 IO" to "com.korbit.exchange",
+        "비트겟" to "kr.co.gopax",
 //        "바이낸스" to "com.binance.dev",
     )
 }
