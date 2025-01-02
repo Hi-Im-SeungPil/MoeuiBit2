@@ -1,6 +1,11 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import android.content.Context
+import com.jeremy.thunder.Thunder
+import com.jeremy.thunder.event.converter.ConverterType
+import com.jeremy.thunder.makeWebSocketCore
 import kotlinx.coroutines.flow.Flow
+import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.dao.UserDAO
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
@@ -18,8 +23,25 @@ import javax.inject.Inject
 class UpbitPortfolioUsecase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val upBitSocketService: UpbitPortfolioSocketService
-): BaseUseCase() {
+    private val okHttpClient: OkHttpClient,
+    private val context: Context
+) : BaseUseCase() {
+
+    private var socketService: UpbitPortfolioSocketService? = null
+
+    fun onStart() {
+        socketService = Thunder.Builder()
+            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            .setApplicationContext(context)
+            .setConverterType(ConverterType.Serialization)
+            .build()
+            .create()
+    }
+
+    fun onStop() {
+        socketService = null
+    }
+
     /**
      * 업비트 마켓 코드 조회
      */
@@ -54,7 +76,7 @@ class UpbitPortfolioUsecase @Inject constructor(
     suspend fun requestSubscribeTicker(
         marketCodes: List<String>,
     ) {
-        upBitSocketService.requestUpbitTickerRequest(
+        socketService?.requestUpbitTickerRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(
@@ -66,8 +88,8 @@ class UpbitPortfolioUsecase @Inject constructor(
         )
     }
 
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes> {
-        return upBitSocketService.collectUpbitTrade()
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes>? {
+        return socketService?.collectUpbitTrade()
     }
 
     suspend fun getUserSeedMoney(): Long {

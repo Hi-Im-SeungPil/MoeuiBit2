@@ -53,6 +53,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -111,7 +112,9 @@ fun ExchangeScreen(
     selectedSortType: State<SortType>,
     sortOrder: State<SortOrder>,
     updateSortType: KFunction1<SortType, Unit>,
-    updateSortOrder: KFunction1<SortOrder, Unit>
+    updateSortOrder: KFunction1<SortOrder, Unit>,
+    textFieldValueState: State<String>,
+    updateTextFieldValue: KFunction1<String, Unit>
 ) {
 
     val stateHolder = rememberExchangeStateHolder(
@@ -122,16 +125,18 @@ fun ExchangeScreen(
         sortOrder = sortOrder,
         tradeCurrencyState = tradeCurrencyState,
         updateSortType = updateSortType,
-        updateSortOrder = updateSortOrder
+        updateSortOrder = updateSortOrder,
+        textFieldValueState = textFieldValueState
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
         SearchSection(
-            textFieldValueState = stateHolder.textFieldValueState,
+            textFieldValueState = textFieldValueState,
             focusManager = stateHolder.focusManaManager,
             modifier = Modifier
                 .background(color = Color.White)
-                .zIndex(1f)
+                .zIndex(1f),
+            updateTextFieldValue = updateTextFieldValue
         )
         CollapsingToolbarScaffold(
             state = stateHolder.toolbarState,
@@ -163,7 +168,7 @@ fun ExchangeScreen(
                     coinTickerListSwipeAction = stateHolder::coinTickerListSwipeAction,
                     pagerState = stateHolder.pagerState,
                     appNavController = appNavController,
-                    strValue = stateHolder.textFieldValueState
+                    textFieldValue = textFieldValueState
                 )
             }
         }
@@ -172,14 +177,15 @@ fun ExchangeScreen(
 
 @Composable
 private fun SearchSection(
-    textFieldValueState: MutableState<String>,
+    textFieldValueState: State<String>,
     focusManager: FocusManager,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    updateTextFieldValue: KFunction1<String, Unit>
 ) {
     val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
     BasicTextField(value = textFieldValueState.value, onValueChange = {
-        textFieldValueState.value = it
+        updateTextFieldValue(it)
     }, singleLine = true,
         modifier = modifier
             .fillMaxWidth()
@@ -221,7 +227,7 @@ private fun SearchSection(
                 }
                 if (textFieldValueState.value.isNotEmpty()) {
                     IconButton(onClick = {
-                        textFieldValueState.value = ""
+                        updateTextFieldValue("")
                         focusManager.clearFocus(true)
                     }) {
                         Icon(
@@ -248,6 +254,7 @@ private fun SelectTradeCurrencySection(
     changeTradeCurrency: (Int) -> Unit,
     coroutineScope: CoroutineScope
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(modifier = Modifier.height(0.dp))
     Row(
@@ -290,6 +297,7 @@ private fun SelectTradeCurrencySection(
                     onClick = {
                         if (tradeCurrencyState.value != index) {
                             coroutineScope.launch {
+                                keyboardController?.hide()
                                 changeTradeCurrency(index)
                             }
                         }
@@ -421,19 +429,23 @@ private fun CoinTickerSection(
     coinTickerListSwipeAction: (isSwipeLeft: Boolean) -> Unit,
     pagerState: PagerState,
     appNavController: NavHostController,
-    strValue: MutableState<String>,
+    textFieldValue: State<String>,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     LazyColumn(modifier = Modifier
         .fillMaxSize()
         .SwipeDetector(
             onSwipeLeftAction = {
+                keyboardController?.hide()
                 coinTickerListSwipeAction(true)
             },
             onSwipeRightAction = {
+                keyboardController?.hide()
                 coinTickerListSwipeAction(false)
             }
         ), state = lazyScrollState) {
-        itemsIndexed(items = tickerList) { index, item ->
+        itemsIndexed(items = tickerList.toList()) { index, item ->
             CoinTickerView(
                 name = item.koreanName,
                 symbol = item.symbol,
@@ -447,10 +459,11 @@ private fun CoinTickerSection(
                     .formattedStringForBtc(),
                 btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
                     .formattedUnitStringForBtc(),
-                strValue = strValue,
+                textFieldValue = textFieldValue,
                 warning = item.warning,
                 caution = item.getIsCaution(),
                 onClickEvent = {
+                    keyboardController?.hide()
                     val market = item.market
                     val warning = item.warning
                     val caution = Utils.gson.toJson(item.caution)
@@ -482,7 +495,7 @@ fun CoinTickerView(
     market: String,
     btcPriceMultiplyCoinPrice: String,
     btcPriceMultiplyAcc: String,
-    strValue: MutableState<String>,
+    textFieldValue: State<String>,
     warning: Boolean,
     caution: Boolean
 ) = Column {
@@ -512,7 +525,7 @@ fun CoinTickerView(
             needAnimation.value = TickerAskBidState.NONE.name
         }
 
-        LaunchedEffect(key1 = strValue.value) {
+        LaunchedEffect(key1 = textFieldValue.value) {
             needAnimation.value = TickerAskBidState.NONE.name
         }
 

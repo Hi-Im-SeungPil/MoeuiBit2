@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.activities.MainActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeLoadingScreen
@@ -23,6 +22,15 @@ fun ExchangeScreenRoute(
     val context = LocalContext.current
     val backBtnTime = remember { mutableLongStateOf(0) }
 
+    AddLifecycleEvent(
+        onStartAction = {
+            viewModel.onStart()
+        },
+        onStopAction = {
+            viewModel.onStop()
+        },
+    )
+
     BackHandler(true) {
         val curTime = System.currentTimeMillis()
         val gapTime = curTime - backBtnTime.longValue
@@ -36,17 +44,6 @@ fun ExchangeScreenRoute(
         }
     }
 
-    AddLifecycleEvent(
-        onCreateAction = {
-            Logger.e("onCreate")
-        },
-        onPauseAction = {
-            viewModel.onPause()
-        },
-        onResumeAction = {
-            viewModel.onResume()
-        }
-    )
     if (viewModel.loadingState.value) {
         ExchangeLoadingScreen()
     } else {
@@ -61,7 +58,9 @@ fun ExchangeScreenRoute(
             selectedSortType = viewModel.selectedSortType,
             sortOrder = viewModel.sortOrder,
             updateSortType = viewModel::updateSortType,
-            updateSortOrder = viewModel::updateSortOrder
+            updateSortOrder = viewModel::updateSortOrder,
+            textFieldValueState = viewModel.textFieldValue,
+            updateTextFieldValue = viewModel::updateTextFieldValue
         )
     }
 }

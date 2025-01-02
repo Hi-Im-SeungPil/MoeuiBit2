@@ -1,7 +1,12 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import android.content.Context
+import com.jeremy.thunder.Thunder
+import com.jeremy.thunder.event.converter.ConverterType
+import com.jeremy.thunder.makeWebSocketCore
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
+import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
@@ -34,8 +39,24 @@ enum class OrderBookKind {
 class UpbitCoinOrderUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val upBitSocketService: UpbitOrderBookSocketService
+    private val okHttpClient: OkHttpClient,
+    private val context: Context
 ) : BaseUseCase() {
+    private var socketService: UpbitOrderBookSocketService? = null
+
+    fun onStart() {
+        socketService = Thunder.Builder()
+            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            .setApplicationContext(context)
+            .setConverterType(ConverterType.Serialization)
+            .build()
+            .create()
+    }
+
+    fun onStop() {
+        socketService = null
+    }
+
     suspend fun getOrderBook(market: String): Flow<Any> {
         val getUpbitOrderBookReq = GetUpbitOrderBookReq(market = market)
         return requestApiResult(
@@ -47,7 +68,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
     }
 
     suspend fun requestSubscribeOrderBook(marketCodes: List<String>) {
-        upBitSocketService.requestUpbitOrderBookRequest(
+        socketService?.requestUpbitOrderBookRequest(
             listOf(
                 OrderBookTicketField(ticket = UUID.randomUUID().toString()),
                 OrderBookRequestTypeField(codes = marketCodes),
@@ -55,8 +76,8 @@ class UpbitCoinOrderUseCase @Inject constructor(
         )
     }
 
-    suspend fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes> {
-        return upBitSocketService.collectUpbitOrderBook()
+    suspend fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes>? {
+        return socketService?.collectUpbitOrderBook()
     }
 
     suspend fun getUserSeedMoney(): User? {

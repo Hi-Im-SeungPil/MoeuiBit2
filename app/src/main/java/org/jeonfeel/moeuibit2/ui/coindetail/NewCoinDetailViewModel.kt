@@ -8,7 +8,6 @@ import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -63,11 +62,11 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private val _tradeResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
-    private var tickerRealTimeUpdateJob: Job? = null
+    private var realTimeJob: Job? = null
 
-    private var orderBookRealTimeUpdateJob: Job? = null
+    private var orderBookRealTimeJob: Job? = null
 
-    private var chartUpdateJob: Job? = null
+    private var chartRealTimeJob: Job? = null
 
     private var _market = ""
 
@@ -78,17 +77,14 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun init(market: String) {
         getOrderBookIndication()
-        tickerRealTimeUpdateJob = viewModelScope.launch {
+
+        viewModelScope.launch {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    _koreanCoinName.value =
-                        cacheManager.readKoreanCoinNameMap()[market.substring(4)] ?: ""
-                    initIsFavorite = upbitCoinDetailUseCase.getIsFavorite(market) != null
-                    _isFavorite.value = initIsFavorite
                     _market = market
+                    getKoreanCoinName()
+                    getIsFavorite()
                     requestCoinTicker(market)
-                    requestSubscribeTicker(market)
-                    collectTicker(market)
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
@@ -98,8 +94,89 @@ class NewCoinDetailViewModel @Inject constructor(
         }.also { it.start() }
     }
 
-    private suspend fun requestMarketCode() {
+    fun onStart(market: String) {
+        realTimeJob?.cancel()
 
+        realTimeJob = viewModelScope.launch {
+            upbitCoinDetailUseCase.onStart()
+            requestSubscribeTicker(market)
+            collectTicker(market)
+        }.also { it.start() }
+    }
+
+    fun onStop() {
+        viewModelScope.launch {
+            saveFavoriteStatus()
+            requestSubscribeTicker("")
+            upbitCoinDetailUseCase.onStop()
+            realTimeJob?.cancel()
+            realTimeJob = null
+        }
+    }
+
+    /**
+     * coin Order 화면 초기화
+     */
+    fun initCoinOrder(market: String) {
+        viewModelScope.launch(ioDispatcher) {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upbitCoinOrder.initCoinOrder(market)
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
+            }
+        }.also { it.start() }
+    }
+
+    fun coinOrderScreenOnStart(market: String) {
+        orderBookRealTimeJob?.cancel()
+
+        orderBookRealTimeJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upbitCoinOrder.onStart(market)
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
+            }
+        }.also { it.start() }
+    }
+
+    /**
+     * 코인 주문 화면 pause
+     */
+    fun coinOrderScreenOnStop() {
+        viewModelScope.launch {
+            upbitCoinOrder.onStop()
+            orderBookRealTimeJob?.cancel()
+            orderBookRealTimeJob = null
+        }
+    }
+
+    private suspend fun saveFavoriteStatus() {
+        if (initIsFavorite != isFavorite.value) {
+            if (isFavorite.value) {
+                upbitCoinDetailUseCase.addFavorite(market = _market)
+            } else {
+                upbitCoinDetailUseCase.deleteFavorite(market = _market)
+            }
+        }
+    }
+
+    private suspend fun getKoreanCoinName() {
+        Logger.e(cacheManager.readKoreanCoinNameMap()[_market.substring(4)] ?: "")
+        _koreanCoinName.value =
+            cacheManager.readKoreanCoinNameMap()[_market.substring(4)] ?: ""
+    }
+
+    private suspend fun getIsFavorite() {
+        initIsFavorite = upbitCoinDetailUseCase.getIsFavorite(_market) != null
+        _isFavorite.value = initIsFavorite
     }
 
     private suspend fun requestCoinTicker(market: String) {
@@ -124,57 +201,6 @@ class NewCoinDetailViewModel @Inject constructor(
     private suspend fun requestSubscribeTicker(market: String) {
         val marketList = market.coinOrderIsKrwMarket()
         upbitCoinDetailUseCase.requestSubscribeTicker(marketCodes = marketList.split(","))
-    }
-
-    private suspend fun requestSubscribeTickerPause() {
-//        upbitCoinDetailUseCase.requestSubscribeTickerPause()
-        upbitCoinDetailUseCase.requestSubscribeTicker(marketCodes = listOf(""))
-    }
-
-    /**
-     * coin Order 화면 초기화
-     */
-    fun initCoinOrder(market: String) {
-        orderBookRealTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
-                ROOT_EXCHANGE_UPBIT -> {
-                    upbitCoinOrder.initCoinOrder(market)
-                }
-
-                ROOT_EXCHANGE_BITTHUMB -> {
-
-                }
-            }
-        }.also { it.start() }
-    }
-
-    /**
-     * 코인 주문 화면 pause
-     */
-    fun coinOrderScreenOnPause() {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upbitCoinOrder.onPause()
-                orderBookRealTimeUpdateJob?.cancelAndJoin()
-            },
-            bitthumbAction = {
-
-            }
-        )
-    }
-
-    fun coinOrderScreenOnResume(market: String) {
-        orderBookRealTimeUpdateJob = viewModelScope.launch {
-            when (rootExchange) {
-                ROOT_EXCHANGE_UPBIT -> {
-                    upbitCoinOrder.onResume(market)
-                }
-
-                ROOT_EXCHANGE_BITTHUMB -> {
-
-                }
-            }
-        }.also { it.start() }
     }
 
     /**
@@ -235,31 +261,6 @@ class NewCoinDetailViewModel @Inject constructor(
                 _orderBookIndication.value
             )
         }
-    }
-
-    fun onPause() {
-        viewModelScope.launch {
-            if (initIsFavorite != isFavorite.value) {
-                if (isFavorite.value) {
-                    upbitCoinDetailUseCase.addFavorite(market = _market)
-                } else {
-                    upbitCoinDetailUseCase.deleteFavorite(market = _market)
-                }
-            }
-            requestSubscribeTickerPause()
-            upbitCoinDetailUseCase.onPause()
-            tickerRealTimeUpdateJob?.cancelAndJoin()
-            tickerRealTimeUpdateJob = null
-        }
-    }
-
-    fun onResume(market: String) {
-//        if (tickerRealTimeUpdateJob != null) return
-        tickerRealTimeUpdateJob = viewModelScope.launch {
-            upbitCoinDetailUseCase.onResume()
-            requestSubscribeTicker(market)
-            collectTicker(market)
-        }.also { it.start() }
     }
 
     /**
@@ -387,8 +388,8 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun requestChartData(market: String) {
-        chartUpdateJob?.cancel()
-        chartUpdateJob = viewModelScope.launch {
+        chartRealTimeJob?.cancel()
+        chartRealTimeJob = viewModelScope.launch {
 //            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
             chart.refresh(market = market)
 //            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
@@ -413,28 +414,30 @@ class NewCoinDetailViewModel @Inject constructor(
         coinInfo.getCoinInfo(market)
     }
 
+    private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
+        return "${koreanCoinName.value}${getPostposition(koreanCoinName.value)} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일에 거래지원 종료 예정입니다."
+    }
+
 
     private suspend fun collectTicker(market: String) {
         upbitCoinDetailUseCase.observeTickerResponse()?.onEach { result ->
             _tradeResponse.update {
                 result
             }
-        }?.collect { upbitSocketTradeRes ->
+        }?.collect { upbitSocketTickerRes ->
             runCatching {
-                Logger.e(upbitSocketTradeRes.toString())
-                if (upbitSocketTradeRes.delistingDate != null && !isShowDeListingSnackBar.value) {
-                    deListingMessage =
-                        "${koreanCoinName.value}${getPostposition(koreanCoinName.value)} ${upbitSocketTradeRes.delistingDate.year}년 ${upbitSocketTradeRes.delistingDate.month}월 ${upbitSocketTradeRes.delistingDate.day}일에 거래지원 종료 예정입니다."
+                Logger.e(upbitSocketTickerRes.toString())
+
+                if (upbitSocketTickerRes.delistingDate != null && !isShowDeListingSnackBar.value) {
+                    deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true
                 }
-
-                val commonExchangeModel = upbitSocketTradeRes.mapTo()
-
-                if (!market.isTradeCurrencyKrw() && upbitSocketTradeRes.code == BTC_MARKET) {
+                val commonExchangeModel = upbitSocketTickerRes.mapTo()
+                if (!market.isTradeCurrencyKrw() && upbitSocketTickerRes.code == BTC_MARKET) {
                     _btcPrice.value = commonExchangeModel.tradePrice
                 }
 
-                if (market != upbitSocketTradeRes.code) return@runCatching
+                if (market != upbitSocketTickerRes.code) return@runCatching
 
                 _coinTicker.value = commonExchangeModel
             }.fold(

@@ -11,8 +11,8 @@ import java.math.BigDecimal
 fun OrderScreenRoute(
     market: String,
     initCoinOrder: (String) -> Unit,
-    coinOrderScreenOnPause: () -> Unit,
-    coinOrderScreenOnResume: (String) -> Unit,
+    coinOrderScreenOnStop: () -> Unit,
+    coinOrderScreenOnStart: (String) -> Unit,
     commonExchangeModelState: State<CommonExchangeModel?>,
     maxOrderBookSize: State<Double>,
     orderBookList: List<OrderBookModel>,
@@ -26,11 +26,11 @@ fun OrderScreenRoute(
     userBTC: State<MyCoin>,
     userCoin: State<MyCoin>,
 ) {
-    NewOrderScreen(
+    OrderScreen(
         market = market,
         initCoinOrder = initCoinOrder,
-        coinOrderScreenOnPause = coinOrderScreenOnPause,
-        coinOrderScreenOnResume = coinOrderScreenOnResume,
+        coinOrderScreenOnStop = coinOrderScreenOnStop,
+        coinOrderScreenOnStart = coinOrderScreenOnStart,
         commonExchangeModelState = commonExchangeModelState,
         maxOrderBookSize = maxOrderBookSize,
         orderBookList = orderBookList,

@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -62,10 +61,10 @@ import kotlin.collections.toList
 
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
-    val adMobManager: AdMobManager,
-    val preferenceManager: PreferencesManager,
+    private val preferenceManager: PreferencesManager,
     private val upbitUseCase: UpbitPortfolioUsecase,
     private val cacheManager: CacheManager,
+    val adMobManager: AdMobManager,
 ) : BaseViewModel(preferenceManager) {
 
     private val _userSeedMoney = mutableLongStateOf(0L)
@@ -119,32 +118,30 @@ class PortfolioViewModel @Inject constructor(
     val loading = MutableStateFlow<Boolean>(true)
 
     init {
-        Logger.e("init")
-//        _loadingState.value = true
         viewModelScope.launch {
             getCoinName()
         }
     }
 
-    fun onResume() {
+    fun onStart() {
+        realTimeUpdateJob?.cancel()
+
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
+            upbitUseCase.onStart()
             getCoinName()
             getMarketCodeRes()
             compareUserHoldCoinList()
         }.also { it.start() }
     }
 
-    fun onPause() {
+    fun onStop() {
         viewModelScope.launch {
             _isPortfolioSocketRunning.value = false
             requestSubscribeTicker(listOf(""))
-            realTimeUpdateJob?.cancelAndJoin()
+            realTimeUpdateJob?.cancel()
+            upbitUseCase.onStop()
         }
     }
-
-//    suspend fun a() {
-//        if (myCoinList.isEmpty())
-//    }
 
     private suspend fun compareUserHoldCoinList() {
         _isPortfolioSocketRunning.value = false
@@ -158,16 +155,11 @@ class PortfolioViewModel @Inject constructor(
             } else {
                 getUserSeedMoney()
             }
-            Logger.e("isNotEmpty")
             modifyCoin(beforeMyCoinMap, newMyCoinMap)
             updateCoin()
-            requestTicker()
             setETC()
             requestSubscribeTicker(userHoldCoinsMarkets.split(","))
-            _isPortfolioSocketRunning.value = true
-            collectTicker()
         } else {
-//            _loadingState.value = true
             loading.update { true }
             resetPortfolio()
             getUserSeedMoney()
@@ -176,12 +168,10 @@ class PortfolioViewModel @Inject constructor(
             requestTicker()
             setETC()
             requestSubscribeTicker(userHoldCoinsMarkets.split(","))
-            if (loading.value) {
-                loading.update { false }
-            }
-            _isPortfolioSocketRunning.value = true
-            collectTicker()
+            loading.update { false }
         }
+        _isPortfolioSocketRunning.value = true
+        collectTicker()
     }
 
     private fun modifyCoin(
@@ -589,11 +579,11 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun collectTicker() {
-        upbitUseCase.observeTickerResponse().onEach { result ->
+        upbitUseCase.observeTickerResponse()?.onEach { result ->
             _tickerResponse.update {
                 result
             }
-        }.collect { upbitSocketTickerRes ->
+        }?.collect { upbitSocketTickerRes ->
             if (!isPortfolioSocketRunning.value) return@collect
 
             runCatching {

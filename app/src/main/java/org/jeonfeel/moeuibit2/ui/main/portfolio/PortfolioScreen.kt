@@ -242,7 +242,7 @@ fun PortfolioScreen(
                     )
                 }
 
-                itemsIndexed(items = getList()) { _, item ->
+                itemsIndexed(items = getList().toList()) { _, item ->
                     val userCoinInfo = getUserCoinInfo(item)
                     val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
                         value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()

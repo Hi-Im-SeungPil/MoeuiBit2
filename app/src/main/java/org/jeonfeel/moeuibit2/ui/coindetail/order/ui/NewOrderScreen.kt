@@ -62,10 +62,10 @@ import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
 
 @Composable
-fun NewOrderScreen(
+fun OrderScreen(
     initCoinOrder: (String) -> Unit,
-    coinOrderScreenOnPause: () -> Unit,
-    coinOrderScreenOnResume: (String) -> Unit,
+    coinOrderScreenOnStop: () -> Unit,
+    coinOrderScreenOnStart: (String) -> Unit,
     orderBookList: List<OrderBookModel>,
     market: String,
     commonExchangeModelState: State<CommonExchangeModel?>,
@@ -96,13 +96,11 @@ fun NewOrderScreen(
         onCreateAction = {
             initCoinOrder(market)
         },
-        onPauseAction = {
-            coinOrderScreenOnPause()
-        },
-        onResumeAction = {
-            coinOrderScreenOnResume(market)
+        onStartAction = {
+            coinOrderScreenOnStart(market)
         },
         onStopAction = {
+            coinOrderScreenOnStop()
             saveOrderBookIndicationState()
         }
     )
@@ -188,7 +186,7 @@ fun ColumnScope.OrderBookSection(
         modifier = Modifier
             .weight(1f), state = listState
     ) {
-        items(orderBookList) { orderBookModel ->
+        items(orderBookList.toList()) { orderBookModel ->
             OrderBookView(
                 price = orderBookModel.price.formattedString(),
                 fluctuateRate = getOrderBookItemFluctuateRate(orderBookModel.price.toDouble()),

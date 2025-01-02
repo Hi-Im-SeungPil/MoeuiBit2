@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -33,6 +32,8 @@ class ExchangeViewModelState {
     val selectedSortType: MutableState<SortType> = mutableStateOf(SortType.DEFAULT)
 
     val sortOrder: MutableState<SortOrder> = mutableStateOf(SortOrder.NONE)
+
+    val textFieldValue: MutableState<String> = mutableStateOf("")
 }
 
 @HiltViewModel
@@ -50,6 +51,8 @@ class ExchangeViewModel @Inject constructor(
     val selectedSortType: State<SortType> get() = state.selectedSortType
 
     val sortOrder: State<SortOrder> get() = state.sortOrder
+
+    val textFieldValue: State<String> get() = state.textFieldValue
 
     private var realTimeUpdateJob: Job? = null
 
@@ -91,25 +94,13 @@ class ExchangeViewModel @Inject constructor(
         }
     }
 
-    fun onPause() {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBitExchange.onPause()
-                realTimeUpdateJob?.cancelAndJoin()
-            },
-            bitthumbAction = {
+    fun onStart() {
+        realTimeUpdateJob?.cancel()
 
-            }
-        )
-    }
-
-    fun onResume() {
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
-                    upBitExchange.onResume(
-                        sortType = selectedSortType.value,
-                        sortOrder = sortOrder.value,
+                    upBitExchange.onStart(
                         updateLoadingState = ::updateLoadingState
                     )
                 }
@@ -119,6 +110,18 @@ class ExchangeViewModel @Inject constructor(
                 }
             }
         }.also { it.start() }
+    }
+
+    fun onStop() {
+        rootExchangeCoroutineBranch(
+            upbitAction = {
+                realTimeUpdateJob?.cancel()
+                upBitExchange.onStop()
+            },
+            bitthumbAction = {
+
+            }
+        )
     }
 
     private fun updateLoadingState(state: Boolean) {
@@ -198,6 +201,10 @@ class ExchangeViewModel @Inject constructor(
                 upBitExchange.getBtcPrice()
             }
         }
+    }
+
+    fun updateTextFieldValue(value: String) {
+        state.textFieldValue.value = value
     }
 
     companion object {

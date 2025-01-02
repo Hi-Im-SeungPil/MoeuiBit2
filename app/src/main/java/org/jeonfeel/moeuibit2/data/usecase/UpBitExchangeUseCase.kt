@@ -1,8 +1,9 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import android.content.Context
+import com.jeremy.thunder.Thunder
 import com.jeremy.thunder.event.converter.ConverterType
 import com.jeremy.thunder.makeWebSocketCore
-import com.jeremy.thunder.thunder
 import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
@@ -22,11 +23,27 @@ import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import java.util.UUID
 import javax.inject.Inject
 
-class UpbitExchangeUseCase @Inject constructor(
+class UpBitExchangeUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val upBitSocketService: UpBitExchangeSocketService
+    private val okHttpClient: OkHttpClient,
+    private val context: Context
 ) : BaseUseCase() {
+
+    private var socketService: UpBitExchangeSocketService? = null
+
+    fun onResume() {
+        socketService = Thunder.Builder()
+            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
+            .setApplicationContext(context)
+            .setConverterType(ConverterType.Serialization)
+            .build()
+            .create()
+    }
+
+    fun onPause() {
+        socketService = null
+    }
 
     /**
      * 업비트 마켓 코드 조회
@@ -124,7 +141,7 @@ class UpbitExchangeUseCase @Inject constructor(
     suspend fun requestSubscribeTicker(
         marketCodes: List<String>,
     ) {
-        upBitSocketService.requestUpbitTickerRequest(
+        socketService?.requestUpbitTickerRequest(
             listOf(
                 RequestTicketField(ticket = UUID.randomUUID().toString()),
                 RequestTypeField(
@@ -136,8 +153,8 @@ class UpbitExchangeUseCase @Inject constructor(
         )
     }
 
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes> {
-        return upBitSocketService.collectUpbitTickers()
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes>? {
+        return socketService?.collectUpbitTickers()
     }
 
     suspend fun addFavorite(market: String) {
@@ -151,26 +168,4 @@ class UpbitExchangeUseCase @Inject constructor(
     suspend fun getFavoriteList(): List<Favorite?>? {
         return localRepository.getFavoriteDao().all
     }
-
-//    /**
-//     * 업비트 Ticker 구독 요청
-//     */
-//    suspend fun requestPortfolioSubscribeTicker(
-//        marketCodes: List<String>,
-//    ) {
-//        upBitSocketService.requestUpbitPortfolioTickerRequest(
-//            listOf(
-//                RequestTicketField(ticket = UUID.randomUUID().toString()),
-//                RequestTypeField(
-//                    type = "ticker",
-//                    codes = marketCodes,
-//                ),
-//                RequestFormatField()
-//            )
-//        )
-//    }
-//
-//    fun observePotfolioTickerResponse(): Flow<UpbitSocketTickerRes> {
-//        return upBitSocketService.collectUpbitPortfolioTickers()
-//    }
 }

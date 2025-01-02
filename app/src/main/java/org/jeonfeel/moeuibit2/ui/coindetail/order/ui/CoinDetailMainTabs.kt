@@ -87,8 +87,8 @@ fun TabRowMainNavigation(
             OrderScreenRoute(
                 market = market,
                 initCoinOrder = viewModel::initCoinOrder,
-                coinOrderScreenOnPause = viewModel::coinOrderScreenOnPause,
-                coinOrderScreenOnResume = viewModel::coinOrderScreenOnResume,
+                coinOrderScreenOnStop = viewModel::coinOrderScreenOnStop,
+                coinOrderScreenOnStart = viewModel::coinOrderScreenOnStart,
                 commonExchangeModelState = viewModel.coinTicker,
                 orderBookList = viewModel.getOrderBookList(),
                 maxOrderBookSize = viewModel.getMaxOrderBookSize(),

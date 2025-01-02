@@ -20,8 +20,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -90,11 +88,11 @@ fun CoinDetailScreen(
         onCreateAction = {
             viewModel.init(market)
         },
-        onPauseAction = {
-            viewModel.onPause()
+        onStartAction = {
+            viewModel.onStart(market)
         },
-        onResumeAction = {
-            viewModel.onResume(market)
+        onStopAction = {
+            viewModel.onStop()
         }
     )
 

@@ -42,8 +42,8 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
     private val tradeCurrencyState: State<Int>,
     private val updateSortType: KFunction1<SortType, Unit>,
     private val updateSortOrder: KFunction1<SortOrder, Unit>,
+    val textFieldValueState: State<String>,
 ) {
-    val textFieldValueState = mutableStateOf("")
 
     fun getFilteredList(tickerList: List<CommonExchangeModel>): List<CommonExchangeModel> {
         val list = Utils.filterTickerList(
@@ -75,6 +75,7 @@ class ExchangeStateHolder @OptIn(ExperimentalPagerApi::class) constructor(
                     SortOrder.DESCENDING -> {
                         updateSortOrder(SortOrder.ASCENDING)
                     }
+
                     SortOrder.ASCENDING -> {
                         updateSortType(SortType.DEFAULT)
                         updateSortOrder(SortOrder.NONE)
@@ -140,7 +141,8 @@ fun rememberExchangeStateHolder(
     tradeCurrencyState: State<Int>,
     toolbarState: CollapsingToolbarScaffoldState = rememberCollapsingToolbarScaffoldState(),
     updateSortType: KFunction1<SortType, Unit>,
-    updateSortOrder: KFunction1<SortOrder, Unit>
+    updateSortOrder: KFunction1<SortOrder, Unit>,
+    textFieldValueState: State<String>
 ) = remember {
     ExchangeStateHolder(
         pagerState = pagerState,
@@ -156,6 +158,7 @@ fun rememberExchangeStateHolder(
         tradeCurrencyState = tradeCurrencyState,
         toolbarState = toolbarState,
         updateSortType = updateSortType,
-        updateSortOrder = updateSortOrder
+        updateSortOrder = updateSortOrder,
+        textFieldValueState = textFieldValueState
     )
 }

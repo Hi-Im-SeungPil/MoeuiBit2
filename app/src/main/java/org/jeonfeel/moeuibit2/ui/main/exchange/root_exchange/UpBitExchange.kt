@@ -15,7 +15,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeMo
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
@@ -43,7 +43,7 @@ sealed class ExchangeInitState {
 }
 
 class UpBitExchange @Inject constructor(
-    private val upbitUseCase: UpbitExchangeUseCase,
+    private val upBitExchangeUseCase: UpBitExchangeUseCase,
     private val cacheManager: CacheManager
 ) : BaseCommunicationModule() {
     private var successInit = false
@@ -98,16 +98,14 @@ class UpBitExchange @Inject constructor(
         requestTicker()
     }
 
-    suspend fun onResume(
-        sortType: SortType? = null,
-        sortOrder: SortOrder? = null,
+    suspend fun onStart(
         updateLoadingState: KFunction1<Boolean, Unit>
     ) {
+        upBitExchangeUseCase.onResume()
         if (!tickerDataIsEmpty() && successInit) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
-            updateTickerData(sortType = sortType, sortOrder = sortOrder)
             requestSubscribeTicker()
         } else if (tickerDataIsEmpty() && successInit) {
             updateLoadingState(true)
@@ -115,12 +113,8 @@ class UpBitExchange @Inject constructor(
             init()
             requestSubscribeTicker()
             updateLoadingState(false)
-            collectTicker()
         }
-    }
-
-    suspend fun onPause() {
-        upbitUseCase.requestSubscribeTicker(marketCodes = listOf(""))
+        collectTicker()
     }
 
     private suspend fun favoriteOnResume() {
@@ -147,13 +141,16 @@ class UpBitExchange @Inject constructor(
             val newModels = newFavorites.map { market ->
                 CommonExchangeModel(market = market) // 필요한 데이터를 생성
             }
-
             _favoriteExchangeModelList.addAll(newModels)
-
             _favoriteExchangeModelList.forEachIndexed { index, model ->
                 favoriteModelPosition[model.market] = index
             }
         }
+    }
+
+    suspend fun onStop() {
+        upBitExchangeUseCase.requestSubscribeTicker(marketCodes = listOf(""))
+        upBitExchangeUseCase.onPause()
     }
 
     /**
@@ -161,7 +158,7 @@ class UpBitExchange @Inject constructor(
      */
     private suspend fun requestMarketCode() {
         executeUseCase<List<UpbitMarketCodeRes>>(
-            target = upbitUseCase.getMarketCode(),
+            target = upBitExchangeUseCase.getMarketCode(),
             onComplete = { result ->
                 val codeListPair = Utils.divideKrwResBtcRes(result)
                 krwList.addAll(codeListPair.first.map { it.market })
@@ -183,7 +180,7 @@ class UpBitExchange @Inject constructor(
             marketCodes = marketCodes
         )
         executeUseCase<Pair<List<CommonExchangeModel>, List<CommonExchangeModel>>>(
-            target = upbitUseCase.getMarketTicker(
+            target = upBitExchangeUseCase.getMarketTicker(
                 getUpbitMarketTickerReq = req,
                 krwUpbitMarketCodeMap = krwMarketCodeMap.toMap(),
                 btcUpbitMarketCodeMap = btcMarketCodeMap.toMap(),
@@ -220,7 +217,7 @@ class UpBitExchange @Inject constructor(
             marketCodes = marketCodes
         )
         executeUseCase<List<CommonExchangeModel>>(
-            target = upbitUseCase.getMarketTicker(
+            target = upBitExchangeUseCase.getMarketTicker(
                 getUpbitMarketTickerReq = req,
                 krwUpbitMarketCodeMap = krwMarketCodeMap.toMap(),
                 btcUpbitMarketCodeMap = btcMarketCodeMap.toMap(),
@@ -406,7 +403,7 @@ class UpBitExchange @Inject constructor(
     private suspend fun requestSubscribeTicker() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> {
-                upbitUseCase.requestSubscribeTicker(
+                upBitExchangeUseCase.requestSubscribeTicker(
                     marketCodes = krwList.toList(),
                 )
             }
@@ -414,29 +411,29 @@ class UpBitExchange @Inject constructor(
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
-                upbitUseCase.requestSubscribeTicker(marketCodes = tempBtcList.toList())
+                upBitExchangeUseCase.requestSubscribeTicker(marketCodes = tempBtcList.toList())
             }
 
             TRADE_CURRENCY_FAV -> {
                 val tempFavoriteList = ArrayList(favoriteList)
                 tempFavoriteList.add(BTC_MARKET)
-                upbitUseCase.requestSubscribeTicker(marketCodes = tempFavoriteList.toList())
+                upBitExchangeUseCase.requestSubscribeTicker(marketCodes = tempFavoriteList.toList())
             }
         }
     }
 
     suspend fun addFavorite(market: String) {
-        upbitUseCase.addFavorite(market)
+        upBitExchangeUseCase.addFavorite(market)
     }
 
     suspend fun removeFavorite(market: String) {
-        upbitUseCase.removeFavorite(market)
+        upBitExchangeUseCase.removeFavorite(market)
     }
 
     private suspend fun getFavoriteList() {
         favoriteList.clear()
 
-        val list = upbitUseCase.getFavoriteList()?.let {
+        val list = upBitExchangeUseCase.getFavoriteList()?.let {
             it.map { favorite -> favorite?.market ?: "" }
         } ?: emptyList()
 
@@ -531,11 +528,11 @@ class UpBitExchange @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
-        upbitUseCase.observeTickerResponse().onEach { result ->
+        upBitExchangeUseCase.observeTickerResponse()?.onEach { result ->
             _tickerResponse.update {
                 result
             }
-        }.collectLatest { upbitSocketTickerRes ->
+        }?.collectLatest { upbitSocketTickerRes ->
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 

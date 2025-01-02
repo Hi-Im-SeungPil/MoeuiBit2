@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
@@ -23,6 +22,18 @@ fun PortfolioScreenRoute(
     bottomNavController: NavHostController,
 ) {
     val context = LocalContext.current
+
+    AddLifecycleEvent(
+        onStartAction = {
+            viewModel.onStart()
+        },
+        onStopAction = {
+            if (viewModel.showRemoveCoinDialogState.value) {
+                viewModel.hideBottomSheet()
+            }
+            viewModel.onStop()
+        }
+    )
 
     BackHandler {
         if (viewModel.showRemoveCoinDialogState.value) {
@@ -58,21 +69,6 @@ fun PortfolioScreenRoute(
     CommonLoadingDialog(
         holder.adLoadingDialogState,
         stringResource(id = R.string.loadAd)
-    )
-
-    AddLifecycleEvent(
-        onCreateAction = {
-            Logger.e("onCreate")
-        },
-        onStartAction = {
-            viewModel.onResume()
-        },
-        onPauseAction = {
-            if (viewModel.showRemoveCoinDialogState.value) {
-                viewModel.hideBottomSheet()
-            }
-            viewModel.onPause()
-        }
     )
 
     Box(modifier = Modifier.fillMaxSize()) {

@@ -43,8 +43,17 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         getUserSeedMoney()
         getUserCoin(market)
         getUserBtcCoin(market)
-        requestSubscribeOrderBook(market)
+    }
+
+    suspend fun onStart(market: String) {
+        upbitCoinOrderUseCase.onStart()
+        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
         collectOrderBook()
+    }
+
+    suspend fun onStop() {
+        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(""))
+        upbitCoinOrderUseCase.onStop()
     }
 
     /**
@@ -73,11 +82,11 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      * 호가 수집
      */
     private suspend fun collectOrderBook() {
-        upbitCoinOrderUseCase.requestObserveOrderBook().onEach { result ->
+        upbitCoinOrderUseCase.requestObserveOrderBook()?.onEach { result ->
             _tickerResponse.update {
                 result
             }
-        }.collect { upbitSocketOrderBookRes ->
+        }?.collect { upbitSocketOrderBookRes ->
             if (upbitSocketOrderBookRes.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {
@@ -86,14 +95,6 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 _maxOrderBookSize.doubleValue = realTimeOrderBook.maxOf { it.size }
             }
         }
-    }
-
-    suspend fun onPause() {
-        requestSubscribeOrderBook("pause")
-    }
-
-    suspend fun onResume(market: String) {
-        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
     }
 
     /**

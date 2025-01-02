@@ -4,7 +4,6 @@ import android.content.Context
 import com.jeremy.thunder.Thunder
 import com.jeremy.thunder.event.converter.ConverterType
 import com.jeremy.thunder.makeWebSocketCore
-import com.jeremy.thunder.thunder
 import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
@@ -29,7 +28,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
 
     private var socketService: UpbitCoinDetailSocketService? = null
 
-    suspend fun onResume() {
+    suspend fun onStart() {
         socketService = Thunder.Builder()
             .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
             .setApplicationContext(context)
@@ -38,7 +37,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
             .create()
     }
 
-    suspend fun onPause() {
+    suspend fun onStop() {
         socketService = null
     }
 

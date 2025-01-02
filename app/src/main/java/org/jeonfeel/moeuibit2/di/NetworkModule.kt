@@ -1,9 +1,12 @@
 package org.jeonfeel.moeuibit2.di
 
+import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.orhanobut.logger.Logger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -16,19 +19,16 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDTService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitPortfolioSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
-import org.jeonfeel.moeuibit2.data.usecase.UpbitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
+import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
@@ -36,16 +36,26 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class RetrofitOkHttpClient
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class SocketOkHttpClient
+
     @Singleton
     @Provides
-    fun provideUpBitOkHttpClient(): OkHttpClient {
+    @RetrofitOkHttpClient
+    fun provideRetrofitOkHttpClient(): OkHttpClient {
         val connectionPool = ConnectionPool(0, 700L, TimeUnit.MILLISECONDS)
         val httpLoggingInterceptor =
             HttpLoggingInterceptor { message ->
 //                Logger.d(message)
-            }
-                .setLevel(HttpLoggingInterceptor.Level.BODY)
+            }.setLevel(HttpLoggingInterceptor.Level.BODY)
+
         val httpClient = OkHttpClient.Builder()
+
         return httpClient.connectionPool(connectionPool)
             .addInterceptor(httpLoggingInterceptor)
             .retryOnConnectionFailure(true)
@@ -54,10 +64,27 @@ class NetworkModule {
             .build()
     }
 
+    @Singleton
+    @Provides
+    @SocketOkHttpClient
+    fun provideSocketOkHttpClient(): OkHttpClient {
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor { message -> Logger.d(message) }
+                .setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            .addInterceptor(httpLoggingInterceptor)
+            .pingInterval(
+                10,
+                TimeUnit.SECONDS
+            ).build()
+    }
+
     @OptIn(ExperimentalSerializationApi::class)
     @Singleton
     @Provides
-    fun provideUpBitRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideUpBitRetrofit(
+        @RetrofitOkHttpClient okHttpClient: OkHttpClient
+    ): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .baseUrl(retrofitBaseUrl)
@@ -77,8 +104,8 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideUSDTPriceService(retrofit: Retrofit): USDTService {
-        return retrofit.create(USDTService::class.java)
+    fun provideBitThumbService(retrofit: Retrofit): BitThumbService {
+        return retrofit.create(BitThumbService::class.java)
     }
 
     @Singleton
@@ -89,8 +116,8 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideBitThumbService(retrofit: Retrofit): BitThumbService {
-        return retrofit.create(BitThumbService::class.java)
+    fun provideUSDTPriceService(retrofit: Retrofit): USDTService {
+        return retrofit.create(USDTService::class.java)
     }
 
     @Singleton
@@ -99,29 +126,6 @@ class NetworkModule {
         upBitService: UpBitService,
     ): UpbitRepository {
         return UpbitRepository(upBitService)
-    }
-
-//    @Singleton
-
-
-    @Singleton
-    @Provides
-    fun provideUpbitUseCase(
-        localRepository: LocalRepository,
-        upbitRepository: UpbitRepository,
-        @SocketModule.ExchangeTickerSocket upBitSocketService: UpBitExchangeSocketService,
-    ): UpbitExchangeUseCase {
-        return UpbitExchangeUseCase(upbitRepository, localRepository, upBitSocketService)
-    }
-
-    @Singleton
-    @Provides
-    fun provideOrderBookUseCase(
-        upbitRepository: UpbitRepository,
-        localRepository: LocalRepository,
-        @SocketModule.CoinDetailOrderBookSocket upBitSocketService: UpbitOrderBookSocketService
-    ): UpbitCoinOrderUseCase {
-        return UpbitCoinOrderUseCase(upbitRepository, localRepository, upBitSocketService)
     }
 
     @Singleton
@@ -134,15 +138,64 @@ class NetworkModule {
 
     @Singleton
     @Provides
+    fun provideUpbitUseCase(
+        localRepository: LocalRepository,
+        upbitRepository: UpbitRepository,
+        @SocketOkHttpClient okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpBitExchangeUseCase {
+        return UpBitExchangeUseCase(
+            localRepository = localRepository,
+            upbitRepository = upbitRepository,
+            okHttpClient = okHttpClient,
+            context = context
+        )
+    }
+
+    @Singleton
+    @Provides
     fun provideUpbitPortfolioUsecase(
         upbitRepository: UpbitRepository,
         localRepository: LocalRepository,
-        @SocketModule.PortfolioSocket upbitSocketService: UpbitPortfolioSocketService
+        @SocketOkHttpClient okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
     ): UpbitPortfolioUsecase {
         return UpbitPortfolioUsecase(
-            upbitRepository = upbitRepository,
             localRepository = localRepository,
-            upBitSocketService = upbitSocketService
+            upbitRepository = upbitRepository,
+            okHttpClient = okHttpClient,
+            context = context
+        )
+    }
+
+    @Provides
+    fun providerCoinDetailUseCase(
+        localRepository: LocalRepository,
+        upbitRepository: UpbitRepository,
+        @SocketOkHttpClient okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpbitCoinDetailUseCase {
+        return UpbitCoinDetailUseCase(
+            localRepository = localRepository,
+            upbitRepository = upbitRepository,
+            okHttpClient = okHttpClient,
+            context = context
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideOrderBookUseCase(
+        upbitRepository: UpbitRepository,
+        localRepository: LocalRepository,
+        @SocketOkHttpClient okHttpClient: OkHttpClient,
+        @ApplicationContext context: Context
+    ): UpbitCoinOrderUseCase {
+        return UpbitCoinOrderUseCase(
+            localRepository = localRepository,
+            upbitRepository = upbitRepository,
+            okHttpClient = okHttpClient,
+            context = context
         )
     }
 }
