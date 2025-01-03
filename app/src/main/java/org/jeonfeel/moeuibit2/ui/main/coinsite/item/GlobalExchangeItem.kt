@@ -89,49 +89,6 @@ fun GlobalExchangeItem(
     }
 }
 
-//@Composable
-//fun CoinSiteCommonItem(
-//    image: Int,
-//    title: String,
-//    url: String,
-//    packageName: String?,
-//    context: Context
-//) {
-//    Row(
-//        modifier = Modifier
-//            .padding(top = 15.dp)
-//            .fillMaxWidth()
-//            .padding(horizontal = 15.dp)
-//            .background(color = Color.White)
-//            .clickable { moveUrlOrApp(context, url, packageName) }
-//    ) {
-//        Image(
-//            painterResource(image),
-//            "",
-//            modifier = Modifier
-//                .size(40.dp)
-//                .clip(RoundedCornerShape(10.dp))
-//                .border(1.dp, color = Color(0xFFF1EFEF), RoundedCornerShape(10.dp))
-//                .align(Alignment.CenterVertically)
-//        )
-//
-//        Text(
-//            text = title,
-//            style = TextStyle(fontSize = DpToSp(14.dp)),
-//            modifier = Modifier
-//                .padding(start = 15.dp)
-//                .weight(1f)
-//                .align(Alignment.CenterVertically)
-//        )
-//
-//        Icon(
-//            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-//            "",
-//            modifier = Modifier.align(Alignment.CenterVertically)
-//        )
-//    }
-//}
-
 private fun getGlobalExchangeImageArray(): Array<Int> {
     return arrayOf(
         R.drawable.img_binance,
@@ -144,11 +101,19 @@ private fun getGlobalExchangeImageArray(): Array<Int> {
 
 private fun getGlobalExchangePackageMap(): Map<String, String?> {
     return mapOf(
-        "바이낸스" to "com.dunamu.exchange",
-        "바이비트" to "com.btckorea.bithumb",
-        "OKX" to "coinone.co.kr.official",
-        "게이트 IO" to "com.korbit.exchange",
-        "비트겟" to "kr.co.gopax",
-//        "바이낸스" to "com.binance.dev",
+        "바이낸스" to "com.binance.dev",
+        "바이비트" to "com.bybit.app",
+        "OKX" to "com.okinc.okex.gp",
+        "게이트 IO" to "com.gateio.gateio",
+        "비트겟" to "com.bitget.exchange",
+    )
+}
+
+private fun getRefferalUrl(): List<String> {
+    return listOf(
+        "https://www.binance.info/activity/referral-entry/CPA?ref=CPA_00K7KK4OY0",
+        "https://www.bybit.com/invite?ref=0RZLJJN",
+        "https://okx.com/join/74392423",
+        "https://www.gate.io/signup/VFdHVA0O?ref_type=103"
     )
 }

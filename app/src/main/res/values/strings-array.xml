@@ -57,6 +57,15 @@
         <item>https://www.gopax.co.kr</item>
         <item>https://www.binance.com/en</item>
     </string-array>
+
+    <string-array name="globalExchangeUrl">
+        <item>https://www.upbit.com</item>
+        <item>https://www.bithumb.com</item>
+        <item>https://coinone.co.kr</item>
+        <item>https://www.korbit.co.kr/</item>
+        <item>https://www.gopax.co.kr</item>
+        <item>https://www.binance.com/en</item>
+    </string-array>
     
     <string-array name="communityUrl">
         <item>https://www.ddengle.com</item>

@@ -8,11 +8,10 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import org.jeonfeel.moeuibit2.ui.nav.MainBottomNavGraph
-import org.jeonfeel.moeuibit2.ui.main.MainBottomNavigation
+import org.jeonfeel.moeuibit2.ui.nav.MainBottomNavigation
 
 @Composable
 fun MoeuiBitApp(

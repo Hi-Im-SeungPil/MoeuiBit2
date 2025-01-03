@@ -19,114 +19,91 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
 import kotlin.reflect.KFunction1
 
 @Composable
-fun CoinNews(updateIsOpen: KFunction1<String, Unit>, coinNewsIsOpen: Boolean, context: Context) {
+fun CoinNews(
+    updateIsOpen: KFunction1<String, Unit>,
+    exchangeIsOpen: Boolean,
+    context: Context
+) {
     val coinInfoImageUrl = getCoinNewsImageArray()
     val coinInfoUrl = stringArrayResource(id = R.array.coinNewsUrl)
     val packageMap = getCoinNewsPackageMap()
     val titles = packageMap.keys.toList()
+
     Column(
         modifier = Modifier
+            .padding(top = 15.dp)
             .fillMaxWidth()
             .wrapContentHeight()
+            .background(color = MaterialTheme.colorScheme.background),
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xffFEF7FF))
-            .clickable { updateIsOpen("news") }) {
+            .noRippleClickable { updateIsOpen("news") }) {
             Text(
-                text = "코인 뉴스 / 호재", modifier = Modifier
-                    .padding(10.dp, 5.dp, 0.dp, 5.dp)
-                    .weight(1f, true)
+                text = "코인 뉴스 / 호재",
+                modifier = Modifier
+                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
                     .align(Alignment.CenterVertically),
-                fontSize = DpToSp(20.dp),
-                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+                fontSize = DpToSp(18.dp),
+                style = TextStyle(
+                    fontWeight = FontWeight.W600,
+                    color = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    textAlign = TextAlign.Center
+                )
             )
             IconButton(onClick = { updateIsOpen("news") }) {
                 Icon(
-                    if (coinNewsIsOpen) {
+                    if (exchangeIsOpen) {
                         Icons.Filled.KeyboardArrowUp
                     } else {
                         Icons.Filled.KeyboardArrowDown
-                    }, contentDescription = null, tint = MaterialTheme.colorScheme.primary
+                    },
+                    contentDescription = null,
+                    tint = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
-        Divider(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
-            1.dp
-        )
-        if (coinNewsIsOpen) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                for (i in 0 until 3) {
-                    Column(modifier = Modifier
-                        .padding(5.dp, 5.dp, 5.dp, 10.dp)
-                        .weight(1f)
-                        .height(100.dp)
-                        .clickable {
-                            moveUrlOrApp(context, coinInfoUrl[i], packageMap[titles[i]])
-                        }) {
-                        GlideImage(
-                            imageModel = coinInfoImageUrl[i],
-                            modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit
-                        )
-                        Text(
-                            text = titles[i],
-                            modifier = Modifier.fillMaxWidth(1f),
-                            textAlign = TextAlign.Center,
-                            fontSize = DpToSp(15.dp),
-                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                        )
-                    }
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier
-                    .padding(5.dp, 5.dp, 5.dp, 10.dp)
-                    .weight(1f)
-                    .height(100.dp)
-                    .clickable {
-                        moveUrlOrApp(context, coinInfoUrl[3], packageMap[titles[3]])
-                    }) {
-                    GlideImage(
-                        imageModel = coinInfoImageUrl[3],
-                        modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit
-                    )
-                    Text(
-                        text = titles[3],
-                        modifier = Modifier.fillMaxWidth(1f),
-                        textAlign = TextAlign.Center,
-                        fontSize = DpToSp(15.dp),
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+        if (exchangeIsOpen) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                for (i in 0 until 2) {
+                    CoinSiteCommonItem(
+                        image = coinInfoImageUrl[i],
+                        title = titles[i],
+                        url = coinInfoUrl[i],
+                        packageName = packageMap[titles[i]],
+                        context = context
                     )
                 }
-                Box(modifier = Modifier.weight(1f))
-                Box(modifier = Modifier.weight(1f))
+                CoinSiteBigImageCommonItem(
+                    image = coinInfoImageUrl[2],
+                    title = titles[2],
+                    url = coinInfoUrl[2],
+                    packageName = packageMap[titles[2]],
+                    context = context
+                )
             }
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary,
-                1.dp
-            )
         }
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
 fun getCoinNewsImageArray(): Array<Int> {
     return arrayOf(
         R.drawable.img_coinness,
-        R.drawable.img_coinmarket_cal,
+        R.drawable.img_coinmarketcal,
         R.drawable.img_codal,
-        R.drawable.img_coin_desk
     )
 }
 
@@ -135,6 +112,5 @@ fun getCoinNewsPackageMap(): Map<String, String?> {
         "코인 니스" to "live.coinness",
         "코인 마켓 캘린더" to "com.coincal",
         "코인달인" to null,
-        "코인데스크" to null
     )
 }

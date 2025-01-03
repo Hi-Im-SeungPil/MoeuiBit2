@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.main.coinsite
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.KeyConst
@@ -42,6 +43,10 @@ class CoinSiteViewModel @Inject constructor(
                 _coinSiteGlobalExchangeIsOpen.value = !_coinSiteGlobalExchangeIsOpen.value
             }
 
+            "community" -> {
+                _coinSiteCommunityIsOpen.value = !_coinSiteCommunityIsOpen.value
+            }
+
             "info" -> {
                 _coinSiteInfoIsOpen.value = !_coinSiteInfoIsOpen.value
             }
@@ -52,10 +57,6 @@ class CoinSiteViewModel @Inject constructor(
 
             "news" -> {
                 _coinSiteNewsIsOpen.value = !_coinSiteNewsIsOpen.value
-            }
-
-            "community" -> {
-                _coinSiteCommunityIsOpen.value = !_coinSiteCommunityIsOpen.value
             }
         }
     }
@@ -72,26 +73,37 @@ class CoinSiteViewModel @Inject constructor(
             viewModelScope.launch {
                 val value = when (it) {
                     KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteKoreaExchangeIsOpen.value}")
                         _coinSiteKoreaExchangeIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteGlobalExchangeIsOpen.value}")
+
                         _coinSiteGlobalExchangeIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteInfoIsOpen.value}")
+
                         _coinSiteInfoIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_KIMP_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteKimpIsOpen.value}")
+
                         _coinSiteKimpIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_NEWS_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteNewsIsOpen.value}")
+
                         _coinSiteNewsIsOpen.value
                     }
 
                     KeyConst.PREF_KEY_COIN_SITE_COMMUNITY_IS_OPEN -> {
+                        Logger.e("save $it ${_coinSiteCommunityIsOpen.value}")
+
                         _coinSiteCommunityIsOpen.value
                     }
 
@@ -115,6 +127,7 @@ class CoinSiteViewModel @Inject constructor(
             viewModelScope.launch {
                 preferencesManager.getBoolean(it)
                     .collect { isOpen ->
+                        Logger.e("get $it $isOpen")
                         when (it) {
                             KeyConst.PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN -> {
                                 _coinSiteKoreaExchangeIsOpen.value = isOpen
@@ -122,6 +135,10 @@ class CoinSiteViewModel @Inject constructor(
 
                             KeyConst.PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN -> {
                                 _coinSiteGlobalExchangeIsOpen.value = isOpen
+                            }
+
+                            KeyConst.PREF_KEY_COIN_SITE_COMMUNITY_IS_OPEN -> {
+                                _coinSiteCommunityIsOpen.value = isOpen
                             }
 
                             KeyConst.PREF_KEY_COIN_SITE_INFO_IS_OPEN -> {
@@ -134,10 +151,6 @@ class CoinSiteViewModel @Inject constructor(
 
                             KeyConst.PREF_KEY_COIN_SITE_NEWS_IS_OPEN -> {
                                 _coinSiteNewsIsOpen.value = isOpen
-                            }
-
-                            KeyConst.PREF_KEY_COIN_SITE_COMMUNITY_IS_OPEN -> {
-                                _coinSiteCommunityIsOpen.value = isOpen
                             }
                         }
                     }

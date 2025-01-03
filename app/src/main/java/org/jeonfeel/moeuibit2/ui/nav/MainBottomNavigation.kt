@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main
+package org.jeonfeel.moeuibit2.ui.nav
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size

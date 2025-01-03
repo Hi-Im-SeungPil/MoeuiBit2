@@ -1,106 +1,143 @@
 package org.jeonfeel.moeuibit2.ui.main.coinsite.item
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
 import kotlin.reflect.KFunction1
 
 @Composable
-fun KimpItem(updateIsOpen: KFunction1<String, Unit>, kimpIsOpen: Boolean, context: Context) {
+fun KimpItem(
+    updateIsOpen: KFunction1<String, Unit>,
+    exchangeIsOpen: Boolean,
+    context: Context
+) {
     val coinInfoImageUrl = getKimpImageArray()
     val coinInfoUrl = stringArrayResource(id = R.array.kimpUrl)
     val packageMap = getKimpPackageMap()
     val titles = packageMap.keys.toList()
+
     Column(
         modifier = Modifier
+            .padding(top = 15.dp)
             .fillMaxWidth()
             .wrapContentHeight()
+            .background(color = MaterialTheme.colorScheme.background),
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xffFEF7FF))
-            .clickable { updateIsOpen("kimp") }) {
+            .noRippleClickable { updateIsOpen("kimp") }) {
             Text(
-                text = "김프 정보 (한국 프리미엄)", modifier = Modifier
-                    .padding(10.dp, 5.dp, 0.dp, 5.dp)
-                    .weight(1f, true)
+                text = "김프 정보 (한국 프리미엄)",
+                modifier = Modifier
+                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
                     .align(Alignment.CenterVertically),
-                fontSize = DpToSp(20.dp),
-                style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+                fontSize = DpToSp(18.dp),
+                style = TextStyle(
+                    fontWeight = FontWeight.W600,
+                    color = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    textAlign = TextAlign.Center
+                )
             )
             IconButton(onClick = { updateIsOpen("kimp") }) {
                 Icon(
-                    if (kimpIsOpen) {
+                    if (exchangeIsOpen) {
                         Icons.Filled.KeyboardArrowUp
                     } else {
                         Icons.Filled.KeyboardArrowDown
-                    }, contentDescription = null, tint = MaterialTheme.colorScheme.primary
+                    },
+                    contentDescription = null,
+                    tint = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
         }
-        Divider(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
-            1.dp
-        )
-        if (kimpIsOpen) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+        if (exchangeIsOpen) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 for (i in 0 until 2) {
-                    Column(modifier = Modifier
-                        .padding(5.dp, 5.dp, 5.dp, 10.dp)
-                        .weight(1f)
-                        .height(100.dp)
-                        .clickable {
-                            moveUrlOrApp(context, coinInfoUrl[i], packageMap[titles[i]])
-                        }) {
-                        GlideImage(
-                            imageModel = coinInfoImageUrl[i],
-                            modifier = Modifier.height(80.dp), contentScale = ContentScale.Fit
-                        )
-                        Text(
-                            text = titles[i],
-                            modifier = Modifier.fillMaxWidth(1f),
-                            textAlign = TextAlign.Center,
-                            fontSize = DpToSp(15.dp),
-                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                        )
-                    }
+                    CoinSiteBigImageCommonItem(
+                        image = coinInfoImageUrl[i],
+                        title = titles[i],
+                        url = coinInfoUrl[i],
+                        packageName = packageMap[titles[i]],
+                        context = context
+                    )
                 }
-                Spacer(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .weight(1f)
-                        .height(60.dp)
-                )
             }
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary,
-                1.dp
-            )
         }
+    }
+}
+
+@Composable
+fun CoinSiteBigImageCommonItem(
+    image: Int,
+    title: String,
+    url: String,
+    packageName: String?,
+    context: Context
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 15.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 15.dp)
+            .background(color = Color.White)
+            .clickable { moveUrlOrApp(context, url, packageName) }
+    ) {
+        Image(
+            painterResource(image),
+            "",
+            modifier = Modifier
+                .width(90.dp)
+                .height(50.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.dp, color = Color(0xFFF1EFEF), RoundedCornerShape(10.dp))
+                .align(Alignment.CenterVertically)
+        )
+
+        Text(
+            text = title,
+            style = TextStyle(fontSize = DpToSp(14.dp)),
+            modifier = Modifier
+                .padding(start = 15.dp)
+                .weight(1f)
+                .align(Alignment.CenterVertically)
+        )
+
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            "",
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
     }
 }
 
