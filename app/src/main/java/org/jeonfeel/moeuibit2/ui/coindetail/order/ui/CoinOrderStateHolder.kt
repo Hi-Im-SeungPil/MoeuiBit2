@@ -18,6 +18,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -201,18 +202,15 @@ class CoinOrderStateHolder(
                 _askTotalPrice.value = 0.0.newBigDecimal()
             }
         } else {
+            val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
+                value.toDouble().newBigDecimal()
+            ) ?: 0.0.newBigDecimal()
             if (isBid) {
-                val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
-                    value.toDouble().newBigDecimal()
-                ) ?: 0.0.newBigDecimal()
                 _bidQuantity.value = value
-                _bidTotalPrice.value = (totalPrice + totalPrice.multiply(0.0005.newBigDecimal(4)))
+                _bidTotalPrice.value = totalPrice
             } else {
-                val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
-                    value.toDouble().newBigDecimal()
-                ) ?: 0.0.newBigDecimal()
                 _askQuantity.value = value
-                _askTotalPrice.value = (totalPrice - totalPrice.multiply(0.0005.newBigDecimal(4)))
+                _askTotalPrice.value = totalPrice
             }
         }
     }
@@ -245,9 +243,9 @@ class CoinOrderStateHolder(
             )
 
             _bidQuantityPercentage.value = percentageLabelList[index]
-            _bidQuantity.value = quantity.formattedStringForQuantity()
+            _bidQuantity.value = quantity.toString()
         } else {
-            _bidQuantity.value = "0"
+            _bidQuantity.value = ""
         }
     }
 
@@ -260,21 +258,21 @@ class CoinOrderStateHolder(
                 .setScale(8, RoundingMode.FLOOR)
 
             _askQuantityPercentage.value = percentageLabelList[index]
-            _askQuantity.value = quantity.formattedStringForQuantity()
+            _askQuantity.value = quantity.toString()
         } else {
-            _askQuantity.value = "0"
+            _askQuantity.value = ""
         }
     }
 
     fun getBidTotalPrice(): String {
         return if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val totalPrice =
-                bidQuantity.value.replace(",", "").toDouble()
+                bidQuantity.value.toDouble()
                     .newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
 
             if (market.isTradeCurrencyKrw()) {
-                totalPrice.formattedString()
+                totalPrice.formattedStringForKRW()
             } else {
                 totalPrice.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
             }
@@ -286,16 +284,13 @@ class CoinOrderStateHolder(
     fun getAskTotalPrice(): String {
         return if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val total =
-                askQuantity.value.replace(",", "").toDouble()
+                askQuantity.value.toDouble()
                     .newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
-
             if (market.isTradeCurrencyKrw()) {
-                val commission = total.multiply(KRW_COMMISSION_FEE.newBigDecimal(4))
-                total.minus(commission).formattedString()
+                total.formattedString()
             } else {
-                val commission = total.multiply(BTC_COMMISSION_FEE.newBigDecimal(4))
-                total.minus(commission).setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
+                total.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
             }
         } else {
             "0"
@@ -305,18 +300,19 @@ class CoinOrderStateHolder(
     private fun bidReset() {
         _bidQuantity.value = ""
         _bidQuantityPercentage.value = "비율"
+        context.showToast("매수가 완료 되었습니다.")
     }
 
     private fun askReset() {
         _askQuantity.value = ""
         _askQuantityPercentage.value = "비율"
+        context.showToast("매도가 완료 되었습니다.")
     }
 
     fun bid() {
         if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val total =
-                bidQuantity.value
-                    .replace(",", "").toDouble()
+                bidQuantity.value.toDouble()
                     .newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
 
@@ -328,17 +324,17 @@ class CoinOrderStateHolder(
 
             when {
                 commonExchangeModelState.value == null -> {
-                    Logger.e("requestBid1")
+                    context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
 
                 commonExchangeModelState.value != null && commonExchangeModelState.value?.tradePrice?.toDouble() == 0.0 -> {
-                    Logger.e("requestBid7")
+                    context.showToast("가격이 0원 입니다. 정상화 후 다시 시도해 주세요")
                     return
                 }
 
                 !Utils.isNetworkAvailable(context) -> {
-                    Logger.e("requestBid4")
+                    context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
 
@@ -351,14 +347,13 @@ class CoinOrderStateHolder(
 
                     when {
                         totalPrice > (userSeedMoney.value.toDouble().newBigDecimal()
-                            .plus(commission)
                             .setScale(0, RoundingMode.HALF_UP)) -> {
-                            Logger.e("requestBid2")
+                            context.showToast("보유하신 KRW가 부족합니다.")
                             return
                         }
 
                         totalPrice.toDouble() < 5000 -> {
-                            Logger.e("requestBid3")
+                            context.showToast("최소 매수 금액은 5000원 입니다.")
                             return
                         }
 
@@ -372,14 +367,13 @@ class CoinOrderStateHolder(
                     when {
                         totalPrice > (userBTC.value.quantity
                             .newBigDecimal(8, RoundingMode.HALF_UP)
-                            .plus(commission)
                             .setScale(8, RoundingMode.HALF_UP)) -> {
-                            Logger.e("requestBid3")
+                            context.showToast("보유하신 BTC가 부족합니다.")
                             return
                         }
 
                         totalPrice.toDouble() < 0.00005 -> {
-                            Logger.e("requestBid3")
+                            context.showToast("최소 매수 금액은 0.00005BTC 입니다.")
                             return
                         }
 
@@ -389,11 +383,20 @@ class CoinOrderStateHolder(
 
                 else -> {}
             }
+            val commission = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                    .multiply(BigDecimal(KRW_COMMISSION_FEE))
+            } else {
+                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                    .multiply(BigDecimal(BTC_COMMISSION_FEE))
+            }
 
-            Logger.e("requestBid")
+            val bidQuantityResult =
+                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR).minus(commission)
+
             requestBid(
                 market,
-                bidQuantity.value.replace(",", "").toDouble(),
+                bidQuantityResult.toDouble(),
                 commonExchangeModelState.value?.tradePrice ?: 0.0.newBigDecimal(),
                 totalPrice.toDouble(),
             )
@@ -406,7 +409,8 @@ class CoinOrderStateHolder(
 
         if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val userAskQuantity =
-                askQuantity.value.replace(",", "").toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+                askQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+
             val tempPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
                 userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
                     .setScale(0, RoundingMode.FLOOR)
@@ -429,22 +433,22 @@ class CoinOrderStateHolder(
 
             when {
                 commonExchangeModelState.value == null -> {
-                    Logger.e("requestBid1")
+                    context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
 
                 commonExchangeModelState.value != null && commonExchangeModelState.value?.tradePrice?.toDouble() == 0.0 -> {
-                    Logger.e("requestBid7")
+                    context.showToast("가격이 0원 입니다. 정상화 후 다시 시도해 주세요")
                     return
                 }
 
                 userAskQuantity > (userCoinQuantity).newBigDecimal(8, RoundingMode.FLOOR) -> {
-                    Logger.e("requestBid2")
+                    context.showToast("보유하신 수량이 매도 수량보다 적습니다.")
                     return
                 }
 
                 !Utils.isNetworkAvailable(context) -> {
-                    Logger.e("requestBid4")
+                    context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
 
@@ -455,7 +459,7 @@ class CoinOrderStateHolder(
                 market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.toDouble() < 5000 -> {
-                            Logger.e("requestBid3")
+                            context.showToast("최소 매도 총액은 5000원 입니다.")
                             return
                         }
 
@@ -466,7 +470,7 @@ class CoinOrderStateHolder(
                 market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.toDouble() < 0.00005 -> {
-                            Logger.e("requestBid3")
+                            context.showToast("최소 매도 총액은 0.00005BTC 입니다.")
                             return
                         }
 
@@ -477,7 +481,6 @@ class CoinOrderStateHolder(
                 else -> {}
             }
 
-            Logger.e("requestAsk")
             requestAsk(
                 market,
                 userAskQuantity.toDouble(),
@@ -486,14 +489,6 @@ class CoinOrderStateHolder(
                 totalPrice.toDouble()
             )
             askReset()
-        }
-    }
-
-    fun getUserSeedMoneyOrBTC(): Double {
-        return if (market.isTradeCurrencyKrw()) {
-            userSeedMoney.value.toDouble()
-        } else {
-            userBTC.value.quantity
         }
     }
 }

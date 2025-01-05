@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -120,8 +121,12 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      */
     private suspend fun getUserBtcCoin(market: String) {
         if (!market.isTradeCurrencyKrw()) {
-            upbitCoinOrderUseCase.getUserBtcCoin()?.let {
-                _userBtcCoin.value = it
+            if (upbitCoinOrderUseCase.getUserBtcCoin() == null) {
+                _userBtcCoin.value = MyCoin()
+            } else {
+                upbitCoinOrderUseCase.getUserBtcCoin()?.let {
+                    _userBtcCoin.value = it
+                }
             }
         }
     }
@@ -176,7 +181,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         quantity: Double,
         totalPrice: Long,
         coinPrice: BigDecimal,
-        totalPriceBTC: Double = 0.0
+        totalPriceBTC: Double = 0.0,
+        btcPrice: Double
     ) {
         val updateUserCoin = MyCoin(
             market = market,
@@ -203,7 +209,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 quantity = quantity,
                 totalPrice = totalPriceBTC,
                 userCoinQuantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR),
-                currentPrice = coinPrice
+                currentPrice = coinPrice,
+                btcPrice = btcPrice
             )
             getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
         }
@@ -211,8 +218,13 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     }
 
     private fun minusQuantity(currentQuantity: Double, quantity: Double): Double {
-        return currentQuantity.newBigDecimal(8, RoundingMode.HALF_UP)
+        val minusValue = currentQuantity.newBigDecimal(8, RoundingMode.HALF_UP)
             .minus(quantity.newBigDecimal(8, RoundingMode.HALF_UP)).toDouble()
+        return if (minusValue <= 0.0000001) {
+            0.0
+        } else {
+            minusValue
+        }
     }
 
     fun plusUserSeedMoney(totalPrice: Long) {

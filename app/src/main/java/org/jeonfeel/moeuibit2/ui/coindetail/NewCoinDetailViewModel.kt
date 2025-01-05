@@ -320,7 +320,8 @@ class NewCoinDetailViewModel @Inject constructor(
                     totalPrice = totalPrice,
                     quantity = quantity,
                     coinPrice = price,
-                    totalPriceBTC = totalPriceBTC
+                    totalPriceBTC = totalPriceBTC,
+                    btcPrice = btcPrice.value.toDouble()
                 )
             },
             bitthumbAction = {
@@ -426,7 +427,7 @@ class NewCoinDetailViewModel @Inject constructor(
             }
         }?.collect { upbitSocketTickerRes ->
             runCatching {
-                Logger.e(upbitSocketTickerRes.toString())
+//                Logger.e(upbitSocketTickerRes.toString())
 
                 if (upbitSocketTickerRes.delistingDate != null && !isShowDeListingSnackBar.value) {
                     deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)

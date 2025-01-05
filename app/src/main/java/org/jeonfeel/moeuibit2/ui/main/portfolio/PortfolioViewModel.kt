@@ -255,6 +255,8 @@ class PortfolioViewModel @Inject constructor(
         myCoinList.forEach {
             userHoldCoinsMarkets.append(it?.market).append(",")
         }
+
+        Logger.e(userHoldCoinsMarkets.toString())
     }
 
     private suspend fun getBeforeCoinMapAndNewCoinMap(): Pair<Map<String?, MyCoin?>, Map<String?, MyCoin?>> {
@@ -585,6 +587,8 @@ class PortfolioViewModel @Inject constructor(
             }
         }?.collect { upbitSocketTickerRes ->
             if (!isPortfolioSocketRunning.value) return@collect
+
+            Logger.e(upbitSocketTickerRes.toString())
 
             runCatching {
                 if (upbitSocketTickerRes.code == BTC_MARKET) {

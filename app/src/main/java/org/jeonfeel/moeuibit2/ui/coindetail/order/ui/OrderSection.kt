@@ -22,12 +22,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
@@ -42,6 +50,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
+import java.text.DecimalFormat
 
 @Composable
 fun OrderSection(
@@ -294,6 +303,9 @@ fun OrderTabQuantitySection(
     dropdownLabelList: List<String>,
     selectedText: String
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusState = remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .padding(top = 15.dp)
@@ -311,7 +323,10 @@ fun OrderTabQuantitySection(
         )
 
         BasicTextField(value = quantity, onValueChange = {
-            quantityOnValueChanged(it, isBid)
+            val rawValue = it.replace(",", "")
+            if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
+                quantityOnValueChanged(rawValue, isBid)
+            }
         }, singleLine = true,
             textStyle = TextStyle(
                 color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
@@ -320,14 +335,19 @@ fun OrderTabQuantitySection(
             modifier = Modifier
                 .padding(horizontal = 5.dp)
                 .weight(1f)
-                .clearFocusOnKeyboardDismiss(),
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                .clearFocusOnKeyboardDismiss()
+                .focusRequester(focusRequester)
+                .onFocusChanged { state ->
+                    focusState.value = state.isFocused
+                },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+            visualTransformation = NumberCommaTransformation(),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (quantity.isEmpty()) {
+                    if (quantity.isEmpty() && !focusState.value) {
                         Text(
                             "0",
                             style = TextStyle(
@@ -346,6 +366,52 @@ fun OrderTabQuantitySection(
             itemClickAction = dropDownItemClickAction,
             labelList = dropdownLabelList,
             selectedText = selectedText
+        )
+    }
+}
+
+class NumberCommaTransformation : VisualTransformation {
+    override fun filter(text: androidx.compose.ui.text.AnnotatedString): TransformedText {
+        val originalText = text.text
+
+        // 입력 값에서 정수와 소수점 부분 분리
+        val parts = originalText.split(".")
+        val integerPart = parts.getOrNull(0)?.replace(",", "") ?: ""
+        val decimalPart = parts.getOrNull(1)?.take(8) ?: "" // 소수점 이하 8자리까지만 허용
+
+        // 정수 부분에 쉼표 추가
+        val formattedIntegerPart = if (integerPart.isNotEmpty()) {
+            DecimalFormat("#,###").format(integerPart.toDouble().toLong())
+        } else {
+            ""
+        }
+
+        // 소수점 있는 경우 합치기
+        val formattedText = if (originalText.contains(".")) {
+            "$formattedIntegerPart.${decimalPart.padEnd(1)}"
+        } else {
+            formattedIntegerPart
+        }
+
+        // OffsetMapping 설정
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                val transformedLength = formattedText.length
+                val originalLength = originalText.length
+                return offset + (transformedLength - originalLength)
+            }
+
+
+            override fun transformedToOriginal(offset: Int): Int {
+                val transformedLength = formattedText.length
+                val originalLength = originalText.length
+                return offset - (transformedLength - originalLength)
+            }
+        }
+
+        return TransformedText(
+            text = androidx.compose.ui.text.AnnotatedString(formattedText),
+            offsetMapping = offsetMapping
         )
     }
 }

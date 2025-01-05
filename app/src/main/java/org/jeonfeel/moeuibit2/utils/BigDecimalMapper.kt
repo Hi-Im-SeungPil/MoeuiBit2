@@ -3,7 +3,10 @@ package org.jeonfeel.moeuibit2.utils
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -47,6 +50,7 @@ object BigDecimalMapper {
         }
     }
 
+
     fun Double.accBigDecimal(
         scale: Int = 0,
         roundingMode: RoundingMode = RoundingMode.HALF_UP
@@ -82,6 +86,20 @@ object BigDecimalMapper {
         return when {
             this.abs() >= BigDecimal("1000") -> format.format(this)
             else -> this.toPlainString()
+        }
+    }
+
+    fun BigDecimal.formattedStringForKRW(): String {
+        return when {
+            this >= BigDecimal("1000") -> format.format(this.setScale(0, RoundingMode.FLOOR))
+            this >= BigDecimal("100") -> this.setScale(1, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("10") -> this.setScale(2, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("1") -> this.setScale(3, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("0.1") -> this.setScale(4, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("0.01") -> this.setScale(5, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("0.001") -> this.setScale(6, RoundingMode.FLOOR).toPlainString()
+            this >= BigDecimal("0.0001") -> this.setScale(7, RoundingMode.FLOOR).toPlainString()
+            else -> this.setScale(8, RoundingMode.FLOOR).toPlainString()
         }
     }
 

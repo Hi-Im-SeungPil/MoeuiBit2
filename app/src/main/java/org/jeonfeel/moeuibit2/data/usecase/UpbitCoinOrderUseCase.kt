@@ -101,8 +101,9 @@ class UpbitCoinOrderUseCase @Inject constructor(
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
         val userCoin = coinDao.isInsert(market)
-        val commission = (totalPrice * (KRW_COMMISSION_FEE)).newBigDecimal()
-        var krwTotalPrice = (totalPrice + commission.toLong())
+
+        var krwTotalPrice = totalPrice
+
         krwTotalPrice = if (userSeedMoney - krwTotalPrice < 10) {
             userSeedMoney
         } else {
@@ -181,8 +182,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userCoin = coinDao.isInsert(market)
-        val commission = BigDecimal(totalPrice).multiply(BTC_COMMISSION_FEE.toBigDecimal())
-        val btcTotalPrice = BigDecimal(totalPrice).add(commission)
+        val btcTotalPrice = BigDecimal(totalPrice)
         val minusBTCQuantity = BigDecimal(userSeedBTC).minus(btcTotalPrice)
 
         if (userCoin == null) {
@@ -193,7 +193,6 @@ class UpbitCoinOrderUseCase @Inject constructor(
             } else {
                 coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
             }
-            Logger.e("Db -> ${btcTotalPrice} , ${userSeedBTC}, ${commission}")
         } else {
             val preCoinQuantity = coin.quantity.toBigDecimal()
             val prePurchaseAverageBtcPrice = coin.purchaseAverageBtcPrice.toBigDecimal()
@@ -230,18 +229,44 @@ class UpbitCoinOrderUseCase @Inject constructor(
         quantity: Double,
         totalPrice: Double,
         userCoinQuantity: BigDecimal,
-        currentPrice: BigDecimal
+        currentPrice: BigDecimal,
+        btcPrice: Double
     ) {
         val coinDao = localRepository.getMyCoinDao()
+        Logger.e("$totalPrice")
+        val userBTC = coinDao.isInsert(BTC_MARKET)
+        if (userBTC == null) {
+            coinDao.insert(
+                myCoin = MyCoin(
+                    market = BTC_MARKET,
+                    purchasePrice = btcPrice,
+                    koreanCoinName = "비트코인",
+                    symbol = "BTC",
+                    quantity = totalPrice,
+                )
+            )
+        } else {
+            coinDao.updatePlusQuantity(market = BTC_MARKET, afterQuantity = totalPrice)
+            val purchaseBTCAverage = Calculator.averagePurchasePriceCalculator(
+                currentPrice = btcPrice,
+                currentQuantity = totalPrice,
+                preAveragePurchasePrice = userBTC.purchasePrice,
+                preCoinQuantity = userBTC.quantity,
+                marketState = SELECTED_KRW_MARKET
+            )
+            coinDao.updatePurchasePrice(BTC_MARKET, purchaseBTCAverage)
+        }
 
-        coinDao.updatePlusQuantity(market = BTC_MARKET, afterQuantity = totalPrice)
+        coinDao.updatePurchaseAverageBtcPrice(BTC_MARKET, btcPrice)
+
         if (userCoinQuantity.minus(quantity.newBigDecimal(8, RoundingMode.FLOOR))
-                .toDouble() <= 0.00000001
+                .toDouble() <= 0.0000001
         ) {
             coinDao.delete(market = market)
         } else {
             coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
         }
+
         localRepository.getTransactionInfoDao().insert(
             TransactionInfo(
                 market = market,

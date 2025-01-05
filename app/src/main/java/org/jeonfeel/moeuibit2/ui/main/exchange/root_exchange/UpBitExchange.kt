@@ -533,6 +533,7 @@ class UpBitExchange @Inject constructor(
                 result
             }
         }?.collectLatest { upbitSocketTickerRes ->
+            Logger.e(upbitSocketTickerRes.toString())
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 
