@@ -73,10 +73,7 @@ class NetworkModule {
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
-            .pingInterval(
-                10,
-                TimeUnit.SECONDS
-            ).build()
+            .build()
     }
 
     @OptIn(ExperimentalSerializationApi::class)

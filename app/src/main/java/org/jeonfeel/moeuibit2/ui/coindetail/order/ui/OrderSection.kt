@@ -370,52 +370,6 @@ fun OrderTabQuantitySection(
     }
 }
 
-class NumberCommaTransformation : VisualTransformation {
-    override fun filter(text: androidx.compose.ui.text.AnnotatedString): TransformedText {
-        val originalText = text.text
-
-        // 입력 값에서 정수와 소수점 부분 분리
-        val parts = originalText.split(".")
-        val integerPart = parts.getOrNull(0)?.replace(",", "") ?: ""
-        val decimalPart = parts.getOrNull(1)?.take(8) ?: "" // 소수점 이하 8자리까지만 허용
-
-        // 정수 부분에 쉼표 추가
-        val formattedIntegerPart = if (integerPart.isNotEmpty()) {
-            DecimalFormat("#,###").format(integerPart.toDouble().toLong())
-        } else {
-            ""
-        }
-
-        // 소수점 있는 경우 합치기
-        val formattedText = if (originalText.contains(".")) {
-            "$formattedIntegerPart.${decimalPart.padEnd(1)}"
-        } else {
-            formattedIntegerPart
-        }
-
-        // OffsetMapping 설정
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                val transformedLength = formattedText.length
-                val originalLength = originalText.length
-                return offset + (transformedLength - originalLength)
-            }
-
-
-            override fun transformedToOriginal(offset: Int): Int {
-                val transformedLength = formattedText.length
-                val originalLength = originalText.length
-                return offset - (transformedLength - originalLength)
-            }
-        }
-
-        return TransformedText(
-            text = androidx.compose.ui.text.AnnotatedString(formattedText),
-            offsetMapping = offsetMapping
-        )
-    }
-}
-
 @Composable
 fun PercentageDropdown(
     itemClickAction: ((Int) -> Unit),
@@ -507,7 +461,7 @@ fun OrderSectionButtonGroup(
     }
 
     Column(modifier = Modifier.padding(top = 15.dp)) {
-        Row() {
+        Row {
             Text(
                 text = "초기화", modifier = Modifier
                     .padding(end = 5.dp)
@@ -551,5 +505,78 @@ fun OrderSectionButtonGroup(
                 )
             )
         }
+    }
+}
+
+class NumberCommaTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val originalText = text.text
+
+        // 입력 값에서 정수와 소수점 부분 분리
+        val parts = originalText.split(".")
+        val integerPart = parts.getOrNull(0)?.replace(",", "") ?: ""
+        val decimalPart = parts.getOrNull(1)?.take(8) ?: "" // 소수점 이하 8자리까지만 허용
+
+        // 정수 부분에 쉼표 추가
+        val formattedIntegerPart = if (integerPart.isNotEmpty()) {
+            DecimalFormat("#,###").format(integerPart.toLongOrNull() ?: 0)
+        } else {
+            ""
+        }
+
+        // 소수점 있는 경우 합치기
+        val formattedText = if (decimalPart.isNotEmpty()) {
+            "$formattedIntegerPart.$decimalPart"
+        } else if (originalText.contains(".")) {
+            "$formattedIntegerPart."
+        } else {
+            formattedIntegerPart
+        }
+
+        // OffsetMapping 설정
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                var transformedOffset = 0
+                var commasAdded = 0
+                var dotFound = false
+
+                for (i in 0 until offset) {
+                    if (i < integerPart.length) {
+                        // 정수 부분에 쉼표 추가에 따라 인덱스 보정
+                        if ((integerPart.length - i) % 3 == 0 && i != 0) commasAdded++
+                    } else if (!dotFound && originalText[i] == '.') {
+                        // 소수점 처리
+                        dotFound = true
+                    }
+                    transformedOffset++
+                }
+
+                return transformedOffset + commasAdded
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var originalOffset = 0
+                var commasAdded = 0
+                var dotFound = false
+
+                for (i in 0 until offset) {
+                    if (originalOffset < integerPart.length) {
+                        // 쉼표가 추가된 부분은 건너뛰기
+                        if ((integerPart.length - originalOffset) % 3 == 0 && originalOffset != 0) commasAdded++
+                    } else if (!dotFound && formattedText[i] == '.') {
+                        // 소수점 처리
+                        dotFound = true
+                    }
+                    originalOffset++
+                }
+
+                return originalOffset - commasAdded
+            }
+        }
+
+        return TransformedText(
+            text = AnnotatedString(formattedText),
+            offsetMapping = offsetMapping
+        )
     }
 }

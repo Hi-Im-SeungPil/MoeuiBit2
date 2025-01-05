@@ -117,12 +117,6 @@ class PortfolioViewModel @Inject constructor(
 
     val loading = MutableStateFlow<Boolean>(true)
 
-    init {
-        viewModelScope.launch {
-            getCoinName()
-        }
-    }
-
     fun onStart() {
         realTimeUpdateJob?.cancel()
 
@@ -148,17 +142,17 @@ class PortfolioViewModel @Inject constructor(
 
         if (myCoinList.isNotEmpty()) {
             val (beforeMyCoinMap, newMyCoinMap) = getBeforeCoinMapAndNewCoinMap()
+            getUserSeedMoney()
+
             if (myCoinList.isEmpty()) {
-                getUserSeedMoney()
                 resetPortfolio()
-                return
             } else {
-                getUserSeedMoney()
+                modifyCoin(beforeMyCoinMap, newMyCoinMap)
+                updateCoin()
+                setETC()
+                _isPortfolioSocketRunning.value = true
+                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
             }
-            modifyCoin(beforeMyCoinMap, newMyCoinMap)
-            updateCoin()
-            setETC()
-            requestSubscribeTicker(userHoldCoinsMarkets.split(","))
         } else {
             loading.update { true }
             resetPortfolio()
@@ -167,10 +161,10 @@ class PortfolioViewModel @Inject constructor(
             parseMyCoinToUserHoldCoin()
             requestTicker()
             setETC()
+            _isPortfolioSocketRunning.value = true
             requestSubscribeTicker(userHoldCoinsMarkets.split(","))
             loading.update { false }
         }
-        _isPortfolioSocketRunning.value = true
         collectTicker()
     }
 
@@ -255,8 +249,6 @@ class PortfolioViewModel @Inject constructor(
         myCoinList.forEach {
             userHoldCoinsMarkets.append(it?.market).append(",")
         }
-
-        Logger.e(userHoldCoinsMarkets.toString())
     }
 
     private suspend fun getBeforeCoinMapAndNewCoinMap(): Pair<Map<String?, MyCoin?>, Map<String?, MyCoin?>> {
@@ -289,8 +281,6 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserHoldCoins() {
-//        myCoinList.clear()
-//        myCoinList.addAll()
         val tempList = arrayListOf<MyCoin?>()
         tempList.addAll(upbitUseCase.getMyCoins())
         myCoinList = tempList
@@ -397,9 +387,12 @@ class PortfolioViewModel @Inject constructor(
         } else {
             userHoldCoinsMarkets.deleteCharAt(userHoldCoinsMarkets.lastIndex)
         }
+
+        Logger.e(userHoldCoinsMarkets.toString())
     }
 
     private suspend fun requestSubscribeTicker(markets: List<String>) {
+        Logger.e("portfolio requestSubscribe")
         upbitUseCase.requestSubscribeTicker(marketCodes = markets)
     }
 
@@ -586,9 +579,8 @@ class PortfolioViewModel @Inject constructor(
                 result
             }
         }?.collect { upbitSocketTickerRes ->
+            Logger.e("${upbitSocketTickerRes.code}")
             if (!isPortfolioSocketRunning.value) return@collect
-
-            Logger.e(upbitSocketTickerRes.toString())
 
             runCatching {
                 if (upbitSocketTickerRes.code == BTC_MARKET) {

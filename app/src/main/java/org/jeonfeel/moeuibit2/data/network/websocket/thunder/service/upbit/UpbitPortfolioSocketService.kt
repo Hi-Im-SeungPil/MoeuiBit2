@@ -11,5 +11,5 @@ interface UpbitPortfolioSocketService {
     fun requestUpbitTickerRequest(request: List<UpBitSocketTickerReq>)
 
     @Receive
-    fun collectUpbitTrade(): Flow<UpbitSocketTickerRes>
+    fun collectUpbitTicker(): Flow<UpbitSocketTickerRes>
 }

@@ -131,9 +131,6 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         }
     }
 
-    /**
-     *
-     */
     suspend fun requestBid(
         market: String,
         totalPrice: Double,
@@ -160,7 +157,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         } else {
             upbitCoinOrderUseCase.requestBTCBid(
                 market = market,
-                totalPrice = totalPrice.toDouble(),
+                totalPrice = totalPrice,
                 coin = MyCoin(
                     market = market,
                     purchasePrice = coinPrice.toDouble(),

@@ -197,8 +197,6 @@ fun PortfolioScreen(
         )
 
         if (loading2.value) {
-            Logger.e("호출호출 $id")
-            Logger.e(loadingState.toString())
             PortfolioLoadingScreen()
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {

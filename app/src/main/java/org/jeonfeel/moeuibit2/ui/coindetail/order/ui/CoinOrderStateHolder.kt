@@ -216,7 +216,7 @@ class CoinOrderStateHolder(
     }
 
     fun updateBidCoinQuantity(index: Int) {
-        if (commonExchangeModelState.value != null) {
+        if (commonExchangeModelState.value != null && userSeedMoney.value != 0L) {
             var percentageResult = BigDecimal(percentageList[index].toString())
             if (percentageResult == BigDecimal.ONE) {
                 percentageResult = if (market.isTradeCurrencyKrw()) {
@@ -245,13 +245,14 @@ class CoinOrderStateHolder(
             _bidQuantityPercentage.value = percentageLabelList[index]
             _bidQuantity.value = quantity.toString()
         } else {
+            _bidQuantityPercentage.value = "비율"
             _bidQuantity.value = ""
         }
     }
 
     fun updateAskCoinQuantity(index: Int) {
         // 유저가 가지고 있는 코인을 나눠서 세팅
-        if (commonExchangeModelState.value != null) {
+        if (commonExchangeModelState.value != null && userCoin.value.quantity != 0.0) {
             val percentageResult = percentageList[index]
             val quantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR)
                 .multiply(percentageResult.newBigDecimal(4))
@@ -260,6 +261,7 @@ class CoinOrderStateHolder(
             _askQuantityPercentage.value = percentageLabelList[index]
             _askQuantity.value = quantity.toString()
         } else {
+            _askQuantityPercentage.value = "비율"
             _askQuantity.value = ""
         }
     }
