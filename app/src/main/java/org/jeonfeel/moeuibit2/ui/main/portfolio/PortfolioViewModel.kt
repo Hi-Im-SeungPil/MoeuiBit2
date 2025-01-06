@@ -117,11 +117,16 @@ class PortfolioViewModel @Inject constructor(
 
     val loading = MutableStateFlow<Boolean>(true)
 
+    init {
+        viewModelScope.launch {
+            collectTicker()
+        }
+    }
+
     fun onStart() {
         realTimeUpdateJob?.cancel()
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            upbitUseCase.onStart()
             getCoinName()
             getMarketCodeRes()
             compareUserHoldCoinList()
@@ -131,7 +136,6 @@ class PortfolioViewModel @Inject constructor(
     fun onStop() {
         viewModelScope.launch {
             _isPortfolioSocketRunning.value = false
-            requestSubscribeTicker(listOf(""))
             realTimeUpdateJob?.cancel()
             upbitUseCase.onStop()
         }
@@ -151,7 +155,6 @@ class PortfolioViewModel @Inject constructor(
                 updateCoin()
                 setETC()
                 _isPortfolioSocketRunning.value = true
-                requestSubscribeTicker(userHoldCoinsMarkets.split(","))
             }
         } else {
             loading.update { true }
@@ -162,10 +165,10 @@ class PortfolioViewModel @Inject constructor(
             requestTicker()
             setETC()
             _isPortfolioSocketRunning.value = true
-            requestSubscribeTicker(userHoldCoinsMarkets.split(","))
             loading.update { false }
         }
-        collectTicker()
+
+        upbitUseCase.onStart(userHoldCoinsMarkets.split(","))
     }
 
     private fun modifyCoin(
@@ -391,10 +394,10 @@ class PortfolioViewModel @Inject constructor(
         Logger.e(userHoldCoinsMarkets.toString())
     }
 
-    private suspend fun requestSubscribeTicker(markets: List<String>) {
-        Logger.e("portfolio requestSubscribe")
-        upbitUseCase.requestSubscribeTicker(marketCodes = markets)
-    }
+//    private suspend fun requestSubscribeTicker(markets: List<String>) {
+//        Logger.e("portfolio requestSubscribe")
+//        upbitUseCase.requestSubscribeTicker(marketCodes = markets)
+//    }
 
     fun sortUserHoldCoin(sortStandard: Int) {
         Logger.e("${isPortfolioSocketRunning.value}")
@@ -574,13 +577,13 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun collectTicker() {
-        upbitUseCase.observeTickerResponse()?.onEach { result ->
+        upbitUseCase.observeTickerResponse().onEach { upbitSocketTickerRes ->
             _tickerResponse.update {
-                result
+                upbitSocketTickerRes
             }
-        }?.collect { upbitSocketTickerRes ->
-            Logger.e("${upbitSocketTickerRes.code}")
-            if (!isPortfolioSocketRunning.value) return@collect
+        }.collect { upbitSocketTickerRes ->
+            Logger.e("${upbitSocketTickerRes?.code}")
+            if (!isPortfolioSocketRunning.value || upbitSocketTickerRes == null) return@collect
 
             runCatching {
                 if (upbitSocketTickerRes.code == BTC_MARKET) {
