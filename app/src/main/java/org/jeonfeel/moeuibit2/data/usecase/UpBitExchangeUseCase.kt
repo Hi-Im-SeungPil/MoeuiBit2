@@ -12,6 +12,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.ExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
@@ -26,23 +27,20 @@ import javax.inject.Inject
 class UpBitExchangeUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val okHttpClient: OkHttpClient,
-    private val context: Context
 ) : BaseUseCase() {
 
-    private var socketService: UpBitExchangeSocketService? = null
+    private val exchangeWebsocketManager = ExchangeWebsocketManager()
 
-    fun onResume() {
-        socketService = Thunder.Builder()
-            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
-            .setApplicationContext(context)
-            .setConverterType(ConverterType.Serialization)
-            .build()
-            .create()
+    suspend fun onStart(marketCodes: List<String>) {
+        if (exchangeWebsocketManager.getIsSocketConnected()) {
+            exchangeWebsocketManager.onStart(marketCodes.joinToString(separator = ","))
+        } else {
+            exchangeWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ","))
+        }
     }
 
-    fun onPause() {
-        socketService = null
+    suspend fun onStop() {
+        exchangeWebsocketManager.onStop()
     }
 
     /**
@@ -135,26 +133,8 @@ class UpBitExchangeUseCase @Inject constructor(
         )
     }
 
-    /**
-     * 업비트 Ticker 구독 요청
-     */
-    suspend fun requestSubscribeTicker(
-        marketCodes: List<String>,
-    ) {
-        socketService?.requestUpbitTickerRequest(
-            listOf(
-                RequestTicketField(ticket = UUID.randomUUID().toString()),
-                RequestTypeField(
-                    type = "ticker",
-                    codes = marketCodes,
-                ),
-                RequestFormatField()
-            )
-        )
-    }
-
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes>? {
-        return socketService?.collectUpbitTickers()
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes?> {
+        return exchangeWebsocketManager.tickerFlow
     }
 
     suspend fun addFavorite(market: String) {

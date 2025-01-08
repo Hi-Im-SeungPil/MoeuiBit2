@@ -86,10 +86,7 @@ class UpBitExchange @Inject constructor(
                     successInit = true
                 },
                 onFailure = { emit(ExchangeInitState.Error(it.message)) }
-            ).also { requestSubscribeTicker() }
-                .also {
-                    collectTicker()
-                }
+            ).also { onStart() }
         }
     }
 
@@ -101,19 +98,21 @@ class UpBitExchange @Inject constructor(
     suspend fun onStart(
         updateLoadingState: KFunction1<Boolean, Unit>
     ) {
-        upBitExchangeUseCase.onResume()
         if (!tickerDataIsEmpty() && successInit) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
-            requestSubscribeTicker()
+            onStart()
         } else if (tickerDataIsEmpty() && successInit) {
             updateLoadingState(true)
             clearTickerData()
             init()
-            requestSubscribeTicker()
             updateLoadingState(false)
+            onStart()
         }
+    }
+
+    suspend fun exchangeCollectTicker() {
         collectTicker()
     }
 
@@ -149,8 +148,7 @@ class UpBitExchange @Inject constructor(
     }
 
     suspend fun onStop() {
-        upBitExchangeUseCase.requestSubscribeTicker(marketCodes = listOf(""))
-        upBitExchangeUseCase.onPause()
+        upBitExchangeUseCase.onStop()
     }
 
     /**
@@ -398,12 +396,12 @@ class UpBitExchange @Inject constructor(
     }
 
     /**
-     * 웹소켓 티커 구독 요청
+     * onStart
      */
-    private suspend fun requestSubscribeTicker() {
+    private suspend fun onStart() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> {
-                upBitExchangeUseCase.requestSubscribeTicker(
+                upBitExchangeUseCase.onStart(
                     marketCodes = krwList.toList(),
                 )
             }
@@ -411,13 +409,13 @@ class UpBitExchange @Inject constructor(
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
-                upBitExchangeUseCase.requestSubscribeTicker(marketCodes = tempBtcList.toList())
+                upBitExchangeUseCase.onStart(marketCodes = tempBtcList.toList())
             }
 
             TRADE_CURRENCY_FAV -> {
                 val tempFavoriteList = ArrayList(favoriteList)
                 tempFavoriteList.add(BTC_MARKET)
-                upBitExchangeUseCase.requestSubscribeTicker(marketCodes = tempFavoriteList.toList())
+                upBitExchangeUseCase.onStart(marketCodes = tempFavoriteList.toList())
             }
         }
     }
@@ -474,7 +472,7 @@ class UpBitExchange @Inject constructor(
         if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
         updateTickerData()
-        requestSubscribeTicker()
+        onStart()
     }
 
     private suspend fun favoriteMarketChangeAction(sortOrder: SortOrder?, sortType: SortType?) {
@@ -513,7 +511,7 @@ class UpBitExchange @Inject constructor(
             }
 
             updateTickerData(sortOrder, sortType)
-            requestSubscribeTicker()
+            onStart()
         }
     }
 
@@ -537,7 +535,7 @@ class UpBitExchange @Inject constructor(
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 
-                if (upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
+                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
 
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null

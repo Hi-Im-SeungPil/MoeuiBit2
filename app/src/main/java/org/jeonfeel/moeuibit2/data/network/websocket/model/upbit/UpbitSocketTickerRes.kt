@@ -114,9 +114,9 @@ data class UpbitSocketTickerRes(
     ) {
     @Serializable
     data class DeListingDate(
-        val year: String,
-        val month: String,
-        val day: String,
+        val year: Int,
+        val month: Int,
+        val day: Int,
     )
 
     fun mapTo(getUpbitMarketCodeRes: UpbitMarketCodeRes? = null): CommonExchangeModel {

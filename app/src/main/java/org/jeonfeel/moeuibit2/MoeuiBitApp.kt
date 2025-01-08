@@ -9,9 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.KeyConst
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.utils.manager.AppOpenAdManager
-import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import javax.inject.Inject
 
 @HiltAndroidApp

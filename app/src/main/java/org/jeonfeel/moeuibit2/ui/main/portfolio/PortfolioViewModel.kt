@@ -48,7 +48,6 @@ import kotlin.collections.forEachIndexed
 import kotlin.collections.get
 import kotlin.collections.ifEmpty
 import kotlin.collections.isNotEmpty
-import kotlin.collections.listOf
 import kotlin.collections.map
 import kotlin.collections.minus
 import kotlin.collections.mutableMapOf
@@ -62,7 +61,7 @@ import kotlin.collections.toList
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
-    private val upbitUseCase: UpbitPortfolioUsecase,
+    private val upbitPortfolioUseCase: UpbitPortfolioUsecase,
     private val cacheManager: CacheManager,
     val adMobManager: AdMobManager,
 ) : BaseViewModel(preferenceManager) {
@@ -114,22 +113,22 @@ class PortfolioViewModel @Inject constructor(
 
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
     private var realTimeUpdateJob: Job? = null
+    private var collectTickerJob: Job? = null
 
     val loading = MutableStateFlow<Boolean>(true)
 
-    init {
-        viewModelScope.launch {
-            collectTicker()
-        }
-    }
-
     fun onStart() {
         realTimeUpdateJob?.cancel()
+        collectTickerJob?.cancel()
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             getCoinName()
             getMarketCodeRes()
             compareUserHoldCoinList()
+        }.also { it.start() }
+
+        collectTickerJob = viewModelScope.launch {
+            collectTicker()
         }.also { it.start() }
     }
 
@@ -137,7 +136,8 @@ class PortfolioViewModel @Inject constructor(
         viewModelScope.launch {
             _isPortfolioSocketRunning.value = false
             realTimeUpdateJob?.cancel()
-            upbitUseCase.onStop()
+            collectTickerJob?.cancel()
+            upbitPortfolioUseCase.onStop()
         }
     }
 
@@ -168,7 +168,7 @@ class PortfolioViewModel @Inject constructor(
             loading.update { false }
         }
 
-        upbitUseCase.onStart(userHoldCoinsMarkets.split(","))
+        upbitPortfolioUseCase.onStart(userHoldCoinsMarkets.split(","))
     }
 
     private fun modifyCoin(
@@ -280,12 +280,12 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
-        _userSeedMoney.longValue = upbitUseCase.getUserSeedMoney()
+        _userSeedMoney.longValue = upbitPortfolioUseCase.getUserSeedMoney()
     }
 
     private suspend fun getUserHoldCoins() {
         val tempList = arrayListOf<MyCoin?>()
-        tempList.addAll(upbitUseCase.getMyCoins())
+        tempList.addAll(upbitPortfolioUseCase.getMyCoins())
         myCoinList = tempList
     }
 
@@ -331,7 +331,7 @@ class PortfolioViewModel @Inject constructor(
             marketCodes = marketCodes
         )
         executeUseCase<List<GetUpbitMarketTickerRes>>(
-            target = upbitUseCase.getMarketTicker(
+            target = upbitPortfolioUseCase.getMarketTicker(
                 getUpbitMarketTickerReq = req,
                 isList = true
             ),
@@ -474,7 +474,7 @@ class PortfolioViewModel @Inject constructor(
 
         viewModelScope.launch {
             executeUseCase<List<UpbitMarketCodeRes>>(
-                target = upbitUseCase.getMarketCode(),
+                target = upbitPortfolioUseCase.getMarketCode(),
                 onComplete = {
                     it.associateBy { it.market }.forEach { (key, value) ->
                         _marketCodeRes[key] = value
@@ -488,7 +488,7 @@ class PortfolioViewModel @Inject constructor(
         //TODO TEST해야함 꼭
         viewModelScope.launch {
             executeUseCase<List<UpbitMarketCodeRes>>(
-                target = upbitUseCase.getMarketCode(),
+                target = upbitPortfolioUseCase.getMarketCode(),
                 onLoading = {
 
                 },
@@ -545,7 +545,7 @@ class PortfolioViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             removeCoinInfo.forEachIndexed { index, pair ->
                 if (_removeCoinCheckedList[index]) {
-                    upbitUseCase.removeCoin(pair.first)
+                    upbitPortfolioUseCase.removeCoin(pair.first)
                 }
             }
 
@@ -556,7 +556,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
-            val userDao = upbitUseCase.getUserDao()
+            val userDao = upbitPortfolioUseCase.getUserDao()
             if (userDao.all == null) {
                 userDao.insert()
             } else {
@@ -567,7 +567,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun errorReward() {
         viewModelScope.launch(ioDispatcher) {
-            val userDao = upbitUseCase.getUserDao()
+            val userDao = upbitPortfolioUseCase.getUserDao()
             if (userDao.all == null) {
                 userDao.errorInsert()
             } else {
@@ -577,12 +577,12 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun collectTicker() {
-        upbitUseCase.observeTickerResponse().onEach { upbitSocketTickerRes ->
+        upbitPortfolioUseCase.observeTickerResponse().onEach { upbitSocketTickerRes ->
             _tickerResponse.update {
                 upbitSocketTickerRes
             }
         }.collect { upbitSocketTickerRes ->
-            Logger.e("${upbitSocketTickerRes?.code}")
+
             if (!isPortfolioSocketRunning.value || upbitSocketTickerRes == null) return@collect
 
             runCatching {

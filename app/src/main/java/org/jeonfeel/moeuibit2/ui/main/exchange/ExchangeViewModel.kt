@@ -55,6 +55,7 @@ class ExchangeViewModel @Inject constructor(
     val textFieldValue: State<String> get() = state.textFieldValue
 
     private var realTimeUpdateJob: Job? = null
+    private var collectTickerJob: Job? = null
 
     private var marketChangeJob: Job? = null
 
@@ -96,6 +97,7 @@ class ExchangeViewModel @Inject constructor(
 
     fun onStart() {
         realTimeUpdateJob?.cancel()
+        collectTickerJob?.cancel()
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
@@ -110,13 +112,20 @@ class ExchangeViewModel @Inject constructor(
                 }
             }
         }.also { it.start() }
+
+        collectTickerJob = viewModelScope.launch {
+            upBitExchange.exchangeCollectTicker()
+        }.also { it.start() }
     }
 
     fun onStop() {
         rootExchangeCoroutineBranch(
             upbitAction = {
-                realTimeUpdateJob?.cancel()
                 upBitExchange.onStop()
+                collectTickerJob?.cancel()
+                realTimeUpdateJob?.cancel()
+                collectTickerJob = null
+                realTimeUpdateJob = null
             },
             bitthumbAction = {
 

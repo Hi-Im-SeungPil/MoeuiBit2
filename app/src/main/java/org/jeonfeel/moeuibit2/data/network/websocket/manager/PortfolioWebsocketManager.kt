@@ -1,18 +1,16 @@
-package org.jeonfeel.moeuibit2.utils.manager
+package org.jeonfeel.moeuibit2.data.network.websocket.manager
 
+import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
@@ -38,7 +36,8 @@ class PortfolioWebsocketManager {
     val showSnackBarState: Flow<Boolean> = _showSnackBarState
 
     private val json = Json {
-        ignoreUnknownKeys = true // 수신 데이터의 예상하지 못한 필드를 무시
+        ignoreUnknownKeys = true
+        explicitNulls = false
     }
 
     // WebSocket 메시지 Flow 생성
@@ -79,7 +78,8 @@ class PortfolioWebsocketManager {
                         }
                     }
                 } catch (e: Exception) {
-                    if (!isActive) {
+                    Logger.e(e.localizedMessage.toString())
+                    if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
                         println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
                         isCancel = true
                         return@webSocket
@@ -95,9 +95,9 @@ class PortfolioWebsocketManager {
         } catch (e: Exception) {
             println("WebSocket 연결 실패: ${e.localizedMessage}")
             // 취소된 상태에서 더 이상 처리하지 않도록 할 수 있습니다.
-
-            if (isCancel) {
-                println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.2")
+            if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
+                println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
+                isCancel = true
                 return
             }
 
@@ -120,7 +120,11 @@ class PortfolioWebsocketManager {
                 println("메시지 전송 성공: $marketCodes")
             } catch (e: Exception) {
                 println("메시지 전송 실패: ${e.localizedMessage}")
-
+                if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
+                    println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
+                    isCancel = true
+                    return
+                }
                 handleDisconnection(marketCodes) // 연결 끊김 처리
             }
         } else {

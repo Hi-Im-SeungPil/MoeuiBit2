@@ -1,8 +1,6 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
-import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.dao.UserDAO
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
@@ -10,16 +8,14 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTick
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import org.jeonfeel.moeuibit2.utils.manager.PortfolioWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.PortfolioWebsocketManager
 import javax.inject.Inject
 
 class UpbitPortfolioUsecase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
-    private val okHttpClient: OkHttpClient,
-    private val context: Context
 ) : BaseUseCase() {
-    val portfolioWebsocketManager = PortfolioWebsocketManager()
+    private val portfolioWebsocketManager = PortfolioWebsocketManager()
 
     suspend fun onStart(marketCodes: List<String>) {
         if (portfolioWebsocketManager.getIsSocketConnected()) {

@@ -138,14 +138,10 @@ class NetworkModule {
     fun provideUpbitUseCase(
         localRepository: LocalRepository,
         upbitRepository: UpbitRepository,
-        @SocketOkHttpClient okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
     ): UpBitExchangeUseCase {
         return UpBitExchangeUseCase(
             localRepository = localRepository,
             upbitRepository = upbitRepository,
-            okHttpClient = okHttpClient,
-            context = context
         )
     }
 
@@ -154,14 +150,10 @@ class NetworkModule {
     fun provideUpbitPortfolioUsecase(
         upbitRepository: UpbitRepository,
         localRepository: LocalRepository,
-        @SocketOkHttpClient okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
     ): UpbitPortfolioUsecase {
         return UpbitPortfolioUsecase(
             localRepository = localRepository,
             upbitRepository = upbitRepository,
-            okHttpClient = okHttpClient,
-            context = context
         )
     }
 
