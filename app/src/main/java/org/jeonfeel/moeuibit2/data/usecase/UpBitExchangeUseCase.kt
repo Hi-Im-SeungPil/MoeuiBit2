@@ -1,11 +1,6 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import android.content.Context
-import com.jeremy.thunder.Thunder
-import com.jeremy.thunder.event.converter.ConverterType
-import com.jeremy.thunder.makeWebSocketCore
 import kotlinx.coroutines.flow.Flow
-import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
@@ -14,14 +9,9 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarket
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.ExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpBitExchangeSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import java.util.UUID
 import javax.inject.Inject
 
 class UpBitExchangeUseCase @Inject constructor(
@@ -32,14 +22,16 @@ class UpBitExchangeUseCase @Inject constructor(
     private val exchangeWebsocketManager = ExchangeWebsocketManager()
 
     suspend fun onStart(marketCodes: List<String>) {
+        exchangeWebsocketManager.updateIsBackground(false)
         if (exchangeWebsocketManager.getIsSocketConnected()) {
-            exchangeWebsocketManager.onStart(marketCodes.joinToString(separator = ","))
+            exchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ","))
         } else {
             exchangeWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ","))
         }
     }
 
     suspend fun onStop() {
+        exchangeWebsocketManager.updateIsBackground(true)
         exchangeWebsocketManager.onStop()
     }
 

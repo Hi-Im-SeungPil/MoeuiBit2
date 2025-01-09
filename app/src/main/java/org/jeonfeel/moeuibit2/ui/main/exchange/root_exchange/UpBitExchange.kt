@@ -86,7 +86,7 @@ class UpBitExchange @Inject constructor(
                     successInit = true
                 },
                 onFailure = { emit(ExchangeInitState.Error(it.message)) }
-            ).also { onStart() }
+            ).also { useCaseOnStart() }
         }
     }
 
@@ -102,13 +102,13 @@ class UpBitExchange @Inject constructor(
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
-            onStart()
+            useCaseOnStart()
         } else if (tickerDataIsEmpty() && successInit) {
             updateLoadingState(true)
             clearTickerData()
             init()
             updateLoadingState(false)
-            onStart()
+            useCaseOnStart()
         }
     }
 
@@ -398,7 +398,7 @@ class UpBitExchange @Inject constructor(
     /**
      * onStart
      */
-    private suspend fun onStart() {
+    private suspend fun useCaseOnStart() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> {
                 upBitExchangeUseCase.onStart(
@@ -472,7 +472,7 @@ class UpBitExchange @Inject constructor(
         if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
         updateTickerData()
-        onStart()
+        useCaseOnStart()
     }
 
     private suspend fun favoriteMarketChangeAction(sortOrder: SortOrder?, sortType: SortType?) {
@@ -511,7 +511,7 @@ class UpBitExchange @Inject constructor(
             }
 
             updateTickerData(sortOrder, sortType)
-            onStart()
+            useCaseOnStart()
         }
     }
 
