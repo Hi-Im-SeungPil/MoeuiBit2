@@ -194,8 +194,8 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
             }
         } else {
-            val preCoinQuantity = coin.quantity.toBigDecimal()
-            val prePurchaseAveragePrice = coin.purchasePrice.toBigDecimal()
+            val preCoinQuantity = userCoin.quantity.toBigDecimal()
+            val prePurchaseAveragePrice = userCoin.purchasePrice.toBigDecimal()
 
             val purchaseAverage = Calculator.averagePurchasePriceCalculator(
                 currentPrice = coin.purchasePrice,
@@ -263,7 +263,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         coinDao.updatePurchaseAverageBtcPrice(BTC_MARKET, btcPrice)
 
         if (userCoinQuantity.minus(quantity.newBigDecimal(8, RoundingMode.FLOOR))
-                .toDouble() <= 0.0000001
+                .toDouble() <= 0.00000001
         ) {
             coinDao.delete(market = market)
         } else {
