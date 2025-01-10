@@ -40,7 +40,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
     private val localRepository: LocalRepository,
     private val okHttpClient: OkHttpClient,
-    private val context: Context
+    private val context: Context,
 ) : BaseUseCase() {
     private var socketService: UpbitOrderBookSocketService? = null
 
@@ -96,7 +96,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         market: String,
         coin: MyCoin,
         totalPrice: Long,
-        userSeedMoney: Long
+        userSeedMoney: Long,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -148,7 +148,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         quantity: Double,
         totalPrice: Long,
         userCoinQuantity: BigDecimal,
-        currentPrice: BigDecimal
+        currentPrice: BigDecimal,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -178,7 +178,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         coin: MyCoin,
         totalPrice: Double,
         userSeedBTC: Double,
-        btcPrice: Double
+        btcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userCoin = coinDao.isInsert(market)
@@ -195,7 +195,6 @@ class UpbitCoinOrderUseCase @Inject constructor(
             }
         } else {
             val preCoinQuantity = coin.quantity.toBigDecimal()
-            val prePurchaseAverageBtcPrice = coin.purchaseAverageBtcPrice.toBigDecimal()
             val prePurchaseAveragePrice = coin.purchasePrice.toBigDecimal()
 
             val purchaseAverage = Calculator.averagePurchasePriceCalculator(
@@ -205,22 +204,26 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 preCoinQuantity = preCoinQuantity.toDouble(),
                 marketState = SELECTED_BTC_MARKET
             )
-            val purchaseBTCAverage = Calculator.averagePurchasePriceCalculator(
-                currentPrice = coin.purchasePrice,
-                currentQuantity = coin.quantity,
-                preAveragePurchasePrice = prePurchaseAverageBtcPrice.toDouble(),
-                preCoinQuantity = preCoinQuantity.toDouble(),
-                marketState = SELECTED_KRW_MARKET
+            val purchaseAverageBtcPrice = Calculator.averagePurchasePriceCalculator(
+                currentPrice = btcPrice,
+                currentQuantity = coin.quantity.toBigDecimal()
+                    .multiply(coin.purchasePrice.toBigDecimal()).toDouble(),
+                preAveragePurchasePrice = userCoin.purchaseAverageBtcPrice,
+                preCoinQuantity = userCoin.quantity.toBigDecimal()
+                    .multiply(userCoin.purchasePrice.toBigDecimal()).toDouble(),
+                SELECTED_KRW_MARKET
             )
+
+            Logger.e("purchaseAverage ${purchaseAverage} purchaseBTCAverage ${purchaseAverageBtcPrice}")
 
             coinDao.updatePurchasePrice(market, purchaseAverage)
             coinDao.updatePlusQuantity(market, coin.quantity)
-            if (minusBTCQuantity < BigDecimal("0.0000001")) {
+            if (minusBTCQuantity < BigDecimal("0.00000001")) {
                 coinDao.delete(BTC_MARKET)
             } else {
                 coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
             }
-            coinDao.updatePurchaseAverageBtcPrice(market, purchaseBTCAverage)
+            coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
         }
     }
 
@@ -230,7 +233,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         totalPrice: Double,
         userCoinQuantity: BigDecimal,
         currentPrice: BigDecimal,
-        btcPrice: Double
+        btcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         Logger.e("$totalPrice")

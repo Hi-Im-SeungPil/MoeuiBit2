@@ -30,7 +30,7 @@ data class GetChartCandleRes(
     val openingPrice: Double,
 
     @SerialName("timestamp")
-    val timestamp: Long,
+    val timestamp: Long? = null,
 
     @SerialName("trade_price")
     val tradePrice: Double,

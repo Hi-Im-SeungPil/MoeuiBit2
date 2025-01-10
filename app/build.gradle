@@ -40,6 +40,13 @@ android {
             keyAlias "seungpil"
             keyPassword "454842as"
         }
+
+        debug {
+            storeFile file("debugkey.jks")
+            storePassword "454842as!!"
+            keyAlias "SeungPil"
+            keyPassword "454842as!!"
+        }
     }
 
     buildTypes {
@@ -49,6 +56,10 @@ android {
             debuggable = false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 
