@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,8 +64,10 @@ class NewCoinDetailViewModel @Inject constructor(
     private val _tradeResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
     private var realTimeJob: Job? = null
+    private var collectTickerJob: Job? = null
 
     private var orderBookRealTimeJob: Job? = null
+    private var orderBookCollectJob: Job? = null
 
     private var chartRealTimeJob: Job? = null
 
@@ -96,21 +99,25 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun onStart(market: String) {
         realTimeJob?.cancel()
+        collectTickerJob?.cancel()
 
         realTimeJob = viewModelScope.launch {
-            upbitCoinDetailUseCase.onStart()
-            requestSubscribeTicker(market)
-            collectTicker(market)
+            upbitCoinDetailUseCase.onStart(market.coinOrderIsKrwMarket())
+        }.also { it.start() }
+
+        collectTickerJob = viewModelScope.launch {
+            collectTicker(market.coinOrderIsKrwMarket())
         }.also { it.start() }
     }
 
     fun onStop() {
         viewModelScope.launch {
             saveFavoriteStatus()
-            requestSubscribeTicker("")
             upbitCoinDetailUseCase.onStop()
             realTimeJob?.cancel()
+            collectTickerJob?.cancel()
             realTimeJob = null
+            collectTickerJob = null
         }
     }
 
@@ -138,6 +145,18 @@ class NewCoinDetailViewModel @Inject constructor(
             when (rootExchange) {
                 ROOT_EXCHANGE_UPBIT -> {
                     upbitCoinOrder.onStart(market)
+                }
+
+                ROOT_EXCHANGE_BITTHUMB -> {
+
+                }
+            }
+        }.also { it.start() }
+
+        orderBookCollectJob = viewModelScope.launch {
+            when (rootExchange) {
+                ROOT_EXCHANGE_UPBIT -> {
+                    upbitCoinOrder.collectOrderBook()
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
@@ -196,11 +215,6 @@ class NewCoinDetailViewModel @Inject constructor(
                 }
             }
         )
-    }
-
-    private suspend fun requestSubscribeTicker(market: String) {
-        val marketList = market.coinOrderIsKrwMarket()
-        upbitCoinDetailUseCase.requestSubscribeTicker(marketCodes = marketList.split(","))
     }
 
     /**
@@ -391,13 +405,7 @@ class NewCoinDetailViewModel @Inject constructor(
     fun requestChartData(market: String) {
         chartRealTimeJob?.cancel()
         chartRealTimeJob = viewModelScope.launch {
-//            if (rootExchange == ROOT_EXCHANGE_UPBIT) {
             chart.refresh(market = market)
-//            } else if (rootExchange == ROOT_EXCHANGE_BITTHUMB) {
-//                Logger.e("requestChartData")
-//                chart.setBitthumbChart()
-//                chart.requestBitthumbChartData(market = market)
-//            }
         }.also { it.start() }
     }
 
@@ -428,17 +436,17 @@ class NewCoinDetailViewModel @Inject constructor(
         }?.collect { upbitSocketTickerRes ->
             runCatching {
 //                Logger.e(upbitSocketTickerRes.toString())
-
-                if (upbitSocketTickerRes.delistingDate != null && !isShowDeListingSnackBar.value) {
+                Logger.e("coinDetail message!!")
+                if (upbitSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
                     deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true
                 }
-                val commonExchangeModel = upbitSocketTickerRes.mapTo()
-                if (!market.isTradeCurrencyKrw() && upbitSocketTickerRes.code == BTC_MARKET) {
-                    _btcPrice.value = commonExchangeModel.tradePrice
+                val commonExchangeModel = upbitSocketTickerRes?.mapTo()
+                if (!market.isTradeCurrencyKrw() && upbitSocketTickerRes?.code == BTC_MARKET) {
+                    _btcPrice.value = commonExchangeModel?.tradePrice ?: BigDecimal.ZERO
                 }
 
-                if (market != upbitSocketTickerRes.code) return@runCatching
+                if (market != upbitSocketTickerRes?.code) return@runCatching
 
                 _coinTicker.value = commonExchangeModel
             }.fold(

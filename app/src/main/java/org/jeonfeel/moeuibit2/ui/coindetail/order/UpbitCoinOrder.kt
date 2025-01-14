@@ -47,13 +47,11 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     }
 
     suspend fun onStart(market: String) {
-        upbitCoinOrderUseCase.onStart()
-        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
+        upbitCoinOrderUseCase.onStart(market)
         collectOrderBook()
     }
 
     suspend fun onStop() {
-        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(""))
         upbitCoinOrderUseCase.onStop()
     }
 
@@ -73,22 +71,16 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     }
 
     /**
-     * 호가 구독 요청
-     */
-    private suspend fun requestSubscribeOrderBook(market: String) {
-        upbitCoinOrderUseCase.requestSubscribeOrderBook(listOf(market))
-    }
-
-    /**
      * 호가 수집
      */
-    private suspend fun collectOrderBook() {
+    suspend fun collectOrderBook() {
         upbitCoinOrderUseCase.requestObserveOrderBook()?.onEach { result ->
             _tickerResponse.update {
                 result
             }
         }?.collect { upbitSocketOrderBookRes ->
-            if (upbitSocketOrderBookRes.type == "orderbook") {
+            Logger.e("orderBook message!!")
+            if (upbitSocketOrderBookRes?.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {
                     _orderBookList[i] = realTimeOrderBook[i]

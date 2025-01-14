@@ -18,8 +18,9 @@ class UpbitPortfolioUsecase @Inject constructor(
     private val portfolioWebsocketManager = PortfolioWebsocketManager()
 
     suspend fun onStart(marketCodes: List<String>) {
+        portfolioWebsocketManager.updateIsBackground(false)
         if (portfolioWebsocketManager.getIsSocketConnected()) {
-            portfolioWebsocketManager.onStart(marketCodes.joinToString(separator = ","))
+            portfolioWebsocketManager.sendMessage(marketCodes.joinToString(separator = ","))
         } else {
             portfolioWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ","))
         }
@@ -27,10 +28,6 @@ class UpbitPortfolioUsecase @Inject constructor(
 
     suspend fun onStop() {
         portfolioWebsocketManager.onStop()
-    }
-
-    suspend fun connectSocket(marketCodes: List<String>) {
-        portfolioWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ","))
     }
 
     /**

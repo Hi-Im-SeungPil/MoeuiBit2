@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.CoinDetailWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.OrderBookWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
@@ -21,24 +23,19 @@ import javax.inject.Inject
 
 class UpbitCoinDetailUseCase @Inject constructor(
     private val localRepository: LocalRepository,
-    private val upbitRepository: UpbitRepository,
-    private val okHttpClient: OkHttpClient,
-    private val context: Context
+    private val upbitRepository: UpbitRepository
 ) : BaseUseCase() {
 
-    private var socketService: UpbitCoinDetailSocketService? = null
+    private val coinDetailWebsocketManager = CoinDetailWebsocketManager()
 
-    suspend fun onStart() {
-        socketService = Thunder.Builder()
-            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
-            .setApplicationContext(context)
-            .setConverterType(ConverterType.Serialization)
-            .build()
-            .create()
+    suspend fun onStart(marketCodes: String) {
+        coinDetailWebsocketManager.updateIsBackground(false)
+        coinDetailWebsocketManager.connectWebSocketFlow(marketCodes)
     }
 
     suspend fun onStop() {
-        socketService = null
+        coinDetailWebsocketManager.updateIsBackground(true)
+        coinDetailWebsocketManager.onStop()
     }
 
     suspend fun getIsFavorite(market: String): Favorite? {
@@ -51,15 +48,6 @@ class UpbitCoinDetailUseCase @Inject constructor(
 
     suspend fun deleteFavorite(market: String) {
         localRepository.getFavoriteDao().delete(market)
-    }
-
-    suspend fun getMarketCode(): Flow<Any> {
-        return requestApiResult(
-            result = upbitRepository.getUpbitMarketCodeList(),
-            onSuccess = { result ->
-                result
-            }
-        )
     }
 
     suspend fun getMarketTicker(
@@ -78,35 +66,7 @@ class UpbitCoinDetailUseCase @Inject constructor(
         )
     }
 
-    suspend fun requestSubscribeTicker(
-        marketCodes: List<String>,
-    ) {
-        socketService?.requestUpbitTradeRequest(
-            listOf(
-                RequestTicketField(ticket = UUID.randomUUID().toString()),
-                RequestTypeField(
-                    type = "ticker",
-                    codes = marketCodes,
-                ),
-                RequestFormatField(),
-            )
-        )
-    }
-
-    suspend fun requestSubscribeTickerPause() {
-        socketService?.requestUpbitTradeRequest(
-            listOf(
-                RequestTicketField(ticket = UUID.randomUUID().toString()),
-                RequestTypeField(
-                    type = "pause",
-                    codes = listOf(""),
-                ),
-                RequestFormatField(),
-            )
-        )
-    }
-
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes>? {
-        return socketService?.collectUpbitTrade()
+    fun observeTickerResponse(): Flow<UpbitSocketTickerRes?> {
+        return coinDetailWebsocketManager.tickerFlow
     }
 }

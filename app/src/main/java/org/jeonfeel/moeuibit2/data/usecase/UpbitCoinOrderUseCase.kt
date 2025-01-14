@@ -18,7 +18,10 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.local.room.entity.User
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderBookReq
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.ExchangeWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.OrderBookWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.OrderBookRequestTypeField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.OrderBookTicketField
 import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
@@ -38,23 +41,19 @@ enum class OrderBookKind {
 
 class UpbitCoinOrderUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
-    private val localRepository: LocalRepository,
-    private val okHttpClient: OkHttpClient,
-    private val context: Context,
+    private val localRepository: LocalRepository
 ) : BaseUseCase() {
-    private var socketService: UpbitOrderBookSocketService? = null
 
-    fun onStart() {
-        socketService = Thunder.Builder()
-            .setWebSocketFactory(okHttpClient.makeWebSocketCore("wss://api.upbit.com/websocket/v1"))
-            .setApplicationContext(context)
-            .setConverterType(ConverterType.Serialization)
-            .build()
-            .create()
+    private val orderBookWebsocketManager = OrderBookWebsocketManager()
+
+    suspend fun onStart(marketCodes: String) {
+        orderBookWebsocketManager.updateIsBackground(false)
+        orderBookWebsocketManager.connectWebSocketFlow(marketCodes)
     }
 
-    fun onStop() {
-        socketService = null
+    suspend fun onStop() {
+        orderBookWebsocketManager.updateIsBackground(true)
+        orderBookWebsocketManager.onStop()
     }
 
     suspend fun getOrderBook(market: String): Flow<Any> {
@@ -67,17 +66,8 @@ class UpbitCoinOrderUseCase @Inject constructor(
         )
     }
 
-    suspend fun requestSubscribeOrderBook(marketCodes: List<String>) {
-        socketService?.requestUpbitOrderBookRequest(
-            listOf(
-                OrderBookTicketField(ticket = UUID.randomUUID().toString()),
-                OrderBookRequestTypeField(codes = marketCodes),
-            )
-        )
-    }
-
-    suspend fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes>? {
-        return socketService?.collectUpbitOrderBook()
+    suspend fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes?> {
+        return orderBookWebsocketManager.tickerFlow
     }
 
     suspend fun getUserSeedMoney(): User? {

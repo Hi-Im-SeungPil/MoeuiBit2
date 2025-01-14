@@ -18,7 +18,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTick
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class ExchangeWebsocketManager() {
+class CoinDetailWebsocketManager {
 
     private val client = HttpClient {
         install(WebSockets)
@@ -133,7 +133,6 @@ class ExchangeWebsocketManager() {
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
                 println("메시지 전송 성공: $marketCodes")
-                isCancel = false
                 session!!.send(Frame.Text(message))
             } else {
                 println("WebSocket이 연결되지 않았습니다.")
@@ -227,4 +226,5 @@ class ExchangeWebsocketManager() {
     fun getIsSocketConnected(): Boolean {
         return session != null && socketState.get() == WebSocketState.CONNECTED
     }
+
 }

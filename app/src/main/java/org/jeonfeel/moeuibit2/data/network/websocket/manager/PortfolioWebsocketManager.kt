@@ -8,12 +8,14 @@ import io.ktor.http.HttpMethod
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 enum class WebSocketState {
@@ -24,9 +26,18 @@ class PortfolioWebsocketManager {
     private val client = HttpClient {
         install(WebSockets)
     }
+
+    @Volatile
     private var isCancel = false
 
+    @Volatile
+    private var isBackGround = false
+
+    private val retryCount = AtomicInteger(0)
+
     private var session: WebSocketSession? = null
+    private var receiveChannel: ReceiveChannel<Frame>? = null
+
     private val socketState = AtomicReference(WebSocketState.DISCONNECTED)
 
     private val _tickerFlow = MutableStateFlow<UpbitSocketTickerRes?>(null)
@@ -45,63 +56,45 @@ class PortfolioWebsocketManager {
         if (socketState.get() == WebSocketState.CONNECTED || socketState.get() == WebSocketState.CONNECTING) return
 
         socketState.set(WebSocketState.CONNECTING)
-
         try {
             client.webSocket(
                 method = HttpMethod.Get,
                 host = "api.upbit.com",
                 path = "/websocket/v1"
             ) {
-                session = this
-                socketState.set(WebSocketState.CONNECTED)
                 println("WebSocket 연결 성공!")
+                session = this
+                receiveChannel = this.incoming
+                socketState.set(WebSocketState.CONNECTED)
                 isCancel = false
 
                 val message = upbitTickerWebSocketMessage(marketCodes)
                 session!!.send(Frame.Text(message))
 
-                try {
-                    // 메시지를 Flow로 방출
-                    for (frame in incoming) {
-                        when (frame) {
-                            is Frame.Text -> {
+                for (frame in receiveChannel!!) {
+                    when (frame) {
+                        is Frame.Text -> {
 
-                            }
-
-                            is Frame.Binary -> {
-                                val message =
-                                    json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-                                _tickerFlow.emit(message)
-                            }
-
-                            else -> Unit
                         }
-                    }
-                } catch (e: Exception) {
-                    Logger.e(e.localizedMessage.toString())
-                    if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
-                        println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
-                        isCancel = true
-                        return@webSocket
-                    }
 
-                    println("수신 처리 중 예외 발생: ${e.localizedMessage}")
-                    handleDisconnection(marketCodes)
-                } finally {
-                    disConnectionSocket()
-                    println("WebSocket 세션 종료")
+                        is Frame.Binary -> {
+                            val message =
+                                json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                            Logger.e(message.code)
+                            _tickerFlow.emit(message)
+                        }
+
+                        else -> Unit
+                    }
                 }
             }
         } catch (e: Exception) {
-            println("WebSocket 연결 실패: ${e.localizedMessage}")
-            // 취소된 상태에서 더 이상 처리하지 않도록 할 수 있습니다.
-            if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
-                println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
-                isCancel = true
-                return
+            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
+            disConnectionSocket()
+            //소켓 연결부터 다시
+            if (!isCancel && !isBackGround) {
+                retry(marketCodes)
             }
-
-            handleDisconnection(marketCodes)
         }
     }
 
@@ -111,56 +104,126 @@ class PortfolioWebsocketManager {
         session = null
     }
 
-    suspend fun onStart(marketCodes: String) {
-        val message = upbitTickerWebSocketMessage(marketCodes)
-        if (session != null && socketState.get() == WebSocketState.CONNECTED) {
-            try {
-                session!!.send(Frame.Text(message))
+    suspend fun receiveMessage(marketCodes: String) {
+        if (receiveChannel != null) {
+            for (frame in receiveChannel!!) {
+                when (frame) {
+                    is Frame.Text -> {
 
-                println("메시지 전송 성공: $marketCodes")
-            } catch (e: Exception) {
-                println("메시지 전송 실패: ${e.localizedMessage}")
-                if (e.localizedMessage == "StandaloneCoroutine was cancelled") {
-                    println("코루틴이 취소된 상태입니다. 추가 작업을 진행하지 않습니다.")
-                    isCancel = true
-                    return
+                    }
+
+                    is Frame.Binary -> {
+                        val message =
+                            json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                        Logger.e(message.code)
+                        _tickerFlow.emit(message)
+                    }
+
+                    else -> Unit
                 }
-                handleDisconnection(marketCodes) // 연결 끊김 처리
             }
         } else {
-            println("WebSocket이 연결되지 않았습니다. 재연결 시도 중...")
-            handleDisconnection(marketCodes) // 연결 끊김 처리
+            disConnectionSocket()
+            // 소켓 연결부터 다시
+            if (!isCancel && !isBackGround) {
+                retry(marketCodes)
+            }
+        }
+    }
+
+    suspend fun sendMessage(marketCodes: String) {
+        val message = upbitTickerWebSocketMessage(marketCodes)
+        try {
+            if (session != null && socketState.get() == WebSocketState.CONNECTED) {
+                println("메시지 전송 성공: $marketCodes")
+                session!!.send(Frame.Text(message))
+            } else {
+                println("WebSocket이 연결되지 않았습니다.")
+                disConnectionSocket()
+                if (!isCancel && !isBackGround) {
+                    retry(marketCodes)
+                }
+            }
+        } catch (e: Exception) {
+            // 소켓 연결부터 다시
+            println("send message 오류")
+            disConnectionSocket()
+            if (!isCancel && !isBackGround) {
+                retry(marketCodes)
+            }
+        }
+    }
+
+    private suspend fun retry(marketCodes: String) {
+        while (retryCount.get() <= 5) {
+            if (isCancel || isBackGround) {
+                return
+            }
+
+            try {
+                client.webSocket(
+                    method = HttpMethod.Get,
+                    host = "api.upbit.com",
+                    path = "/websocket/v1"
+                ) {
+                    println("WebSocket 연결 성공!")
+                    session = this
+                    receiveChannel = this.incoming
+                    socketState.set(WebSocketState.CONNECTED)
+
+                    val message = upbitTickerWebSocketMessage(marketCodes)
+                    session!!.send(Frame.Text(message))
+
+                    retryCount.set(0)
+
+                    for (frame in receiveChannel!!) {
+
+                        if (isCancel || isBackGround) {
+                            return@webSocket
+                        }
+
+                        when (frame) {
+                            is Frame.Text -> {
+
+                            }
+
+                            is Frame.Binary -> {
+                                val message =
+                                    json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                                Logger.e(message.code)
+                                _tickerFlow.emit(message)
+                            }
+
+                            else -> Unit
+                        }
+                    }
+                    return@webSocket
+                }
+            } catch (e: Exception) {
+                if (isCancel || isBackGround) {
+                    return
+                }
+                println("catch")
+
+                disConnectionSocket()
+                delay(3000L)
+
+                if (retryCount.getAndIncrement() == 5) {
+                    retryCount.set(0)
+                    _showSnackBarState.value = true
+                    return
+                }
+            }
         }
     }
 
     suspend fun onStop() {
+        isCancel = true // 이걸로 정상종료 FLAG 해도될듯???
         disConnectionSocket()
     }
 
-    private suspend fun handleDisconnection(marketCodes: String) {
-        socketState.set(WebSocketState.DISCONNECTED)
-        session = null
-        println("WebSocket 연결이 끊겼습니다. 재연결 시도 중...")
-
-        var attempt = 0
-        while (attempt < 5 && socketState.get() == WebSocketState.DISCONNECTED) {
-            println("WebSocket 연결이 끊겼습니다. 재연결 시도 중... ($attempt)")
-
-            try {
-                delay(2000) // 재연결 대기
-                connectWebSocketFlow(marketCodes)
-                _showSnackBarState.emit(true) // 연결 성공 알림
-                return
-            } catch (e: Exception) {
-                println("재연결 실패: ${e.localizedMessage}")
-                attempt++
-            }
-        }
-
-        if (socketState.get() == WebSocketState.DISCONNECTED) {
-            _showSnackBarState.emit(false) // 연결 실패 알림
-            println("재연결 시도 횟수 초과, 사용자에게 알림")
-        }
+    fun updateIsBackground(value: Boolean) {
+        isBackGround = value
     }
 
     fun getIsSocketConnected(): Boolean {

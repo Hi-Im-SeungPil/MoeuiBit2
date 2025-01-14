@@ -14,12 +14,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
+import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class ExchangeWebsocketManager() {
-
+class OrderBookWebsocketManager {
     private val client = HttpClient {
         install(WebSockets)
     }
@@ -37,8 +36,8 @@ class ExchangeWebsocketManager() {
 
     private val socketState = AtomicReference(WebSocketState.DISCONNECTED)
 
-    private val _tickerFlow = MutableStateFlow<UpbitSocketTickerRes?>(null)
-    val tickerFlow: Flow<UpbitSocketTickerRes?> = _tickerFlow
+    private val _tickerFlow = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
+    val tickerFlow: Flow<UpbitSocketOrderBookRes?> = _tickerFlow
 
     private val _showSnackBarState = MutableStateFlow(false)
     val showSnackBarState: Flow<Boolean> = _showSnackBarState
@@ -76,7 +75,7 @@ class ExchangeWebsocketManager() {
 
                         is Frame.Binary -> {
                             val message =
-                                json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                                json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
                             Logger.e(message.code)
                             _tickerFlow.emit(message)
                         }
@@ -111,7 +110,7 @@ class ExchangeWebsocketManager() {
 
                     is Frame.Binary -> {
                         val message =
-                            json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                            json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
                         Logger.e(message.code)
                         _tickerFlow.emit(message)
                     }
@@ -133,7 +132,6 @@ class ExchangeWebsocketManager() {
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
                 println("메시지 전송 성공: $marketCodes")
-                isCancel = false
                 session!!.send(Frame.Text(message))
             } else {
                 println("WebSocket이 연결되지 않았습니다.")
@@ -187,7 +185,7 @@ class ExchangeWebsocketManager() {
 
                             is Frame.Binary -> {
                                 val message =
-                                    json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                                    json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
                                 Logger.e(message.code)
                                 _tickerFlow.emit(message)
                             }
@@ -201,7 +199,6 @@ class ExchangeWebsocketManager() {
                 if (isCancel || isBackGround) {
                     return
                 }
-                println("catch")
 
                 disConnectionSocket()
                 delay(3000L)
@@ -216,7 +213,7 @@ class ExchangeWebsocketManager() {
     }
 
     suspend fun onStop() {
-        isCancel = true // 이걸로 정상종료 FLAG 해도될듯???
+        isCancel = true
         disConnectionSocket()
     }
 

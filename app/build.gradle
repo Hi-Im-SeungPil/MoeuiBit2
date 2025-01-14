@@ -41,12 +41,12 @@ android {
             keyPassword "454842as"
         }
 
-        debug {
-            storeFile file("debugkey.jks")
-            storePassword "454842as!!"
-            keyAlias "SeungPil"
-            keyPassword "454842as!!"
-        }
+//        debug {
+//            storeFile file("debugkey.jks")
+//            storePassword "454842as!!"
+//            keyAlias "SeungPil"
+//            keyPassword "454842as!!"
+//        }
     }
 
     buildTypes {

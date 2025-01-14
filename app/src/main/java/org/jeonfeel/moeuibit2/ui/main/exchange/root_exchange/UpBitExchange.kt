@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
+import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
@@ -27,6 +28,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import java.math.BigDecimal
+import java.util.logging.Handler
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
@@ -107,7 +109,9 @@ class UpBitExchange @Inject constructor(
             updateLoadingState(true)
             clearTickerData()
             init()
-            updateLoadingState(false)
+            android.os.Handler(Looper.getMainLooper()).postDelayed(kotlinx.coroutines.Runnable {
+                updateLoadingState(false)
+            }, 500)
             useCaseOnStart()
         }
     }

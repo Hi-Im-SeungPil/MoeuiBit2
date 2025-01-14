@@ -161,14 +161,10 @@ class NetworkModule {
     fun providerCoinDetailUseCase(
         localRepository: LocalRepository,
         upbitRepository: UpbitRepository,
-        @SocketOkHttpClient okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
     ): UpbitCoinDetailUseCase {
         return UpbitCoinDetailUseCase(
             localRepository = localRepository,
             upbitRepository = upbitRepository,
-            okHttpClient = okHttpClient,
-            context = context
         )
     }
 
@@ -177,14 +173,10 @@ class NetworkModule {
     fun provideOrderBookUseCase(
         upbitRepository: UpbitRepository,
         localRepository: LocalRepository,
-        @SocketOkHttpClient okHttpClient: OkHttpClient,
-        @ApplicationContext context: Context
     ): UpbitCoinOrderUseCase {
         return UpbitCoinOrderUseCase(
             localRepository = localRepository,
-            upbitRepository = upbitRepository,
-            okHttpClient = okHttpClient,
-            context = context
+            upbitRepository = upbitRepository
         )
     }
 }

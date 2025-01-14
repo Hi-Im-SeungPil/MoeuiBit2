@@ -137,6 +137,8 @@ class PortfolioViewModel @Inject constructor(
             _isPortfolioSocketRunning.value = false
             realTimeUpdateJob?.cancel()
             collectTickerJob?.cancel()
+            realTimeUpdateJob = null
+            collectTickerJob = null
             upbitPortfolioUseCase.onStop()
         }
     }
@@ -582,7 +584,7 @@ class PortfolioViewModel @Inject constructor(
                 upbitSocketTickerRes
             }
         }.collect { upbitSocketTickerRes ->
-
+            Logger.e("portfolio message!!")
             if (!isPortfolioSocketRunning.value || upbitSocketTickerRes == null) return@collect
 
             runCatching {
