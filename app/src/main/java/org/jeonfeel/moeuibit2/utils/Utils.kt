@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.orhanobut.logger.Logger
+import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -22,6 +23,10 @@ import java.util.*
 
 object Utils {
     val gson = Gson()
+    val json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
 
     fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

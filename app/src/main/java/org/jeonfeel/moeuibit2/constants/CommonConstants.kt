@@ -52,7 +52,7 @@ const val playStoreUrl = "https://play.google.com/store/apps/details?id=org.jeon
 const val coinImageUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
 const val bitthumbCoinNameUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
 
-fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]},{"format":"SIMPLE"}]"""
+fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]}]"""
 fun upbitTickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]}]"""
 fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["MID"]}"""
 fun bitthumbOrderBookWebSocketMessage(market: String): String = """{"type":"orderbooksnapshot","symbols":[$market]}"""

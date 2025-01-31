@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
+import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
@@ -46,11 +47,6 @@ class PortfolioWebsocketManager {
     private val _showSnackBarState = MutableStateFlow(false)
     val showSnackBarState: Flow<Boolean> = _showSnackBarState
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        explicitNulls = false
-    }
-
     // WebSocket 메시지 Flow 생성
     suspend fun connectWebSocketFlow(marketCodes: String) {
         if (socketState.get() == WebSocketState.CONNECTED || socketState.get() == WebSocketState.CONNECTING) return
@@ -78,10 +74,10 @@ class PortfolioWebsocketManager {
                         }
 
                         is Frame.Binary -> {
-                            val message =
-                                json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-                            Logger.e(message.code)
-                            _tickerFlow.emit(message)
+                            val receivedMessage =
+                                Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                            Logger.e(receivedMessage.code)
+                            _tickerFlow.emit(receivedMessage)
                         }
 
                         else -> Unit
@@ -113,10 +109,10 @@ class PortfolioWebsocketManager {
                     }
 
                     is Frame.Binary -> {
-                        val message =
-                            json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-                        Logger.e(message.code)
-                        _tickerFlow.emit(message)
+                        val receivedMessage =
+                            Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                        Logger.e(receivedMessage.code)
+                        _tickerFlow.emit(receivedMessage)
                     }
 
                     else -> Unit
@@ -188,10 +184,10 @@ class PortfolioWebsocketManager {
                             }
 
                             is Frame.Binary -> {
-                                val message =
-                                    json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-                                Logger.e(message.code)
-                                _tickerFlow.emit(message)
+                                val receivedMessage =
+                                    Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                                Logger.e(receivedMessage.code)
+                                _tickerFlow.emit(receivedMessage)
                             }
 
                             else -> Unit

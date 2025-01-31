@@ -12,9 +12,10 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.Json
+import org.jeonfeel.moeuibit2.constants.upbitOrderBookWebSocketMessage
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
+import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
@@ -30,10 +31,8 @@ class OrderBookWebsocketManager {
     private var isBackGround = false
 
     private val retryCount = AtomicInteger(0)
-
     private var session: WebSocketSession? = null
     private var receiveChannel: ReceiveChannel<Frame>? = null
-
     private val socketState = AtomicReference(WebSocketState.DISCONNECTED)
 
     private val _tickerFlow = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
@@ -41,11 +40,6 @@ class OrderBookWebsocketManager {
 
     private val _showSnackBarState = MutableStateFlow(false)
     val showSnackBarState: Flow<Boolean> = _showSnackBarState
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-        explicitNulls = false
-    }
 
     // WebSocket 메시지 Flow 생성
     suspend fun connectWebSocketFlow(marketCodes: String) {
@@ -64,7 +58,7 @@ class OrderBookWebsocketManager {
                 socketState.set(WebSocketState.CONNECTED)
                 isCancel = false
 
-                val message = upbitTickerWebSocketMessage(marketCodes)
+                val message = upbitOrderBookWebSocketMessage(marketCodes)
                 session!!.send(Frame.Text(message))
 
                 for (frame in receiveChannel!!) {
@@ -74,10 +68,10 @@ class OrderBookWebsocketManager {
                         }
 
                         is Frame.Binary -> {
-                            val message =
-                                json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
-                            Logger.e(message.code)
-                            _tickerFlow.emit(message)
+                            val receivedMessage =
+                                Utils.json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
+                            Logger.e(receivedMessage.code)
+                            _tickerFlow.emit(receivedMessage)
                         }
 
                         else -> Unit
@@ -109,10 +103,10 @@ class OrderBookWebsocketManager {
                     }
 
                     is Frame.Binary -> {
-                        val message =
-                            json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
-                        Logger.e(message.code)
-                        _tickerFlow.emit(message)
+                        val receivedMessage =
+                            Utils.json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
+                        Logger.e(receivedMessage.code)
+                        _tickerFlow.emit(receivedMessage)
                     }
 
                     else -> Unit
@@ -128,7 +122,7 @@ class OrderBookWebsocketManager {
     }
 
     suspend fun sendMessage(marketCodes: String) {
-        val message = upbitTickerWebSocketMessage(marketCodes)
+        val message = upbitOrderBookWebSocketMessage(marketCodes)
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
                 println("메시지 전송 성공: $marketCodes")
@@ -184,10 +178,10 @@ class OrderBookWebsocketManager {
                             }
 
                             is Frame.Binary -> {
-                                val message =
-                                    json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
-                                Logger.e(message.code)
-                                _tickerFlow.emit(message)
+                                val receivedMessage =
+                                    Utils.json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
+                                Logger.e(receivedMessage.code)
+                                _tickerFlow.emit(receivedMessage)
                             }
 
                             else -> Unit
