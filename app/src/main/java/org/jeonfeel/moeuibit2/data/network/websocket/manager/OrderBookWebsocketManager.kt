@@ -70,7 +70,7 @@ class OrderBookWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketOrderBookRes>(frame.data.decodeToString())
-                            Logger.e(receivedMessage.code)
+//                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 

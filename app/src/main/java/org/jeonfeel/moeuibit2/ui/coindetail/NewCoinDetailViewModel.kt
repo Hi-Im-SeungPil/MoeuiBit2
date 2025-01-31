@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,6 +33,7 @@ import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.utils.getPostposition
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -56,6 +58,9 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private val _orderBookIndication = mutableStateOf("quantity")
     val orderBookIndication: State<String> get() = _orderBookIndication
+
+    private val _transactionInfoList = mutableStateListOf<TransactionInfo>()
+    val transactionInfo: List<TransactionInfo> get() = _transactionInfoList
 
     private var initIsFavorite = false
     private val _isFavorite = mutableStateOf(false)
@@ -423,6 +428,14 @@ class NewCoinDetailViewModel @Inject constructor(
         coinInfo.getCoinInfo(market)
     }
 
+    fun getTransactionInfoList(market: String) {
+        viewModelScope.launch {
+            Logger.e(upbitCoinOrder.getTransactionInfoList(market = market).toString())
+            _transactionInfoList.clear()
+            _transactionInfoList.addAll(upbitCoinOrder.getTransactionInfoList(market = market))
+        }
+    }
+
     private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
         return "${koreanCoinName.value}${getPostposition(koreanCoinName.value)} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일에 거래지원 종료 예정입니다."
     }
@@ -436,7 +449,7 @@ class NewCoinDetailViewModel @Inject constructor(
         }?.collect { upbitSocketTickerRes ->
             runCatching {
 //                Logger.e(upbitSocketTickerRes.toString())
-                Logger.e("coinDetail message!!")
+//                Logger.e("coinDetail message!!")
                 if (upbitSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
                     deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true

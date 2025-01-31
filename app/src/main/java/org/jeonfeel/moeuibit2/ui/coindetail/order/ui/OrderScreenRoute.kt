@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import java.math.BigDecimal
@@ -25,6 +26,8 @@ fun OrderScreenRoute(
     userSeedMoney: State<Long>,
     userBTC: State<MyCoin>,
     userCoin: State<MyCoin>,
+    transactionInfoList: List<TransactionInfo>,
+    getTransactionInfoList: (String) -> Unit
 ) {
     OrderScreen(
         market = market,
@@ -42,6 +45,8 @@ fun OrderScreenRoute(
         userCoin = userCoin,
         requestBid = requestBid,
         requestAsk = requestAsk,
-        btcPrice = btcPrice
+        btcPrice = btcPrice,
+        transactionInfoList = transactionInfoList,
+        getTransactionInfoList = getTransactionInfoList
     )
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
@@ -72,7 +73,10 @@ fun OrderSection(
     dropdownLabelList: List<String>,
     askSelectedText: String,
     bidSelectedText: String,
-    userCoin: State<MyCoin>
+    userCoin: State<MyCoin>,
+    transactionInfoList: List<TransactionInfo>,
+    getTransactionInfoList: (String) -> Unit,
+    market: String
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -107,7 +111,15 @@ fun OrderSection(
                     requestAsk = requestAsk
                 )
 
-                OrderTabState.TRANSACTION_INFO -> {}
+                OrderTabState.TRANSACTION_INFO -> {
+                    LaunchedEffect(true) {
+                        getTransactionInfoList(market)
+                    }
+                    TransactionInfoLazyColumn(
+                        isKrw = isKrw,
+                        transactionInfoList = transactionInfoList
+                    )
+                }
             }
         }
     }

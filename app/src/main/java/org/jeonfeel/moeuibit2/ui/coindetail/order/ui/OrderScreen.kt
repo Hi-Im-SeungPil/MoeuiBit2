@@ -49,6 +49,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -78,7 +79,9 @@ fun OrderScreen(
     userBTC: State<MyCoin>,
     userSeedMoney: State<Long>,
     userCoin: State<MyCoin>,
-    btcPrice: State<BigDecimal>
+    btcPrice: State<BigDecimal>,
+    transactionInfoList: List<TransactionInfo>,
+    getTransactionInfoList: (String) -> Unit
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -152,7 +155,10 @@ fun OrderScreen(
                 userCoin = userCoin,
                 dropdownLabelList = state.percentageLabelList,
                 askSelectedText = state.askQuantityPercentage.value,
-                bidSelectedText = state.bidQuantityPercentage.value
+                bidSelectedText = state.bidQuantityPercentage.value,
+                transactionInfoList = transactionInfoList,
+                getTransactionInfoList = getTransactionInfoList,
+                market = market
             )
         }
     }

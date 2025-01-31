@@ -100,7 +100,9 @@ fun TabRowMainNavigation(
                 userCoin = viewModel.getUserCoin(),
                 requestBid = viewModel::requestBid,
                 requestAsk = viewModel::requestAsk,
-                btcPrice = viewModel.btcPrice
+                btcPrice = viewModel.btcPrice,
+                transactionInfoList = viewModel.transactionInfo,
+                getTransactionInfoList = viewModel::getTransactionInfoList
             )
         }
         composable(CoinDetailMainTabRowItem.Chart.screenRoute) {

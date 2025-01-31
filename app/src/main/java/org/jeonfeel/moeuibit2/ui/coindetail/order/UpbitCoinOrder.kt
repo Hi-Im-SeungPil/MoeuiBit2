@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
+import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
@@ -79,7 +80,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 result
             }
         }?.collect { upbitSocketOrderBookRes ->
-            Logger.e("orderBook message!!")
+//            Logger.e("orderBook message!!")
             if (upbitSocketOrderBookRes?.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {
@@ -216,7 +217,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         }
     }
 
-    fun plusUserSeedMoney(totalPrice: Long) {
-        _userSeedMoney.longValue += totalPrice
+    suspend fun getTransactionInfoList(market: String): List<TransactionInfo> {
+        return upbitCoinOrderUseCase.getTransactionInfoList(market = market)
     }
 }

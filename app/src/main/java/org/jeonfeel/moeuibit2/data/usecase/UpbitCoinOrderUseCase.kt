@@ -215,6 +215,18 @@ class UpbitCoinOrderUseCase @Inject constructor(
             }
             coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
         }
+
+        localRepository.getTransactionInfoDao().insert(
+            TransactionInfo(
+                market = market,
+                price = coin.purchasePrice,
+                quantity = coin.quantity,
+                transactionAmount = 0,
+                transactionStatus = BID,
+                transactionTime = System.currentTimeMillis(),
+                transactionAmountBTC = totalPrice
+            )
+        )
     }
 
     suspend fun requestBTCAsk(
@@ -271,5 +283,9 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 transactionAmountBTC = totalPrice
             )
         )
+    }
+
+    suspend fun getTransactionInfoList(market: String): List<TransactionInfo> {
+        return localRepository.getTransactionInfoDao().select(market)
     }
 }
