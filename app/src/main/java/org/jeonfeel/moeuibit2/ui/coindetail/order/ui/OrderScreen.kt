@@ -108,6 +108,16 @@ fun OrderScreen(
         }
     )
 
+    TotalBidTradeDialog(
+        dialogState = state.totalBidDialogState,
+        userSeedMoney = userSeedMoney,
+        userBTC = userBTC,
+        isKrw = market.isTradeCurrencyKrw(),
+        symbol = commonExchangeModelState.value?.symbol ?: "",
+        currentPrice = commonExchangeModelState.value?.tradePrice,
+        requestBid = requestBid
+    )
+
     Row(
         modifier = Modifier
             .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
@@ -158,7 +168,9 @@ fun OrderScreen(
                 bidSelectedText = state.bidQuantityPercentage.value,
                 transactionInfoList = transactionInfoList,
                 getTransactionInfoList = getTransactionInfoList,
-                market = market
+                market = market,
+                totalBidDialogState = state.totalBidDialogState,
+                totalAskDialogState = state.totalAskDialogState,
             )
         }
     }

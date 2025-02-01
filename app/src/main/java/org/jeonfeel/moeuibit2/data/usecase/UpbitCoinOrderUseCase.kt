@@ -121,15 +121,13 @@ class UpbitCoinOrderUseCase @Inject constructor(
             coinDao.updatePlusQuantity(market, coin.quantity)
         }
         userDao.updateMinusMoney(krwTotalPrice)
-        localRepository.getTransactionInfoDao().insert(
-            TransactionInfo(
-                market,
-                coin.purchasePrice,
-                coin.quantity,
-                totalPrice,
-                BID,
-                System.currentTimeMillis()
-            )
+
+        insertAndDeleteOver500(
+            market = market,
+            price = coin.purchasePrice,
+            quantity = coin.quantity,
+            transactionAmount = totalPrice,
+            transactionStatus = BID,
         )
     }
 
@@ -151,15 +149,13 @@ class UpbitCoinOrderUseCase @Inject constructor(
         } else {
             coinDao.updateMinusQuantity(market, quantity)
         }
-        localRepository.getTransactionInfoDao().insert(
-            TransactionInfo(
-                market,
-                currentPrice.toDouble(),
-                quantity,
-                totalPrice,
-                ASK,
-                System.currentTimeMillis()
-            )
+
+        insertAndDeleteOver500(
+            market = market,
+            price = currentPrice.toDouble(),
+            quantity = quantity,
+            transactionAmount = totalPrice,
+            transactionStatus = ASK
         )
     }
 
@@ -216,16 +212,13 @@ class UpbitCoinOrderUseCase @Inject constructor(
             coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
         }
 
-        localRepository.getTransactionInfoDao().insert(
-            TransactionInfo(
-                market = market,
-                price = coin.purchasePrice,
-                quantity = coin.quantity,
-                transactionAmount = 0,
-                transactionStatus = BID,
-                transactionTime = System.currentTimeMillis(),
-                transactionAmountBTC = totalPrice
-            )
+        insertAndDeleteOver500(
+            market = market,
+            price = coin.purchasePrice,
+            quantity = coin.quantity,
+            transactionAmount = 0,
+            transactionStatus = BID,
+            transactionAmountBTC = totalPrice
         )
     }
 
@@ -272,20 +265,47 @@ class UpbitCoinOrderUseCase @Inject constructor(
             coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
         }
 
-        localRepository.getTransactionInfoDao().insert(
-            TransactionInfo(
-                market = market,
-                price = currentPrice.toDouble(),
-                quantity = quantity,
-                transactionAmount = 0,
-                transactionStatus = ASK,
-                transactionTime = System.currentTimeMillis(),
-                transactionAmountBTC = totalPrice
-            )
+        insertAndDeleteOver500(
+            market = market,
+            price = currentPrice.toDouble(),
+            quantity = quantity,
+            transactionAmount = 0,
+            transactionStatus = ASK,
+            transactionAmountBTC = totalPrice
         )
     }
 
     suspend fun getTransactionInfoList(market: String): List<TransactionInfo> {
         return localRepository.getTransactionInfoDao().select(market)
+    }
+
+    private suspend fun insertAndDeleteOver500(
+        market: String,
+        price: Double,
+        quantity: Double,
+        transactionAmount: Long,
+        transactionStatus: String,
+        transactionTime: Long = System.currentTimeMillis(),
+        transactionAmountBTC: Double = 0.0
+    ) {
+        val transactionInfoDao = localRepository.getTransactionInfoDao()
+        transactionInfoDao.insert(
+            TransactionInfo(
+                market = market,
+                price = price,
+                quantity = quantity,
+                transactionAmount = transactionAmount,
+                transactionStatus = transactionStatus,
+                transactionTime = transactionTime,
+                transactionAmountBTC = transactionAmountBTC
+            )
+        )
+
+        val count = transactionInfoDao.getCount(market)
+        val excess = count - 500
+
+        if (excess > 0) {
+            transactionInfoDao.deleteExcess(market, excess)
+        }
     }
 }

@@ -39,6 +39,8 @@ enum class OrderTabState {
 
 class CoinOrderStateHolder(
     val orderTabState: MutableState<OrderTabState> = mutableStateOf(OrderTabState.BID),
+    val totalBidDialogState: MutableState<Boolean> = mutableStateOf(false),
+    val totalAskDialogState: MutableState<Boolean> = mutableStateOf(false),
     private val context: Context,
     private val market: String,
     private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Double) -> Unit,

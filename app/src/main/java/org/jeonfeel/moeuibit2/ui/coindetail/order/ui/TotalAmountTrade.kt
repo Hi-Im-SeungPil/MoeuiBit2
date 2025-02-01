@@ -18,6 +18,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,14 +32,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.item.BYBIT_COLOR
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
+import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
+import java.math.BigDecimal
 
 @Composable
-fun TotalAmountTradeBottomSheet(
-    dialogState: State<Boolean>,
-    hideSheet: () -> Unit,
+fun TotalBidTradeDialog(
+    dialogState: MutableState<Boolean>,
+    userSeedMoney: State<Long>,
+    userBTC: State<MyCoin>,
+    isKrw: Boolean,
+    symbol: String,
+    currentPrice: BigDecimal?,
+    requestBid: (String, Double, BigDecimal, Double) -> Unit,
 ) {
     val plusAmountButtonList = remember {
         arrayOf(1, 10, 100, 1_000)
@@ -46,7 +58,7 @@ fun TotalAmountTradeBottomSheet(
 
     if (dialogState.value) {
         Dialog(
-            onDismissRequest = { hideSheet() }
+            onDismissRequest = { dialogState.value = false }
         ) {
             Card(
                 modifier = Modifier
@@ -58,23 +70,24 @@ fun TotalAmountTradeBottomSheet(
                     Text(
                         text = "총액 지정하여 매수",
                         modifier = Modifier
+                            .padding(bottom = 10.dp)
                             .align(alignment = Alignment.CenterHorizontally),
                         style = TextStyle(fontWeight = FontWeight.W600, fontSize = DpToSp(16.dp))
                     )
                     Item(
                         text = "보유",
-                        value = "10,000,000",
-                        symbol = "KRW"
+                        value = if (isKrw) userSeedMoney.value.commaFormat() else userBTC.value.quantity.eighthDecimal(),
+                        symbol = if (isKrw) "KRW" else "BTC"
                     )
                     Item(
                         text = "현재가",
-                        value = "51,993",
-                        symbol = "KRW"
+                        value = if(isKrw) currentPrice?.formattedStringForKRW() ?: "0" else currentPrice?.formattedStringForBtc() ?: "0",
+                        symbol = if (isKrw) "KRW" else "BTC"
                     )
                     Item(
                         text = "매수 수량",
                         value = "31,1331",
-                        symbol = "BTC"
+                        symbol = symbol
                     )
 
                     Divider(
@@ -108,7 +121,7 @@ fun TotalAmountTradeBottomSheet(
                                     .padding(end = 4.dp)
                                     .weight(1f)
                                     .border(
-                                        2.dp,
+                                        1.dp,
                                         color = Color.LightGray,
                                         shape = RoundedCornerShape(4.dp)
                                     )
@@ -125,7 +138,7 @@ fun TotalAmountTradeBottomSheet(
                             modifier = Modifier
                                 .weight(1f)
                                 .border(
-                                    2.dp,
+                                    1.dp,
                                     color = Color.LightGray,
                                     shape = RoundedCornerShape(4.dp)
                                 )
@@ -151,7 +164,7 @@ fun TotalAmountTradeBottomSheet(
                                     color = Color.LightGray,
                                     shape = RoundedCornerShape(999.dp)
                                 )
-                                .padding(vertical = 7.dp),
+                                .padding(vertical = 15.dp),
                             style = TextStyle(textAlign = TextAlign.Center, color = Color.White)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
@@ -160,7 +173,7 @@ fun TotalAmountTradeBottomSheet(
                             modifier = Modifier
                                 .weight(3f)
                                 .background(color = Color.Red, shape = RoundedCornerShape(999.dp))
-                                .padding(vertical = 7.dp),
+                                .padding(vertical = 15.dp),
                             style = TextStyle(
                                 textAlign = TextAlign.Center,
                                 fontSize = DpToSp(14.dp),
@@ -236,8 +249,16 @@ fun RowScope.TransparentTextField(
     }
 }
 
-@Composable
-@Preview()
-fun TotalAmountTradeBottomSheetPreview() {
-    TotalAmountTradeBottomSheet(dialogState = remember { mutableStateOf(true) }, hideSheet = {})
-}
+//@Composable
+//@Preview()
+//fun TotalAmountTradeBottomSheetPreview() {
+//    TotalBidTradeDialog(
+//        dialogState = remember { mutableStateOf(true) },
+//        userSeedMoney = userSeedMoney,
+//        userBTC = userBTC,
+//        isKrw = market.isTradeCurrencyKrw(),
+//        symbol = commonExchangeModelState.value?.symbol ?: "",
+//        currentPrice = commonExchangeModelState.value?.tradePrice,
+//        requestBid = requestBid
+//    )
+//}

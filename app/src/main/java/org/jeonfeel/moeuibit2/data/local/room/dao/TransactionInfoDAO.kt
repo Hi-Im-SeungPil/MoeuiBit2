@@ -18,4 +18,13 @@ interface TransactionInfoDAO {
 
     @Query("DELETE FROM TransactionInfo ")
     suspend fun deleteAll()
+
+    @Query(
+        "DELETE FROM TransactionInfo WHERE transactionTime IN (" +
+                "SELECT transactionTime FROM TransactionInfo WHERE market = :market ORDER BY transactionTime ASC LIMIT :count)"
+    )
+    suspend fun deleteExcess(market: String, count: Int)
+
+    @Query("SELECT COUNT(*) FROM TransactionInfo WHERE market = :market")
+    suspend fun getCount(market: String): Int
 }

@@ -76,7 +76,9 @@ fun OrderSection(
     userCoin: State<MyCoin>,
     transactionInfoList: List<TransactionInfo>,
     getTransactionInfoList: (String) -> Unit,
-    market: String
+    market: String,
+    totalBidDialogState: MutableState<Boolean>,
+    totalAskDialogState: MutableState<Boolean>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -94,7 +96,8 @@ fun OrderSection(
                     getBidTotalPrice = getBidTotalPrice,
                     requestBid = requestBid,
                     dropdownLabelList = dropdownLabelList,
-                    selectedText = bidSelectedText
+                    selectedText = bidSelectedText,
+                    totalBidDialogState = totalBidDialogState
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -108,7 +111,8 @@ fun OrderSection(
                     userCoin = userCoin,
                     dropdownLabelList = dropdownLabelList,
                     selectedText = askSelectedText,
-                    requestAsk = requestAsk
+                    requestAsk = requestAsk,
+                    totalAskDialogState = totalAskDialogState
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {
@@ -138,9 +142,9 @@ fun BidSection(
     requestBid: () -> Unit,
     dropdownLabelList: List<String>,
     selectedText: String,
-    userBTC: State<MyCoin>
+    userBTC: State<MyCoin>,
+    totalBidDialogState: MutableState<Boolean>
 ) {
-
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
             userSeedMoney = userSeedMoney,
@@ -159,7 +163,11 @@ fun BidSection(
             selectedText = selectedText
         )
         OrderTabTotalPriceSection(getTotalPrice = getBidTotalPrice)
-        OrderSectionButtonGroup(orderTabState = OrderTabState.BID, bidAskAction = requestBid)
+        OrderSectionButtonGroup(
+            orderTabState = OrderTabState.BID,
+            bidAskAction = requestBid,
+            totalBidAskAction = { totalBidDialogState.value = true }
+        )
     }
 }
 
@@ -175,7 +183,8 @@ fun AskSection(
     dropdownLabelList: List<String>,
     selectedText: String,
     requestAsk: () -> Unit,
-    userCoin: State<MyCoin>
+    userCoin: State<MyCoin>,
+    totalAskDialogState: MutableState<Boolean>
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -194,7 +203,11 @@ fun AskSection(
             selectedText = selectedText
         )
         OrderTabTotalPriceSection(getAskTotalPrice)
-        OrderSectionButtonGroup(orderTabState = OrderTabState.ASK, bidAskAction = requestAsk)
+        OrderSectionButtonGroup(
+            orderTabState = OrderTabState.ASK,
+            bidAskAction = requestAsk,
+            totalBidAskAction = { totalAskDialogState.value = true }
+        )
     }
 }
 

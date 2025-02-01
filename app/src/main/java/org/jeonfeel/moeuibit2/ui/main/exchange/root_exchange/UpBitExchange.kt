@@ -142,9 +142,25 @@ class UpBitExchange @Inject constructor(
 
         if (newFavorites.isNotEmpty()) {
             val newModels = newFavorites.map { market ->
-                CommonExchangeModel(market = market) // 필요한 데이터를 생성
+                CommonExchangeModel(market = market)
             }
-            _favoriteExchangeModelList.addAll(newModels)
+
+            newModels.forEach { commonExchangeModel ->
+                val market = commonExchangeModel.market
+                val model = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                    val position = krwExchangeModelPosition[market]
+                    position?.let {
+                        _krwExchangeModelList[position]
+                    } ?: CommonExchangeModel(market = market)
+                } else {
+                    val position = btcExchangeModelPosition[market]
+                    position?.let {
+                        _btcExchangeModelList[position]
+                    } ?: CommonExchangeModel(market = market)
+                }
+                _favoriteExchangeModelList.add(model)
+            }
+
             _favoriteExchangeModelList.forEachIndexed { index, model ->
                 favoriteModelPosition[model.market] = index
             }
@@ -428,7 +444,7 @@ class UpBitExchange @Inject constructor(
         upBitExchangeUseCase.addFavorite(market)
     }
 
-    suspend fun removeFavorite(market: String) {
+    private suspend fun removeFavorite(market: String) {
         upBitExchangeUseCase.removeFavorite(market)
     }
 
