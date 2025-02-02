@@ -1,8 +1,11 @@
 package org.jeonfeel.moeuibit2.utils.calculator
 
+import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.utils.*
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -117,6 +120,21 @@ object CurrentCalculator {
             tradePriceCalculator(price, SELECTED_KRW_MARKET)
         } else {
             ""
+        }
+    }
+
+    fun total(
+        isKrw: Boolean,
+        currentPrice: BigDecimal,
+        designatePrice: Double
+    ): BigDecimal? {
+        val designatePriceBigDecimal = designatePrice.toBigDecimal()
+        return if (isKrw) {
+            designatePriceBigDecimal.multiply(0.9995.toBigDecimal())
+                .divide(currentPrice, 8, RoundingMode.HALF_UP)
+        } else {
+            designatePriceBigDecimal.multiply(0.9975.toBigDecimal())
+                .divide(currentPrice, 8, RoundingMode.HALF_UP)
         }
     }
 }

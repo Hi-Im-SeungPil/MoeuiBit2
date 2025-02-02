@@ -113,8 +113,7 @@ fun OrderScreen(
         userSeedMoney = userSeedMoney,
         userBTC = userBTC,
         isKrw = market.isTradeCurrencyKrw(),
-        symbol = commonExchangeModelState.value?.symbol ?: "",
-        currentPrice = commonExchangeModelState.value?.tradePrice,
+        commonExchangeModelState = commonExchangeModelState,
         requestBid = requestBid
     )
 
