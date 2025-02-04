@@ -76,7 +76,6 @@ class PortfolioWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 

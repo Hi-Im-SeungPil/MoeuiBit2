@@ -117,6 +117,14 @@ fun OrderScreen(
         requestBid = requestBid
     )
 
+    TotalAskTradeDialog(
+        dialogState = state.totalAskDialogState,
+        userCoin = userCoin,
+        isKrw = market.isTradeCurrencyKrw(),
+        commonExchangeModelState = commonExchangeModelState,
+        requestAsk = requestAsk
+    )
+
     Row(
         modifier = Modifier
             .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)

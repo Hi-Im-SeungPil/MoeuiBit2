@@ -168,6 +168,14 @@ fun BidSection(
             bidAskAction = requestBid,
             totalBidAskAction = { totalBidDialogState.value = true }
         )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text("최소주문금액", modifier = Modifier.weight(1f))
+            Text("5000 KRW")
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text("수수료", modifier = Modifier.weight(1f))
+            Text("0.05%")
+        }
     }
 }
 
@@ -208,6 +216,14 @@ fun AskSection(
             bidAskAction = requestAsk,
             totalBidAskAction = { totalAskDialogState.value = true }
         )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text("최소주문금액", modifier = Modifier.weight(1f))
+            Text("5000 KRW")
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text("수수료", modifier = Modifier.weight(1f))
+            Text("0.05%")
+        }
     }
 }
 

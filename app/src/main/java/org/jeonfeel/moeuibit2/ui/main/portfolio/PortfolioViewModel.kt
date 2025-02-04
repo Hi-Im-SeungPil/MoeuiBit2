@@ -584,7 +584,10 @@ class PortfolioViewModel @Inject constructor(
                 upbitSocketTickerRes
             }
         }.collect { upbitSocketTickerRes ->
-            Logger.e("portfolio message!!")
+            if (upbitSocketTickerRes?.code?.startsWith("KRW-") == false) {
+                Logger.e("portfolio message!! ${upbitSocketTickerRes.code}")
+            }
+
             if (!isPortfolioSocketRunning.value || upbitSocketTickerRes == null) return@collect
 
             runCatching {

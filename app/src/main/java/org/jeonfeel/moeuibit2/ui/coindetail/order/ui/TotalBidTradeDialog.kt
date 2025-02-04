@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,12 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
-import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
@@ -142,7 +138,7 @@ fun TotalBidTradeDialog(
                                 .padding(end = 15.dp)
                                 .align(Alignment.CenterVertically)
                         )
-                        TransparentTextField(textFieldValue)
+                        TransparentTextField(textFieldValue, isKrw = isKrw)
                         Text(
                             if (isKrw) " KRW" else " BTC",
                             modifier = Modifier.align(Alignment.CenterVertically)
@@ -183,7 +179,7 @@ fun TotalBidTradeDialog(
                                 .noRippleClickable {
                                     if (textFieldValue.value.isEmpty()) return@noRippleClickable
 
-                                    if (conditionCheck(
+                                    if (bidConditionCheck(
                                             commonExchangeModelState = commonExchangeModelState,
                                             context = context,
                                             totalPrice = textFieldValue.value
@@ -218,7 +214,7 @@ fun TotalBidTradeDialog(
 }
 
 @Composable
-private fun Item(
+fun Item(
     text: String,
     value: String,
     symbol: String
@@ -372,7 +368,8 @@ fun ButtonList(
 @Composable
 fun RowScope.TransparentTextField(
     value: MutableState<String>,
-    placeholder: String = "총액을 입력해 주세요"
+    placeholder: String = "총액을 입력해 주세요",
+    isKrw: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -383,8 +380,14 @@ fun RowScope.TransparentTextField(
             value = value.value,
             onValueChange = { text ->
                 val rawValue = text.replace(",", "")
-                if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
-                    value.value = text
+                if (isKrw) {
+                    if (rawValue.matches(Regex("^[0-9]+\$"))) {
+                        value.value = text
+                    }
+                } else {
+                    if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
+                        value.value = text
+                    }
                 }
             },
             textStyle = TextStyle(
@@ -412,7 +415,7 @@ fun RowScope.TransparentTextField(
     }
 }
 
-fun conditionCheck(
+fun bidConditionCheck(
     commonExchangeModelState: State<CommonExchangeModel?>,
     context: Context,
     totalPrice: BigDecimal,
