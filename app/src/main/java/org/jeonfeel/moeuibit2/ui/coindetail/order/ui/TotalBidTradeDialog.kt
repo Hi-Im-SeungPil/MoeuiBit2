@@ -198,6 +198,7 @@ fun TotalBidTradeDialog(
                                                 .replace(",", "")
                                                 .toDouble()
                                         )
+                                        textFieldValue.value = ""
                                     }
                                 },
                             style = TextStyle(
@@ -273,7 +274,7 @@ fun ButtonList(
                         .border(
                             1.dp,
                             color = Color.LightGray,
-                            shape = RoundedCornerShape(4.dp)
+                            shape = RoundedCornerShape(15.dp)
                         )
                         .padding(vertical = 5.dp)
                         .noRippleClickable {
@@ -304,7 +305,7 @@ fun ButtonList(
                     .border(
                         1.dp,
                         color = Color.LightGray,
-                        shape = RoundedCornerShape(4.dp)
+                        shape = RoundedCornerShape(15.dp)
                     )
                     .padding(vertical = 5.dp)
                     .noRippleClickable {
@@ -337,7 +338,7 @@ fun ButtonList(
                         .border(
                             1.dp,
                             color = Color.LightGray,
-                            shape = RoundedCornerShape(4.dp)
+                            shape = RoundedCornerShape(15.dp)
                         )
                         .padding(vertical = 5.dp)
                         .noRippleClickable {
@@ -380,12 +381,21 @@ fun RowScope.TransparentTextField(
             value = value.value,
             onValueChange = { text ->
                 val rawValue = text.replace(",", "")
+
+                if (rawValue == "00" || rawValue == ".") {
+                    return@BasicTextField
+                }
+
                 if (isKrw) {
-                    if (rawValue.matches(Regex("^[0-9]+\$"))) {
+                    if (rawValue == "0") {
+                        return@BasicTextField
+                    }
+
+                    if (rawValue.matches(Regex("^[0-9]+$|^$"))) {
                         value.value = text
                     }
                 } else {
-                    if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
+                    if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$|^$"))) {
                         value.value = text
                     }
                 }

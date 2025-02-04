@@ -203,6 +203,8 @@ class CoinOrderStateHolder(
                 _askQuantity.value = ""
                 _askTotalPrice.value = 0.0.newBigDecimal()
             }
+        } else if (value == "00") {
+            return
         } else {
             val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
                 value.toDouble().newBigDecimal()
@@ -488,7 +490,7 @@ class CoinOrderStateHolder(
             requestAsk(
                 market,
                 userAskQuantity.toDouble(),
-                totalPrice.toLong(),
+                totalPrice.toDouble().toLong(),
                 commonExchangeModelState.value!!.tradePrice,
                 totalPrice.toDouble()
             )

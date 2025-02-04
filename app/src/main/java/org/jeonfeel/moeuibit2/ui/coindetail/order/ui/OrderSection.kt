@@ -220,6 +220,7 @@ fun AskSection(
             Text("최소주문금액", modifier = Modifier.weight(1f))
             Text("5000 KRW")
         }
+
         Row(modifier = Modifier.fillMaxWidth()) {
             Text("수수료", modifier = Modifier.weight(1f))
             Text("0.05%")
@@ -365,6 +366,7 @@ fun OrderTabQuantitySection(
 
         BasicTextField(value = quantity, onValueChange = {
             val rawValue = it.replace(",", "")
+
             if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
                 quantityOnValueChanged(rawValue, isBid)
             }
@@ -558,20 +560,18 @@ class NumberCommaTransformation : VisualTransformation {
         val integerPart = parts.getOrNull(0)?.replace(",", "") ?: ""
         val decimalPart = parts.getOrNull(1)?.take(8) ?: "" // 소수점 이하 8자리까지만 허용
 
-        // 정수 부분에 쉼표 추가
-        val formattedIntegerPart = if (integerPart.isNotEmpty()) {
-            DecimalFormat("#,###").format(integerPart.toLongOrNull() ?: 0)
-        } else {
-            ""
+        // 정수 부분에 쉼표 추가 (빈 문자열이나 "0" 입력 시 예외 방지)
+        val formattedIntegerPart = when {
+            integerPart.isEmpty() -> ""
+            integerPart == "0" -> "0"
+            else -> DecimalFormat("#,###").format(integerPart.toLongOrNull() ?: 0)
         }
 
         // 소수점 있는 경우 합치기
-        val formattedText = if (decimalPart.isNotEmpty()) {
-            "$formattedIntegerPart.$decimalPart"
-        } else if (originalText.contains(".")) {
-            "$formattedIntegerPart."
-        } else {
-            formattedIntegerPart
+        val formattedText = when {
+            decimalPart.isNotEmpty() -> "$formattedIntegerPart.$decimalPart"
+            originalText.contains(".") -> "$formattedIntegerPart."
+            else -> formattedIntegerPart
         }
 
         // OffsetMapping 설정
@@ -583,10 +583,8 @@ class NumberCommaTransformation : VisualTransformation {
 
                 for (i in 0 until offset) {
                     if (i < integerPart.length) {
-                        // 정수 부분에 쉼표 추가에 따라 인덱스 보정
                         if ((integerPart.length - i) % 3 == 0 && i != 0) commasAdded++
                     } else if (!dotFound && originalText[i] == '.') {
-                        // 소수점 처리
                         dotFound = true
                     }
                     transformedOffset++
@@ -602,10 +600,8 @@ class NumberCommaTransformation : VisualTransformation {
 
                 for (i in 0 until offset) {
                     if (originalOffset < integerPart.length) {
-                        // 쉼표가 추가된 부분은 건너뛰기
                         if ((integerPart.length - originalOffset) % 3 == 0 && originalOffset != 0) commasAdded++
                     } else if (!dotFound && formattedText[i] == '.') {
-                        // 소수점 처리
                         dotFound = true
                     }
                     originalOffset++

@@ -6,6 +6,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -99,6 +100,7 @@ object BigDecimalMapper {
             this >= BigDecimal("0.01") -> this.setScale(5, RoundingMode.FLOOR).toPlainString()
             this >= BigDecimal("0.001") -> this.setScale(6, RoundingMode.FLOOR).toPlainString()
             this >= BigDecimal("0.0001") -> this.setScale(7, RoundingMode.FLOOR).toPlainString()
+            this == 0.0.toBigDecimal() -> "0"
             else -> this.setScale(8, RoundingMode.FLOOR).toPlainString()
         }
     }
@@ -117,6 +119,7 @@ object BigDecimalMapper {
             this >= BigDecimal("0.01") -> this.setScale(5, RoundingMode.HALF_UP).toPlainString()
             this >= BigDecimal("0.001") -> this.setScale(6, RoundingMode.HALF_UP).toPlainString()
             this >= BigDecimal("0.0001") -> this.setScale(7, RoundingMode.HALF_UP).toPlainString()
+            this == 0.0.toBigDecimal() -> "0"
             else -> this.setScale(8, RoundingMode.HALF_UP).toPlainString()
         }
     }
@@ -140,7 +143,11 @@ object BigDecimalMapper {
     }
 
     fun BigDecimal.formattedStringForQuantity(): String {
-        return decimalFormatQuantity.format(this)
+        return if (this == BigDecimal.ZERO) {
+            "0"
+        } else {
+            decimalFormatQuantity.format(this)
+        }
     }
 
     fun Float.formattedFluctuateString(): String {

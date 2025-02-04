@@ -167,7 +167,6 @@ class PortfolioViewModel @Inject constructor(
             requestTicker()
             setETC()
             _isPortfolioSocketRunning.value = true
-            loading.update { false }
         }
 
         upbitPortfolioUseCase.onStart(userHoldCoinsMarkets.split(","))
@@ -252,7 +251,7 @@ class PortfolioViewModel @Inject constructor(
 
         userHoldCoinsMarkets.clear()
         myCoinList.forEach {
-            userHoldCoinsMarkets.append(it?.market).append(",")
+            userHoldCoinsMarkets.append("${it?.market},")
         }
     }
 
@@ -320,15 +319,14 @@ class PortfolioViewModel @Inject constructor(
             userHoldCoinsMarkets.append(myCoin.market).append(",")
             userHoldCoinDtoListPositionHashMap[myCoin.market] = index
         }
-
-        if (_userHoldCoinDtoList.find { it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) } != null
-            && myCoinHashMap[BTC_MARKET] == null) {
-            userHoldCoinsMarkets.append(BTC_MARKET)
-        }
     }
 
     private suspend fun requestTicker() {
-        val marketCodes = myCoinList.map { it?.market ?: "" }.toList().mapToMarketCodesRequest()
+        val marketCodes = myCoinList
+            .map { it?.market ?: "" }
+            .toList().mapToMarketCodesRequest()
+            .plus(",KRW-BTC")
+
         val req = GetUpbitMarketTickerReq(
             marketCodes = marketCodes
         )
@@ -346,6 +344,7 @@ class PortfolioViewModel @Inject constructor(
                         } else if (it.market == BTC_MARKET) {
                             _btcTradePrice.doubleValue = it.tradePrice
                         }
+
                         val position = userHoldCoinDtoListPositionHashMap[it.market] ?: 0
                         val tempDto = userHoldCoinDtoList[position]
                         _userHoldCoinDtoList[position] =
@@ -377,9 +376,11 @@ class PortfolioViewModel @Inject constructor(
                                     .multiply(btcTradePrice.value.toBigDecimal())
                             }
                         }
+                        loading.update { false }
                     },
                     onFailure = {
                         Logger.e(it.message.toString())
+                        loading.update { false }
                     }
                 )
             }
@@ -387,6 +388,8 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun setETC() {
+        Logger.e(userHoldCoinsMarkets.toString())
+
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
         } else {
@@ -395,11 +398,6 @@ class PortfolioViewModel @Inject constructor(
 
         Logger.e(userHoldCoinsMarkets.toString())
     }
-
-//    private suspend fun requestSubscribeTicker(markets: List<String>) {
-//        Logger.e("portfolio requestSubscribe")
-//        upbitUseCase.requestSubscribeTicker(marketCodes = markets)
-//    }
 
     fun sortUserHoldCoin(sortStandard: Int) {
         Logger.e("${isPortfolioSocketRunning.value}")
