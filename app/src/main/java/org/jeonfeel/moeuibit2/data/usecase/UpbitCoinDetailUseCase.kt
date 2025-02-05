@@ -1,24 +1,13 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import android.content.Context
-import com.jeremy.thunder.Thunder
-import com.jeremy.thunder.event.converter.ConverterType
-import com.jeremy.thunder.makeWebSocketCore
 import kotlinx.coroutines.flow.Flow
-import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.CoinDetailWebsocketManager
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.OrderBookWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestFormatField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTicketField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.RequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitCoinDetailSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import java.util.UUID
 import javax.inject.Inject
 
 class UpbitCoinDetailUseCase @Inject constructor(

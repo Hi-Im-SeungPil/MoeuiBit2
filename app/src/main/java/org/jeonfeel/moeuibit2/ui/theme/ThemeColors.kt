@@ -34,7 +34,7 @@ val OnErrorContainerLight = Color(0xFF410002)
 
 val BackgroundLight = Color(0xFFFFFFFF) // 배경
 val OnBackgroundLight = Color(0xFF000000) // 배경 위 글씨
-val SurfaceLight = Color(0xFFfdfcff)
+val SurfaceLight = Color.White
 
 val OutlineLight = Color(0xFF444444)
 val SurfaceVariantLight = Color(0xFFdfe2eb)
@@ -63,7 +63,7 @@ val OnErrorContainerDark = Color(0xFFffdad6)
 
 val BackgroundDark = Color(0xFF1a1c1e) // 배경
 val OnBackgroundDark = Color(0xFFe2e2e6) // 배경 위 글씨
-val SurfaceDark = Color(0xFF1a1c1e)
+val SurfaceDark = Color(0xff080808)
 
 val OutlineDark = Color(0xFFCFCFCF)
 val SurfaceVariantDark = Color(0xFF43474e)

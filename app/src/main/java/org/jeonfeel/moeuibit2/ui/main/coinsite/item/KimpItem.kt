@@ -33,6 +33,9 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coinsite.coinSiteUnSelectTabColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import kotlin.reflect.KFunction1
 
 @Composable
@@ -50,8 +53,7 @@ fun KimpItem(
         modifier = Modifier
             .padding(top = 15.dp)
             .fillMaxWidth()
-            .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background),
+            .wrapContentHeight(),
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -59,12 +61,12 @@ fun KimpItem(
             Text(
                 text = "김프 정보 (한국 프리미엄)",
                 modifier = Modifier
-                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                    .padding(35.dp, 0.dp, 10.dp, 0.dp)
                     .align(Alignment.CenterVertically),
                 fontSize = DpToSp(18.dp),
                 style = TextStyle(
                     fontWeight = FontWeight.W600,
-                    color = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    color = if (exchangeIsOpen) APP_PRIMARY_COLOR else coinSiteUnSelectTabColor(),
                     textAlign = TextAlign.Center
                 )
             )
@@ -76,7 +78,7 @@ fun KimpItem(
                         Icons.Filled.KeyboardArrowDown
                     },
                     contentDescription = null,
-                    tint = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    tint = if (exchangeIsOpen) APP_PRIMARY_COLOR else coinSiteUnSelectTabColor(),
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }
@@ -110,7 +112,6 @@ fun CoinSiteBigImageCommonItem(
             .padding(top = 15.dp)
             .fillMaxWidth()
             .padding(horizontal = 15.dp)
-            .background(color = Color.White)
             .clickable { moveUrlOrApp(context, url, packageName) }
     ) {
         Image(
@@ -126,7 +127,7 @@ fun CoinSiteBigImageCommonItem(
 
         Text(
             text = title,
-            style = TextStyle(fontSize = DpToSp(14.dp)),
+            style = TextStyle(fontSize = DpToSp(14.dp), color = commonTextColor()),
             modifier = Modifier
                 .padding(start = 15.dp)
                 .weight(1f)
@@ -136,7 +137,8 @@ fun CoinSiteBigImageCommonItem(
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             "",
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.CenterVertically),
+            tint = commonTextColor()
         )
     }
 }

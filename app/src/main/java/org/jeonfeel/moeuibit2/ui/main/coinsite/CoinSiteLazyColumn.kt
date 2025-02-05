@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import org.jeonfeel.moeuibit2.ui.main.coinsite.item.*
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import kotlin.reflect.KFunction1
 
 
@@ -29,7 +30,7 @@ fun CoinSiteLazyColumn(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = commonBackground())
     ) {
         item {
             KoreanExchangeItem(updateIsOpen, koreaExchangeIsOpen, context)

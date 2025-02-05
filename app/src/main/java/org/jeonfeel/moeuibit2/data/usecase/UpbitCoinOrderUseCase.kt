@@ -1,30 +1,18 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import android.content.Context
-import com.jeremy.thunder.Thunder
-import com.jeremy.thunder.event.converter.ConverterType
-import com.jeremy.thunder.makeWebSocketCore
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
-import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
-import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.local.room.entity.User
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderBookReq
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.ExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.OrderBookWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.OrderBookRequestTypeField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.request.upbit.OrderBookTicketField
-import org.jeonfeel.moeuibit2.data.network.websocket.thunder.service.upbit.UpbitOrderBookSocketService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
@@ -32,7 +20,6 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.UUID
 import javax.inject.Inject
 
 enum class OrderBookKind {

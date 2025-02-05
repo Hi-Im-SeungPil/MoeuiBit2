@@ -6,7 +6,6 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,7 +22,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.menuTitleArray
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.theme.bottomNavigatorSelectedColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 
 enum class MainScreenState {
     EXCHANGE, COIN_SITE, PORTFOLIO, SETTING
@@ -51,8 +51,9 @@ fun MainBottomNavigation(navController: NavHostController) {
         MainBottomNavItem.Portfolio,
         MainBottomNavItem.Setting
     )
+
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.background
+        backgroundColor = commonBackground(),
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -68,7 +69,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                     )
                 },
                 label = { Text(text = item.title, fontSize = DpToSp(dp = 12.dp), fontWeight = FontWeight.W600) },
-                selectedContentColor = bottomNavigatorSelectedColor(),
+                selectedContentColor = APP_PRIMARY_COLOR,
                 unselectedContentColor = Color.LightGray,
                 alwaysShowLabel = true,
                 selected = currentDestination?.hierarchy?.any { it.route == item.screenRoute.name } == true,

@@ -27,6 +27,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.moveUrlOrApp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coinsite.coinSiteUnSelectTabColor
 import kotlin.reflect.KFunction1
 
 @Composable
@@ -44,8 +46,7 @@ fun CoinNews(
         modifier = Modifier
             .padding(top = 15.dp)
             .fillMaxWidth()
-            .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background),
+            .wrapContentHeight(),
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -53,12 +54,12 @@ fun CoinNews(
             Text(
                 text = "코인 뉴스 / 호재",
                 modifier = Modifier
-                    .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                    .padding(35.dp, 0.dp, 10.dp, 0.dp)
                     .align(Alignment.CenterVertically),
                 fontSize = DpToSp(18.dp),
                 style = TextStyle(
                     fontWeight = FontWeight.W600,
-                    color = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    color = if (exchangeIsOpen) APP_PRIMARY_COLOR else coinSiteUnSelectTabColor(),
                     textAlign = TextAlign.Center
                 )
             )
@@ -70,7 +71,7 @@ fun CoinNews(
                         Icons.Filled.KeyboardArrowDown
                     },
                     contentDescription = null,
-                    tint = if (exchangeIsOpen) Color(0xffF7A600) else Color.LightGray,
+                    tint = if (exchangeIsOpen) APP_PRIMARY_COLOR else coinSiteUnSelectTabColor(),
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }

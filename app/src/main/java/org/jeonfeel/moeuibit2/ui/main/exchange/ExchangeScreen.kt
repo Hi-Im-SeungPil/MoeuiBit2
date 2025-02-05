@@ -37,7 +37,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -77,7 +76,6 @@ import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
@@ -86,14 +84,24 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.ui.nav.AppScreen
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeBTCtoKRWColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeCautionColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeCoinListDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeSortColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeUnselectSortColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeWarningColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
+import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.ext.EvenColor
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
-import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
@@ -129,12 +137,15 @@ fun ExchangeScreen(
         textFieldValueState = textFieldValueState
     )
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = commonBackground())
+    ) {
         SearchSection(
             textFieldValueState = textFieldValueState,
             focusManager = stateHolder.focusManaManager,
             modifier = Modifier
-                .background(color = Color.White)
                 .zIndex(1f),
             updateTextFieldValue = updateTextFieldValue
         )
@@ -154,13 +165,13 @@ fun ExchangeScreen(
             modifier = Modifier
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
+                Divider(modifier = Modifier.height(2.dp), color = exchangeCoinListDividerColor())
                 SortingSection(
                     sortOrder = sortOrder.value,
                     onSortClick = stateHolder::onSortClick,
                     selectedSortType = selectedSortType
                 )
-                Divider(modifier = Modifier.height(2.dp), color = Color(0xfff0f0f2))
+                Divider(modifier = Modifier.height(2.dp), color = exchangeCoinListDividerColor())
                 CoinTickerSection(
                     lazyScrollState = stateHolder.lazyScrollState,
                     tickerList = stateHolder.getFilteredList(tickerList = tickerList),
@@ -195,13 +206,14 @@ private fun SearchSection(
                 hintFocusState.value = focusState.isFocused
             },
         textStyle = TextStyle(
-            color = MaterialTheme.colorScheme.primary,
+            color = commonTextColor(),
             fontSize = DpToSp(17.dp)
         ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(commonTextColor()),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
+                    .padding(start = 20.dp)
                     .fillMaxWidth()
                     .height(45.dp), verticalAlignment = Alignment.CenterVertically
             ) {
@@ -209,11 +221,10 @@ private fun SearchSection(
                     Icons.Default.Search,
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(10.dp)
                         .size(25.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = commonTextColor()
                 )
-                Box(Modifier.weight(1f)) {
+                Box(Modifier.padding(start = 15.dp).weight(1f)) {
                     if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
                         CommonText(
                             stringResource(id = R.string.textFieldText),
@@ -236,7 +247,7 @@ private fun SearchSection(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .size(25.dp),
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = commonTextColor()
                         )
                     }
                 }
@@ -270,7 +281,7 @@ private fun SelectTradeCurrencySection(
             },
             modifier = Modifier
                 .weight(3f),
-            backgroundColor = MaterialTheme.colorScheme.background,
+            backgroundColor = commonBackground(),
             divider = {}
         ) {
             tabTitleList.forEachIndexed { index, title ->
@@ -291,7 +302,7 @@ private fun SelectTradeCurrencySection(
                             modifier = Modifier.weight(1f)
                         )
                     },
-                    selectedContentColor = Color.Black,
+                    selectedContentColor = commonTextColor(),
                     unselectedContentColor = Color(0xff8C939E),
                     selected = tradeCurrencyState.value == index,
                     onClick = {
@@ -327,25 +338,25 @@ private fun SortingSection(
             Box(
                 modifier = Modifier
                     .size(9.dp)
-                    .background(color = Color.Red, shape = CircleShape)
+                    .background(color = exchangeWarningColor(), shape = CircleShape)
                     .align(Alignment.CenterVertically)
             )
             Text(
                 text = " 유의",
                 modifier = Modifier.align(Alignment.CenterVertically),
-                style = TextStyle(color = Color.Red, fontSize = DpToSp(dp = 11.dp))
+                style = TextStyle(color = exchangeWarningColor(), fontSize = DpToSp(dp = 11.dp))
             )
             Spacer(modifier = Modifier.size(5.dp))
             Box(
                 modifier = Modifier
                     .size(9.dp)
                     .align(Alignment.CenterVertically)
-                    .background(color = Color(0xffF2AD24), shape = CircleShape)
+                    .background(color = exchangeCautionColor(), shape = CircleShape)
             )
             Text(
                 text = " 주의",
                 modifier = Modifier.align(Alignment.CenterVertically),
-                style = TextStyle(color = Color(0xffF2AD24), fontSize = DpToSp(dp = 11.dp))
+                style = TextStyle(color = exchangeCautionColor(), fontSize = DpToSp(dp = 11.dp))
             )
         }
         SortButton(
@@ -393,7 +404,8 @@ private fun RowScope.SortButton(
             modifier = Modifier,
             style = TextStyle(
                 fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
-                if (selectedSortType.value == sortType) Color(0xff2454E6) else Color(0xff91959E)
+                if (selectedSortType.value == sortType) exchangeSortColor()
+                else exchangeUnselectSortColor()
             )
         )
         Column(modifier = Modifier.padding(start = 4.dp)) {
@@ -401,18 +413,16 @@ private fun RowScope.SortButton(
                 text = "▲",
                 fontSize = DpToSp(dp = 6.dp),
                 style = TextStyle(
-                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) Color(
-                        0xff2454E6
-                    ) else Color(0xff91959E)
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) exchangeSortColor()
+                    else exchangeUnselectSortColor()
                 )
             )
             Text(
                 text = "▼",
                 fontSize = DpToSp(dp = 6.dp),
                 style = TextStyle(
-                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) Color(
-                        0xff2454E6
-                    ) else Color(0xff91959E)
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) exchangeSortColor()
+                    else exchangeUnselectSortColor()
                 )
             )
         }
@@ -540,7 +550,7 @@ fun CoinTickerView(
                 fontSize = DpToSp(13.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = TextStyle(fontWeight = FontWeight.W600)
+                style = TextStyle(fontWeight = FontWeight.W600, color = commonTextColor())
             )
             ConstraintLayout(modifier = Modifier.fillMaxSize()) {
                 val (symbolRef, warningRef, cautionRef) = createRefs()
@@ -569,7 +579,7 @@ fun CoinTickerView(
                                 top.linkTo(symbolRef.top)
                                 bottom.linkTo(symbolRef.bottom)
                             }
-                            .background(color = Color.Red, shape = CircleShape),
+                            .background(color = exchangeWarningColor(), shape = CircleShape),
                     )
                 }
                 if (caution) {
@@ -581,7 +591,7 @@ fun CoinTickerView(
                                 top.linkTo(symbolRef.top)
                                 bottom.linkTo(symbolRef.bottom)
                             }
-                            .background(color = Color(0xffF2AD24), shape = CircleShape),
+                            .background(color = exchangeCautionColor(), shape = CircleShape),
                     )
                 }
             }
@@ -590,9 +600,9 @@ fun CoinTickerView(
             AutoSizeText(
                 text = lastPrice,
                 modifier = Modifier
-                    .background(Color.White)
                     .drawBehind {
                         drawLine(
+                            //TODO 다크모드 지원
                             color = when (needAnimation.value) {
                                 TickerAskBidState.ASK.name -> {
                                     FallColor.copy(alpha = alpha)
@@ -603,7 +613,7 @@ fun CoinTickerView(
                                 }
 
                                 else -> {
-                                    Color.White
+                                    Color.Transparent
                                 }
                             },
                             start = Offset(0f, size.height),
@@ -626,7 +636,7 @@ fun CoinTickerView(
                         textAlign = TextAlign.End,
                         fontSize = DpToSp(11.dp)
                     ),
-                    color = Color(0xff91959E)
+                    color = exchangeBTCtoKRWColor()
                 )
             }
         }
@@ -647,7 +657,8 @@ fun CoinTickerView(
                     fontSize = DpToSp(14.dp),
                     fontWeight = FontWeight.W400,
                     textAlign = TextAlign.Center
-                )
+                ),
+                color = commonTextColor()
             )
             if (!market.isTradeCurrencyKrw()) {
                 AutoSizeText(
@@ -656,7 +667,7 @@ fun CoinTickerView(
                         fontSize = DpToSp(11.dp),
                         textAlign = TextAlign.End
                     ),
-                    color = Color(0xff91959E)
+                    color = exchangeBTCtoKRWColor()
                 )
             }
         }
@@ -666,6 +677,6 @@ fun CoinTickerView(
             .padding(horizontal = 9.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(color = Color(0xfff0f0f2))
+            .background(color = exchangeCoinListDividerColor())
     )
 }

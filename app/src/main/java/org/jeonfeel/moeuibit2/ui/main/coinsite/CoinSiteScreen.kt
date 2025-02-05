@@ -19,6 +19,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coinsite.coinSiteTitleDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
@@ -33,7 +36,7 @@ fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
     )
 
     Column {
-        Row {
+        Row(modifier = Modifier.background(commonBackground())) {
             Text(
                 text = stringResource(id = R.string.coinSite),
                 modifier = Modifier
@@ -41,34 +44,27 @@ fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
                     .weight(1f, true)
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(20.dp),
                     fontWeight = FontWeight.W600
                 )
             )
-            Card(
+            Text(
+                text = "",
                 modifier = Modifier
-                    .background(color = Color.Transparent)
-                    .padding(0.dp, 12.dp, 8.dp, 12.dp)
+                    .padding(21.dp)
                     .wrapContentWidth(),
-            ) {
-                Text(
-                    text = "",
-                    modifier = Modifier
-                        .background(color = chargingKrwBackgroundColor())
-                        .padding(9.dp)
-                        .wrapContentWidth(),
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = DpToSp(dp = 13.dp)
-                    )
+                style = TextStyle(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = DpToSp(dp = 13.dp)
                 )
-            }
+            )
         }
         Divider(
             Modifier
                 .fillMaxWidth()
-                .height(1.dp), color = Color(0xFFDFDFDF))
+                .height(1.dp), color = coinSiteTitleDividerColor()
+        )
         Box(modifier = Modifier.fillMaxSize()) {
             CoinSiteLazyColumn(
                 koreaExchangeIsOpen = viewModel.coinSiteKoreaExchangeIsOpen.value,

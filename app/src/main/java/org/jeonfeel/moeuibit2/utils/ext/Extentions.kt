@@ -9,6 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeEvenColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeRiseColor
 
 private var appToast: Toast? = null
 
@@ -53,10 +56,15 @@ fun Int.toDp() {
     }
 }
 
+@Composable
 fun Float.getFluctuateColor() =
-    if (this > 0f) RiseColor
-    else if (this < 0f) FallColor
-    else EvenColor
+    if (this > 0f) {
+        exchangeRiseColor()
+    } else if (this < 0f) {
+        exchangeFallColor()
+    } else {
+        exchangeEvenColor()
+    }
 
 val RiseColor = Color(0xFFE15241)
 val FallColor = Color(0xFF4A80EA)
