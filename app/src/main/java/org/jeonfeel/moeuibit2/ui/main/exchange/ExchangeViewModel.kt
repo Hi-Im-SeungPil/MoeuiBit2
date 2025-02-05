@@ -56,7 +56,6 @@ class ExchangeViewModel @Inject constructor(
 
     private var realTimeUpdateJob: Job? = null
     private var collectTickerJob: Job? = null
-
     private var marketChangeJob: Job? = null
 
     init {

@@ -1,16 +1,17 @@
-package org.jeonfeel.moeuibit2.ui.activities
+package org.jeonfeel.moeuibit2.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.orhanobut.logger.Logger
+import dagger.Component
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.base.BaseActivity
 import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.utils.ext.showToast
@@ -19,7 +20,7 @@ const val APP_UPDATE_CODE = 123
 const val APP_UPDATE_FLEXIBLE_CODE = 124
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity() {
+class MainActivity : ComponentActivity() {
 
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)

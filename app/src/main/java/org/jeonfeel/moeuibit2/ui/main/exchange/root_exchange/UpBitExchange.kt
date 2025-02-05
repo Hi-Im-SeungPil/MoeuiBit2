@@ -116,6 +116,35 @@ class UpBitExchange @Inject constructor(
         }
     }
 
+    suspend fun onStop() {
+        upBitExchangeUseCase.onStop()
+    }
+
+    private fun tickerDataIsEmpty(): Boolean {
+        return krwMarketCodeMap.isEmpty()
+                || btcMarketCodeMap.isEmpty()
+                || krwList.isEmpty()
+                || krwExchangeModelPosition.isEmpty()
+                || _krwExchangeModelList.isEmpty()
+                || btcList.isEmpty()
+                || btcExchangeModelPosition.isEmpty()
+                || _btcExchangeModelList.isEmpty()
+    }
+
+    private fun clearTickerData() {
+        krwMarketCodeMap.clear()
+        btcMarketCodeMap.clear()
+        krwList.clear()
+        krwExchangeModelPosition.clear()
+        _krwExchangeModelList.clear()
+        btcList.clear()
+        btcExchangeModelPosition.clear()
+        _btcExchangeModelList.clear()
+        favoriteList.clear()
+        favoriteModelPosition.clear()
+        _favoriteExchangeModelList.clear()
+    }
+
     suspend fun exchangeCollectTicker() {
         collectTicker()
     }
@@ -165,10 +194,6 @@ class UpBitExchange @Inject constructor(
                 favoriteModelPosition[model.market] = index
             }
         }
-    }
-
-    suspend fun onStop() {
-        upBitExchangeUseCase.onStop()
     }
 
     /**
@@ -456,31 +481,6 @@ class UpBitExchange @Inject constructor(
         } ?: emptyList()
 
         favoriteList.addAll(list)
-    }
-
-    private fun tickerDataIsEmpty(): Boolean {
-        return krwMarketCodeMap.isEmpty()
-                || btcMarketCodeMap.isEmpty()
-                || krwList.isEmpty()
-                || krwExchangeModelPosition.isEmpty()
-                || _krwExchangeModelList.isEmpty()
-                || btcList.isEmpty()
-                || btcExchangeModelPosition.isEmpty()
-                || _btcExchangeModelList.isEmpty()
-    }
-
-    private fun clearTickerData() {
-        krwMarketCodeMap.clear()
-        btcMarketCodeMap.clear()
-        krwList.clear()
-        krwExchangeModelPosition.clear()
-        _krwExchangeModelList.clear()
-        btcList.clear()
-        btcExchangeModelPosition.clear()
-        _btcExchangeModelList.clear()
-        favoriteList.clear()
-        favoriteModelPosition.clear()
-        _favoriteExchangeModelList.clear()
     }
 
     suspend fun changeTradeCurrencyAction(

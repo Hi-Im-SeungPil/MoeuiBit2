@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.ui.activities.MainActivity
+import org.jeonfeel.moeuibit2.ui.MainActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeLoadingScreen
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.ext.showToast

@@ -174,13 +174,13 @@ class PortfolioViewModel @Inject constructor(
 
     private fun modifyCoin(
         beforeMyCoinMap: Map<String?, MyCoin?>,
-        newMyCoinMap: Map<String?, MyCoin?>
+        newMyCoinMap: Map<String?, MyCoin?>,
     ) {
         val removeCoinListMarket = beforeMyCoinMap.keys - newMyCoinMap.keys
         val addCoinListMarket = newMyCoinMap.keys - beforeMyCoinMap.keys
 
         removeCoinListMarket.forEach { removeCoin ->
-            _userHoldCoinDtoList.removeIf { it.market == removeCoin }
+            _userHoldCoinDtoList.removeAll { it.market == removeCoin }
             myCoinList.remove(beforeMyCoinMap[removeCoin])
             myCoinHashMap.remove(removeCoin)
             userHoldCoinDtoListPositionHashMap.remove(removeCoin)

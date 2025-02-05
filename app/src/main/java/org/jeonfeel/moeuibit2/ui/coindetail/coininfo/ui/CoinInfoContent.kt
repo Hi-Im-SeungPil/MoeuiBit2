@@ -26,7 +26,7 @@ import app.dvkyun.flexhybridand.FlexWebViewClient
 import com.skydoves.landscapist.glide.GlideImage
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.*
-import org.jeonfeel.moeuibit2.ui.activities.MainActivity
+import org.jeonfeel.moeuibit2.ui.MainActivity
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.utils.ext.moveUrl
