@@ -122,7 +122,7 @@ fun ExchangeScreen(
     updateSortType: KFunction1<SortType, Unit>,
     updateSortOrder: KFunction1<SortOrder, Unit>,
     textFieldValueState: State<String>,
-    updateTextFieldValue: KFunction1<String, Unit>
+    updateTextFieldValue: KFunction1<String, Unit>,
 ) {
 
     val stateHolder = rememberExchangeStateHolder(
@@ -191,7 +191,7 @@ private fun SearchSection(
     textFieldValueState: State<String>,
     focusManager: FocusManager,
     modifier: Modifier = Modifier,
-    updateTextFieldValue: KFunction1<String, Unit>
+    updateTextFieldValue: KFunction1<String, Unit>,
 ) {
     val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
@@ -224,7 +224,11 @@ private fun SearchSection(
                         .size(25.dp),
                     tint = commonTextColor()
                 )
-                Box(Modifier.padding(start = 15.dp).weight(1f)) {
+                Box(
+                    Modifier
+                        .padding(start = 15.dp)
+                        .weight(1f)
+                ) {
                     if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
                         CommonText(
                             stringResource(id = R.string.textFieldText),
@@ -263,7 +267,7 @@ private fun SelectTradeCurrencySection(
     tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
     modifier: Modifier = Modifier,
     changeTradeCurrency: (Int) -> Unit,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -324,7 +328,7 @@ private fun SelectTradeCurrencySection(
 private fun SortingSection(
     sortOrder: SortOrder,
     onSortClick: (sortType: SortType) -> Unit,
-    selectedSortType: State<SortType>
+    selectedSortType: State<SortType>,
 ) {
     Row(
         modifier = Modifier
@@ -389,7 +393,7 @@ private fun RowScope.SortButton(
     sortType: SortType,
     sortOrder: SortOrder,
     selectedSortType: State<SortType>,
-    onSortClick: (SortType) -> Unit
+    onSortClick: (SortType) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -507,7 +511,7 @@ fun CoinTickerView(
     btcPriceMultiplyAcc: String,
     textFieldValue: State<String>,
     warning: Boolean,
-    caution: Boolean
+    caution: Boolean,
 ) = Column {
     Row(
         modifier = modifier

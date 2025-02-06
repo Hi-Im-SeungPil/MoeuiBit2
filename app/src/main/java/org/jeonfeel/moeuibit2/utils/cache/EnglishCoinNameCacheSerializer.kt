@@ -2,7 +2,7 @@ package org.jeonfeel.moeuibit2.utils.cache
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
+import kotlinx.metadata.internal.protobuf.InvalidProtocolBufferException
 import org.jeonfeel.moeuibit2.EnglishCoinNameCache
 import java.io.InputStream
 import java.io.OutputStream
