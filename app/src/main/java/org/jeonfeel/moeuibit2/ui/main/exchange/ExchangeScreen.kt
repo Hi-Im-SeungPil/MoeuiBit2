@@ -459,37 +459,39 @@ private fun CoinTickerSection(
                 coinTickerListSwipeAction(false)
             }
         ), state = lazyScrollState) {
-        itemsIndexed(items = tickerList.toList()) { index, item ->
-            CoinTickerView(
-                name = item.koreanName,
-                symbol = item.symbol,
-                lastPrice = item.tradePrice.formattedString(),
-                fluctuateRate = item.signedChangeRate.toFloat(),
-                fluctuatePrice = item.signedChangePrice.toFloat(),
-                acc24h = item.accTradePrice24h.formattedUnitString(),
-                needAnimation = item.needAnimation,
-                market = item.market,
-                btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
-                    .formattedStringForBtc(),
-                btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
-                    .formattedUnitStringForBtc(),
-                textFieldValue = textFieldValue,
-                warning = item.warning,
-                caution = item.getIsCaution(),
-                onClickEvent = {
-                    keyboardController?.hide()
-                    val market = item.market
-                    val warning = item.warning
-                    val caution = Utils.gson.toJson(item.caution)
-                    appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
-                        launchSingleTop = true
-                        popUpTo(appNavController.graph.findStartDestination().id) {
-                            saveState = true
+        itemsIndexed(items = tickerList) { index, item ->
+            if (index < tickerList.size) {
+                CoinTickerView(
+                    name = item.koreanName,
+                    symbol = item.symbol,
+                    lastPrice = item.tradePrice.formattedString(),
+                    fluctuateRate = item.signedChangeRate.toFloat(),
+                    fluctuatePrice = item.signedChangePrice.toFloat(),
+                    acc24h = item.accTradePrice24h.formattedUnitString(),
+                    needAnimation = item.needAnimation,
+                    market = item.market,
+                    btcPriceMultiplyCoinPrice = item.tradePrice.multiply(btcKrwPrice)
+                        .formattedStringForBtc(),
+                    btcPriceMultiplyAcc = item.accTradePrice24h.multiply(btcKrwPrice)
+                        .formattedUnitStringForBtc(),
+                    textFieldValue = textFieldValue,
+                    warning = item.warning,
+                    caution = item.getIsCaution(),
+                    onClickEvent = {
+                        keyboardController?.hide()
+                        val market = item.market
+                        val warning = item.warning
+                        val caution = Utils.gson.toJson(item.caution)
+                        appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
+                            launchSingleTop = true
+                            popUpTo(appNavController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            restoreState = true
                         }
-                        restoreState = true
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

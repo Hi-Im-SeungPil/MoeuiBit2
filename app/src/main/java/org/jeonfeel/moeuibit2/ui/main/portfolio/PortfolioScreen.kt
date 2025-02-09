@@ -52,7 +52,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
@@ -106,7 +105,8 @@ fun PortfolioScreen(
     getList: () -> List<UserHoldCoinDTO>,
     findWrongCoin: KFunction0<Unit>,
     id: Int,
-    loading: MutableStateFlow<Boolean>
+    loading: MutableStateFlow<Boolean>,
+    itemList: List<UserHoldCoinDTO>
 ) {
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
@@ -248,37 +248,39 @@ fun PortfolioScreen(
                     )
                 }
 
-                itemsIndexed(items = getList().toList()) { _, item ->
-                    val userCoinInfo = getUserCoinInfo(item)
-                    val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
-                        value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
-                            ?: 0f
-                    )
-                    UserHoldCoinLazyColumnItem(
-                        coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
-                            ?: "",
-                        coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
-                            ?: "",
-                        symbol = item.myCoinsSymbol,
-                        valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
-                            ?: "",
-                        aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
-                            ?: "",
-                        coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
-                        purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
-                            ?: "",
-                        purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
-                            ?: "",
-                        evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
-                            ?: "",
-                        color = increaseColorOrDecreaseColor,
-                        warning = item.warning,
-                        caution = item.caution,
-                        currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
-                            .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
-                        market = item.market,
-                        appNavController = appNavController
-                    )
+                itemsIndexed(items = itemList) { index, item ->
+                    if (itemList.size > index) {
+                        val userCoinInfo = getUserCoinInfo(item)
+                        val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
+                            value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
+                                ?: 0f
+                        )
+                        UserHoldCoinLazyColumnItem(
+                            coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
+                                ?: "",
+                            coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
+                                ?: "",
+                            symbol = item.myCoinsSymbol,
+                            valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
+                                ?: "",
+                            aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
+                                ?: "",
+                            coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
+                            purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
+                                ?: "",
+                            purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
+                                ?: "",
+                            evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
+                                ?: "",
+                            color = increaseColorOrDecreaseColor,
+                            warning = item.warning,
+                            caution = item.caution,
+                            currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
+                                .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
+                            market = item.market,
+                            appNavController = appNavController
+                        )
+                    }
                 }
             }
         }

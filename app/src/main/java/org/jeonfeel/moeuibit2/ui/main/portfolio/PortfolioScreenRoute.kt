@@ -90,7 +90,8 @@ fun PortfolioScreenRoute(
             getList = holder::getList,
             findWrongCoin = viewModel::findWrongCoin,
             id = System.identityHashCode(viewModel),
-            loading = viewModel.loading
+            loading = viewModel.loading,
+            itemList = holder.getList()
         )
 
         RemoveCoinBottomSheet(
