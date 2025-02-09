@@ -37,7 +37,7 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute
         MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, MainScreenState.COIN_SITE)
 
     data object Portfolio :
-        MainBottomNavItem(menuTitleArray[2], R.drawable.img_report, MainScreenState.PORTFOLIO)
+        MainBottomNavItem(menuTitleArray[2], R.drawable.img_portfolio, MainScreenState.PORTFOLIO)
 
     data object Setting :
         MainBottomNavItem(menuTitleArray[3], R.drawable.img_setting, MainScreenState.SETTING)

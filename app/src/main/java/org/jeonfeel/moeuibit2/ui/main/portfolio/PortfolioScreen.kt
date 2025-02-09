@@ -76,6 +76,8 @@ import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -114,7 +116,6 @@ fun PortfolioScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(align = Alignment.CenterVertically)
-                .background(color = MaterialTheme.colorScheme.background)
         ) {
             Text(
                 text = stringResource(id = R.string.investmentDetail),
@@ -123,7 +124,7 @@ fun PortfolioScreen(
                     .weight(1f, true)
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(20.dp),
                     fontWeight = FontWeight.W600
                 )
@@ -136,7 +137,7 @@ fun PortfolioScreen(
                         .wrapContentWidth()
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFDFDFDF),
+                            color = APP_PRIMARY_COLOR,
                             shape = RoundedCornerShape(5.dp)
                         ),
                     shape = RoundedCornerShape(5.dp)
@@ -154,7 +155,7 @@ fun PortfolioScreen(
 //                                adDialogState.value = true
                             },
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = commonTextColor(),
                             fontSize = DpToSp(dp = 13.dp)
                         )
                     )
@@ -166,7 +167,7 @@ fun PortfolioScreen(
                         .wrapContentWidth()
                         .border(
                             width = 1.dp,
-                            color = Color(0xFFDFDFDF),
+                            color = APP_PRIMARY_COLOR,
                             shape = RoundedCornerShape(5.dp)
                         ),
                     shape = RoundedCornerShape(5.dp)
@@ -182,7 +183,7 @@ fun PortfolioScreen(
                                 findWrongCoin()
                             },
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = commonTextColor(),
                             fontSize = DpToSp(dp = 13.dp)
                         )
                     )
@@ -211,6 +212,14 @@ fun PortfolioScreen(
 
                 stickyHeader {
                     SearchSection(portfolioSearchTextState, focusManager = focusManager)
+
+                    Divider(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp),
+                        color = Color.LightGray
+                    )
+
                     PortfolioMainSortButtons(
                         orderByNameTextInfo = getTextColors(
                             button = PortfolioSortButton.BUTTON_NAME,
@@ -223,20 +232,19 @@ fun PortfolioScreen(
                         portfolioOrderState = portfolioOrderState,
                         sortUserHoldCoin = sortUserHoldCoin,
                     )
-                    Divider(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(8.dp),
-                        color = Color.Transparent
-                    )
-                }
 
-                item {
                     Divider(
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp),
                         color = Color.LightGray
+                    )
+
+                    Divider(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
+                        color = Color.Transparent
                     )
                 }
 

@@ -166,6 +166,7 @@ class PortfolioViewModel @Inject constructor(
             parseMyCoinToUserHoldCoin()
             requestTicker()
             setETC()
+            loading.update { false }
             _isPortfolioSocketRunning.value = true
         }
 

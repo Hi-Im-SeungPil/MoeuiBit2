@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioViewModel
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 
 @Composable
 fun PortfolioMainSortButtons(
@@ -26,8 +27,10 @@ fun PortfolioMainSortButtons(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = Color(0xffECECEC))
-            .padding(vertical = 7.dp)
+            .background(commonBackground())
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+
     ) {
         Text(
             text = orderByNameTextInfo[0] as String,
@@ -51,7 +54,7 @@ fun PortfolioMainSortButtons(
         Divider(
             Modifier
                 .width(1.dp)
-                .height(30.dp)
+                .height(23.dp)
                 .align(Alignment.CenterVertically), color = Color.LightGray
         )
 

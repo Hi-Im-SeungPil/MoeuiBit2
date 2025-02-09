@@ -24,6 +24,8 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenStateHolder
 import org.jeonfeel.moeuibit2.ui.main.portfolio.getReturnTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
 import java.math.BigDecimal
 
@@ -104,7 +106,7 @@ fun RowScope.PortfolioMainItem(
                 .wrapContentHeight()
                 .fillMaxWidth(),
             style = TextStyle(
-                color = Color.Black,
+                color = commonTextColor(),
                 fontSize = DpToSp(15.dp),
             )
         )
@@ -118,7 +120,7 @@ fun RowScope.PortfolioMainItem(
                 fontSize = DpToSp(20.dp),
                 fontWeight = FontWeight.W400,
             ),
-            color = Color.Black
+            color = commonTextColor()
         )
         Row(
             modifier = Modifier
@@ -134,7 +136,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth()
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(14.dp),
                 )
             )
@@ -165,7 +167,7 @@ fun RowScope.PortfolioMainItem(
                     .wrapContentWidth()
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(14.dp),
                 )
             )
@@ -194,7 +196,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 0 -> {
                     listOf(
                         stringResource(id = R.string.nameDown),
-                        Color.White,
+                        APP_PRIMARY_COLOR,
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
@@ -202,7 +204,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 1 -> {
                     listOf(
                         stringResource(id = R.string.nameUp),
-                        Color.White,
+                        APP_PRIMARY_COLOR,
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
@@ -210,7 +212,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 else -> {
                     listOf(
                         stringResource(id = R.string.nameUpDown),
-                        MaterialTheme.colorScheme.onBackground,
+                        Color.LightGray,
                         MaterialTheme.colorScheme.background
                     )
                 }
@@ -222,7 +224,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 2 -> {
                     listOf(
                         stringResource(id = R.string.aReturnDown),
-                        Color.White,
+                        APP_PRIMARY_COLOR,
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
@@ -230,7 +232,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 3 -> {
                     listOf(
                         stringResource(id = R.string.aReturnUp),
-                        Color.White,
+                        APP_PRIMARY_COLOR,
                         portfolioSortButtonSelectedBackgroundColor()
                     )
                 }
@@ -238,7 +240,7 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 else -> {
                     listOf(
                         stringResource(id = R.string.aReturnUpDown),
-                        MaterialTheme.colorScheme.onBackground,
+                        Color.LightGray,
                         MaterialTheme.colorScheme.background
                     )
                 }
