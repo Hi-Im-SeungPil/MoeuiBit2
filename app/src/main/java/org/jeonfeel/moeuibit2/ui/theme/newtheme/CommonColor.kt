@@ -20,3 +20,23 @@ fun commonTextColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xfff2f2f2)
 }
 
+@Composable
+fun commonRiseColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xffff2b2b)
+} else {
+    Color(0xffff3838)
+}
+
+@Composable
+fun commonFallColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xff007fff)
+} else {
+    Color(0xff1e6fdc)
+}
+
+@Composable
+fun commonUnSelectedColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xffa0a0a0)
+} else {
+    Color(0xff6d6d6d)
+}

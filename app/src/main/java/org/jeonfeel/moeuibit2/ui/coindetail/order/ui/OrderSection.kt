@@ -45,6 +45,14 @@ import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.boxTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unSelectedOrderTabColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unselectedOrderTabTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -168,13 +176,29 @@ fun BidSection(
             bidAskAction = requestBid,
             totalBidAskAction = { totalBidDialogState.value = true }
         )
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text("최소주문금액", modifier = Modifier.weight(1f))
-            Text("5000 KRW")
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                "최소주문금액",
+                modifier = Modifier.weight(1f),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+            )
+            Text("5000 KRW", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
         }
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text("수수료", modifier = Modifier.weight(1f))
-            Text("0.05%")
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                "수수료",
+                modifier = Modifier.weight(1f),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+            )
+            Text("0.05%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
         }
     }
 }
@@ -217,13 +241,25 @@ fun AskSection(
             totalBidAskAction = { totalAskDialogState.value = true }
         )
         Row(modifier = Modifier.fillMaxWidth()) {
-            Text("최소주문금액", modifier = Modifier.weight(1f))
-            Text("5000 KRW")
+            Text(
+                "최소주문금액",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 10.dp),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+            )
+            Text("5000 KRW", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
         }
 
         Row(modifier = Modifier.fillMaxWidth()) {
-            Text("수수료", modifier = Modifier.weight(1f))
-            Text("0.05%")
+            Text(
+                "수수료",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 10.dp),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+            )
+            Text("0.05%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
         }
     }
 }
@@ -236,12 +272,13 @@ fun OrderTabSection(
     val entries = remember {
         OrderTabState.entries
     }
+
     Row {
         repeat(3) { index ->
             Text(
                 text = tabText[index], modifier = Modifier
                     .weight(1f)
-                    .background(color = if (entries[index] == orderTabState.value) Color.White else Color.LightGray)
+                    .background(color = if (entries[index] == orderTabState.value) commonBackground() else unSelectedOrderTabColor())
                     .padding(10.dp)
                     .noRippleClickable {
                         orderTabState.value = entries[index]
@@ -249,7 +286,23 @@ fun OrderTabSection(
                     textAlign = TextAlign.Center, fontSize = DpToSp(
                         15.dp
                     ), fontWeight = FontWeight.W500,
-                    color = if (entries[index] == orderTabState.value) Color.Black else Color.Gray
+                    color = if (entries[index] == orderTabState.value) {
+                        when (orderTabState.value) {
+                            OrderTabState.BID -> {
+                                commonRiseColor()
+                            }
+
+                            OrderTabState.ASK -> {
+                                commonFallColor()
+                            }
+
+                            else -> {
+                                commonTextColor()
+                            }
+                        }
+                    } else {
+                        unselectedOrderTabTextColor()
+                    }
                 )
             )
         }
@@ -282,7 +335,11 @@ fun OrderTabUserSeedMoneySection(
             text = if (userSeedMoney != null) stringResource(id = R.string.orderable) else stringResource(
                 id = R.string.holdingQuantity
             ),
-            style = TextStyle(fontWeight = FontWeight.W500, fontSize = DpToSp(dp = 14.dp))
+            style = TextStyle(
+                fontWeight = FontWeight.W500,
+                fontSize = DpToSp(dp = 14.dp),
+                color = commonTextColor()
+            )
         )
         Spacer(modifier = Modifier.weight(1f))
         AutoSizeText(
@@ -298,12 +355,17 @@ fun OrderTabUserSeedMoneySection(
             },
             textStyle = TextStyle(
                 fontSize = DpToSp(dp = 14.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = commonTextColor()
             )
         )
         Text(
             text = tempSymbol,
-            style = TextStyle(fontWeight = FontWeight.W700, fontSize = DpToSp(dp = 14.dp))
+            style = TextStyle(
+                fontWeight = FontWeight.W700,
+                fontSize = DpToSp(dp = 14.dp),
+                color = commonTextColor()
+            )
         )
     }
 }
@@ -314,7 +376,7 @@ fun OrderTabPriceSection(currentPrice: String) {
         modifier = Modifier
             .padding(top = 15.dp)
             .fillMaxWidth()
-            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp))
+            .border(1.dp, commonUnSelectedColor(), RoundedCornerShape(5.dp))
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -322,7 +384,7 @@ fun OrderTabPriceSection(currentPrice: String) {
             text = "가격",
             modifier = Modifier,
             fontSize = DpToSp(13.dp),
-            color = Color.DarkGray
+            color = boxTextColor()
         )
         Text(
             text = currentPrice,
@@ -352,7 +414,7 @@ fun OrderTabQuantitySection(
         modifier = Modifier
             .padding(top = 15.dp)
             .fillMaxWidth()
-            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp)),
+            .border(1.dp, commonUnSelectedColor(), RoundedCornerShape(5.dp)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -361,7 +423,7 @@ fun OrderTabQuantitySection(
                 .padding(vertical = 10.dp)
                 .padding(start = 10.dp),
             fontSize = DpToSp(13.dp),
-            color = Color.DarkGray
+            color = boxTextColor()
         )
 
         BasicTextField(value = quantity, onValueChange = {
@@ -464,7 +526,7 @@ fun OrderTabTotalPriceSection(
         modifier = Modifier
             .padding(top = 15.dp)
             .fillMaxWidth()
-            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp))
+            .border(1.dp, commonUnSelectedColor(), RoundedCornerShape(5.dp))
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -472,7 +534,7 @@ fun OrderTabTotalPriceSection(
             text = "총액",
             modifier = Modifier,
             fontSize = DpToSp(13.dp),
-            color = Color.DarkGray
+            color = boxTextColor()
         )
         Text(
             text = getTotalPrice(),
@@ -493,9 +555,9 @@ fun OrderSectionButtonGroup(
     bidAskAction: () -> Unit = {},
     totalBidAskAction: () -> Unit = {},
 ) {
-    val buttonColor = remember {
-        if (orderTabState == OrderTabState.BID) Color.Red else Color.Blue
-    }
+    val buttonColor =
+        if (orderTabState == OrderTabState.BID) commonRiseColor() else commonFallColor()
+
     val buttonText = remember {
         if (orderTabState == OrderTabState.BID) "매수" else "매도"
     }

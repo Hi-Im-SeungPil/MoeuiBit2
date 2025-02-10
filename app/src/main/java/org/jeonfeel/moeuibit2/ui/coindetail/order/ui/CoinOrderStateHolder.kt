@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
@@ -17,9 +16,10 @@ import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
@@ -85,38 +85,11 @@ class CoinOrderStateHolder(
         ).secondDecimal().plus("%")
     }
 
-    fun getOrderBookItemBackground(kind: OrderBookKind): Color {
-        return when (kind) {
-            // 매도
-            OrderBookKind.ASK -> {
-                Color(0xFFF5F8FD)
-            }
-
-            // 매수
-            OrderBookKind.BID -> {
-                Color(0xFFFDF7F7)
-            }
-        }
-    }
-
-    fun getOrderBookItemTextColor(orderBookPrice: Double): Color {
-        val itemRate = Calculator.orderBookRateCalculator(
+    fun getOrderBookItemRate(orderBookPrice: Double): Double {
+        return Calculator.orderBookRateCalculator(
             preClosingPrice = commonExchangeModelState.value?.openingPrice ?: 1.0,
             orderBookPrice = orderBookPrice
         )
-        return when {
-            itemRate > 0.0 -> {
-                Color(0xFFc68b8d)
-            }
-
-            itemRate < 0.0 -> {
-                Color(0xFF7c98c0)
-            }
-
-            else -> {
-                Color.Black
-            }
-        }
     }
 
     fun getOrderBookBlockColor(kind: OrderBookKind): Color {

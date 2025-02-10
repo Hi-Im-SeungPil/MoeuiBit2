@@ -56,6 +56,15 @@ import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskBlockColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidBlockColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
@@ -127,16 +136,14 @@ fun OrderScreen(
 
     Row(
         modifier = Modifier
-            .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
+            .background(color = commonBackground())
             .fillMaxSize()
     ) {
         Column(Modifier.weight(4f)) {
             OrderBookSection(
                 orderBookList = orderBookList,
                 getOrderBookItemFluctuateRate = state::getOrderBookItemFluctuateRate,
-                getOrderBookItemBackground = state::getOrderBookItemBackground,
-                getOrderBookItemTextColor = state::getOrderBookItemTextColor,
-                getOrderBookBlockColor = state::getOrderBookBlockColor,
+                getOrderBookItemRate = state::getOrderBookItemRate,
                 getOrderBookBlockSize = state::getOrderBookBlockSize,
                 isMatchTradePrice = state::getIsMatchedTradePrice,
                 orderBookIndicationState = orderBookIndicationState,
@@ -151,7 +158,7 @@ fun OrderScreen(
             modifier = Modifier
                 .weight(7f)
                 .fillMaxHeight()
-                .background(color = androidx.compose.material3.MaterialTheme.colorScheme.background)
+                .background(color = commonBackground())
         ) {
             OrderSection(
                 orderTabState = state.orderTabState,
@@ -187,9 +194,7 @@ fun OrderScreen(
 fun ColumnScope.OrderBookSection(
     orderBookList: List<OrderBookModel>,
     getOrderBookItemFluctuateRate: (Double) -> String,
-    getOrderBookItemBackground: (OrderBookKind) -> Color,
-    getOrderBookItemTextColor: (Double) -> Color,
-    getOrderBookBlockColor: (OrderBookKind) -> Color,
+    getOrderBookItemRate: (Double) -> Double,
     getOrderBookIndicationText: (String, Double) -> String,
     getOrderBookBlockSize: (Double) -> Float,
     isMatchTradePrice: (BigDecimal) -> Boolean,
@@ -216,7 +221,7 @@ fun ColumnScope.OrderBookSection(
                 price = orderBookModel.price.formattedString(),
                 fluctuateRate = getOrderBookItemFluctuateRate(orderBookModel.price.toDouble()),
                 itemBackground = getOrderBookItemBackground(orderBookModel.kind),
-                itemTextColor = getOrderBookItemTextColor(orderBookModel.price.toDouble()),
+                itemTextColor = getOrderBookItemTextColor(getOrderBookItemRate(orderBookModel.price.toDouble())),
                 orderBookText = getOrderBookIndicationText(
                     orderBookIndicationState.value,
                     orderBookModel.size
@@ -249,7 +254,7 @@ fun OrderBookView(
                 .border(
                     width = 1.dp,
                     shape = RectangleShape,
-                    color = if (isMatchTradePrice) Color.Black else Color.Transparent
+                    color = if (isMatchTradePrice) commonTextColor() else Color.Transparent
                 )
         ) {
             Column(modifier = Modifier.weight(5f)) {
@@ -284,7 +289,7 @@ fun OrderBookView(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(2.dp)
-                        .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
+                        .background(commonBackground())
                 )
                 Box(
                     modifier = Modifier
@@ -308,7 +313,7 @@ fun OrderBookView(
             modifier = Modifier
                 .height(2.dp)
                 .fillMaxWidth()
-                .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
+                .background(commonBackground())
         )
     }
 }
@@ -320,7 +325,8 @@ fun ChangeOrderBookIndicationSection(
 ) {
     Row(
         modifier = Modifier
-            .border(1.dp, Color.Black)
+            .background(color = commonBackground())
+            .border(1.dp, commonUnSelectedColor())
             .clickable {
                 onClick()
             }
@@ -332,7 +338,8 @@ fun ChangeOrderBookIndicationSection(
             contentDescription = "",
             modifier = Modifier
                 .size(24.dp)
-                .align(Alignment.CenterVertically)
+                .align(Alignment.CenterVertically),
+            tint = commonTextColor()
         )
         Text(
             text = orderBookIndicationText,
@@ -340,7 +347,11 @@ fun ChangeOrderBookIndicationSection(
                 .weight(1f)
                 .padding(start = 3.dp)
                 .align(Alignment.CenterVertically),
-            style = TextStyle(fontSize = DpToSp(12.dp), textAlign = TextAlign.Center)
+            style = TextStyle(
+                fontSize = DpToSp(12.dp),
+                textAlign = TextAlign.Center,
+                color = commonTextColor()
+            )
         )
     }
 }
@@ -411,6 +422,51 @@ private fun LazyListState.scrollToCentralizeItem(index: Int, scope: CoroutineSco
             this@scrollToCentralizeItem.scrollBy(scrollDistance.toFloat())
         } else {
             this@scrollToCentralizeItem.scrollToItem(index)
+        }
+    }
+}
+
+@Composable
+fun getOrderBookItemTextColor(itemRate: Double): Color {
+    return when {
+        itemRate > 0.0 -> {
+            commonRiseColor()
+        }
+
+        itemRate < 0.0 -> {
+            commonFallColor()
+        }
+
+        else -> {
+            commonTextColor()
+        }
+    }
+}
+
+@Composable
+fun getOrderBookItemBackground(kind: OrderBookKind): Color {
+    return when (kind) {
+        // 매도
+        OrderBookKind.ASK -> {
+            orderBookAskColor()
+        }
+
+        // 매수
+        OrderBookKind.BID -> {
+            orderBookBidColor()
+        }
+    }
+}
+
+@Composable
+fun getOrderBookBlockColor(kind: OrderBookKind): Color {
+    return when (kind) {
+        OrderBookKind.ASK -> {
+            orderBookAskBlockColor()
+        }
+
+        OrderBookKind.BID -> {
+            orderBookBidBlockColor()
         }
     }
 }

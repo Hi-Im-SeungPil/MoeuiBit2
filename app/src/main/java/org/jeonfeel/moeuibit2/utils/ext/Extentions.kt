@@ -9,6 +9,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.MarketChangeState
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeEvenColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeFallColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeRiseColor
@@ -59,11 +62,11 @@ fun Int.toDp() {
 @Composable
 fun Float.getFluctuateColor() =
     if (this > 0f) {
-        exchangeRiseColor()
+        commonRiseColor()
     } else if (this < 0f) {
-        exchangeFallColor()
+        commonFallColor()
     } else {
-        exchangeEvenColor()
+        commonTextColor()
     }
 
 val RiseColor = Color(0xFFE15241)

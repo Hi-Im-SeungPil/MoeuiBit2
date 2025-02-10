@@ -76,6 +76,7 @@ import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -111,7 +112,9 @@ fun PortfolioScreen(
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = commonBackground())) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -217,7 +220,7 @@ fun PortfolioScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp),
-                        color = Color.LightGray
+                        color = Color(0xFFDFDFDF)
                     )
 
                     PortfolioMainSortButtons(
@@ -237,7 +240,7 @@ fun PortfolioScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp),
-                        color = Color.LightGray
+                        color = Color(0xFFDFDFDF)
                     )
 
                     Divider(
@@ -301,7 +304,7 @@ private fun SearchSection(
         modifier = modifier
             .fillMaxWidth()
             .height(45.dp)
-            .background(Color.White)
+            .background(commonBackground())
             .clearFocusOnKeyboardDismiss()
             .onFocusChanged { focusState ->
                 hintFocusState.value = focusState.isFocused
@@ -377,7 +380,7 @@ fun UserHoldCoinLazyColumnItem(
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
-        .background(color = MaterialTheme.colorScheme.background)
+        .background(color = commonBackground())
         .clickable {
             val cautionJson = caution?.let {
                 Utils.gson.toJson(caution)

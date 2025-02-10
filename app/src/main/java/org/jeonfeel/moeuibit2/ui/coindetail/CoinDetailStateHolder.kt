@@ -9,6 +9,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.ext.EvenColor
@@ -35,10 +37,11 @@ class CoinDetailStateHolder(
         return price.newBigDecimal(rootExchange, market).formattedString()
     }
 
+    @Composable
     fun getCoinDetailPriceTextColor(changeRate: Double): Color {
         return when {
-            changeRate > 0.0 -> RiseColor
-            changeRate < 0.0 -> FallColor
+            changeRate > 0.0 -> commonRiseColor()
+            changeRate < 0.0 -> commonFallColor()
             else -> EvenColor
         }
     }

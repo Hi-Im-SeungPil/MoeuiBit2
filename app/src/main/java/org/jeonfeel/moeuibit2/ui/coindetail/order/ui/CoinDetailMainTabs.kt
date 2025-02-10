@@ -3,8 +3,10 @@ package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,9 @@ import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.ui.theme.tabRowSelectedColor
 
 
@@ -47,13 +52,16 @@ fun CoinDetailMainTabRow(navController: NavController) {
     TabRow(
         selectedTabIndex = tabState.intValue,
         modifier = Modifier.height(35.dp),
-        backgroundColor = MaterialTheme.colorScheme.background
+        backgroundColor = commonBackground(),
+        indicator = { tabPositions ->
+
+        }
     ) {
         items.forEachIndexed { index, tab ->
             Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp), fontWeight = FontWeight.W600) },
                 selected = tabState.intValue == index,
-                selectedContentColor = tabRowSelectedColor(),
-                unselectedContentColor = colorResource(id = R.color.CDCDCDC),
+                selectedContentColor = APP_PRIMARY_COLOR,
+                unselectedContentColor = commonUnSelectedColor(),
                 onClick = {
                     if (tabState.intValue != index) {
                         tabState.intValue = index

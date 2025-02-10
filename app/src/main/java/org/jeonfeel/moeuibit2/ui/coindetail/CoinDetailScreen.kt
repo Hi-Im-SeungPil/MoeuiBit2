@@ -59,6 +59,9 @@ import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
@@ -113,7 +116,7 @@ fun CoinDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(commonBackground())
         ) {
             NewCoinDetailTopAppBar(
                 coinSymbol = market.substring(4),
@@ -174,7 +177,7 @@ fun NewCoinDetailTopAppBar(
     warning: Boolean,
     isCaution: Boolean
 ) {
-    Row(modifier = Modifier.background(Color.White)) {
+    Row(modifier = Modifier.background(commonBackground())) {
         IconButton(
             modifier = Modifier
                 .padding(start = 15.dp)
@@ -186,7 +189,7 @@ fun NewCoinDetailTopAppBar(
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
-                tint = Color.Black
+                tint = commonTextColor()
             )
         }
 
@@ -198,7 +201,7 @@ fun NewCoinDetailTopAppBar(
             Text(
                 text = title,
                 style = TextStyle(
-                    color = Color.Black,
+                    color = commonTextColor(),
                     fontSize = DpToSp(dp = 17.dp),
                     textAlign = TextAlign.Center
                 ),
@@ -212,7 +215,7 @@ fun NewCoinDetailTopAppBar(
                 Text(
                     text = coinSymbol,
                     style = TextStyle(
-                        color = Color.Black,
+                        color = commonTextColor(),
                         fontSize = DpToSp(dp = 13.dp),
                         textAlign = TextAlign.Center
                     ),
@@ -243,7 +246,7 @@ fun NewCoinDetailTopAppBar(
                                 top.linkTo(parent.top)
                                 bottom.linkTo(parent.bottom)
                             }
-                            .background(color = Color.Red)
+                            .background(color = commonRiseColor())
                             .padding(horizontal = 3.dp)
                     )
                 }
@@ -288,7 +291,7 @@ fun NewCoinDetailTopAppBar(
                 painter = if (isFavorite.value) painterResource(R.drawable.img_filled_star)
                 else painterResource(R.drawable.img_empty_star),
                 contentDescription = null,
-                tint = Color.Unspecified
+                tint = if (!isFavorite.value) commonTextColor() else Color.Unspecified
             )
         }
     }
@@ -310,7 +313,7 @@ fun CoinDetailPriceSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(Color.White)
+                .background(commonBackground())
         ) {
             Column(
                 modifier = Modifier
@@ -346,7 +349,7 @@ fun CoinDetailPriceSection(
                             .wrapContentWidth()
                             .padding(0.dp, 0.dp, 10.dp, 0.dp),
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = commonTextColor(),
                             fontSize = DpToSp(13.dp)
                         )
                     )
@@ -426,7 +429,7 @@ fun AutoScrollingBanner(items: List<String>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(25.dp)
-            .background(Color.White),
+            .background(commonBackground()),
         userScrollEnabled = false
     ) {
         items(items + items.first()) { item ->
@@ -441,7 +444,7 @@ fun AutoScrollingBanner(items: List<String>) {
                         .padding(start = 20.dp, end = 10.dp)
                         .align(Alignment.CenterVertically),
                     style = TextStyle(
-                        color = Color.Red,
+                        color = commonRiseColor(),
                         fontWeight = FontWeight.W700,
                         textAlign = TextAlign.Center
                     ),
@@ -453,7 +456,7 @@ fun AutoScrollingBanner(items: List<String>) {
                     modifier = Modifier
                         .padding(start = 4.dp)
                         .align(Alignment.CenterVertically),
-                    style = TextStyle(color = Color.Black, textAlign = TextAlign.Center),
+                    style = TextStyle(color = commonTextColor(), textAlign = TextAlign.Center),
                     fontSize = DpToSp(13.dp)
                 )
             }
