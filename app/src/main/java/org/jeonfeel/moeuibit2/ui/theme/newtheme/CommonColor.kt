@@ -24,14 +24,14 @@ fun commonTextColor(): Color = if (!isSystemInDarkTheme()) {
 fun commonRiseColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xffff2b2b)
 } else {
-    Color(0xffff3838)
+    Color(0xffc62f2f)
 }
 
 @Composable
 fun commonFallColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xff007fff)
 } else {
-    Color(0xff1e6fdc)
+    Color(0xff1758aa)
 }
 
 @Composable
@@ -39,4 +39,25 @@ fun commonUnSelectedColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xffa0a0a0)
 } else {
     Color(0xff6d6d6d)
+}
+
+@Composable
+fun commonDividerColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xffe0e0e0)
+} else {
+    Color(0xff303030)
+}
+
+@Composable
+fun commonSkeletonColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xffd6d6d6)
+} else {
+    Color(0xff252525)
+}
+
+@Composable
+fun commonHintTextColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xffa0a0a0)
+} else {
+    Color(0xff6e6e6e)
 }

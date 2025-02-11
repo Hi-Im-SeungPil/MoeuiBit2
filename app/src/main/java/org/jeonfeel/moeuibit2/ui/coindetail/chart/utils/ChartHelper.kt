@@ -135,8 +135,12 @@ class ChartHelper(private val context: Context?) {
             verticalAlignment = Legend.LegendVerticalAlignment.TOP
             horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
             orientation = Legend.LegendOrientation.HORIZONTAL
-            xOffset = 10f
+            xOffset = -10f
             setDrawInside(true)
+            xEntrySpace = 2f
+            yEntrySpace = 2f
+            formToTextSpace = 2f
+            formSize = 8f
         }
 
         combinedChart.setMBitChartTouchListener(

@@ -32,6 +32,9 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.Utils
 import kotlin.reflect.KFunction1
@@ -183,7 +186,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                 },
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(commonBackground())
             )
             if (coinDetailViewModel.chart.state.minuteVisible.value) {
                 Row(
@@ -248,7 +251,7 @@ private fun PeriodButtons(
         modifier = Modifier
             .fillMaxWidth()
             .height(35.dp)
-            .background(Color.White)
+            .background(commonBackground())
     ) {
         val buttonModifier = remember {
             Modifier
@@ -256,9 +259,9 @@ private fun PeriodButtons(
                 .fillMaxHeight()
         }
         val btnColor = if (selectedButton.value == MINUTE_SELECT) {
-            colorScheme.primary
+            commonTextColor()
         } else {
-            Color.LightGray
+            commonHintTextColor()
         }
 
         TextButton(
@@ -338,9 +341,9 @@ fun PeriodButton(
     setLastPeriod: (period: String) -> Unit
 ) {
     val buttonColor = if (selectedButton.value == period) {
-        colorScheme.primary
+        commonTextColor()
     } else {
-        Color.LightGray
+        commonHintTextColor()
     }
 
     val modifierResult = if (selectedButton.value == period) {
@@ -391,7 +394,7 @@ fun RowScope.MinuteButton(
             requestChartData(market)
             setLastPeriod(candleTypeValue)
         }, modifier = Modifier
-            .background(colorScheme.background)
+            .background(commonBackground())
             .fillMaxHeight()
             .weight(1f)
     ) {
@@ -399,19 +402,17 @@ fun RowScope.MinuteButton(
             AutoSizeText(
                 text = minuteTextValue,
                 textStyle = MaterialTheme.typography.body1.copy(
-                    color = colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(14.dp)
                 ),
                 modifier = Modifier
                     .fillMaxHeight()
                     .wrapContentHeight()
-//                        .weight(1f)
             )
         } else {
             Text(
                 text = minuteTextValue,
-                style = TextStyle(color = Color.Black, fontSize = DpToSp(14.dp)),
-//                    modifier = Modifier.weight(1f)
+                style = TextStyle(color = commonTextColor(), fontSize = DpToSp(14.dp)),
             )
         }
     }

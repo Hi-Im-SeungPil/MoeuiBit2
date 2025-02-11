@@ -17,10 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.shimmer
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonSkeletonColor
 
 @Composable
 fun ExchangeLoadingScreen() {
-    val backgroundColor = Color(0xFFECEBEB)
+
     CompositionLocalProvider(
         LocalShimmerTheme provides org.jeonfeel.moeuibit2.ui.main.portfolio.creditCardTheme
     ) {
@@ -34,7 +35,7 @@ fun ExchangeLoadingScreen() {
                     .padding(horizontal = 15.dp)
                     .fillMaxWidth()
                     .height(45.dp)
-                    .background(backgroundColor, shape = RoundedCornerShape(5.dp))
+                    .background(commonSkeletonColor(), shape = RoundedCornerShape(5.dp))
             )
 
             Row(
@@ -46,7 +47,7 @@ fun ExchangeLoadingScreen() {
                     modifier = Modifier
                         .height(40.dp)
                         .weight(3f)
-                        .background(backgroundColor, shape = RoundedCornerShape(5.dp))
+                        .background(commonSkeletonColor(), shape = RoundedCornerShape(5.dp))
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -61,7 +62,7 @@ fun ExchangeLoadingScreen() {
                     modifier = Modifier
                         .height(25.dp)
                         .weight(3f)
-                        .background(backgroundColor, shape = RoundedCornerShape(5.dp))
+                        .background(commonSkeletonColor(), shape = RoundedCornerShape(5.dp))
                 )
             }
 
@@ -72,7 +73,7 @@ fun ExchangeLoadingScreen() {
                         .padding(horizontal = 15.dp)
                         .fillMaxWidth()
                         .height(50.dp)
-                        .background(backgroundColor, shape = RoundedCornerShape(5.dp))
+                        .background(commonSkeletonColor(), shape = RoundedCornerShape(5.dp))
                 )
             }
         }

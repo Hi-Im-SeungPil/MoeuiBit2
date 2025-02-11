@@ -85,7 +85,11 @@ import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.nav.AppScreen
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeBTCtoKRWColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeCautionColor
@@ -99,7 +103,6 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.ext.EvenColor
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
 import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
@@ -149,6 +152,7 @@ fun ExchangeScreen(
                 .zIndex(1f),
             updateTextFieldValue = updateTextFieldValue
         )
+
         CollapsingToolbarScaffold(
             state = stateHolder.toolbarState,
             scrollStrategy = ScrollStrategy.EnterAlways,
@@ -165,13 +169,13 @@ fun ExchangeScreen(
             modifier = Modifier
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Divider(modifier = Modifier.height(2.dp), color = exchangeCoinListDividerColor())
+                Divider(modifier = Modifier.height(2.dp), color = commonDividerColor())
                 SortingSection(
                     sortOrder = sortOrder.value,
                     onSortClick = stateHolder::onSortClick,
                     selectedSortType = selectedSortType
                 )
-                Divider(modifier = Modifier.height(2.dp), color = exchangeCoinListDividerColor())
+                Divider(modifier = Modifier.height(2.dp), color = commonDividerColor())
                 CoinTickerSection(
                     lazyScrollState = stateHolder.lazyScrollState,
                     tickerList = stateHolder.getFilteredList(tickerList = tickerList),
@@ -233,7 +237,7 @@ private fun SearchSection(
                         CommonText(
                             stringResource(id = R.string.textFieldText),
                             textStyle = LocalTextStyle.current.copy(
-                                color = Color(0xff8f9297),
+                                color = commonHintTextColor(),
                             ),
                             fontSize = 17.dp,
                         )
@@ -408,8 +412,8 @@ private fun RowScope.SortButton(
             modifier = Modifier,
             style = TextStyle(
                 fontSize = DpToSp(dp = 15.dp), textAlign = TextAlign.Center, color =
-                if (selectedSortType.value == sortType) exchangeSortColor()
-                else exchangeUnselectSortColor()
+                if (selectedSortType.value == sortType) APP_PRIMARY_COLOR
+                else commonHintTextColor()
             )
         )
         Column(modifier = Modifier.padding(start = 4.dp)) {
@@ -417,16 +421,16 @@ private fun RowScope.SortButton(
                 text = "▲",
                 fontSize = DpToSp(dp = 6.dp),
                 style = TextStyle(
-                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) exchangeSortColor()
-                    else exchangeUnselectSortColor()
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.ASCENDING) APP_PRIMARY_COLOR
+                    else commonHintTextColor()
                 )
             )
             Text(
                 text = "▼",
                 fontSize = DpToSp(dp = 6.dp),
                 style = TextStyle(
-                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) exchangeSortColor()
-                    else exchangeUnselectSortColor()
+                    color = if (selectedSortType.value == sortType && sortOrder == SortOrder.DESCENDING) APP_PRIMARY_COLOR
+                    else commonHintTextColor()
                 )
             )
         }
@@ -585,7 +589,7 @@ fun CoinTickerView(
                                 top.linkTo(symbolRef.top)
                                 bottom.linkTo(symbolRef.bottom)
                             }
-                            .background(color = exchangeWarningColor(), shape = CircleShape),
+                            .background(color = commonRiseColor(), shape = CircleShape),
                     )
                 }
                 if (caution) {
@@ -642,7 +646,7 @@ fun CoinTickerView(
                         textAlign = TextAlign.End,
                         fontSize = DpToSp(11.dp)
                     ),
-                    color = exchangeBTCtoKRWColor()
+                    color = commonHintTextColor()
                 )
             }
         }
@@ -683,6 +687,6 @@ fun CoinTickerView(
             .padding(horizontal = 9.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(color = exchangeCoinListDividerColor())
+            .background(color = commonDividerColor())
     )
 }

@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils
 
 import android.graphics.Color
+import android.os.Build
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry
@@ -8,7 +9,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.orhanobut.logger.Logger
 
 class GetMovingAverage(
-    private val number: Int
+    private val number: Int,
 ) {
     private var beforeLastCandleClose = 0f
     val lineEntry = ArrayList<Entry>()
@@ -37,7 +38,12 @@ class GetMovingAverage(
         sum += lastCandle.close
         val average = sum / number
         beforeLastCandleClose = lastCandle.close
-        lineEntry.removeLast()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            lineEntry.removeLast()
+        } else {
+            val lastIndex = lineEntry.lastIndex
+            lineEntry.removeAt(lastIndex)
+        }
         lineEntry.add(Entry(lastCandle.x, average))
     }
 
