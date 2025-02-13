@@ -9,7 +9,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,6 +23,8 @@ import org.jeonfeel.moeuibit2.constants.menuTitleArray
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 
 enum class MainScreenState {
     EXCHANGE, COIN_SITE, PORTFOLIO, SETTING
@@ -70,7 +71,7 @@ fun MainBottomNavigation(navController: NavHostController) {
                 },
                 label = { Text(text = item.title, fontSize = DpToSp(dp = 12.dp), fontWeight = FontWeight.W600) },
                 selectedContentColor = APP_PRIMARY_COLOR,
-                unselectedContentColor = Color.LightGray,
+                unselectedContentColor = commonUnSelectedColor(),
                 alwaysShowLabel = true,
                 selected = currentDestination?.hierarchy?.any { it.route == item.screenRoute.name } == true,
                 onClick = {

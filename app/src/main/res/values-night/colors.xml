@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="text_color">#FFFFFFFF</color>
-    <color name="decrease_color">#FF6E6EFA</color>
-    <color name="increase_color">#FFFF4646</color>
-    <color name="natural_color">#FFCCCCCC</color>
+    <color name="decrease_color">#ff3a78d4 </color>
+    <color name="increase_color">#ffe84a4a</color>
+    <color name="natural_color">#ffaaaaaa</color>
 
-    <color name="decrease_bar_color">#996E6EFA</color>
-    <color name="increase_bar_color">#99FF4646</color>
+    <color name="decrease_bar_color">#993a78d4</color>
+    <color name="increase_bar_color">#99e84a4a</color>
 
-    <color name="marker_view_background">#B3000000</color>
+    <color name="marker_view_background">#B3080808</color>
     <color name="background">#FF000000</color>
 
     <color name="textColor">#FFFFFFFF</color>

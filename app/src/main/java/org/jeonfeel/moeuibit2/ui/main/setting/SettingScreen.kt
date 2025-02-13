@@ -12,6 +12,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -43,29 +44,17 @@ import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteLazyColumn
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
 fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val balloon = remember {
-        Balloon.Builder(context)
-            .setWidthRatio(1.0f)
-            .setHeight(BalloonSizeSpec.WRAP)
-            .setText(context.getString(R.string.settings_message))
-            .setTextColorResource(R.color.white)
-            .setTextGravity(Gravity.START)
-            .setTextSize(15f)
-            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-            .setArrowSize(10)
-            .setArrowPosition(0.5f)
-            .setPadding(12)
-            .setCornerRadius(8f)
-            .setBackgroundColorResource(R.color.C6799FF)
-            .setLifecycleOwner(lifecycleOwner)
-            .build()
-    }
+
     BackHandler(settingViewModel.state.openSourceState.value) {
         settingViewModel.state.openSourceState.value = false
     }
@@ -79,8 +68,8 @@ fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
         }
     )
 
-    Column {
-        Row {
+    Column(modifier = Modifier.background(color = commonBackground())) {
+        Row(modifier = Modifier.background(color = commonBackground())) {
             Text(
                 text = stringResource(id = R.string.setting),
                 modifier = Modifier
@@ -88,7 +77,7 @@ fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
                     .weight(1f, true)
                     .align(Alignment.CenterVertically),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(20.dp),
                     fontWeight = FontWeight.W600
                 )
@@ -99,28 +88,15 @@ fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
                     .padding(21.dp)
                     .wrapContentWidth(),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(dp = 13.dp)
                 )
-            )
-            AndroidView(
-                factory = {
-                    ImageView(it).apply {
-                        setImageResource(R.drawable.img_info)
-                        setOnClickListener {
-                            showAlignBottom(balloon)
-                        }
-                    }
-                }, modifier = Modifier
-                    .padding(0.dp, 0.dp, 10.dp, 0.dp)
-                    .size(25.dp)
-                    .align(Alignment.CenterVertically)
             )
         }
         Divider(
             Modifier
                 .fillMaxWidth()
-                .height(1.dp), color = Color(0xFFDFDFDF)
+                .height(1.dp), color = commonDividerColor()
         )
         Box(modifier = Modifier.fillMaxSize()) {
             SettingScreenLazyColumn(settingViewModel)
@@ -159,7 +135,7 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = commonBackground())
     ) {
         item {
             SettingScreenLazyColumnItem(stringResource(id = R.string.write_review), clickAction = {
@@ -195,12 +171,12 @@ fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
         text = text, modifier = Modifier
             .padding(10.dp, 30.dp, 10.dp, 0.dp)
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.onBackground)
+            .background(commonBottomNavBackground(), shape = RoundedCornerShape(size = 10.dp))
             .clickable { clickAction() }
-            .padding(10.dp, 10.dp),
+            .padding(20.dp, 10.dp),
         style = TextStyle(
-            fontSize = DpToSp(25.dp),
-            color = MaterialTheme.colorScheme.onBackground
+            fontSize = DpToSp(17.dp),
+            color = commonTextColor()
         )
     )
 }

@@ -77,6 +77,7 @@ import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -140,7 +141,7 @@ fun PortfolioScreen(
                         .wrapContentWidth()
                         .border(
                             width = 1.dp,
-                            color = APP_PRIMARY_COLOR,
+                            color = commonDividerColor(),
                             shape = RoundedCornerShape(5.dp)
                         ),
                     shape = RoundedCornerShape(5.dp)
@@ -148,7 +149,7 @@ fun PortfolioScreen(
                     Text(
                         text = stringResource(id = R.string.chargeMoney),
                         modifier = Modifier
-                            .background(color = chargingKrwBackgroundColor())
+                            .background(color = commonBackground())
                             .padding(9.dp)
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically)
@@ -170,7 +171,7 @@ fun PortfolioScreen(
                         .wrapContentWidth()
                         .border(
                             width = 1.dp,
-                            color = APP_PRIMARY_COLOR,
+                            color = commonDividerColor(),
                             shape = RoundedCornerShape(5.dp)
                         ),
                     shape = RoundedCornerShape(5.dp)
@@ -178,7 +179,7 @@ fun PortfolioScreen(
                     Text(
                         text = "코인 정리",
                         modifier = Modifier
-                            .background(color = chargingKrwBackgroundColor())
+                            .background(color = commonBackground())
                             .padding(9.dp)
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically)
@@ -197,7 +198,7 @@ fun PortfolioScreen(
         Divider(
             Modifier
                 .fillMaxWidth()
-                .height(1.dp), color = Color(0xFFDFDFDF)
+                .height(1.dp), color = commonDividerColor()
         )
 
         if (loading2.value) {
@@ -220,7 +221,7 @@ fun PortfolioScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp),
-                        color = Color(0xFFDFDFDF)
+                        color = commonDividerColor()
                     )
 
                     PortfolioMainSortButtons(
@@ -240,7 +241,7 @@ fun PortfolioScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp),
-                        color = Color(0xFFDFDFDF)
+                        color = commonDividerColor()
                     )
 
                     Divider(

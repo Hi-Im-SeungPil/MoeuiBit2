@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="text_color">#FF000000</color>
-    <color name="decrease_color">#FF6E6EFA</color>
-    <color name="increase_color">#FFFF4646</color>
-    <color name="natural_color">#FF444444</color>
+    <color name="decrease_color">#ff007fff</color>
+    <color name="increase_color">#ffc62f2f</color>
+    <color name="natural_color">#ff666666</color>
 
-    <color name="decrease_bar_color">#996E6EFA</color>
-    <color name="increase_bar_color">#99FF4646</color>
+    <color name="decrease_bar_color">#99007fff</color>
+    <color name="increase_bar_color">#99ff2b2b</color>
 
     <color name="background">#FFFFFFFF</color>
     <color name="marker_view_background">#B3FFFFFF</color>

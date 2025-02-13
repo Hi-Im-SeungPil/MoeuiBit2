@@ -26,6 +26,7 @@ import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenStateHolder
 import org.jeonfeel.moeuibit2.ui.main.portfolio.getReturnTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
 import java.math.BigDecimal
 
@@ -44,7 +45,7 @@ fun LazyItemScope.PortfolioMain(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0x80ECECEC))
+            .background(color = portfolioMainBackground())
             .padding(top = 20.dp)
     ) {
         Row(

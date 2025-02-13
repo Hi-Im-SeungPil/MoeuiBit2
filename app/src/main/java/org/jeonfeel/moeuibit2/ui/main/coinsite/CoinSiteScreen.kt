@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coinsite.coinSiteTitleDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
@@ -63,7 +64,7 @@ fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
         Divider(
             Modifier
                 .fillMaxWidth()
-                .height(1.dp), color = coinSiteTitleDividerColor()
+                .height(1.dp), color = commonDividerColor()
         )
         Box(modifier = Modifier.fillMaxSize()) {
             CoinSiteLazyColumn(

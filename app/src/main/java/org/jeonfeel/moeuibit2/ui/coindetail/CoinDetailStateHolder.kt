@@ -11,6 +11,7 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.ext.EvenColor
@@ -42,7 +43,7 @@ class CoinDetailStateHolder(
         return when {
             changeRate > 0.0 -> commonRiseColor()
             changeRate < 0.0 -> commonFallColor()
-            else -> EvenColor
+            else -> commonTextColor()
         }
     }
 

@@ -50,6 +50,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unSelectedOrderTabCol
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unselectedOrderTabTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
@@ -86,7 +87,7 @@ fun OrderSection(
     getTransactionInfoList: (String) -> Unit,
     market: String,
     totalBidDialogState: MutableState<Boolean>,
-    totalAskDialogState: MutableState<Boolean>
+    totalAskDialogState: MutableState<Boolean>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -151,7 +152,7 @@ fun BidSection(
     dropdownLabelList: List<String>,
     selectedText: String,
     userBTC: State<MyCoin>,
-    totalBidDialogState: MutableState<Boolean>
+    totalBidDialogState: MutableState<Boolean>,
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -184,9 +185,9 @@ fun BidSection(
             Text(
                 "최소주문금액",
                 modifier = Modifier.weight(1f),
-                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text("5000 KRW", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
+            Text(if(isKrw) "5000KRW" else "0.0005BTC", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
         }
         Row(
             modifier = Modifier
@@ -196,9 +197,9 @@ fun BidSection(
             Text(
                 "수수료",
                 modifier = Modifier.weight(1f),
-                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text("0.05%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
+            Text(text = if(isKrw) "0.05%" else "0.25%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
         }
     }
 }
@@ -216,7 +217,7 @@ fun AskSection(
     selectedText: String,
     requestAsk: () -> Unit,
     userCoin: State<MyCoin>,
-    totalAskDialogState: MutableState<Boolean>
+    totalAskDialogState: MutableState<Boolean>,
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -240,33 +241,35 @@ fun AskSection(
             bidAskAction = requestAsk,
             totalBidAskAction = { totalAskDialogState.value = true }
         )
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth()) {
             Text(
                 "최소주문금액",
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 10.dp),
-                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+                    .weight(1f),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text("5000 KRW", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
+            Text(if(isKrw) "5000KRW" else "0.0005BTC", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
         }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth()) {
             Text(
                 "수수료",
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 10.dp),
-                style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+                    .weight(1f),
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text("0.05%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor()))
+            Text(text = if(isKrw) "0.05%" else "0.25%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
         }
     }
 }
 
 @Composable
 fun OrderTabSection(
-    orderTabState: MutableState<OrderTabState>
+    orderTabState: MutableState<OrderTabState>,
 ) {
     val tabText = stringArrayResource(id = R.array.order_tab_text_array)
     val entries = remember {
@@ -316,7 +319,7 @@ fun OrderTabUserSeedMoneySection(
     isKrw: Boolean,
     symbol: String,
     userBTC: State<MyCoin>? = null,
-    isBid: Boolean
+    isBid: Boolean,
 ) {
     val tempSymbol = remember {
         if (userSeedMoney != null) {
@@ -392,7 +395,8 @@ fun OrderTabPriceSection(currentPrice: String) {
             style = TextStyle(
                 textAlign = TextAlign.End,
                 fontSize = DpToSp(14.dp),
-                fontWeight = FontWeight.W500
+                fontWeight = FontWeight.W500,
+                color = commonTextColor()
             )
         )
     }
@@ -405,7 +409,7 @@ fun OrderTabQuantitySection(
     quantityOnValueChanged: (String, Boolean) -> Unit,
     isBid: Boolean,
     dropdownLabelList: List<String>,
-    selectedText: String
+    selectedText: String,
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusState = remember { mutableStateOf(false) }
@@ -434,7 +438,7 @@ fun OrderTabQuantitySection(
             }
         }, singleLine = true,
             textStyle = TextStyle(
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                color = commonTextColor(),
                 fontSize = DpToSp(13.dp), textAlign = TextAlign.End
             ),
             modifier = Modifier
@@ -456,7 +460,7 @@ fun OrderTabQuantitySection(
                         Text(
                             "0",
                             style = TextStyle(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
+                                color = commonTextColor(),
                                 fontSize = DpToSp(dp = 13.dp),
                                 textAlign = TextAlign.End
                             ),
@@ -479,7 +483,7 @@ fun OrderTabQuantitySection(
 fun PercentageDropdown(
     itemClickAction: ((Int) -> Unit),
     labelList: List<String>,
-    selectedText: String
+    selectedText: String,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
@@ -496,6 +500,7 @@ fun PercentageDropdown(
                     )
                     .padding(10.dp),
                 style = TextStyle(
+                    color = commonTextColor(),
                     textAlign = TextAlign.Center,
                     fontSize = DpToSp(13.dp),
                 ),
@@ -520,7 +525,7 @@ fun PercentageDropdown(
 
 @Composable
 fun OrderTabTotalPriceSection(
-    getTotalPrice: () -> String
+    getTotalPrice: () -> String,
 ) {
     Row(
         modifier = Modifier
@@ -540,6 +545,7 @@ fun OrderTabTotalPriceSection(
             text = getTotalPrice(),
             modifier = Modifier.weight(1f),
             style = TextStyle(
+                color = commonTextColor(),
                 textAlign = TextAlign.End,
                 fontSize = DpToSp(14.dp),
                 fontWeight = FontWeight.W500

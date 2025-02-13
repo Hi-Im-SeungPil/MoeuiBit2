@@ -39,6 +39,8 @@ import org.jeonfeel.moeuibit2.constants.bsd_3
 import org.jeonfeel.moeuibit2.constants.mit
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 
 @Composable
 fun OpenSourceLicenseLazyColumn(openSourceState: MutableState<Boolean>) {
@@ -48,7 +50,7 @@ fun OpenSourceLicenseLazyColumn(openSourceState: MutableState<Boolean>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = commonBackground())
     ) {
         item {
             ActionBar(openSourceState)
@@ -97,7 +99,7 @@ private fun OpenSourceLicenseLazyColumnItem(
             modifier = Modifier.fillMaxWidth(),
             fontWeight = FontWeight.Bold,
             fontSize = DpToSp(17.dp),
-            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+            style = TextStyle(color = commonTextColor())
         )
 
         if (opensourceUrl.isNotEmpty()) {
@@ -118,7 +120,7 @@ private fun OpenSourceLicenseLazyColumnItem(
             text = openSourceLicense,
             modifier = Modifier.fillMaxWidth(),
             fontSize = DpToSp(15.dp),
-            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+            style = TextStyle(color = commonTextColor())
         )
     }
 }
@@ -142,7 +144,7 @@ private fun Intro() {
                 }
             }
             .padding(10.dp, 10.dp, 10.dp, 10.dp),
-        style = TextStyle(fontSize = DpToSp(15.dp), color = MaterialTheme.colorScheme.onBackground))
+        style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor()))
 }
 
 @Composable
@@ -152,13 +154,13 @@ private fun ActionBar(openSourceState: MutableState<Boolean>) {
             .padding(vertical = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = commonTextColor())
     ) {
         IconButton(onClick = { openSourceState.value = false }) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = commonTextColor()
             )
         }
         Text(
@@ -167,7 +169,7 @@ private fun ActionBar(openSourceState: MutableState<Boolean>) {
                 .padding(start = 20.dp)
                 .align(Alignment.CenterVertically),
             style = TextStyle(
-                color = MaterialTheme.colorScheme.onBackground,
+                color = commonTextColor(),
                 fontSize = DpToSp(dp = 20.dp),
                 textAlign = TextAlign.Center
             )

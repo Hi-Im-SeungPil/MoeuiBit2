@@ -53,9 +53,7 @@ fun CoinDetailMainTabRow(navController: NavController) {
         selectedTabIndex = tabState.intValue,
         modifier = Modifier.height(35.dp),
         backgroundColor = commonBackground(),
-        indicator = { tabPositions ->
-
-        }
+        indicator = { tabPositions -> }
     ) {
         items.forEachIndexed { index, tab ->
             Tab(text = { Text(tab.title, fontSize = DpToSp(14.dp), fontWeight = FontWeight.W600) },
@@ -84,9 +82,8 @@ fun CoinDetailMainTabRow(navController: NavController) {
 fun TabRowMainNavigation(
     navHostController: NavHostController,
     viewModel: NewCoinDetailViewModel,
-    market: String
+    market: String,
 ) {
-    val context = LocalContext.current
     NavHost(
         navController = navHostController,
         startDestination = CoinDetailMainTabRowItem.Order.screenRoute,

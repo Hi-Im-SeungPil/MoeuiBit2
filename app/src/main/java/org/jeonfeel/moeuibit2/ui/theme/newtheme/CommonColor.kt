@@ -14,6 +14,13 @@ fun commonBackground(): Color = if (!isSystemInDarkTheme()) {
 }
 
 @Composable
+fun commonBottomNavBackground(): Color = if (!isSystemInDarkTheme()) {
+    Color.White
+} else {
+    Color(0xFF181818)
+}
+
+@Composable
 fun commonTextColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xff191919)
 } else {
@@ -24,14 +31,14 @@ fun commonTextColor(): Color = if (!isSystemInDarkTheme()) {
 fun commonRiseColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xffff2b2b)
 } else {
-    Color(0xffc62f2f)
+    Color(0xffe84a4a)
 }
 
 @Composable
 fun commonFallColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xff007fff)
 } else {
-    Color(0xff1758aa)
+    Color(0xff3a78d4)
 }
 
 @Composable
