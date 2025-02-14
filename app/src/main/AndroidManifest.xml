@@ -35,9 +35,9 @@
     <application
         android:name=".MoeuiBitApp"
         android:allowBackup="false"
-        android:icon="@mipmap/icon_moeui_bit"
+        android:icon="@mipmap/ic_launcher"
         android:label="모의비트"
-        android:roundIcon="@mipmap/icon_moeui_bit_round"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MoeuiBit"
         android:usesCleartextTraffic="true">

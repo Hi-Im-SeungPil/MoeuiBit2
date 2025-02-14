@@ -185,6 +185,7 @@ fun OrderScreen(
                 market = market,
                 totalBidDialogState = state.totalBidDialogState,
                 totalAskDialogState = state.totalAskDialogState,
+                btcPrice = btcPrice
             )
         }
     }

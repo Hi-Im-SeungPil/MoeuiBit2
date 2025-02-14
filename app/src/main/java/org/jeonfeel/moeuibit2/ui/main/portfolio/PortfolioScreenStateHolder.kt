@@ -111,10 +111,7 @@ class PortfolioScreenStateHolder(
 
         val valuationGainOrLossResult = valuationGainOrLoss.toBigDecimal().formattedStringTo1000()
 
-        val coinKoreanName = Utils.getPortfolioName(
-            marketState = marketState,
-            name = item.myCoinKoreanName
-        )
+        val coinKoreanName = item.myCoinKoreanName
 
         val coinEngName = Utils.getPortfolioName(
             marketState = marketState,

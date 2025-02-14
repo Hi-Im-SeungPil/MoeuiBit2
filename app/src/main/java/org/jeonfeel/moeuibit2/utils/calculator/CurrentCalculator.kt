@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.utils.calculator
 
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
@@ -136,5 +137,24 @@ object CurrentCalculator {
             designatePriceBigDecimal.multiply(0.9975.toBigDecimal())
                 .divide(currentPrice, 8, RoundingMode.HALF_UP)
         }
+    }
+
+    fun getUserCoinValue(
+        userCoinQuantity: Double,
+        currentPrice: BigDecimal,
+        btcPrice: BigDecimal?
+    ): String {
+        if (userCoinQuantity == 0.0 || currentPrice == BigDecimal.ZERO) {
+            return "0"
+        }
+
+        Logger.e("userCoinQuantity : $userCoinQuantity, currentPrice : $currentPrice, btcPrice : $btcPrice")
+
+        val userCoinValue = if (btcPrice == BigDecimal.ZERO) {
+            userCoinQuantity.toBigDecimal().multiply(currentPrice).toDouble()
+        } else {
+            userCoinQuantity.toBigDecimal().multiply(currentPrice).multiply(btcPrice).toDouble()
+        }
+        return tradePriceCalculator(userCoinValue, SELECTED_KRW_MARKET)
     }
 }

@@ -49,6 +49,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.boxTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unSelectedOrderTabColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.unselectedOrderTabTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
@@ -57,6 +58,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
@@ -88,6 +90,7 @@ fun OrderSection(
     market: String,
     totalBidDialogState: MutableState<Boolean>,
     totalAskDialogState: MutableState<Boolean>,
+    btcPrice: State<BigDecimal>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -121,7 +124,8 @@ fun OrderSection(
                     dropdownLabelList = dropdownLabelList,
                     selectedText = askSelectedText,
                     requestAsk = requestAsk,
-                    totalAskDialogState = totalAskDialogState
+                    totalAskDialogState = totalAskDialogState,
+                    btcPrice = btcPrice
                 )
 
                 OrderTabState.TRANSACTION_INFO -> {
@@ -157,9 +161,9 @@ fun BidSection(
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
             userSeedMoney = userSeedMoney,
-            userBTC = userBTC,
             isKrw = isKrw,
             symbol = symbol,
+            userBTC = userBTC,
             isBid = true
         )
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
@@ -187,7 +191,10 @@ fun BidSection(
                 modifier = Modifier.weight(1f),
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text(if(isKrw) "5000KRW" else "0.0005BTC", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
+            Text(
+                if (isKrw) "5000KRW" else "0.0005BTC",
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
+            )
         }
         Row(
             modifier = Modifier
@@ -199,7 +206,10 @@ fun BidSection(
                 modifier = Modifier.weight(1f),
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text(text = if(isKrw) "0.05%" else "0.25%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
+            Text(
+                text = if (isKrw) "0.05%" else "0.25%",
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
+            )
         }
     }
 }
@@ -218,13 +228,16 @@ fun AskSection(
     requestAsk: () -> Unit,
     userCoin: State<MyCoin>,
     totalAskDialogState: MutableState<Boolean>,
+    btcPrice: State<BigDecimal>,
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
             userCoin = userCoin,
             isKrw = isKrw,
             symbol = symbol,
-            isBid = false
+            isBid = false,
+            currentPrice = currentPrice,
+            btcPrice = btcPrice
         )
         OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
         OrderTabQuantitySection(
@@ -241,28 +254,38 @@ fun AskSection(
             bidAskAction = requestAsk,
             totalBidAskAction = { totalAskDialogState.value = true }
         )
-        Row(modifier = Modifier
-            .padding(top = 10.dp)
-            .fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+        ) {
             Text(
                 "최소주문금액",
                 modifier = Modifier
                     .weight(1f),
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text(if(isKrw) "5000KRW" else "0.0005BTC", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
+            Text(
+                if (isKrw) "5000KRW" else "0.0005BTC",
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
+            )
         }
 
-        Row(modifier = Modifier
-            .padding(top = 10.dp)
-            .fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+        ) {
             Text(
                 "수수료",
                 modifier = Modifier
                     .weight(1f),
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
-            Text(text = if(isKrw) "0.05%" else "0.25%", style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor()))
+            Text(
+                text = if (isKrw) "0.05%" else "0.25%",
+                style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
+            )
         }
     }
 }
@@ -320,6 +343,8 @@ fun OrderTabUserSeedMoneySection(
     symbol: String,
     userBTC: State<MyCoin>? = null,
     isBid: Boolean,
+    currentPrice: BigDecimal? = BigDecimal.ZERO,
+    btcPrice: State<BigDecimal>? = null,
 ) {
     val tempSymbol = remember {
         if (userSeedMoney != null) {
@@ -333,43 +358,73 @@ fun OrderTabUserSeedMoneySection(
         }
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = if (userSeedMoney != null) stringResource(id = R.string.orderable) else stringResource(
-                id = R.string.holdingQuantity
-            ),
-            style = TextStyle(
-                fontWeight = FontWeight.W500,
-                fontSize = DpToSp(dp = 14.dp),
-                color = commonTextColor()
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = if (userSeedMoney != null) stringResource(id = R.string.orderable) else stringResource(
+                    id = R.string.holdingQuantity
+                ),
+                style = TextStyle(
+                    fontWeight = FontWeight.W500,
+                    fontSize = DpToSp(dp = 14.dp),
+                    color = commonTextColor()
+                )
             )
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        AutoSizeText(
-            text = if (isBid) {
-                if (isKrw) {
-                    userSeedMoney?.value?.commaFormat() ?: "0"
-                } else {
-                    userBTC?.value?.quantity?.eighthDecimal() ?: "0"
-                }
-            } else {
-                userCoin?.value?.quantity?.newBigDecimal(scale = 8)
-                    ?.formattedStringForQuantity() ?: "0"
-            },
-            textStyle = TextStyle(
-                fontSize = DpToSp(dp = 14.dp),
-                textAlign = TextAlign.Center,
-                color = commonTextColor()
-            )
-        )
-        Text(
-            text = tempSymbol,
-            style = TextStyle(
-                fontWeight = FontWeight.W700,
-                fontSize = DpToSp(dp = 14.dp),
-                color = commonTextColor()
-            )
-        )
+            Spacer(modifier = Modifier.weight(1f))
+            Row {
+                AutoSizeText(
+                    text = if (isBid) {
+                        if (isKrw) {
+                            userSeedMoney?.value?.commaFormat() ?: "0"
+                        } else {
+                            userBTC?.value?.quantity?.eighthDecimal() ?: "0"
+                        }
+                    } else {
+                        userCoin?.value?.quantity?.newBigDecimal(scale = 8)
+                            ?.formattedStringForQuantity() ?: "0"
+                    },
+                    textStyle = TextStyle(
+                        fontSize = DpToSp(dp = 14.dp),
+                        textAlign = TextAlign.Center,
+                        color = commonTextColor()
+                    )
+                )
+                Text(
+                    text = tempSymbol,
+                    style = TextStyle(
+                        fontWeight = FontWeight.W700,
+                        fontSize = DpToSp(dp = 14.dp),
+                        color = commonTextColor()
+                    )
+                )
+            }
+        }
+        if (!isBid) {
+            Row(
+                modifier = Modifier
+                    .padding(3.dp)
+                    .align(Alignment.End)
+            ) {
+                AutoSizeText(
+                    text = "= " + CurrentCalculator.getUserCoinValue(
+                        userCoinQuantity = userCoin?.value?.quantity ?: 0.0,
+                        currentPrice = currentPrice ?: BigDecimal.ZERO,
+                        btcPrice = btcPrice?.value
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = DpToSp(dp = 12.dp)
+                    ),
+                    color = commonHintTextColor()
+                )
+                Text(
+                    text = " KRW",
+                    style = TextStyle(
+                        color = commonHintTextColor(),
+                        fontSize = DpToSp(dp = 12.dp)
+                    )
+                )
+            }
+        }
     }
 }
 
@@ -495,12 +550,12 @@ fun PercentageDropdown(
                     .width(60.dp)
                     .noRippleClickable { expanded.value = true }
                     .background(
-                        Color.LightGray,
+                        commonUnSelectedColor(),
                         shape = RoundedCornerShape(topEnd = 5.dp, bottomEnd = 5.dp)
                     )
                     .padding(10.dp),
                 style = TextStyle(
-                    color = commonTextColor(),
+                    color = Color.White,
                     textAlign = TextAlign.Center,
                     fontSize = DpToSp(13.dp),
                 ),
@@ -508,14 +563,20 @@ fun PercentageDropdown(
             )
             DropdownMenu(
                 expanded = expanded.value,
-                onDismissRequest = { expanded.value = false }
+                onDismissRequest = { expanded.value = false },
+                modifier = Modifier
+                    .background(commonBackground())
+                    .border(width = 1.dp, color = commonDividerColor())
             ) {
                 labelList.forEachIndexed { index, label ->
                     androidx.compose.material.DropdownMenuItem(onClick = {
                         expanded.value = false
                         itemClickAction(index)
                     }) {
-                        Text(text = label)
+                        Text(
+                            text = label,
+                            style = TextStyle(fontSize = DpToSp(13.dp), color = commonTextColor())
+                        )
                     }
                 }
             }

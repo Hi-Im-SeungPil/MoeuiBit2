@@ -21,10 +21,12 @@ import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonSkeletonColor
 
 @Composable
 fun PortfolioLoadingScreen() {
-    val backgroundColor = Color(0xFFECEBEB)
+    val backgroundColor = commonSkeletonColor()
+
     CompositionLocalProvider(
         LocalShimmerTheme provides creditCardTheme
     ) {

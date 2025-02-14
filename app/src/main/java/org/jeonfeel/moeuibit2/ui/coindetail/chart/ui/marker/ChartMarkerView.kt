@@ -117,7 +117,7 @@ class ChartMarkerView constructor(
         val textLength = textPaint.measureText("2022-08-20 13:18") + 10f
 
         val rectPaint = Paint()
-        rectPaint.color = Color.parseColor("#F361A6")
+        rectPaint.color = Color.parseColor("#F7A600")
 
         val left = posX + textLength / 2 + 10f
         val top = canvas.height - textSize - 5f

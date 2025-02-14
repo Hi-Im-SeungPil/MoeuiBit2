@@ -59,7 +59,7 @@ fun commonDividerColor(): Color = if (!isSystemInDarkTheme()) {
 fun commonSkeletonColor(): Color = if (!isSystemInDarkTheme()) {
     Color(0xffd6d6d6)
 } else {
-    Color(0xff252525)
+    Color(0xFF464646)
 }
 
 @Composable

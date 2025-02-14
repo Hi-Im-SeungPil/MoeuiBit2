@@ -23,8 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +50,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
@@ -138,25 +141,31 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
             .background(color = commonBackground())
     ) {
         item {
-            SettingScreenLazyColumnItem(stringResource(id = R.string.write_review), clickAction = {
-                writeReviewAction(context)
-            })
             SettingScreenLazyColumnItem(
+                imgId = R.drawable.img_write,
+                stringResource(id = R.string.write_review), clickAction = {
+                    writeReviewAction(context)
+                })
+            SettingScreenLazyColumnItem(
+                imgId = R.drawable.img_trade_clear,
                 text = stringResource(id = R.string.init_title),
                 clickAction = {
                     transactionInfoDialogState.value = true
                 })
             SettingScreenLazyColumnItem(
+                imgId = R.drawable.img_app_clear,
                 text = stringResource(id = R.string.init_app),
                 clickAction = {
                     resetDialogState.value = true
                 })
             SettingScreenLazyColumnItem(
+                imgId = R.drawable.img_brush,
                 text = "테마 설정",
                 clickAction = {
                     themeDialogState.value = true
                 })
             SettingScreenLazyColumnItem(
+                imgId = R.drawable.img_license,
                 text = stringResource(id = R.string.open_source_license),
                 clickAction = {
                     settingViewModel.state.openSourceState.value = true
@@ -166,19 +175,31 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
 }
 
 @Composable
-fun SettingScreenLazyColumnItem(text: String, clickAction: () -> Unit) {
-    Text(
-        text = text, modifier = Modifier
-            .padding(10.dp, 30.dp, 10.dp, 0.dp)
+fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(10.dp, 20.dp, 10.dp, 0.dp)
             .fillMaxWidth()
-            .background(commonBottomNavBackground(), shape = RoundedCornerShape(size = 10.dp))
+            .wrapContentHeight(Alignment.CenterVertically)
+            .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
             .clickable { clickAction() }
-            .padding(20.dp, 10.dp),
-        style = TextStyle(
-            fontSize = DpToSp(17.dp),
-            color = commonTextColor()
+            .padding(20.dp, 15.dp)
+    ) {
+        Icon(
+            painter = painterResource(imgId),
+            modifier = Modifier.size(20.dp),
+            tint = commonTextColor(),
+            contentDescription = ""
         )
-    )
+        Text(
+            text = text,
+            modifier = Modifier.padding(start = 15.dp),
+            style = TextStyle(
+                fontSize = DpToSp(17.dp),
+                color = commonTextColor()
+            )
+        )
+    }
 }
 
 @Composable

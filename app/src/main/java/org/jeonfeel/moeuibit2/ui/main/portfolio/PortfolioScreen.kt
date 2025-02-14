@@ -49,6 +49,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -56,6 +57,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
+import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.coinImageUrl
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
@@ -72,10 +74,8 @@ import org.jeonfeel.moeuibit2.ui.main.portfolio.component.PortfolioSortButton
 import org.jeonfeel.moeuibit2.ui.main.portfolio.component.getTextColors
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.ui.nav.AppScreen
-import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -113,9 +113,11 @@ fun PortfolioScreen(
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(color = commonBackground())) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = commonBackground())
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -247,13 +249,14 @@ fun PortfolioScreen(
                     Divider(
                         Modifier
                             .fillMaxWidth()
-                            .height(8.dp),
+                            .height(10.dp),
                         color = Color.Transparent
                     )
                 }
 
                 itemsIndexed(items = itemList) { index, item ->
                     if (itemList.size > index) {
+                        val topPadding = if (index == 0) 0.dp else 10.dp
                         val userCoinInfo = getUserCoinInfo(item)
                         val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
                             value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
@@ -282,7 +285,8 @@ fun PortfolioScreen(
                             currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
                                 .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
                             market = item.market,
-                            appNavController = appNavController
+                            appNavController = appNavController,
+                            topPadding = topPadding
                         )
                     }
                 }
@@ -376,7 +380,8 @@ fun UserHoldCoinLazyColumnItem(
     caution: Caution?,
     currentPrice: Double,
     market: String,
-    appNavController: NavHostController
+    appNavController: NavHostController,
+    topPadding: Dp
 ) {
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -396,7 +401,7 @@ fun UserHoldCoinLazyColumnItem(
         }) {
         Row(
             modifier = Modifier
-                .padding(0.dp, 10.dp, 0.dp, 0.dp)
+                .padding(0.dp, topPadding, 0.dp, 0.dp)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
@@ -415,20 +420,41 @@ fun UserHoldCoinLazyColumnItem(
                     .padding(8.dp)
                     .align(Alignment.CenterVertically)
             ) {
-                AutoSizeText2(
-                    text = coinKoreanName,
-                    modifier = Modifier
-                        .padding(0.dp, 0.dp, 0.dp, 1.dp)
-                        .fillMaxWidth(),
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = DpToSp(17.dp),
-                        fontWeight = FontWeight.Bold,
-                    ),
-                )
+                Row {
+                    if (market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)) {
+                        Text(
+                            text = "BTC",
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(end = 4.dp)
+                                .background(
+                                    color = Color(0xffFDE500),
+                                    shape = RoundedCornerShape(size = 4.dp)
+                                )
+                                .padding(horizontal = 4.dp, vertical = 3.dp),
+                            style = TextStyle(
+                                color = Color(0xff191919),
+                                fontSize = DpToSp(9.dp),
+                                fontWeight = FontWeight.Bold,
+                            )
+                        )
+                    }
+                    AutoSizeText2(
+                        text = coinKoreanName,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(0.dp, 0.dp, 0.dp, 1.dp)
+                            .fillMaxWidth(),
+                        textStyle = TextStyle(
+                            color = commonTextColor(),
+                            fontSize = DpToSp(17.dp),
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                }
                 Text(
                     text = symbol, fontWeight = FontWeight.Bold, style = TextStyle(
-                        color = MaterialTheme.colorScheme.primary, fontSize = DpToSp(17.dp)
+                        color = commonTextColor(), fontSize = DpToSp(17.dp)
                     ), overflow = TextOverflow.Ellipsis
                 )
                 Row(modifier = Modifier.fillMaxWidth()) {

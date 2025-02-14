@@ -463,7 +463,7 @@ fun CombinedChart.chartRefreshSettings(
             xAxis.axisMinimum = chart.candleData.xMin - 10f
             chart.fitScreen()
             chart.setVisibleXRangeMinimum(20f)
-            chart.setVisibleXRangeMaximum(190f)
+            chart.setVisibleXRangeMaximum(350f)
             chart.data.notifyDataChanged()
             xAxis?.valueFormatter = valueFormatter
             xAxis.textColor = context?.let {
@@ -538,7 +538,7 @@ fun CombinedChart.chartRefreshLoadMoreData(
     chart.setVisibleXRangeMaximum(currentVisible)
     chart.data.notifyDataChanged()
     chart.setVisibleXRangeMinimum(20f)
-    chart.setVisibleXRangeMaximum(160f)
+    chart.setVisibleXRangeMaximum(350f)
     chart.notifyDataSetChanged()
     chart.moveViewToX(startPosition)
     loadingOldData.value = false

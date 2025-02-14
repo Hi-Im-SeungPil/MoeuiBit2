@@ -154,7 +154,7 @@ private fun ActionBar(openSourceState: MutableState<Boolean>) {
             .padding(vertical = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(color = commonTextColor())
+            .background(color = commonBackground())
     ) {
         IconButton(onClick = { openSourceState.value = false }) {
             Icon(

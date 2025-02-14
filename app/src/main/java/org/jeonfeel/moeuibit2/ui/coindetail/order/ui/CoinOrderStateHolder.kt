@@ -92,18 +92,6 @@ class CoinOrderStateHolder(
         )
     }
 
-    fun getOrderBookBlockColor(kind: OrderBookKind): Color {
-        return when (kind) {
-            OrderBookKind.ASK -> {
-                Color(0xFFe2ebfa)
-            }
-
-            OrderBookKind.BID -> {
-                Color(0xFFfbe7e8)
-            }
-        }
-    }
-
     fun getOrderBookBlockSize(
         orderBookSize: Double
     ): Float {
