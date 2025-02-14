@@ -42,7 +42,7 @@ import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.ui.main.coinsite.item.BYBIT_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
@@ -123,7 +123,7 @@ fun TotalBidTradeDialog(
                         Modifier
                             .padding(top = 10.dp)
                             .fillMaxWidth()
-                            .height(2.dp), color = Color(BYBIT_COLOR)
+                            .height(2.dp), color = APP_PRIMARY_COLOR
                     )
 
                     ButtonList(

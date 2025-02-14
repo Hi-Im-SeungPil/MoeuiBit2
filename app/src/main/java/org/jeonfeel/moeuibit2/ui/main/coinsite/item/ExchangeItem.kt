@@ -36,8 +36,6 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.coinsite.coinSiteUnSelectTabColo
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import kotlin.reflect.KFunction1
 
-const val BYBIT_COLOR = 0xffF7A600
-
 @Composable
 fun KoreanExchangeItem(
     updateIsOpen: KFunction1<String, Unit>,

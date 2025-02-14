@@ -28,19 +28,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
-import org.jeonfeel.moeuibit2.ui.main.coinsite.item.BYBIT_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
@@ -124,7 +120,7 @@ fun TotalAskTradeDialog(
                         Modifier
                             .padding(top = 10.dp)
                             .fillMaxWidth()
-                            .height(2.dp), color = Color(BYBIT_COLOR)
+                            .height(2.dp), color = APP_PRIMARY_COLOR
                     )
 
                     ButtonList(

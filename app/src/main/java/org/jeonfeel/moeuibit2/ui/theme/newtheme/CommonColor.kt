@@ -4,7 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val APP_PRIMARY_COLOR = Color(0xffF7A600)
+val APP_PRIMARY_COLOR = Color(0xff7b5ed6)
 
 @Composable
 fun commonBackground(): Color = if (!isSystemInDarkTheme()) {
