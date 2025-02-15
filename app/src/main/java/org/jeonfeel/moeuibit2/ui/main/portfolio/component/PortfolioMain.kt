@@ -25,6 +25,8 @@ import org.jeonfeel.moeuibit2.ui.common.drawUnderLine
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenStateHolder
 import org.jeonfeel.moeuibit2.ui.main.portfolio.getReturnTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 import org.jeonfeel.moeuibit2.ui.theme.portfolioSortButtonSelectedBackgroundColor
@@ -213,8 +215,8 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 else -> {
                     listOf(
                         stringResource(id = R.string.nameUpDown),
-                        Color.LightGray,
-                        MaterialTheme.colorScheme.background
+                        commonHintTextColor(),
+                        commonBackground()
                     )
                 }
             }
@@ -241,8 +243,8 @@ fun getTextColors(button: PortfolioSortButton, textState: Int): List<Any> {
                 else -> {
                     listOf(
                         stringResource(id = R.string.aReturnUpDown),
-                        Color.LightGray,
-                        MaterialTheme.colorScheme.background
+                        commonHintTextColor(),
+                        commonBackground()
                     )
                 }
             }

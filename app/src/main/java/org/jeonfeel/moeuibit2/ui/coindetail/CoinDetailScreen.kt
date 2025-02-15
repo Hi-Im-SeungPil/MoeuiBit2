@@ -386,7 +386,7 @@ fun CoinDetailPriceSection(
                     .size(55.dp)
                     .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
                     .background(Color.White),
-                error = ImageBitmap.imageResource(R.drawable.img_glide_placeholder),
+                error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
             )
         }
     }

@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioViewModel
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 
 @Composable
 fun PortfolioMainSortButtons(
@@ -55,7 +56,7 @@ fun PortfolioMainSortButtons(
             Modifier
                 .width(1.dp)
                 .height(23.dp)
-                .align(Alignment.CenterVertically), color = Color.LightGray
+                .align(Alignment.CenterVertically), color = commonDividerColor()
         )
 
         Text(

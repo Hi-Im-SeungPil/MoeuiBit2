@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -34,6 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,17 +47,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.bumptech.glide.request.RequestListener
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
@@ -78,6 +91,7 @@ import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
@@ -112,6 +126,8 @@ fun PortfolioScreen(
 ) {
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
+    val safeItemList by remember { derivedStateOf { itemList.toList() } }
+    val listState = rememberLazyListState()
 
     Column(
         modifier = Modifier
@@ -206,7 +222,7 @@ fun PortfolioScreen(
         if (loading2.value) {
             PortfolioLoadingScreen()
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 item {
                     PortfolioMain(
                         totalValuedAssets = totalValuedAssets,
@@ -254,41 +270,42 @@ fun PortfolioScreen(
                     )
                 }
 
-                itemsIndexed(items = itemList) { index, item ->
-                    if (itemList.size > index) {
-                        val topPadding = if (index == 0) 0.dp else 10.dp
-                        val userCoinInfo = getUserCoinInfo(item)
-                        val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
-                            value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
-                                ?: 0f
-                        )
-                        UserHoldCoinLazyColumnItem(
-                            coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
-                                ?: "",
-                            coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
-                                ?: "",
-                            symbol = item.myCoinsSymbol,
-                            valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
-                                ?: "",
-                            aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
-                                ?: "",
-                            coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
-                            purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
-                                ?: "",
-                            purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
-                                ?: "",
-                            evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
-                                ?: "",
-                            color = increaseColorOrDecreaseColor,
-                            warning = item.warning,
-                            caution = item.caution,
-                            currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
-                                .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
-                            market = item.market,
-                            appNavController = appNavController,
-                            topPadding = topPadding
-                        )
-                    }
+                itemsIndexed(items = safeItemList, key = { _, item -> item.market }) { index, _ ->
+//                    if (itemList.size > index) {
+                    val item = safeItemList.getOrNull(index) ?: return@itemsIndexed
+                    val topPadding = if (index == 0) 0.dp else 10.dp
+                    val userCoinInfo = getUserCoinInfo(item)
+                    val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
+                        value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
+                            ?: 0f
+                    )
+                    UserHoldCoinLazyColumnItem(
+                        coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
+                            ?: "",
+                        coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
+                            ?: "",
+                        symbol = item.myCoinsSymbol,
+                        valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
+                            ?: "",
+                        aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
+                            ?: "",
+                        coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
+                        purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
+                            ?: "",
+                        purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
+                            ?: "",
+                        evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
+                            ?: "",
+                        color = increaseColorOrDecreaseColor,
+                        warning = item.warning,
+                        caution = item.caution,
+                        currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
+                            .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
+                        market = item.market,
+                        appNavController = appNavController,
+                        topPadding = topPadding
+                    )
+//                    }
                 }
             }
         }
@@ -315,10 +332,10 @@ private fun SearchSection(
                 hintFocusState.value = focusState.isFocused
             },
         textStyle = TextStyle(
-            color = MaterialTheme.colorScheme.primary,
+            color = commonTextColor(),
             fontSize = DpToSp(17.dp)
         ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(commonTextColor()),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -331,14 +348,14 @@ private fun SearchSection(
                     modifier = Modifier
                         .padding(10.dp)
                         .size(25.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = commonTextColor()
                 )
                 Box(Modifier.weight(1f)) {
                     if (textFieldValueState.value.isEmpty() && !hintFocusState.value) {
                         CommonText(
                             stringResource(id = R.string.textFieldText),
                             textStyle = LocalTextStyle.current.copy(
-                                color = Color(0xff8f9297),
+                                color = commonHintTextColor(),
                             ),
                             fontSize = 17.dp,
                         )
@@ -356,7 +373,7 @@ private fun SearchSection(
                             modifier = Modifier
                                 .padding(10.dp)
                                 .size(25.dp),
-                            tint = MaterialTheme.colorScheme.onBackground
+                            tint = commonTextColor()
                         )
                     }
                 }
@@ -383,6 +400,8 @@ fun UserHoldCoinLazyColumnItem(
     appNavController: NavHostController,
     topPadding: Dp
 ) {
+    val imageUrl = remember { coinImageUrl.plus("$symbol.png") }
+
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -405,15 +424,20 @@ fun UserHoldCoinLazyColumnItem(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            GlideImage(
-                imageModel = coinImageUrl.plus("$symbol.png"), modifier = Modifier
-                    .padding(start = 8.dp, bottom = 12.dp)
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
-                    .background(Color.White)
-                    .align(Alignment.CenterVertically)
-            )
+            key(market) {
+                GlideImage(
+                    imageModel = imageUrl,
+                    modifier = Modifier
+                        .padding(start = 8.dp, bottom = 12.dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+                        .background(Color.White)
+                        .align(Alignment.CenterVertically),
+                    error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
+                    placeHolder = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
+                )
+            }
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -563,7 +587,7 @@ fun UserHoldCoinLazyColumnItem(
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp)
                 .fillMaxWidth()
-                .height(1.dp), color = Color.LightGray
+                .height(1.dp), color = commonDividerColor()
         )
     }
 }
