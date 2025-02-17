@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.utils
 
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
@@ -14,7 +15,7 @@ import java.text.DecimalFormat
 
 object BigDecimalMapper {
     private val format: DecimalFormat = DecimalFormat("###,###")
-    private val decimalFormatQuantity: DecimalFormat = DecimalFormat("#,###.########")
+    private val decimalFormatQuantity: DecimalFormat = DecimalFormat("#,##0.00000000")
     private const val MILLION = 1_000_000L
     private const val THOUSAND = 100_000_000L
     fun Double.newBigDecimal(rootExchange: String, market: String): BigDecimal {
@@ -100,7 +101,7 @@ object BigDecimalMapper {
             this >= BigDecimal("0.01") -> this.setScale(5, RoundingMode.FLOOR).toPlainString()
             this >= BigDecimal("0.001") -> this.setScale(6, RoundingMode.FLOOR).toPlainString()
             this >= BigDecimal("0.0001") -> this.setScale(7, RoundingMode.FLOOR).toPlainString()
-            this == 0.0.toBigDecimal() -> "0"
+            this.compareTo(BigDecimal.ZERO) == 0 -> "0"
             else -> this.setScale(8, RoundingMode.FLOOR).toPlainString()
         }
     }
@@ -143,7 +144,8 @@ object BigDecimalMapper {
     }
 
     fun BigDecimal.formattedStringForQuantity(): String {
-        return if (this == BigDecimal.ZERO) {
+        Logger.e(this.toString())
+        return if (this.compareTo(BigDecimal.ZERO) == 0) {
             "0"
         } else {
             decimalFormatQuantity.format(this)

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,10 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
@@ -90,16 +96,20 @@ fun TotalBidTradeDialog(
             Card(
                 modifier = Modifier
                     .wrapContentSize()
-                    .background(Color.White, shape = RoundedCornerShape(15.dp))
+                    .background(commonBackground(), shape = RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
-                Column(modifier = Modifier.background(Color.White)) {
+                Column(modifier = Modifier.background(commonBackground())) {
                     Text(
                         text = "총액 지정하여 매수",
                         modifier = Modifier
                             .padding(bottom = 10.dp)
                             .align(alignment = Alignment.CenterHorizontally),
-                        style = TextStyle(fontWeight = FontWeight.W600, fontSize = DpToSp(16.dp))
+                        style = TextStyle(
+                            fontWeight = FontWeight.W600,
+                            fontSize = DpToSp(16.dp),
+                            color = commonTextColor()
+                        )
                     )
                     Item(
                         text = "보유",
@@ -131,23 +141,45 @@ fun TotalBidTradeDialog(
                         isKrw = isKrw
                     )
 
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
+                    Text(
+                        text = "초기화",
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .align(Alignment.End)
+                            .background(
+                                color = Color.LightGray,
+                                shape = RoundedCornerShape(15.dp)
+                            )
+                            .padding(vertical = 10.dp, horizontal = 14.dp)
+                            .noRippleClickable {
+                                textFieldValue.value = ""
+                            },
+                        style = TextStyle(
+                            textAlign = TextAlign.Center,
+                            fontSize = DpToSp(12.dp),
+                            color = Color.Black
+                        )
+                    )
+
+                    Row(modifier = Modifier.padding(top = 15.dp)) {
                         Text(
                             "총액",
                             modifier = Modifier
                                 .padding(end = 15.dp)
-                                .align(Alignment.CenterVertically)
+                                .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
                         )
                         TransparentTextField(textFieldValue, isKrw = isKrw)
                         Text(
                             if (isKrw) " KRW" else " BTC",
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
                         )
                     }
 
                     Row(
                         modifier = Modifier
-                            .padding(top = 20.dp)
+                            .padding(top = 30.dp)
                             .fillMaxWidth()
                     ) {
                         Text(
@@ -156,7 +188,7 @@ fun TotalBidTradeDialog(
                                 .weight(2f)
                                 .background(
                                     color = Color.LightGray,
-                                    shape = RoundedCornerShape(999.dp)
+                                    shape = RoundedCornerShape(15.dp)
                                 )
                                 .padding(vertical = 15.dp)
                                 .noRippleClickable {
@@ -174,7 +206,10 @@ fun TotalBidTradeDialog(
                             "매수",
                             modifier = Modifier
                                 .weight(3f)
-                                .background(color = Color.Red, shape = RoundedCornerShape(999.dp))
+                                .background(
+                                    color = commonRiseColor(),
+                                    shape = RoundedCornerShape(15.dp)
+                                )
                                 .padding(vertical = 15.dp)
                                 .noRippleClickable {
                                     if (textFieldValue.value.isEmpty()) return@noRippleClickable
@@ -226,7 +261,11 @@ fun Item(
             modifier = Modifier
                 .padding(end = 15.dp)
                 .align(Alignment.CenterVertically),
-            style = TextStyle(fontSize = DpToSp(15.dp), fontWeight = FontWeight.W600)
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                fontWeight = FontWeight.W600,
+                color = commonTextColor()
+            )
         )
         Spacer(
             modifier = Modifier
@@ -235,12 +274,13 @@ fun Item(
         )
         AutoSizeText(
             text = value,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            modifier = Modifier.align(Alignment.CenterVertically),
+            color = commonTextColor()
         )
         Text(
             " $symbol",
             modifier = Modifier.align(Alignment.CenterVertically),
-            style = TextStyle(fontWeight = FontWeight.W600)
+            style = TextStyle(fontWeight = FontWeight.W600, color = commonTextColor())
         )
     }
 }
@@ -294,7 +334,7 @@ fun ButtonList(
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         fontSize = DpToSp(10.dp),
-                        color = Color.Black
+                        color = commonTextColor()
                     )
                 )
             }
@@ -325,7 +365,7 @@ fun ButtonList(
                 style = TextStyle(
                     textAlign = TextAlign.Center,
                     fontSize = DpToSp(10.dp),
-                    color = Color.Black
+                    color = commonTextColor()
                 )
             )
         } else {
@@ -358,7 +398,7 @@ fun ButtonList(
                     style = TextStyle(
                         textAlign = TextAlign.Center,
                         fontSize = DpToSp(10.dp),
-                        color = Color.Black
+                        color = commonTextColor()
                     )
                 )
             }
@@ -401,21 +441,28 @@ fun RowScope.TransparentTextField(
                 }
             },
             textStyle = TextStyle(
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-                fontSize = DpToSp(13.dp), textAlign = TextAlign.End
+                color = commonTextColor(),
+                fontSize = DpToSp(15.dp), textAlign = TextAlign.End
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .clearFocusOnKeyboardDismiss(),
             visualTransformation = NumberCommaTransformation(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+            cursorBrush = SolidColor(commonTextColor()),
             decorationBox = { innerTextField ->
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (value.value.isEmpty()) {
                         Text(
                             text = placeholder,
-                            modifier = Modifier.fillMaxWidth(),
-                            style = TextStyle(color = Color.Gray, textAlign = TextAlign.End)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            style = TextStyle(
+                                color = commonHintTextColor(),
+                                textAlign = TextAlign.End,
+                                fontSize = DpToSp(15.dp)
+                            )
                         )
                     }
                 }

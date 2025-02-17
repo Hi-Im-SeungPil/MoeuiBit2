@@ -34,6 +34,9 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeMo
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
@@ -87,16 +90,16 @@ fun TotalAskTradeDialog(
             Card(
                 modifier = Modifier
                     .wrapContentSize()
-                    .background(Color.White, shape = RoundedCornerShape(15.dp))
+                    .background(commonBackground(), shape = RoundedCornerShape(15.dp))
                     .padding(20.dp)
             ) {
-                Column(modifier = Modifier.background(Color.White)) {
+                Column(modifier = Modifier.background(commonBackground())) {
                     Text(
                         text = "총액 지정하여 매도",
                         modifier = Modifier
                             .padding(bottom = 10.dp)
                             .align(alignment = Alignment.CenterHorizontally),
-                        style = TextStyle(fontWeight = FontWeight.W600, fontSize = DpToSp(16.dp))
+                        style = TextStyle(fontWeight = FontWeight.W600, fontSize = DpToSp(16.dp), color = commonTextColor())
                     )
                     Item(
                         text = "보유",
@@ -128,17 +131,39 @@ fun TotalAskTradeDialog(
                         isKrw = isKrw
                     )
 
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
+                    Text(
+                        text = "초기화",
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .align(Alignment.End)
+                            .background(
+                                color = Color.LightGray,
+                                shape = RoundedCornerShape(15.dp)
+                            )
+                            .padding(vertical = 10.dp, horizontal = 14.dp)
+                            .noRippleClickable {
+                                textFieldValue.value = ""
+                            },
+                        style = TextStyle(
+                            textAlign = TextAlign.Center,
+                            fontSize = DpToSp(14.dp),
+                            color = Color.Black
+                        )
+                    )
+
+                    Row(modifier = Modifier.padding(top = 15.dp)) {
                         Text(
                             "총액",
                             modifier = Modifier
                                 .padding(end = 15.dp)
-                                .align(Alignment.CenterVertically)
+                                .align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
                         )
                         TransparentTextField(textFieldValue, isKrw = isKrw)
                         Text(
                             if (isKrw) " KRW" else " BTC",
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
                         )
                     }
 
@@ -171,7 +196,7 @@ fun TotalAskTradeDialog(
                             "매도",
                             modifier = Modifier
                                 .weight(3f)
-                                .background(color = Color.Blue, shape = RoundedCornerShape(15.dp))
+                                .background(color = commonFallColor(), shape = RoundedCornerShape(15.dp))
                                 .padding(vertical = 15.dp)
                                 .noRippleClickable {
                                     if (textFieldValue.value.isEmpty()) return@noRippleClickable
@@ -202,7 +227,9 @@ fun TotalAskTradeDialog(
                                         requestAsk(
                                             commonExchangeModelState.value?.market ?: "",
                                             sellingTotal.toDouble(),
-                                            minusCommission.toDouble().toLong(),
+                                            minusCommission
+                                                .toDouble()
+                                                .toLong(),
                                             commonExchangeModelState.value?.tradePrice
                                                 ?: BigDecimal.ZERO,
                                             minusCommission.toDouble()

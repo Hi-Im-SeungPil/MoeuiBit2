@@ -325,8 +325,6 @@ class PortfolioViewModel @Inject constructor(
             .filterNotNull().mapToMarketCodesRequest()
             .plus(",KRW-BTC")
 
-        Logger.e("marketcode -> ${marketCodes}")
-
         val req = GetUpbitMarketTickerReq(
             marketCodes = marketCodes
         )

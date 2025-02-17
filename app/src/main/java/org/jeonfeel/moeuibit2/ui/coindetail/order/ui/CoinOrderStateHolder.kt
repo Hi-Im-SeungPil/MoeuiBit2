@@ -31,6 +31,7 @@ import org.jeonfeel.moeuibit2.utils.ext.showToast
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.logging.Logger
 import kotlin.math.round
 
 enum class OrderTabState {
@@ -181,7 +182,15 @@ class CoinOrderStateHolder(
     }
 
     fun updateBidCoinQuantity(index: Int) {
-        if (commonExchangeModelState.value != null && userSeedMoney.value != 0L) {
+        if (commonExchangeModelState.value != null) {
+            if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) && userSeedMoney.value == 0L) {
+                return
+            }
+
+            if (market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) && userBTC.value.quantity == 0.0) {
+                return
+            }
+
             var percentageResult = BigDecimal(percentageList[index].toString())
             if (percentageResult == BigDecimal.ONE) {
                 percentageResult = if (market.isTradeCurrencyKrw()) {
@@ -217,6 +226,7 @@ class CoinOrderStateHolder(
 
     fun updateAskCoinQuantity(index: Int) {
         // 유저가 가지고 있는 코인을 나눠서 세팅
+        com.orhanobut.logger.Logger.e(userCoin.value.quantity.toString())
         if (commonExchangeModelState.value != null && userCoin.value.quantity != 0.0) {
             val percentageResult = percentageList[index]
             val quantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR)

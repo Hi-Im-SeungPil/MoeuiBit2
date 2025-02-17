@@ -75,6 +75,7 @@ import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.SELECTED_FAVORITE
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonText
@@ -93,9 +94,6 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeBTCtoKRWColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeCautionColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeCoinListDividerColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeSortColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeUnselectSortColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.exchange.exchangeWarningColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedFluctuateString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
@@ -183,7 +181,8 @@ fun ExchangeScreen(
                     coinTickerListSwipeAction = stateHolder::coinTickerListSwipeAction,
                     pagerState = stateHolder.pagerState,
                     appNavController = appNavController,
-                    textFieldValue = textFieldValueState
+                    textFieldValue = textFieldValueState,
+                    tradeCurrencyState = tradeCurrencyState
                 )
             }
         }
@@ -448,6 +447,7 @@ private fun CoinTickerSection(
     pagerState: PagerState,
     appNavController: NavHostController,
     textFieldValue: State<String>,
+    tradeCurrencyState: State<Int>,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -463,6 +463,38 @@ private fun CoinTickerSection(
                 coinTickerListSwipeAction(false)
             }
         ), state = lazyScrollState) {
+        if (textFieldValue.value.isNotEmpty() && tickerList.isEmpty()) {
+            item {
+                Text(
+                    "검색된 코인이 없습니다.",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        color = commonHintTextColor(),
+                        fontSize = DpToSp(dp = 20.dp),
+                        fontWeight = FontWeight.W600
+                    )
+                )
+            }
+        }
+        if (tradeCurrencyState.value == SELECTED_FAVORITE && textFieldValue.value.isEmpty() && tickerList.isEmpty()) {
+            item {
+                Text(
+                    "관심목록에 추가된 코인이 없습니다.",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        color = commonHintTextColor(),
+                        fontSize = DpToSp(dp = 20.dp),
+                        fontWeight = FontWeight.W600
+                    )
+                )
+            }
+        }
         itemsIndexed(items = tickerList) { index, item ->
             if (index < tickerList.size) {
                 CoinTickerView(
