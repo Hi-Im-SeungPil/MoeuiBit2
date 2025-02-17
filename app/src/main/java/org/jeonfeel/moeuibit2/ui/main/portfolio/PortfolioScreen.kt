@@ -126,7 +126,7 @@ fun PortfolioScreen(
 ) {
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
-    val safeItemList by remember { derivedStateOf { itemList.toList() } }
+    val safeItemList by remember { derivedStateOf { getList() } }
     val listState = rememberLazyListState()
 
     Column(
@@ -270,7 +270,7 @@ fun PortfolioScreen(
                     )
                 }
 
-                itemsIndexed(items = safeItemList, key = { _, item -> item.market }) { index, _ ->
+                itemsIndexed(items = safeItemList) { index, _ ->
 //                    if (itemList.size > index) {
                     val item = safeItemList.getOrNull(index) ?: return@itemsIndexed
                     val topPadding = if (index == 0) 0.dp else 10.dp
@@ -400,8 +400,6 @@ fun UserHoldCoinLazyColumnItem(
     appNavController: NavHostController,
     topPadding: Dp
 ) {
-    val imageUrl = remember { coinImageUrl.plus("$symbol.png") }
-
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -426,7 +424,7 @@ fun UserHoldCoinLazyColumnItem(
         ) {
             key(market) {
                 GlideImage(
-                    imageModel = imageUrl,
+                    imageModel = coinImageUrl.plus("$symbol.png"),
                     modifier = Modifier
                         .padding(start = 8.dp, bottom = 12.dp)
                         .size(30.dp)

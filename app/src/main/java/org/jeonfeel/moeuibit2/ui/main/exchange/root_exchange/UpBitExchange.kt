@@ -371,15 +371,15 @@ class UpBitExchange @Inject constructor(
     ) {
         val tickerList = when (tradeCurrency) {
             TRADE_CURRENCY_KRW -> {
-                _krwExchangeModelList.toList()
+                _krwExchangeModelList
             }
 
             TRADE_CURRENCY_BTC -> {
-                _btcExchangeModelList.toList()
+                _btcExchangeModelList
             }
 
             TRADE_CURRENCY_FAV -> {
-                _favoriteExchangeModelList.toList()
+                _favoriteExchangeModelList
             }
 
             else -> {
@@ -389,14 +389,14 @@ class UpBitExchange @Inject constructor(
 
         val sortedList = if (tradeCurrency == TRADE_CURRENCY_FAV) {
             Utils.sortTickerList(
-                tickerList = tickerList.toList(),
+                tickerList = tickerList,
                 sortType = sortType,
                 sortOrder = sortOrder,
                 btcPrice = getBtcPrice()
             )
         } else {
             Utils.sortTickerList(
-                tickerList = tickerList.toList(), sortType = sortType, sortOrder = sortOrder
+                tickerList = tickerList, sortType = sortType, sortOrder = sortOrder
             )
         }
 

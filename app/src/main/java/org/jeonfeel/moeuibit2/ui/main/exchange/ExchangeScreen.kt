@@ -463,7 +463,7 @@ private fun CoinTickerSection(
                 coinTickerListSwipeAction(false)
             }
         ), state = lazyScrollState) {
-        itemsIndexed(items = tickerList, key = { _, item -> item.market }) { index, item ->
+        itemsIndexed(items = tickerList) { index, item ->
             if (index < tickerList.size) {
                 CoinTickerView(
                     name = item.koreanName,

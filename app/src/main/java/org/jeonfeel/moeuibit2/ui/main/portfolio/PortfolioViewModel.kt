@@ -198,6 +198,7 @@ class PortfolioViewModel @Inject constructor(
                 this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
                 this.myCoinsSymbol = myCoin.symbol
                 this.market = myCoin.market
+                this.initialConstant = Utils.extractInitials(myCoinKoreanName)
             }
             _userHoldCoinDtoList.add(userHoldCoinDTO)
             myCoinHashMap[myCoin.market] = myCoin
@@ -225,6 +226,7 @@ class PortfolioViewModel @Inject constructor(
                     this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
                     this.myCoinsSymbol = myCoin.symbol
                     this.market = myCoin.market
+                    this.initialConstant = Utils.extractInitials(this.myCoinKoreanName)
                 }
 
                 _userHoldCoinDtoList[it] =
@@ -242,6 +244,7 @@ class PortfolioViewModel @Inject constructor(
                         myCoinsBuyingAverage = userHoldCoinDTO.myCoinsBuyingAverage,
                         purchaseAverageBtcPrice = userHoldCoinDTO.purchaseAverageBtcPrice,
                         myCoinsSymbol = userHoldCoinDTO.myCoinsSymbol,
+                        initialConstant = userHoldCoinDTO.initialConstant
                     )
             }
 
@@ -313,6 +316,7 @@ class PortfolioViewModel @Inject constructor(
                 this.purchaseAverageBtcPrice = myCoin.purchaseAverageBtcPrice
                 this.myCoinsSymbol = myCoin.symbol
                 this.market = myCoin.market
+                this.initialConstant = Utils.extractInitials(myCoinKoreanName)
             }
             _userHoldCoinDtoList.add(userHoldCoinDTO)
             myCoinHashMap[myCoin.market] = myCoin
