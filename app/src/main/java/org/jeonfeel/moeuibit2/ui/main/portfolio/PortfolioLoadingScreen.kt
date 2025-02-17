@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.shimmer
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonSkeletonColor
 
 @Composable
@@ -33,6 +34,7 @@ fun PortfolioLoadingScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = commonBackground())
                 .shimmer()
         ) {
             Box(

@@ -28,7 +28,7 @@ class PortfolioScreenStateHolder(
     val earnReward: () -> Unit,
     val btcTradePrice: State<Double>,
     val portfolioSearchTextState: MutableState<String> = mutableStateOf(""),
-    val userHoldCoinDtoList: List<UserHoldCoinDTO>,
+    val userHoldCoinDtoList: State<List<UserHoldCoinDTO>>,
 ) {
     val adLoadingDialogState = mutableStateOf(false)
     val adConfirmDialogState = mutableStateOf(false)
@@ -145,9 +145,9 @@ class PortfolioScreenStateHolder(
     fun getList(): List<UserHoldCoinDTO> {
         val strResult = portfolioSearchTextState.value.uppercase()
         return when {
-            strResult.isEmpty() -> userHoldCoinDtoList
+            strResult.isEmpty() -> userHoldCoinDtoList.value
             else -> {
-                userHoldCoinDtoList.filter {
+                userHoldCoinDtoList.value.filter {
                     it.myCoinsSymbol.uppercase().contains(strResult)
                             || it.myCoinKoreanName.uppercase().contains(strResult)
                             || it.myCoinEngName.uppercase().contains(strResult)
@@ -248,8 +248,8 @@ fun rememberPortfolioScreenStateHolder(
     errorReward: () -> Unit,
     earnReward: () -> Unit,
     btcTradePrice: State<Double>,
-    userHoldCoinDtoList: List<UserHoldCoinDTO>,
-    portfolioSearchTextState: MutableState<String>
+    userHoldCoinDtoList: State<List<UserHoldCoinDTO>>,
+    portfolioSearchTextState: MutableState<String>,
 ) = remember() {
     PortfolioScreenStateHolder(
         context = context,

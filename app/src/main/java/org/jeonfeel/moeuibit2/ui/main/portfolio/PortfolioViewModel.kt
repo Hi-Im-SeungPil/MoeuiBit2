@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.defaultDispatcher
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
@@ -30,33 +30,12 @@ import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
-import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
-import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.arrayListOf
-import kotlin.collections.associateBy
-import kotlin.collections.find
-import kotlin.collections.forEach
-import kotlin.collections.forEachIndexed
-import kotlin.collections.get
-import kotlin.collections.ifEmpty
-import kotlin.collections.isNotEmpty
-import kotlin.collections.map
-import kotlin.collections.minus
-import kotlin.collections.mutableMapOf
-import kotlin.collections.remove
 import kotlin.collections.set
-import kotlin.collections.sortBy
-import kotlin.collections.sortByDescending
-import kotlin.collections.sumOf
-import kotlin.collections.toList
 
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
@@ -72,8 +51,8 @@ class PortfolioViewModel @Inject constructor(
     private val _totalPurchase = mutableStateOf(BigDecimal(0.0))
     val totalPurchase: State<BigDecimal> get() = _totalPurchase
 
-    private val _userHoldCoinDtoList = SnapshotStateList<UserHoldCoinDTO>()
-    val userHoldCoinDtoList: List<UserHoldCoinDTO> get() = _userHoldCoinDtoList
+    private val _userHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
+    val userHoldCoinDtoList: MutableState<List<UserHoldCoinDTO>> = mutableStateOf(emptyList())
 
     private val _marketCodeRes = mutableMapOf<String, UpbitMarketCodeRes>()
     val marketCodeRes: Map<String, UpbitMarketCodeRes> get() = _marketCodeRes
@@ -155,6 +134,7 @@ class PortfolioViewModel @Inject constructor(
             } else {
                 modifyCoin(beforeMyCoinMap, newMyCoinMap)
                 updateCoin()
+                requestTicker()
                 setETC()
                 _isPortfolioSocketRunning.value = true
             }
@@ -181,10 +161,10 @@ class PortfolioViewModel @Inject constructor(
         val addCoinListMarket = newMyCoinMap.keys - beforeMyCoinMap.keys
 
         removeCoinListMarket.forEach { removeCoin ->
-            _userHoldCoinDtoList.removeAll { it.market == removeCoin }
             myCoinList.remove(beforeMyCoinMap[removeCoin])
             myCoinHashMap.remove(removeCoin)
             userHoldCoinDtoListPositionHashMap.remove(removeCoin)
+            _userHoldCoinDtoList.removeAll { it.market == removeCoin }
         }
 
         addCoinListMarket.forEachIndexed { index, market ->
@@ -209,6 +189,8 @@ class PortfolioViewModel @Inject constructor(
                 userHoldCoinDtoListPositionHashMap[it.market] = index
             }
         }
+
+        userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
     }
 
     private fun updateCoin() {
@@ -282,6 +264,7 @@ class PortfolioViewModel @Inject constructor(
         userHoldCoinDtoListPositionHashMap.clear()
         _userHoldCoinDtoList.clear()
         myCoinList.clear()
+        userHoldCoinDtoList.value = emptyList()
     }
 
     private suspend fun getUserSeedMoney() {
@@ -323,14 +306,26 @@ class PortfolioViewModel @Inject constructor(
             _totalPurchase.value = _totalPurchase.value.plus(Calculator.getTotalPurchase(myCoin))
             userHoldCoinsMarkets.append(myCoin.market).append(",")
             userHoldCoinDtoListPositionHashMap[myCoin.market] = index
+            val marketCodes = myCoinList
+                .map {
+                    if (marketCodeRes[it?.market] == null) return@map null
+                    it?.market ?: ""
+                }.filterNotNull().mapToMarketCodesRequest().plus(",KRW-WEMIX")
+            userHoldCoinsMarkets.append(marketCodes)
         }
     }
 
     private suspend fun requestTicker() {
         val marketCodes = myCoinList
-            .map { it?.market ?: "" }
-            .toList().mapToMarketCodesRequest()
+            .map {
+                if (marketCodeRes[it?.market] == null) return@map null
+
+                it?.market ?: ""
+            }
+            .filterNotNull().mapToMarketCodesRequest()
             .plus(",KRW-BTC")
+
+        Logger.e("marketcode -> ${marketCodes}")
 
         val req = GetUpbitMarketTickerReq(
             marketCodes = marketCodes
@@ -351,7 +346,7 @@ class PortfolioViewModel @Inject constructor(
                         }
 
                         val position = userHoldCoinDtoListPositionHashMap[it.market] ?: 0
-                        val tempDto = userHoldCoinDtoList[position]
+                        val tempDto = _userHoldCoinDtoList[position]
                         _userHoldCoinDtoList[position] =
                             UserHoldCoinDTO(
                                 currentPrice = it.tradePrice,
@@ -371,7 +366,8 @@ class PortfolioViewModel @Inject constructor(
                     }
                 }.fold(
                     onSuccess = {
-                        _totalValuedAssets.value = userHoldCoinDtoList.sumOf {
+                        userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
+                        _totalValuedAssets.value = userHoldCoinDtoList.value.sumOf {
                             if (it.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
                                 it.currentPrice.toBigDecimal()
                                     .multiply(it.myCoinsQuantity.toBigDecimal())
@@ -452,6 +448,8 @@ class PortfolioViewModel @Inject constructor(
                 userHoldCoinDtoListPositionHashMap[item.market] = index
             }
 
+            userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
+
             _isPortfolioSocketRunning.value = true
         }
     }
@@ -474,19 +472,18 @@ class PortfolioViewModel @Inject constructor(
         _removeCoinCheckedList[index] = !_removeCoinCheckedList[index]
     }
 
-    private fun getMarketCodeRes() {
+    private suspend fun getMarketCodeRes() {
         if (_marketCodeRes.isNotEmpty()) return
 
-        viewModelScope.launch {
-            executeUseCase<List<UpbitMarketCodeRes>>(
-                target = upbitPortfolioUseCase.getMarketCode(),
-                onComplete = {
-                    it.associateBy { it.market }.forEach { (key, value) ->
-                        _marketCodeRes[key] = value
-                    }
+        executeUseCase<List<UpbitMarketCodeRes>>(
+            target = upbitPortfolioUseCase.getMarketCode(),
+            onComplete = {
+                Logger.e("marketcodes2 -> $it")
+                it.associateBy { it.market }.forEach { (key, value) ->
+                    _marketCodeRes[key] = value
                 }
-            )
-        }
+            }
+        )
     }
 
     fun findWrongCoin() {
@@ -603,7 +600,7 @@ class PortfolioViewModel @Inject constructor(
 
                 val position =
                     userHoldCoinDtoListPositionHashMap[upbitSocketTickerRes.code] ?: 0
-                val tempDto = userHoldCoinDtoList[position]
+                val tempDto = _userHoldCoinDtoList[position]
 
                 _userHoldCoinDtoList[position] =
                     UserHoldCoinDTO(
@@ -624,7 +621,8 @@ class PortfolioViewModel @Inject constructor(
                     )
             }.fold(
                 onSuccess = {
-                    _totalValuedAssets.value = userHoldCoinDtoList.sumOf {
+                    userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
+                    _totalValuedAssets.value = userHoldCoinDtoList.value.sumOf {
                         if (it.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
                             it.currentPrice.toBigDecimal()
                                 .multiply(it.myCoinsQuantity.toBigDecimal())

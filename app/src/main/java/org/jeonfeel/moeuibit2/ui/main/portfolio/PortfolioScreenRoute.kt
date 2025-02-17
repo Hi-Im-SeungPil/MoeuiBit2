@@ -78,7 +78,6 @@ fun PortfolioScreenRoute(
             totalPurchase = viewModel.totalPurchase,
             userSeedMoney = viewModel.userSeedMoney,
             adDialogState = holder.adConfirmDialogState,
-            userHoldCoinDTOList = viewModel.userHoldCoinDtoList,
             sortUserHoldCoin = viewModel::sortUserHoldCoin,
             getUserCoinInfo = holder::getUserCoinResultMap,
             getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
@@ -89,9 +88,7 @@ fun PortfolioScreenRoute(
             portfolioSearchTextState = viewModel.portfolioSearchTextState,
             getList = holder::getList,
             findWrongCoin = viewModel::findWrongCoin,
-            id = System.identityHashCode(viewModel),
             loading = viewModel.loading,
-            itemList = holder.getList()
         )
 
         RemoveCoinBottomSheet(

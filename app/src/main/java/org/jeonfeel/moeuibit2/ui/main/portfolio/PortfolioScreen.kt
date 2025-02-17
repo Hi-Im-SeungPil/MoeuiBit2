@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
-import android.graphics.drawable.Drawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,8 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,23 +46,17 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.bumptech.glide.request.RequestListener
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
@@ -109,7 +100,6 @@ fun PortfolioScreen(
     totalPurchase: State<BigDecimal>,
     userSeedMoney: State<Long>,
     adDialogState: MutableState<Boolean>,
-    userHoldCoinDTOList: List<UserHoldCoinDTO>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
     loadingState: State<Boolean>,
@@ -120,13 +110,10 @@ fun PortfolioScreen(
     portfolioSearchTextState: MutableState<String>,
     getList: () -> List<UserHoldCoinDTO>,
     findWrongCoin: KFunction0<Unit>,
-    id: Int,
     loading: MutableStateFlow<Boolean>,
-    itemList: List<UserHoldCoinDTO>
 ) {
     val focusManager = LocalFocusManager.current
     val loading2 = loading.collectAsState()
-    val safeItemList by remember { derivedStateOf { getList() } }
     val listState = rememberLazyListState()
 
     Column(
@@ -222,7 +209,10 @@ fun PortfolioScreen(
         if (loading2.value) {
             PortfolioLoadingScreen()
         } else {
-            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize()
+            ) {
                 item {
                     PortfolioMain(
                         totalValuedAssets = totalValuedAssets,
@@ -270,9 +260,9 @@ fun PortfolioScreen(
                     )
                 }
 
-                itemsIndexed(items = safeItemList) { index, _ ->
-//                    if (itemList.size > index) {
-                    val item = safeItemList.getOrNull(index) ?: return@itemsIndexed
+                itemsIndexed(
+                    items = getList()
+                ) { index, item ->
                     val topPadding = if (index == 0) 0.dp else 10.dp
                     val userCoinInfo = getUserCoinInfo(item)
                     val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
@@ -305,7 +295,6 @@ fun PortfolioScreen(
                         appNavController = appNavController,
                         topPadding = topPadding
                     )
-//                    }
                 }
             }
         }
@@ -316,7 +305,7 @@ fun PortfolioScreen(
 private fun SearchSection(
     textFieldValueState: MutableState<String>,
     focusManager: FocusManager,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val hintFocusState: MutableState<Boolean> = remember { mutableStateOf(false) }
 
@@ -398,7 +387,7 @@ fun UserHoldCoinLazyColumnItem(
     currentPrice: Double,
     market: String,
     appNavController: NavHostController,
-    topPadding: Dp
+    topPadding: Dp,
 ) {
     Column(modifier = Modifier
         .fillMaxWidth()

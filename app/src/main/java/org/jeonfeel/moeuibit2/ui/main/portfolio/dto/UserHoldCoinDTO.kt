@@ -17,5 +17,5 @@ data class UserHoldCoinDTO(
     var isFavorite: Int? = null,
     var market: String,
     var purchaseAverageBtcPrice: Double = 0.0,
-    var initialConstant: String = ""
+    var initialConstant: String = "",
 )
