@@ -21,19 +21,10 @@ import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 @Composable
 fun CoinInfoScreen(
     viewModel: NewCoinDetailViewModel,
-    market: String
+    market: String,
 ) {
-    if (viewModel.coinInfo.coinInfoLoading.value) {
-        CommonLoadingDialog(
-            dialogState = viewModel.coinInfo._coinInfoLoading,
-            text = stringResource(id = R.string.coinInfoLoading),
-        )
-    }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val coinInfoMap = remember {
-        mutableStateMapOf<String,String>()
-    }
     val selected = remember {
         mutableStateOf("")
     }
@@ -50,16 +41,14 @@ fun CoinInfoScreen(
             viewModel.getCoinInfo(market = market)
         },
         onStopAction = {
-            viewModel.coinInfo._coinInfoLoading.value = false
+
         }
     )
 
-    LaunchedEffect(true) {
-        viewModel.coinInfo.coinInfoLiveData.observe(lifecycleOwner) {
-            coinInfoMap.putAll(it)
-            viewModel.coinInfo._coinInfoLoading.value = false
-        }
-    }
+    CommonLoadingDialog(
+        dialogState = viewModel.coinInfo.coinInfoLoading,
+        text = stringResource(id = R.string.coinInfoLoading),
+    )
 
     if (coinInfoMap.isNotEmpty() && !viewModel.coinInfo.coinInfoLoading.value) {
         CoinInfoContent(

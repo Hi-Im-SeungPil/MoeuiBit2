@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 
 @Composable
 fun CoinInfoEmptyScreen() {
@@ -22,7 +23,7 @@ fun CoinInfoEmptyScreen() {
             .fillMaxSize()
             .wrapContentHeight(),
         style = TextStyle(
-            color = MaterialTheme.colorScheme.onBackground,
+            color = commonTextColor(),
             fontWeight = FontWeight.Bold,
             fontSize = DpToSp(23.dp),
             textAlign = TextAlign.Center

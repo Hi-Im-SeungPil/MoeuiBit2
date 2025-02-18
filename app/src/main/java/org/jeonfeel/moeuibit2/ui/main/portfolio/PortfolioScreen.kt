@@ -63,7 +63,7 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
 import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.coinImageUrl
+import org.jeonfeel.moeuibit2.constants.COIN_IMAGE_BASE_URL
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
@@ -413,7 +413,7 @@ fun UserHoldCoinLazyColumnItem(
         ) {
             key(market) {
                 GlideImage(
-                    imageModel = coinImageUrl.plus("$symbol.png"),
+                    imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
                     modifier = Modifier
                         .padding(start = 8.dp, bottom = 12.dp)
                         .size(30.dp)

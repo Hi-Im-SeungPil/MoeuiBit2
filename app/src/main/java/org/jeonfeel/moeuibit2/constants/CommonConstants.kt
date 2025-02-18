@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.constants
 
 import kotlinx.coroutines.Dispatchers
-import java.time.Duration
 import java.util.*
 
 val ioDispatcher = Dispatchers.IO
@@ -22,17 +21,11 @@ const val AD_ID_FULL_SCREEN = "ca-app-pub-8481465476603755/8814267120"
 const val AD_ID_OPENING = "ca-app-pub-8481465476603755/4153375494"
 const val AD_ID_TEST = "ca-app-pub-3940256099942544/3419835294"
 
-const val INTERNET_CONNECTION = 0
-const val NO_INTERNET_CONNECTION = -1
-const val NETWORK_ERROR = -2
-
 const val SELECTED_KRW_MARKET = 0
 const val SELECTED_BTC_MARKET = 1
 const val SELECTED_FAVORITE = 2
-const val SELECTED_KIMP = 3
 
 const val BTC_MARKET = "KRW-BTC"
-const val BITTHUMB_BTC_MARKET = "BTC_KRW"
 
 const val ASK_BID_SCREEN_BID_TAB = 1
 const val ASK_BID_SCREEN_ASK_TAB = 2
@@ -45,18 +38,32 @@ const val SYMBOL_BTC = "BTC"
 const val ASK = "ask"
 const val BID = "bid"
 
-const val retrofitBaseUrl = "https://api.upbit.com/"
+const val UPBIT_BASE_URL = "https://api.upbit.com/"
 const val upbitWebSocketBaseUrl = "wss://api.upbit.com/websocket/v1"
+
 const val bitthumbWebSocketBaseUrl = "wss://pubwss.bithumb.com/pub/ws"
-const val playStoreUrl = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
-const val coinImageUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
-const val bitthumbCoinNameUrl = "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
+const val bitthumbCoinNameUrl =
+    "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
 
-fun upbitOrderBookWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]}]"""
-fun upbitTickerWebSocketMessage(market: String): String = """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]}]"""
-fun bitthumbTickerWebSocketMessage(market: String): String = """{"type":"ticker","symbols":[$market],"tickTypes":["MID"]}"""
-fun bitthumbOrderBookWebSocketMessage(market: String): String = """{"type":"orderbooksnapshot","symbols":[$market]}"""
+const val USD_BASE_URL = "https://cdn.jsdelivr.net/"
 
+const val COIN_CAP_IO_BASE_URL = "https://api.coincap.io/"
+
+const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
+const val COIN_IMAGE_BASE_URL =
+    "https://raw.githubusercontent.com/Hi-Im-SeungPil/moeuibitImg/main/coinlogo2/"
+
+fun upbitOrderBookWebSocketMessage(market: String): String =
+    """[{"ticket":"${UUID.randomUUID()}"},{"type":"orderbook","codes":[${market}]}]"""
+
+fun upbitTickerWebSocketMessage(market: String): String =
+    """[{"ticket":"${UUID.randomUUID()}"},{"type":"ticker","codes":[${market}]}]"""
+
+fun bitthumbTickerWebSocketMessage(market: String): String =
+    """{"type":"ticker","symbols":[$market],"tickTypes":["MID"]}"""
+
+fun bitthumbOrderBookWebSocketMessage(market: String): String =
+    """{"type":"orderbooksnapshot","symbols":[$market]}"""
 
 fun twitterUrl(href: String): String =
     "<a class=\"twitter-timeline\" href=\"${href}?ref_src=twsrc%5Etfw\" target=\"_blank\">Tweets</a> <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>"

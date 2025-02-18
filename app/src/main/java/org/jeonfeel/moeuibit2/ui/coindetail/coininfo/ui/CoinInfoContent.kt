@@ -36,7 +36,7 @@ fun CoinInfoContent(
     selected: MutableState<String>,
     selectedButton: MutableState<Int>,
     coinInfoHashMap: Map<String, String>,
-    flex: FlexWebView
+    flex: FlexWebView,
 ) {
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxSize()) {
@@ -69,11 +69,9 @@ fun CoinInfoContent(
             LoadWebViewText(text = stringResource(id = R.string.amount), clickAction = {
                 selectedButton.value = 5
                 selected.value = coinInfoHashMap[KeyConst.INFO_AMOUNT_KEY]!!
-//                flex.loadUrl(selected.value)
+                flex.loadUrl(selected.value)
             }, selectedButton = selectedButton, buttonId = 5)
         }
-
-
 
         if (selectedButton.value == -1) {
             GlideImage(

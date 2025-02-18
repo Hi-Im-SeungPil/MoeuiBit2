@@ -16,8 +16,8 @@
     <string name="info">정보</string>
     <string name="twitter">트위터</string>
     <string name="amount">시가총액</string>
-    <string name="noInfo">코인 정보 준비중입니다...!</string>
-    <string name="coinInfoLoading">코인정보 불러오는 중...</string>
+    <string name="noInfo">코인 정보 준비중입니다.</string>
+    <string name="coinInfoLoading">코인정보를 불러오는 중입니다.</string>
     <string name="noFavorite">등록된 관심코인이 없습니다.</string>
     <string name="noSearchingCoin">일치하는 코인이 없습니다.</string>
     <string name="million">백만</string>

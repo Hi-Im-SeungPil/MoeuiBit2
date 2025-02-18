@@ -3,8 +3,6 @@ package org.jeonfeel.moeuibit2.ui.main.setting
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.view.Gravity
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -21,9 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -32,22 +28,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.orhanobut.logger.Logger
-import com.skydoves.balloon.ArrowPositionRules
-import com.skydoves.balloon.Balloon
-import com.skydoves.balloon.BalloonSizeSpec
-import com.skydoves.balloon.showAlignBottom
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.playStoreUrl
+import org.jeonfeel.moeuibit2.constants.PLAY_STORE_URL
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteLazyColumn
-import org.jeonfeel.moeuibit2.ui.theme.chargingKrwBackgroundColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
@@ -289,7 +277,7 @@ fun ResetDialog(
 }
 
 fun writeReviewAction(context: Context) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(playStoreUrl))
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL))
     context.startActivity(intent)
 }
 

@@ -64,16 +64,15 @@
         <item>https://coinone.co.kr</item>
         <item>https://www.korbit.co.kr/</item>
         <item>https://www.gopax.co.kr</item>
-        <item>https://www.binance.com/en</item>
     </string-array>
     
     <string-array name="communityUrl">
-        <item>https://www.ddengle.com</item>
         <item>https://coinpan.com</item>
-        <item>https://www.moneynet.co.kr</item>
-        <item>https://cobak.co.kr</item>
-        <item>https://blockchainhub.kr</item>
         <item>https://gall.dcinside.com/board/lists/?id=bitcoins_new1</item>
+        <item>https://www.ddengle.com</item>
+        <item>https://cobak.co.kr</item>
+        <item>https://www.moneynet.co.kr</item>
+        <item>https://blockchainhub.kr</item>
         <item>https://www.fmkorea.com/coin</item>
         <item>https://cafe.naver.com/nexontv</item>
         <item>https://twitter.com/elonmusk</item>

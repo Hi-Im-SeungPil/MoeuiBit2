@@ -4,7 +4,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -425,7 +424,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun getCoinInfo(market: String) {
-        coinInfo.getCoinInfo(market)
+        coinInfo.fetchCoinInfoFromFirebase(market)
     }
 
     fun getTransactionInfoList(market: String) {
@@ -437,7 +436,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
-        return "${koreanCoinName.value}${getPostposition(koreanCoinName.value)} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일에 거래지원 종료 예정입니다."
+        return "${koreanCoinName.value}${getPostposition(koreanCoinName.value)} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일 거래지원 종료 예정입니다."
     }
 
 

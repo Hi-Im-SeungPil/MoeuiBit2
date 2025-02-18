@@ -23,7 +23,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +52,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.coinImageUrl
+import org.jeonfeel.moeuibit2.constants.COIN_IMAGE_BASE_URL
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.TabRowMainNavigation
@@ -379,7 +378,7 @@ fun CoinDetailPriceSection(
             }
             // 코인 상세화면 코인 이미지
             GlideImage(
-                imageModel = coinImageUrl.plus("$symbol.png"),
+                imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
                 modifier = Modifier
                     .padding(end = 20.dp)
                     .clip(CircleShape)
