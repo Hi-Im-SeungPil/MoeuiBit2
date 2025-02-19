@@ -43,7 +43,6 @@ class NewCoinDetailViewModel @Inject constructor(
     private val upbitCoinDetailUseCase: UpbitCoinDetailUseCase,
     private val cacheManager: CacheManager,
     private val upbitCoinOrder: UpbitCoinOrder,
-    val coinInfo: CoinInfo,
     val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
     private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
@@ -54,6 +53,9 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private val _koreanCoinName = mutableStateOf("")
     val koreanCoinName: State<String> get() = _koreanCoinName
+
+    private val _engCoinName = mutableStateOf("")
+    val engCoinName: State<String> get() = _engCoinName
 
     private val _orderBookIndication = mutableStateOf("quantity")
     val orderBookIndication: State<String> get() = _orderBookIndication
@@ -90,6 +92,7 @@ class NewCoinDetailViewModel @Inject constructor(
                 ROOT_EXCHANGE_UPBIT -> {
                     _market = market
                     getKoreanCoinName()
+                    getEngCoinName()
                     getIsFavorite()
                     requestCoinTicker(market)
                 }
@@ -192,9 +195,13 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun getKoreanCoinName() {
-        Logger.e(cacheManager.readKoreanCoinNameMap()[_market.substring(4)] ?: "")
         _koreanCoinName.value =
             cacheManager.readKoreanCoinNameMap()[_market.substring(4)] ?: ""
+    }
+
+    private suspend fun getEngCoinName() {
+        _engCoinName.value =
+            cacheManager.readEnglishCoinNameMap()[_market.substring(4)]?.replace(" ", "-") ?: ""
     }
 
     private suspend fun getIsFavorite() {
@@ -421,10 +428,6 @@ class NewCoinDetailViewModel @Inject constructor(
         viewModelScope.launch {
             chart.saveLastPeriod(period)
         }
-    }
-
-    fun getCoinInfo(market: String) {
-        coinInfo.fetchCoinInfoFromFirebase(market)
     }
 
     fun getTransactionInfoList(market: String) {

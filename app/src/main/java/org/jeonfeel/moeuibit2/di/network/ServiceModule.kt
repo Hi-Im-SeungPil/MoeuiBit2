@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BinanceService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
+import org.jeonfeel.moeuibit2.data.network.retrofit.api.CoinCapIOService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDService
 import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
 import retrofit2.Retrofit
@@ -35,8 +36,8 @@ class ServiceModule {
 
     @Singleton
     @Provides
-    fun provideCoinCapIOService(@RetrofitModule.CoinCapIORetrofit retrofit: Retrofit): USDService {
-        return retrofit.create(USDService::class.java)
+    fun provideCoinCapIOService(@RetrofitModule.CoinCapIORetrofit retrofit: Retrofit): CoinCapIOService {
+        return retrofit.create(CoinCapIOService::class.java)
     }
 
     @Singleton

@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jeonfeel.moeuibit2.constants.KeyConst
@@ -18,7 +19,6 @@ import org.jeonfeel.moeuibit2.ui.common.ResultState
 import java.math.BigDecimal
 
 class CoinInfoUseCase(
-    private val preferencesManager: PreferencesManager,
     private val usdRepository: USDRepository,
     private val coinCapIORepository: CoinCapIORepository,
 ) {
@@ -26,10 +26,13 @@ class CoinInfoUseCase(
         return coinCapIORepository.fetchCoinInfo(engName = engName).map { res ->
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
+                    Logger.e(res.data?.timestamp.toString())
+                    Logger.e(res.data?.data.toString())
                     ResultState.Success(res.data)
                 }
 
                 ApiResult.Status.API_ERROR, ApiResult.Status.NETWORK_ERROR -> {
+                    Logger.e(res.message.toString())
                     ResultState.Error(res.message ?: "Unknown error")
                 }
 

@@ -258,7 +258,7 @@ object Utils {
     fun convertTimestampToString(timestamp: Long): String {
         val instant = Instant.ofEpochMilli(timestamp)
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            .withZone(ZoneId.systemDefault()) // 시스템 시간대 적용
+            .withZone(ZoneId.of("UTC")) // 시스템 시간대 적용
 
         return formatter.format(instant)
     }

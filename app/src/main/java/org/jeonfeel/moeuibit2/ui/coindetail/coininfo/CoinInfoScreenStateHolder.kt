@@ -8,7 +8,9 @@ import androidx.compose.ui.platform.LocalContext
 class CoinInfoScreenStateHolder(
     private val context: Context
 ) {
-    val actionHandler = CoinInfoStateHolderActionHandler()
+    val actionHandler = CoinInfoStateHolderActionHandler(
+        context = context
+    )
 
 }
 

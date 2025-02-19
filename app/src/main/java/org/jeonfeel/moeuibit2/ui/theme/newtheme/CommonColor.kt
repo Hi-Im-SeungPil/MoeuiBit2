@@ -50,7 +50,7 @@ fun commonUnSelectedColor(): Color = if (!isSystemInDarkTheme()) {
 
 @Composable
 fun commonDividerColor(): Color = if (!isSystemInDarkTheme()) {
-    Color(0xffe0e0e0)
+    Color(0xFFEFEFEF)
 } else {
     Color(0xff303030)
 }

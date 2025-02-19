@@ -1,9 +1,13 @@
 package org.jeonfeel.moeuibit2.ui.nav
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +28,7 @@ import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 
 enum class MainScreenState {
@@ -53,41 +58,52 @@ fun MainBottomNavigation(navController: NavHostController) {
         MainBottomNavItem.Setting
     )
 
-    BottomNavigation(
-        backgroundColor = commonBackground(),
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        items.forEach { item ->
-            BottomNavigationItem(
-                icon = {
-                    Icon(
-                        painterResource(id = item.icon),
-                        contentDescription = item.title,
-                        modifier = Modifier
-                            .padding(vertical = 7.dp)
-                            .size(24.dp)
-                    )
-                },
-                label = { Text(text = item.title, fontSize = DpToSp(dp = 12.dp), fontWeight = FontWeight.W600) },
-                selectedContentColor = APP_PRIMARY_COLOR,
-                unselectedContentColor = commonUnSelectedColor(),
-                alwaysShowLabel = true,
-                selected = currentDestination?.hierarchy?.any { it.route == item.screenRoute.name } == true,
-                onClick = {
-                    if (currentDestination?.hierarchy?.any() { it.route == item.screenRoute.name } == true) {
-                        return@BottomNavigationItem
-                    }
-
-                    navController.navigate(item.screenRoute.name) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+    Column {
+        if (isSystemInDarkTheme()) {
+            Divider(modifier = Modifier.fillMaxWidth(), color = commonDividerColor())
+        }
+        BottomNavigation(
+            backgroundColor = commonBackground(),
+        ) {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            items.forEach { item ->
+                BottomNavigationItem(
+                    icon = {
+                        Icon(
+                            painterResource(id = item.icon),
+                            contentDescription = item.title,
+                            modifier = Modifier
+                                .padding(vertical = 7.dp)
+                                .size(24.dp)
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = item.title,
+                            fontSize = DpToSp(dp = 12.dp),
+                            fontWeight = FontWeight.W600
+                        )
+                    },
+                    selectedContentColor = APP_PRIMARY_COLOR,
+                    unselectedContentColor = commonUnSelectedColor(),
+                    alwaysShowLabel = true,
+                    selected = currentDestination?.hierarchy?.any { it.route == item.screenRoute.name } == true,
+                    onClick = {
+                        if (currentDestination?.hierarchy?.any() { it.route == item.screenRoute.name } == true) {
+                            return@BottomNavigationItem
                         }
-                        launchSingleTop = true
-                        restoreState = true
+
+                        navController.navigate(item.screenRoute.name) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

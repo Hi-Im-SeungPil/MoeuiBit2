@@ -1,7 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,17 +18,25 @@ import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinInfoModel
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinLinkModel
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import java.math.BigDecimal
+import javax.inject.Inject
+
+enum class UIState {
+    SUCCESS, ERROR, LOADING
+}
 
 data class CoinInfoScreenUIState(
-    val coinInfo: CoinInfoModel?,
-    val coinLinkMap: List<CoinLinkModel>,
+    val coinInfoModel: CoinInfoModel? = null,
+    val coinLinkList: List<CoinLinkModel> = emptyList(),
+    val state: UIState = UIState.LOADING
 )
 
 @HiltViewModel
-class CoinInfoViewModel(private val coinInfoUseCase: CoinInfoUseCase) : ViewModel() {
+class CoinInfoViewModel @Inject constructor(private val coinInfoUseCase: CoinInfoUseCase) :
+    ViewModel() {
 
-    private val _uiState = MutableStateFlow<ResultState<CoinInfoScreenUIState>>(ResultState.Loading)
-    val uiState = _uiState.asStateFlow()
+    private val _uiState: MutableState<CoinInfoScreenUIState> =
+        mutableStateOf(CoinInfoScreenUIState())
+    val uiState: State<CoinInfoScreenUIState> = _uiState
 
     private var coinInfo: FetchCoinInfoRes.Data? = null
     private var coinInfoTimeStamp: Long = 0
@@ -32,17 +44,13 @@ class CoinInfoViewModel(private val coinInfoUseCase: CoinInfoUseCase) : ViewMode
     private var coinLinkList: List<CoinLinkModel> = emptyList()
 
     fun init(engName: String, symbol: String) {
+        if (_uiState.value.state == UIState.SUCCESS) {
+            return
+        }
         viewModelScope.launch {
-            combine(
-                coinInfoUseCase.fetchUSDPrice(),
-                coinInfoUseCase.fetchCoinInfo(engName = engName)
-            ) { usdPriceResult, coinInfoResult ->
-                Pair(usdPriceResult, coinInfoResult)
-            }.collectLatest { (usdPriceResult, coinInfoResult) ->
-                parseUsdPriceData(usdPriceResult)
-                parseCoinInfoData(coinInfoResult)
-                fetchCoinInfoFromFirebase(symbol)
-            }
+            parseUsdPriceData()
+            parseCoinInfoData(engName)
+            fetchCoinInfoFromFirebase(symbol)
         }
     }
 
@@ -52,37 +60,40 @@ class CoinInfoViewModel(private val coinInfoUseCase: CoinInfoUseCase) : ViewMode
             timeStamp = coinInfoTimeStamp
         )
 
-        _uiState.update {
-            ResultState.Success(
-                CoinInfoScreenUIState(
-                    coinInfo = coinInfoModel,
-                    coinLinkMap = coinLinkList
-                )
+        _uiState.value =
+            CoinInfoScreenUIState(
+                coinInfoModel = coinInfoModel,
+                coinLinkList = coinLinkList,
+                state = UIState.SUCCESS
             )
-        }
     }
 
-    private fun parseUsdPriceData(usdPriceResult: ResultState<BigDecimal>) {
-        usdPrice = when (usdPriceResult) {
-            is ResultState.Success -> {
-                usdPriceResult.data
-            }
-
-            else -> BigDecimal.ZERO
-        }
-    }
-
-    private fun parseCoinInfoData(coinInfoRes: ResultState<FetchCoinInfoRes?>) {
-        coinInfo = when (coinInfoRes) {
-            is ResultState.Success -> {
-                if (coinInfoRes.data?.data.isNullOrEmpty()) {
-                    null
-                } else {
-                    coinInfoRes.data?.data?.get(0)
+    private suspend fun parseUsdPriceData() {
+        coinInfoUseCase.fetchUSDPrice().collect { usdPriceResult ->
+            usdPrice = when (usdPriceResult) {
+                is ResultState.Success -> {
+                    usdPriceResult.data
                 }
-            }
 
-            else -> null
+                else -> BigDecimal.ZERO
+            }
+        }
+    }
+
+    private suspend fun parseCoinInfoData(engName: String) {
+        coinInfoUseCase.fetchCoinInfo(engName = engName).collect { coinInfoRes ->
+            coinInfo = when (coinInfoRes) {
+                is ResultState.Success -> {
+                    if (coinInfoRes.data?.data.isNullOrEmpty()) {
+                        null
+                    } else {
+                        coinInfoTimeStamp = coinInfoRes.data?.timestamp ?: 0
+                        coinInfoRes.data?.data?.get(0)
+                    }
+                }
+
+                else -> null
+            }
         }
     }
 

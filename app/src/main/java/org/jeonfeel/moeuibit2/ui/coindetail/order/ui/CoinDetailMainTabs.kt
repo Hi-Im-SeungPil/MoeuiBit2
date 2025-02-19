@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO
 import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER
 import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.ChartScreen
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoRoute
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
@@ -107,9 +108,9 @@ fun TabRowMainNavigation(
             ChartScreen(coinDetailViewModel = viewModel, market = market)
         }
         composable(CoinDetailMainTabRowItem.CoinInfo.screenRoute) {
-            CoinInfoScreen(
-                viewModel = viewModel,
-                market = market
+            CoinInfoRoute(
+                engName = viewModel.engCoinName.value,
+                symbol = market.substring(4)
             )
         }
     }

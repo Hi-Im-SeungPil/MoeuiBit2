@@ -22,6 +22,7 @@ class RetrofitModule {
     private val converterFactory = Json {
         ignoreUnknownKeys = true
         explicitNulls = false
+        coerceInputValues = true
     }.asConverterFactory("application/json".toMediaType())
 
     @Qualifier

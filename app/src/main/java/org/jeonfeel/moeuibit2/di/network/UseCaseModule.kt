@@ -5,11 +5,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
+import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
+import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoUseCase
 import javax.inject.Singleton
 
 
@@ -61,6 +64,18 @@ class UseCaseModule {
         return UpbitCoinOrderUseCase(
             localRepository = localRepository,
             upbitRepository = upbitRepository
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideCoinInfoUseCase(
+        usdRepository: USDRepository,
+        coinCapIORepository: CoinCapIORepository,
+    ): CoinInfoUseCase {
+        return CoinInfoUseCase(
+            usdRepository = usdRepository,
+            coinCapIORepository = coinCapIORepository
         )
     }
 }

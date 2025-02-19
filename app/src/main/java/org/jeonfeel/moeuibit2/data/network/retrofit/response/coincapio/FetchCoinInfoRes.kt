@@ -1,44 +1,49 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.coincapio
 
+import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinInfoModel
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.Utils
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
+@Serializable
 data class FetchCoinInfoRes(
     val data: List<Data>,
     val timestamp: Long,
 ) {
+    @Serializable
     data class Data(
-        val changePercent24Hr: String,
-        val explorer: String,
-        val id: String,
-        val marketCapUsd: String,
-        val maxSupply: String,
-        val name: String,
-        val priceUsd: String,
-        val rank: String,
-        val supply: String,
-        val symbol: String,
-        val volumeUsd24Hr: String,
-        val vwap24Hr: String,
+        val changePercent24Hr: String?,
+        val explorer: String?,
+        val id: String?,
+        val marketCapUsd: String?,
+        val maxSupply: String?,
+        val name: String?,
+        val priceUsd: String?,
+        val rank: String?,
+        val supply: String?,
+        val symbol: String?,
+        val volumeUsd24Hr: String?,
+        val vwap24Hr: String?,
     ) {
         fun toCoinInfoModel(usdPrice: BigDecimal, timeStamp: Long): CoinInfoModel {
             return CoinInfoModel(
                 marketCapKRW = getMarketCapKRW(usdPrice),
-                maxSupply = maxSupply.toBigDecimal().formattedStringForKRW(),
-                supply = supply.toBigDecimal().formattedStringForKRW(),
+                maxSupply = getMaxSupplyString(),
+                supply = supply?.toBigDecimal()?.formattedStringForKRW() ?: "-",
                 timeString = Utils.convertTimestampToString(timestamp = timeStamp),
-                rank = rank,
+                rank = rank ?: "-",
                 unit = getUnit(usdPrice),
             )
         }
 
         private fun getMarketCapKRW(usdPrice: BigDecimal): String {
-            val marketCapUsd = marketCapUsd.toBigDecimal()
+            val marketCapUsd = marketCapUsd?.toBigDecimal() ?: BigDecimal.ZERO
             return if (usdPrice == BigDecimal.ZERO) {
                 formatBigDecimal(marketCapUsd)
+            } else if (marketCapUsd == BigDecimal.ZERO) {
+                "-"
             } else {
                 formatBigDecimal(marketCapUsd.multiply(usdPrice))
             }
@@ -77,6 +82,11 @@ data class FetchCoinInfoRes(
             } else {
                 "원"
             }
+        }
+
+        private fun getMaxSupplyString(): String {
+            if (maxSupply == null) return "-" else maxSupply.toBigDecimal().formattedStringForKRW()
+            return "-"
         }
     }
 }
