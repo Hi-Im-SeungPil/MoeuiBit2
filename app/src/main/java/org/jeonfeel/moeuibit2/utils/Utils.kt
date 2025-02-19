@@ -19,6 +19,9 @@ import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 object Utils {
@@ -250,6 +253,14 @@ object Utils {
                 }
             }
         }
+    }
+
+    fun convertTimestampToString(timestamp: Long): String {
+        val instant = Instant.ofEpochMilli(timestamp)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            .withZone(ZoneId.systemDefault()) // 시스템 시간대 적용
+
+        return formatter.format(instant)
     }
 
     fun extractCryptoKeysWithGson(json: JsonObject): List<String> {

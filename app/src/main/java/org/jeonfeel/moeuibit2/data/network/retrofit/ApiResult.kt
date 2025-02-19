@@ -18,7 +18,7 @@ data class ApiResult<T>(val status: Status, val data: T?, val message: String?) 
             return ApiResult(Status.API_ERROR, data, message)
         }
 
-        fun <T> error(exception: Exception?): ApiResult<T> {
+        fun <T> error(exception: Throwable?): ApiResult<T> {
             return ApiResult(Status.NETWORK_ERROR, null, exception?.message)
         }
 

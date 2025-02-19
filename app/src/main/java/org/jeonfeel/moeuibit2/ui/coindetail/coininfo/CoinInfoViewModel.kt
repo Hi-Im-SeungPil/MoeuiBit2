@@ -1,35 +1,95 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.jeonfeel.moeuibit2.constants.KeyConst
-import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.coincapio.FetchCoinInfoRes
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinInfoModel
+import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinLinkModel
+import org.jeonfeel.moeuibit2.ui.common.ResultState
 import java.math.BigDecimal
 
-enum class CoinInfoScreenState {
-    LOADING, SUCCESS, ERROR
-}
-
 data class CoinInfoScreenUIState(
-    val coinInfo: CoinInfo?,
-    val usdPrice: BigDecimal,
-    val coinLinkMap: Map<String, String>,
-    val state: CoinInfoScreenState,
+    val coinInfo: CoinInfoModel?,
+    val coinLinkMap: List<CoinLinkModel>,
 )
 
 @HiltViewModel
-class CoinInfoViewModel(coinInfoUseCase: CoinInfoUseCase) : ViewModel() {
-    private val _coinInfoLoading = mutableStateOf(false)
-    val coinInfoLoading: State<Boolean> get() = _coinInfoLoading
+class CoinInfoViewModel(private val coinInfoUseCase: CoinInfoUseCase) : ViewModel() {
 
-    private val _coinLinkState = mutableStateOf<Map<String, String>?>(emptyMap())
-    val coinLinkState: State<Map<String, String>?> get() = _coinLinkState
+    private val _uiState = MutableStateFlow<ResultState<CoinInfoScreenUIState>>(ResultState.Loading)
+    val uiState = _uiState.asStateFlow()
 
+    private var coinInfo: FetchCoinInfoRes.Data? = null
+    private var coinInfoTimeStamp: Long = 0
+    private var usdPrice: BigDecimal = BigDecimal.ZERO
+    private var coinLinkList: List<CoinLinkModel> = emptyList()
 
+    fun init(engName: String, symbol: String) {
+        viewModelScope.launch {
+            combine(
+                coinInfoUseCase.fetchUSDPrice(),
+                coinInfoUseCase.fetchCoinInfo(engName = engName)
+            ) { usdPriceResult, coinInfoResult ->
+                Pair(usdPriceResult, coinInfoResult)
+            }.collectLatest { (usdPriceResult, coinInfoResult) ->
+                parseUsdPriceData(usdPriceResult)
+                parseCoinInfoData(coinInfoResult)
+                fetchCoinInfoFromFirebase(symbol)
+            }
+        }
+    }
+
+    private fun createUIState() {
+        val coinInfoModel = coinInfo?.toCoinInfoModel(
+            usdPrice = usdPrice,
+            timeStamp = coinInfoTimeStamp
+        )
+
+        _uiState.update {
+            ResultState.Success(
+                CoinInfoScreenUIState(
+                    coinInfo = coinInfoModel,
+                    coinLinkMap = coinLinkList
+                )
+            )
+        }
+    }
+
+    private fun parseUsdPriceData(usdPriceResult: ResultState<BigDecimal>) {
+        usdPrice = when (usdPriceResult) {
+            is ResultState.Success -> {
+                usdPriceResult.data
+            }
+
+            else -> BigDecimal.ZERO
+        }
+    }
+
+    private fun parseCoinInfoData(coinInfoRes: ResultState<FetchCoinInfoRes?>) {
+        coinInfo = when (coinInfoRes) {
+            is ResultState.Success -> {
+                if (coinInfoRes.data?.data.isNullOrEmpty()) {
+                    null
+                } else {
+                    coinInfoRes.data?.data?.get(0)
+                }
+            }
+
+            else -> null
+        }
+    }
+
+    private fun fetchCoinInfoFromFirebase(symbol: String) {
+        coinInfoUseCase.fetchCoinInfoFromFirebase(symbol = symbol, callback = {
+            coinLinkList = it
+            createUIState()
+        })
+    }
 }
