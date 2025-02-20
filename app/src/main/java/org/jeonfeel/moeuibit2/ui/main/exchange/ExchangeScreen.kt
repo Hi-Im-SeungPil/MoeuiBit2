@@ -237,7 +237,7 @@ private fun SearchSection(
                         CommonText(
                             stringResource(id = R.string.textFieldText),
                             textStyle = LocalTextStyle.current.copy(
-                                color = colorScheme.error,
+                                color = commonHintTextColor(),
                             ),
                             fontSize = 17.dp,
                         )

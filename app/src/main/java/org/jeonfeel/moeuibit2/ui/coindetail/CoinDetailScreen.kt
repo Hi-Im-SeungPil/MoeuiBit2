@@ -114,7 +114,11 @@ fun CoinDetailScreen(
         }
     }
 
-    Box(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
+    Box(
+        modifier = Modifier
+            .background(commonBackground())
+            .windowInsetsPadding(WindowInsets.systemBars)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

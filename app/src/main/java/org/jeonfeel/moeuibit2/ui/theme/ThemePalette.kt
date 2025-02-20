@@ -93,21 +93,21 @@ fun MainTheme(
         content = content
     )
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colors.surface.toArgb()
-
-            if (isMainActivity) {
-                WindowCompat.getInsetsController(window, view)
-                    .isAppearanceLightStatusBars = !darkTheme
-            } else {
-                WindowCompat.getInsetsController(window, view)
-                    .isAppearanceLightStatusBars = false
-            }
-        }
-    }
+//    val view = LocalView.current
+//    if (!view.isInEditMode) {
+//        SideEffect {
+//            val window = (view.context as Activity).window
+//            window.statusBarColor = colors.surface.toArgb()
+//
+//            if (isMainActivity) {
+//                WindowCompat.getInsetsController(window, view)
+//                    .isAppearanceLightStatusBars = !darkTheme
+//            } else {
+//                WindowCompat.getInsetsController(window, view)
+//                    .isAppearanceLightStatusBars = false
+//            }
+//        }
+//    }
 }
 
 @Composable
