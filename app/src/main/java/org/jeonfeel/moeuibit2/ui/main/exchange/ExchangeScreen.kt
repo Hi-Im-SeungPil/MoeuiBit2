@@ -37,6 +37,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -236,7 +237,7 @@ private fun SearchSection(
                         CommonText(
                             stringResource(id = R.string.textFieldText),
                             textStyle = LocalTextStyle.current.copy(
-                                color = commonHintTextColor(),
+                                color = colorScheme.error,
                             ),
                             fontSize = 17.dp,
                         )

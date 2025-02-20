@@ -38,8 +38,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="모의비트"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.MoeuiBit"
+        android:supportsRtl="false"
+        android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->

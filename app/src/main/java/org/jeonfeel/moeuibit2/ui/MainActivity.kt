@@ -4,6 +4,10 @@ import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme
+import androidx.core.view.WindowCompat
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -13,6 +17,7 @@ import dagger.Component
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
+import org.jeonfeel.moeuibit2.ui.theme.AppTheme
 import org.jeonfeel.moeuibit2.ui.theme.MainTheme
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 
@@ -28,10 +33,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            MainTheme(isMainActivity = true, content = {
+            AppTheme {
                 AppNavGraph()
-            })
+            }
+//            MainTheme(content = { AppNavGraph() }, isMainActivity = true)
         }
     }
 

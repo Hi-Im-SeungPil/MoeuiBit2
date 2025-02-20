@@ -2,27 +2,40 @@ package org.jeonfeel.moeuibit2.ui.main.setting
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import javax.inject.Inject
 
 data class SettingScreenState(
-    val openSourceState: MutableState<Boolean> = mutableStateOf(false)
+    val openSourceState: MutableState<Boolean> = mutableStateOf(false),
+    val currentTheme: MutableState<ThemeHelper.ThemeMode> = mutableStateOf(ThemeHelper.ThemeMode.DEFAULT)
 )
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    val preferenceManager: PreferencesManager
+    private val preferenceManager: PreferencesManager
 ) : BaseViewModel(preferenceManager) {
     val state = SettingScreenState()
+
+    init {
+        viewModelScope.launch {
+            preferenceManager.getString(KeyConst.PREF_KEY_THEME_MODE).collect {
+                state.currentTheme.value = when (it) {
+                    ThemeHelper.ThemeMode.LIGHT.name -> ThemeHelper.ThemeMode.LIGHT
+                    ThemeHelper.ThemeMode.DARK.name -> ThemeHelper.ThemeMode.DARK
+                    else -> ThemeHelper.ThemeMode.DEFAULT
+                }
+            }
+        }
+    }
 
     fun removeAll() {
         viewModelScope.launch(ioDispatcher) {
@@ -33,21 +46,17 @@ class SettingViewModel @Inject constructor(
         }
     }
 
+    fun updateTheme(themeMode: ThemeHelper.ThemeMode) {
+        viewModelScope.launch {
+            state.currentTheme.value = themeMode
+            preferenceManager.setValue(KeyConst.PREF_KEY_THEME_MODE, themeMode.name)
+        }
+        ThemeHelper.applyTheme(themeMode)
+    }
+
     fun resetTransactionInfo() {
         viewModelScope.launch(ioDispatcher) {
             localRepository.getTransactionInfoDao().deleteAll()
-        }
-    }
-
-    companion object {
-        fun provideFactory(
-            localRepository: LocalRepository,
-            preferenceManager: PreferencesManager
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SettingViewModel(localRepository, preferenceManager) as T
-            }
         }
     }
 }
