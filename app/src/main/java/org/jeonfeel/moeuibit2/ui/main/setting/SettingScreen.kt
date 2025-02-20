@@ -40,6 +40,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 @Composable
 fun SettingScreen(settingViewModel: SettingViewModel = hiltViewModel()) {
@@ -111,10 +112,21 @@ fun SettingScreenLazyColumn(settingViewModel: SettingViewModel) {
     val themeDialogState = remember {
         mutableStateOf(false)
     }
-    ThemeDialog(themeDialogState, settingViewModel.preferenceManager)
-    ResetDialog(settingViewModel, resetDialogState, context)
+//    ThemeDialog(themeDialogState, settingViewModel.preferenceManager)
+//    ResetDialog(settingViewModel, resetDialogState, context)
     TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
-        title = stringResource(id = R.string.init_title),
+        icon = R.drawable.img_app_clear_3x,
+        content = stringResource(id = R.string.resetDialogContent),
+        leftButtonText = stringResource(id = R.string.cancel),
+        rightButtonText = stringResource(id = R.string.confirm),
+        leftButtonAction = { resetDialogState.value = false },
+        rightButtonAction = {
+            settingViewModel.removeAll()
+            resetDialogState.value = false
+            context.showToast(context.getString(R.string.resetDialogResetSuccess))
+        })
+    TwoButtonCommonDialog(dialogState = transactionInfoDialogState,
+        icon = R.drawable.img_trade_clear_3x,
         content = stringResource(id = R.string.init_message),
         leftButtonText = stringResource(id = R.string.cancel),
         rightButtonText = stringResource(id = R.string.confirm),
@@ -190,97 +202,7 @@ fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Uni
     }
 }
 
-@Composable
-fun ResetDialog(
-    settingViewModel: SettingViewModel,
-    resetDialogState: MutableState<Boolean>,
-    context: Context,
-) {
-    if (resetDialogState.value) {
-        Dialog(onDismissRequest = {
-            resetDialogState.value = false
-        }) {
-            Card(
-                Modifier
-                    .padding(20.dp, 0.dp)
-                    .wrapContentSize()
-                    .padding(0.dp, 20.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .wrapContentSize()
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.resetDialogTitle),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 20.dp, 0.dp, 0.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = DpToSp(25.dp),
-                        textAlign = TextAlign.Center,
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.resetDialogContent),
-                        modifier = Modifier.padding(10.dp, 40.dp),
-                        fontSize = DpToSp(17.dp),
-                        style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                    )
-                    Divider(modifier = Modifier.fillMaxWidth(), Color.LightGray, 1.dp)
-                    Row {
-                        Text(
-                            text = stringResource(id = R.string.commonCancel),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    resetDialogState.value = false
-                                }
-                                .padding(0.dp, 10.dp),
-                            fontSize = DpToSp(17.dp),
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                        )
-                        Text(
-                            text = "",
-                            fontSize = DpToSp(17.dp),
-                            modifier = Modifier
-                                .width(1.dp)
-                                .border(1.dp, Color.LightGray)
-                                .padding(0.dp, 10.dp)
-                        )
-                        Text(
-                            text = stringResource(id = R.string.commonAccept),
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    removeAll(settingViewModel)
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            context.getString(R.string.resetDialogResetSuccess),
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
-                                    resetDialogState.value = false
-                                }
-                                .padding(0.dp, 10.dp),
-                            fontSize = DpToSp(15.dp),
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 fun writeReviewAction(context: Context) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL))
     context.startActivity(intent)
-}
-
-fun removeAll(settingViewModel: SettingViewModel) {
-    settingViewModel.removeAll()
 }

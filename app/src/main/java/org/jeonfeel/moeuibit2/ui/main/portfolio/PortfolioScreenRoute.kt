@@ -55,7 +55,6 @@ fun PortfolioScreenRoute(
 
     TwoButtonCommonDialog(
         dialogState = holder.adConfirmDialogState,
-        title = stringResource(id = R.string.chargeMoney),
         content = stringResource(id = R.string.adDialogContent),
         leftButtonText = stringResource(id = R.string.commonCancel),
         rightButtonText = stringResource(id = R.string.commonAccept),

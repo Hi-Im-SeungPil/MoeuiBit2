@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jeonfeel.moeuibit2.ui.common.CommonLoading
 import org.jeonfeel.moeuibit2.ui.common.ResultState
+import org.jeonfeel.moeuibit2.ui.common.UIState
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable

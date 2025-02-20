@@ -149,12 +149,12 @@ fun CoinInfoSection(coinInfoModel: CoinInfoModel?) {
     ) {
         if (coinInfoModel != null) {
             Text(
-                text = "( ${coinInfoModel.timeString} )",
-                modifier = Modifier.padding(bottom = 10.dp, start = 15.dp),
+                text = "(${coinInfoModel.timeString})",
+                modifier = Modifier.padding( start = 15.dp),
                 style = TextStyle(color = commonHintTextColor(), fontSize = DpToSp(14.dp))
             )
             CoinInfoColumnItem("시가총액", "${coinInfoModel.marketCapKRW} ${coinInfoModel.unit}")
-            CoinInfoColumnItem("시가총액 순위", "${coinInfoModel.rank} 위")
+            CoinInfoColumnItem("시가총액 순위", "${coinInfoModel.rank}위")
             CoinInfoColumnItem("총 발행량", coinInfoModel.maxSupply)
             CoinInfoColumnItem("현재 유통량", coinInfoModel.supply)
         } else {
@@ -173,17 +173,16 @@ fun CoinInfoSection(coinInfoModel: CoinInfoModel?) {
 fun CoinInfoColumnItem(title: String, value: String) {
     Row(
         modifier = Modifier
-            .padding(top = 20.dp)
             .padding(vertical = 15.dp, horizontal = 15.dp)
     ) {
         Text(
             text = title,
-            style = TextStyle(color = commonTextColor(), fontSize = DpToSp(17.dp))
+            style = TextStyle(color = commonTextColor(), fontSize = DpToSp(15.dp))
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = value,
-            style = TextStyle(color = commonTextColor(), fontSize = DpToSp(17.dp))
+            style = TextStyle(color = commonTextColor(), fontSize = DpToSp(15.dp))
         )
     }
 }

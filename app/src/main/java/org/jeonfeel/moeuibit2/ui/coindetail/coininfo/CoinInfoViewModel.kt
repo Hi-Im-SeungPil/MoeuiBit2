@@ -17,17 +17,14 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.response.coincapio.FetchCoin
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinInfoModel
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinLinkModel
 import org.jeonfeel.moeuibit2.ui.common.ResultState
+import org.jeonfeel.moeuibit2.ui.common.UIState
 import java.math.BigDecimal
 import javax.inject.Inject
-
-enum class UIState {
-    SUCCESS, ERROR, LOADING
-}
 
 data class CoinInfoScreenUIState(
     val coinInfoModel: CoinInfoModel? = null,
     val coinLinkList: List<CoinLinkModel> = emptyList(),
-    val state: UIState = UIState.LOADING
+    val state: UIState = UIState.LOADING,
 )
 
 @HiltViewModel
@@ -48,8 +45,8 @@ class CoinInfoViewModel @Inject constructor(private val coinInfoUseCase: CoinInf
             return
         }
         viewModelScope.launch {
-            parseUsdPriceData()
-            parseCoinInfoData(engName)
+//            parseUsdPriceData()
+//            parseCoinInfoData(engName)
             fetchCoinInfoFromFirebase(symbol)
         }
     }

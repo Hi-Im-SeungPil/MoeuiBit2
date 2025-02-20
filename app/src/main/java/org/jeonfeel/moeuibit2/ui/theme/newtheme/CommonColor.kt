@@ -68,3 +68,17 @@ fun commonHintTextColor(): Color = if (!isSystemInDarkTheme()) {
 } else {
     Color(0xff6e6e6e)
 }
+
+@Composable
+fun commonDialogBackground(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xFFE7E7E7)
+} else {
+    Color(0xFF2E2E2E)
+}
+
+@Composable
+fun commonDialogButtonsBackground(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xFFF5F5F5)
+} else {
+    Color(0xFF363636)
+}
