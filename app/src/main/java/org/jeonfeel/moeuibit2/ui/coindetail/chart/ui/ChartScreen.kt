@@ -2,15 +2,25 @@ package org.jeonfeel.moeuibit2.ui.coindetail.chart.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -24,12 +34,12 @@ import org.jeonfeel.moeuibit2.constants.bitthumbChartMinuteArray
 import org.jeonfeel.moeuibit2.constants.bitthumbChartMinuteStrArray
 import org.jeonfeel.moeuibit2.constants.chartMinuteArray
 import org.jeonfeel.moeuibit2.constants.chartMinuteStrArray
+import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshLoadMoreData
-import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
+import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
@@ -103,7 +113,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                             minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
                             accData = coinDetailViewModel.chart.accData,
                             kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap,
-                            market = market
+                            market = market,
                         )
                         combinedChart.chartDataInit(
                             candleEntries = coinDetailViewModel.chart.candleEntries,
@@ -194,7 +204,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                         .fillMaxWidth()
                         .height(35.dp)
                         .align(Alignment.TopCenter)
-                        .border(0.5.dp, color = colorScheme.primary)
+                        .border(0.5.dp, color = commonTextColor())
                 ) {
                     if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
                         for (i in chartMinuteArray.indices) {
@@ -245,7 +255,7 @@ private fun PeriodButtons(
     requestChartData: KFunction1<String, Unit>,
     rootExchange: String,
     market: String,
-    setLastPeriod: (period: String) -> Unit
+    setLastPeriod: (period: String) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -268,7 +278,7 @@ private fun PeriodButtons(
             onClick = {
                 minuteVisibility.value = !minuteVisibility.value
             }, modifier = if (selectedButton.value == MINUTE_SELECT) buttonModifier
-                .border(1.dp, colorScheme.primary)
+                .border(1.dp, commonTextColor())
                 .fillMaxHeight()
             else buttonModifier
         ) {
@@ -338,7 +348,7 @@ fun PeriodButton(
     period: Int,
     requestChartData: (market: String) -> Unit,
     market: String,
-    setLastPeriod: (period: String) -> Unit
+    setLastPeriod: (period: String) -> Unit,
 ) {
     val buttonColor = if (selectedButton.value == period) {
         commonTextColor()
@@ -348,7 +358,7 @@ fun PeriodButton(
 
     val modifierResult = if (selectedButton.value == period) {
         modifier
-            .border(1.dp, colorScheme.primary)
+            .border(1.dp, commonTextColor())
             .fillMaxHeight()
     } else {
         modifier
@@ -382,7 +392,7 @@ fun RowScope.MinuteButton(
     autoSizeText: Boolean,
     requestChartData: (market: String) -> Unit,
     market: String,
-    setLastPeriod: (period: String) -> Unit
+    setLastPeriod: (period: String) -> Unit,
 ) {
     TextButton(
         onClick = {
@@ -402,12 +412,12 @@ fun RowScope.MinuteButton(
             AutoSizeText(
                 text = minuteTextValue,
                 textStyle = MaterialTheme.typography.body1.copy(
-                    color = commonTextColor(),
                     fontSize = DpToSp(14.dp)
                 ),
                 modifier = Modifier
                     .fillMaxHeight()
-                    .wrapContentHeight()
+                    .wrapContentHeight(),
+                color = commonTextColor()
             )
         } else {
             Text(

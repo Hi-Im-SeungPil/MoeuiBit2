@@ -6,8 +6,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.Text
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -18,10 +25,12 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
-import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.ui.theme.ThemeManager
 
 @Composable
-fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: PreferencesManager) {
+fun ThemeDialog(dismissRequest: MutableState<Boolean>,
+//                preferenceManager: PreferencesManager
+) {
     val radioText = remember {
         listOf("라이트 모드", "다크 모드", "시스템 설정값")
     }
@@ -105,7 +114,8 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>, preferenceManager: Prefer
                             }
 //                            preferenceManager.setValue(PREF_KEY_THEME_MODE, theme.name)
                             Logger.e(theme.name)
-                            ThemeHelper.applyTheme(theme)
+                            ThemeManager.setDarkTheme(theme)
+//                            ThemeHelper.applyTheme(theme)
                             dismissRequest.value = false
                         }, modifier = Modifier.weight(1f)) {
                             Text(

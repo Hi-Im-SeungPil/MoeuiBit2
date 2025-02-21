@@ -30,6 +30,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogButtonsBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRejectTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 
 @Composable
@@ -88,7 +89,7 @@ fun TwoButtonCommonDialog(
                             }
                             .padding(0.dp, 10.dp),
                         style = TextStyle(
-                            color = commonHintTextColor(),
+                            color = commonRejectTextColor(),
                             fontSize = DpToSp(dp = 17.dp),
                             textAlign = TextAlign.Center
                         )

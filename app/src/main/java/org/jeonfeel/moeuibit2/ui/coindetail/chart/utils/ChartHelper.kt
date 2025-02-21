@@ -44,7 +44,7 @@ class ChartHelper(private val context: Context?) {
         accData: HashMap<Int, Double>,
         kstDateHashMap: HashMap<Int, String>,
         isChartLastData: MutableState<Boolean>,
-        market: String
+        market: String,
     ) {
         combinedChart.apply {
             marker = ChartMarkerView(
@@ -167,7 +167,7 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     accData: HashMap<Int, Double>,
     requestOldData: (IBarDataSet, IBarDataSet, Float, String) -> Unit,
     isChartLastData: MutableState<Boolean>,
-    market: String
+    market: String,
 ) {
     val rightAxis = this.axisRight
     val xAxis = this.xAxis
@@ -373,9 +373,8 @@ fun MBitCombinedChart.setMBitChartTouchListener(
     }
 }
 
-fun CandleDataSet.initCandleDataSet() {
+fun CandleDataSet.initCandleDataSet(context: Context) {
     val candleDataSet = this
-    val context = MoeuiBitApp.mBitApplicationContext()
     candleDataSet.apply {
         axisDependency = YAxis.AxisDependency.RIGHT
         shadowColorSameAsCandle = true
@@ -399,12 +398,12 @@ fun CandleDataSet.initCandleDataSet() {
     }
 }
 
-fun BarDataSet.initPositiveBarDataSet() {
+fun BarDataSet.initPositiveBarDataSet(context: Context) {
     val barDataSet = this
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = MoeuiBitApp.mBitApplicationContext()?.let {
+        color = context.let {
             ContextCompat.getColor(it, R.color.increase_bar_color)
         } ?: increase_bar_color
         setDrawIcons(false)
@@ -412,12 +411,12 @@ fun BarDataSet.initPositiveBarDataSet() {
     }
 }
 
-fun BarDataSet.initNegativeBarDataSet() {
+fun BarDataSet.initNegativeBarDataSet(context: Context) {
     val barDataSet = this
     barDataSet.apply {
         axisDependency = YAxis.AxisDependency.LEFT
         isHighlightEnabled = false
-        color = MoeuiBitApp.mBitApplicationContext()?.let {
+        color = context.let {
             ContextCompat.getColor(it, R.color.decrease_bar_color)
         } ?: decrease_bar_color
         setDrawIcons(false)
@@ -433,14 +432,14 @@ fun CombinedChart.chartRefreshSettings(
     lineData: LineData,
     valueFormatter: XAxisValueFormatter? = null,
     purchaseAveragePrice: Float?,
-    marketState: Int
+    marketState: Int,
 ) {
     if (candleDataSet.entryCount > 0 && positiveBarDataSet.entryCount >= 0 && negativeBarDataSet.entryCount >= 0) {
         val chart = this
         val xAxis = chart.xAxis
-        candleDataSet.initCandleDataSet()
-        positiveBarDataSet.initPositiveBarDataSet()
-        negativeBarDataSet.initNegativeBarDataSet()
+        candleDataSet.initCandleDataSet(chart.context)
+        positiveBarDataSet.initPositiveBarDataSet(chart.context)
+        negativeBarDataSet.initNegativeBarDataSet(chart.context)
 
         val candleData = CandleData(candleDataSet)
         val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
@@ -517,12 +516,12 @@ fun CombinedChart.chartRefreshLoadMoreData(
     lineData: LineData,
     startPosition: Float,
     currentVisible: Float,
-    loadingOldData: MutableState<Boolean>
+    loadingOldData: MutableState<Boolean>,
 ) {
     val chart = this
-    candleDataSet.initCandleDataSet()
-    positiveBarDataSet.initPositiveBarDataSet()
-    negativeBarDataSet.initNegativeBarDataSet()
+    candleDataSet.initCandleDataSet(chart.context)
+    positiveBarDataSet.initPositiveBarDataSet(chart.context)
+    negativeBarDataSet.initNegativeBarDataSet(chart.context)
 
     val candleData = CandleData(candleDataSet)
     val barData = BarData(listOf(positiveBarDataSet, negativeBarDataSet))
@@ -563,7 +562,7 @@ fun CombinedChart.addAccAmountLimitLine(
     lastX: Float,
     color: Int,
     marketState: Int,
-    accData: HashMap<Int, Double>
+    accData: HashMap<Int, Double>,
 ) {
     val chart = this
     if (chart.axisLeft.limitLines.isNotEmpty()) {

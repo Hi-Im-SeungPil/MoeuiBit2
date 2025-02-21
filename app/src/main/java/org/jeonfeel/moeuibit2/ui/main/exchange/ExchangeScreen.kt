@@ -37,7 +37,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -719,7 +718,7 @@ fun CoinTickerView(
         modifier = Modifier
             .padding(horizontal = 9.dp)
             .fillMaxWidth()
-            .height(1.dp)
-            .background(color = commonDividerColor())
+            .height(1.dp),
+        color = commonDividerColor()
     )
 }

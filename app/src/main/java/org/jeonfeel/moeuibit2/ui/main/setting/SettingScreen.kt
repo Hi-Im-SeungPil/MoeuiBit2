@@ -7,10 +7,23 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,8 +41,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.PLAY_STORE_URL
-import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
@@ -38,6 +51,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogButtonsBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRejectTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
@@ -111,7 +125,7 @@ fun SettingScreenLazyColumn(viewModel: SettingViewModel) {
     val themeDialogState = remember {
         mutableStateOf(false)
     }
-//    ThemeDialog(themeDialogState, settingViewModel.preferenceManager)
+//    ThemeDialog(themeDialogState)
     if (themeDialogState.value) {
         ThemeSettingDialog(
             dismissRequest = { themeDialogState.value = false },
@@ -189,7 +203,7 @@ fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Uni
             .fillMaxWidth()
             .wrapContentHeight(Alignment.CenterVertically)
             .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
-            .clickable { clickAction() }
+            .noRippleClickable { clickAction() }
             .padding(20.dp, 15.dp)
     ) {
         Icon(
@@ -213,7 +227,7 @@ fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Uni
 fun ThemeSettingDialog(
     dismissRequest: () -> Unit,
     currentSettingTheme: ThemeHelper.ThemeMode,
-    setTheme: (theme: ThemeHelper.ThemeMode) -> Unit
+    setTheme: (theme: ThemeHelper.ThemeMode) -> Unit,
 ) {
     val selectedTheme = remember {
         mutableStateOf(currentSettingTheme)
@@ -222,7 +236,12 @@ fun ThemeSettingDialog(
         selectedTheme.value = currentSettingTheme
         dismissRequest()
     }) {
-        Column {
+        Column(
+            modifier = Modifier.background(
+                commonDialogBackground(),
+                shape = RoundedCornerShape(10.dp)
+            )
+        ) {
             ThemeSettingDialogItem(
                 icon = R.drawable.img_theme_light,
                 "라이트 모드",
@@ -250,6 +269,7 @@ fun ThemeSettingDialog(
                 selectedValue = selectedTheme.value,
                 theme = ThemeHelper.ThemeMode.DEFAULT
             )
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier
                     .background(
@@ -267,7 +287,7 @@ fun ThemeSettingDialog(
                         }
                         .padding(0.dp, 10.dp),
                     style = TextStyle(
-                        color = commonHintTextColor(),
+                        color = commonRejectTextColor(),
                         fontSize = DpToSp(dp = 17.dp),
                         textAlign = TextAlign.Center
                     )
@@ -297,20 +317,27 @@ fun ThemeSettingDialogItem(
     text: String,
     clickAction: () -> Unit,
     selectedValue: ThemeHelper.ThemeMode,
-    theme: ThemeHelper.ThemeMode
+    theme: ThemeHelper.ThemeMode,
 ) {
-    val color = if (selectedValue == theme) {
-        APP_PRIMARY_COLOR
+    val selectedColor = if (selectedValue == theme) {
+        commonTextColor()
     } else {
-        commonUnSelectedColor()
+        commonHintTextColor()
+    }
+
+    val selectedBorderColor = if (selectedValue == theme) {
+        commonTextColor()
+    } else {
+        commonDialogBackground()
     }
 
     Row(
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .padding(top = 20.dp)
+            .fillMaxWidth()
             .background(commonDialogBackground(), shape = RoundedCornerShape(10.dp))
-            .border(1.dp, color = color, shape = RoundedCornerShape(10.dp))
+            .border(1.dp, color = selectedBorderColor, shape = RoundedCornerShape(10.dp))
             .padding(horizontal = 25.dp, vertical = 20.dp)
             .noRippleClickable {
                 clickAction.invoke()
@@ -318,15 +345,23 @@ fun ThemeSettingDialogItem(
     ) {
         Icon(
             painter = painterResource(id = icon),
-            modifier = Modifier.size(30.dp),
-            tint = commonTextColor(),
+            modifier = Modifier
+                .size(30.dp)
+                .align(Alignment.CenterVertically),
+            tint = selectedColor,
             contentDescription = ""
         )
 
         Text(
             text = text,
-            modifier = Modifier.padding(start = 15.dp),
-            style = TextStyle(fontSize = DpToSp(17.dp), fontWeight = FontWeight.W500)
+            modifier = Modifier
+                .padding(start = 25.dp)
+                .align(Alignment.CenterVertically),
+            style = TextStyle(
+                fontSize = DpToSp(17.dp),
+                fontWeight = FontWeight.W500,
+                color = selectedColor
+            )
         )
     }
 }

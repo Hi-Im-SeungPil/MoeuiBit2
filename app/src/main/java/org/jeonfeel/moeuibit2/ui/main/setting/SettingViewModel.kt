@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.setting
 
+import android.content.res.Resources.Theme
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
@@ -11,17 +12,18 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
+import org.jeonfeel.moeuibit2.ui.theme.ThemeManager
 import javax.inject.Inject
 
 data class SettingScreenState(
     val openSourceState: MutableState<Boolean> = mutableStateOf(false),
-    val currentTheme: MutableState<ThemeHelper.ThemeMode> = mutableStateOf(ThemeHelper.ThemeMode.DEFAULT)
+    val currentTheme: MutableState<ThemeHelper.ThemeMode> = mutableStateOf(ThemeHelper.ThemeMode.DEFAULT),
 )
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    private val preferenceManager: PreferencesManager
+    private val preferenceManager: PreferencesManager,
 ) : BaseViewModel(preferenceManager) {
     val state = SettingScreenState()
 

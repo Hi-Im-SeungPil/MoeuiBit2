@@ -385,9 +385,9 @@ fun OrderTabUserSeedMoneySection(
                     },
                     textStyle = TextStyle(
                         fontSize = DpToSp(dp = 14.dp),
-                        textAlign = TextAlign.Center,
-                        color = commonTextColor()
-                    )
+                        textAlign = TextAlign.Center
+                    ),
+                    color = commonTextColor()
                 )
                 Text(
                     text = tempSymbol,

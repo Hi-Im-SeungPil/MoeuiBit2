@@ -90,7 +90,7 @@ fun OrderScreen(
     userCoin: State<MyCoin>,
     btcPrice: State<BigDecimal>,
     transactionInfoList: List<TransactionInfo>,
-    getTransactionInfoList: (String) -> Unit
+    getTransactionInfoList: (String) -> Unit,
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -306,7 +306,8 @@ fun OrderBookView(
                     modifier = Modifier
                         .padding(2.dp, 0.dp, 0.5.dp, 0.dp)
                         .fillMaxHeight()
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    color = commonTextColor()
                 )
             }
         }
@@ -322,7 +323,7 @@ fun OrderBookView(
 @Composable
 fun ChangeOrderBookIndicationSection(
     onClick: () -> Unit,
-    orderBookIndicationText: String
+    orderBookIndicationText: String,
 ) {
     Row(
         modifier = Modifier
@@ -366,7 +367,7 @@ fun OrderScreenQuantityTextField(
     askBidSelectedTab: MutableState<Int>,
     bidQuantity: MutableState<String>,
     askQuantity: MutableState<String>,
-    currentTradePriceState: MutableState<Double>
+    currentTradePriceState: MutableState<Double>,
 ) {
     val context = LocalContext.current
     val value = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {

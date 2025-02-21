@@ -7,17 +7,12 @@ import androidx.compose.ui.graphics.Color
 val APP_PRIMARY_COLOR = Color(0xff7b5ed6)
 
 @Composable
-fun commonBackground(): Color = if (!isSystemInDarkTheme()) {
-    Color.White
-} else {
-    Color(0xff080808)
-}
-
-@Composable
-fun commonBottomNavBackground(): Color = if (!isSystemInDarkTheme()) {
-    Color.White
-} else {
-    Color(0xFF181818)
+fun commonBackground(): Color {
+    return if (!isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Color(0xff080808)
+    }
 }
 
 @Composable
@@ -50,7 +45,7 @@ fun commonUnSelectedColor(): Color = if (!isSystemInDarkTheme()) {
 
 @Composable
 fun commonDividerColor(): Color = if (!isSystemInDarkTheme()) {
-    Color(0xFFEFEFEF)
+    Color(0xFFF0F0F0)
 } else {
     Color(0xff303030)
 }
@@ -81,4 +76,11 @@ fun commonDialogButtonsBackground(): Color = if (!isSystemInDarkTheme()) {
     Color(0xFFF5F5F5)
 } else {
     Color(0xFF363636)
+}
+
+@Composable
+fun commonRejectTextColor(): Color = if (!isSystemInDarkTheme()) {
+    Color(0xFF757575)
+} else {
+    Color(0xFFBDBDBD)
 }

@@ -253,7 +253,7 @@ fun TotalBidTradeDialog(
 fun Item(
     text: String,
     value: String,
-    symbol: String
+    symbol: String,
 ) {
     Row(modifier = Modifier.padding(top = 10.dp)) {
         Text(
@@ -275,7 +275,8 @@ fun Item(
         AutoSizeText(
             text = value,
             modifier = Modifier.align(Alignment.CenterVertically),
-            color = commonTextColor()
+            color = commonTextColor(),
+            textStyle = TextStyle(fontSize = DpToSp(15.dp))
         )
         Text(
             " $symbol",
@@ -288,7 +289,7 @@ fun Item(
 @Composable
 fun ButtonList(
     isKrw: Boolean,
-    textFieldValue: MutableState<String>
+    textFieldValue: MutableState<String>,
 ) {
     val plusAmountButtonList = remember {
         arrayOf(1, 10, 100, 1_000)
@@ -410,7 +411,7 @@ fun ButtonList(
 fun RowScope.TransparentTextField(
     value: MutableState<String>,
     placeholder: String = "총액을 입력해 주세요",
-    isKrw: Boolean
+    isKrw: Boolean,
 ) {
     Box(
         modifier = Modifier
@@ -477,7 +478,7 @@ fun bidConditionCheck(
     context: Context,
     totalPrice: BigDecimal,
     userSeedMoney: State<Long>,
-    userBTC: State<MyCoin>
+    userBTC: State<MyCoin>,
 ): Boolean {
     when {
         commonExchangeModelState.value == null -> {

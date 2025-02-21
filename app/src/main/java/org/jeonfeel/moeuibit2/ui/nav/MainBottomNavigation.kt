@@ -27,7 +27,6 @@ import org.jeonfeel.moeuibit2.constants.menuTitleArray
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBottomNavBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 
