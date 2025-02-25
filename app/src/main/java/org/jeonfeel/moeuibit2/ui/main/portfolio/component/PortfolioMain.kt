@@ -264,7 +264,7 @@ fun HoldCoinPieChart(userSeedMoney: Long, userHoldCoinList: List<MyCoin?>) {
             .padding(7.dp)
             .fillMaxWidth()
             .height(300.dp)
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = commonBackground())
             .drawUnderLine(lineColor = Color.DarkGray, strokeWidth = 2f)
     )
 }

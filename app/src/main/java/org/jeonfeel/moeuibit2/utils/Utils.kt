@@ -17,6 +17,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -101,7 +102,7 @@ object Utils {
             }
 
             else -> {
-                MaterialTheme.colorScheme.onBackground
+                commonTextColor()
             }
         }
     }

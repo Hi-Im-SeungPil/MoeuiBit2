@@ -507,7 +507,7 @@ fun UserHoldCoinLazyColumnItem(
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically),
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = commonTextColor(),
                             fontSize = DpToSp(dp = 15.dp)
                         )
                     )
@@ -529,7 +529,7 @@ fun UserHoldCoinLazyColumnItem(
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically),
                         style = TextStyle(
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = commonTextColor(),
                             fontSize = DpToSp(dp = 15.dp)
                         )
                     )
@@ -603,7 +603,7 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
                 textStyle = TextStyle(
                     textAlign = TextAlign.End,
                     fontSize = DpToSp(15.dp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = commonTextColor()
                 )
             )
             Text(
@@ -613,7 +613,7 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
                     .align(Alignment.CenterVertically),
                 fontWeight = FontWeight.Bold,
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(dp = 13.dp)
                 )
             )
@@ -641,10 +641,10 @@ fun getReturnTextColor(colorStandard: Long, text5: String): Color {
             }
 
             else -> {
-                MaterialTheme.colorScheme.onBackground
+                commonTextColor()
             }
         }
     } else {
-        MaterialTheme.colorScheme.onBackground
+        commonTextColor()
     }
 }

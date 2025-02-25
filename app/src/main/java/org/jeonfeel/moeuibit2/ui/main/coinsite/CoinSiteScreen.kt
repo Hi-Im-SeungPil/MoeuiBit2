@@ -56,7 +56,7 @@ fun CoinSiteScreen(viewModel: CoinSiteViewModel = hiltViewModel()) {
                     .padding(21.dp)
                     .wrapContentWidth(),
                 style = TextStyle(
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = commonTextColor(),
                     fontSize = DpToSp(dp = 13.dp)
                 )
             )
@@ -85,7 +85,7 @@ fun CoinSiteTopAppBar() {
     TopAppBar(
         modifier = Modifier
             .fillMaxWidth(),
-        backgroundColor = MaterialTheme.colorScheme.background,
+        backgroundColor = commonBackground(),
 
         ) {
 
