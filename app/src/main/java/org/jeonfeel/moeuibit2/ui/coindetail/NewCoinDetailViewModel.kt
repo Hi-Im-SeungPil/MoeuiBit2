@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,7 @@ import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.utils.getPostposition
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -66,6 +68,9 @@ class NewCoinDetailViewModel @Inject constructor(
     private var initIsFavorite = false
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
+
+    private val _lineChartData = mutableStateOf<List<Float>>(emptyList())
+    val lineChartData: State<List<Float>> get() = _lineChartData
 
     private val _tradeResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
@@ -107,6 +112,9 @@ class NewCoinDetailViewModel @Inject constructor(
     fun onStart(market: String) {
         realTimeJob?.cancel()
         collectTickerJob?.cancel()
+        viewModelScope.launch {
+            requestLineChartCandleSticks(market)
+        }
 
         realTimeJob = viewModelScope.launch {
             upbitCoinDetailUseCase.onStart(market.coinOrderIsKrwMarket())
@@ -224,6 +232,15 @@ class NewCoinDetailViewModel @Inject constructor(
                         _coinTicker.value = it.mapTo()
                     }
                 }
+            }
+        )
+    }
+
+    private suspend fun requestLineChartCandleSticks(market: String) {
+        executeUseCase<List<GetChartCandleRes>>(
+            target = upbitCoinDetailUseCase.getLineChartCandleSticks(market),
+            onComplete = {
+                _lineChartData.value = it.map { res -> res.tradePrice.toFloat() }.reversed()
             }
         )
     }

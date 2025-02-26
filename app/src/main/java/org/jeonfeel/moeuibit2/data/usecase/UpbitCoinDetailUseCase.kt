@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.data.usecase
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.CoinDetailWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
@@ -51,6 +52,15 @@ class UpbitCoinDetailUseCase @Inject constructor(
                 } else {
                     ticker[0]
                 }
+            }
+        )
+    }
+
+    suspend fun getLineChartCandleSticks(market: String): Flow<Any> {
+        return requestApiResult(
+            result = upbitRepository.getMinuteCandle(minute = "10", market = market, count = "144"),
+            onSuccess = { result: List<GetChartCandleRes> ->
+                result
             }
         )
     }

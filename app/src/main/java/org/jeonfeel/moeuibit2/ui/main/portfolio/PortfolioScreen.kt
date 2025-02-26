@@ -411,20 +411,20 @@ fun UserHoldCoinLazyColumnItem(
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            key(market) {
-                GlideImage(
-                    imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
-                    modifier = Modifier
-                        .padding(start = 8.dp, bottom = 12.dp)
-                        .size(30.dp)
-                        .clip(CircleShape)
-                        .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
-                        .background(Color.White)
-                        .align(Alignment.CenterVertically),
-                    error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
-                    placeHolder = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
-                )
-            }
+//            key(market) {
+//                GlideImage(
+//                    imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
+//                    modifier = Modifier
+//                        .padding(start = 8.dp, bottom = 12.dp)
+//                        .size(30.dp)
+//                        .clip(CircleShape)
+//                        .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+//                        .background(Color.White)
+//                        .align(Alignment.CenterVertically),
+//                    error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
+//                    placeHolder = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
+//                )
+//            }
             Column(
                 modifier = Modifier
                     .weight(1f)

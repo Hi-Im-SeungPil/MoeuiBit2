@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     fun init() {
 //        checkUpdate()
-        requestUpdate()
+//        requestUpdate()
     }
 
     /**

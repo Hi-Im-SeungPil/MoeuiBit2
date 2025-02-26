@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
+import android.widget.TextView
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -30,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -47,9 +50,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.LimitLine
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.orhanobut.logger.Logger
 import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.delay
@@ -153,7 +164,8 @@ fun CoinDetailScreen(
                 ),
                 btcPrice = viewModel.btcPrice.value,
                 market = market,
-                cautionMessageList = cautionMessageList
+                cautionMessageList = cautionMessageList,
+                lineChartDataList = viewModel.lineChartData.value
             )
             CoinDetailMainTabRow(navController = state.navController)
 
@@ -313,6 +325,7 @@ fun CoinDetailPriceSection(
     btcPrice: BigDecimal,
     market: String,
     cautionMessageList: List<String>,
+    lineChartDataList: List<Float> = emptyList(),
 ) {
     Column {
         Row(
@@ -383,19 +396,132 @@ fun CoinDetailPriceSection(
                     AutoScrollingBanner(cautionMessageList)
                 }
             }
+
+            if (lineChartDataList.isNotEmpty()) {
+                CoinDetailLineChart(
+                    data = lineChartDataList,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .height(60.dp)
+                        .width(120.dp)
+                        .padding(end = 10.dp)
+                )
+            }
             // 코인 상세화면 코인 이미지
-            GlideImage(
-                imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
-                modifier = Modifier
-                    .padding(end = 20.dp)
-                    .clip(CircleShape)
-                    .size(55.dp)
-                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
-                    .background(Color.White),
-                error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
-            )
+//            GlideImage(
+//                imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
+//                modifier = Modifier
+//                    .padding(end = 20.dp)
+//                    .clip(CircleShape)
+//                    .size(55.dp)
+//                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
+//                    .background(Color.White),
+//                error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
+//            )
         }
     }
+}
+
+@Composable
+fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
+    val context = LocalContext.current
+    val lineChart = remember { LineChart(context) }
+    val chartIsReady = remember { mutableStateOf(false) }
+
+    LaunchedEffect(data) {
+        if (data.isNotEmpty()) {
+            val entries = data.mapIndexed { index, value -> Entry(index.toFloat(), value) }
+            val lastValue = data.lastOrNull() ?: 0f
+            val firstValue = data.firstOrNull() ?: 0f
+            val isUp = lastValue >= firstValue
+
+            val dataSet = LineDataSet(entries, "").apply {
+                color = ContextCompat.getColor(
+                    context,
+                    if (isUp) R.color.increase_color else R.color.decrease_color // 상승 시 파랑, 하락 시 빨강
+                )
+                mode = LineDataSet.Mode.CUBIC_BEZIER
+                setDrawFilled(true)
+                fillDrawable = ContextCompat.getDrawable(
+                    context,
+                    if (isUp) R.drawable.gradient_red else R.drawable.gradient_blue
+                )
+
+                setDrawCircles(false)
+                setDrawValues(false)
+                lineWidth = 1f
+            }
+
+            // 데이터 범위에 맞게 최소/최대 설정
+            lineChart.xAxis.axisMinimum = entries.minOf { it.x + 1 }
+            lineChart.xAxis.axisMaximum = entries.maxOf { it.x + 1 }
+            lineChart.axisLeft.axisMinimum = entries.minOf { it.y }
+            lineChart.axisLeft.axisMaximum = entries.maxOf { it.y }
+
+            lineChart.data = LineData(dataSet)
+
+            val currentPrice = data.lastOrNull() ?: return@LaunchedEffect
+
+            // 점선 Limit Line 추가
+            val limitLine = LimitLine(currentPrice, "").apply {
+                lineWidth = 1f
+                enableDashedLine(10f, 10f, 0f)  // 점선 스타일 설정
+                lineColor = ContextCompat.getColor(context, R.color.hint_text_color)  // 점선 색상
+            }
+
+            // 기존 Limit Line 제거 후 새로 추가
+            lineChart.axisLeft.removeAllLimitLines()
+            lineChart.axisLeft.addLimitLine(limitLine)
+
+            // 스케일 자동 조정 (invalidate 전에 적용)
+            lineChart.isAutoScaleMinMaxEnabled = true
+            lineChart.invalidate()
+        }
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            if(chartIsReady.value) {
+                TextView(context)
+            } else {
+                lineChart.apply {
+                    legend.isEnabled = false
+                    setTouchEnabled(false)
+                    setPinchZoom(false)
+                    description.isEnabled = false
+
+                    // X축 설정
+                    xAxis.apply {
+                        position = XAxis.XAxisPosition.BOTTOM
+                        setDrawGridLines(false)
+                        setDrawLabels(false)
+                        isEnabled = false
+                        setAvoidFirstLastClipping(true)
+                    }
+
+                    // Y축 설정
+                    axisLeft.apply {
+                        setDrawGridLines(false)
+                        setDrawLabels(false)
+                        setDrawAxisLine(false)
+                        isEnabled = true
+                        spaceTop = 0f
+                        spaceBottom = 0f
+                    }
+
+                    axisRight.isEnabled = false
+
+                    // 여백 제거
+                    setExtraOffsets(0f, 10f, 0f, 10f)
+                    setViewPortOffsets(0f, 10f, 0f, 10f)
+
+                    // 배경 설정
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.background))
+                }
+            }
+        }
+    )
 }
 
 @Composable

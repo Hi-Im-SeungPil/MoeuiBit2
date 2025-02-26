@@ -49,4 +49,8 @@ data class GetChartCandleRes(
 
     @SerialName("first_day_of_period")
     val firstDayOfPeriod: String = "",
-)
+) {
+    fun mapToLineChartData() {
+
+    }
+}
