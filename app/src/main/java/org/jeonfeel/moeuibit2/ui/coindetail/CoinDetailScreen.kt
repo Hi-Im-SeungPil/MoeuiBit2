@@ -89,7 +89,7 @@ fun CoinDetailScreen(
     market: String,
     warning: Boolean,
     navController: NavHostController,
-    caution: Caution?
+    caution: Caution?,
 ) {
     val state = rememberCoinDetailStateHolder(context = LocalContext.current, caution = caution)
     val coroutineScope = rememberCoroutineScope()
@@ -193,7 +193,7 @@ fun NewCoinDetailTopAppBar(
     isFavorite: State<Boolean>,
     backPressed: () -> Boolean,
     warning: Boolean,
-    isCaution: Boolean
+    isCaution: Boolean,
 ) {
     Row(modifier = Modifier.background(commonBackground())) {
         IconButton(
@@ -417,7 +417,13 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
     val chartIsReady = remember { mutableStateOf(false) }
 
     LaunchedEffect(data) {
+        Logger.e(chartIsReady.value.toString())
         if (data.isNotEmpty()) {
+            if (!chartIsReady.value) {
+                lineChart.animateX(500)
+            } else {
+                lineChart.animateX(0)
+            }
             val entries = data.mapIndexed { index, value -> Entry(index.toFloat(), value) }
             val lastValue = data.lastOrNull() ?: 0f
             val firstValue = data.firstOrNull() ?: 0f
@@ -463,16 +469,15 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
 
             // 스케일 자동 조정 (invalidate 전에 적용)
             lineChart.isAutoScaleMinMaxEnabled = true
+            chartIsReady.value = true
             lineChart.invalidate()
         }
     }
 
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            if(chartIsReady.value) {
-                TextView(context)
-            } else {
+    if (chartIsReady.value) {
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
                 lineChart.apply {
                     legend.isEnabled = false
                     setTouchEnabled(false)
@@ -508,8 +513,8 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
                     setBackgroundColor(ContextCompat.getColor(context, R.color.background))
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
