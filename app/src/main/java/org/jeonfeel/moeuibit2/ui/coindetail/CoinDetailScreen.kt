@@ -391,10 +391,6 @@ fun CoinDetailPriceSection(
                         color = priceTextColor
                     )
                 }
-
-                if (cautionMessageList.isNotEmpty()) {
-                    AutoScrollingBanner(cautionMessageList)
-                }
             }
 
             if (lineChartDataList.isNotEmpty()) {
@@ -407,17 +403,9 @@ fun CoinDetailPriceSection(
                         .padding(end = 10.dp)
                 )
             }
-            // 코인 상세화면 코인 이미지
-//            GlideImage(
-//                imageModel = COIN_IMAGE_BASE_URL.plus("$symbol.png"),
-//                modifier = Modifier
-//                    .padding(end = 20.dp)
-//                    .clip(CircleShape)
-//                    .size(55.dp)
-//                    .border(width = 1.dp, color = Color(0xFFE8E8E8), shape = CircleShape)
-//                    .background(Color.White),
-//                error = ImageBitmap.imageResource(R.drawable.img_moeuibit_icon3),
-//            )
+        }
+        if (cautionMessageList.isNotEmpty()) {
+            AutoScrollingBanner(cautionMessageList)
         }
     }
 }

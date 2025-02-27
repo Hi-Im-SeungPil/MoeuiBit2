@@ -28,6 +28,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.text.SimpleDateFormat
@@ -57,7 +58,7 @@ fun TransactionInfoLazyColumn(
             textAlign = TextAlign.Center,
             fontSize = DpToSp(18.dp),
             fontWeight = FontWeight.Bold,
-            style = TextStyle(color = MaterialTheme.colorScheme.onBackground)
+            style = TextStyle(color = commonTextColor())
         )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize()) {

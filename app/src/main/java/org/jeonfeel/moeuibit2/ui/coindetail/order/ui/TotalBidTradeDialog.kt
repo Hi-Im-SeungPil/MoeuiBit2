@@ -46,6 +46,7 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -93,158 +94,159 @@ fun TotalBidTradeDialog(
                 dialogState.value = false
             }
         ) {
-            Card(
+            Column(
                 modifier = Modifier
-                    .wrapContentSize()
-                    .background(commonBackground(), shape = RoundedCornerShape(15.dp))
+                    .background(
+                        commonDialogBackground(),
+                        shape = RoundedCornerShape(10.dp)
+                    )
                     .padding(20.dp)
             ) {
-                Column(modifier = Modifier.background(commonBackground())) {
-                    Text(
-                        text = "총액 지정하여 매수",
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .align(alignment = Alignment.CenterHorizontally),
-                        style = TextStyle(
-                            fontWeight = FontWeight.W600,
-                            fontSize = DpToSp(16.dp),
-                            color = commonTextColor()
+                Text(
+                    text = "총액 지정하여 매수",
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .align(alignment = Alignment.CenterHorizontally),
+                    style = TextStyle(
+                        fontWeight = FontWeight.W600,
+                        fontSize = DpToSp(16.dp),
+                        color = commonTextColor()
+                    )
+                )
+                Item(
+                    text = "보유",
+                    value = if (isKrw) userSeedMoney.value.commaFormat() else userBTC.value.quantity.eighthDecimal(),
+                    symbol = if (isKrw) "KRW" else "BTC"
+                )
+                Item(
+                    text = "현재가",
+                    value = if (isKrw) commonExchangeModelState.value?.tradePrice?.formattedStringForKRW()
+                        ?: "0" else commonExchangeModelState.value?.tradePrice?.formattedStringForBtc()
+                        ?: "0",
+                    symbol = if (isKrw) "KRW" else "BTC"
+                )
+                Item(
+                    text = "매수 수량",
+                    value = buyingQuantity?.formattedStringForQuantity() ?: "0",
+                    symbol = commonExchangeModelState.value?.symbol ?: ""
+                )
+
+                Divider(
+                    Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth()
+                        .height(2.dp), color = APP_PRIMARY_COLOR
+                )
+
+                ButtonList(
+                    textFieldValue = textFieldValue,
+                    isKrw = isKrw
+                )
+
+                Text(
+                    text = "초기화",
+                    modifier = Modifier
+                        .padding(top = 15.dp)
+                        .align(Alignment.End)
+                        .background(
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(10.dp)
                         )
+                        .padding(vertical = 10.dp, horizontal = 14.dp)
+                        .noRippleClickable {
+                            textFieldValue.value = ""
+                        },
+                    style = TextStyle(
+                        textAlign = TextAlign.Center,
+                        fontSize = DpToSp(12.dp),
+                        color = Color.Black
                     )
-                    Item(
-                        text = "보유",
-                        value = if (isKrw) userSeedMoney.value.commaFormat() else userBTC.value.quantity.eighthDecimal(),
-                        symbol = if (isKrw) "KRW" else "BTC"
-                    )
-                    Item(
-                        text = "현재가",
-                        value = if (isKrw) commonExchangeModelState.value?.tradePrice?.formattedStringForKRW()
-                            ?: "0" else commonExchangeModelState.value?.tradePrice?.formattedStringForBtc()
-                            ?: "0",
-                        symbol = if (isKrw) "KRW" else "BTC"
-                    )
-                    Item(
-                        text = "매수 수량",
-                        value = buyingQuantity?.formattedStringForQuantity() ?: "0",
-                        symbol = commonExchangeModelState.value?.symbol ?: ""
-                    )
+                )
 
-                    Divider(
-                        Modifier
-                            .padding(top = 10.dp)
-                            .fillMaxWidth()
-                            .height(2.dp), color = APP_PRIMARY_COLOR
-                    )
-
-                    ButtonList(
-                        textFieldValue = textFieldValue,
-                        isKrw = isKrw
-                    )
-
+                Row(modifier = Modifier.padding(top = 15.dp)) {
                     Text(
-                        text = "초기화",
+                        "총액",
                         modifier = Modifier
-                            .padding(top = 15.dp)
-                            .align(Alignment.End)
+                            .padding(end = 15.dp)
+                            .align(Alignment.CenterVertically),
+                        style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
+                    )
+                    TransparentTextField(textFieldValue, isKrw = isKrw)
+                    Text(
+                        if (isKrw) " KRW" else " BTC",
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(top = 30.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        "취소",
+                        modifier = Modifier
+                            .weight(2f)
                             .background(
                                 color = Color.LightGray,
-                                shape = RoundedCornerShape(15.dp)
+                                shape = RoundedCornerShape(10.dp)
                             )
-                            .padding(vertical = 10.dp, horizontal = 14.dp)
+                            .padding(vertical = 15.dp)
                             .noRippleClickable {
+                                dialogState.value = false
                                 textFieldValue.value = ""
                             },
                         style = TextStyle(
                             textAlign = TextAlign.Center,
-                            fontSize = DpToSp(12.dp),
-                            color = Color.Black
+                            color = Color.Black,
+                            fontSize = DpToSp(14.dp)
                         )
                     )
-
-                    Row(modifier = Modifier.padding(top = 15.dp)) {
-                        Text(
-                            "총액",
-                            modifier = Modifier
-                                .padding(end = 15.dp)
-                                .align(Alignment.CenterVertically),
-                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
-                        )
-                        TransparentTextField(textFieldValue, isKrw = isKrw)
-                        Text(
-                            if (isKrw) " KRW" else " BTC",
-                            modifier = Modifier.align(Alignment.CenterVertically),
-                            style = TextStyle(fontSize = DpToSp(15.dp), color = commonTextColor())
-                        )
-                    }
-
-                    Row(
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        "매수",
                         modifier = Modifier
-                            .padding(top = 30.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            "취소",
-                            modifier = Modifier
-                                .weight(2f)
-                                .background(
-                                    color = Color.LightGray,
-                                    shape = RoundedCornerShape(15.dp)
-                                )
-                                .padding(vertical = 15.dp)
-                                .noRippleClickable {
-                                    dialogState.value = false
-                                    textFieldValue.value = ""
-                                },
-                            style = TextStyle(
-                                textAlign = TextAlign.Center,
-                                color = Color.Black,
-                                fontSize = DpToSp(14.dp)
+                            .weight(3f)
+                            .background(
+                                color = commonRiseColor(),
+                                shape = RoundedCornerShape(10.dp)
                             )
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            "매수",
-                            modifier = Modifier
-                                .weight(3f)
-                                .background(
-                                    color = commonRiseColor(),
-                                    shape = RoundedCornerShape(15.dp)
-                                )
-                                .padding(vertical = 15.dp)
-                                .noRippleClickable {
-                                    if (textFieldValue.value.isEmpty()) return@noRippleClickable
+                            .padding(vertical = 15.dp)
+                            .noRippleClickable {
+                                if (textFieldValue.value.isEmpty()) return@noRippleClickable
 
-                                    if (bidConditionCheck(
-                                            commonExchangeModelState = commonExchangeModelState,
-                                            context = context,
-                                            totalPrice = textFieldValue.value
-                                                .replace(",", "")
-                                                .toBigDecimal(),
-                                            userSeedMoney = userSeedMoney,
-                                            userBTC = userBTC
-                                        )
-                                    ) {
-                                        requestBid(
-                                            commonExchangeModelState.value?.market ?: "",
-                                            buyingQuantity?.toDouble() ?: 0.0,
-                                            commonExchangeModelState.value?.tradePrice
-                                                ?: BigDecimal.ZERO,
-                                            textFieldValue.value
-                                                .replace(",", "")
-                                                .toDouble()
-                                        )
-                                        textFieldValue.value = ""
-                                    }
-                                },
-                            style = TextStyle(
-                                textAlign = TextAlign.Center,
-                                fontSize = DpToSp(14.dp),
-                                color = Color.White
-                            )
+                                if (bidConditionCheck(
+                                        commonExchangeModelState = commonExchangeModelState,
+                                        context = context,
+                                        totalPrice = textFieldValue.value
+                                            .replace(",", "")
+                                            .toBigDecimal(),
+                                        userSeedMoney = userSeedMoney,
+                                        userBTC = userBTC
+                                    )
+                                ) {
+                                    requestBid(
+                                        commonExchangeModelState.value?.market ?: "",
+                                        buyingQuantity?.toDouble() ?: 0.0,
+                                        commonExchangeModelState.value?.tradePrice
+                                            ?: BigDecimal.ZERO,
+                                        textFieldValue.value
+                                            .replace(",", "")
+                                            .toDouble()
+                                    )
+                                    textFieldValue.value = ""
+                                }
+                            },
+                        style = TextStyle(
+                            textAlign = TextAlign.Center,
+                            fontSize = DpToSp(14.dp),
+                            color = Color.White
                         )
-                    }
+                    )
                 }
             }
+
         }
     }
 }

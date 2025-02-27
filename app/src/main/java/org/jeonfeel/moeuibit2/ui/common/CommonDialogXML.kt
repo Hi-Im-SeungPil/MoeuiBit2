@@ -2,11 +2,12 @@ package org.jeonfeel.moeuibit2.ui.common
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.databinding.DialogCommonBinding
 
 class CommonDialogXML(
@@ -56,5 +57,21 @@ class CommonDialogXML(
     override fun onStart() {
         super.onStart()
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val horizontalMargin = dpToPx(43f)
+        val layoutParams = dialog?.window?.attributes
+        layoutParams?.width =
+            Resources.getSystem().displayMetrics.widthPixels - 2 * horizontalMargin
+        dialog?.window?.attributes = layoutParams
     }
+
+    private fun dpToPx(dp: Float): Int {
+        return (dp * Resources.getSystem().displayMetrics.density).toInt()
+    }
+
 }
