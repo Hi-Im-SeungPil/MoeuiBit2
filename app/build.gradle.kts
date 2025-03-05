@@ -194,6 +194,7 @@ dependencies {
     implementation(libs.flexhybridapp.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.metadata.jvm)
+    implementation(libs.balloon.compose)
 }
 
 protobuf {

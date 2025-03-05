@@ -24,6 +24,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE
 import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver.Companion.needRefresh
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
@@ -100,6 +101,8 @@ class UpBitExchange @Inject constructor(
     suspend fun onStart(
         updateLoadingState: KFunction1<Boolean, Unit>
     ) {
+        Logger.e("${tickerDataIsEmpty()} $successInit $needRefresh")
+
         if (!tickerDataIsEmpty() && successInit) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
@@ -109,7 +112,7 @@ class UpBitExchange @Inject constructor(
             updateLoadingState(true)
             clearTickerData()
             init()
-            android.os.Handler(Looper.getMainLooper()).postDelayed(kotlinx.coroutines.Runnable {
+            android.os.Handler(Looper.getMainLooper()).postDelayed({
                 updateLoadingState(false)
             }, 500)
             useCaseOnStart()

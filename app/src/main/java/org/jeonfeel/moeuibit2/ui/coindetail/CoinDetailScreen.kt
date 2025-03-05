@@ -57,6 +57,11 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.orhanobut.logger.Logger
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
@@ -163,14 +168,16 @@ fun CoinDetailScreen(
                 cautionMessageList = cautionMessageList,
                 lineChartDataList = viewModel.lineChartData.value,
                 moveChart = {
-                    tabState.intValue = 1
-                    state.navController.navigate(CoinDetailMainTabRowItem.Chart.screenRoute) {
-                        popUpTo(state.navController.graph.id) {
-                            saveState = true
-                            inclusive = true
+                    if (tabState.intValue != 1) {
+                        tabState.intValue = 1
+                        state.navController.navigate(CoinDetailMainTabRowItem.Chart.screenRoute) {
+                            popUpTo(state.navController.graph.id) {
+                                saveState = true
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
             )
@@ -401,23 +408,21 @@ fun CoinDetailPriceSection(
                 }
             }
 
-            if (lineChartDataList.isNotEmpty()) {
-                CoinDetailLineChart(
-                    data = lineChartDataList,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .height(60.dp)
-                        .width(120.dp)
-                        .padding(end = 10.dp)
-                        .noRippleClickable {
-                            moveChart()
-                        }
-                )
-            }
+            CoinDetailLineChart(
+                data = lineChartDataList,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .height(60.dp)
+                    .width(120.dp)
+                    .padding(end = 10.dp)
+                    .noRippleClickable {
+                        moveChart()
+                    }
+            )
         }
-        if (cautionMessageList.isNotEmpty()) {
-            AutoScrollingBanner(cautionMessageList)
-        }
+    }
+    if (cautionMessageList.isNotEmpty()) {
+        AutoScrollingBanner(cautionMessageList)
     }
 }
 
@@ -426,7 +431,18 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
     val context = LocalContext.current
     val lineChart = remember { LineChart(context) }
     val chartIsReady = remember { mutableStateOf(false) }
-
+    val builder = rememberBalloonBuilder {
+        setArrowSize(10)
+        setArrowPosition(0.5f)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+        setWidth(BalloonSizeSpec.WRAP)
+        setHeight(BalloonSizeSpec.WRAP)
+        setPadding(12)
+        setMarginHorizontal(12)
+        setCornerRadius(8f)
+        setBackgroundColorResource(R.color.dialog_background)
+        setBalloonAnimation(BalloonAnimation.OVERSHOOT)
+    }
     LaunchedEffect(data) {
         Logger.e(chartIsReady.value.toString())
         if (data.isNotEmpty()) {
@@ -486,45 +502,71 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
     }
 
     if (chartIsReady.value) {
-        AndroidView(
-            modifier = modifier,
-            factory = { context ->
-                lineChart.apply {
-                    legend.isEnabled = false
-                    setTouchEnabled(false)
-                    setPinchZoom(false)
-                    description.isEnabled = false
-
-                    // X축 설정
-                    xAxis.apply {
-                        position = XAxis.XAxisPosition.BOTTOM
-                        setDrawGridLines(false)
-                        setDrawLabels(false)
-                        isEnabled = false
-                        setAvoidFirstLastClipping(true)
-                    }
-
-                    // Y축 설정
-                    axisLeft.apply {
-                        setDrawGridLines(false)
-                        setDrawLabels(false)
-                        setDrawAxisLine(false)
-                        isEnabled = true
-                        spaceTop = 0f
-                        spaceBottom = 0f
-                    }
-
-                    axisRight.isEnabled = false
-
-                    // 여백 제거
-                    setExtraOffsets(0f, 10f, 0f, 10f)
-                    setViewPortOffsets(0f, 10f, 0f, 10f)
-
-                    // 배경 설정
-                    setBackgroundColor(ContextCompat.getColor(context, R.color.background))
+        Row {
+            Balloon(
+                modifier = Modifier
+                    .align(Alignment.Bottom)
+                    .padding(bottom = 3.dp, end = 4.dp),
+                builder = builder,
+                balloonContent = {
+                    Text(
+                        text = "- 10분봉 24시간 차트 입니다.\n- 실선은 현재 가격을 의미합니다.",
+                        color = commonTextColor()
+                    )
                 }
+            ) { balloonWindow ->
+                Icon(
+                    painter = painterResource(R.drawable.img_question_mark),
+                    modifier = Modifier
+                        .size(15.dp, 15.dp)
+                        .noRippleClickable {
+                            balloonWindow.showAlignBottom()
+                        },
+                    contentDescription = null,
+                    tint = commonTextColor()
+                )
             }
-        )
+
+            AndroidView(
+                modifier = modifier,
+                factory = { context ->
+                    lineChart.apply {
+                        legend.isEnabled = false
+                        setTouchEnabled(false)
+                        setPinchZoom(false)
+                        description.isEnabled = false
+
+                        // X축 설정
+                        xAxis.apply {
+                            position = XAxis.XAxisPosition.BOTTOM
+                            setDrawGridLines(false)
+                            setDrawLabels(false)
+                            isEnabled = false
+                            setAvoidFirstLastClipping(true)
+                        }
+
+                        // Y축 설정
+                        axisLeft.apply {
+                            setDrawGridLines(false)
+                            setDrawLabels(false)
+                            setDrawAxisLine(false)
+                            isEnabled = true
+                            spaceTop = 0f
+                            spaceBottom = 0f
+                        }
+
+                        axisRight.isEnabled = false
+
+                        // 여백 제거
+                        setExtraOffsets(0f, 10f, 0f, 10f)
+                        setViewPortOffsets(0f, 10f, 0f, 10f)
+
+                        // 배경 설정
+                        setBackgroundColor(ContextCompat.getColor(context, R.color.background))
+                    }
+                }
+            )
+        }
     }
 }
 

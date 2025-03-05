@@ -1,4 +1,5 @@
 [versions]
+balloonCompose = "1.6.12"
 gradle = "8.7.1"
 kotlin = "2.0.0"
 accompanistWebview = "0.26.5-rc"
@@ -82,6 +83,7 @@ app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.re
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 balloon = { module = "com.github.skydoves:balloon", version.ref = "balloon" }
+balloon-compose = { module = "com.github.skydoves:balloon-compose", version.ref = "balloonCompose" }
 compose-compiler-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }

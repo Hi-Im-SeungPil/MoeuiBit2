@@ -9,7 +9,7 @@ class CoinInfoStateHolderActionHandler(
 ) {
     fun moveToUrl(url: String, linkType: LinkType) {
         if (linkType == LinkType.IN_APP) {
-            moveInAppToWebViewURL(url)
+            context.moveUrl(url)
         } else {
             context.moveUrl(url)
         }

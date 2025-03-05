@@ -125,7 +125,6 @@ fun ExchangeScreen(
     textFieldValueState: State<String>,
     updateTextFieldValue: KFunction1<String, Unit>,
 ) {
-
     val stateHolder = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
         sortTickerList = sortTickerList,

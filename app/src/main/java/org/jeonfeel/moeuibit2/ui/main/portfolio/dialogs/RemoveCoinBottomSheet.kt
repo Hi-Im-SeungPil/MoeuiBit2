@@ -36,6 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import kotlin.reflect.KFunction1
@@ -46,7 +50,8 @@ fun RemoveCoinBottomSheet(
     removeCoinList: List<Pair<String, String>>,
     hideSheet: () -> Unit,
     checkList: List<Boolean>,
-    updateCheckedList: KFunction1<Int, Unit>
+    updateCheckedList: KFunction1<Int, Unit>,
+    editUserHoldCoin: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -81,7 +86,7 @@ fun RemoveCoinBottomSheet(
                     modifier = Modifier
                         .requiredHeightIn(max = 600.dp)
                         .background(
-                            color = Color.White,
+                            color = commonDialogBackground(),
                             shape = RoundedCornerShape(
                                 topStart = 20.dp, topEnd = 20.dp
                             )
@@ -97,7 +102,11 @@ fun RemoveCoinBottomSheet(
                             .size(30.dp)
                             .align(Alignment.End)
                     ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = commonTextColor()
+                        )
                     }
 
                     Text(
@@ -107,7 +116,7 @@ fun RemoveCoinBottomSheet(
                             .align(Alignment.CenterHorizontally),
                         style = TextStyle(
                             fontSize = DpToSp(23.dp),
-                            color = Color.Black,
+                            color = commonTextColor(),
                             fontWeight = FontWeight.SemiBold
                         )
                     )
@@ -140,17 +149,17 @@ fun RemoveCoinBottomSheet(
                                 .align(Alignment.CenterVertically),
                             style = TextStyle(
                                 fontSize = DpToSp(20.dp),
-                                color = if (checkList.all { it }) Color.Black else Color.LightGray,
+                                color = if (checkList.all { it }) commonTextColor() else commonHintTextColor(),
                                 fontWeight = FontWeight.Medium
                             )
                         )
 
                         Text(
-                            text = "(${checkList.count { it }} / ${removeCoinList.size} )",
+                            text = "( ${checkList.count { it }} / ${removeCoinList.size} )",
                             modifier = Modifier
                                 .padding(end = 10.dp)
                                 .align(Alignment.CenterVertically),
-                            style = TextStyle(fontSize = DpToSp(16.dp))
+                            style = TextStyle(fontSize = DpToSp(16.dp), color = commonTextColor())
                         )
                     }
 
@@ -186,7 +195,7 @@ fun RemoveCoinBottomSheet(
                                             .padding(start = 10.dp),
                                         style = TextStyle(
                                             fontSize = DpToSp(17.dp),
-                                            color = if (checkList[index]) Color.Black else Color.LightGray
+                                            color = if (checkList[index]) commonTextColor() else commonHintTextColor()
                                         )
                                     )
                                     Text(
@@ -194,7 +203,7 @@ fun RemoveCoinBottomSheet(
                                         modifier = Modifier.padding(start = 10.dp),
                                         style = TextStyle(
                                             fontSize = DpToSp(13.dp),
-                                            color = Color.LightGray
+                                            color = commonHintTextColor()
                                         )
                                     )
                                 }
@@ -207,7 +216,7 @@ fun RemoveCoinBottomSheet(
                             .padding(bottom = 10.dp)
                             .fillMaxWidth()
                             .background(
-                                color = if (checkList.none { it }) Color(0xFFFFB4B4) else Color(
+                                color = if (checkList.none { it }) commonRiseColor() else Color(
                                     0xFFFF4848
                                 ),
                                 shape = RoundedCornerShape(10.dp)
@@ -215,9 +224,8 @@ fun RemoveCoinBottomSheet(
                             .padding(vertical = 20.dp)
                             .noRippleClickable {
                                 if (checkList.none { it }) return@noRippleClickable
-
-
-                                // 코인 삭제
+                                hideSheet()
+                                editUserHoldCoin()
                             }
                     ) {
                         Text(

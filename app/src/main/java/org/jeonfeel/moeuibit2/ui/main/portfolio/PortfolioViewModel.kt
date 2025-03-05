@@ -304,15 +304,15 @@ class PortfolioViewModel @Inject constructor(
             _userHoldCoinDtoList.add(userHoldCoinDTO)
             myCoinHashMap[myCoin.market] = myCoin
             _totalPurchase.value = _totalPurchase.value.plus(Calculator.getTotalPurchase(myCoin))
-            userHoldCoinsMarkets.append(myCoin.market).append(",")
             userHoldCoinDtoListPositionHashMap[myCoin.market] = index
-            val marketCodes = myCoinList
-                .map {
-                    if (marketCodeRes[it?.market] == null) return@map null
-                    it?.market ?: ""
-                }.filterNotNull().mapToMarketCodesRequest().plus(",KRW-WEMIX")
-            userHoldCoinsMarkets.append(marketCodes)
         }
+
+        val marketCodes = myCoinList
+            .map {
+                if (marketCodeRes[it?.market] == null) return@map null
+                it?.market ?: ""
+            }.filterNotNull().mapToMarketCodesRequest()
+        userHoldCoinsMarkets.append(marketCodes).append(",")
     }
 
     private suspend fun requestTicker() {
@@ -476,7 +476,6 @@ class PortfolioViewModel @Inject constructor(
         executeUseCase<List<UpbitMarketCodeRes>>(
             target = upbitPortfolioUseCase.getMarketCode(),
             onComplete = {
-                Logger.e("marketcodes2 -> $it")
                 it.associateBy { it.market }.forEach { (key, value) ->
                     _marketCodeRes[key] = value
                 }

@@ -160,8 +160,8 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
                                 //TODO 필수도 수정해야함.
-//                                earnReward()
-                                adDialogState.value = true
+                                earnReward()
+//                                adDialogState.value = true
                             },
                         style = TextStyle(
                             color = commonTextColor(),
@@ -604,7 +604,8 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
                     textAlign = TextAlign.End,
                     fontSize = DpToSp(15.dp),
                     color = commonTextColor()
-                )
+                ),
+                color = commonTextColor()
             )
             Text(
                 text = "  ".plus(text2),

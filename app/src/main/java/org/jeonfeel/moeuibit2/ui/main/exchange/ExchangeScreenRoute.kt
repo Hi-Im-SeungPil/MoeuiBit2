@@ -2,25 +2,32 @@ package org.jeonfeel.moeuibit2.ui.main.exchange
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.MainActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeLoadingScreen
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.ConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import kotlin.system.exitProcess
 
 @Composable
 fun ExchangeScreenRoute(
     viewModel: ExchangeViewModel = hiltViewModel(),
-    appNavController: NavHostController
+    appNavController: NavHostController,
+    statusFlow: Flow<ConnectivityObserver.Status>
 ) {
     val context = LocalContext.current
     val backBtnTime = remember { mutableLongStateOf(0) }
+    val status: ConnectivityObserver.Status by statusFlow.collectAsStateWithLifecycle(initialValue = ConnectivityObserver.Status.Available)
 
     AddLifecycleEvent(
         onStartAction = {

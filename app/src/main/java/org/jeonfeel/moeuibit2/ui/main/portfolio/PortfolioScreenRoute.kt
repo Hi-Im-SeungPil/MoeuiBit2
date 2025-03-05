@@ -96,7 +96,8 @@ fun PortfolioScreenRoute(
             hideSheet = viewModel::hideBottomSheet,
             dialogState = viewModel.showRemoveCoinDialogState,
             checkList = viewModel.removeCoinCheckedState,
-            updateCheckedList = viewModel::updateRemoveCoinCheckState
+            updateCheckedList = viewModel::updateRemoveCoinCheckState,
+            editUserHoldCoin = { viewModel.editUserHoldCoin() },
         )
     }
 }

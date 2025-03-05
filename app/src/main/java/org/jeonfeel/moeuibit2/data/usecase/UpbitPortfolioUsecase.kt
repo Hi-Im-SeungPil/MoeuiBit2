@@ -84,4 +84,8 @@ class UpbitPortfolioUsecase @Inject constructor(
         localRepository.getMyCoinDao().delete(market)
         localRepository.getTransactionInfoDao().delete(market)
     }
+
+    suspend fun insertCoin(myCoin: MyCoin) {
+        localRepository.getMyCoinDao().insert(myCoin)
+    }
 }
