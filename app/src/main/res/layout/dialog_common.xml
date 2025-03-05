@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
     android:background="@drawable/dialog_common_background"
     android:orientation="vertical">
@@ -13,7 +14,8 @@
         android:layout_height="50dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
-        tools:src="@drawable/twitter" />
+        app:tint="@color/text_color"
+        tools:src="@drawable/img_update" />
 
     <TextView
         android:id="@+id/tv_common_dialog_title"

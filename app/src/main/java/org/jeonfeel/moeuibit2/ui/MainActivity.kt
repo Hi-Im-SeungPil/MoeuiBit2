@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 //        appUpdateInfo: AppUpdateInfo,
     ) {
         CommonDialogXML(
-            image = R.drawable.twitter,
+            image = R.drawable.img_update,
             message = this.getString(R.string.updateDialogMessage),
             onConfirm = {
 //                appUpdateManager.startUpdateFlowForResult(

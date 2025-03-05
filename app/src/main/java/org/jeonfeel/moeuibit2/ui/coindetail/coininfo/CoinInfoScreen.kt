@@ -57,7 +57,7 @@ fun CoinInfoContent(
             .background(color = commonBackground())
     ) {
         CoinLinkSection(coinLinkList = coinLinkList, moveToWeb = moveToWeb)
-        CoinInfoSection(coinInfoModel)
+//        CoinInfoSection(coinInfoModel)
     }
 }
 

@@ -5,6 +5,7 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,12 +21,10 @@ import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER
 import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoRoute
-import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
-
 
 sealed class CoinDetailMainTabRowItem(var title: String, var screenRoute: String) {
     data object Order : CoinDetailMainTabRowItem(COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER, "order")
@@ -35,8 +34,8 @@ sealed class CoinDetailMainTabRowItem(var title: String, var screenRoute: String
 }
 
 @Composable
-fun CoinDetailMainTabRow(navController: NavController) {
-    val tabState = remember { mutableIntStateOf(0) }
+fun CoinDetailMainTabRow(navController: NavController, tabState: MutableIntState) {
+
     val items = listOf(
         CoinDetailMainTabRowItem.Order,
         CoinDetailMainTabRowItem.Chart,

@@ -55,7 +55,7 @@ fun PortfolioScreenRoute(
 
     TwoButtonCommonDialog(
         dialogState = holder.adConfirmDialogState,
-        icon = R.drawable.img_advertisement_3x,
+        icon = R.drawable.img_ad,
         content = stringResource(id = R.string.adDialogContent),
         leftButtonText = stringResource(id = R.string.commonCancel),
         rightButtonText = stringResource(id = R.string.commonAccept),

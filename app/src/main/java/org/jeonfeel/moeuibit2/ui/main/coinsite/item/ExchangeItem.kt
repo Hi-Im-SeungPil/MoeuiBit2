@@ -111,19 +111,19 @@ fun CoinSiteCommonItem(
             .padding(horizontal = 15.dp)
             .clickable { moveUrlOrApp(context, url, packageName) }
     ) {
-//        Image(
-//            painterResource(image),
-//            "",
-//            modifier = Modifier
-//                .size(40.dp)
-//                .clip(RoundedCornerShape(10.dp))
-//                .border(1.3.dp, color = coinSiteIconBorderColor(), RoundedCornerShape(10.dp))
-//                .align(Alignment.CenterVertically)
-//        )
+        Image(
+            painterResource(image),
+            "",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .border(1.3.dp, color = coinSiteIconBorderColor(), RoundedCornerShape(10.dp))
+                .align(Alignment.CenterVertically)
+        )
 
         Text(
             text = title,
-            style = TextStyle(fontSize = DpToSp(18.dp), color = commonTextColor()),
+            style = TextStyle(fontSize = DpToSp(14.dp), color = commonTextColor()),
             modifier = Modifier
                 .padding(vertical = 15.dp)
                 .padding(start = 15.dp)

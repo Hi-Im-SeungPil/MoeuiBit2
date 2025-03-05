@@ -1,9 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail
 
-import android.widget.TextView
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -32,17 +29,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,16 +57,16 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.orhanobut.logger.Logger
-import com.skydoves.landscapist.glide.GlideImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.COIN_IMAGE_BASE_URL
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRow
+import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRowItem
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.TabRowMainNavigation
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -99,6 +94,7 @@ fun CoinDetailScreen(
     val snackBarHostState = remember {
         SnackbarHostState()
     }
+    val tabState = remember { mutableIntStateOf(0) }
 
     AddLifecycleEvent(
         onCreateAction = {
@@ -165,9 +161,20 @@ fun CoinDetailScreen(
                 btcPrice = viewModel.btcPrice.value,
                 market = market,
                 cautionMessageList = cautionMessageList,
-                lineChartDataList = viewModel.lineChartData.value
+                lineChartDataList = viewModel.lineChartData.value,
+                moveChart = {
+                    tabState.intValue = 1
+                    state.navController.navigate(CoinDetailMainTabRowItem.Chart.screenRoute) {
+                        popUpTo(state.navController.graph.id) {
+                            saveState = true
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
-            CoinDetailMainTabRow(navController = state.navController)
+            CoinDetailMainTabRow(navController = state.navController, tabState = tabState)
 
             Box {
                 TabRowMainNavigation(
@@ -295,7 +302,7 @@ fun NewCoinDetailTopAppBar(
         IconButton(
             modifier = Modifier
                 .padding(end = 15.dp)
-                .size(25.dp)
+                .size(20.dp)
                 .align(Alignment.CenterVertically),
             onClick = {
                 updateIsFavorite()
@@ -326,6 +333,7 @@ fun CoinDetailPriceSection(
     market: String,
     cautionMessageList: List<String>,
     lineChartDataList: List<Float> = emptyList(),
+    moveChart: () -> Unit,
 ) {
     Column {
         Row(
@@ -401,6 +409,9 @@ fun CoinDetailPriceSection(
                         .height(60.dp)
                         .width(120.dp)
                         .padding(end = 10.dp)
+                        .noRippleClickable {
+                            moveChart()
+                        }
                 )
             }
         }
