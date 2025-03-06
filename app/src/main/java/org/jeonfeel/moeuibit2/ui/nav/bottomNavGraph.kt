@@ -19,16 +19,11 @@ fun MainBottomNavGraph(
     bottomNavController: NavHostController,
     appNavController: NavHostController
 ) {
-    val context = LocalContext.current
-
     NavHost(bottomNavController, startDestination = MainBottomNavItem.Exchange.screenRoute.name,
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }) {
         composable(MainBottomNavItem.Exchange.screenRoute.name) {
-            ExchangeScreenRoute(
-                appNavController = appNavController,
-                statusFlow = NetworkConnectivityObserver(context).getFlow()
-            )
+            ExchangeScreenRoute(appNavController = appNavController,)
         }
         composable(MainBottomNavItem.CoinSite.screenRoute.name) {
             CoinSiteScreen()

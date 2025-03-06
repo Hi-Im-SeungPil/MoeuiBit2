@@ -24,12 +24,10 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE
 import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
-import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver.Companion.needRefresh
 import org.jeonfeel.moeuibit2.utils.Utils
-import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import java.math.BigDecimal
-import java.util.logging.Handler
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
@@ -41,13 +39,13 @@ sealed class ExchangeInitState {
     data object Success : ExchangeInitState()
 
     data class Error(
-        val message: String? = null
+        val message: String? = null,
     ) : ExchangeInitState()
 }
 
 class UpBitExchange @Inject constructor(
     private val upBitExchangeUseCase: UpBitExchangeUseCase,
-    private val cacheManager: CacheManager
+    private val cacheManager: CacheManager,
 ) : BaseCommunicationModule() {
     private var successInit = false
     private val krwMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
@@ -76,21 +74,9 @@ class UpBitExchange @Inject constructor(
     fun initUpBit(
         tradeCurrencyState: State<Int>,
         isUpdateExchange: State<Boolean>,
-    ): Flow<ExchangeInitState> {
+    ) {
         this.tradeCurrencyState = tradeCurrencyState
         this.isUpdateExchange = isUpdateExchange
-        return flow {
-            emit(ExchangeInitState.Loading)
-            runCatching {
-                init()
-            }.fold(
-                onSuccess = {
-                    emit(ExchangeInitState.Success)
-                    successInit = true
-                },
-                onFailure = { emit(ExchangeInitState.Error(it.message)) }
-            ).also { useCaseOnStart() }
-        }
     }
 
     private suspend fun init() {
@@ -99,16 +85,15 @@ class UpBitExchange @Inject constructor(
     }
 
     suspend fun onStart(
-        updateLoadingState: KFunction1<Boolean, Unit>
+        updateLoadingState: KFunction1<Boolean, Unit>,
     ) {
-        Logger.e("${tickerDataIsEmpty()} $successInit $needRefresh")
-
-        if (!tickerDataIsEmpty() && successInit) {
+        Logger.e("onStart")
+        if (!tickerDataIsEmpty()) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
             useCaseOnStart()
-        } else if (tickerDataIsEmpty() && successInit) {
+        } else if (tickerDataIsEmpty()) {
             updateLoadingState(true)
             clearTickerData()
             init()
@@ -123,7 +108,7 @@ class UpBitExchange @Inject constructor(
         upBitExchangeUseCase.onStop()
     }
 
-    private fun tickerDataIsEmpty(): Boolean {
+    fun tickerDataIsEmpty(): Boolean {
         return krwMarketCodeMap.isEmpty()
                 || btcMarketCodeMap.isEmpty()
                 || krwList.isEmpty()
@@ -335,7 +320,7 @@ class UpBitExchange @Inject constructor(
     private fun addExchangeModelPosition(
         market: String,
         position: Int,
-        isKrw: Boolean
+        isKrw: Boolean,
     ) {
         if (isKrw) {
             krwExchangeModelPosition[market] = position
@@ -370,7 +355,7 @@ class UpBitExchange @Inject constructor(
     fun sortTickerList(
         tradeCurrency: Int,
         sortType: SortType,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
     ) {
         val tickerList = when (tradeCurrency) {
             TRADE_CURRENCY_KRW -> {
@@ -488,7 +473,7 @@ class UpBitExchange @Inject constructor(
 
     suspend fun changeTradeCurrencyAction(
         sortOrder: SortOrder? = null,
-        sortType: SortType? = null
+        sortType: SortType? = null,
     ) {
         favoriteMarketChangeAction(sortOrder, sortType)
 

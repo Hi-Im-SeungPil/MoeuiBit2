@@ -93,12 +93,14 @@ class PortfolioViewModel @Inject constructor(
     private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
     private var realTimeUpdateJob: Job? = null
     private var collectTickerJob: Job? = null
+    var isStarted = false
 
     val loading = MutableStateFlow<Boolean>(true)
 
     fun onStart() {
         realTimeUpdateJob?.cancel()
         collectTickerJob?.cancel()
+        isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             getCoinName()
@@ -113,6 +115,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun onStop() {
         viewModelScope.launch {
+            isStarted = false
             _isPortfolioSocketRunning.value = false
             realTimeUpdateJob?.cancel()
             collectTickerJob?.cancel()

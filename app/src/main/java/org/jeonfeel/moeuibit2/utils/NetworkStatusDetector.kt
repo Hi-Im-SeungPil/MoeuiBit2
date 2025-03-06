@@ -3,6 +3,11 @@ package org.jeonfeel.moeuibit2.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -11,11 +16,8 @@ import kotlinx.coroutines.launch
 
 interface ConnectivityObserver {
 
-    fun getFlow(): Flow<Status>
-
-    enum class Status {
-        Available, Unavailable, Losing, Lost
-    }
+    fun startObserving()
+    fun stopObserving()
 }
 
 class NetworkConnectivityObserver(
@@ -23,54 +25,68 @@ class NetworkConnectivityObserver(
 ) : ConnectivityObserver {
 
     companion object {
-        var isNetworkAvailable = false
+        private val _isNetworkAvailable = mutableStateOf(false)
+        val isNetworkAvailable: State<Boolean> get() = _isNetworkAvailable
     }
 
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
-    override fun getFlow(): Flow<ConnectivityObserver.Status> {
-        return callbackFlow {
-            val callback = object : ConnectivityManager.NetworkCallback() {
+    private var isObserving = false
+
+    // 네트워크 상태 감지 시작
+    override fun startObserving() {
+        if (!isObserving) {
+            isObserving = true
+            networkCallback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    launch {
-                        isNetworkAvailable = true
-                        send(ConnectivityObserver.Status.Available)
-                    }
+                    _isNetworkAvailable.value = true
                 }
 
                 override fun onLosing(network: Network, maxMsToLive: Int) {
                     super.onLosing(network, maxMsToLive)
-                    launch {
-                        isNetworkAvailable = false
-                        send(ConnectivityObserver.Status.Losing)
-                    }
+                    _isNetworkAvailable.value = false
                 }
 
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    launch {
-                        isNetworkAvailable = false
-                        send(ConnectivityObserver.Status.Lost)
-                    }
+                    _isNetworkAvailable.value = false
                 }
 
                 override fun onUnavailable() {
                     super.onUnavailable()
-                    launch {
-                        isNetworkAvailable = false
-                        send(ConnectivityObserver.Status.Unavailable)
-                    }
+                    _isNetworkAvailable.value = false
                 }
             }
 
-            connectivityManager.registerDefaultNetworkCallback(callback)
+            connectivityManager.registerDefaultNetworkCallback(networkCallback!!)
+        }
+    }
 
-            awaitClose {
-                connectivityManager.unregisterNetworkCallback(callback)
+    // 네트워크 상태 감지 중지
+    override fun stopObserving() {
+        if (isObserving) {
+            isObserving = false  // 네트워크 감지가 중지되었음을 표시
+
+            networkCallback?.let { callback ->
+                connectivityManager.unregisterNetworkCallback(callback)  // 콜백 해제
             }
+            networkCallback = null  // 콜백 인스턴스를 null로 초기화
+        }
+    }
+}
 
-        }.distinctUntilChanged()
+class NetworkObserverLifecycle(
+    private val networkConnectivityObserver: NetworkConnectivityObserver,
+) : DefaultLifecycleObserver {
+
+    override fun onStart(owner: LifecycleOwner) {
+        networkConnectivityObserver.startObserving()  // 네트워크 감지 시작
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        networkConnectivityObserver.stopObserving()  // 네트워크 감지 중지
     }
 }

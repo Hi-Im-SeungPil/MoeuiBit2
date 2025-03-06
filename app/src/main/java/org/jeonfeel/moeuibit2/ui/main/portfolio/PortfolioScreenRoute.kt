@@ -4,16 +4,20 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
+import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeNetworkDisconnectScreen
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.RemoveCoinBottomSheet
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 
 @Composable
 fun PortfolioScreenRoute(
@@ -25,7 +29,11 @@ fun PortfolioScreenRoute(
 
     AddLifecycleEvent(
         onStartAction = {
-            viewModel.onStart()
+            if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                if (!viewModel.isStarted) {
+                    viewModel.onStart()
+                }
+            }
         },
         onStopAction = {
             if (viewModel.showRemoveCoinDialogState.value) {
@@ -34,6 +42,18 @@ fun PortfolioScreenRoute(
             viewModel.onStop()
         }
     )
+
+    LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
+        if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+            Logger.e("network available")
+            if (!viewModel.isStarted) {
+                viewModel.onStart()
+            }
+        } else {
+            Logger.e("network not available")
+            viewModel.onStop()
+        }
+    }
 
     BackHandler {
         if (viewModel.showRemoveCoinDialogState.value) {

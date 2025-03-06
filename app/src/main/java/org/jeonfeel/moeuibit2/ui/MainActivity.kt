@@ -13,6 +13,8 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.CommonDialogXML
 import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
 import org.jeonfeel.moeuibit2.ui.theme.AppTheme
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
+import org.jeonfeel.moeuibit2.utils.NetworkObserverLifecycle
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 @AndroidEntryPoint
@@ -21,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private val appUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
+    private lateinit var networkConnectivityObserver: NetworkConnectivityObserver
 
     private val appUpdateCallback =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result: ActivityResult ->
@@ -34,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             AppTheme {
                 AppNavGraph()
@@ -45,6 +49,13 @@ class MainActivity : AppCompatActivity() {
     fun init() {
 //        checkUpdate()
 //        requestUpdate()
+        initData()
+    }
+
+    private fun initData() {
+        networkConnectivityObserver =
+            NetworkConnectivityObserver(this@MainActivity)
+        lifecycle.addObserver(NetworkObserverLifecycle(networkConnectivityObserver))
     }
 
     /**

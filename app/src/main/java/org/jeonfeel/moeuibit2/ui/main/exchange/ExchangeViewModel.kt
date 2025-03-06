@@ -54,20 +54,21 @@ class ExchangeViewModel @Inject constructor(
 
     val textFieldValue: State<String> get() = state.textFieldValue
 
+    var isStarted = false
+        private set
+
     private var realTimeUpdateJob: Job? = null
     private var collectTickerJob: Job? = null
     private var marketChangeJob: Job? = null
 
     init {
-        _loadingState.value = true
+//        _loadingState.value = true
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upBitExchange.initUpBit(
                     tradeCurrencyState = tradeCurrencyState,
                     isUpdateExchange = isUpdateExchange
-                ).collect { upBitInitState ->
-                    processData(upBitInitState)
-                }
+                )
             },
             bitthumbAction = {
 
@@ -97,6 +98,7 @@ class ExchangeViewModel @Inject constructor(
     fun onStart() {
         realTimeUpdateJob?.cancel()
         collectTickerJob?.cancel()
+        isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
@@ -118,6 +120,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun onStop() {
+        isStarted = false
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upBitExchange.onStop()
@@ -130,6 +133,10 @@ class ExchangeViewModel @Inject constructor(
 
             }
         )
+    }
+
+    fun tickerDataIsEmpty(): Boolean {
+        return upBitExchange.tickerDataIsEmpty()
     }
 
     private fun updateLoadingState(state: Boolean) {

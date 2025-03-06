@@ -73,6 +73,7 @@ import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
@@ -523,7 +524,7 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
                             balloonWindow.showAlignBottom()
                         },
                     contentDescription = null,
-                    tint = commonTextColor()
+                    tint = commonHintTextColor()
                 )
             }
 
