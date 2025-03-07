@@ -95,7 +95,7 @@ class PortfolioViewModel @Inject constructor(
     private var collectTickerJob: Job? = null
     var isStarted = false
 
-    val loading = MutableStateFlow<Boolean>(true)
+    val loading = MutableStateFlow<Boolean>(false)
 
     fun onStart() {
         realTimeUpdateJob?.cancel()
@@ -114,8 +114,8 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun onStop() {
+        isStarted = false
         viewModelScope.launch {
-            isStarted = false
             _isPortfolioSocketRunning.value = false
             realTimeUpdateJob?.cancel()
             collectTickerJob?.cancel()

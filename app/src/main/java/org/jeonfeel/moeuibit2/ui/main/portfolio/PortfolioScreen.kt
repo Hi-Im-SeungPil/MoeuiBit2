@@ -113,7 +113,7 @@ fun PortfolioScreen(
     loading: MutableStateFlow<Boolean>,
 ) {
     val focusManager = LocalFocusManager.current
-    val loading2 = loading.collectAsState()
+//    val loading2 = loading.collectAsState()
     val listState = rememberLazyListState()
 
     Column(
@@ -205,10 +205,10 @@ fun PortfolioScreen(
                 .fillMaxWidth()
                 .height(1.dp), color = commonDividerColor()
         )
-
-        if (loading2.value) {
-            PortfolioLoadingScreen()
-        } else {
+//
+//        if (loading2.value) {
+//            PortfolioLoadingScreen()
+//        } else {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize()
@@ -297,7 +297,7 @@ fun PortfolioScreen(
                     )
                 }
             }
-        }
+//        }
     }
 }
 

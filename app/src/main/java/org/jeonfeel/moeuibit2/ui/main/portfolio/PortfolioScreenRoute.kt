@@ -18,6 +18,7 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeNetworkDisconne
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dialogs.RemoveCoinBottomSheet
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 @Composable
 fun PortfolioScreenRoute(
@@ -51,6 +52,7 @@ fun PortfolioScreenRoute(
             }
         } else {
             Logger.e("network not available")
+            context.showToast("인터넷 상태를 확인해 주세요.")
             viewModel.onStop()
         }
     }

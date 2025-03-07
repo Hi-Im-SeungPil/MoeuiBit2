@@ -51,190 +51,193 @@ fun RemoveCoinBottomSheet(
     hideSheet: () -> Unit,
     checkList: List<Boolean>,
     updateCheckedList: KFunction1<Int, Unit>,
-    editUserHoldCoin: () -> Unit
+    editUserHoldCoin: () -> Unit,
 ) {
     val context = LocalContext.current
 
-    if (dialogState.value && removeCoinList.isEmpty()) {
-        context.showToast("삭제할 코인이 없습니다.")
-        hideSheet()
-    } else if (!Utils.isNetworkAvailable(context)) {
-        context.showToast("인터넷 상태를 확인해주세요.")
-        hideSheet()
-    } else {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (dialogState.value) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (dialogState.value) {
+            if (removeCoinList.isEmpty()) {
+                context.showToast("삭제할 코인이 없습니다.")
+                hideSheet()
+            } else if (!Utils.isNetworkAvailable(context)) {
+                context.showToast("인터넷 상태를 확인해주세요.")
+                hideSheet()
+            } else {
                 Spacer(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(color = Color(0x99000000))
                         .noRippleClickable { }
                 )
-            }
 
-            AnimatedVisibility(
-                visible = dialogState.value,
-                enter = slideInVertically(
-                    initialOffsetY = { it }
-                ) + fadeIn(),
-                exit = slideOutVertically(
-                    targetOffsetY = { it }
-                ) + fadeOut(),
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .requiredHeightIn(max = 600.dp)
-                        .background(
-                            color = commonDialogBackground(),
-                            shape = RoundedCornerShape(
-                                topStart = 20.dp, topEnd = 20.dp
+                AnimatedVisibility(
+                    visible = dialogState.value,
+                    enter = slideInVertically(
+                        initialOffsetY = { it }
+                    ) + fadeIn(),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it }
+                    ) + fadeOut(),
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .requiredHeightIn(max = 600.dp)
+                            .background(
+                                color = commonDialogBackground(),
+                                shape = RoundedCornerShape(
+                                    topStart = 20.dp, topEnd = 20.dp
+                                )
+                            )
+                            .padding(horizontal = 10.dp)
+                            .noRippleClickable { },
+                    ) {
+                        IconButton(
+                            onClick = {
+                                hideSheet()
+                            }, modifier = Modifier
+                                .padding(top = 15.dp)
+                                .size(30.dp)
+                                .align(Alignment.End)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = commonTextColor()
+                            )
+                        }
+
+                        Text(
+                            text = "삭제할 코인을 선택해주세요",
+                            modifier = Modifier
+                                .padding(bottom = 15.dp)
+                                .align(Alignment.CenterHorizontally),
+                            style = TextStyle(
+                                fontSize = DpToSp(23.dp),
+                                color = commonTextColor(),
+                                fontWeight = FontWeight.SemiBold
                             )
                         )
-                        .padding(horizontal = 10.dp)
-                        .noRippleClickable { },
-                ) {
-                    IconButton(
-                        onClick = {
-                            hideSheet()
-                        }, modifier = Modifier
-                            .padding(top = 15.dp)
-                            .size(30.dp)
-                            .align(Alignment.End)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            tint = commonTextColor()
-                        )
-                    }
 
-                    Text(
-                        text = "삭제할 코인을 선택해주세요",
-                        modifier = Modifier
-                            .padding(bottom = 15.dp)
-                            .align(Alignment.CenterHorizontally),
-                        style = TextStyle(
-                            fontSize = DpToSp(23.dp),
-                            color = commonTextColor(),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .noRippleClickable {
-                            if (!checkList.all { it }) {
-                                updateCheckedList(-1)
-                            } else if (checkList.all { it }) {
-                                updateCheckedList(-2)
-                            }
-                        }) {
-                        Checkbox(
-                            checked = checkList.all { it },
-                            onCheckedChange = {
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .noRippleClickable {
                                 if (!checkList.all { it }) {
                                     updateCheckedList(-1)
                                 } else if (checkList.all { it }) {
                                     updateCheckedList(-2)
                                 }
-                            },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = "전체선택",
-                            modifier = Modifier
-                                .padding(start = 10.dp)
-                                .weight(1f)
-                                .align(Alignment.CenterVertically),
-                            style = TextStyle(
-                                fontSize = DpToSp(20.dp),
-                                color = if (checkList.all { it }) commonTextColor() else commonHintTextColor(),
-                                fontWeight = FontWeight.Medium
+                            }) {
+                            Checkbox(
+                                checked = checkList.all { it },
+                                onCheckedChange = {
+                                    if (!checkList.all { it }) {
+                                        updateCheckedList(-1)
+                                    } else if (checkList.all { it }) {
+                                        updateCheckedList(-2)
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
-                        )
-
-                        Text(
-                            text = "( ${checkList.count { it }} / ${removeCoinList.size} )",
-                            modifier = Modifier
-                                .padding(end = 10.dp)
-                                .align(Alignment.CenterVertically),
-                            style = TextStyle(fontSize = DpToSp(16.dp), color = commonTextColor())
-                        )
-                    }
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        itemsIndexed(removeCoinList) { index, it ->
-                            val (market, reason) = it
-
-                            Row(modifier = Modifier
-                                .fillMaxWidth()
-                                .noRippleClickable {
-                                    updateCheckedList(index)
-                                }) {
-                                Checkbox(
-                                    checked = checkList[index],
-                                    onCheckedChange = {
-                                        updateCheckedList(index)
-                                    },
-                                    modifier = Modifier.align(Alignment.Top)
+                            Text(
+                                text = "전체선택",
+                                modifier = Modifier
+                                    .padding(start = 10.dp)
+                                    .weight(1f)
+                                    .align(Alignment.CenterVertically),
+                                style = TextStyle(
+                                    fontSize = DpToSp(20.dp),
+                                    color = if (checkList.all { it }) commonTextColor() else commonHintTextColor(),
+                                    fontWeight = FontWeight.Medium
                                 )
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .align(Alignment.CenterVertically)
-                                ) {
-                                    Text(
-                                        text = market,
+                            )
+
+                            Text(
+                                text = "( ${checkList.count { it }} / ${removeCoinList.size} )",
+                                modifier = Modifier
+                                    .padding(end = 10.dp)
+                                    .align(Alignment.CenterVertically),
+                                style = TextStyle(
+                                    fontSize = DpToSp(16.dp),
+                                    color = commonTextColor()
+                                )
+                            )
+                        }
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(bottom = 10.dp)
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) {
+                            itemsIndexed(removeCoinList) { index, it ->
+                                val (market, reason) = it
+
+                                Row(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .noRippleClickable {
+                                        updateCheckedList(index)
+                                    }) {
+                                    Checkbox(
+                                        checked = checkList[index],
+                                        onCheckedChange = {
+                                            updateCheckedList(index)
+                                        },
+                                        modifier = Modifier.align(Alignment.Top)
+                                    )
+                                    Column(
                                         modifier = Modifier
-                                            .padding(start = 10.dp),
-                                        style = TextStyle(
-                                            fontSize = DpToSp(17.dp),
-                                            color = if (checkList[index]) commonTextColor() else commonHintTextColor()
+                                            .weight(1f)
+                                            .align(Alignment.CenterVertically)
+                                    ) {
+                                        Text(
+                                            text = market,
+                                            modifier = Modifier
+                                                .padding(start = 10.dp),
+                                            style = TextStyle(
+                                                fontSize = DpToSp(17.dp),
+                                                color = if (checkList[index]) commonTextColor() else commonHintTextColor()
+                                            )
                                         )
-                                    )
-                                    Text(
-                                        text = reason,
-                                        modifier = Modifier.padding(start = 10.dp),
-                                        style = TextStyle(
-                                            fontSize = DpToSp(13.dp),
-                                            color = commonHintTextColor()
+                                        Text(
+                                            text = reason,
+                                            modifier = Modifier.padding(start = 10.dp),
+                                            style = TextStyle(
+                                                fontSize = DpToSp(13.dp),
+                                                color = commonHintTextColor()
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .fillMaxWidth()
-                            .background(
-                                color = if (checkList.none { it }) commonRiseColor() else Color(
-                                    0xFFFF4848
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .padding(vertical = 20.dp)
-                            .noRippleClickable {
-                                if (checkList.none { it }) return@noRippleClickable
-                                hideSheet()
-                                editUserHoldCoin()
-                            }
-                    ) {
-                        Text(
-                            text = "삭제",
+                        Box(
                             modifier = Modifier
-                                .wrapContentSize()
-                                .align(Alignment.Center),
-                            style = TextStyle(color = Color.White, fontSize = DpToSp(22.dp))
-                        )
+                                .padding(bottom = 10.dp)
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (checkList.none { it }) commonRiseColor() else Color(
+                                        0xFFFF4848
+                                    ),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .padding(vertical = 20.dp)
+                                .noRippleClickable {
+                                    if (checkList.none { it }) return@noRippleClickable
+                                    hideSheet()
+                                    editUserHoldCoin()
+                                }
+                        ) {
+                            Text(
+                                text = "삭제",
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.Center),
+                                style = TextStyle(color = Color.White, fontSize = DpToSp(22.dp))
+                            )
+                        }
                     }
                 }
             }
