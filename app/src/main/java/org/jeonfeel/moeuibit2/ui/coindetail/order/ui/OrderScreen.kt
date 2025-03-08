@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
@@ -67,6 +68,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
@@ -91,6 +93,7 @@ fun OrderScreen(
     btcPrice: State<BigDecimal>,
     transactionInfoList: List<TransactionInfo>,
     getTransactionInfoList: (String) -> Unit,
+    isCoinOrderStarted: Boolean
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -109,13 +112,28 @@ fun OrderScreen(
             initCoinOrder(market)
         },
         onStartAction = {
-            coinOrderScreenOnStart(market)
+            if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                if (!isCoinOrderStarted) {
+                    coinOrderScreenOnStart(market)
+                }
+            }
         },
         onStopAction = {
             coinOrderScreenOnStop()
             saveOrderBookIndicationState()
         }
     )
+
+    LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
+        if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+            if (!isCoinOrderStarted) {
+                coinOrderScreenOnStart(market)
+            }
+        } else {
+            coinOrderScreenOnStop()
+            saveOrderBookIndicationState()
+        }
+    }
 
     TotalBidTradeDialog(
         dialogState = state.totalBidDialogState,

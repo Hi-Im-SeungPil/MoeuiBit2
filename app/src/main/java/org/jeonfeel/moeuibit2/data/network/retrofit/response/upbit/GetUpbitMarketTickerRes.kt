@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -8,6 +9,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 
+@Keep
 @Serializable
 data class GetUpbitMarketTickerRes(
     val market: String = "",

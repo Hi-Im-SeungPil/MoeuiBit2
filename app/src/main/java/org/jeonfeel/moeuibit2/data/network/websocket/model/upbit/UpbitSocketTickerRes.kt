@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.model.upbit
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -10,6 +11,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
 
+@Keep
 @Serializable
 data class UpbitSocketTickerRes(
     @SerialName("acc_ask_volume")
@@ -112,6 +114,7 @@ data class UpbitSocketTickerRes(
     val delistingDate: DeListingDate? = null,
 
     ) {
+    @Keep
     @Serializable
     data class DeListingDate(
         val year: Int,

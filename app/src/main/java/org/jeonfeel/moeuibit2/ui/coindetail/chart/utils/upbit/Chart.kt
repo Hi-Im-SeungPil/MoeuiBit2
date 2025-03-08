@@ -35,6 +35,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.DAY_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MINUTE_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MONTH_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.WEEK_SELECT
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import javax.inject.Inject
 
 class ChartState {
@@ -88,6 +89,8 @@ class Chart @Inject constructor(
     }
 
     suspend fun refresh(candleType: String = state.candleType.value, market: String) {
+        if (!NetworkConnectivityObserver.isNetworkAvailable.value) return
+
         if (firstInit) {
             firstInit = false
             preferenceManager.getString(KeyConst.PREF_KEY_CHART_LAST_PERIOD).collect {
@@ -128,6 +131,8 @@ class Chart @Inject constructor(
         candleType: String = state.candleType.value,
         market: String
     ) {
+        if (!NetworkConnectivityObserver.isNetworkAvailable.value) return
+
         state.isUpdateChart.value = false
         state.loadingDialogState.value = true
         val getChartCandleReq = GetChartCandleReq(
@@ -181,7 +186,11 @@ class Chart @Inject constructor(
                 state.loadingDialogState.value = false
                 _chartUpdateMutableLiveData.value = CHART_INIT
                 chartUpdateJob = CoroutineScope(ioDispatcher).launch {
-                    newUpdateChart(market)
+                    try {
+                        newUpdateChart(market)
+                    } catch (e: Exception) {
+                        Logger.e(e.message.toString())
+                    }
                 }.also { it.start() }
             },
             onApiError = { apiResult ->
@@ -282,6 +291,8 @@ class Chart @Inject constructor(
         negativeBarDataSet: IBarDataSet,
         candleXMin: Float
     ) {
+        if (!NetworkConnectivityObserver.isNetworkAvailable.value) return
+
         val time = firstCandleUtcTime.replace("T", " ")
         if (!chartLastData) state.loadingDialogState.value = true
         val getChartCandleReq = GetChartCandleReq(
@@ -357,6 +368,8 @@ class Chart @Inject constructor(
 
     private suspend fun newUpdateChart(market: String) {
         while (true) {
+            if (!NetworkConnectivityObserver.isNetworkAvailable.value) break
+
             if (state.isUpdateChart.value) {
                 val getChartCandleReq = GetChartCandleReq(
                     candleType = state.candleType.value,

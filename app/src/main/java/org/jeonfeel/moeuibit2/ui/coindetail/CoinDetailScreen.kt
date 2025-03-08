@@ -78,6 +78,8 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.math.BigDecimal
@@ -101,22 +103,42 @@ fun CoinDetailScreen(
         SnackbarHostState()
     }
     val tabState = remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     AddLifecycleEvent(
         onCreateAction = {
-            viewModel.init(market)
+            if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                viewModel.init(market)
+            }
         },
         onStartAction = {
-            viewModel.onStart(market)
+            if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                if (!viewModel.isStarted) {
+                    viewModel.onStart(market)
+                }
+            }
         },
         onStopAction = {
             viewModel.onStop()
         }
     )
 
+    LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
+        if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+            if (!viewModel.isStarted) {
+                if (!viewModel.isInitSuccess) {
+                    viewModel.init(market)
+                }
+                viewModel.onStart(market)
+            }
+        } else {
+            viewModel.onStop()
+            context.showToast("인터넷 연결을 확인해주세요.")
+        }
+    }
+
     LaunchedEffect(viewModel.isShowDeListingSnackBar.value) {
         if (viewModel.isShowDeListingSnackBar.value) {
-            Logger.e("snackBar")
             coroutineScope.launch {
                 snackBarHostState.showSnackbar(
                     message = viewModel.deListingMessage,
@@ -445,10 +467,9 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
         setBalloonAnimation(BalloonAnimation.OVERSHOOT)
     }
     LaunchedEffect(data) {
-        Logger.e(chartIsReady.value.toString())
         if (data.isNotEmpty()) {
             if (!chartIsReady.value) {
-                lineChart.animateX(500)
+                lineChart.animateX(1000)
             } else {
                 lineChart.animateX(0)
             }

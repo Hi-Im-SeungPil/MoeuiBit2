@@ -49,7 +49,6 @@ class GetMovingAverage(
 
     fun addLineData(lastCandle: CandleEntry, yValue: Float) {
         if (lastCandle.x < number) return
-        Logger.e("last -> ${lineEntry.lastIndex - number - 1} $number ${lineEntry.count()} $yValue")
         sum = sum - yValue + lastCandle.close
         count++
         lineEntry.add(Entry(lastCandle.x, sum / number))

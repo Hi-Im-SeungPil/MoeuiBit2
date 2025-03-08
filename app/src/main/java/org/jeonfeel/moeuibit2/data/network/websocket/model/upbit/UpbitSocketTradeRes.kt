@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.model.upbit
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -15,6 +16,7 @@ import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import kotlin.math.abs
 
+@Keep
 @Serializable
 data class UpbitSocketTradeRes(
 

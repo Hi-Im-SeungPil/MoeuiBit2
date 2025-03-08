@@ -226,7 +226,6 @@ class CoinOrderStateHolder(
 
     fun updateAskCoinQuantity(index: Int) {
         // 유저가 가지고 있는 코인을 나눠서 세팅
-        com.orhanobut.logger.Logger.e(userCoin.value.quantity.toString())
         if (commonExchangeModelState.value != null && userCoin.value.quantity != 0.0) {
             val percentageResult = percentageList[index]
             val quantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR)

@@ -45,12 +45,10 @@ fun ExchangeScreenRoute(
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            Logger.e("network available")
             if (!viewModel.isStarted) {
                 viewModel.onStart()
             }
         } else {
-            Logger.e("network not available")
             viewModel.onStop()
         }
     }
@@ -73,7 +71,7 @@ fun ExchangeScreenRoute(
             ExchangeLoadingScreen()
         }
 
-        !NetworkConnectivityObserver.isNetworkAvailable.value && viewModel.tickerDataIsEmpty() -> {
+        !NetworkConnectivityObserver.isNetworkAvailable.value -> {
             ExchangeNetworkDisconnectScreen()
         }
 

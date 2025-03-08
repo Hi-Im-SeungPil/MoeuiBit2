@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.coincapio
 
+import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model.CoinInfoModel
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
@@ -7,11 +8,13 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
+@Keep
 @Serializable
 data class FetchCoinInfoRes(
     val data: List<Data>,
     val timestamp: Long,
 ) {
+    @Keep
     @Serializable
     data class Data(
         val changePercent24Hr: String?,

@@ -65,7 +65,6 @@ fun SettingScreen(viewModel: SettingViewModel = hiltViewModel()) {
     }
     AddLifecycleEvent(
         onCreateAction = {
-            Logger.e("onCreate")
         },
         onPauseAction = {
             if (viewModel.state.openSourceState.value)

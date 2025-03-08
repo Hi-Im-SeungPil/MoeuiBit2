@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,10 +21,12 @@ import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import java.math.BigDecimal
 import javax.inject.Inject
 
+@Keep
 enum class TickerAskBidState {
     ASK, BID, NONE
 }
 
+@Keep
 class ExchangeViewModelState {
     val isUpdateExchange = mutableStateOf(true)
 

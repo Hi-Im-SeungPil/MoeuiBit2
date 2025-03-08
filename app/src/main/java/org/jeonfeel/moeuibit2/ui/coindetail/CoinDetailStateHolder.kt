@@ -88,8 +88,6 @@ class CoinDetailStateHolder(
     }
 
     fun getCautionMessageList(fluctuateRate: Double): List<String> {
-        Logger.e(fluctuateRate.toString())
-        Logger.e(caution.toString())
 
         if (caution == null) return emptyList()
 

@@ -144,7 +144,6 @@ object BigDecimalMapper {
     }
 
     fun BigDecimal.formattedStringForQuantity(): String {
-        Logger.e(this.toString())
         return if (this.compareTo(BigDecimal.ZERO) == 0) {
             "0"
         } else {

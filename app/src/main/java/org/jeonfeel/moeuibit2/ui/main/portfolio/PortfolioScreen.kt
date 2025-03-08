@@ -46,6 +46,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
@@ -86,8 +87,10 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.eightDecimalCommaFormat
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
 import kotlin.reflect.KFunction0
@@ -112,6 +115,7 @@ fun PortfolioScreen(
     findWrongCoin: KFunction0<Unit>,
     loading: MutableStateFlow<Boolean>,
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 //    val loading2 = loading.collectAsState()
     val listState = rememberLazyListState()
@@ -160,8 +164,8 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
                                 //TODO 필수도 수정해야함.
-                                earnReward()
-//                                adDialogState.value = true
+//                                earnReward()
+                                adDialogState.value = true
                             },
                         style = TextStyle(
                             color = commonTextColor(),
@@ -189,7 +193,11 @@ fun PortfolioScreen(
                             .wrapContentWidth()
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
-                                findWrongCoin()
+                                if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                                    findWrongCoin()
+                                } else {
+                                    context.showToast("인터넷 상태를 확인해주세요.")
+                                }
                             },
                         style = TextStyle(
                             color = commonTextColor(),
@@ -205,99 +213,94 @@ fun PortfolioScreen(
                 .fillMaxWidth()
                 .height(1.dp), color = commonDividerColor()
         )
-//
-//        if (loading2.value) {
-//            PortfolioLoadingScreen()
-//        } else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    PortfolioMain(
-                        totalValuedAssets = totalValuedAssets,
-                        totalPurchase = totalPurchase,
-                        userSeedMoney = userSeedMoney,
-                        getPortFolioMainInfoMap = getPortFolioMainInfoMap
-                    )
-                }
-
-                stickyHeader {
-                    SearchSection(portfolioSearchTextState, focusManager = focusManager)
-
-                    Divider(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(1.dp),
-                        color = commonDividerColor()
-                    )
-
-                    PortfolioMainSortButtons(
-                        orderByNameTextInfo = getTextColors(
-                            button = PortfolioSortButton.BUTTON_NAME,
-                            textState = portfolioOrderState.value
-                        ),
-                        orderByRateTextInfo = getTextColors(
-                            button = PortfolioSortButton.BUTTON_RATE,
-                            textState = portfolioOrderState.value
-                        ),
-                        portfolioOrderState = portfolioOrderState,
-                        sortUserHoldCoin = sortUserHoldCoin,
-                    )
-
-                    Divider(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(1.dp),
-                        color = commonDividerColor()
-                    )
-
-                    Divider(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(10.dp),
-                        color = Color.Transparent
-                    )
-                }
-
-                itemsIndexed(
-                    items = getList()
-                ) { index, item ->
-                    val topPadding = if (index == 0) 0.dp else 10.dp
-                    val userCoinInfo = getUserCoinInfo(item)
-                    val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
-                        value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
-                            ?: 0f
-                    )
-                    UserHoldCoinLazyColumnItem(
-                        coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
-                            ?: "",
-                        coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
-                            ?: "",
-                        symbol = item.myCoinsSymbol,
-                        valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
-                            ?: "",
-                        aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
-                            ?: "",
-                        coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
-                        purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
-                            ?: "",
-                        purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
-                            ?: "",
-                        evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
-                            ?: "",
-                        color = increaseColorOrDecreaseColor,
-                        warning = item.warning,
-                        caution = item.caution,
-                        currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
-                            .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
-                        market = item.market,
-                        appNavController = appNavController,
-                        topPadding = topPadding
-                    )
-                }
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                PortfolioMain(
+                    totalValuedAssets = totalValuedAssets,
+                    totalPurchase = totalPurchase,
+                    userSeedMoney = userSeedMoney,
+                    getPortFolioMainInfoMap = getPortFolioMainInfoMap
+                )
             }
-//        }
+
+            stickyHeader {
+                SearchSection(portfolioSearchTextState, focusManager = focusManager)
+
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(1.dp),
+                    color = commonDividerColor()
+                )
+
+                PortfolioMainSortButtons(
+                    orderByNameTextInfo = getTextColors(
+                        button = PortfolioSortButton.BUTTON_NAME,
+                        textState = portfolioOrderState.value
+                    ),
+                    orderByRateTextInfo = getTextColors(
+                        button = PortfolioSortButton.BUTTON_RATE,
+                        textState = portfolioOrderState.value
+                    ),
+                    portfolioOrderState = portfolioOrderState,
+                    sortUserHoldCoin = sortUserHoldCoin,
+                )
+
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(1.dp),
+                    color = commonDividerColor()
+                )
+
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(10.dp),
+                    color = Color.Transparent
+                )
+            }
+
+            itemsIndexed(
+                items = getList()
+            ) { index, item ->
+                val topPadding = if (index == 0) 0.dp else 10.dp
+                val userCoinInfo = getUserCoinInfo(item)
+                val increaseColorOrDecreaseColor = Utils.getIncreaseOrDecreaseColor(
+                    value = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE]?.toFloat()
+                        ?: 0f
+                )
+                UserHoldCoinLazyColumnItem(
+                    coinKoreanName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_KOREAN_NAME]
+                        ?: "",
+                    coinEngName = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_COIN_ENG_NAME]
+                        ?: "",
+                    symbol = item.myCoinsSymbol,
+                    valuationGainOrLoss = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_VALUATION_GAIN_OR_LOSE_RESULT]
+                        ?: "",
+                    aReturn = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_A_RETURN]
+                        ?: "",
+                    coinQuantity = item.myCoinsQuantity.eightDecimalCommaFormat(),
+                    purchaseAverage = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_PRICE]
+                        ?: "",
+                    purchaseAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_PURCHASE_AMOUNT_RESULT]
+                        ?: "",
+                    evaluationAmount = userCoinInfo[PortfolioScreenStateHolder.USER_COIN_RESULT_KEY_EVALUATION_AMOUNT_FORMAT]
+                        ?: "",
+                    color = increaseColorOrDecreaseColor,
+                    warning = item.warning,
+                    caution = item.caution,
+                    currentPrice = if (item.market.isTradeCurrencyKrw()) item.currentPrice else item.currentPrice.toBigDecimal()
+                        .multiply(currentBTCPrice.value.newBigDecimal()).toDouble(),
+                    market = item.market,
+                    appNavController = appNavController,
+                    topPadding = topPadding
+                )
+            }
+        }
     }
 }
 

@@ -100,4 +100,12 @@ class CoinInfoViewModel @Inject constructor(private val coinInfoUseCase: CoinInf
             createUIState()
         })
     }
+
+    fun dismissLoading() {
+        _uiState.value = CoinInfoScreenUIState(
+            coinInfoModel = null,
+            coinLinkList = emptyList(),
+            state = UIState.DISMISS_LOADING
+        )
+    }
 }

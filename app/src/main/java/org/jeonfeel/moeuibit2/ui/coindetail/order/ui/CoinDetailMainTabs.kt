@@ -6,8 +6,6 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -100,11 +98,12 @@ fun TabRowMainNavigation(
                 requestAsk = viewModel::requestAsk,
                 btcPrice = viewModel.btcPrice,
                 transactionInfoList = viewModel.transactionInfo,
-                getTransactionInfoList = viewModel::getTransactionInfoList
+                getTransactionInfoList = viewModel::getTransactionInfoList,
+                isCoinOrderStarted = viewModel.isCoinOrderStarted
             )
         }
         composable(CoinDetailMainTabRowItem.Chart.screenRoute) {
-            ChartScreen(coinDetailViewModel = viewModel, market = market)
+            ChartScreen(viewModel = viewModel, market = market)
         }
         composable(CoinDetailMainTabRowItem.CoinInfo.screenRoute) {
             CoinInfoRoute(

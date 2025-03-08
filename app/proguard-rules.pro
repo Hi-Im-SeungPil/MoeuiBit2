@@ -14,13 +14,14 @@
 -dontwarn org.openjsse.**
 -dontwarn okhttp3.**
 -dontwarn okio.**
--dontnote okhttp3.**
+-dontwarn org.slf4j.impl.StaticLoggerBinder
 
 -dontwarn org.jetbrains.kotlin.**
 
 -dontwarn com.google.android.gms.**
 -keep class com.google.android.gms.** { *; }
 -keep class com.google.firebase.** { *; }
+-keep class org.jeonfeel.moeuibit2.data.** {*;}
 
 -keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
 
@@ -46,3 +47,7 @@
  -keep,allowobfuscation,allowshrinking interface retrofit2.Call
  -keep,allowobfuscation,allowshrinking class retrofit2.Response
  -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+-keep class com.skydoves.balloon.** { *; }
+-keep class ** extends com.skydoves.balloon.**
+-keep class androidx.datastore.*.** {*;}
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }

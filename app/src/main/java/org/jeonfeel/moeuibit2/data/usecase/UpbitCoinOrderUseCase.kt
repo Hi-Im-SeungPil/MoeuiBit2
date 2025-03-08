@@ -187,7 +187,6 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 SELECTED_KRW_MARKET
             )
 
-            Logger.e("purchaseAverage ${purchaseAverage} purchaseBTCAverage ${purchaseAverageBtcPrice}")
 
             coinDao.updatePurchasePrice(market, purchaseAverage)
             coinDao.updatePlusQuantity(market, coin.quantity)
@@ -218,7 +217,6 @@ class UpbitCoinOrderUseCase @Inject constructor(
         btcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
-        Logger.e("$totalPrice")
         val userBTC = coinDao.isInsert(BTC_MARKET)
         if (userBTC == null) {
             coinDao.insert(

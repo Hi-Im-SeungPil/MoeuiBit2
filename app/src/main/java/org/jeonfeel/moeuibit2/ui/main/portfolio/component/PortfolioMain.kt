@@ -68,6 +68,7 @@ fun LazyItemScope.PortfolioMain(
                 colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
                     ?: 0L
             )
+
             PortfolioMainItem(
                 text1 = stringResource(id = R.string.totalHoldings),
                 text2 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_TOTAL_HOLDINGS]

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
@@ -7,6 +8,7 @@ import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
+@Keep
 @Serializable
 data class GetUpbitOrderBookRes(
     val level: Int,
@@ -49,6 +51,7 @@ data class GetUpbitOrderBookRes(
     }
 }
 
+@Keep
 @Serializable
 data class OrderbookUnit(
     @SerialName("ask_price")

@@ -148,7 +148,6 @@ object CurrentCalculator {
             return "0"
         }
 
-        Logger.e("userCoinQuantity : $userCoinQuantity, currentPrice : $currentPrice, btcPrice : $btcPrice")
 
         val userCoinValue = if (btcPrice == BigDecimal.ZERO) {
             userCoinQuantity.toBigDecimal().multiply(currentPrice).toDouble()

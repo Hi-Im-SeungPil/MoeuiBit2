@@ -100,6 +100,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
@@ -312,7 +313,7 @@ private fun SelectTradeCurrencySection(
                     unselectedContentColor = Color(0xff8C939E),
                     selected = tradeCurrencyState.value == index,
                     onClick = {
-                        if (tradeCurrencyState.value != index) {
+                        if (tradeCurrencyState.value != index && NetworkConnectivityObserver.isNetworkAvailable.value) {
                             coroutineScope.launch {
                                 keyboardController?.hide()
                                 changeTradeCurrency(index)

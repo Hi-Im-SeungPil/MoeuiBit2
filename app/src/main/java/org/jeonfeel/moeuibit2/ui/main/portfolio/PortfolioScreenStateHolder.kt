@@ -168,16 +168,15 @@ class PortfolioScreenStateHolder(
         val totalHoldings =
             totalValuedAssets.value.plus(userSeedMoney.value.toBigDecimal()).formattedStringTo1000()
         val valuationGainOrLoss =
-            totalValuedAssets.value.minus(totalPurchase.value).formattedStringTo1000()
+            if (totalValuedAssets.value == BigDecimal.ZERO) {
+                "0"
+            } else {
+                totalValuedAssets.value.minus(totalPurchase.value).formattedStringTo1000()
+            }
         val aReturn = if (totalPurchase.value.toDouble() == 0.0) {
             "0"
         } else {
-            (totalValuedAssets.value
-                .minus(totalPurchase.value))
-                .divide(totalPurchase.value, 10, RoundingMode.HALF_UP)
-                .multiply(BigDecimal(100))
-                .setScale(2, RoundingMode.HALF_UP)
-                .toString()
+            getReturn(totalValuedAssets, totalPurchase)
         }
         val colorStandard =
             totalValuedAssets.value.minus(totalPurchase.value)
@@ -192,6 +191,21 @@ class PortfolioScreenStateHolder(
             PORTFOLIO_MAIN_KEY_A_RETURN to aReturn.plus("%"),
             PORTFOLIO_MAIN_KEY_COLOR_STANDARD to colorStandard.toString()
         )
+    }
+
+    private fun getReturn(
+        totalValuedAssets: State<BigDecimal>,
+        totalPurchase: State<BigDecimal>
+    ): String {
+
+        return if (totalValuedAssets.value == BigDecimal.ZERO) {
+            "0"
+        } else {
+            (totalValuedAssets.value.minus(totalPurchase.value))
+                .divide(totalPurchase.value, 10, RoundingMode.HALF_UP)
+                .multiply(BigDecimal(100))
+                .setScale(2, RoundingMode.HALF_UP).toString()
+        }
     }
 
     fun showAd() {

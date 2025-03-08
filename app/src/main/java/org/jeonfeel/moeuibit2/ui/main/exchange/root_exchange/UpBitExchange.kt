@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
 import android.os.Looper
+import androidx.annotation.Keep
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
@@ -31,6 +32,7 @@ import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
+@Keep
 sealed class ExchangeInitState {
     data object Wait : ExchangeInitState()
 
@@ -87,7 +89,6 @@ class UpBitExchange @Inject constructor(
     suspend fun onStart(
         updateLoadingState: KFunction1<Boolean, Unit>,
     ) {
-        Logger.e("onStart")
         if (!tickerDataIsEmpty()) {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()

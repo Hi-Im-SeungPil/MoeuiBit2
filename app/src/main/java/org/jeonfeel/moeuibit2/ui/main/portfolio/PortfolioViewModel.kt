@@ -390,7 +390,6 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun setETC() {
-        Logger.e(userHoldCoinsMarkets.toString())
 
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
@@ -398,11 +397,9 @@ class PortfolioViewModel @Inject constructor(
             userHoldCoinsMarkets.deleteCharAt(userHoldCoinsMarkets.lastIndex)
         }
 
-        Logger.e(userHoldCoinsMarkets.toString())
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
-        Logger.e("${isPortfolioSocketRunning.value}")
         _isPortfolioSocketRunning.value = false
         _portfolioOrderState.intValue = sortStandard
 
@@ -564,6 +561,7 @@ class PortfolioViewModel @Inject constructor(
             } else {
                 userDao.updatePlusMoney(10_000_000)
             }
+            _userSeedMoney.longValue = userDao.all?.krw ?: 0L
         }
     }
 
@@ -575,6 +573,7 @@ class PortfolioViewModel @Inject constructor(
             } else {
                 userDao.updatePlusMoney(1_000_000)
             }
+            _userSeedMoney.longValue = userDao.all?.krw ?: 0L
         }
     }
 
@@ -584,10 +583,6 @@ class PortfolioViewModel @Inject constructor(
                 upbitSocketTickerRes
             }
         }.collect { upbitSocketTickerRes ->
-            if (upbitSocketTickerRes?.code?.startsWith("KRW-") == false) {
-                Logger.e("portfolio message!! ${upbitSocketTickerRes.code}")
-            }
-
             if (!isPortfolioSocketRunning.value || upbitSocketTickerRes == null) return@collect
 
             runCatching {

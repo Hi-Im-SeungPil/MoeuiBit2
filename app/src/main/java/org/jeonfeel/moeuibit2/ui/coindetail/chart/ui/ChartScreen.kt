@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -45,8 +44,10 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.OnLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 import kotlin.reflect.KFunction1
 
 const val MINUTE_SELECT = 1
@@ -64,38 +65,60 @@ const val POSITIVE_BAR = 0
 const val NEGATIVE_BAR = 1
 
 @Composable
-fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
+fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
     val context = LocalContext.current
     val combinedChart = remember { MBitCombinedChart(context) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     CommonLoadingDialog(
-        dialogState = coinDetailViewModel.chart.state.loadingDialogState,
+        dialogState = viewModel.chart.state.loadingDialogState,
         text = stringResource(id = R.string.loading_chart)
     )
 
     OnLifecycleEvent { _, event ->
         when (event) {
-            Lifecycle.Event.ON_STOP -> {
-                coinDetailViewModel.chart.candlePosition = 0f
-                coinDetailViewModel.chart.state.isUpdateChart.value = false
-                combinedChart.xAxis.valueFormatter = null
+            Lifecycle.Event.ON_START -> {
+                if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                    if (!viewModel.isChartStarted) {
+                        combinedChart.axisRight.removeAllLimitLines()
+                        combinedChart.xAxis.removeAllLimitLines()
+                        viewModel.requestChartData(market)
+                        viewModel.chart.state.isUpdateChart.value = true
+                    }
+                }
             }
 
-            Lifecycle.Event.ON_START -> {
-                combinedChart.axisRight.removeAllLimitLines()
-                combinedChart.xAxis.removeAllLimitLines()
-                coinDetailViewModel.requestChartData(market)
-                coinDetailViewModel.chart.state.isUpdateChart.value = true
+            Lifecycle.Event.ON_STOP -> {
+                viewModel.stopRequestChartData()
+                viewModel.chart.candlePosition = 0f
+                viewModel.chart.state.isUpdateChart.value = false
+                combinedChart.xAxis.valueFormatter = null
             }
 
             else -> {}
         }
     }
 
+    LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
+        if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+            if (!viewModel.isChartStarted) {
+                combinedChart.axisRight.removeAllLimitLines()
+                combinedChart.xAxis.removeAllLimitLines()
+                viewModel.requestChartData(market)
+                viewModel.chart.state.isUpdateChart.value = true
+            }
+        } else {
+            viewModel.stopRequestChartData()
+            viewModel.chart.candlePosition = 0f
+            viewModel.chart.state.isUpdateChart.value = false
+            combinedChart.xAxis.valueFormatter = null
+            context.showToast("인터넷 연결을 확인해주세요.")
+        }
+    }
+
     // 차트 추가인지 셋인지
     LaunchedEffect(true) {
-        coinDetailViewModel.chart.chartUpdateLiveData.observe(
+        viewModel.chart.chartUpdateLiveData.observe(
             lifecycleOwner
         ) {
             try {
@@ -103,69 +126,69 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                     // 차트 초기화
                     CHART_INIT -> {
                         combinedChart.getChartXValueFormatter()?.setItem(
-                            newDateHashMap = coinDetailViewModel.chart.kstDateHashMap
+                            newDateHashMap = viewModel.chart.kstDateHashMap
                         )
                         combinedChart.initChart(
-                            coinDetailViewModel::requestOldData,
+                            viewModel::requestOldData,
                             marketState = Utils.getSelectedMarket(market),
-                            loadingOldData = coinDetailViewModel.chart.state.loadingOldData,
-                            isChartLastData = coinDetailViewModel.chart.state.isLastData,
-                            minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-                            accData = coinDetailViewModel.chart.accData,
-                            kstDateHashMap = coinDetailViewModel.chart.kstDateHashMap,
+                            loadingOldData = viewModel.chart.state.loadingOldData,
+                            isChartLastData = viewModel.chart.state.isLastData,
+                            minuteVisibility = viewModel.chart.state.minuteVisible,
+                            accData = viewModel.chart.accData,
+                            kstDateHashMap = viewModel.chart.kstDateHashMap,
                             market = market,
                         )
                         combinedChart.chartDataInit(
-                            candleEntries = coinDetailViewModel.chart.candleEntries,
-                            candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                            positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                            negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                            lineData = coinDetailViewModel.chart.createLineData(),
-                            purchaseAveragePrice = coinDetailViewModel.chart.purchaseAveragePrice
+                            candleEntries = viewModel.chart.candleEntries,
+                            candleDataSet = viewModel.chart.candleDataSet,
+                            positiveBarDataSet = viewModel.chart.positiveBarDataSet,
+                            negativeBarDataSet = viewModel.chart.negativeBarDataSet,
+                            lineData = viewModel.chart.createLineData(),
+                            purchaseAveragePrice = viewModel.chart.purchaseAveragePrice
                         )
                         combinedChart.initCanvas()
                     }
                     // 차트 컴포넌트 추가되었을 떄
                     CHART_ADD -> {
                         combinedChart.getChartXValueFormatter()?.let {
-                            val candlePosition = coinDetailViewModel.chart.candlePosition.toInt()
+                            val candlePosition = viewModel.chart.candlePosition.toInt()
                             it.addItem(
-                                newDateString = coinDetailViewModel.chart.kstDateHashMap[candlePosition]
+                                newDateString = viewModel.chart.kstDateHashMap[candlePosition]
                                     ?: "",
                                 position = candlePosition
                             )
                         }
                         combinedChart.chartAdd(
-                            model = coinDetailViewModel.chart.addModel,
-                            candlePosition = coinDetailViewModel.chart.candlePosition,
-                            addLineData = coinDetailViewModel.chart::addLineData
+                            model = viewModel.chart.addModel,
+                            candlePosition = viewModel.chart.candlePosition,
+                            addLineData = viewModel.chart::addLineData
                         )
                     }
                     // 예전 데이터 불러오기
                     CHART_OLD_DATA -> {
                         combinedChart.getChartXValueFormatter()
-                            ?.setItem(coinDetailViewModel.chart.kstDateHashMap)
+                            ?.setItem(viewModel.chart.kstDateHashMap)
                         combinedChart.chartRefreshLoadMoreData(
-                            candleDataSet = coinDetailViewModel.chart.candleDataSet,
-                            positiveBarDataSet = coinDetailViewModel.chart.positiveBarDataSet,
-                            negativeBarDataSet = coinDetailViewModel.chart.negativeBarDataSet,
-                            lineData = coinDetailViewModel.chart.createLineData(),
+                            candleDataSet = viewModel.chart.candleDataSet,
+                            positiveBarDataSet = viewModel.chart.positiveBarDataSet,
+                            negativeBarDataSet = viewModel.chart.negativeBarDataSet,
+                            lineData = viewModel.chart.createLineData(),
                             startPosition = combinedChart.lowestVisibleX,
                             currentVisible = combinedChart.visibleXRange,
-                            loadingOldData = coinDetailViewModel.chart.state.loadingOldData
+                            loadingOldData = viewModel.chart.state.loadingOldData
                         )
                     }
                     // 마지막 차트 컴포넌트 최신화
                     else -> {
-                        if (!coinDetailViewModel.chart.isCandleEntryEmpty()) {
+                        if (!viewModel.chart.isCandleEntryEmpty()) {
                             combinedChart.chartSet(
                                 marketState = Utils.getSelectedMarket(market),
-                                lastCandleEntry = coinDetailViewModel.chart.getLastCandleEntry(),
-                                candleEntriesIsEmpty = coinDetailViewModel.chart.isCandleEntryEmpty(),
+                                lastCandleEntry = viewModel.chart.getLastCandleEntry(),
+                                candleEntriesIsEmpty = viewModel.chart.isCandleEntryEmpty(),
                                 candleUpdateLiveDataValue = it,
-                                isUpdateChart = coinDetailViewModel.chart.state.isUpdateChart,
-                                accData = coinDetailViewModel.chart.accData,
-                                candlePosition = coinDetailViewModel.chart.candlePosition,
+                                isUpdateChart = viewModel.chart.state.isUpdateChart,
+                                accData = viewModel.chart.accData,
+                                candlePosition = viewModel.chart.candlePosition,
                                 rootExchange = ROOT_EXCHANGE_UPBIT
                             )
                         }
@@ -179,15 +202,15 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
     // 버튼들과 차트.
     Column(modifier = Modifier.fillMaxSize()) {
         PeriodButtons(
-            selectedButton = coinDetailViewModel.chart.state.selectedButton,
-            minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-            minuteText = coinDetailViewModel.chart.state.minuteText,
-            candleType = coinDetailViewModel.chart.state.candleType,
-            isChartLastData = coinDetailViewModel.chart.state.isLastData,
-            requestChartData = coinDetailViewModel::requestChartData,
+            selectedButton = viewModel.chart.state.selectedButton,
+            minuteVisibility = viewModel.chart.state.minuteVisible,
+            minuteText = viewModel.chart.state.minuteText,
+            candleType = viewModel.chart.state.candleType,
+            isChartLastData = viewModel.chart.state.isLastData,
+            requestChartData = viewModel::requestChartData,
             rootExchange = ROOT_EXCHANGE_UPBIT,
             market = market,
-            setLastPeriod = coinDetailViewModel::setLastPeriod
+            setLastPeriod = viewModel::setLastPeriod
         )
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
@@ -198,7 +221,7 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                     .fillMaxSize()
                     .background(commonBackground())
             )
-            if (coinDetailViewModel.chart.state.minuteVisible.value) {
+            if (viewModel.chart.state.minuteVisible.value) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -206,36 +229,36 @@ fun ChartScreen(coinDetailViewModel: NewCoinDetailViewModel, market: String) {
                         .align(Alignment.TopCenter)
                         .border(0.5.dp, color = commonTextColor())
                 ) {
-                    if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    if (viewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
-                                isChartLastData = coinDetailViewModel.chart.state.isLastData,
-                                minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-                                minuteText = coinDetailViewModel.chart.state.minuteText,
+                                isChartLastData = viewModel.chart.state.isLastData,
+                                minuteVisibility = viewModel.chart.state.minuteVisible,
+                                minuteText = viewModel.chart.state.minuteText,
                                 minuteTextValue = chartMinuteStrArray[i],
-                                candleType = coinDetailViewModel.chart.state.candleType,
+                                candleType = viewModel.chart.state.candleType,
                                 candleTypeValue = chartMinuteArray[i],
                                 autoSizeText = true,
-                                selectedButton = coinDetailViewModel.chart.state.selectedButton,
-                                requestChartData = coinDetailViewModel::requestChartData,
+                                selectedButton = viewModel.chart.state.selectedButton,
+                                requestChartData = viewModel::requestChartData,
                                 market = market,
-                                setLastPeriod = coinDetailViewModel::setLastPeriod
+                                setLastPeriod = viewModel::setLastPeriod
                             )
                         }
-                    } else if (coinDetailViewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                    } else if (viewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
-                                isChartLastData = coinDetailViewModel.chart.state.isLastData,
-                                minuteVisibility = coinDetailViewModel.chart.state.minuteVisible,
-                                minuteText = coinDetailViewModel.chart.state.minuteText,
+                                isChartLastData = viewModel.chart.state.isLastData,
+                                minuteVisibility = viewModel.chart.state.minuteVisible,
+                                minuteText = viewModel.chart.state.minuteText,
                                 minuteTextValue = bitthumbChartMinuteStrArray[i],
-                                candleType = coinDetailViewModel.chart.state.candleType,
+                                candleType = viewModel.chart.state.candleType,
                                 candleTypeValue = bitthumbChartMinuteArray[i],
                                 autoSizeText = true,
-                                selectedButton = coinDetailViewModel.chart.state.selectedButton,
-                                requestChartData = coinDetailViewModel::requestChartData,
+                                selectedButton = viewModel.chart.state.selectedButton,
+                                requestChartData = viewModel::requestChartData,
                                 market = market,
-                                setLastPeriod = coinDetailViewModel::setLastPeriod
+                                setLastPeriod = viewModel::setLastPeriod
                             )
                         }
                     }

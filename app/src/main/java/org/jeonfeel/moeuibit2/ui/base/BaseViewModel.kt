@@ -66,14 +66,12 @@ abstract class BaseViewModel(
                         onApiError?.let {
                             it(result)
                         }
-                        Logger.e("api error" + result.message.toString())
                     }
 
                     ApiResult.Status.NETWORK_ERROR -> {
                         onNetworkError?.let {
                             it(result)
                         }
-                        Logger.e("network error " + result.message.toString())
                     }
                 }
             } else {

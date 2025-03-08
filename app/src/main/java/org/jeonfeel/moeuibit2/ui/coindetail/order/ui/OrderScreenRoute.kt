@@ -27,7 +27,8 @@ fun OrderScreenRoute(
     userBTC: State<MyCoin>,
     userCoin: State<MyCoin>,
     transactionInfoList: List<TransactionInfo>,
-    getTransactionInfoList: (String) -> Unit
+    getTransactionInfoList: (String) -> Unit,
+    isCoinOrderStarted: Boolean
 ) {
     OrderScreen(
         market = market,
@@ -47,6 +48,7 @@ fun OrderScreenRoute(
         requestAsk = requestAsk,
         btcPrice = btcPrice,
         transactionInfoList = transactionInfoList,
-        getTransactionInfoList = getTransactionInfoList
+        getTransactionInfoList = getTransactionInfoList,
+        isCoinOrderStarted = isCoinOrderStarted
     )
 }

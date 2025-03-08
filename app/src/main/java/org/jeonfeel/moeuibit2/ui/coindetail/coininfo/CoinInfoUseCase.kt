@@ -26,13 +26,10 @@ class CoinInfoUseCase(
         return coinCapIORepository.fetchCoinInfo(engName = engName).map { res ->
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
-                    Logger.e(res.data?.timestamp.toString())
-                    Logger.e(res.data?.data.toString())
                     ResultState.Success(res.data)
                 }
 
                 ApiResult.Status.API_ERROR, ApiResult.Status.NETWORK_ERROR -> {
-                    Logger.e(res.message.toString())
                     ResultState.Error(res.message ?: "Unknown error")
                 }
 

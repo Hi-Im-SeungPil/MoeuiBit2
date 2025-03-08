@@ -27,6 +27,7 @@ import org.jeonfeel.moeuibit2.ui.theme.decrease_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_bar_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -358,13 +359,15 @@ fun MBitCombinedChart.setMBitChartTouchListener(
 
                 MotionEvent.ACTION_UP -> {
                     if (this.lowestVisibleX <= this.data.candleData.xMin + 2f && !isChartLastData.value) {
-                        loadingOldData.value = true
-                        requestOldData(
-                            this.barData.dataSets[POSITIVE_BAR],
-                            this.barData.dataSets[NEGATIVE_BAR],
-                            this.data.candleData.xMin,
-                            market
-                        )
+                        if (NetworkConnectivityObserver.isNetworkAvailable.value) {
+                            loadingOldData.value = true
+                            requestOldData(
+                                this.barData.dataSets[POSITIVE_BAR],
+                                this.barData.dataSets[NEGATIVE_BAR],
+                                this.data.candleData.xMin,
+                                market
+                            )
+                        }
                     }
                 }
             }

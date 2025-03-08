@@ -113,7 +113,6 @@ fun ThemeDialog(dismissRequest: MutableState<Boolean>,
                                 }
                             }
 //                            preferenceManager.setValue(PREF_KEY_THEME_MODE, theme.name)
-                            Logger.e(theme.name)
                             ThemeManager.setDarkTheme(theme)
 //                            ThemeHelper.applyTheme(theme)
                             dismissRequest.value = false

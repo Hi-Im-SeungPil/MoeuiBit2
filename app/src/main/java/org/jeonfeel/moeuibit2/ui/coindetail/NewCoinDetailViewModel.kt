@@ -84,6 +84,19 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private var _market = ""
 
+    var isStarted = false
+        private set
+
+    var isChartStarted = false
+        private set
+
+    var isCoinOrderStarted = false
+        private set
+
+    @Volatile
+    var isInitSuccess = false
+        private set
+
     private val _isShowDeListingSnackBar = mutableStateOf(false)
     val isShowDeListingSnackBar: State<Boolean> = _isShowDeListingSnackBar
     var deListingMessage: String = ""
@@ -100,6 +113,7 @@ class NewCoinDetailViewModel @Inject constructor(
                     getEngCoinName()
                     getIsFavorite()
                     requestCoinTicker(market)
+                    isInitSuccess = true
                 }
 
                 ROOT_EXCHANGE_BITTHUMB -> {
@@ -112,6 +126,7 @@ class NewCoinDetailViewModel @Inject constructor(
     fun onStart(market: String) {
         realTimeJob?.cancel()
         collectTickerJob?.cancel()
+        isStarted = true
         viewModelScope.launch {
             requestLineChartCandleSticks(market)
         }
@@ -126,6 +141,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun onStop() {
+        isStarted = false
         viewModelScope.launch {
             saveFavoriteStatus()
             upbitCoinDetailUseCase.onStop()
@@ -155,6 +171,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun coinOrderScreenOnStart(market: String) {
         orderBookRealTimeJob?.cancel()
+        isCoinOrderStarted = true
 
         orderBookRealTimeJob = viewModelScope.launch {
             when (rootExchange) {
@@ -185,6 +202,7 @@ class NewCoinDetailViewModel @Inject constructor(
      * 코인 주문 화면 pause
      */
     fun coinOrderScreenOnStop() {
+        isCoinOrderStarted = false
         viewModelScope.launch {
             upbitCoinOrder.onStop()
             orderBookRealTimeJob?.cancel()
@@ -431,10 +449,16 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun requestChartData(market: String) {
+        isChartStarted = true
         chartRealTimeJob?.cancel()
         chartRealTimeJob = viewModelScope.launch {
             chart.refresh(market = market)
         }.also { it.start() }
+    }
+
+    fun stopRequestChartData() {
+        isChartStarted = false
+        chartRealTimeJob?.cancel()
     }
 
     fun updateIsFavorite() {
@@ -449,7 +473,6 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun getTransactionInfoList(market: String) {
         viewModelScope.launch {
-            Logger.e(upbitCoinOrder.getTransactionInfoList(market = market).toString())
             _transactionInfoList.clear()
             _transactionInfoList.addAll(upbitCoinOrder.getTransactionInfoList(market = market))
         }
@@ -486,7 +509,6 @@ class NewCoinDetailViewModel @Inject constructor(
                     chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)
                 },
                 onFailure = {
-                    Logger.e(it.message.toString())
                 }
             )
         }

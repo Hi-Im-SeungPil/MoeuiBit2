@@ -1,8 +1,10 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Keep
 @Serializable
 data class GetChartCandleRes(
     @SerialName("candle_acc_trade_price")

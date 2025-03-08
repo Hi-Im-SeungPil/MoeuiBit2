@@ -150,7 +150,7 @@ fun CoinInfoSection(coinInfoModel: CoinInfoModel?) {
         if (coinInfoModel != null) {
             Text(
                 text = "(${coinInfoModel.timeString})",
-                modifier = Modifier.padding( start = 15.dp),
+                modifier = Modifier.padding(start = 15.dp),
                 style = TextStyle(color = commonHintTextColor(), fontSize = DpToSp(14.dp))
             )
             CoinInfoColumnItem("시가총액", "${coinInfoModel.marketCapKRW} ${coinInfoModel.unit}")

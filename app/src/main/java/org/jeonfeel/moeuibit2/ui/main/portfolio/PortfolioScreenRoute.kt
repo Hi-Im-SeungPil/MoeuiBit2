@@ -46,12 +46,10 @@ fun PortfolioScreenRoute(
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            Logger.e("network available")
             if (!viewModel.isStarted) {
                 viewModel.onStart()
             }
         } else {
-            Logger.e("network not available")
             context.showToast("인터넷 상태를 확인해 주세요.")
             viewModel.onStop()
         }
@@ -83,9 +81,9 @@ fun PortfolioScreenRoute(
         rightButtonText = stringResource(id = R.string.commonAccept),
         leftButtonAction = { holder.adConfirmDialogState.value = false },
         rightButtonAction = {
-            holder.showAd()
             holder.adConfirmDialogState.value = false
             holder.adLoadingDialogState.value = true
+            holder.showAd()
         })
 
     CommonLoadingDialog(
