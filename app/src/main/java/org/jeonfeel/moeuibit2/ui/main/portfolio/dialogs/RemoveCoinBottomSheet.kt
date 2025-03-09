@@ -40,6 +40,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import kotlin.reflect.KFunction1
@@ -60,7 +61,7 @@ fun RemoveCoinBottomSheet(
             if (removeCoinList.isEmpty()) {
                 context.showToast("삭제할 코인이 없습니다.")
                 hideSheet()
-            } else if (!Utils.isNetworkAvailable(context)) {
+            } else if (!Utils.isNetworkAvailable(context) || !NetworkConnectivityObserver.isNetworkAvailable.value) {
                 context.showToast("인터넷 상태를 확인해주세요.")
                 hideSheet()
             } else {

@@ -28,6 +28,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
@@ -125,13 +126,13 @@ fun TransactionInfoLazyColumnItem(
                 style = TextStyle(
                     fontSize = DpToSp(18.dp),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = commonTextColor()
                 )
             )
         }
         Divider(
             modifier = Modifier
-                .fillMaxWidth(), color = MaterialTheme.colorScheme.onPrimaryContainer
+                .fillMaxWidth(), color = commonDividerColor()
         )
         ItemRow(title = stringResource(id = R.string.time), content = time)
         ItemRow(title = stringResource(id = R.string.price), content = price)
@@ -139,7 +140,7 @@ fun TransactionInfoLazyColumnItem(
         ItemRow(title = stringResource(id = R.string.total), content = totalPrice)
         Divider(
             modifier = Modifier
-                .fillMaxWidth(), color = MaterialTheme.colorScheme.onPrimaryContainer
+                .fillMaxWidth(), color = commonDividerColor()
         )
     }
 }
@@ -153,7 +154,7 @@ private fun ItemRow(title: String, content: String) {
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = commonTextColor(),
             fontSize = DpToSp(dp = 13.dp)
         )
         Text(
@@ -161,7 +162,7 @@ private fun ItemRow(title: String, content: String) {
             modifier = Modifier.weight(1f, true),
             textAlign = TextAlign.End,
             fontSize = DpToSp(dp = 13.dp),
-            color = MaterialTheme.colorScheme.onBackground
+            color = commonTextColor()
         )
     }
 }

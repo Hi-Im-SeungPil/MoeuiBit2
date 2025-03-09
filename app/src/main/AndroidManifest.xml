@@ -11,10 +11,14 @@
         <package android:name="com.dunamu.exchange" />
         <package android:name="com.btckorea.bithumb" />
         <package android:name="coinone.co.kr.official" />
-        <package android:name="com.binance.dev" />
-        <package android:name="com.bybit.app" />
         <package android:name="com.korbit.exchange" />
         <package android:name="kr.co.gopax" />
+
+        <package android:name="com.binance.dev" />
+        <package android:name="com.bybit.app" />
+        <package android:name="com.gateio.gateio"/>
+        <package android:name="com.okinc.okex.gp" />
+        <package android:name="com.bitget.exchange" />
 
         <package android:name="com.ddengle.app" />
         <package android:name="com.coinpan.coinpan" />

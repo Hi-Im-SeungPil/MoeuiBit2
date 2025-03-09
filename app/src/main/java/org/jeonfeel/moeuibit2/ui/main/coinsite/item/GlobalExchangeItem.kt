@@ -37,7 +37,7 @@ fun GlobalExchangeItem(
     context: Context
 ) {
     val exchangeImageUrl = getGlobalExchangeImageArray()
-    val exchangeUrl = stringArrayResource(id = R.array.exchangeUrl)
+    val exchangeUrl = getRefferalUrl()
     val packageMap = getGlobalExchangePackageMap()
     val titles = packageMap.keys.toList()
     Column(
@@ -115,6 +115,7 @@ private fun getRefferalUrl(): List<String> {
         "https://www.binance.info/activity/referral-entry/CPA?ref=CPA_00K7KK4OY0",
         "https://www.bybit.com/invite?ref=0RZLJJN",
         "https://okx.com/join/74392423",
-        "https://www.gate.io/signup/VFdHVA0O?ref_type=103"
+        "https://www.gate.io/signup/VFdHVA0O?ref_type=103",
+        "https://www.bitget.com/asia/"
     )
 }

@@ -21,6 +21,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.commaFormat
@@ -309,7 +310,7 @@ class CoinOrderStateHolder(
                     return
                 }
 
-                !Utils.isNetworkAvailable(context) -> {
+                !Utils.isNetworkAvailable(context) || !NetworkConnectivityObserver.isNetworkAvailable.value -> {
                     context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
@@ -423,7 +424,7 @@ class CoinOrderStateHolder(
                     return
                 }
 
-                !Utils.isNetworkAvailable(context) -> {
+                !Utils.isNetworkAvailable(context) || !NetworkConnectivityObserver.isNetworkAvailable.value -> {
                     context.showToast("인터넷 연결을 확인한 후 다시 시도해 주세요.")
                     return
                 }
