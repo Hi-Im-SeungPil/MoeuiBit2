@@ -12,7 +12,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.*
 
 @Database(
     entities = [User::class, MyCoin::class, NotSigned::class, Favorite::class, TransactionInfo::class],
-    version = 3
+    version = 4
 )
 abstract class MoeuiBitDatabase : RoomDatabase() {
     abstract fun userDAO(): UserDAO
@@ -64,10 +64,19 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
 
             }
         }
+
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.version = 3
                 database.execSQL("ALTER TABLE MyCoin ADD COLUMN PurchaseAverageBtcPrice REAL NOT NULL DEFAULT 0.0")
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.version = 4
+                database.execSQL("ALTER TABLE MyCoin RENAME COLUMN PurchaseAverageBtcPrice TO purchaseAverageBtcPrice")
+                database.execSQL("ALTER TABLE TransactionInfo ADD COLUMN transactionAmountBTC REAL NOT NULL DEFAULT 0.0")
             }
         }
     }

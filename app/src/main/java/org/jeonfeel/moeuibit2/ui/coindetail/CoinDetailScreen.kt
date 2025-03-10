@@ -469,7 +469,7 @@ fun CoinDetailLineChart(data: List<Float>, modifier: Modifier) {
     LaunchedEffect(data) {
         if (data.isNotEmpty()) {
             if (!chartIsReady.value) {
-                lineChart.animateX(1000)
+                lineChart.animateX(500)
             } else {
                 lineChart.animateX(0)
             }

@@ -117,7 +117,6 @@ fun PortfolioScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-//    val loading2 = loading.collectAsState()
     val listState = rememberLazyListState()
 
     Column(

@@ -13,6 +13,7 @@ import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATI
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_3_4
 import javax.inject.Singleton
 
 @Module
@@ -30,7 +31,11 @@ class LocalModule {
             MoeuiBitDatabase::class.java,
             ROOM_DATABASE_NAME
         )
-            .addMigrations(MoeuiBitDatabase.MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(
+                MoeuiBitDatabase.MIGRATION_1_2,
+                MoeuiBitDatabase.MIGRATION_2_3,
+                MoeuiBitDatabase.MIGRATION_3_4
+            )
             .build()
     }
 
