@@ -6,7 +6,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import org.jeonfeel.moeuibit2.R
@@ -47,8 +50,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun init() {
-//        checkUpdate()
-//        requestUpdate()
+        checkUpdate()
         initData()
     }
 
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
             ) {
-//                requestUpdate(appUpdateInfo)
+                requestUpdate(appUpdateInfo)
             }
         }.addOnFailureListener {
             this.showToast(this.getString(R.string.updateFail))
@@ -78,25 +80,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
-//            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
-//                requestUpdate(appUpdateInfo)
-//            }
-//        }
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                requestUpdate(appUpdateInfo)
+            }
+        }
     }
 
     private fun requestUpdate(
-//        appUpdateInfo: AppUpdateInfo,
+        appUpdateInfo: AppUpdateInfo,
     ) {
         CommonDialogXML(
             image = R.drawable.img_update,
             message = this.getString(R.string.updateDialogMessage),
             onConfirm = {
-//                appUpdateManager.startUpdateFlowForResult(
-//                    appUpdateInfo,
-//                    appUpdateCallback,
-//                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-//                )
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    appUpdateCallback,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
             },
             onCancel = { }
         ).show(supportFragmentManager, "updateDialog")

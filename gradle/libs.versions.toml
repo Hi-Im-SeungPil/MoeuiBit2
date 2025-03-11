@@ -64,6 +64,7 @@ uiToolingPreview = "1.7.7"
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistWebview" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistWebview" }
 accompanist-webview = { module = "com.google.accompanist:accompanist-webview", version.ref = "accompanistWebview" }
+
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-animation = { module = "androidx.compose.animation:animation", version.ref = "animation" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
