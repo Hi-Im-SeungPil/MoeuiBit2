@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.local.room
 
+import android.os.Build
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
@@ -75,8 +76,30 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.version = 4
-                database.execSQL("ALTER TABLE MyCoin RENAME COLUMN PurchaseAverageBtcPrice TO purchaseAverageBtcPrice")
-                database.execSQL("ALTER TABLE TransactionInfo ADD COLUMN transactionAmountBTC REAL NOT NULL DEFAULT 0.0")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    database.execSQL("ALTER TABLE MyCoin RENAME COLUMN PurchaseAverageBtcPrice TO purchaseAverageBtcPrice")
+                    database.execSQL("ALTER TABLE TransactionInfo ADD COLUMN transactionAmountBTC REAL NOT NULL DEFAULT 0.0")
+                } else {
+                    database.execSQL(
+                        "CREATE TABLE MyCoin_new (" +
+                                "market TEXT NOT NULL, " +
+                                "purchasePrice REAL NOT NULL, " +
+                                "koreanCoinName TEXT NOT NULL, " +
+                                "symbol TEXT NOT NULL, " +
+                                "quantity REAL NOT NULL, " +
+                                "purchaseAverageBtcPrice REAL NOT NULL DEFAULT 0.0, " +
+                                "PRIMARY KEY(market))"
+                    )
+
+                    database.execSQL(
+                        "INSERT INTO MyCoin_new (market, purchasePrice, koreanCoinName, symbol, quantity, purchaseAverageBtcPrice) " +
+                                "SELECT market, purchasePrice, koreanCoinName, symbol, quantity, PurchaseAverageBtcPrice FROM MyCoin"
+                    )
+
+                    database.execSQL("DROP TABLE MyCoin")
+                    database.execSQL("ALTER TABLE MyCoin_new RENAME TO MyCoin")
+                    database.execSQL("ALTER TABLE TransactionInfo ADD COLUMN transactionAmountBTC REAL NOT NULL DEFAULT 0.0")
+                }
             }
         }
     }
