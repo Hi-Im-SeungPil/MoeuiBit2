@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -65,8 +64,8 @@ fun LazyItemScope.PortfolioMain(
                 text5 = stringResource(id = R.string.totalValuedAssets),
                 text6 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_CALC_TOTAL_VALUED_ASSETS]
                     ?: "",
-                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
-                    ?: 0L
+                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toBigDecimal()
+                    ?: BigDecimal.ZERO
             )
 
             PortfolioMainItem(
@@ -79,8 +78,8 @@ fun LazyItemScope.PortfolioMain(
                 text5 = stringResource(id = R.string.aReturn),
                 text6 = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_A_RETURN]
                     ?: "",
-                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toLong()
-                    ?: 0L
+                colorStandard = portFolioMainInfo[PortfolioScreenStateHolder.PORTFOLIO_MAIN_KEY_COLOR_STANDARD]?.toBigDecimal()
+                    ?: BigDecimal.ZERO
             )
         }
     }
@@ -94,7 +93,7 @@ fun RowScope.PortfolioMainItem(
     text4: String,
     text5: String,
     text6: String,
-    colorStandard: Long,
+    colorStandard: BigDecimal,
 ) {
     val textColor = getReturnTextColor(colorStandard, text5)
     Column(

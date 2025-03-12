@@ -632,14 +632,14 @@ fun RowScope.UserHoldCoinLazyColumnItemContent(
 }
 
 @Composable
-fun getReturnTextColor(colorStandard: Long, text5: String): Color {
+fun getReturnTextColor(colorStandard: BigDecimal, text5: String): Color {
     return if (text5 == stringResource(id = R.string.aReturn)) {
         when {
-            colorStandard < 0 -> {
+            colorStandard < BigDecimal.ZERO -> {
                 decreaseColor()
             }
 
-            colorStandard > 0 -> {
+            colorStandard > BigDecimal.ZERO -> {
                 increaseColor()
             }
 
