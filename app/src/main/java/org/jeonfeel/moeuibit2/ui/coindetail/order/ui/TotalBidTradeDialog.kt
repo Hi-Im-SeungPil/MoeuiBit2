@@ -62,11 +62,12 @@ import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.round
 
 @Composable
 fun TotalBidTradeDialog(
     dialogState: MutableState<Boolean>,
-    userSeedMoney: State<Long>,
+    userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
     isKrw: Boolean,
     requestBid: (String, Double, BigDecimal, Double) -> Unit,
@@ -83,7 +84,7 @@ fun TotalBidTradeDialog(
             isKrw = isKrw
         )
     } else {
-        "0".toBigDecimal()
+        "0".toDouble()
     }
 
     val context = LocalContext.current
@@ -128,7 +129,7 @@ fun TotalBidTradeDialog(
                 )
                 Item(
                     text = "매수 수량",
-                    value = buyingQuantity?.formattedStringForQuantity() ?: "0",
+                    value = BigDecimal(buyingQuantity).formattedStringForQuantity() ?: "0",
                     symbol = commonExchangeModelState.value?.symbol ?: ""
                 )
 
@@ -222,14 +223,14 @@ fun TotalBidTradeDialog(
                                         context = context,
                                         totalPrice = textFieldValue.value
                                             .replace(",", "")
-                                            .toBigDecimal(),
+                                            .toDouble(),
                                         userSeedMoney = userSeedMoney,
                                         userBTC = userBTC
                                     )
                                 ) {
                                     requestBid(
                                         commonExchangeModelState.value?.market ?: "",
-                                        buyingQuantity?.toDouble() ?: 0.0,
+                                        buyingQuantity,
                                         commonExchangeModelState.value?.tradePrice
                                             ?: BigDecimal.ZERO,
                                         textFieldValue.value
@@ -453,7 +454,7 @@ fun RowScope.TransparentTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .clearFocusOnKeyboardDismiss(),
-            visualTransformation = NumberCommaTransformation(),
+            visualTransformation = NumberCommaTransformation2(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
             cursorBrush = SolidColor(commonTextColor()),
             decorationBox = { innerTextField ->
@@ -481,8 +482,8 @@ fun RowScope.TransparentTextField(
 fun bidConditionCheck(
     commonExchangeModelState: State<CommonExchangeModel?>,
     context: Context,
-    totalPrice: BigDecimal,
-    userSeedMoney: State<Long>,
+    totalPrice: Double,
+    userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
 ): Boolean {
     when {
@@ -507,8 +508,7 @@ fun bidConditionCheck(
     when {
         (commonExchangeModelState.value?.market ?: "").startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
             when {
-                totalPrice > (userSeedMoney.value.toDouble().newBigDecimal()
-                    .setScale(0, RoundingMode.HALF_UP)) -> {
+                totalPrice > (round(userSeedMoney.value)) -> {
                     context.showToast("보유하신 KRW가 부족합니다.")
                     return false
                 }
@@ -524,9 +524,7 @@ fun bidConditionCheck(
 
         (commonExchangeModelState.value?.market ?: "").startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
             when {
-                totalPrice > (userBTC.value.quantity
-                    .newBigDecimal(8, RoundingMode.HALF_UP)
-                    .setScale(8, RoundingMode.HALF_UP)) -> {
+                totalPrice > ( userBTC.value.quantity.eighthDecimal().toDouble()) -> {
                     context.showToast("보유하신 BTC가 부족합니다.")
                     return false
                 }
@@ -545,84 +543,3 @@ fun bidConditionCheck(
 
     return true
 }
-
-//@Composable
-//fun OrderTabQuantitySection(
-//    quantityOnValueChanged: (String, Boolean) -> Unit,
-//    isBid: Boolean,
-//) {
-//    val focusRequester = remember { FocusRequester() }
-//    val focusState = remember { mutableStateOf(false) }
-//
-//    Row(
-//        modifier = Modifier
-//            .padding(top = 15.dp)
-//            .fillMaxWidth()
-//            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp)),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Text(
-//            text = "수량",
-//            modifier = Modifier
-//                .padding(vertical = 10.dp)
-//                .padding(start = 10.dp),
-//            fontSize = DpToSp(13.dp),
-//            color = Color.DarkGray
-//        )
-//
-//        BasicTextField(value = quantity, onValueChange = {
-//            val rawValue = it.replace(",", "")
-//            if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,8}$"))) {
-//                quantityOnValueChanged(rawValue, isBid)
-//            }
-//        }, singleLine = true,
-//            textStyle = TextStyle(
-//                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-//                fontSize = DpToSp(13.dp), textAlign = TextAlign.End
-//            ),
-//            modifier = Modifier
-//                .padding(horizontal = 5.dp)
-//                .weight(1f)
-//                .clearFocusOnKeyboardDismiss()
-//                .focusRequester(focusRequester)
-//                .onFocusChanged { state ->
-//                    focusState.value = state.isFocused
-//                },
-//            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-//            visualTransformation = NumberCommaTransformation(),
-//            decorationBox = { innerTextField ->
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    if (quantity.isEmpty() && !focusState.value) {
-//                        Text(
-//                            "0",
-//                            style = TextStyle(
-//                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-//                                fontSize = DpToSp(dp = 13.dp),
-//                                textAlign = TextAlign.End
-//                            ),
-//                            modifier = Modifier.fillMaxWidth()
-//                        )
-//                    }
-//                    Spacer(modifier = Modifier.weight(1f))
-//                    innerTextField()
-//                }
-//            })
-//    }
-//}
-
-//@Composable
-//@Preview()
-//fun TotalAmountTradeBottomSheetPreview() {
-//    TotalBidTradeDialog(
-//        dialogState = remember { mutableStateOf(true) },
-//        userSeedMoney = userSeedMoney,
-//        userBTC = userBTC,
-//        isKrw = market.isTradeCurrencyKrw(),
-//        symbol = commonExchangeModelState.value?.symbol ?: "",
-//        currentPrice = commonExchangeModelState.value?.tradePrice,
-//        requestBid = requestBid
-//    )
-//}

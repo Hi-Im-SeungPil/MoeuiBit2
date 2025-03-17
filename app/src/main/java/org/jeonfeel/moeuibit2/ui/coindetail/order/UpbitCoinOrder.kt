@@ -17,6 +17,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrde
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -27,8 +28,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private val _orderBookList = mutableStateListOf<OrderBookModel>()
     val orderBookList: List<OrderBookModel> get() = _orderBookList
 
-    private val _userSeedMoney = mutableLongStateOf(0L)
-    val userSeedMoney: State<Long> get() = _userSeedMoney
+    private val _userSeedMoney = mutableDoubleStateOf(0.0)
+    val userSeedMoney: State<Double> get() = _userSeedMoney
 
     private val _userCoin = mutableStateOf(MyCoin())
     val userCoin: State<MyCoin> get() = _userCoin
@@ -95,7 +96,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      */
     private suspend fun getUserSeedMoney() {
         upbitCoinOrderUseCase.getUserSeedMoney()?.let {
-            _userSeedMoney.longValue = it.krw
+            _userSeedMoney.doubleValue = it.krw
         }
     }
 
@@ -134,7 +135,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         if (market.isTradeCurrencyKrw()) {
             upbitCoinOrderUseCase.requestKRWBid(
                 market = market,
-                totalPrice = totalPrice.toLong(),
+                totalPrice = totalPrice,
                 coin = MyCoin(
                     market = market,
                     purchasePrice = coinPrice.toDouble(),
@@ -142,7 +143,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                     symbol = market.substring(4),
                     quantity = quantity
                 ),
-                userSeedMoney = _userSeedMoney.longValue
+                userSeedMoney = _userSeedMoney.doubleValue
             )
             getUserSeedMoney()
             getUserCoin(market)
@@ -168,7 +169,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     suspend fun requestAsk(
         market: String,
         quantity: Double,
-        totalPrice: Long,
+        totalPrice: Double,
         coinPrice: BigDecimal,
         totalPriceBTC: Double = 0.0,
         btcPrice: Double
@@ -188,7 +189,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 market = market,
                 quantity = quantity,
                 totalPrice = totalPrice,
-                userCoinQuantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR),
+                userCoinQuantity = userCoin.value.quantity.eighthDecimal().toDouble(),
                 currentPrice = coinPrice
             )
             getUserSeedMoney()
@@ -197,7 +198,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 market = market,
                 quantity = quantity,
                 totalPrice = totalPriceBTC,
-                userCoinQuantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR),
+                userCoinQuantity = userCoin.value.quantity.eighthDecimal().toDouble(),
                 currentPrice = coinPrice,
                 btcPrice = btcPrice
             )
@@ -207,8 +208,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     }
 
     private fun minusQuantity(currentQuantity: Double, quantity: Double): Double {
-        val minusValue = currentQuantity.newBigDecimal(8, RoundingMode.HALF_UP)
-            .minus(quantity.newBigDecimal(8, RoundingMode.HALF_UP)).toDouble()
+        val minusValue = currentQuantity - quantity
         return if (minusValue <= 0.0000001) {
             0.0
         } else {

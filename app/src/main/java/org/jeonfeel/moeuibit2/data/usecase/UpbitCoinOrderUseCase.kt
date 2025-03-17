@@ -18,9 +18,11 @@ import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
+import kotlin.math.abs
 
 enum class OrderBookKind {
     ASK, BID
@@ -72,8 +74,8 @@ class UpbitCoinOrderUseCase @Inject constructor(
     suspend fun requestKRWBid(
         market: String,
         coin: MyCoin,
-        totalPrice: Long,
-        userSeedMoney: Long,
+        totalPrice: Double,
+        userSeedMoney: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
@@ -81,7 +83,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
 
         var krwTotalPrice = totalPrice
 
-        krwTotalPrice = if (userSeedMoney - krwTotalPrice < 10) {
+        krwTotalPrice = if (abs(userSeedMoney - krwTotalPrice) < 10) {
             userSeedMoney
         } else {
             krwTotalPrice
@@ -121,16 +123,15 @@ class UpbitCoinOrderUseCase @Inject constructor(
     suspend fun requestKRWAsk(
         market: String,
         quantity: Double,
-        totalPrice: Long,
-        userCoinQuantity: BigDecimal,
+        totalPrice: Double,
+        userCoinQuantity: Double,
         currentPrice: BigDecimal,
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
 
         userDao.updatePlusMoney(totalPrice)
-        if (userCoinQuantity.minus(quantity.newBigDecimal(8, RoundingMode.FLOOR))
-                .toDouble() <= 0.00000001
+        if (userCoinQuantity -  quantity.eighthDecimal().toDouble() <= 0.00000001
         ) {
             coinDao.delete(market)
         } else {
@@ -202,7 +203,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
             market = market,
             price = coin.purchasePrice,
             quantity = coin.quantity,
-            transactionAmount = 0,
+            transactionAmount = 0.0,
             transactionStatus = BID,
             transactionAmountBTC = totalPrice
         )
@@ -212,7 +213,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         market: String,
         quantity: Double,
         totalPrice: Double,
-        userCoinQuantity: BigDecimal,
+        userCoinQuantity: Double,
         currentPrice: BigDecimal,
         btcPrice: Double,
     ) {
@@ -242,9 +243,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
 
         coinDao.updatePurchaseAverageBtcPrice(BTC_MARKET, btcPrice)
 
-        if (userCoinQuantity.minus(quantity.newBigDecimal(8, RoundingMode.FLOOR))
-                .toDouble() <= 0.00000001
-        ) {
+        if (userCoinQuantity - quantity.eighthDecimal().toDouble() <= 0.00000001) {
             coinDao.delete(market = market)
         } else {
             coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
@@ -254,7 +253,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
             market = market,
             price = currentPrice.toDouble(),
             quantity = quantity,
-            transactionAmount = 0,
+            transactionAmount = 0.0,
             transactionStatus = ASK,
             transactionAmountBTC = totalPrice
         )
@@ -268,7 +267,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         market: String,
         price: Double,
         quantity: Double,
-        transactionAmount: Long,
+        transactionAmount: Double,
         transactionStatus: String,
         transactionTime: Long = System.currentTimeMillis(),
         transactionAmountBTC: Double = 0.0

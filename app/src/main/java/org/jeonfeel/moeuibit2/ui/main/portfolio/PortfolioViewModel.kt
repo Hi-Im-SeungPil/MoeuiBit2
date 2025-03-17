@@ -45,8 +45,8 @@ class PortfolioViewModel @Inject constructor(
     val adMobManager: AdMobManager,
 ) : BaseViewModel(preferenceManager) {
 
-    private val _userSeedMoney = mutableLongStateOf(0L)
-    val userSeedMoney: State<Long> get() = _userSeedMoney
+    private val _userSeedMoney = mutableDoubleStateOf(0.0)
+    val userSeedMoney: State<Double> get() = _userSeedMoney
 
     private val _totalPurchase = mutableStateOf(BigDecimal(0.0))
     val totalPurchase: State<BigDecimal> get() = _totalPurchase
@@ -271,7 +271,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
-        _userSeedMoney.longValue = upbitPortfolioUseCase.getUserSeedMoney()
+        _userSeedMoney.doubleValue = upbitPortfolioUseCase.getUserSeedMoney()
     }
 
     private suspend fun getUserHoldCoins() {
@@ -559,9 +559,9 @@ class PortfolioViewModel @Inject constructor(
             if (userDao.all == null) {
                 userDao.insert()
             } else {
-                userDao.updatePlusMoney(10_000_000)
+                userDao.updatePlusMoney(10_000_000_000_000_000_000_000_000_000_000_000_000_000.0)
             }
-            _userSeedMoney.longValue = userDao.all?.krw ?: 0L
+            _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
         }
     }
 
@@ -571,9 +571,9 @@ class PortfolioViewModel @Inject constructor(
             if (userDao.all == null) {
                 userDao.errorInsert()
             } else {
-                userDao.updatePlusMoney(1_000_000)
+                userDao.updatePlusMoney(1_000_000.0)
             }
-            _userSeedMoney.longValue = userDao.all?.krw ?: 0L
+            _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
         }
     }
 

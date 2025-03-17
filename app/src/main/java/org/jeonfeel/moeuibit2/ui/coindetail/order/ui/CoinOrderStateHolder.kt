@@ -29,10 +29,13 @@ import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
+import org.jeonfeel.moeuibit2.utils.forthDecimal
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
+import org.jetbrains.kotlin.gradle.utils.toSetOrEmpty
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.logging.Logger
+import kotlin.math.floor
 import kotlin.math.round
 
 enum class OrderTabState {
@@ -46,10 +49,10 @@ class CoinOrderStateHolder(
     private val context: Context,
     private val market: String,
     private val requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Double) -> Unit,
-    private val requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal, totalPriceBTC: Double) -> Unit,
+    private val requestAsk: (market: String, quantity: Double, totalPrice: Double, price: BigDecimal, totalPriceBTC: Double) -> Unit,
     private val commonExchangeModelState: State<CommonExchangeModel?>,
     private val maxOrderBookSize: State<Double>,
-    private val userSeedMoney: State<Long>,
+    private val userSeedMoney: State<Double>,
     private val userBTC: State<MyCoin>,
     private val userCoin: State<MyCoin>,
     private val btcPrice: State<BigDecimal>,
@@ -65,11 +68,11 @@ class CoinOrderStateHolder(
     private val _askQuantity = mutableStateOf("")
     val askQuantity: State<String> get() = _askQuantity
 
-    private val _bidTotalPrice = mutableStateOf(0.0.newBigDecimal())
-    val bidTotalPrice: State<BigDecimal> get() = _bidTotalPrice
+    private val _bidTotalPrice = mutableStateOf(0.0)
+    val bidTotalPrice: State<Double> get() = _bidTotalPrice
 
-    private val _askTotalPrice = mutableStateOf(0.0.newBigDecimal())
-    val askTotalPrice: State<BigDecimal> get() = _askTotalPrice
+    private val _askTotalPrice = mutableStateOf(0.0)
+    val askTotalPrice: State<Double> get() = _askTotalPrice
 
     private val _bidQuantityPercentage = mutableStateOf("비율")
     val bidQuantityPercentage: State<String> get() = _bidQuantityPercentage
@@ -148,10 +151,10 @@ class CoinOrderStateHolder(
         if (value.toDoubleOrNull() == null && value != "") {
             if (isBid) {
                 _bidQuantity.value = ""
-                _bidTotalPrice.value = 0.0.newBigDecimal()
+                _bidTotalPrice.value = 0.0
             } else {
                 _askQuantity.value = ""
-                _askTotalPrice.value = 0.0.newBigDecimal()
+                _askTotalPrice.value = 0.0
             }
             context.showToast("숫자만 입력 가능합니다.")
         } else if (commonExchangeModelState.value == null || commonExchangeModelState.value?.tradePrice?.toDouble()
@@ -161,17 +164,19 @@ class CoinOrderStateHolder(
         } else if (value == "") {
             if (isBid) {
                 _bidQuantity.value = ""
-                _bidTotalPrice.value = 0.0.newBigDecimal()
+                _bidTotalPrice.value = 0.0
             } else {
                 _askQuantity.value = ""
-                _askTotalPrice.value = 0.0.newBigDecimal()
+                _askTotalPrice.value = 0.0
             }
         } else if (value == "00") {
             return
         } else {
-            val totalPrice = commonExchangeModelState.value?.tradePrice?.multiply(
-                value.toDouble().newBigDecimal()
-            ) ?: 0.0.newBigDecimal()
+            val totalPrice = if (commonExchangeModelState.value?.tradePrice != null) {
+                (commonExchangeModelState.value?.tradePrice!!.toDouble() * value.toDouble())
+            } else {
+                0.0
+            }
             if (isBid) {
                 _bidQuantity.value = value
                 _bidTotalPrice.value = totalPrice
@@ -184,7 +189,7 @@ class CoinOrderStateHolder(
 
     fun updateBidCoinQuantity(index: Int) {
         if (commonExchangeModelState.value != null) {
-            if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) && userSeedMoney.value == 0L) {
+            if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) && userSeedMoney.value == 0.0) {
                 return
             }
 
@@ -192,30 +197,20 @@ class CoinOrderStateHolder(
                 return
             }
 
-            var percentageResult = BigDecimal(percentageList[index].toString())
-            if (percentageResult == BigDecimal.ONE) {
-                percentageResult = if (market.isTradeCurrencyKrw()) {
-                    percentageResult.minus(BigDecimal(KRW_COMMISSION_FEE))
-                } else {
-                    percentageResult.minus(BigDecimal(BTC_COMMISSION_FEE))
-                }
-            }
+            val percentageResult = percentageList[index]
 
             val seedMoney = if (market.isTradeCurrencyKrw()) {
-                userSeedMoney.value.toDouble().newBigDecimal(0)
-                    .multiply(percentageResult)
-                    .setScale(0, RoundingMode.FLOOR)
+                BigDecimal.valueOf(userSeedMoney.value).multiply(percentageResult.toBigDecimal())
             } else {
-                userBTC.value.quantity.newBigDecimal(8, RoundingMode.HALF_UP)
-                    .multiply(percentageResult)
+                BigDecimal(userBTC.value.quantity).multiply(percentageResult.newBigDecimal())
                     .setScale(8, RoundingMode.FLOOR)
             }
 
-            val quantity = seedMoney.divide(
-                commonExchangeModelState.value?.tradePrice ?: BigDecimal.ONE,
-                8,
-                RoundingMode.FLOOR
-            )
+            val quantity = if (commonExchangeModelState.value?.tradePrice != null) {
+                seedMoney.divide(commonExchangeModelState.value!!.tradePrice, 8, RoundingMode.FLOOR)
+            } else {
+                0.0
+            }
 
             _bidQuantityPercentage.value = percentageLabelList[index]
             _bidQuantity.value = quantity.toString()
@@ -229,12 +224,11 @@ class CoinOrderStateHolder(
         // 유저가 가지고 있는 코인을 나눠서 세팅
         if (commonExchangeModelState.value != null && userCoin.value.quantity != 0.0) {
             val percentageResult = percentageList[index]
-            val quantity = userCoin.value.quantity.newBigDecimal(8, RoundingMode.FLOOR)
-                .multiply(percentageResult.newBigDecimal(4))
-                .setScale(8, RoundingMode.FLOOR)
+            val quantity = (userCoin.value.quantity.eighthDecimal()
+                .toDouble() * percentageResult.forthDecimal().toDouble()).eighthDecimal()
 
             _askQuantityPercentage.value = percentageLabelList[index]
-            _askQuantity.value = quantity.toString()
+            _askQuantity.value = quantity
         } else {
             _askQuantityPercentage.value = "비율"
             _askQuantity.value = ""
@@ -245,13 +239,13 @@ class CoinOrderStateHolder(
         return if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val totalPrice =
                 bidQuantity.value.toDouble()
-                    .newBigDecimal(8, RoundingMode.FLOOR)
-                    .multiply(commonExchangeModelState.value!!.tradePrice)
+                    .eighthDecimal()
+                    .toDouble() * commonExchangeModelState.value!!.tradePrice.toDouble()
 
             if (market.isTradeCurrencyKrw()) {
-                totalPrice.formattedStringForKRW()
+                BigDecimal(totalPrice).formattedStringForKRW()
             } else {
-                totalPrice.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
+                totalPrice.eighthDecimal()
             }
         } else {
             "0"
@@ -262,12 +256,12 @@ class CoinOrderStateHolder(
         return if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val total =
                 askQuantity.value.toDouble()
-                    .newBigDecimal(8, RoundingMode.FLOOR)
-                    .multiply(commonExchangeModelState.value!!.tradePrice)
+                    .eighthDecimal()
+                    .toDouble() * commonExchangeModelState.value!!.tradePrice.toDouble()
             if (market.isTradeCurrencyKrw()) {
-                total.formattedString()
+                BigDecimal(total).formattedString()
             } else {
-                total.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
+                total.eighthDecimal()
             }
         } else {
             "0"
@@ -289,9 +283,7 @@ class CoinOrderStateHolder(
     fun bid() {
         if (bidQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
             val total =
-                bidQuantity.value.toDouble()
-                    .newBigDecimal(8, RoundingMode.FLOOR)
-                    .multiply(commonExchangeModelState.value!!.tradePrice)
+                BigDecimal(bidQuantity.value).multiply(commonExchangeModelState.value!!.tradePrice)
 
             val totalPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
                 total.setScale(0, RoundingMode.FLOOR)
@@ -320,11 +312,8 @@ class CoinOrderStateHolder(
 
             when {
                 market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
-                    val commission = totalPrice.multiply(BigDecimal(1 - KRW_COMMISSION_FEE))
-
                     when {
-                        totalPrice > (userSeedMoney.value.toDouble().newBigDecimal()
-                            .setScale(0, RoundingMode.HALF_UP)) -> {
+                        totalPrice.toDouble() - 10 > (round(userSeedMoney.value)) -> {
                             context.showToast("보유하신 KRW가 부족합니다.")
                             return
                         }
@@ -339,12 +328,9 @@ class CoinOrderStateHolder(
                 }
 
                 market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
-                    val commission = totalPrice.multiply(BigDecimal(1 - BTC_COMMISSION_FEE))
-
                     when {
-                        totalPrice > (userBTC.value.quantity
-                            .newBigDecimal(8, RoundingMode.HALF_UP)
-                            .setScale(8, RoundingMode.HALF_UP)) -> {
+                        totalPrice.toDouble() > (userBTC.value.quantity.eighthDecimal()
+                            .toDouble()) -> {
                             context.showToast("보유하신 BTC가 부족합니다.")
                             return
                         }
@@ -361,15 +347,15 @@ class CoinOrderStateHolder(
                 else -> {}
             }
             val commission = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
-                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
-                    .multiply(BigDecimal(KRW_COMMISSION_FEE))
+                BigDecimal(bidQuantity.value).multiply(BigDecimal(KRW_COMMISSION_FEE))
+                    .setScale(8, RoundingMode.FLOOR)
             } else {
-                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
-                    .multiply(BigDecimal(BTC_COMMISSION_FEE))
+                BigDecimal(bidQuantity.value).multiply(BigDecimal(BTC_COMMISSION_FEE))
+                    .setScale(8, RoundingMode.FLOOR)
             }
 
             val bidQuantityResult =
-                bidQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR).minus(commission)
+                BigDecimal(bidQuantity.value).minus(commission)
 
             requestBid(
                 market,
@@ -385,27 +371,25 @@ class CoinOrderStateHolder(
         val userCoinQuantity = userCoin.value.quantity
 
         if (askQuantity.value.isNotEmpty() && commonExchangeModelState.value != null) {
-            val userAskQuantity =
-                askQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
+            val userAskQuantity = askQuantity.value.toDouble().eighthDecimal().toDouble()
 
             val tempPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
-                userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
-                    .setScale(0, RoundingMode.FLOOR)
+                floor(userAskQuantity * commonExchangeModelState.value!!.tradePrice.toDouble())
             } else {
-                userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
-                    .setScale(8, RoundingMode.FLOOR)
+                (userAskQuantity * commonExchangeModelState.value!!.tradePrice.toDouble()).eighthDecimal()
+                    .toDouble()
             }
 
             val commission = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
-                tempPrice.multiply(KRW_COMMISSION_FEE.newBigDecimal(4))
+                tempPrice * (KRW_COMMISSION_FEE.forthDecimal().toDouble())
             } else {
-                tempPrice.multiply(BTC_COMMISSION_FEE.newBigDecimal(4))
+                tempPrice * (BTC_COMMISSION_FEE.forthDecimal().toDouble())
             }
 
             val totalPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
-                tempPrice.minus(commission).setScale(0, RoundingMode.FLOOR)
+                floor(tempPrice - commission)
             } else {
-                tempPrice.minus(commission).setScale(8, RoundingMode.FLOOR)
+                (tempPrice - commission).eighthDecimal().toDouble()
             }
 
             when {
@@ -419,7 +403,7 @@ class CoinOrderStateHolder(
                     return
                 }
 
-                userAskQuantity > (userCoinQuantity).newBigDecimal(8, RoundingMode.FLOOR) -> {
+                userAskQuantity > (userCoinQuantity).eighthDecimal().toDouble() -> {
                     context.showToast("보유하신 수량이 매도 수량보다 적습니다.")
                     return
                 }
@@ -460,10 +444,10 @@ class CoinOrderStateHolder(
 
             requestAsk(
                 market,
-                userAskQuantity.toDouble(),
-                totalPrice.toDouble().toLong(),
+                userAskQuantity,
+                totalPrice,
                 commonExchangeModelState.value!!.tradePrice,
-                totalPrice.toDouble()
+                totalPrice
             )
             askReset()
         }
@@ -477,8 +461,8 @@ fun rememberCoinOrderStateHolder(
     maxOrderBookSize: State<Double>,
     market: String,
     requestBid: (market: String, quantity: Double, price: BigDecimal, totalPrice: Double) -> Unit,
-    requestAsk: (market: String, quantity: Double, totalPrice: Long, price: BigDecimal, totalPriceBTC: Double) -> Unit,
-    userSeedMoney: State<Long>,
+    requestAsk: (market: String, quantity: Double, totalPrice: Double, price: BigDecimal, totalPriceBTC: Double) -> Unit,
+    userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
     userCoin: State<MyCoin>,
     btcPrice: State<BigDecimal>

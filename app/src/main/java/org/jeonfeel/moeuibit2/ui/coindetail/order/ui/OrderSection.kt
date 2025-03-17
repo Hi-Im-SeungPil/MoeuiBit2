@@ -63,6 +63,8 @@ import org.jeonfeel.moeuibit2.utils.commaFormat
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
 @Composable
 fun OrderSection(
@@ -72,8 +74,8 @@ fun OrderSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateBidCoinQuantity: (Double) -> Unit,
-    updateAskCoinQuantity: (Double) -> Unit,
+    updateBidCoinQuantity: (Int) -> Unit,
+    updateAskCoinQuantity: (Int) -> Unit,
     bidQuantity: String,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
@@ -219,7 +221,7 @@ fun AskSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateAskCoinQuantity: (Double) -> Unit,
+    updateAskCoinQuantity: (Int) -> Unit,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getAskTotalPrice: () -> String,
@@ -505,7 +507,7 @@ fun OrderTabQuantitySection(
                     focusState.value = state.isFocused
                 },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-            visualTransformation = NumberCommaTransformation(),
+            visualTransformation = NumberCommaTransformation2(),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -680,69 +682,85 @@ fun OrderSectionButtonGroup(
     }
 }
 
-class NumberCommaTransformation : VisualTransformation {
+class NumberCommaTransformation2 : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val originalText = text.text
-
-        // 입력 값에서 정수와 소수점 부분 분리
-        val parts = originalText.split(".")
-        val integerPart = parts.getOrNull(0)?.replace(",", "") ?: ""
-        val decimalPart = parts.getOrNull(1)?.take(8) ?: "" // 소수점 이하 8자리까지만 허용
-
-        // 정수 부분에 쉼표 추가 (빈 문자열이나 "0" 입력 시 예외 방지)
-        val formattedIntegerPart = when {
-            integerPart.isEmpty() -> ""
-            integerPart == "0" -> "0"
-            else -> DecimalFormat("#,###").format(integerPart.toLongOrNull() ?: 0)
+        if (originalText.isEmpty()) {
+            return TransformedText(AnnotatedString(""), OffsetMapping.Identity)
         }
 
-        // 소수점 있는 경우 합치기
-        val formattedText = when {
-            decimalPart.isNotEmpty() -> "$formattedIntegerPart.$decimalPart"
-            originalText.contains(".") -> "$formattedIntegerPart."
-            else -> formattedIntegerPart
-        }
-
-        // OffsetMapping 설정
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                var transformedOffset = 0
-                var commasAdded = 0
-                var dotFound = false
-
-                for (i in 0 until offset) {
-                    if (i < integerPart.length) {
-                        if ((integerPart.length - i) % 3 == 0 && i != 0) commasAdded++
-                    } else if (!dotFound && originalText[i] == '.') {
-                        dotFound = true
-                    }
-                    transformedOffset++
-                }
-
-                return transformedOffset + commasAdded
+        try {
+            // 소숫점 분리
+            val parts = originalText.split(".")
+            val integerPart = parts[0].filter { it.isDigit() }
+            val decimalPart = if (parts.size > 1) {
+                parts[1].filter { it.isDigit() } // 소숫점 자리수 제한 제거
+            } else {
+                ""
             }
 
-            override fun transformedToOriginal(offset: Int): Int {
-                var originalOffset = 0
-                var commasAdded = 0
-                var dotFound = false
+            // BigDecimal로 정수 부분 처리
+            val bigDecimal = BigDecimal(integerPart)
+            val formatter = DecimalFormat("#,###", DecimalFormatSymbols(Locale.getDefault()))
+            val formattedInteger = formatter.format(bigDecimal)
 
-                for (i in 0 until offset) {
-                    if (originalOffset < integerPart.length) {
-                        if ((integerPart.length - originalOffset) % 3 == 0 && originalOffset != 0) commasAdded++
-                    } else if (!dotFound && formattedText[i] == '.') {
-                        dotFound = true
+            // 최종 결과 조합
+            val result = if (decimalPart.isNotEmpty()) {
+                "$formattedInteger.$decimalPart"
+            } else {
+                formattedInteger
+            }
+
+            // OffsetMapping 구현
+            val offsetMapping = object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int {
+                    if (offset <= 0) return offset
+
+                    val originalLength = originalText.length
+                    val formattedLength = result.length
+
+                    if (offset >= originalLength) return formattedLength
+
+                    // 원본에서 변환된 위치 계산
+                    var commaCount = 0
+                    val digitsBefore = originalText.take(offset).count { it.isDigit() }
+                    var digitCount = 0
+
+                    for (i in result.indices) {
+                        if (result[i].isDigit()) {
+                            digitCount++
+                            if (digitCount == digitsBefore) {
+                                return i + 1
+                            }
+                        } else if (result[i] == ',') {
+                            commaCount++
+                        }
                     }
-                    originalOffset++
+                    return offset + commaCount
                 }
 
-                return originalOffset - commasAdded
-            }
-        }
+                override fun transformedToOriginal(offset: Int): Int {
+                    if (offset <= 0) return offset
 
-        return TransformedText(
-            text = AnnotatedString(formattedText),
-            offsetMapping = offsetMapping
-        )
+                    val formattedLength = result.length
+                    if (offset >= formattedLength) return originalText.length
+
+                    var digitCount = 0
+                    for (i in 0 until offset) {
+                        if (result[i].isDigit()) {
+                            digitCount++
+                        }
+                    }
+                    return digitCount
+                }
+            }
+
+            return TransformedText(
+                AnnotatedString(result),
+                offsetMapping
+            )
+        } catch (e: Exception) {
+            return TransformedText(text, OffsetMapping.Identity)
+        }
     }
 }

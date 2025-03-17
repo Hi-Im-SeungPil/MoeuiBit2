@@ -67,8 +67,8 @@ class UpbitPortfolioUsecase @Inject constructor(
         return portfolioWebsocketManager.tickerFlow
     }
 
-    suspend fun getUserSeedMoney(): Long {
-        return localRepository.getUserDao().all?.krw ?: 0L
+    suspend fun getUserSeedMoney(): Double {
+        return localRepository.getUserDao().all?.krw ?: 0.0
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {

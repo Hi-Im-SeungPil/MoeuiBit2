@@ -86,9 +86,9 @@ fun OrderScreen(
     saveOrderBookIndicationState: () -> Unit,
     changeOrderBookIndicationState: () -> Unit,
     requestBid: (String, Double, BigDecimal, Double) -> Unit,
-    requestAsk: (String, Double, Long, BigDecimal, Double) -> Unit,
+    requestAsk: (String, Double, Double, BigDecimal, Double) -> Unit,
     userBTC: State<MyCoin>,
-    userSeedMoney: State<Long>,
+    userSeedMoney: State<Double>,
     userCoin: State<MyCoin>,
     btcPrice: State<BigDecimal>,
     transactionInfoList: List<TransactionInfo>,
@@ -394,16 +394,17 @@ fun OrderScreenQuantityTextField(
         askQuantity
     }
 
-    BasicTextField(value = value.value, onValueChange = {
-        if (it.toDoubleOrNull() == null && it != "") {
-            value.value = ""
-            context.showToast("숫자만 입력 가능합니다.")
-        } else if (currentTradePriceState.value == 0.0) {
-            context.showToast("네트워크 통신 오류입니다.")
-        } else {
-            value.value = it
-        }
-    }, singleLine = true,
+    BasicTextField(
+        value = value.value, onValueChange = {
+            if (it.toDoubleOrNull() == null && it != "") {
+                value.value = ""
+                context.showToast("숫자만 입력 가능합니다.")
+            } else if (currentTradePriceState.value == 0.0) {
+                context.showToast("네트워크 통신 오류입니다.")
+            } else {
+                value.value = it
+            }
+        }, singleLine = true,
         textStyle = TextStyle(
             color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
             fontSize = DpToSp(17.dp), textAlign = TextAlign.End

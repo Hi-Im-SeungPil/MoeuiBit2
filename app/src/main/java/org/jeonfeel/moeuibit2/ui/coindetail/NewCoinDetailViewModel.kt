@@ -326,7 +326,7 @@ class NewCoinDetailViewModel @Inject constructor(
     /**
      * 사용자 시드머니 받아옴
      */
-    fun getUserSeedMoney(): State<Long> {
+    fun getUserSeedMoney(): State<Double> {
         return when (rootExchange) {
             ROOT_EXCHANGE_UPBIT -> {
                 upbitCoinOrder.userSeedMoney
@@ -369,7 +369,7 @@ class NewCoinDetailViewModel @Inject constructor(
     fun requestAsk(
         market: String,
         quantity: Double,
-        totalPrice: Long = 0,
+        totalPrice: Double = 0.0,
         price: BigDecimal,
         totalPriceBTC: Double = 0.0
     ) {

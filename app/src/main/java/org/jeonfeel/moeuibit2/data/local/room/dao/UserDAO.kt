@@ -27,10 +27,10 @@ interface UserDAO {
     suspend fun update(money: Long)
 
     @Query("UPDATE User SET krw = krw + :money")
-    suspend fun updatePlusMoney(money: Long)
+    suspend fun updatePlusMoney(money: Double)
 
     @Query("UPDATE User SET krw = krw - :money")
-    suspend fun updateMinusMoney(money: Long)
+    suspend fun updateMinusMoney(money: Double)
 
     @Query("DELETE FROM User")
     suspend fun deleteAll()

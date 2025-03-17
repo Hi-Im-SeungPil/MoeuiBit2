@@ -4,4 +4,4 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class User(@field:PrimaryKey var krw: Long)
+class User(@field:PrimaryKey var krw: Double)

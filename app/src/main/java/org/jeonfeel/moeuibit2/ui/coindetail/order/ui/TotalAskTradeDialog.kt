@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -34,7 +32,6 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeMo
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -43,16 +40,16 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
+import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 @Composable
 fun TotalAskTradeDialog(
     dialogState: MutableState<Boolean>,
     userCoin: State<MyCoin>,
     isKrw: Boolean,
-    requestAsk: (String, Double, Long, BigDecimal, Double) -> Unit,
+    requestAsk: (String, Double, Double, BigDecimal, Double) -> Unit,
     commonExchangeModelState: State<CommonExchangeModel?>,
 ) {
     val context = LocalContext.current
@@ -63,23 +60,21 @@ fun TotalAskTradeDialog(
 
     val userCoinValue = if (isKrw) {
         commonExchangeModelState.value?.let {
-            userCoin.value.quantity.toBigDecimal().multiply(it.tradePrice)
-        } ?: BigDecimal.ZERO
+            userCoin.value.quantity * it.tradePrice.toDouble()
+        } ?: 0.0
     } else {
         commonExchangeModelState.value?.let {
-            userCoin.value.quantity.toBigDecimal().multiply(it.tradePrice)
-        } ?: BigDecimal.ZERO
+            userCoin.value.quantity * it.tradePrice.toDouble()
+        } ?: 0.0
     }
 
     val sellingTotal = if (textFieldValue.value.isNotEmpty()) {
-        val amount = textFieldValue.value.replace(",", "").toBigDecimal()
-        amount.divide(
-            commonExchangeModelState.value?.tradePrice ?: BigDecimal.ZERO,
-            8,
-            RoundingMode.FLOOR
-        )
+        val amount = textFieldValue.value.replace(",", "").toDouble()
+        commonExchangeModelState.value?.let {
+            (amount / it.tradePrice.toDouble()).eighthDecimal().toDouble()
+        } ?: 0.0
     } else {
-        BigDecimal.ZERO
+        0.0
     }
 
     if (dialogState.value) {
@@ -110,7 +105,7 @@ fun TotalAskTradeDialog(
                 )
                 Item(
                     text = "보유",
-                    value = if (isKrw) userCoinValue.formattedStringForKRW() else userCoinValue.formattedStringForBtc(),
+                    value = if (isKrw) BigDecimal(userCoinValue).formattedStringForKRW() else BigDecimal(userCoinValue).formattedStringForBtc(),
                     symbol = if (isKrw) "KRW" else "BTC"
                 )
                 Item(
@@ -122,7 +117,7 @@ fun TotalAskTradeDialog(
                 )
                 Item(
                     text = "매도 수량",
-                    value = sellingTotal?.formattedStringForQuantity() ?: "0",
+                    value = BigDecimal(sellingTotal).formattedStringForQuantity() ?: "0",
                     symbol = commonExchangeModelState.value?.symbol ?: ""
                 )
 
@@ -216,13 +211,9 @@ fun TotalAskTradeDialog(
                                     .toDouble()
 
                                 val minusCommission = if (isKrw) {
-                                    total
-                                        .toBigDecimal()
-                                        .multiply(0.9995.toBigDecimal())
+                                    total * 0.9995
                                 } else {
-                                    total
-                                        .toBigDecimal()
-                                        .multiply(0.9975.toBigDecimal())
+                                    total * 0.9975
                                 }
 
                                 if (askConditionCheck(
@@ -230,19 +221,17 @@ fun TotalAskTradeDialog(
                                         context = context,
                                         totalPrice = textFieldValue.value
                                             .replace(",", "")
-                                            .toBigDecimal(),
+                                            .toDouble(),
                                         userCoin = userCoin,
                                     )
                                 ) {
                                     requestAsk(
                                         commonExchangeModelState.value?.market ?: "",
                                         sellingTotal.toDouble(),
-                                        minusCommission
-                                            .toDouble()
-                                            .toLong(),
+                                        minusCommission,
                                         commonExchangeModelState.value?.tradePrice
                                             ?: BigDecimal.ZERO,
-                                        minusCommission.toDouble()
+                                        minusCommission
                                     )
                                     textFieldValue.value = ""
                                     context.showToast("매도 주문이 완료 되었습니다.")
@@ -264,20 +253,20 @@ fun TotalAskTradeDialog(
 fun askConditionCheck(
     commonExchangeModelState: State<CommonExchangeModel?>,
     context: Context,
-    totalPrice: BigDecimal,
+    totalPrice: Double,
     userCoin: State<MyCoin>,
 ): Boolean {
     val isKrw = (commonExchangeModelState.value?.market ?: "").startsWith(UPBIT_KRW_SYMBOL_PREFIX)
-    val userCoinQuantity = userCoin.value.quantity.toBigDecimal()
+    val userCoinQuantity = userCoin.value.quantity
     val userCoinTotalPrice = commonExchangeModelState.value?.let {
         if (isKrw) {
-            userCoinQuantity.multiply(it.tradePrice).formattedStringForKRW().replace(",", "")
-                .toBigDecimal()
+            BigDecimal(userCoinQuantity * it.tradePrice.toDouble()).formattedStringForKRW()
+                .replace(",", "").toDouble()
         } else {
-            userCoinQuantity.multiply(it.tradePrice).formattedStringForBtc().replace(",", "")
-                .toBigDecimal()
+            BigDecimal(userCoinQuantity * it.tradePrice.toDouble()).formattedStringForBtc()
+                .replace(",", "").toDouble()
         }
-    } ?: BigDecimal.ZERO
+    } ?: 0.0
 
     when {
         commonExchangeModelState.value == null -> {

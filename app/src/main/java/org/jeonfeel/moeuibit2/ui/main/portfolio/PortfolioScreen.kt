@@ -101,13 +101,13 @@ fun PortfolioScreen(
     portfolioOrderState: State<Int>,
     totalValuedAssets: State<BigDecimal>,
     totalPurchase: State<BigDecimal>,
-    userSeedMoney: State<Long>,
+    userSeedMoney: State<Double>,
     adDialogState: MutableState<Boolean>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
     loadingState: State<Boolean>,
     currentBTCPrice: State<Double>,
-    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Long>) -> Map<String, String>,
+    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Double>) -> Map<String, String>,
     appNavController: NavHostController,
     earnReward: () -> Unit,
     portfolioSearchTextState: MutableState<String>,
@@ -163,8 +163,8 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
                                 //TODO 필수도 수정해야함.
-//                                earnReward()
-                                adDialogState.value = true
+                                earnReward()
+//                                adDialogState.value = true
                             },
                         style = TextStyle(
                             color = commonTextColor(),

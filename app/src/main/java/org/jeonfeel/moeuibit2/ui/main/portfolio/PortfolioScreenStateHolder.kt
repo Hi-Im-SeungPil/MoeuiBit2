@@ -32,15 +32,10 @@ class PortfolioScreenStateHolder(
 ) {
     val adLoadingDialogState = mutableStateOf(false)
     val adConfirmDialogState = mutableStateOf(false)
-    val columnItemDialogState = mutableStateOf(false)
-    val editHoldCoinDialogState = mutableStateOf(false)
-    val selectedCoinKoreanName = mutableStateOf("")
-    val pieChartState = mutableStateOf(false)
 
     fun getUserCoinResultMap(
         item: UserHoldCoinDTO,
     ): Map<String, String> {
-//        Logger.e("myCoin -> $item")
         val marketState = Utils.getSelectedMarket(item.market)
         val currentPrice = item.currentPrice
         val purchaseAverage = item.myCoinsBuyingAverage
@@ -160,7 +155,7 @@ class PortfolioScreenStateHolder(
     fun getPortfolioMainInfoMap(
         totalValuedAssets: State<BigDecimal>,
         totalPurchase: State<BigDecimal>,
-        userSeedMoney: State<Long>,
+        userSeedMoney: State<Double>,
     ): Map<String, String> {
         val calcTotalValuedAssets = totalValuedAssets.value.formattedStringTo1000()
         val totalPurchaseValue = totalPurchase.value.formattedStringTo1000()

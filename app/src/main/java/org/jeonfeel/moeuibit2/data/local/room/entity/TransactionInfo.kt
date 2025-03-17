@@ -8,7 +8,7 @@ class TransactionInfo(
     var market: String,
     var price: Double,
     var quantity: Double,
-    var transactionAmount: Long,
+    var transactionAmount: Double,
     var transactionStatus: String,
     var transactionTime: Long,
     var transactionAmountBTC: Double = 0.0

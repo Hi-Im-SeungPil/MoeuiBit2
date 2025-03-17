@@ -39,8 +39,8 @@ enum class PortfolioSortButton {
 fun LazyItemScope.PortfolioMain(
     totalValuedAssets: State<BigDecimal>,
     totalPurchase: State<BigDecimal>,
-    userSeedMoney: State<Long>,
-    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Long>) -> Map<String, String>,
+    userSeedMoney: State<Double>,
+    getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Double>) -> Map<String, String>,
 ) {
     val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
     Column(

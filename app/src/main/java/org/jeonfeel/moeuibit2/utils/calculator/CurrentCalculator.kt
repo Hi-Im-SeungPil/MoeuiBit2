@@ -18,7 +18,7 @@ object CurrentCalculator {
                 "0"
             } else {
                 if (tradePrice >= 1_000) {
-                    round(tradePrice).toLong().commaFormat()
+                    round(tradePrice).commaFormat()
                 } else if (tradePrice >= 100 && tradePrice < 1_000) {
                     tradePrice.firstDecimal()
                 } else if (tradePrice >= 10 && tradePrice < 100) {
@@ -128,14 +128,11 @@ object CurrentCalculator {
         isKrw: Boolean,
         currentPrice: BigDecimal,
         designatePrice: Double
-    ): BigDecimal? {
-        val designatePriceBigDecimal = designatePrice.toBigDecimal()
+    ): Double {
         return if (isKrw) {
-            designatePriceBigDecimal.multiply(0.9995.toBigDecimal())
-                .divide(currentPrice, 8, RoundingMode.HALF_UP)
+            ((designatePrice * 0.9995) / currentPrice.toDouble()).eighthDecimal().toDouble()
         } else {
-            designatePriceBigDecimal.multiply(0.9975.toBigDecimal())
-                .divide(currentPrice, 8, RoundingMode.HALF_UP)
+            ((designatePrice * 0.9975) / currentPrice.toDouble()).eighthDecimal().toDouble()
         }
     }
 
@@ -147,7 +144,6 @@ object CurrentCalculator {
         if (userCoinQuantity == 0.0 || currentPrice == BigDecimal.ZERO) {
             return "0"
         }
-
 
         val userCoinValue = if (btcPrice == BigDecimal.ZERO) {
             userCoinQuantity.toBigDecimal().multiply(currentPrice).toDouble()
