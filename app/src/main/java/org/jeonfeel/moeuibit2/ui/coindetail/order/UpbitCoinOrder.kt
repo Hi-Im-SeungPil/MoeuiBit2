@@ -80,7 +80,6 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 result
             }
         }?.collect { upbitSocketOrderBookRes ->
-//            Logger.e("orderBook message!!")
             if (upbitSocketOrderBookRes?.type == "orderbook") {
                 val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
                 for (i in _orderBookList.indices) {

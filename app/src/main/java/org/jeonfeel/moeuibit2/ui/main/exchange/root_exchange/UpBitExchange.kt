@@ -1,22 +1,15 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
 import android.os.Looper
-import androidx.annotation.Keep
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
@@ -32,24 +25,10 @@ import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
-@Keep
-sealed class ExchangeInitState {
-    data object Wait : ExchangeInitState()
-
-    data object Loading : ExchangeInitState()
-
-    data object Success : ExchangeInitState()
-
-    data class Error(
-        val message: String? = null,
-    ) : ExchangeInitState()
-}
-
 class UpBitExchange @Inject constructor(
     private val upBitExchangeUseCase: UpBitExchangeUseCase,
     private val cacheManager: CacheManager,
 ) : BaseCommunicationModule() {
-    private var successInit = false
     private val krwMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
     private val btcMarketCodeMap = mutableMapOf<String, UpbitMarketCodeRes>()
 
@@ -67,8 +46,6 @@ class UpBitExchange @Inject constructor(
 
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
-
-    private val _tickerResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
 
     /**
      * 업비트 초기화
@@ -454,10 +431,6 @@ class UpBitExchange @Inject constructor(
         }
     }
 
-    suspend fun addFavorite(market: String) {
-        upBitExchangeUseCase.addFavorite(market)
-    }
-
     private suspend fun removeFavorite(market: String) {
         upBitExchangeUseCase.removeFavorite(market)
     }
@@ -535,12 +508,7 @@ class UpBitExchange @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
-        upBitExchangeUseCase.observeTickerResponse()?.onEach { result ->
-            _tickerResponse.update {
-                result
-            }
-        }?.collectLatest { upbitSocketTickerRes ->
-//            Logger.e(upbitSocketTickerRes.toString())
+        upBitExchangeUseCase.observeTickerResponse().collectLatest { upbitSocketTickerRes ->
             try {
                 if (isUpdateExchange?.value == false) return@collectLatest
 

@@ -67,13 +67,13 @@ import java.text.DecimalFormat
 @Composable
 fun OrderSection(
     orderTabState: MutableState<OrderTabState>,
-    userSeedMoney: State<Long>,
+    userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateBidCoinQuantity: (Int) -> Unit,
-    updateAskCoinQuantity: (Int) -> Unit,
+    updateBidCoinQuantity: (Double) -> Unit,
+    updateAskCoinQuantity: (Double) -> Unit,
     bidQuantity: String,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
@@ -144,7 +144,7 @@ fun OrderSection(
 
 @Composable
 fun BidSection(
-    userSeedMoney: State<Long>,
+    userSeedMoney: State<Double>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
@@ -219,7 +219,7 @@ fun AskSection(
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
-    updateAskCoinQuantity: (Int) -> Unit,
+    updateAskCoinQuantity: (Double) -> Unit,
     askQuantity: String,
     quantityOnValueChanged: (String, Boolean) -> Unit,
     getAskTotalPrice: () -> String,
@@ -337,7 +337,7 @@ fun OrderTabSection(
 
 @Composable
 fun OrderTabUserSeedMoneySection(
-    userSeedMoney: State<Long>? = null,
+    userSeedMoney: State<Double>? = null,
     userCoin: State<MyCoin>? = null,
     isKrw: Boolean,
     symbol: String,

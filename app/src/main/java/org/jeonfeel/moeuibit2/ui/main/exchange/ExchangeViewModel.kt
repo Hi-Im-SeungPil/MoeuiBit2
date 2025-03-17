@@ -10,14 +10,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
+import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBitExchange
-import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.ExchangeInitState
-import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -65,7 +64,6 @@ class ExchangeViewModel @Inject constructor(
     private var marketChangeJob: Job? = null
 
     init {
-//        _loadingState.value = true
         rootExchangeCoroutineBranch(
             upbitAction = {
                 upBitExchange.initUpBit(
@@ -77,25 +75,6 @@ class ExchangeViewModel @Inject constructor(
 
             }
         )
-    }
-
-    private suspend fun processData(exchangeInitState: ExchangeInitState) {
-        when (exchangeInitState) {
-            is ExchangeInitState.Loading -> {
-                // 로딩
-            }
-
-            is ExchangeInitState.Success -> {
-                _loadingState.value = false
-            }
-
-            is ExchangeInitState.Error -> {
-                _loadingState.value = false
-            }
-
-            is ExchangeInitState.Wait -> {
-            }
-        }
     }
 
     fun onStart() {
@@ -136,10 +115,6 @@ class ExchangeViewModel @Inject constructor(
 
             }
         )
-    }
-
-    fun tickerDataIsEmpty(): Boolean {
-        return upBitExchange.tickerDataIsEmpty()
     }
 
     private fun updateLoadingState(state: Boolean) {
