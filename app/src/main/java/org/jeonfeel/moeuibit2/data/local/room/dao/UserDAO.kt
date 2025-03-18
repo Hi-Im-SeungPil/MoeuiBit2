@@ -17,10 +17,10 @@ interface UserDAO {
     @Delete
     suspend fun delete(user: User)
 
-    @Query("Insert into User values(10000000)")
+    @Query("Insert into User values(10000000.0)")
     suspend fun insert()
 
-    @Query("Insert into User values(1000000)")
+    @Query("Insert into User values(1000000.0)")
     suspend fun errorInsert()
 
     @Query("UPDATE User SET krw = :money")

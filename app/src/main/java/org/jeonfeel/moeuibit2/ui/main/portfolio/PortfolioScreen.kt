@@ -163,8 +163,8 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
                                 //TODO 필수도 수정해야함.
-                                earnReward()
-//                                adDialogState.value = true
+//                                earnReward()
+                                adDialogState.value = true
                             },
                         style = TextStyle(
                             color = commonTextColor(),

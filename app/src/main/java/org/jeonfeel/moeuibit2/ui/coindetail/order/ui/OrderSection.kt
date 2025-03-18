@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -506,8 +507,9 @@ fun OrderTabQuantitySection(
                 .onFocusChanged { state ->
                     focusState.value = state.isFocused
                 },
+            cursorBrush = SolidColor(commonTextColor()),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-            visualTransformation = NumberCommaTransformation2(),
+            visualTransformation = NumberCommaTransformation(),
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -682,7 +684,7 @@ fun OrderSectionButtonGroup(
     }
 }
 
-class NumberCommaTransformation2 : VisualTransformation {
+class NumberCommaTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val originalText = text.text
         if (originalText.isEmpty()) {

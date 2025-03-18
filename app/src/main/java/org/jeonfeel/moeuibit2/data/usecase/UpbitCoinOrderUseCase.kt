@@ -30,7 +30,7 @@ enum class OrderBookKind {
 
 class UpbitCoinOrderUseCase @Inject constructor(
     private val upbitRepository: UpbitRepository,
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
 ) : BaseUseCase() {
 
     private val orderBookWebsocketManager = OrderBookWebsocketManager()
@@ -131,7 +131,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         val userDao = localRepository.getUserDao()
 
         userDao.updatePlusMoney(totalPrice)
-        if (userCoinQuantity -  quantity.eighthDecimal().toDouble() <= 0.00000001
+        if (BigDecimal(userCoinQuantity).minus(BigDecimal(quantity)) <= BigDecimal(0.00000002)
         ) {
             coinDao.delete(market)
         } else {
@@ -162,7 +162,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         if (userCoin == null) {
             coinDao.insert(coin)
             coinDao.updatePurchaseAverageBtcPrice(market, btcPrice)
-            if (minusBTCQuantity < BigDecimal("0.0000001")) {
+            if (minusBTCQuantity < BigDecimal("0.00000002")) {
                 coinDao.delete(BTC_MARKET)
             } else {
                 coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
@@ -191,7 +191,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
 
             coinDao.updatePurchasePrice(market, purchaseAverage)
             coinDao.updatePlusQuantity(market, coin.quantity)
-            if (minusBTCQuantity < BigDecimal("0.00000001")) {
+            if (minusBTCQuantity < BigDecimal("0.00000002")) {
                 coinDao.delete(BTC_MARKET)
             } else {
                 coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
@@ -243,7 +243,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
 
         coinDao.updatePurchaseAverageBtcPrice(BTC_MARKET, btcPrice)
 
-        if (userCoinQuantity - quantity.eighthDecimal().toDouble() <= 0.00000001) {
+        if (BigDecimal(userCoinQuantity).minus(BigDecimal(quantity)) <= BigDecimal(0.00_000_002)) {
             coinDao.delete(market = market)
         } else {
             coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
@@ -270,7 +270,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         transactionAmount: Double,
         transactionStatus: String,
         transactionTime: Long = System.currentTimeMillis(),
-        transactionAmountBTC: Double = 0.0
+        transactionAmountBTC: Double = 0.0,
     ) {
         val transactionInfoDao = localRepository.getTransactionInfoDao()
         transactionInfoDao.insert(

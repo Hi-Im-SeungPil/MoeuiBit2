@@ -484,7 +484,6 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun findWrongCoin() {
-        //TODO TEST해야함 꼭
         viewModelScope.launch {
             executeUseCase<List<UpbitMarketCodeRes>>(
                 target = upbitPortfolioUseCase.getMarketCode(),
@@ -559,7 +558,7 @@ class PortfolioViewModel @Inject constructor(
             if (userDao.all == null) {
                 userDao.insert()
             } else {
-                userDao.updatePlusMoney(10_000_000_000_000_000_000_000_000_000_000_000_000_000.0)
+                userDao.updatePlusMoney(10_000_000.0)
             }
             _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
         }
