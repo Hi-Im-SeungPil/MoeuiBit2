@@ -31,7 +31,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 
 enum class MainScreenState {
-    EXCHANGE, COIN_SITE, PORTFOLIO, SETTING
+    EXCHANGE, COIN_SITE, ADDITIONAL_FEATURES, PORTFOLIO, SETTING
 }
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute: MainScreenState) {
@@ -41,11 +41,14 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute
     data object CoinSite :
         MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, MainScreenState.COIN_SITE)
 
+    data object AdditionalFeatures :
+        MainBottomNavItem(menuTitleArray[2], R.drawable.img_license, MainScreenState.ADDITIONAL_FEATURES)
+
     data object Portfolio :
-        MainBottomNavItem(menuTitleArray[2], R.drawable.img_portfolio, MainScreenState.PORTFOLIO)
+        MainBottomNavItem(menuTitleArray[3], R.drawable.img_portfolio, MainScreenState.PORTFOLIO)
 
     data object Setting :
-        MainBottomNavItem(menuTitleArray[3], R.drawable.img_setting, MainScreenState.SETTING)
+        MainBottomNavItem(menuTitleArray[4], R.drawable.img_setting, MainScreenState.SETTING)
 }
 
 @Composable
@@ -53,6 +56,7 @@ fun MainBottomNavigation(navController: NavHostController) {
     val items = listOf(
         MainBottomNavItem.Exchange,
         MainBottomNavItem.CoinSite,
+        MainBottomNavItem.AdditionalFeatures,
         MainBottomNavItem.Portfolio,
         MainBottomNavItem.Setting
     )

@@ -5,7 +5,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,8 +16,9 @@ import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreenRoute
 import org.jeonfeel.moeuibit2.utils.Utils
 
 enum class AppScreen {
-    Home,
-    CoinDetail
+    HOME,
+    COIN_DETAIL,
+    ADDITIONAL_FEATURES
 }
 
 @Composable
@@ -26,9 +26,9 @@ fun AppNavGraph() {
     val appNavController = rememberNavController()
     val bottomNavController = rememberNavController()
 
-    NavHost(appNavController, startDestination = AppScreen.Home.name) {
+    NavHost(appNavController, startDestination = AppScreen.HOME.name) {
         composable(
-            AppScreen.Home.name,
+            AppScreen.HOME.name,
             popExitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None }) {
             MoeuiBitApp(
@@ -38,7 +38,7 @@ fun AppNavGraph() {
         }
 
         composable(
-            "${AppScreen.CoinDetail.name}/{market}/{warning}/{caution}",
+            "${AppScreen.COIN_DETAIL.name}/{market}/{warning}/{caution}",
             arguments = listOf(
                 navArgument("market") { type = NavType.StringType },
                 navArgument("warning") { type = NavType.BoolType },
@@ -68,6 +68,10 @@ fun AppNavGraph() {
                 cautionModel = cautionModel,
                 appNavController = appNavController
             )
+        }
+
+        composable(AppScreen.HOME.name) {
+
         }
     }
 }
