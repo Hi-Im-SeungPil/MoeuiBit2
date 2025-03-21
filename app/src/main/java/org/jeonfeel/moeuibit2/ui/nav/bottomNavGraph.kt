@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.main.additional_features.AdditionalFeaturesRoute
+import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinMarketConditionRoute
 import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinSiteScreen
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeScreenRoute
 import org.jeonfeel.moeuibit2.ui.main.portfolio.PortfolioScreenRoute
@@ -28,7 +29,8 @@ fun MainBottomNavGraph(
         }
 
         composable(MainBottomNavItem.CoinSite.screenRoute.name) {
-            CoinSiteScreen()
+//            CoinSiteScreen()
+            CoinMarketConditionRoute()
         }
 
         composable(MainBottomNavItem.AdditionalFeatures.screenRoute.name) {

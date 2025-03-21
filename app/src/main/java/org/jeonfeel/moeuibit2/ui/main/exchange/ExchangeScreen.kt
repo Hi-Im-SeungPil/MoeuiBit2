@@ -518,7 +518,7 @@ private fun CoinTickerSection(
                         val market = item.market
                         val warning = item.warning
                         val caution = Utils.gson.toJson(item.caution)
-                        appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
+                        appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$caution") {
                             launchSingleTop = true
                             popUpTo(appNavController.graph.findStartDestination().id) {
                                 saveState = true

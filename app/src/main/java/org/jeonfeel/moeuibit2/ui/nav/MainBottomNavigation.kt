@@ -42,7 +42,11 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute
         MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, MainScreenState.COIN_SITE)
 
     data object AdditionalFeatures :
-        MainBottomNavItem(menuTitleArray[2], R.drawable.img_license, MainScreenState.ADDITIONAL_FEATURES)
+        MainBottomNavItem(
+            menuTitleArray[2],
+            R.drawable.img_license,
+            MainScreenState.ADDITIONAL_FEATURES
+        )
 
     data object Portfolio :
         MainBottomNavItem(menuTitleArray[3], R.drawable.img_portfolio, MainScreenState.PORTFOLIO)
@@ -56,8 +60,8 @@ fun MainBottomNavigation(navController: NavHostController) {
     val items = listOf(
         MainBottomNavItem.Exchange,
         MainBottomNavItem.CoinSite,
-        MainBottomNavItem.AdditionalFeatures,
         MainBottomNavItem.Portfolio,
+        MainBottomNavItem.AdditionalFeatures,
         MainBottomNavItem.Setting
     )
 

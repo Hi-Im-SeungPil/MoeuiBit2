@@ -69,9 +69,5 @@ fun AppNavGraph() {
                 appNavController = appNavController
             )
         }
-
-        composable(AppScreen.HOME.name) {
-
-        }
     }
 }

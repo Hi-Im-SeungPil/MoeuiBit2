@@ -399,7 +399,7 @@ fun UserHoldCoinLazyColumnItem(
             val cautionJson = caution?.let {
                 Utils.gson.toJson(caution)
             } ?: " "
-            appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$cautionJson") {
+            appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$cautionJson") {
                 launchSingleTop = true
                 popUpTo(appNavController.graph.findStartDestination().id) {
                     saveState = true
