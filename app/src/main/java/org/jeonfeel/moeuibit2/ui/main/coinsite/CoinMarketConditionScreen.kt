@@ -17,10 +17,12 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.component.AnimatedHalfGauge
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
-fun CoinMarketConditionScreen() {
-    Column(modifier = Modifier.fillMaxSize().padding(15.dp)) {
+fun CoinMarketConditionScreen(index: Int) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(15.dp)) {
         Row {
-            AnimatedHalfGauge(66)
+            AnimatedHalfGauge(index)
         }
         DominanceSection()
         ADSection()
@@ -46,9 +48,11 @@ fun ADSection() {
 
 @Composable
 fun ColumnScope.DominanceSection() {
-    Column(modifier = Modifier
-        .weight(1f)
-        .background(color = portfolioMainBackground())) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .background(color = portfolioMainBackground())
+    ) {
         Text(text = "도미넌스")
         Text(text = "btc dominance >")
         Text(text = "eth dominance >")

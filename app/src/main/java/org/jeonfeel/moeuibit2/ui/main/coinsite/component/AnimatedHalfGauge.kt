@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -34,35 +35,31 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-private fun getStagesColors(): List<Triple<Float, Float, Color>> {
+private fun getGradientColorStops(): List<Pair<Float, Color>> {
     val isDarkTheme = isSystemInDarkTheme()
     return if (isDarkTheme) {
-        // 다크 모드용 색상
         listOf(
-            Triple(0f, 25f, Color(0xFF40C4FF)), // 극단적 공포: 밝은 스카이 블루
-            Triple(25f, 48f, Color(0xFF66BB6A)), // 공포: 부드러운 초록
-            Triple(48f, 52f, Color(0xFFCFD8DC)), // 중립: 밝은 회색
-            Triple(52f, 75f, Color(0xFFFFCA28)), // 탐욕: 밝은 황금빛
-            Triple(75f, 100f, Color(0xFFEF5350)) // 극단적 탐욕: 밝은 레드
+            0.5f to Color(0xFF40C4FF),  // 180도 (0%): 극단적 공포 - 밝은 스카이 블루
+            0.75f to Color(0xFF66BB6A), // 270도 (50%): 중립 - 부드러운 초록
+            1.0f to Color(0xFFEF5350)   // 360도 (100%): 극단적 탐욕 - 밝은 레드
         )
     } else {
-        // 라이트 모드용 색상
         listOf(
-            Triple(0f, 25f, Color(0xFF0288D1)), // 극단적 공포: 깊은 파랑
-            Triple(25f, 45f, Color(0xFF4CAF50)), // 공포: 밝은 초록
-            Triple(45f, 55f, Color(0xFFB0BEC5)), // 중립: 연한 회색
-            Triple(55f, 75f, Color(0xFFFFB300)), // 탐욕: 황금빛 주황
-            Triple(75f, 100f, Color(0xFFD32F2F)) // 극단적 탐욕: 깊은 빨강
+            0.5f to Color(0xFF0288D1),  // 180도 (0%): 극단적 공포 - 깊은 파랑
+            0.75f to Color(0xFF4CAF50), // 270도 (50%): 중립 - 밝은 초록
+            1.0f to Color(0xFFD32F2F)   // 360도 (100%): 극단적 탐욕 - 깊은 빨강
         )
     }
 }
 
+// 공포 탐욕 게이지 컴포저블
 @Composable
 fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
     val animatedProgress = remember { Animatable(0f) }
-    val stages = getStagesColors()
     val textColor = commonTextColor()
+    val gradientColor = getGradientColorStops()
 
+    // 애니메이션 적용
     LaunchedEffect(fearGreedIndex) {
         animatedProgress.animateTo(
             targetValue = fearGreedIndex.toFloat(),
@@ -86,28 +83,28 @@ fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
                     val radius = size.width / 2 - strokeWidth
                     val center = Offset(size.width / 2, size.height / 2)
 
-                    // 테마에 따른 색상 가져오기
+                    // 그라디언트 브러시 생성
+                    val gradientBrush = Brush.sweepGradient(
+                        colorStops = gradientColor.toTypedArray(),
+                        center = center
+                    )
 
-                    stages.forEach { (start, end, stageColor) ->
-                        val startAngle = 180f + (start / 100f) * 180f
-                        val sweepAngle = ((end - start) / 100f) * 180f
-                        drawArc(
-                            color = stageColor,
-                            startAngle = startAngle,
-                            sweepAngle = sweepAngle,
-                            useCenter = false,
-                            topLeft = Offset(strokeWidth, size.height / 2 - radius),
-                            size = Size(radius * 2, radius * 2),
-                            style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-                        )
-                    }
+                    // 그라디언트 적용된 아크 그리기
+                    drawArc(
+                        brush = gradientBrush,
+                        startAngle = 180f,
+                        sweepAngle = 180f,
+                        useCenter = false,
+                        topLeft = Offset(strokeWidth, size.height / 2 - radius),
+                        size = Size(radius * 2, radius * 2),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+                    )
 
                     // 바늘 그리기
                     val needleAngle = 180f + (animatedProgress.value / 100f) * 180f
-                    val needleLength = radius
                     val needleEnd = Offset(
-                        center.x + needleLength * cos(Math.toRadians(needleAngle.toDouble())).toFloat(),
-                        center.y + needleLength * sin(Math.toRadians(needleAngle.toDouble())).toFloat()
+                        center.x + radius * cos(Math.toRadians(needleAngle.toDouble())).toFloat(),
+                        center.y + radius * sin(Math.toRadians(needleAngle.toDouble())).toFloat()
                     )
                     drawLine(
                         color = textColor,
@@ -117,10 +114,11 @@ fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
                     )
                 }
 
+                // 현재 값 텍스트
                 Text(
                     text = animatedProgress.value.toInt().toString(),
                     modifier = Modifier.padding(top = 30.dp),
-                    color = commonTextColor(),
+                    color = textColor,
                     fontSize = DpToSp(18.dp),
                     fontWeight = FontWeight.Bold
                 )
@@ -129,13 +127,14 @@ fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
     }
 }
 
+// 상태 문자열 반환
 @Composable
 private fun getFearGreedyStatus(value: Int): String {
     return when {
-        value <= 25 -> "극단적 공포" // 극단적 공포: 밝은 스카이 블루
-        value < 45 -> "공포" // 공포: 부드러운 초록
-        value <= 55 -> "중립" // 중립: 밝은 회색
-        value <= 75 -> "탐욕" // 탐욕: 밝은 황금빛
-        else -> "극단적 탐욕" // 극단적 탐욕: 밝은 레드
+        value <= 25 -> "극단적 공포"
+        value < 45 -> "공포"
+        value <= 55 -> "중립"
+        value <= 75 -> "탐욕"
+        else -> "극단적 탐욕"
     }
 }

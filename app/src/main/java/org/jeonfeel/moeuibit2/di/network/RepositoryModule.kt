@@ -4,10 +4,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.CoinCapIOService
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.USDService
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.AlternativeService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.BitThumbService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.CoinCapIOService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.USDService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.UpBitService
+import org.jeonfeel.moeuibit2.data.repository.network.AlternativeRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitthumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
@@ -48,5 +50,13 @@ class RepositoryModule {
         coinCapIOService: CoinCapIOService,
     ): CoinCapIORepository {
         return CoinCapIORepository(coinCapIOService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAlternativeRepository(
+        alternativeService: AlternativeService,
+    ): AlternativeRepository {
+        return AlternativeRepository(alternativeService)
     }
 }

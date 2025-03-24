@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.network.retrofit.api
+package org.jeonfeel.moeuibit2.data.network.retrofit.service
 
 import com.google.gson.JsonObject
 import org.jeonfeel.moeuibit2.constants.bitthumbCoinNameUrl

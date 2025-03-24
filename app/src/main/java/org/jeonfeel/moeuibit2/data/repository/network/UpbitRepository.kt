@@ -1,7 +1,7 @@
 package org.jeonfeel.moeuibit2.data.repository.network
 
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.UpBitService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.UpBitService
 import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderBookReq
@@ -9,7 +9,6 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandl
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
-import retrofit2.Response
 
 class UpbitRepository(
     private val upBitService: UpBitService

@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.network.retrofit.api
+package org.jeonfeel.moeuibit2.data.network.retrofit.service
 
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.coincapio.FetchCoinInfoRes
 import retrofit2.Response

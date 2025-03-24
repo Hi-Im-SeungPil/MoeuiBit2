@@ -1,6 +1,5 @@
-package org.jeonfeel.moeuibit2.data.network.retrofit.api
+package org.jeonfeel.moeuibit2.data.network.retrofit.service
 
-import com.google.gson.JsonArray
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
