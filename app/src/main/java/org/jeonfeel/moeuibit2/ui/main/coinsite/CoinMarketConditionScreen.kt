@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.main.coinsite.component.AnimatedHalfGauge
-import org.jeonfeel.moeuibit2.ui.main.coinsite.component.GaugeGuide
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
@@ -22,7 +21,6 @@ fun CoinMarketConditionScreen() {
     Column(modifier = Modifier.fillMaxSize().padding(15.dp)) {
         Row {
             AnimatedHalfGauge(66)
-            GaugeGuide()
         }
         DominanceSection()
         ADSection()
