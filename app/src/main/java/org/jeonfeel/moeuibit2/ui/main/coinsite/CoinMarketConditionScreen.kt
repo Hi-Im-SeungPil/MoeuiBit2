@@ -1,48 +1,32 @@
 package org.jeonfeel.moeuibit2.ui.main.coinsite
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.jeonfeel.moeuibit2.ui.main.coinsite.component.AnimatedHalfGauge
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.ADSection
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.CoinSiteSection
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.FearAndGreedySection
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
-fun CoinMarketConditionScreen(index: Int) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(15.dp)) {
-        Row {
-            AnimatedHalfGauge(index)
-        }
-        DominanceSection()
+fun CoinMarketConditionScreen(uiState: CoinMarketConditionUIState) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(15.dp)
+    ) {
+        FearAndGreedySection(fearAndGreedyUIModel = uiState.fearAndGreedyUIModel)
+        CoinSiteSection()
         ADSection()
+        DominanceSection()
         MarketCapSection()
         ExchangeRateSection()
-    }
-}
-
-@Composable
-fun ADSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = portfolioMainBackground(),
-                shape = RoundedCornerShape(10.dp)
-            )
-            .padding(horizontal = 10.dp, vertical = 10.dp)
-    ) {
-        Text(text = "광고")
     }
 }
 
@@ -50,6 +34,7 @@ fun ADSection() {
 fun ColumnScope.DominanceSection() {
     Column(
         modifier = Modifier
+            .padding(top = 20.dp)
             .weight(1f)
             .background(color = portfolioMainBackground())
     ) {

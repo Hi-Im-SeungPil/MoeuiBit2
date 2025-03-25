@@ -1,9 +1,8 @@
-package org.jeonfeel.moeuibit2.ui.main.coinsite
+package org.jeonfeel.moeuibit2.ui.main.coinsite.component
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import com.orhanobut.logger.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.KeyConst

@@ -4,16 +4,14 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,10 +24,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import kotlin.math.cos
 import kotlin.math.sin
@@ -54,7 +53,7 @@ private fun getGradientColorStops(): List<Pair<Float, Color>> {
 
 // 공포 탐욕 게이지 컴포저블
 @Composable
-fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
+fun AnimatedHalfGauge(fearGreedIndex: Int, fearGreedyIndexDescription: String) {
     val animatedProgress = remember { Animatable(0f) }
     val textColor = commonTextColor()
     val gradientColor = getGradientColorStops()
@@ -67,45 +66,48 @@ fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
         )
     }
 
-    Row(
-        modifier = Modifier
-            .background(color = commonBackground(), RoundedCornerShape(10.dp))
-    ) {
+    Row(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = "공포 탐욕 지수 : ${getFearGreedyStatus(fearGreedIndex)}")
+            Text(
+                text = "공포 탐욕 지수",
+                style = TextStyle(
+                    fontSize = DpToSp(14.dp),
+                    fontWeight = FontWeight.W500,
+                    color = commonTextColor()
+                )
+            )
+
             Box(contentAlignment = Alignment.Center) {
                 Canvas(
                     modifier = Modifier
+                        .align(Alignment.Center)
                         .size(150.dp)
-                        .fillMaxWidth()
                 ) {
                     val strokeWidth = 30f
                     val radius = size.width / 2 - strokeWidth
-                    val center = Offset(size.width / 2, size.height / 2)
+                    val center = Offset(size.width / 2, (size.height * 0.7).toFloat())
 
-                    // 그라디언트 브러시 생성
                     val gradientBrush = Brush.sweepGradient(
                         colorStops = gradientColor.toTypedArray(),
                         center = center
                     )
 
-                    // 그라디언트 적용된 아크 그리기
                     drawArc(
                         brush = gradientBrush,
                         startAngle = 180f,
                         sweepAngle = 180f,
                         useCenter = false,
-                        topLeft = Offset(strokeWidth, size.height / 2 - radius),
+                        topLeft = Offset(strokeWidth, (size.height * 0.7).toFloat() - radius),
                         size = Size(radius * 2, radius * 2),
                         style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
                     )
 
-                    // 바늘 그리기
                     val needleAngle = 180f + (animatedProgress.value / 100f) * 180f
                     val needleEnd = Offset(
                         center.x + radius * cos(Math.toRadians(needleAngle.toDouble())).toFloat(),
                         center.y + radius * sin(Math.toRadians(needleAngle.toDouble())).toFloat()
                     )
+
                     drawLine(
                         color = textColor,
                         start = center,
@@ -113,28 +115,42 @@ fun RowScope.AnimatedHalfGauge(fearGreedIndex: Int) {
                         strokeWidth = 10f
                     )
                 }
-
-                // 현재 값 텍스트
-                Text(
-                    text = animatedProgress.value.toInt().toString(),
-                    modifier = Modifier.padding(top = 30.dp),
-                    color = textColor,
-                    fontSize = DpToSp(18.dp),
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
-    }
-}
 
-// 상태 문자열 반환
-@Composable
-private fun getFearGreedyStatus(value: Int): String {
-    return when {
-        value <= 25 -> "극단적 공포"
-        value < 45 -> "공포"
-        value <= 55 -> "중립"
-        value <= 75 -> "탐욕"
-        else -> "극단적 탐욕"
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .weight(1f)
+                .height(150.dp)
+        ) {
+            Text(
+                text = animatedProgress.value.toInt().toString(),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .weight(1f)
+                    .padding(top = 10.dp),
+                style = TextStyle(
+                    fontSize = DpToSp(30.dp),
+                    fontWeight = FontWeight.W500,
+                    color = commonTextColor(),
+                    textAlign = TextAlign.Center
+                )
+            )
+
+            Text(
+                text = fearGreedyIndexDescription,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .weight(1f)
+                    .padding(top = 10.dp),
+                style = TextStyle(
+                    fontSize = DpToSp(30.dp),
+                    fontWeight = FontWeight.W500,
+                    color = commonTextColor(),
+                    textAlign = TextAlign.Center
+                )
+            )
+        }
     }
 }

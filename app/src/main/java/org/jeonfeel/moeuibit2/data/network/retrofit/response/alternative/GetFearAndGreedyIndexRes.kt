@@ -2,11 +2,12 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.alternative
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.ui.main.coinsite.ui_model.FearAndGreedyUIModel
 
 @Serializable
 data class GetFearAndGreedyIndexRes(
     val name: String,
-    val data: List<Data>
+    val data: List<Data>,
 ) {
     @Serializable
     data class Data(
@@ -18,9 +19,16 @@ data class GetFearAndGreedyIndexRes(
         val timestamp: String,
 
         @SerialName("time_until_update")
-        val timeUntilUpdate: String = ""
+        val timeUntilUpdate: String = "",
     ) {
-        fun parseValueClassificationEngToKor(): String {
+        fun parseFearAndGreedyUIModel(): FearAndGreedyUIModel {
+            return FearAndGreedyUIModel(
+                index = value.toInt(),
+                indexDescription = parseValueClassificationEngToKor(valueClassification = valueClassification)
+            )
+        }
+
+        private fun parseValueClassificationEngToKor(valueClassification: String): String {
             return when (valueClassification) {
                 "Extreme Fear" -> {
                     "극도의 공포"

@@ -7,7 +7,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.response.alternative.GetFear
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.AlternativeService
 
 class AlternativeRepository(private val alternativeService: AlternativeService) {
-    suspend fun getFearAndGreedyIndex(): Flow<ApiResult<GetFearAndGreedyIndexRes>> {
-        return networkCall { alternativeService.getFearAndGreedyIndex() }
+    suspend fun fetchFearAndGreedyIndex(): Flow<ApiResult<GetFearAndGreedyIndexRes>> {
+        return networkCall { alternativeService.fecthFearAndGreedyIndex() }
     }
 }

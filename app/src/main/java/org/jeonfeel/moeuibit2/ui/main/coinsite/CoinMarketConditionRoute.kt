@@ -10,11 +10,11 @@ fun CoinMarketConditionRoute(
 ) {
     AddLifecycleEvent(
         onResumeAction = {
-            viewModel.getFearAndGreedyIndex()
+            viewModel.onResume()
         }
     )
 
     CoinMarketConditionScreen(
-        index = viewModel.index.intValue
+        uiState = viewModel.uiState.value
     )
 }

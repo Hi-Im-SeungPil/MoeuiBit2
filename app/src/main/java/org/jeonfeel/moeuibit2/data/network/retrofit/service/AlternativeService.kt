@@ -6,5 +6,5 @@ import retrofit2.http.GET
 
 interface AlternativeService {
     @GET("fng")
-    suspend fun getFearAndGreedyIndex(): Response<GetFearAndGreedyIndexRes>
+    suspend fun fecthFearAndGreedyIndex(): Response<GetFearAndGreedyIndexRes>
 }
