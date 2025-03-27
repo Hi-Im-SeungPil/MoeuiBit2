@@ -36,6 +36,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 fun GlobalSection() {
     Column(
         modifier = Modifier
+            .padding(top = 20.dp)
             .fillMaxWidth()
             .background(color = portfolioMainBackground(), shape = RoundedCornerShape(10.dp))
             .padding(vertical = 20.dp, horizontal = 20.dp),
@@ -50,6 +51,8 @@ fun GlobalSection() {
         )
         DominanceItem(imgId = R.drawable.img_btc, "비트코인", "60") { }
         DominanceItem(imgId = R.drawable.img_eth, "이더리움", "20") { }
+        GlobalInfoItem(title = "전체 시총", "1000000000000000", "-4%")
+        GlobalInfoItem(title = "전체 거래량", "10000000000000000", "+5%")
     }
 }
 
@@ -106,4 +109,20 @@ private fun DominanceItem(imgId: Int, coinName: String, dominance: String, onCli
             .fillMaxWidth()
             .background(color = commonDividerColor())
     )
+}
+
+@Composable
+fun GlobalInfoItem(
+    title: String,
+    value: String,
+    change: String,
+) {
+    Column(modifier = Modifier.padding(top = 10.dp)) {
+        Text(title)
+        Text(value)
+        Row {
+            Text("24시간 등락")
+            Text(change)
+        }
+    }
 }
