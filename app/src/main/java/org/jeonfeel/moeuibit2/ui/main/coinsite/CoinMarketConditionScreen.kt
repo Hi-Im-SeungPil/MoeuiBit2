@@ -15,7 +15,10 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.FearAndGreedySection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.GlobalSection
 
 @Composable
-fun CoinMarketConditionScreen(uiState: CoinMarketConditionUIState) {
+fun CoinMarketConditionScreen(
+    uiState: CoinMarketConditionUIState,
+    navigateDominanceChart: (String, String) -> Unit,
+) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -26,7 +29,7 @@ fun CoinMarketConditionScreen(uiState: CoinMarketConditionUIState) {
         FearAndGreedySection(fearAndGreedyUIModel = uiState.fearAndGreedyUIModel)
         CoinSiteSection()
         ADSection()
-        GlobalSection()
+        GlobalSection(navigateDominanceChart = navigateDominanceChart)
         ExchangeRateSection()
     }
 }

@@ -33,7 +33,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
-fun GlobalSection() {
+fun GlobalSection(navigateDominanceChart: (String, String) -> Unit) {
     Column(
         modifier = Modifier
             .padding(top = 20.dp)
@@ -49,8 +49,12 @@ fun GlobalSection() {
                 color = commonTextColor()
             )
         )
-        DominanceItem(imgId = R.drawable.img_btc, "비트코인", "60") { }
-        DominanceItem(imgId = R.drawable.img_eth, "이더리움", "20") { }
+        DominanceItem(imgId = R.drawable.img_btc, "비트코인", "60") {
+            navigateDominanceChart("비트코인 도미넌스 차트", "BTC.D")
+        }
+        DominanceItem(imgId = R.drawable.img_eth, "이더리움", "20") {
+            navigateDominanceChart("이더리움 도미넌스 차트", "ETH.D")
+        }
         GlobalInfoItem(title = "전체 시총", "1000000000000000", "-4%")
         GlobalInfoItem(title = "전체 거래량", "10000000000000000", "+5%")
     }

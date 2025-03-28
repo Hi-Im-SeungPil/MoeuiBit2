@@ -26,7 +26,7 @@ fun MainBottomNavGraph(
 
         composable(MainBottomNavItem.CoinSite.screenRoute.name) {
 //            CoinSiteScreen()
-            CoinMarketConditionRoute()
+            CoinMarketConditionRoute(appNavController = appNavController)
         }
 
         composable(MainBottomNavItem.AdditionalFeatures.screenRoute.name) {
