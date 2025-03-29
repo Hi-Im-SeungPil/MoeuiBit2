@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import kotlin.math.cos
 import kotlin.math.sin
@@ -109,7 +110,7 @@ fun AnimatedHalfGauge(fearGreedIndex: Int, fearGreedyIndexDescription: String) {
                     )
 
                     drawLine(
-                        color = textColor,
+                        color = APP_PRIMARY_COLOR,
                         start = center,
                         end = needleEnd,
                         strokeWidth = 10f

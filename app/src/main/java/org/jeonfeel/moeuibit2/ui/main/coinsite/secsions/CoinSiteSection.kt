@@ -36,6 +36,7 @@ fun CoinSiteSection() {
                 .padding(end = 20.dp)
                 .size(25.dp)
                 .align(Alignment.CenterVertically),
+            tint = commonTextColor(),
             contentDescription = ""
         )
 
