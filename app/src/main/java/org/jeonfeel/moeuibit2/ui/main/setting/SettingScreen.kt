@@ -195,7 +195,7 @@ fun SettingScreenLazyColumn(viewModel: SettingViewModel) {
 }
 
 @Composable
-fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Unit) {
+private fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(10.dp, 20.dp, 10.dp, 0.dp)
@@ -223,7 +223,7 @@ fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Uni
 }
 
 @Composable
-fun ThemeSettingDialog(
+private fun ThemeSettingDialog(
     dismissRequest: () -> Unit,
     currentSettingTheme: ThemeHelper.ThemeMode,
     setTheme: (theme: ThemeHelper.ThemeMode) -> Unit,
@@ -311,7 +311,7 @@ fun ThemeSettingDialog(
 }
 
 @Composable
-fun ThemeSettingDialogItem(
+private fun ThemeSettingDialogItem(
     icon: Int,
     text: String,
     clickAction: () -> Unit,
@@ -365,7 +365,7 @@ fun ThemeSettingDialogItem(
     }
 }
 
-fun writeReviewAction(context: Context) {
+private fun writeReviewAction(context: Context) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL))
     context.startActivity(intent)
 }

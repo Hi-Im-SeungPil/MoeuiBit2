@@ -12,7 +12,7 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.ADSection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.CoinSiteSection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.ExchangeRateSection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.FearAndGreedySection
-import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.GlobalSection
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.DominanceSection
 
 @Composable
 fun CoinMarketConditionScreen(
@@ -29,7 +29,7 @@ fun CoinMarketConditionScreen(
         FearAndGreedySection(fearAndGreedyUIModel = uiState.fearAndGreedyUIModel)
         CoinSiteSection()
         ADSection()
-        GlobalSection(navigateDominanceChart = navigateDominanceChart)
+        DominanceSection(navigateDominanceChart = navigateDominanceChart)
         ExchangeRateSection()
     }
 }

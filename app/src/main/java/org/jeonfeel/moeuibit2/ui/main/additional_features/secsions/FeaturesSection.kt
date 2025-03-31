@@ -1,0 +1,70 @@
+package org.jeonfeel.moeuibit2.ui.main.additional_features.secsions
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import org.jeonfeel.moeuibit2.ui.common.DpToSp
+import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
+
+@Composable
+fun FeaturesSection(
+    iconAndTextAndOnClick: List<Triple<Int, String, () -> Unit>>,
+) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(iconAndTextAndOnClick.size) { index ->
+            FeaturesItem(
+                imgId = iconAndTextAndOnClick[index].first,
+                text = iconAndTextAndOnClick[index].second,
+                clickAction = iconAndTextAndOnClick[index].third
+            )
+        }
+    }
+}
+
+@Composable
+private fun FeaturesItem(
+    imgId: Int,
+    text: String,
+    clickAction: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(10.dp, 10.dp, 10.dp, 0.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(Alignment.CenterVertically)
+            .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
+            .noRippleClickable { clickAction() }
+            .padding(20.dp, 10.dp)
+    ) {
+        Icon(
+            painter = painterResource(imgId),
+            modifier = Modifier.size(15.dp),
+            tint = commonTextColor(),
+            contentDescription = ""
+        )
+        Text(
+            text = text,
+            modifier = Modifier.padding(start = 15.dp),
+            style = TextStyle(
+                fontSize = DpToSp(13.dp),
+                color = commonTextColor()
+            )
+        )
+    }
+}
