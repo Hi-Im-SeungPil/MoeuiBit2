@@ -17,7 +17,8 @@ fun MainBottomNavGraph(
     bottomNavController: NavHostController,
     appNavController: NavHostController,
 ) {
-    NavHost(bottomNavController, startDestination = MainBottomNavItem.Exchange.screenRoute.name,
+    NavHost(
+        bottomNavController, startDestination = MainBottomNavItem.Exchange.screenRoute.name,
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }) {
         composable(MainBottomNavItem.Exchange.screenRoute.name) {
@@ -30,7 +31,7 @@ fun MainBottomNavGraph(
         }
 
         composable(MainBottomNavItem.AdditionalFeatures.screenRoute.name) {
-            AdditionalFeaturesRoute()
+            AdditionalFeaturesRoute(popBackState = { bottomNavController.navigateUp() })
         }
 
         composable(MainBottomNavItem.Portfolio.screenRoute.name) {

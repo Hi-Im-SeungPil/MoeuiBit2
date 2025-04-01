@@ -24,14 +24,14 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
 fun FeaturesSection(
-    iconAndTextAndOnClick: List<Triple<Int, String, () -> Unit>>,
+    features: List<Triple<Int, String, () -> Unit>>,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(iconAndTextAndOnClick.size) { index ->
+        items(features.size) { index ->
             FeaturesItem(
-                imgId = iconAndTextAndOnClick[index].first,
-                text = iconAndTextAndOnClick[index].second,
-                clickAction = iconAndTextAndOnClick[index].third
+                imgId = features[index].first,
+                text = features[index].second,
+                clickAction = features[index].third
             )
         }
     }
