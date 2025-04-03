@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebView
+import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -97,6 +99,15 @@ private fun BitcoinDominanceChart(value: String) {
     val height = context.dpToPx(250f).toInt()
     val isDark = isSystemInDarkTheme()
 
+    val frameLayout = remember {
+        FrameLayout(context).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+    }
+
     val webView = remember {
         FlexWebView(context).apply {
             settings.apply {
@@ -118,12 +129,15 @@ private fun BitcoinDominanceChart(value: String) {
             .height(250.dp)// 부모 컨테이너 크기 꽉 채우기
     ) {
         AndroidView(
-            factory = { webView },
+            factory = {
+                frameLayout.addView(webView)
+                frameLayout
+            },
             modifier = Modifier
                 .background(color = Color.Transparent, shape = RoundedCornerShape(10.dp))
                 .fillMaxSize(), // WebView 크기 꽉 채우기
             update = {
-                it.loadDataWithBaseURL(
+                (it.getChildAt(0) as WebView).loadDataWithBaseURL(
                     "https://www.tradingview.com",
                     getTradingViewHtml(width, height, isDark, value),
                     "text/html",

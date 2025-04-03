@@ -13,7 +13,6 @@ import androidx.navigation.navArgument
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreenRoute
-import org.jeonfeel.moeuibit2.ui.common.CommonWebView
 import org.jeonfeel.moeuibit2.utils.Utils
 
 enum class AppScreen {
@@ -81,10 +80,6 @@ fun AppNavGraph() {
         ) { backStackEntry ->
             val title = backStackEntry.arguments?.getString("title") ?: ""
             val symbol = backStackEntry.arguments?.getString("symbol") ?: ""
-            CommonWebView(
-                title = title,
-                symbol = symbol
-            )
         }
     }
 }

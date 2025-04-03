@@ -3,7 +3,9 @@ package org.jeonfeel.moeuibit2.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -20,7 +22,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 @Composable
 fun MoeuiBitApp(
     appNavController: NavHostController,
-    bottomNavController: NavHostController
+    bottomNavController: NavHostController,
 ) {
     val scaffoldState = rememberScaffoldState()
 
@@ -34,6 +36,8 @@ fun MoeuiBitApp(
         Box(
             modifier = Modifier
                 .padding(contentPadding)
+                .consumeWindowInsets(contentPadding)
+                .imePadding()
                 .fillMaxSize()
                 .background(commonBackground())
         ) {

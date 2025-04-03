@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.additional_features.secsions
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,24 +46,25 @@ private fun FeaturesItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(10.dp, 10.dp, 10.dp, 0.dp)
+            .padding(top = 13.dp, bottom = 13.dp, start = 10.dp, end = 0.dp)
             .fillMaxWidth()
             .wrapContentHeight(Alignment.CenterVertically)
             .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
             .noRippleClickable { clickAction() }
             .padding(20.dp, 10.dp)
     ) {
-        Icon(
-            painter = painterResource(imgId),
-            modifier = Modifier.size(15.dp),
-            tint = commonTextColor(),
+        Image(
+            painter = painterResource(id = imgId),
+            modifier = Modifier.size(30.dp),
             contentDescription = ""
         )
         Text(
             text = text,
-            modifier = Modifier.padding(start = 15.dp),
+            modifier = Modifier
+                .padding(start = 25.dp)
+                .align(Alignment.CenterVertically),
             style = TextStyle(
-                fontSize = DpToSp(13.dp),
+                fontSize = DpToSp(15.dp),
                 color = commonTextColor()
             )
         )

@@ -9,16 +9,17 @@ import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 @Composable
 fun AdditionalFeaturesRoute(
     viewModel: AdditionalFeaturesViewModel = hiltViewModel(),
-    popBackState: () -> Unit
+    popBackState: () -> Unit,
 ) {
-    val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
     val state = rememberAdditionalFeaturesStateHolder()
 
     BackHandler {
         if (state.featuresUIState.value.featureScreenState.value == FeatureScreenState.FEATURE_SCREEN) {
             popBackState()
+            return@BackHandler
         }
 
+        state.resetTopAppBarText()
         state.updateScreenState(state = FeatureScreenState.FEATURE_SCREEN)
     }
 
@@ -30,6 +31,9 @@ fun AdditionalFeaturesRoute(
 
     AdditionalFeaturesScreen(
         featuresUIState = state.featuresUIState.value,
-        backToFeaturesMain = { state.updateScreenState(FeatureScreenState.FEATURE_SCREEN) }
+        backToFeaturesMain = {
+            state.resetTopAppBarText()
+            state.updateScreenState(FeatureScreenState.FEATURE_SCREEN)
+        }
     )
 }

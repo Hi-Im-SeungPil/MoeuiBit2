@@ -2,7 +2,6 @@ package org.jeonfeel.moeuibit2.ui.main.additional_features
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.jeonfeel.moeuibit2.R
@@ -14,8 +13,8 @@ enum class FeatureScreenState {
 
 data class AdditionalFeaturesUIState(
     val featureScreenState: State<FeatureScreenState> = mutableStateOf(FeatureScreenState.FEATURE_SCREEN),
-    val topAppBarText: State<String> = mutableStateOf("부가기능"),
-    val features: List<Triple<Int, String, () -> Unit>> = listOf()
+    val topAppBarText: State<String> = mutableStateOf("부가 기능"),
+    val features: List<Triple<Int, String, () -> Unit>> = listOf(),
 )
 
 class AdditionalFeaturesStateHolder {
@@ -24,7 +23,7 @@ class AdditionalFeaturesStateHolder {
 
     private val _featureScreenState = mutableStateOf(FeatureScreenState.FEATURE_SCREEN)
 
-    private val _topAppBarText = mutableStateOf("부가기능")
+    private val _topAppBarText = mutableStateOf("부가 기능")
 
     private val features = listOf(
         Triple(
@@ -48,6 +47,9 @@ class AdditionalFeaturesStateHolder {
         _featureScreenState.value = state
     }
 
+    fun resetTopAppBarText() {
+        _topAppBarText.value = "부가 기능"
+    }
 }
 
 @Composable
