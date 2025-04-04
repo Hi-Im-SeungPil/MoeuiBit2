@@ -2,6 +2,8 @@ package org.jeonfeel.moeuibit2.ui.main.additional_features.secsions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,9 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.Item
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.NativeAdTemplateView
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
@@ -28,6 +33,26 @@ fun FeaturesSection(
     features: List<Triple<Int, String, () -> Unit>>,
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
+                    .padding(15.dp)
+            ) {
+                androidx.compose.material3.Text(
+                    text = "AD",
+                    style = TextStyle(
+                        fontSize = DpToSp(14.dp),
+                        fontWeight = FontWeight.W500,
+                        color = commonTextColor()
+                    )
+                )
+
+                NativeAdTemplateView()
+            }
+        }
+
         items(features.size) { index ->
             FeaturesItem(
                 imgId = features[index].first,
@@ -46,7 +71,7 @@ private fun FeaturesItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(top = 13.dp, bottom = 13.dp, start = 10.dp, end = 0.dp)
+            .padding(top = 13.dp, bottom = 13.dp, start = 20.dp, end = 20.dp)
             .fillMaxWidth()
             .wrapContentHeight(Alignment.CenterVertically)
             .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))

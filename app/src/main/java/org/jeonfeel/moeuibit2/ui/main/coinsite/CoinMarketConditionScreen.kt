@@ -13,13 +13,15 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.CoinSiteSection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.ExchangeRateSection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.FearAndGreedySection
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.DominanceSection
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.NasdaqSection
 
 @Composable
 fun CoinMarketConditionScreen(
     uiState: CoinMarketConditionUIState,
-    navigateDominanceChart: (String, String) -> Unit,
+    navigateToCoinSite: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .verticalScroll(scrollState)
@@ -27,9 +29,10 @@ fun CoinMarketConditionScreen(
             .padding(15.dp)
     ) {
         FearAndGreedySection(fearAndGreedyUIModel = uiState.fearAndGreedyUIModel)
-        CoinSiteSection()
+        CoinSiteSection(navigateToCoinSite)
         ADSection()
-        DominanceSection(navigateDominanceChart = navigateDominanceChart)
+        DominanceSection()
+        NasdaqSection()
         ExchangeRateSection()
     }
 }

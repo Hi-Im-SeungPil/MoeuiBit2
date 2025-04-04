@@ -28,7 +28,7 @@ class AdMobManager() {
         onAdFailedToLoad: () -> Unit,
         rewardListener: OnUserEarnedRewardListener,
         fullScreenOnAdLoad: () -> Unit,
-        fullScreenOnAdFailedToLoad: () -> Unit
+        fullScreenOnAdFailedToLoad: () -> Unit,
     ) {
         RewardedAd.load(
             activity,
@@ -66,32 +66,30 @@ class AdMobManager() {
         onAdFailedToLoad: () -> Unit,
         rewardListener: OnUserEarnedRewardListener,
         fullScreenOnAdLoad: () -> Unit,
-        fullScreenOnAdFailedToLoad: () -> Unit
+        fullScreenOnAdFailedToLoad: () -> Unit,
     ) {
-        MobileAds.initialize(activity) {
-            RewardedInterstitialAd.load(activity,
-                AD_ID_REWARD_FULL_SCREEN, adRequest, object : RewardedInterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                        super.onAdLoaded(ad)
-                        ad.show(activity, rewardListener)
-                        onAdLoaded()
-                    }
+        RewardedInterstitialAd.load(activity,
+            AD_ID_REWARD_FULL_SCREEN, adRequest, object : RewardedInterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedInterstitialAd) {
+                    super.onAdLoaded(ad)
+                    ad.show(activity, rewardListener)
+                    onAdLoaded()
+                }
 
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        super.onAdFailedToLoad(error)
-                        if (error.code == AdRequest.ERROR_CODE_NETWORK_ERROR || error.code == 0) {
-                            onAdFailedToLoad()
-                        } else {
-                            loadFullScreenAd(
-                                activity = activity,
-                                fullScreenOnAdLoad,
-                                fullScreenOnAdFailedToLoad,
-                                onAdFailedToLoad
-                            )
-                        }
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    super.onAdFailedToLoad(error)
+                    if (error.code == AdRequest.ERROR_CODE_NETWORK_ERROR || error.code == 0) {
+                        onAdFailedToLoad()
+                    } else {
+                        loadFullScreenAd(
+                            activity = activity,
+                            fullScreenOnAdLoad,
+                            fullScreenOnAdFailedToLoad,
+                            onAdFailedToLoad
+                        )
                     }
-                })
-        }
+                }
+            })
     }
 
     /**
@@ -101,7 +99,7 @@ class AdMobManager() {
         activity: Activity,
         onAdLoaded: () -> Unit,
         onAdFailedToLoad: () -> Unit,
-        networkErrorOnAdFailedToLoad: () -> Unit
+        networkErrorOnAdFailedToLoad: () -> Unit,
     ) {
         InterstitialAd.load(
             activity,

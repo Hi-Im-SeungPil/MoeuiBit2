@@ -121,6 +121,7 @@ private fun ExchangeRateItem(
                         .align(Alignment.CenterVertically),
                     contentDescription = ""
                 )
+
                 Text(
                     text = unit2,
                     modifier = Modifier
@@ -133,6 +134,7 @@ private fun ExchangeRateItem(
                     )
                 )
             }
+
             Text(
                 unit2Price, modifier = Modifier
                     .padding(top = 15.dp, start = 25.dp),

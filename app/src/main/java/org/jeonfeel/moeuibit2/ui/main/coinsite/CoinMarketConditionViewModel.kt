@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.ui.main.coinsite.ui_model.FearAndGreedyUIModel
 import javax.inject.Inject
 
 data class CoinMarketConditionUIState(
     val fearAndGreedyUIModel: FearAndGreedyUIModel = FearAndGreedyUIModel(),
+    val marketConditionUIState: State<MarketConditionScreenState> = mutableStateOf(MarketConditionScreenState.COIN_MARKET_CONDITION)
 )
 
 @HiltViewModel
@@ -21,6 +23,9 @@ class CoinMarketConditionViewModel
     private val _uiState = mutableStateOf(CoinMarketConditionUIState())
     val uiState: State<CoinMarketConditionUIState> = _uiState
 
+    private val _marketConditionUIState =
+        mutableStateOf(MarketConditionScreenState.COIN_MARKET_CONDITION)
+
     private val fearAndGreedyUIModel = mutableStateOf(FearAndGreedyUIModel())
 
     fun onResume() {
@@ -28,6 +33,17 @@ class CoinMarketConditionViewModel
             fetchFearAndGreedyIndex()
             parseToUiState()
         }
+    }
+
+    private fun parseToUiState() {
+        _uiState.value = CoinMarketConditionUIState(
+            fearAndGreedyUIModel = fearAndGreedyUIModel.value,
+            marketConditionUIState = _marketConditionUIState
+        )
+    }
+
+    fun updateScreenState(marketConditionScreenState: MarketConditionScreenState) {
+        _marketConditionUIState.value = marketConditionScreenState
     }
 
     private suspend fun fetchFearAndGreedyIndex() {
@@ -49,11 +65,5 @@ class CoinMarketConditionViewModel
                 }
             }
         }
-    }
-
-    private fun parseToUiState() {
-        _uiState.value = CoinMarketConditionUIState(
-            fearAndGreedyUIModel = fearAndGreedyUIModel.value
-        )
     }
 }

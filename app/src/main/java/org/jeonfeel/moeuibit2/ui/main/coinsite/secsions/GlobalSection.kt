@@ -38,7 +38,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 
 @Composable
-fun DominanceSection(navigateDominanceChart: (String, String) -> Unit) {
+fun DominanceSection() {
     val currentDChart = remember {
         mutableStateOf("BTC.D")
     }

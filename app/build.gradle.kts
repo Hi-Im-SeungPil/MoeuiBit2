@@ -128,6 +128,7 @@ dependencies {
 
     // 광고
     implementation(libs.play.services.ads)
+    implementation(project(":nativetemplates"))
 
     // 뷰모델 및 라이프사이클 관련
     implementation(libs.lifecycle.viewmodel.ktx)
