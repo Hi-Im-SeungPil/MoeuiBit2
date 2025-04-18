@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -72,10 +71,10 @@ private fun NasdaqIndexChart() {
             settings.apply {
                 isHorizontalScrollBarEnabled = false
                 isVerticalScrollBarEnabled = false
-                loadWithOverviewMode = false // 콘텐츠가 WebView 크기에 맞게 조정됨
+                loadWithOverviewMode = true // 콘텐츠가 WebView 크기에 맞게 조정됨
                 useWideViewPort = false
             }
-            setInitialScale(100)
+            setInitialScale(400)
             setPadding(0, 0, 0, 0)
             scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY;
         }
@@ -85,7 +84,6 @@ private fun NasdaqIndexChart() {
         modifier = Modifier
             .padding(top = 10.dp)
             .fillMaxWidth()
-            .height(250.dp)// 부모 컨테이너 크기 꽉 채우기
     ) {
         AndroidView(
             factory = {
@@ -116,58 +114,17 @@ private fun getTradingViewHtml(width: Int, height: Int, isDark: Boolean): String
     }
 
     return """
-    <!-- TradingView Widget BEGIN -->
-    <html>
-    <head>
-    <meta name="viewport",content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body, html { width: ${width}; height: ${height}; overflow: hidden; }
-      .tradingview-widget-container { width: ${width}; height: ${height}; }
-      .tradingview-widget-container__widget { width: ${width}; height: ${height}; }
-    </style>
-    </head>
-    <body style="margin: 0; padding: 0">
-      <div class="tradingview-widget-container">
-        <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-        {
-          "symbols": [
-            [
-              "NASDAQ:IXIC|1D" 
-            ]
-          ],
-          "chartOnly": false,
-          "width": "${width}",
-          "height": "${height}",
-          "locale": "kr",
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+          {
+          "symbol": "NASDAQ:IXIC",
+          "width": 500,
+          "isTransparent": false,
           "colorTheme": "$isDarkMode",
-          "autosize": false,
-          "showVolume": false,
-          "showMA": false,
-          "hideDateRanges": false,
-          "hideMarketStatus": false,
-          "hideSymbolLogo": false,
-          "scalePosition": "right",
-          "scaleMode": "Normal",
-          "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
-          "fontSize": "28",
-          "headerFontSize": "large",
-          "lineWidth": 2,
-          "lineType": 0,
-          "dateRanges": [
-            "1d|1",
-            "1m|30",
-            "3m|60",
-            "12m|1D",
-            "60m|1W",
-            "all|1M"
-          ],
-          "dateFormat": "yyyy-MM-dd"
+          "locale": "kr"
         }
-        </script>
-      </div>
-    </body>
-    </html>
+          </script>
+        </div>
     """.trimIndent()
 }

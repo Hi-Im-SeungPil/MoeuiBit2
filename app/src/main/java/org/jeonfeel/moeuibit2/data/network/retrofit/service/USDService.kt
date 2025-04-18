@@ -1,6 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.service
 
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.usd.USDToKRWPriceRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.exchange_rate.USDToKRWPriceRes
 import retrofit2.Response
 import retrofit2.http.GET
 

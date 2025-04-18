@@ -49,8 +49,8 @@ fun ExchangeRateSection() {
             unit2 = "EUR",
             "1,460",
             "1,000",
-            R.drawable.img_network_disconnect,
-            R.drawable.img_theme_light
+            R.drawable.america,
+            R.drawable.eu
         )
         Spacer(modifier = Modifier.height(15.dp))
         ExchangeRateItem(
@@ -58,8 +58,8 @@ fun ExchangeRateSection() {
             unit2 = "CNY",
             "800",
             "500",
-            R.drawable.img_coinone,
-            R.drawable.img_btc
+            R.drawable.japan,
+            R.drawable.china
         )
     }
 }

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.USDService
 import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.usd.USDToKRWPriceRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.exchange_rate.USDToKRWPriceRes
 
 class USDRepository(
     private val usdService: USDService

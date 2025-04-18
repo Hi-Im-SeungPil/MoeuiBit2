@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -28,7 +29,7 @@ fun OrderScreenRoute(
     userCoin: State<MyCoin>,
     transactionInfoList: List<TransactionInfo>,
     getTransactionInfoList: (String) -> Unit,
-    isCoinOrderStarted: Boolean
+    isCoinOrderStarted: MutableState<Boolean>
 ) {
     OrderScreen(
         market = market,

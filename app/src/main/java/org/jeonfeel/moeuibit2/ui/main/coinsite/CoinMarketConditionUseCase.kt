@@ -10,6 +10,7 @@ import org.jeonfeel.moeuibit2.ui.main.coinsite.ui_model.FearAndGreedyUIModel
 
 class CoinMarketConditionUseCase(private val alternativeRepository: AlternativeRepository) :
     BaseUseCase() {
+
     suspend fun fetchFearAndGreedyIndex(): Flow<ResultState<FearAndGreedyUIModel>> {
         return alternativeRepository.fetchFearAndGreedyIndex().map { res ->
             when (res.status) {
@@ -33,4 +34,8 @@ class CoinMarketConditionUseCase(private val alternativeRepository: AlternativeR
             }
         }
     }
+
+//    suspend fun fetchExchangeRate(): Flow<ResultState<ExchangeRateUIModel>> {
+//
+//    }
 }

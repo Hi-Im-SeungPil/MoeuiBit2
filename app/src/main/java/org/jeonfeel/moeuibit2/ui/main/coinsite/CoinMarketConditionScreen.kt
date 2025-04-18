@@ -33,6 +33,6 @@ fun CoinMarketConditionScreen(
         ADSection()
         DominanceSection()
         NasdaqSection()
-        ExchangeRateSection()
+//        ExchangeRateSection()
     }
 }

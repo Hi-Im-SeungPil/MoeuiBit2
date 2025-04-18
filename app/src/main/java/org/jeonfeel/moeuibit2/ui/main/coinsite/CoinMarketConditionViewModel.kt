@@ -66,4 +66,8 @@ class CoinMarketConditionViewModel
             }
         }
     }
+
+    private suspend fun fetchExchangeRate() {
+
+    }
 }

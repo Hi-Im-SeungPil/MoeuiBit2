@@ -500,7 +500,7 @@ private fun CoinTickerSection(
                 CoinTickerView(
                     name = item.koreanName,
                     symbol = item.symbol,
-                    lastPrice = item.tradePrice.formattedString(),
+                    lastPrice = item.tradePrice.formattedString(market = item.market),
                     fluctuateRate = item.signedChangeRate.toFloat(),
                     fluctuatePrice = item.signedChangePrice.toFloat(),
                     acc24h = item.accTradePrice24h.formattedUnitString(),

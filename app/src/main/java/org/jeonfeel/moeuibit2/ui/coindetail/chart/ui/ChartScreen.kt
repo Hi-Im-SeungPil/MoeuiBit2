@@ -79,7 +79,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
         when (event) {
             Lifecycle.Event.ON_START -> {
                 if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-                    if (!viewModel.isChartStarted) {
+                    if (!viewModel.isChartStarted.value) {
                         combinedChart.axisRight.removeAllLimitLines()
                         combinedChart.xAxis.removeAllLimitLines()
                         viewModel.requestChartData(market)
@@ -101,7 +101,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            if (!viewModel.isChartStarted) {
+            if (!viewModel.isChartStarted.value) {
                 combinedChart.axisRight.removeAllLimitLines()
                 combinedChart.xAxis.removeAllLimitLines()
                 viewModel.requestChartData(market)

@@ -12,7 +12,7 @@ class MyCoin(
     var koreanCoinName: String = "",
     var symbol: String = "",
     var quantity: Double = 0.0,
-    @ColumnInfo(defaultValue = "0.0") var purchaseAverageBtcPrice: Double = 0.0
+    @ColumnInfo(defaultValue = "0.0") var purchaseAverageBtcPrice: Double = 0.0,
 ) {
     fun parseUserHoldsModel(): UserHoldCoinDTO {
         return UserHoldCoinDTO(
@@ -29,5 +29,12 @@ class MyCoin(
             market = this.market,
             purchaseAverageBtcPrice = this.purchaseAverageBtcPrice
         )
+    }
+
+    fun isEmpty(): Boolean {
+        return this.quantity == 0.0
+                || this.purchasePrice == 0.0
+                || this.market == ""
+                || this.symbol == ""
     }
 }

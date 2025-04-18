@@ -35,7 +35,7 @@ class CoinDetailStateHolder(
     fun getCoinDetailPrice(price: Double, rootExchange: String, market: String): String {
         if (price == 0.0) return "0"
 
-        return price.newBigDecimal(rootExchange, market).formattedString()
+        return price.newBigDecimal(rootExchange, market).formattedString(market = market)
     }
 
     @Composable

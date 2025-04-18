@@ -486,7 +486,7 @@ fun UserHoldCoinLazyColumnItem(
                             ROOT_EXCHANGE_UPBIT,
                             UPBIT_KRW_SYMBOL_PREFIX
                         )
-                            .formattedString(),
+                            .formattedString(market = market),
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .fillMaxWidth()

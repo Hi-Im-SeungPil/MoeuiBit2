@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.network.retrofit.response.usd
+package org.jeonfeel.moeuibit2.data.network.retrofit.response.exchange_rate
 
 import androidx.annotation.Keep
 import kotlinx.serialization.Serializable

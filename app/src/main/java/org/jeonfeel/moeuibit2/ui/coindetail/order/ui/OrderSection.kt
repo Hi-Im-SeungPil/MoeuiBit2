@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderCalculator
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
@@ -112,7 +113,8 @@ fun OrderSection(
                     requestBid = requestBid,
                     dropdownLabelList = dropdownLabelList,
                     selectedText = bidSelectedText,
-                    totalBidDialogState = totalBidDialogState
+                    totalBidDialogState = totalBidDialogState,
+                    userCoin = userCoin,
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -160,6 +162,7 @@ fun BidSection(
     selectedText: String,
     userBTC: State<MyCoin>,
     totalBidDialogState: MutableState<Boolean>,
+    userCoin: State<MyCoin>,
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -169,7 +172,7 @@ fun BidSection(
             userBTC = userBTC,
             isBid = true
         )
-        OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
+        OrderTabPriceSection(currentPrice = currentPrice?.formattedString(market = symbol) ?: "0")
         OrderTabQuantitySection(
             dropDownItemClickAction = updateBidCoinQuantity,
             quantity = bidQuantity,
@@ -184,6 +187,9 @@ fun BidSection(
             bidAskAction = requestBid,
             totalBidAskAction = { totalBidDialogState.value = true }
         )
+        if (!userCoin.value.isEmpty()) {
+            UserHoldCoinSection(myCoin = userCoin.value, currentPrice = currentPrice)
+        }
         Row(
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -242,7 +248,7 @@ fun AskSection(
             currentPrice = currentPrice,
             btcPrice = btcPrice
         )
-        OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
+        OrderTabPriceSection(currentPrice?.formattedString(market = symbol) ?: "0")
         OrderTabQuantitySection(
             dropDownItemClickAction = updateAskCoinQuantity,
             quantity = askQuantity,
@@ -257,6 +263,9 @@ fun AskSection(
             bidAskAction = requestAsk,
             totalBidAskAction = { totalAskDialogState.value = true }
         )
+        if (!userCoin.value.isEmpty()) {
+            UserHoldCoinSection(userCoin.value, currentPrice = currentPrice)
+        }
         Row(
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -290,6 +299,51 @@ fun AskSection(
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
         }
+    }
+}
+
+@Composable
+fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = "보유자산")
+        UserHoldCoinSectionItem(
+            title = "평균매수가",
+            value = myCoin.purchasePrice.toBigDecimal().formattedString(myCoin.market)
+        )
+        UserHoldCoinSectionItem(
+            title = "평가금액",
+            value = OrderCalculator.calculateTotalAmount(
+                quantity = myCoin.quantity,
+                price = currentPrice
+            )
+        )
+        UserHoldCoinSectionItem(
+            title = "평가손익",
+            value = OrderCalculator.calculatePNL(
+                quantity = myCoin.quantity,
+                purchaseAverage = myCoin.purchasePrice,
+                currentPrice = currentPrice ?: BigDecimal.ZERO
+            )
+        )
+        UserHoldCoinSectionItem(
+            title = "수익률",
+            value = OrderCalculator.calculateProfitPercentage(
+                purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
+                currentPrice = currentPrice ?: BigDecimal.ZERO
+            )
+        )
+    }
+}
+
+@Composable
+fun UserHoldCoinSectionItem(title: String, value: String) {
+    Row {
+        Text(text = title)
+        AutoSizeText(
+            text = value,
+            modifier = Modifier.weight(1f),
+            textStyle = TextStyle(textAlign = TextAlign.End)
+        )
     }
 }
 

@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.data.usecase
 
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.CoinDetailWebsocketManager
@@ -38,6 +39,11 @@ class UpbitCoinDetailUseCase @Inject constructor(
 
     suspend fun deleteFavorite(market: String) {
         localRepository.getFavoriteDao().delete(market)
+    }
+
+    suspend fun getUserHoldCoin(market: String): MyCoin? {
+        val myCoin = localRepository.getMyCoinDao().isInsert(market)
+        return myCoin
     }
 
     suspend fun getMarketTicker(
