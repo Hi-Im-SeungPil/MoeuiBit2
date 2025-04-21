@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.utils
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -98,6 +99,10 @@ object BigDecimalMapper {
                 else -> this.toPlainString()
             }
         }
+    }
+
+    fun BigDecimal.formattedStringMustFormat(): String {
+        return format.format(this)
     }
 
     fun BigDecimal.formattedStringForKRW(): String {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -304,12 +305,34 @@ fun AskSection(
 
 @Composable
 fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
+    val textColor = OrderCalculator.getTextColor(
+        purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
+        currentPrice = currentPrice ?: BigDecimal.ZERO
+    )
+
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "보유자산")
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            color = commonDividerColor()
+        )
+
+        Text(
+            text = "보유자산",
+            modifier = Modifier.padding(top = 10.dp),
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                color = commonTextColor(),
+                fontWeight = FontWeight.W500
+            )
+        )
+
         UserHoldCoinSectionItem(
             title = "평균매수가",
             value = myCoin.purchasePrice.toBigDecimal().formattedString(myCoin.market)
         )
+
         UserHoldCoinSectionItem(
             title = "평가금액",
             value = OrderCalculator.calculateTotalAmount(
@@ -317,32 +340,54 @@ fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
                 price = currentPrice
             )
         )
+
         UserHoldCoinSectionItem(
             title = "평가손익",
             value = OrderCalculator.calculatePNL(
                 quantity = myCoin.quantity,
                 purchaseAverage = myCoin.purchasePrice,
                 currentPrice = currentPrice ?: BigDecimal.ZERO
-            )
+            ),
+            textColor = textColor
         )
+
         UserHoldCoinSectionItem(
             title = "수익률",
             value = OrderCalculator.calculateProfitPercentage(
                 purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
                 currentPrice = currentPrice ?: BigDecimal.ZERO
-            )
+            ),
+            textColor = textColor
+        )
+
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            color = commonDividerColor()
         )
     }
 }
 
 @Composable
-fun UserHoldCoinSectionItem(title: String, value: String) {
-    Row {
-        Text(text = title)
+fun UserHoldCoinSectionItem(title: String, value: String, textColor: Color = commonTextColor()) {
+    Row(modifier = Modifier.padding(top = 5.dp)) {
+        Text(
+            text = title,
+            style = TextStyle(
+                fontWeight = FontWeight.W500,
+                color = commonHintTextColor(),
+                fontSize = DpToSp(13.dp)
+            )
+        )
         AutoSizeText(
             text = value,
             modifier = Modifier.weight(1f),
-            textStyle = TextStyle(textAlign = TextAlign.End)
+            textStyle = TextStyle(
+                textAlign = TextAlign.End,
+                fontSize = DpToSp(13.dp)
+            ),
+            color = textColor
         )
     }
 }

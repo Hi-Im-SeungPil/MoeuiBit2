@@ -127,7 +127,6 @@ fun OrderScreen(
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            Logger.e("22222 $isCoinOrderStarted")
             if (!isCoinOrderStarted.value) {
                 coinOrderScreenOnStart(market)
             }
@@ -226,6 +225,7 @@ fun ColumnScope.OrderBookSection(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val firstInit = remember { mutableStateOf(false) }
+
     LaunchedEffect(orderBookList.size == 30) {
         if (!firstInit.value && orderBookList.size == 30) {
             coroutineScope.launch {
@@ -235,6 +235,7 @@ fun ColumnScope.OrderBookSection(
             }
         }
     }
+
     LazyColumn(
         modifier = Modifier
             .weight(1f), state = listState
