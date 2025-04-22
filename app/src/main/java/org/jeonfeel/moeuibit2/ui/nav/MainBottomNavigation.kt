@@ -31,7 +31,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 
 enum class MainScreenState {
-    EXCHANGE, COIN_SITE, ADDITIONAL_FEATURES, PORTFOLIO, SETTING
+    EXCHANGE, COIN_INFO, ADDITIONAL_FEATURES, PORTFOLIO, SETTING
 }
 
 sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute: MainScreenState) {
@@ -39,12 +39,12 @@ sealed class MainBottomNavItem(var title: String, var icon: Int, var screenRoute
         MainBottomNavItem(menuTitleArray[0], R.drawable.img_exchange, MainScreenState.EXCHANGE)
 
     data object CoinSite :
-        MainBottomNavItem(menuTitleArray[1], R.drawable.img_internet, MainScreenState.COIN_SITE)
+        MainBottomNavItem(menuTitleArray[1], R.drawable.img_info, MainScreenState.COIN_INFO)
 
     data object AdditionalFeatures :
         MainBottomNavItem(
             menuTitleArray[2],
-            R.drawable.img_license,
+            R.drawable.img_spanner,
             MainScreenState.ADDITIONAL_FEATURES
         )
 

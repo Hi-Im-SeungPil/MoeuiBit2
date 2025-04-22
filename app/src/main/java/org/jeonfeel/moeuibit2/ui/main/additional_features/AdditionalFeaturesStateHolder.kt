@@ -27,7 +27,7 @@ class AdditionalFeaturesStateHolder {
 
     private val features = listOf(
         Triple(
-            R.drawable.img_btc,
+            R.drawable.img_calculator,
             "평단가 계산기"
         ) {
             _featureScreenState.value = FeatureScreenState.PURCHASE_PRICE_AVERAGE_CALCULATOR
