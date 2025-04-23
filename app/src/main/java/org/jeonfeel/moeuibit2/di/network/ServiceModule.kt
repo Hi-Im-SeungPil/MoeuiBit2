@@ -8,6 +8,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.service.AlternativeService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.BinanceService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.BitThumbService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.CoinCapIOService
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.GitJsonService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.USDService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.UpBitService
 import retrofit2.Retrofit
@@ -51,5 +52,11 @@ class ServiceModule {
     @Provides
     fun provideAlternativeService(@RetrofitModule.AlternativeRetrofit retrofit: Retrofit): AlternativeService {
         return retrofit.create(AlternativeService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideGitJsonService(@RetrofitModule.GitJsonRetrofit retrofit: Retrofit): GitJsonService {
+        return retrofit.create(GitJsonService::class.java)
     }
 }

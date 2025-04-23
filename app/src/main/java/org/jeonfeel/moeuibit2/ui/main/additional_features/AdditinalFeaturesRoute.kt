@@ -1,7 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.additional_features
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
@@ -10,8 +9,9 @@ import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 fun AdditionalFeaturesRoute(
     viewModel: AdditionalFeaturesViewModel = hiltViewModel(),
     popBackState: () -> Unit,
+    navigateToMiningInfo: ((type: String) -> Unit),
 ) {
-    val state = rememberAdditionalFeaturesStateHolder()
+    val state = rememberAdditionalFeaturesStateHolder(navigateToMiningInfo = navigateToMiningInfo)
 
     BackHandler {
         if (state.featuresUIState.value.featureScreenState.value == FeatureScreenState.FEATURE_SCREEN) {

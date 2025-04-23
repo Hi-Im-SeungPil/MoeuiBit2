@@ -13,13 +13,13 @@ import androidx.navigation.navArgument
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
 import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreenRoute
+import org.jeonfeel.moeuibit2.ui.mining.MiningScreenRoute
 import org.jeonfeel.moeuibit2.utils.Utils
 
 enum class AppScreen {
     HOME,
     COIN_DETAIL,
-    ADDITIONAL_FEATURES,
-    DOMINANCE_CHART
+    MINING_INFO
 }
 
 @Composable
@@ -72,14 +72,16 @@ fun AppNavGraph() {
         }
 
         composable(
-            "${AppScreen.DOMINANCE_CHART.name}/{title}/{symbol}",
+            "${AppScreen.MINING_INFO.name}/{type}",
             arguments = listOf(
-                navArgument("title") { type = NavType.StringType },
-                navArgument("symbol") { type = NavType.StringType }
+                navArgument("type") { type = NavType.StringType },
             )
         ) { backStackEntry ->
-            val title = backStackEntry.arguments?.getString("title") ?: ""
-            val symbol = backStackEntry.arguments?.getString("symbol") ?: ""
+            val type = backStackEntry.arguments?.getString("type") ?: ""
+            MiningScreenRoute(
+                type = type,
+                appNavController = appNavController
+            )
         }
     }
 }

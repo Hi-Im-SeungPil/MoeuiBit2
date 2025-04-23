@@ -4,10 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.jeonfeel.moeuibit2.data.network.retrofit.service.AlternativeService
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.AlternativeRepository
 import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
+import org.jeonfeel.moeuibit2.data.repository.network.GitJsonRepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
@@ -15,7 +15,8 @@ import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoUseCase
-import org.jeonfeel.moeuibit2.ui.main.coinsite.CoinMarketConditionUseCase
+import org.jeonfeel.moeuibit2.data.usecase.CoinMarketConditionUseCase
+import org.jeonfeel.moeuibit2.data.usecase.MiningUseCase
 import javax.inject.Singleton
 
 
@@ -85,8 +86,16 @@ class UseCaseModule {
     @Singleton
     @Provides
     fun provideCoinMarketConditionUseCase(
-        alternativeRepository: AlternativeRepository
+        alternativeRepository: AlternativeRepository,
     ): CoinMarketConditionUseCase {
         return CoinMarketConditionUseCase(alternativeRepository = alternativeRepository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideMiningUseCase(
+        gitJsonRepository: GitJsonRepository,
+    ): MiningUseCase {
+        return MiningUseCase(gitJsonRepository)
     }
 }

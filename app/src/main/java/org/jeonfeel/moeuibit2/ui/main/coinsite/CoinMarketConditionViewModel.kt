@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constants.KeyConst
+import org.jeonfeel.moeuibit2.data.usecase.CoinMarketConditionUseCase
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.ui.main.coinsite.ui_model.FearAndGreedyUIModel
 import javax.inject.Inject

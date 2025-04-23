@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.main.coinsite
+package org.jeonfeel.moeuibit2.data.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

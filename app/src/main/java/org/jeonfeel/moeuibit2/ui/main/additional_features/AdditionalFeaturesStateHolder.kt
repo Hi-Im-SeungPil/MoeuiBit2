@@ -17,7 +17,7 @@ data class AdditionalFeaturesUIState(
     val features: List<Triple<Int, String, () -> Unit>> = listOf(),
 )
 
-class AdditionalFeaturesStateHolder {
+class AdditionalFeaturesStateHolder(private val navigateToMiningInfo: ((type: String) -> Unit) = {}) {
     private val _featuresUIState = mutableStateOf(AdditionalFeaturesUIState())
     val featuresUIState: State<AdditionalFeaturesUIState> = _featuresUIState
 
@@ -26,6 +26,24 @@ class AdditionalFeaturesStateHolder {
     private val _topAppBarText = mutableStateOf("부가 기능")
 
     private val features = listOf(
+        Triple(
+            R.drawable.img_iphone,
+            "App 채굴 정보"
+        ) {
+            navigateToMiningInfo("App")
+        },
+        Triple(
+            R.drawable.img_grass,
+            "DePIN 채굴 정보"
+        ) {
+            navigateToMiningInfo("Depin")
+        },
+        Triple(
+            R.drawable.img_telegram,
+            "텔레그램 채굴 정보"
+        ) {
+            navigateToMiningInfo("tg")
+        },
         Triple(
             R.drawable.img_calculator,
             "평단가 계산기"
@@ -53,6 +71,6 @@ class AdditionalFeaturesStateHolder {
 }
 
 @Composable
-fun rememberAdditionalFeaturesStateHolder() = remember {
-    AdditionalFeaturesStateHolder()
+fun rememberAdditionalFeaturesStateHolder(navigateToMiningInfo: ((type: String) -> Unit) = {}) = remember {
+    AdditionalFeaturesStateHolder(navigateToMiningInfo = navigateToMiningInfo)
 }

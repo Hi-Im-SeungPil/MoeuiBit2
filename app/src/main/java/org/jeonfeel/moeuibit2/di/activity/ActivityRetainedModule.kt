@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.di
+package org.jeonfeel.moeuibit2.di.activity
 
 import dagger.Module
 import dagger.Provides

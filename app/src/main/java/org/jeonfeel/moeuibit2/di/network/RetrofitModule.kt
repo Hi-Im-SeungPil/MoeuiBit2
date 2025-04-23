@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.jeonfeel.moeuibit2.constants.ALTERNATIVE_BASE_URL
 import org.jeonfeel.moeuibit2.constants.COIN_CAP_IO_BASE_URL
+import org.jeonfeel.moeuibit2.constants.GIT_JSON_BASE_URL
 import org.jeonfeel.moeuibit2.constants.UPBIT_BASE_URL
 import org.jeonfeel.moeuibit2.constants.USD_BASE_URL
 import retrofit2.Retrofit
@@ -41,6 +42,10 @@ class RetrofitModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class AlternativeRetrofit
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class GitJsonRetrofit
 
     @Singleton
     @Provides
@@ -89,6 +94,19 @@ class RetrofitModule {
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(ALTERNATIVE_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(converterFactory)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    @GitJsonRetrofit
+    fun provideGitJsonRetrofit(
+        @OKHttpModule.RetrofitOKHttpClientNoConnectionPool okHttpClient: OkHttpClient,
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(GIT_JSON_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .build()

@@ -30,7 +30,10 @@ fun MainBottomNavGraph(
         }
 
         composable(MainBottomNavItem.AdditionalFeatures.screenRoute.name) {
-            AdditionalFeaturesRoute(popBackState = { bottomNavController.navigateUp() })
+            AdditionalFeaturesRoute(
+                popBackState = { bottomNavController.navigateUp() },
+                navigateToMiningInfo = { type -> appNavController.navigate("MINING_INFO/$type") }
+            )
         }
 
         composable(MainBottomNavItem.Portfolio.screenRoute.name) {

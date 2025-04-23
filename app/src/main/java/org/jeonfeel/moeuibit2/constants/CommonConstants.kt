@@ -49,6 +49,7 @@ const val bitthumbCoinNameUrl =
 const val USD_BASE_URL = "https://cdn.jsdelivr.net/"
 const val COIN_CAP_IO_BASE_URL = "https://api.coincap.io/"
 const val ALTERNATIVE_BASE_URL = "https://api.alternative.me/"
+const val GIT_JSON_BASE_URL = "https://raw.githubusercontent.com/"
 
 const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
 const val COIN_IMAGE_BASE_URL =

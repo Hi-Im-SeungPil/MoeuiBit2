@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -28,7 +27,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 @Composable
 fun AdditionalFeaturesScreen(
     featuresUIState: AdditionalFeaturesUIState,
-    backToFeaturesMain: () -> Unit
+    backToFeaturesMain: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(

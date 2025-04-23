@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.di
+package org.jeonfeel.moeuibit2.di.local
 
 import android.content.Context
 import androidx.room.Room
