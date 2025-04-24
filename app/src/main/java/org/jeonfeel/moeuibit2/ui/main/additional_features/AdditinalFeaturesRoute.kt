@@ -34,6 +34,8 @@ fun AdditionalFeaturesRoute(
         backToFeaturesMain = {
             state.resetTopAppBarText()
             state.updateScreenState(FeatureScreenState.FEATURE_SCREEN)
-        }
+        },
+        share = { state.dePINShare() },
+        copyURL = { state.copyDePINURL() }
     )
 }

@@ -28,6 +28,8 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 fun AdditionalFeaturesScreen(
     featuresUIState: AdditionalFeaturesUIState,
     backToFeaturesMain: () -> Unit,
+    share: () -> Unit = {},
+    copyURL: () -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -38,7 +40,11 @@ fun AdditionalFeaturesScreen(
 
         when (featuresUIState.featureScreenState.value) {
             FeatureScreenState.FEATURE_SCREEN -> {
-                FeaturesSection(features = featuresUIState.features)
+                FeaturesSection(
+                    features = featuresUIState.features,
+                    share = share,
+                    copyURL = copyURL
+                )
             }
 
             FeatureScreenState.PURCHASE_PRICE_AVERAGE_CALCULATOR -> {
@@ -52,7 +58,7 @@ fun AdditionalFeaturesScreen(
 private fun TopAppBar(
     featuresScreenState: FeatureScreenState,
     topAppBarText: String,
-    backToFeaturesMain: () -> Unit
+    backToFeaturesMain: () -> Unit,
 ) {
     Row(modifier = Modifier.background(commonBackground())) {
         if (featuresScreenState != FeatureScreenState.FEATURE_SCREEN) {
