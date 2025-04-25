@@ -85,6 +85,7 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.ui.main.exchange.sections.SelectTradeCurrencySection
 import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
@@ -105,7 +106,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
 import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
 import kotlin.reflect.KFunction1
 
@@ -260,71 +261,6 @@ private fun SearchSection(
                 }
             }
         })
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun SelectTradeCurrencySection(
-    tradeCurrencyState: State<Int>,
-    pagerState: PagerState,
-    tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
-    modifier: Modifier = Modifier,
-    changeTradeCurrency: (Int) -> Unit,
-    coroutineScope: CoroutineScope,
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    Box(modifier = Modifier.height(0.dp))
-    Row(
-        modifier.fillMaxWidth()
-    ) {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                    color = Color.Transparent
-                )
-            },
-            modifier = Modifier
-                .weight(3f),
-            backgroundColor = commonBackground(),
-            divider = {}
-        ) {
-            tabTitleList.forEachIndexed { index, title ->
-                Tab(
-                    interactionSource = object : MutableInteractionSource {
-                        override val interactions: Flow<Interaction> = emptyFlow()
-                        override suspend fun emit(interaction: Interaction) {}
-                        override fun tryEmit(interaction: Interaction) = true
-                    },
-                    text = {
-                        Text(
-                            text = title,
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                            ),
-                            fontSize = DpToSp(dp = 17.dp),
-                            modifier = Modifier.weight(1f)
-                        )
-                    },
-                    selectedContentColor = commonTextColor(),
-                    unselectedContentColor = Color(0xff8C939E),
-                    selected = tradeCurrencyState.value == index,
-                    onClick = {
-                        if (tradeCurrencyState.value != index && NetworkConnectivityObserver.isNetworkAvailable.value) {
-                            coroutineScope.launch {
-                                keyboardController?.hide()
-                                changeTradeCurrency(index)
-                            }
-                        }
-                    },
-                )
-            }
-        }
-        Spacer(modifier = Modifier.weight(1f))
-    }
 }
 
 @Composable
@@ -671,7 +607,7 @@ fun CoinTickerView(
                 ),
                 color = fluctuatePrice.getFluctuateColor()
             )
-            if (!market.isTradeCurrencyKrw()) {
+            if (!market.isKrwTradeCurrency()) {
                 AutoSizeText(
                     text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
@@ -702,7 +638,7 @@ fun CoinTickerView(
                 ),
                 color = commonTextColor()
             )
-            if (!market.isTradeCurrencyKrw()) {
+            if (!market.isKrwTradeCurrency()) {
                 AutoSizeText(
                     text = btcPriceMultiplyAcc,
                     textStyle = TextStyle(

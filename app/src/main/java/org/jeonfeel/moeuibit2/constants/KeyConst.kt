@@ -1,7 +1,7 @@
 package org.jeonfeel.moeuibit2.constants
 
 object KeyConst {
-    const val PREF_KEY_ROOT_EXCHANGE = "rootExchange"
+    const val PREF_KEY_EXCHANGE_STATE = "ExchangeState"
     const val PREF_KEY_THEME_MODE = "themeMode"
     const val PREF_KEY_COIN_SITE_KOREA_EXCHANGE_IS_OPEN = "coinSiteExchangeIsOpen"
     const val PREF_KEY_COIN_SITE_GLOBAL_EXCHANGE_IS_OPEN = "coinSiteGlobalExchangeIsOpen"

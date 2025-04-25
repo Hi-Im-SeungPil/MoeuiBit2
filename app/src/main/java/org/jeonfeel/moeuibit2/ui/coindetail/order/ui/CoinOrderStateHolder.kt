@@ -1,13 +1,11 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
@@ -15,27 +13,20 @@ import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForKRW
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.formatWithComma
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
-import org.jeonfeel.moeuibit2.utils.forthDecimal
 import org.jeonfeel.moeuibit2.utils.thirdDecimal
-import org.jetbrains.kotlin.gradle.utils.toSetOrEmpty
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.logging.Logger
-import kotlin.math.floor
 import kotlin.math.round
 
 enum class OrderTabState {
@@ -122,13 +113,13 @@ class CoinOrderStateHolder(
         return if (orderBookIndicationState == "quantity") {
             quantity.thirdDecimal()
         } else {
-            if (market.isTradeCurrencyKrw()) {
+            if (market.isKrwTradeCurrency()) {
                 commonExchangeModelState.value?.let {
-                    ((it.tradePrice.toDouble() * (quantity))).commaFormat()
+                    ((it.tradePrice.toDouble() * (quantity))).formatWithComma()
                 } ?: ""
             } else {
                 commonExchangeModelState.value?.let {
-                    ((it.tradePrice.toDouble() * (quantity)) * btcPrice.value.toDouble()).commaFormat()
+                    ((it.tradePrice.toDouble() * (quantity)) * btcPrice.value.toDouble()).formatWithComma()
                 } ?: ""
             }
         }
@@ -197,14 +188,14 @@ class CoinOrderStateHolder(
 
             var percentageResult = BigDecimal(percentageList[index].toString())
             if (percentageResult == BigDecimal.ONE) {
-                percentageResult = if (market.isTradeCurrencyKrw()) {
+                percentageResult = if (market.isKrwTradeCurrency()) {
                     percentageResult.minus(BigDecimal(KRW_COMMISSION_FEE))
                 } else {
                     percentageResult.minus(BigDecimal(BTC_COMMISSION_FEE))
                 }
             }
 
-            val seedMoney = if (market.isTradeCurrencyKrw()) {
+            val seedMoney = if (market.isKrwTradeCurrency()) {
                 userSeedMoney.value.toDouble().newBigDecimal(0)
                     .multiply(percentageResult)
                     .setScale(0, RoundingMode.FLOOR)
@@ -249,7 +240,7 @@ class CoinOrderStateHolder(
                     .newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
 
-            if (market.isTradeCurrencyKrw()) {
+            if (market.isKrwTradeCurrency()) {
                 totalPrice.formattedStringForKRW()
             } else {
                 totalPrice.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()
@@ -265,7 +256,7 @@ class CoinOrderStateHolder(
                 askQuantity.value.toDouble()
                     .newBigDecimal(8, RoundingMode.FLOOR)
                     .multiply(commonExchangeModelState.value!!.tradePrice)
-            if (market.isTradeCurrencyKrw()) {
+            if (market.isKrwTradeCurrency()) {
                 total.formattedString()
             } else {
                 total.setScale(8, RoundingMode.FLOOR).toDouble().eighthDecimal()

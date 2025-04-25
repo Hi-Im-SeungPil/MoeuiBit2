@@ -62,7 +62,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.formatWithComma
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -477,7 +477,7 @@ fun OrderTabUserSeedMoneySection(
                 AutoSizeText(
                     text = if (isBid) {
                         if (isKrw) {
-                            userSeedMoney?.value?.commaFormat() ?: "0"
+                            userSeedMoney?.value?.formatWithComma() ?: "0"
                         } else {
                             userBTC?.value?.quantity?.eighthDecimal() ?: "0"
                         }

@@ -12,7 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.MoeuiBitApp
-import org.jeonfeel.moeuibit2.ui.coindetail.CoinDetailScreenRoute
+import org.jeonfeel.moeuibit2.ui.coindetail.detail.CoinDetailScreenRoute
 import org.jeonfeel.moeuibit2.ui.mining.MiningScreenRoute
 import org.jeonfeel.moeuibit2.utils.Utils
 

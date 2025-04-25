@@ -1,9 +1,8 @@
 package org.jeonfeel.moeuibit2.utils
 
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -15,7 +14,7 @@ object BigDecimalMapper {
     private const val THOUSAND = 100_000_000L
     fun Double.newBigDecimal(rootExchange: String, market: String): BigDecimal {
         return when (rootExchange) {
-            ROOT_EXCHANGE_UPBIT -> {
+            EXCHANGE_UPBIT -> {
                 when {
                     market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
                         if (market.contains("USDT") || market.contains("USDC")) {
@@ -41,7 +40,7 @@ object BigDecimalMapper {
                 }
             }
 
-            ROOT_EXCHANGE_BITTHUMB -> {
+            EXCHANGE_BITTHUMB -> {
                 BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
             }
 

@@ -4,6 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import dagger.hilt.android.HiltAndroidApp
@@ -13,12 +16,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.ui.theme.ThemeManager
 import org.jeonfeel.moeuibit2.utils.manager.AppOpenAdManager
 import javax.inject.Inject
+
+object GlobalState {
+    private val _globalExchangeState = mutableStateOf(EXCHANGE_UPBIT)
+    val globalExchangeState: State<String> get() = _globalExchangeState
+
+    fun setExchangeState(newState: String) {
+        _globalExchangeState.value = newState
+    }
+}
 
 @HiltAndroidApp
 class MoeuiBitApp : Application() {
@@ -31,6 +44,7 @@ class MoeuiBitApp : Application() {
         super.onCreate()
         runBlocking {
             applyTheme()
+            initExchange()
             initAd()
         }
 
@@ -56,5 +70,14 @@ class MoeuiBitApp : Application() {
     private fun initAd() {
         appOpenAdManager = AppOpenAdManager()
         appOpenAdManager.initOpenAd(this)
+    }
+
+    private suspend fun initExchange() {
+        val exchangeState = preferencesManager.getString(KeyConst.PREF_KEY_EXCHANGE_STATE).first()
+        if (exchangeState.isEmpty()) {
+            GlobalState.setExchangeState(EXCHANGE_UPBIT)
+        } else {
+            GlobalState.setExchangeState(exchangeState)
+        }
     }
 }

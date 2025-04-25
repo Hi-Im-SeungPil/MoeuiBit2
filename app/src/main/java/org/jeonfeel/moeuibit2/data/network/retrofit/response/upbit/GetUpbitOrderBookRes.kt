@@ -3,9 +3,9 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
 @Keep
@@ -28,7 +28,7 @@ data class GetUpbitOrderBookRes(
             askList.add(
                 OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(
-                        rootExchange = ROOT_EXCHANGE_UPBIT,
+                        rootExchange = EXCHANGE_UPBIT,
                         market = market
                     ),
                     size = orderBookUnit.askSize,
@@ -38,7 +38,7 @@ data class GetUpbitOrderBookRes(
             bidList.add(
                 OrderBookModel(
                     price = orderBookUnit.bidPrice.newBigDecimal(
-                        rootExchange = ROOT_EXCHANGE_UPBIT,
+                        rootExchange = EXCHANGE_UPBIT,
                         market = market
                     ),
                     size = orderBookUnit.bidSize,

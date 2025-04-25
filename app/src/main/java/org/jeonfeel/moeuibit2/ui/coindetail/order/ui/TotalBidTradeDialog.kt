@@ -53,7 +53,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.formatWithComma
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
@@ -112,7 +112,7 @@ fun TotalBidTradeDialog(
                 )
                 Item(
                     text = "보유",
-                    value = if (isKrw) userSeedMoney.value.commaFormat() else userBTC.value.quantity.eighthDecimal(),
+                    value = if (isKrw) userSeedMoney.value.formatWithComma() else userBTC.value.quantity.eighthDecimal(),
                     symbol = if (isKrw) "KRW" else "BTC"
                 )
                 Item(

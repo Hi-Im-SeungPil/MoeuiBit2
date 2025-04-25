@@ -29,18 +29,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.bitthumbChartMinuteArray
 import org.jeonfeel.moeuibit2.constants.bitthumbChartMinuteStrArray
 import org.jeonfeel.moeuibit2.constants.chartMinuteArray
 import org.jeonfeel.moeuibit2.constants.chartMinuteStrArray
-import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.detail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.view.MBitCombinedChart
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.chartRefreshLoadMoreData
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.CommonLoadingDialog
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -189,7 +189,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                                 isUpdateChart = viewModel.chart.state.isUpdateChart,
                                 accData = viewModel.chart.accData,
                                 candlePosition = viewModel.chart.candlePosition,
-                                rootExchange = ROOT_EXCHANGE_UPBIT
+                                rootExchange = EXCHANGE_UPBIT
                             )
                         }
                     }
@@ -208,7 +208,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
             candleType = viewModel.chart.state.candleType,
             isChartLastData = viewModel.chart.state.isLastData,
             requestChartData = viewModel::requestChartData,
-            rootExchange = ROOT_EXCHANGE_UPBIT,
+            rootExchange = EXCHANGE_UPBIT,
             market = market,
             setLastPeriod = viewModel::setLastPeriod
         )
@@ -229,7 +229,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                         .align(Alignment.TopCenter)
                         .border(0.5.dp, color = commonTextColor())
                 ) {
-                    if (viewModel.rootExchange == ROOT_EXCHANGE_UPBIT) {
+                    if (viewModel.rootExchange == EXCHANGE_UPBIT) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
                                 isChartLastData = viewModel.chart.state.isLastData,
@@ -245,7 +245,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                                 setLastPeriod = viewModel::setLastPeriod
                             )
                         }
-                    } else if (viewModel.rootExchange == ROOT_EXCHANGE_BITTHUMB) {
+                    } else if (viewModel.rootExchange == EXCHANGE_BITTHUMB) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
                                 isChartLastData = viewModel.chart.state.isLastData,
@@ -315,7 +315,7 @@ private fun PeriodButtons(
             modifier = buttonModifier,
             selectedButton = selectedButton,
             candleType = candleType,
-            candleTypeValue = if (rootExchange == ROOT_EXCHANGE_UPBIT) "days" else "24h",
+            candleTypeValue = if (rootExchange == EXCHANGE_UPBIT) "days" else "24h",
             minuteVisibility,
             minuteText,
             buttonText = stringResource(id = R.string.day),
@@ -325,7 +325,7 @@ private fun PeriodButtons(
             market = market,
             setLastPeriod
         )
-        if (rootExchange != ROOT_EXCHANGE_BITTHUMB) {
+        if (rootExchange != EXCHANGE_BITTHUMB) {
             PeriodButton(
                 modifier = buttonModifier,
                 selectedButton = selectedButton,

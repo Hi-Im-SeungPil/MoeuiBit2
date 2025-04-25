@@ -69,7 +69,7 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 import java.math.BigDecimal
 
@@ -140,7 +140,7 @@ fun OrderScreen(
         dialogState = state.totalBidDialogState,
         userSeedMoney = userSeedMoney,
         userBTC = userBTC,
-        isKrw = market.isTradeCurrencyKrw(),
+        isKrw = market.isKrwTradeCurrency(),
         commonExchangeModelState = commonExchangeModelState,
         requestBid = requestBid
     )
@@ -148,7 +148,7 @@ fun OrderScreen(
     TotalAskTradeDialog(
         dialogState = state.totalAskDialogState,
         userCoin = userCoin,
-        isKrw = market.isTradeCurrencyKrw(),
+        isKrw = market.isKrwTradeCurrency(),
         commonExchangeModelState = commonExchangeModelState,
         requestAsk = requestAsk
     )
@@ -184,7 +184,7 @@ fun OrderScreen(
                 orderTabState = state.orderTabState,
                 userSeedMoney = userSeedMoney,
                 userBTC = userBTC,
-                isKrw = market.isTradeCurrencyKrw(),
+                isKrw = market.isKrwTradeCurrency(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
                 currentPrice = commonExchangeModelState.value?.tradePrice,
                 updateBidCoinQuantity = state::updateBidCoinQuantity,

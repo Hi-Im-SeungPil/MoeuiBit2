@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,15 +36,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.PLAY_STORE_URL
+import org.jeonfeel.moeuibit2.constants.UrlConst
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.NativeAdTemplateView
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogBackground
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDialogButtonsBackground
@@ -54,7 +50,6 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRejectTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
-import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.portfolioMainBackground
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.ext.showToast
@@ -394,6 +389,6 @@ private fun ADSection() {
 }
 
 private fun writeReviewAction(context: Context) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL))
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(UrlConst.PLAY_STORE_URL))
     context.startActivity(intent)
 }

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
+import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -75,7 +76,7 @@ class UpBitExchange @Inject constructor(
             updateLoadingState(true)
             clearTickerData()
             init()
-            android.os.Handler(Looper.getMainLooper()).postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 updateLoadingState(false)
             }, 500)
             useCaseOnStart()
@@ -86,7 +87,7 @@ class UpBitExchange @Inject constructor(
         upBitExchangeUseCase.onStop()
     }
 
-    fun tickerDataIsEmpty(): Boolean {
+    private fun tickerDataIsEmpty(): Boolean {
         return krwMarketCodeMap.isEmpty()
                 || btcMarketCodeMap.isEmpty()
                 || krwList.isEmpty()

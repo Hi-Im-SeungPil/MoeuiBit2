@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_CHART
 import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_COIN_INFO
 import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER
-import org.jeonfeel.moeuibit2.ui.coindetail.NewCoinDetailViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.detail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoRoute
 import org.jeonfeel.moeuibit2.ui.common.DpToSp

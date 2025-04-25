@@ -3,18 +3,10 @@ package org.jeonfeel.moeuibit2.data.network.websocket.model.upbit
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
-import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
-import org.jeonfeel.moeuibit2.utils.decimalPoint
-import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
-import kotlin.math.abs
 
 @Keep
 @Serializable
@@ -83,7 +75,7 @@ data class UpbitSocketTradeRes(
             symbol = code.substring(4),
             openingPrice = prevClosingPrice,
             tradePrice = tradePrice.newBigDecimal(
-                ExchangeViewModel.ROOT_EXCHANGE_UPBIT,
+                EXCHANGE_UPBIT,
                 market = code
             ),
             signedChangeRate = Calculator.orderBookRateCalculator(

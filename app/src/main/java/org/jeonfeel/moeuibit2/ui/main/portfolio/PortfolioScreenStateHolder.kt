@@ -14,7 +14,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringTo1000
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import org.jeonfeel.moeuibit2.utils.ext.showToast
@@ -53,13 +53,13 @@ class PortfolioScreenStateHolder(
                 marketState
             )
 
-        val valuationGainOrLoss = if (item.market.isTradeCurrencyKrw()) {
+        val valuationGainOrLoss = if (item.market.isKrwTradeCurrency()) {
             evaluationAmount - purchaseAmount
         } else {
             (evaluationAmount * btcTradePrice.value) - (item.myCoinsQuantity * purchaseAverage * purchaseAverageBtcPrice)
         }
 
-        val tradePrice = if (item.market.isTradeCurrencyKrw()) {
+        val tradePrice = if (item.market.isKrwTradeCurrency()) {
             CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(
@@ -68,7 +68,7 @@ class PortfolioScreenStateHolder(
             )
         }
 
-        val purchasePrice = if (item.market.isTradeCurrencyKrw()) {
+        val purchasePrice = if (item.market.isKrwTradeCurrency()) {
             CurrentCalculator.tradePriceCalculator(purchaseAverage, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(
@@ -77,14 +77,14 @@ class PortfolioScreenStateHolder(
             )
         }
 
-        val evaluationAmountFormat = if (item.market.isTradeCurrencyKrw()) {
+        val evaluationAmountFormat = if (item.market.isKrwTradeCurrency()) {
             Calculator.getDecimalFormat().format(evaluationAmount)
         } else {
             Calculator.getDecimalFormat().format(evaluationAmount * btcTradePrice.value)
         }
 
         val aReturn =
-            if (item.market.isTradeCurrencyKrw()) {
+            if (item.market.isKrwTradeCurrency()) {
                 val tempAReturn =
                     ((currentPrice - item.myCoinsBuyingAverage) / item.myCoinsBuyingAverage * 100)
                 if (tempAReturn.isNaN()) {
@@ -113,7 +113,7 @@ class PortfolioScreenStateHolder(
             name = item.myCoinEngName
         )
 
-        val purchaseAmountResult = if (item.market.isTradeCurrencyKrw()) {
+        val purchaseAmountResult = if (item.market.isKrwTradeCurrency()) {
             CurrentCalculator.tradePriceCalculator(purchaseAmount, SELECTED_KRW_MARKET)
         } else {
             CurrentCalculator.tradePriceCalculator(

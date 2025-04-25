@@ -7,19 +7,6 @@ import androidx.compose.ui.res.colorResource
 import org.jeonfeel.moeuibit2.R
 
 @Composable
-fun exchangeMarketButtonTextColor(selected: Boolean): Color {
-    return if (selected) {
-        if (!isSystemInDarkTheme()) {
-            colorResource(id = R.color.C0F0F5C)
-        } else {
-            Color(0xFF6E6EFA)
-        }
-    } else {
-        Color.LightGray
-    }
-}
-
-@Composable
 fun decreaseColor(): Color {
     return if (!isSystemInDarkTheme()) {
         Color.Blue
@@ -40,29 +27,11 @@ fun increaseColor(): Color {
 }
 
 @Composable
-fun sortButtonSelectedBackgroundColor(): Color {
-    return if (!isSystemInDarkTheme()) {
-        colorResource(id = R.color.C0F0F5C)
-    } else {
-        Color(0xFF6464FF)
-    }
-}
-
-@Composable
 fun lazyColumnItemUnderLineColor(): Color {
     return if (!isSystemInDarkTheme()) {
         Color.LightGray
     } else {
         Color(0xFF35363A)
-    }
-}
-
-@Composable
-fun bottomNavigatorSelectedColor(): Color {
-    return if (!isSystemInDarkTheme()) {
-        colorResource(id = R.color.C0F0F5C)
-    } else {
-        Color(0xFF6464FF)
     }
 }
 

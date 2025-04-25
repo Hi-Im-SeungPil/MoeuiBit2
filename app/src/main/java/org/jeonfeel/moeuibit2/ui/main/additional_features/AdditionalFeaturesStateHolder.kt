@@ -11,7 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.DEPIN_MINING_COLLECTION_URL
+import org.jeonfeel.moeuibit2.constants.UrlConst
 import org.jeonfeel.moeuibit2.utils.ext.showToast
 
 enum class FeatureScreenState {
@@ -43,7 +43,7 @@ class AdditionalFeaturesStateHolder(
         ) {
             val intent = Intent().apply {
                 action = Intent.ACTION_VIEW
-                data = Uri.parse(DEPIN_MINING_COLLECTION_URL)
+                data = Uri.parse(UrlConst.DEPIN_MINING_COLLECTION_URL)
             }
             context.startActivity(intent)
         },
@@ -89,7 +89,7 @@ class AdditionalFeaturesStateHolder(
             action = Intent.ACTION_SEND
             putExtra(
                 Intent.EXTRA_TEXT,
-                DEPIN_MINING_COLLECTION_URL
+                UrlConst.DEPIN_MINING_COLLECTION_URL
             )
             type = "text/plain"
         }
@@ -100,7 +100,7 @@ class AdditionalFeaturesStateHolder(
 
     fun copyDePINURL() {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText("simple text", DEPIN_MINING_COLLECTION_URL)
+        val clip: ClipData = ClipData.newPlainText("simple text", UrlConst.DEPIN_MINING_COLLECTION_URL)
         clipboard.setPrimaryClip(clip)
 
         context.showToast("주소가 클립보드에 복사되었습니다.")

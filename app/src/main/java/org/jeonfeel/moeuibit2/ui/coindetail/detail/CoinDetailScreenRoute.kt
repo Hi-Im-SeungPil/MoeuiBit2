@@ -1,10 +1,9 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.detail
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
-import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 
 @Composable
 fun CoinDetailScreenRoute(

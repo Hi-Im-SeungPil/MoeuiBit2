@@ -3,7 +3,6 @@ package org.jeonfeel.moeuibit2.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.gson.Gson
@@ -41,7 +40,7 @@ object Utils {
     }
 
     fun String.coinOrderIsKrwMarket(): String {
-        return when (this.isTradeCurrencyKrw()) {
+        return when (this.isKrwTradeCurrency()) {
             true -> {
                 this
             }
@@ -273,38 +272,6 @@ object Utils {
         }
 
         return keyList
-    }
-
-    fun bitthumbMarketToUpbitMarket(market: String): String {
-        val standard = market.indexOf("_")
-        val temp = market.substring(0, standard)
-        val temp2 = market.substring(standard + 1)
-//        Logger.e("$temp $temp2")
-        return "$temp2-$temp"
-    }
-
-    fun upbitMarketToBitthumbMarket(market: String): String {
-        val standard = market.indexOf("-")
-        val temp = market.substring(0, standard)
-        val temp2 = market.substring(standard + 1)
-        Logger.e("$temp $temp2")
-        return "${temp2}_$temp"
-    }
-
-    fun millisToUpbitFormat(millis: Long): String {
-        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = millis
-        return formatter.format(calendar.time)
-    }
-
-    fun upbitFormatToMillis(time: String): Long {
-
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-        val date: Date = dateFormat.parse(time)
-
-        // Date 객체의 time 속성을 이용해 밀리초로 변환
-        return date.time
     }
 
     private fun extractInitialConsonant(char: Char): Char {
