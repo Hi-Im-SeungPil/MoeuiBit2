@@ -28,6 +28,10 @@ class RetrofitModule {
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
+    annotation class BitThumbRetrofit
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
     annotation class UsdRetrofit
 
     @Qualifier
@@ -50,6 +54,19 @@ class RetrofitModule {
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(UrlConst.UPBIT_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(converterFactory)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    @BitThumbRetrofit
+    fun provideBitThumbRetrofit(
+        @OKHttpModule.RetrofitOkHttpClient okHttpClient: OkHttpClient,
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(UrlConst.BITTHUMB_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .build()

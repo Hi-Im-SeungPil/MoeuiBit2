@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BitThumbExchange
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBitExchange
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -40,6 +42,7 @@ class ExchangeViewModelState {
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val upBitExchange: UpBitExchange,
+    private val bitThumbExchange: BitThumbExchange,
     private val preferenceManager: PreferencesManager,
 ) : BaseViewModel(preferenceManager) {
 
@@ -59,17 +62,15 @@ class ExchangeViewModel @Inject constructor(
     private var marketChangeJob: Job? = null
 
     init {
-        when (exchangeState) {
-            EXCHANGE_UPBIT -> {
-                upBitExchange.initUpBit(
-                    tradeCurrencyState = tradeCurrencyState,
-                    isUpdateExchange = isUpdateExchange
-                )
-            }
+        upBitExchange.initUpBit(
+            tradeCurrencyState = tradeCurrencyState,
+            isUpdateExchange = isUpdateExchange
+        )
+    }
 
-            EXCHANGE_BITTHUMB -> {
-                // 빗썸 초기화
-            }
+    fun callTest() {
+        viewModelScope.launch {
+            bitThumbExchange.callTest()
         }
     }
 

@@ -34,6 +34,7 @@ fun ExchangeScreenRoute(
         onStartAction = {
             if (NetworkConnectivityObserver.isNetworkAvailable.value) {
                 if (!viewModel.isStarted) {
+                    viewModel.callTest()
                     viewModel.onStart()
                 }
             }

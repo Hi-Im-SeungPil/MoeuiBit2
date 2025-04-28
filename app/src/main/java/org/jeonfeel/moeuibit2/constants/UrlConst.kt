@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.constants
 
 object UrlConst {
     const val UPBIT_BASE_URL = "https://api.upbit.com/"
+    const val BITTHUMB_BASE_URL = "https://api.bithumb.com/"
     const val USD_BASE_URL = "https://cdn.jsdelivr.net/"
     const val COIN_CAP_IO_BASE_URL = "https://api.coincap.io/"
     const val ALTERNATIVE_BASE_URL = "https://api.alternative.me/"
