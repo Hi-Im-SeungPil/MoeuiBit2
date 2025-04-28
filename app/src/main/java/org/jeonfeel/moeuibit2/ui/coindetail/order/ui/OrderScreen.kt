@@ -93,7 +93,7 @@ fun OrderScreen(
     btcPrice: State<BigDecimal>,
     transactionInfoList: List<TransactionInfo>,
     getTransactionInfoList: (String) -> Unit,
-    isCoinOrderStarted: Boolean
+    isCoinOrderStarted: MutableState<Boolean>
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -113,7 +113,8 @@ fun OrderScreen(
         },
         onStartAction = {
             if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-                if (!isCoinOrderStarted) {
+                Logger.e("$isCoinOrderStarted")
+                if (!isCoinOrderStarted.value) {
                     coinOrderScreenOnStart(market)
                 }
             }
@@ -126,7 +127,7 @@ fun OrderScreen(
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            if (!isCoinOrderStarted) {
+            if (!isCoinOrderStarted.value) {
                 coinOrderScreenOnStart(market)
             }
         } else {
@@ -159,6 +160,7 @@ fun OrderScreen(
     ) {
         Column(Modifier.weight(4f)) {
             OrderBookSection(
+                market = market,
                 orderBookList = orderBookList,
                 getOrderBookItemFluctuateRate = state::getOrderBookItemFluctuateRate,
                 getOrderBookItemRate = state::getOrderBookItemRate,
@@ -218,10 +220,12 @@ fun ColumnScope.OrderBookSection(
     getOrderBookBlockSize: (Double) -> Float,
     isMatchTradePrice: (BigDecimal) -> Boolean,
     orderBookIndicationState: State<String>,
+    market: String,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val firstInit = remember { mutableStateOf(false) }
+
     LaunchedEffect(orderBookList.size == 30) {
         if (!firstInit.value && orderBookList.size == 30) {
             coroutineScope.launch {
@@ -231,13 +235,14 @@ fun ColumnScope.OrderBookSection(
             }
         }
     }
+
     LazyColumn(
         modifier = Modifier
             .weight(1f), state = listState
     ) {
         items(orderBookList.toList()) { orderBookModel ->
             OrderBookView(
-                price = orderBookModel.price.formattedString(),
+                price = orderBookModel.price.formattedString(market = market),
                 fluctuateRate = getOrderBookItemFluctuateRate(orderBookModel.price.toDouble()),
                 itemBackground = getOrderBookItemBackground(orderBookModel.kind),
                 itemTextColor = getOrderBookItemTextColor(getOrderBookItemRate(orderBookModel.price.toDouble())),

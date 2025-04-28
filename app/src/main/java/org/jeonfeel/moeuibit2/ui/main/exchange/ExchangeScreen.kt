@@ -500,7 +500,7 @@ private fun CoinTickerSection(
                 CoinTickerView(
                     name = item.koreanName,
                     symbol = item.symbol,
-                    lastPrice = item.tradePrice.formattedString(),
+                    lastPrice = item.tradePrice.formattedString(market = item.market),
                     fluctuateRate = item.signedChangeRate.toFloat(),
                     fluctuatePrice = item.signedChangePrice.toFloat(),
                     acc24h = item.accTradePrice24h.formattedUnitString(),
@@ -518,7 +518,7 @@ private fun CoinTickerSection(
                         val market = item.market
                         val warning = item.warning
                         val caution = Utils.gson.toJson(item.caution)
-                        appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$caution") {
+                        appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$caution") {
                             launchSingleTop = true
                             popUpTo(appNavController.graph.findStartDestination().id) {
                                 saveState = true

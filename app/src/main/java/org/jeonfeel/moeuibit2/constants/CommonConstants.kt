@@ -19,6 +19,7 @@ const val AD_ID_REWARD_FULL_SCREEN = "ca-app-pub-8481465476603755/3905762551"
 const val AD_ID_REWARD_VIDEO = "ca-app-pub-8481465476603755/3753512134"
 const val AD_ID_FULL_SCREEN = "ca-app-pub-8481465476603755/8814267120"
 const val AD_ID_OPENING = "ca-app-pub-8481465476603755/4153375494"
+const val AD_ID_NATIVE = "ca-app-pub-8481465476603755/9887286231"
 const val AD_ID_TEST = "ca-app-pub-3940256099942544/3419835294"
 
 const val SELECTED_KRW_MARKET = 0
@@ -46,8 +47,10 @@ const val bitthumbCoinNameUrl =
     "https://raw.githubusercontent.com/Hi-Im-SeungPil/BitthumbCoinName/main/bitthumb_coin_name.json"
 
 const val USD_BASE_URL = "https://cdn.jsdelivr.net/"
-
 const val COIN_CAP_IO_BASE_URL = "https://api.coincap.io/"
+const val ALTERNATIVE_BASE_URL = "https://api.alternative.me/"
+const val GIT_JSON_BASE_URL = "https://raw.githubusercontent.com/"
+const val DEPIN_MINING_COLLECTION_URL = "https://hail-umbra-75d.notion.site/Depin-1da927a3db45803d8bf8e4169085e9a5"
 
 const val PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=org.jeonfeel.moeuibit2"
 const val COIN_IMAGE_BASE_URL =
@@ -72,7 +75,7 @@ val chartMinuteArray = arrayOf("1", "3", "5", "10", "15", "30", "60", "240")
 val chartMinuteStrArray = arrayOf("1분", "3분", "5분", "10분", "15분", "30분", "60분", "240분")
 val bitthumbChartMinuteArray = arrayOf("1m", "3m", "5m", "10m", "30m", "1h", "6h", "12h")
 val bitthumbChartMinuteStrArray = arrayOf("1분", "3분", "5분", "10분", "30분", "60분", "6시간", "12시간")
-val menuTitleArray = arrayOf("거래소", "코인사이트", "투자내역", "설정")
+val menuTitleArray = arrayOf("거래소", "코인 정보", "유용한 기능", "투자내역", "설정")
 val movingAverageLineArray = arrayOf(5, 10, 20, 60, 120)
 val movingAverageLineColorArray =
     arrayOf("#B3FF36FF", "#B30000B7", "#B3DBC000", "#B3FF4848", "#B3BDBDBD")

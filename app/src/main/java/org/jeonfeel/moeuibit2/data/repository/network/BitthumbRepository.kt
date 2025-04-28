@@ -1,14 +1,6 @@
 package org.jeonfeel.moeuibit2.data.repository.network
 
-import com.google.gson.JsonObject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
-import org.jeonfeel.moeuibit2.data.network.retrofit.api.BitThumbService
-import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitthumbChartModel
-import org.jeonfeel.moeuibit2.utils.Utils
-import retrofit2.Response
+import org.jeonfeel.moeuibit2.data.network.retrofit.service.BitThumbService
 
 class BitthumbRepository(private val bitthumbService: BitThumbService) {
 //    /**

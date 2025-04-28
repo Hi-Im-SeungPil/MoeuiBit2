@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import org.jeonfeel.moeuibit2.ui.coindetail.order.OrderCalculator
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
@@ -112,7 +114,8 @@ fun OrderSection(
                     requestBid = requestBid,
                     dropdownLabelList = dropdownLabelList,
                     selectedText = bidSelectedText,
-                    totalBidDialogState = totalBidDialogState
+                    totalBidDialogState = totalBidDialogState,
+                    userCoin = userCoin,
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -160,6 +163,7 @@ fun BidSection(
     selectedText: String,
     userBTC: State<MyCoin>,
     totalBidDialogState: MutableState<Boolean>,
+    userCoin: State<MyCoin>,
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -169,7 +173,7 @@ fun BidSection(
             userBTC = userBTC,
             isBid = true
         )
-        OrderTabPriceSection(currentPrice = currentPrice?.formattedString() ?: "0")
+        OrderTabPriceSection(currentPrice = currentPrice?.formattedString(market = symbol) ?: "0")
         OrderTabQuantitySection(
             dropDownItemClickAction = updateBidCoinQuantity,
             quantity = bidQuantity,
@@ -184,6 +188,9 @@ fun BidSection(
             bidAskAction = requestBid,
             totalBidAskAction = { totalBidDialogState.value = true }
         )
+        if (!userCoin.value.isEmpty()) {
+            UserHoldCoinSection(myCoin = userCoin.value, currentPrice = currentPrice)
+        }
         Row(
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -242,7 +249,7 @@ fun AskSection(
             currentPrice = currentPrice,
             btcPrice = btcPrice
         )
-        OrderTabPriceSection(currentPrice?.formattedString() ?: "0")
+        OrderTabPriceSection(currentPrice?.formattedString(market = symbol) ?: "0")
         OrderTabQuantitySection(
             dropDownItemClickAction = updateAskCoinQuantity,
             quantity = askQuantity,
@@ -257,6 +264,9 @@ fun AskSection(
             bidAskAction = requestAsk,
             totalBidAskAction = { totalAskDialogState.value = true }
         )
+        if (!userCoin.value.isEmpty()) {
+            UserHoldCoinSection(userCoin.value, currentPrice = currentPrice)
+        }
         Row(
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -290,6 +300,95 @@ fun AskSection(
                 style = TextStyle(fontSize = DpToSp(13.dp), color = commonHintTextColor())
             )
         }
+    }
+}
+
+@Composable
+fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
+    val textColor = OrderCalculator.getTextColor(
+        purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
+        currentPrice = currentPrice ?: BigDecimal.ZERO
+    )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            color = commonDividerColor()
+        )
+
+        Text(
+            text = "보유자산",
+            modifier = Modifier.padding(top = 10.dp),
+            style = TextStyle(
+                fontSize = DpToSp(15.dp),
+                color = commonTextColor(),
+                fontWeight = FontWeight.W500
+            )
+        )
+
+        UserHoldCoinSectionItem(
+            title = "평균매수가",
+            value = myCoin.purchasePrice.toBigDecimal().formattedString(myCoin.market)
+        )
+
+        UserHoldCoinSectionItem(
+            title = "평가금액",
+            value = OrderCalculator.calculateTotalAmount(
+                quantity = myCoin.quantity,
+                price = currentPrice
+            )
+        )
+
+        UserHoldCoinSectionItem(
+            title = "평가손익",
+            value = OrderCalculator.calculatePNL(
+                quantity = myCoin.quantity,
+                purchaseAverage = myCoin.purchasePrice,
+                currentPrice = currentPrice ?: BigDecimal.ZERO
+            ),
+            textColor = textColor
+        )
+
+        UserHoldCoinSectionItem(
+            title = "수익률",
+            value = OrderCalculator.calculateProfitPercentage(
+                purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
+                currentPrice = currentPrice ?: BigDecimal.ZERO
+            ),
+            textColor = textColor
+        )
+
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            color = commonDividerColor()
+        )
+    }
+}
+
+@Composable
+fun UserHoldCoinSectionItem(title: String, value: String, textColor: Color = commonTextColor()) {
+    Row(modifier = Modifier.padding(top = 5.dp)) {
+        Text(
+            text = title,
+            style = TextStyle(
+                fontWeight = FontWeight.W500,
+                color = commonHintTextColor(),
+                fontSize = DpToSp(13.dp)
+            )
+        )
+        AutoSizeText(
+            text = value,
+            modifier = Modifier.weight(1f),
+            textStyle = TextStyle(
+                textAlign = TextAlign.End,
+                fontSize = DpToSp(13.dp)
+            ),
+            color = textColor
+        )
     }
 }
 
@@ -692,75 +791,66 @@ class NumberCommaTransformation : VisualTransformation {
         }
 
         try {
-            // 소숫점 분리
+            // 정수부와 소수부 분리 (소수점 자체도 고려)
             val parts = originalText.split(".")
-            val integerPart = parts[0].filter { it.isDigit() }
-            val decimalPart = if (parts.size > 1) {
-                parts[1].filter { it.isDigit() } // 소숫점 자리수 제한 제거
-            } else {
-                ""
+            val originalInteger = parts[0].filter { it.isDigit() }
+            val originalDecimal = if (parts.size > 1) parts[1].filter { it.isDigit() } else ""
+
+            if (originalInteger.isEmpty()) {
+                return TransformedText(AnnotatedString(originalText), OffsetMapping.Identity)
             }
 
-            // BigDecimal로 정수 부분 처리
-            val bigDecimal = BigDecimal(integerPart)
+            // 정수부 포맷팅 (콤마 삽입)
+            val bigDecimal = BigDecimal(originalInteger)
             val formatter = DecimalFormat("#,###", DecimalFormatSymbols(Locale.getDefault()))
             val formattedInteger = formatter.format(bigDecimal)
 
-            // 최종 결과 조합
-            val result = if (decimalPart.isNotEmpty()) {
-                "$formattedInteger.$decimalPart"
+            // 최종 결과 문자열: 소수점이 있었으면 소수부를 그대로 붙임 (소수부가 비어도 "."는 남김)
+            val result = if (parts.size > 1) {
+                "$formattedInteger.${originalDecimal}"
             } else {
                 formattedInteger
             }
 
-            // OffsetMapping 구현
+            // formattedInteger에서 각 숫자의 위치 목록 생성
+            val digitMapping = formattedInteger.withIndex()
+                .filter { it.value.isDigit() }
+                .map { it.index }
+
             val offsetMapping = object : OffsetMapping {
                 override fun originalToTransformed(offset: Int): Int {
-                    if (offset <= 0) return offset
-
-                    val originalLength = originalText.length
-                    val formattedLength = result.length
-
-                    if (offset >= originalLength) return formattedLength
-
-                    // 원본에서 변환된 위치 계산
-                    var commaCount = 0
-                    val digitsBefore = originalText.take(offset).count { it.isDigit() }
-                    var digitCount = 0
-
-                    for (i in result.indices) {
-                        if (result[i].isDigit()) {
-                            digitCount++
-                            if (digitCount == digitsBefore) {
-                                return i + 1
-                            }
-                        } else if (result[i] == ',') {
-                            commaCount++
+                    val intLen = originalInteger.length
+                    return when {
+                        // 원본의 정수부 영역: 각 자리의 오프셋을 digitMapping으로 반환
+                        offset < intLen -> digitMapping.getOrElse(offset) { formattedInteger.length }
+                        // 정수부 끝(소수점 위치)
+                        offset == intLen && parts.size > 1 -> formattedInteger.length
+                        // 소수부: 원본 소수부 오프셋을 그대로 더함 (앞에 정수부와 소수점 자리 고려)
+                        else -> {
+                            val decimalOffset = offset - intLen - 1
+                            formattedInteger.length + 1 + decimalOffset
                         }
                     }
-                    return offset + commaCount
                 }
 
                 override fun transformedToOriginal(offset: Int): Int {
-                    if (offset <= 0) return offset
-
-                    val formattedLength = result.length
-                    if (offset >= formattedLength) return originalText.length
-
-                    var digitCount = 0
-                    for (i in 0 until offset) {
-                        if (result[i].isDigit()) {
-                            digitCount++
-                        }
+                    return if (offset < formattedInteger.length) {
+                        // 정수부: offset이 digitMapping 내에서 몇 번째 숫자인지 찾음
+                        val digitIndex = digitMapping.indexOfFirst { it >= offset }
+                        if (digitIndex != -1) digitIndex else originalInteger.length - 1
+                    } else if (offset == formattedInteger.length && parts.size > 1) {
+                        // 소수점 위치
+                        originalInteger.length
+                    } else {
+                        // 소수부: 계산된 원본 오프셋
+                        val decimalOffset = offset - formattedInteger.length - 1
+                        // 원본의 오프셋 = 정수부 길이 + 1(소수점) + 소수부 오프셋
+                        (originalInteger.length + 1 + decimalOffset).coerceAtMost(originalText.length - 1)
                     }
-                    return digitCount
                 }
             }
 
-            return TransformedText(
-                AnnotatedString(result),
-                offsetMapping
-            )
+            return TransformedText(AnnotatedString(result), offsetMapping)
         } catch (e: Exception) {
             return TransformedText(text, OffsetMapping.Identity)
         }

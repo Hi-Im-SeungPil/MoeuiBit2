@@ -84,14 +84,11 @@ class NewCoinDetailViewModel @Inject constructor(
 
     private var _market = ""
 
-    var isStarted = false
-        private set
+    var isStarted = mutableStateOf(false)
 
-    var isChartStarted = false
-        private set
+    var isChartStarted = mutableStateOf(false)
 
-    var isCoinOrderStarted = false
-        private set
+    var isCoinOrderStarted = mutableStateOf(false)
 
     @Volatile
     var isInitSuccess = false
@@ -126,7 +123,7 @@ class NewCoinDetailViewModel @Inject constructor(
     fun onStart(market: String) {
         realTimeJob?.cancel()
         collectTickerJob?.cancel()
-        isStarted = true
+        isStarted.value = true
         viewModelScope.launch {
             requestLineChartCandleSticks(market)
         }
@@ -141,7 +138,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun onStop() {
-        isStarted = false
+        isStarted.value = false
         viewModelScope.launch {
             saveFavoriteStatus()
             upbitCoinDetailUseCase.onStop()
@@ -171,7 +168,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     fun coinOrderScreenOnStart(market: String) {
         orderBookRealTimeJob?.cancel()
-        isCoinOrderStarted = true
+        isCoinOrderStarted.value = true
 
         orderBookRealTimeJob = viewModelScope.launch {
             when (rootExchange) {
@@ -202,7 +199,7 @@ class NewCoinDetailViewModel @Inject constructor(
      * 코인 주문 화면 pause
      */
     fun coinOrderScreenOnStop() {
-        isCoinOrderStarted = false
+        isCoinOrderStarted.value = false
         viewModelScope.launch {
             upbitCoinOrder.onStop()
             orderBookRealTimeJob?.cancel()
@@ -449,7 +446,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun requestChartData(market: String) {
-        isChartStarted = true
+        isChartStarted.value = true
         chartRealTimeJob?.cancel()
         chartRealTimeJob = viewModelScope.launch {
             chart.refresh(market = market)
@@ -457,7 +454,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun stopRequestChartData() {
-        isChartStarted = false
+        isChartStarted.value = false
         chartRealTimeJob?.cancel()
     }
 

@@ -44,6 +44,7 @@ import org.jeonfeel.moeuibit2.constants.PLAY_STORE_URL
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.TwoButtonCommonDialog
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
+import org.jeonfeel.moeuibit2.ui.main.coinsite.secsions.NativeAdTemplateView
 import org.jeonfeel.moeuibit2.ui.theme.ThemeHelper
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
@@ -102,6 +103,7 @@ fun SettingScreen(viewModel: SettingViewModel = hiltViewModel()) {
                 .fillMaxWidth()
                 .height(1.dp), color = commonDividerColor()
         )
+
         Box(modifier = Modifier.fillMaxSize()) {
             SettingScreenLazyColumn(viewModel)
         }
@@ -161,6 +163,10 @@ fun SettingScreenLazyColumn(viewModel: SettingViewModel) {
             .background(color = commonBackground())
     ) {
         item {
+            ADSection()
+        }
+
+        item {
             SettingScreenLazyColumnItem(
                 imgId = R.drawable.img_write,
                 stringResource(id = R.string.write_review), clickAction = {
@@ -195,7 +201,7 @@ fun SettingScreenLazyColumn(viewModel: SettingViewModel) {
 }
 
 @Composable
-fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Unit) {
+private fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(10.dp, 20.dp, 10.dp, 0.dp)
@@ -223,7 +229,7 @@ fun SettingScreenLazyColumnItem(imgId: Int, text: String, clickAction: () -> Uni
 }
 
 @Composable
-fun ThemeSettingDialog(
+private fun ThemeSettingDialog(
     dismissRequest: () -> Unit,
     currentSettingTheme: ThemeHelper.ThemeMode,
     setTheme: (theme: ThemeHelper.ThemeMode) -> Unit,
@@ -311,7 +317,7 @@ fun ThemeSettingDialog(
 }
 
 @Composable
-fun ThemeSettingDialogItem(
+private fun ThemeSettingDialogItem(
     icon: Int,
     text: String,
     clickAction: () -> Unit,
@@ -365,7 +371,29 @@ fun ThemeSettingDialogItem(
     }
 }
 
-fun writeReviewAction(context: Context) {
+@Composable
+private fun ADSection() {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .padding(top = 20.dp)
+            .background(portfolioMainBackground(), shape = RoundedCornerShape(size = 10.dp))
+            .padding(15.dp)
+    ) {
+        androidx.compose.material3.Text(
+            text = "AD",
+            style = TextStyle(
+                fontSize = DpToSp(14.dp),
+                fontWeight = FontWeight.W500,
+                color = commonTextColor()
+            )
+        )
+
+        NativeAdTemplateView()
+    }
+}
+
+private fun writeReviewAction(context: Context) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URL))
     context.startActivity(intent)
 }

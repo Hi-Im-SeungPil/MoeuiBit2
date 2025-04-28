@@ -113,7 +113,7 @@ fun CoinDetailScreen(
         },
         onStartAction = {
             if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-                if (!viewModel.isStarted) {
+                if (!viewModel.isStarted.value) {
                     viewModel.onStart(market)
                 }
             }
@@ -125,7 +125,7 @@ fun CoinDetailScreen(
 
     LaunchedEffect(NetworkConnectivityObserver.isNetworkAvailable.value) {
         if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-            if (!viewModel.isStarted) {
+            if (!viewModel.isStarted.value) {
                 if (!viewModel.isInitSuccess) {
                     viewModel.init(market)
                 }

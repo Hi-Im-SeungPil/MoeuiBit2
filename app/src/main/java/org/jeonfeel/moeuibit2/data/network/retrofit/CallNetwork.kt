@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit
 
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
@@ -14,12 +15,14 @@ fun <T> networkCall(call: suspend () -> Response<T>): Flow<ApiResult<T>> {
                 if (response.isSuccessful) {
                     emit(ApiResult.success(data = response.body()))
                 } else {
+                    Logger.e(response.errorBody()?.string() ?: "")
                     emit(
                         ApiResult.error(null, response.errorBody()?.string() ?: "")
                     )
                 }
             },
             onFailure = { e ->
+                Logger.e(e?.message.toString() ?: "")
                 emit(ApiResult.error(e))
             }
         )

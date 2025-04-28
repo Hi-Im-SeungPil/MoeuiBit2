@@ -128,6 +128,7 @@ dependencies {
 
     // 광고
     implementation(libs.play.services.ads)
+    implementation(project(":nativetemplates"))
 
     // 뷰모델 및 라이프사이클 관련
     implementation(libs.lifecycle.viewmodel.ktx)
@@ -159,7 +160,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material3:material3-window-size-class:1.3.1")
-    implementation (libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.constraintlayout.compose)
     compileOnly(libs.compose.compiler.gradle.plugin)
 
     // 기타 유틸리티
@@ -195,6 +196,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.metadata.jvm)
     implementation(libs.balloon.compose)
+    implementation("com.tradingview:lightweightcharts:4.0.0")
 }
 
 protobuf {

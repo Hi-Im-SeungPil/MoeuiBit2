@@ -399,7 +399,7 @@ fun UserHoldCoinLazyColumnItem(
             val cautionJson = caution?.let {
                 Utils.gson.toJson(caution)
             } ?: " "
-            appNavController.navigate("${AppScreen.CoinDetail.name}/$market/$warning/$cautionJson") {
+            appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$cautionJson") {
                 launchSingleTop = true
                 popUpTo(appNavController.graph.findStartDestination().id) {
                     saveState = true
@@ -486,7 +486,7 @@ fun UserHoldCoinLazyColumnItem(
                             ROOT_EXCHANGE_UPBIT,
                             UPBIT_KRW_SYMBOL_PREFIX
                         )
-                            .formattedString(),
+                            .formattedString(market = market),
                         modifier = Modifier
                             .padding(start = 4.dp)
                             .fillMaxWidth()
