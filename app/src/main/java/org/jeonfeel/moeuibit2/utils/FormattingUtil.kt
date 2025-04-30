@@ -1,7 +1,7 @@
 package org.jeonfeel.moeuibit2.utils
 
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import java.text.DecimalFormat
 
 object DecimalFormats {
@@ -25,7 +25,7 @@ fun String.getKoreanPostPosition(): String {
  * Extension to detect if a symbol indicates a KRW trading currency.
  */
 fun String.isKrwTradeCurrency(): Boolean =
-    startsWith(UPBIT_KRW_SYMBOL_PREFIX) || !startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+    startsWith(KRW_SYMBOL_PREFIX) || !startsWith(BTC_SYMBOL_PREFIX)
 
 // -- Numeric formatting extensions --
 

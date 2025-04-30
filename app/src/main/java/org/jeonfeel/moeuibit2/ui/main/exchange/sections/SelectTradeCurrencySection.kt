@@ -59,6 +59,7 @@ fun SelectTradeCurrencySection(
     modifier: Modifier = Modifier,
     changeTradeCurrency: (Int) -> Unit,
     coroutineScope: CoroutineScope,
+    changeExchange: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -111,12 +112,14 @@ fun SelectTradeCurrencySection(
                 )
             }
         }
-        SelectExchangeSection()
+        SelectExchangeSection(
+            changeExchange = changeExchange
+        )
     }
 }
 
 @Composable
-fun RowScope.SelectExchangeSection() {
+fun RowScope.SelectExchangeSection(changeExchange: () -> Unit) {
     val image = when (GlobalState.globalExchangeState.value) {
         EXCHANGE_UPBIT -> R.drawable.img_upbit
         EXCHANGE_BITTHUMB -> R.drawable.img_bitthumb
@@ -137,6 +140,7 @@ fun RowScope.SelectExchangeSection() {
         initialExchange = GlobalState.globalExchangeState.value,
         onConfirm = { newExchange ->
             GlobalState.setExchangeState(newExchange)
+            changeExchange()
         }
     )
 

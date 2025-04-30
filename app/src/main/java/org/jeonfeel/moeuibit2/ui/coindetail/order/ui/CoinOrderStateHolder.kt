@@ -9,8 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import org.jeonfeel.moeuibit2.constants.BTC_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
@@ -178,11 +178,11 @@ class CoinOrderStateHolder(
 
     fun updateBidCoinQuantity(index: Int) {
         if (commonExchangeModelState.value != null) {
-            if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) && userSeedMoney.value == 0.0) {
+            if (market.startsWith(KRW_SYMBOL_PREFIX) && userSeedMoney.value == 0.0) {
                 return
             }
 
-            if (market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) && userBTC.value.quantity == 0.0) {
+            if (market.startsWith(BTC_SYMBOL_PREFIX) && userBTC.value.quantity == 0.0) {
                 return
             }
 
@@ -283,7 +283,7 @@ class CoinOrderStateHolder(
             val total =
                 BigDecimal(bidQuantity.value).multiply(commonExchangeModelState.value!!.tradePrice)
 
-            val totalPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+            val totalPrice = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                 total.setScale(0, RoundingMode.FLOOR)
             } else {
                 total.setScale(8, RoundingMode.FLOOR)
@@ -309,7 +309,7 @@ class CoinOrderStateHolder(
             }
 
             when {
-                market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                market.startsWith(KRW_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.minus(BigDecimal(10)) > (BigDecimal(userSeedMoney.value)) -> {
                             context.showToast("보유하신 KRW가 부족합니다.")
@@ -325,7 +325,7 @@ class CoinOrderStateHolder(
                     }
                 }
 
-                market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                market.startsWith(BTC_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.toDouble() > (userBTC.value.quantity.eighthDecimal()
                             .toDouble()) -> {
@@ -344,7 +344,7 @@ class CoinOrderStateHolder(
 
                 else -> {}
             }
-            val commission = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+            val commission = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                 BigDecimal(bidQuantity.value).multiply(BigDecimal(KRW_COMMISSION_FEE))
                     .setScale(8, RoundingMode.FLOOR)
             } else {
@@ -372,7 +372,7 @@ class CoinOrderStateHolder(
             val userAskQuantity =
                 askQuantity.value.toDouble().newBigDecimal(8, RoundingMode.FLOOR)
 
-            val tempPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+            val tempPrice = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                 userAskQuantity.multiply(commonExchangeModelState.value!!.tradePrice)
                     .setScale(0, RoundingMode.FLOOR)
             } else {
@@ -380,13 +380,13 @@ class CoinOrderStateHolder(
                     .setScale(8, RoundingMode.FLOOR)
             }
 
-            val commission = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+            val commission = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                 tempPrice.multiply(KRW_COMMISSION_FEE.newBigDecimal(4))
             } else {
                 tempPrice.multiply(BTC_COMMISSION_FEE.newBigDecimal(4))
             }
 
-            val totalPrice = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+            val totalPrice = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                 tempPrice.minus(commission).setScale(0, RoundingMode.FLOOR)
             } else {
                 tempPrice.minus(commission).setScale(8, RoundingMode.FLOOR)
@@ -417,7 +417,7 @@ class CoinOrderStateHolder(
             }
 
             when {
-                market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                market.startsWith(KRW_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.toDouble() < 5000 -> {
                             context.showToast("최소 매도 총액은 5000원 입니다.")
@@ -428,7 +428,7 @@ class CoinOrderStateHolder(
                     }
                 }
 
-                market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                market.startsWith(BTC_SYMBOL_PREFIX) -> {
                     when {
                         totalPrice.toDouble() < 0.00005 -> {
                             context.showToast("최소 매도 총액은 0.00005BTC 입니다.")

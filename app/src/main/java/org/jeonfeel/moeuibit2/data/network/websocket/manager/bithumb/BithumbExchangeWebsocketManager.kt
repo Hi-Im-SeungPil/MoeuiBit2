@@ -1,25 +1,28 @@
-package org.jeonfeel.moeuibit2.data.network.websocket.manager
+package org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb
 
-import com.orhanobut.logger.Logger
+import com.tradingview.lightweightcharts.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
+import io.ktor.http.Url
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
+import io.ktor.websocket.readText
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.Json
+import org.jeonfeel.moeuibit2.constants.UrlConst
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.WebSocketState
+import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class ExchangeWebsocketManager() {
+class BithumbExchangeWebsocketManager {
 
     private val client = HttpClient {
         install(WebSockets)
@@ -38,8 +41,8 @@ class ExchangeWebsocketManager() {
 
     private val socketState = AtomicReference(WebSocketState.DISCONNECTED)
 
-    private val _tickerFlow = MutableStateFlow<UpbitSocketTickerRes?>(null)
-    val tickerFlow: Flow<UpbitSocketTickerRes?> = _tickerFlow
+    private val _tickerFlow = MutableStateFlow<BithumbSocketTickerRes?>(null)
+    val tickerFlow: Flow<BithumbSocketTickerRes?> = _tickerFlow
 
     private val _showSnackBarState = MutableStateFlow(false)
     val showSnackBarState: Flow<Boolean> = _showSnackBarState
@@ -51,11 +54,8 @@ class ExchangeWebsocketManager() {
         socketState.set(WebSocketState.CONNECTING)
         try {
             client.webSocket(
-                method = HttpMethod.Get,
-                host = "api.upbit.com",
-                path = "/websocket/v1"
+                urlString = "wss://ws-api.bithumb.com/websocket/v1"
             ) {
-                println("WebSocket 연결 성공!")
                 session = this
                 receiveChannel = this.incoming
                 socketState.set(WebSocketState.CONNECTED)
@@ -67,13 +67,11 @@ class ExchangeWebsocketManager() {
                 for (frame in receiveChannel!!) {
                     when (frame) {
                         is Frame.Text -> {
-
                         }
 
                         is Frame.Binary -> {
                             val receivedMessage =
-                                Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-//                            Logger.e(receivedMessage.code)
+                                Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
                             _tickerFlow.emit(receivedMessage)
                         }
 
@@ -82,7 +80,8 @@ class ExchangeWebsocketManager() {
                 }
             }
         } catch (e: Exception) {
-            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
+            e.printStackTrace()
+
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {
@@ -107,7 +106,7 @@ class ExchangeWebsocketManager() {
 
                     is Frame.Binary -> {
                         val receivedMessage =
-                            Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                            Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
                         _tickerFlow.emit(receivedMessage)
                     }
 
@@ -127,19 +126,15 @@ class ExchangeWebsocketManager() {
         val message = upbitTickerWebSocketMessage(marketCodes)
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
-                println("메시지 전송 성공: $marketCodes")
                 isCancel = false
                 session!!.send(Frame.Text(message))
             } else {
-                println("WebSocket이 연결되지 않았습니다.")
                 disConnectionSocket()
                 if (!isCancel && !isBackGround) {
                     retry(marketCodes)
                 }
             }
         } catch (e: Exception) {
-            // 소켓 연결부터 다시
-            println("send message 오류")
             disConnectionSocket()
             if (!isCancel && !isBackGround) {
                 retry(marketCodes)
@@ -156,10 +151,9 @@ class ExchangeWebsocketManager() {
             try {
                 client.webSocket(
                     method = HttpMethod.Get,
-                    host = "api.upbit.com",
-                    path = "/websocket/v1"
+                    host = UrlConst.BITHUMB_SOCKET_BASE_URL,
+                    path = UrlConst.BITHUMB_SOCKET_PATH
                 ) {
-                    println("WebSocket 연결 성공!")
                     session = this
                     receiveChannel = this.incoming
                     socketState.set(WebSocketState.CONNECTED)
@@ -182,7 +176,7 @@ class ExchangeWebsocketManager() {
 
                             is Frame.Binary -> {
                                 val receivedMessage =
-                                    Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+                                    Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
                                 _tickerFlow.emit(receivedMessage)
                             }
 
@@ -195,7 +189,6 @@ class ExchangeWebsocketManager() {
                 if (isCancel || isBackGround) {
                     return
                 }
-                println("catch")
 
                 disConnectionSocket()
                 delay(3000L)

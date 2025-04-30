@@ -34,8 +34,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
@@ -501,7 +501,7 @@ fun bidConditionCheck(
     }
 
     when {
-        (commonExchangeModelState.value?.market ?: "").startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+        (commonExchangeModelState.value?.market ?: "").startsWith(KRW_SYMBOL_PREFIX) -> {
             when {
                 totalPrice > (round(userSeedMoney.value)) -> {
                     context.showToast("보유하신 KRW가 부족합니다.")
@@ -517,7 +517,7 @@ fun bidConditionCheck(
             }
         }
 
-        (commonExchangeModelState.value?.market ?: "").startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+        (commonExchangeModelState.value?.market ?: "").startsWith(BTC_SYMBOL_PREFIX) -> {
             when {
                 totalPrice > ( userBTC.value.quantity.eighthDecimal().toDouble()) -> {
                     context.showToast("보유하신 BTC가 부족합니다.")

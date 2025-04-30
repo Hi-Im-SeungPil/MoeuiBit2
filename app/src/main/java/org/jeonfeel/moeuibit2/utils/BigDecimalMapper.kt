@@ -2,7 +2,7 @@ package org.jeonfeel.moeuibit2.utils
 
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -16,7 +16,7 @@ object BigDecimalMapper {
         return when (rootExchange) {
             EXCHANGE_UPBIT -> {
                 when {
-                    market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                    market.startsWith(KRW_SYMBOL_PREFIX) -> {
                         if (market.contains("USDT") || market.contains("USDC")) {
                             BigDecimal(this).setScale(1, RoundingMode.HALF_UP)
                         } else {

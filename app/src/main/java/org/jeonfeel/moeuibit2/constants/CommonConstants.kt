@@ -12,8 +12,8 @@ val defaultDispatcher = Dispatchers.Default
 const val KRW_COMMISSION_FEE = 0.0005
 const val BTC_COMMISSION_FEE = 0.0025
 
-const val UPBIT_KRW_SYMBOL_PREFIX = "KRW-"
-const val UPBIT_BTC_SYMBOL_PREFIX = "BTC-"
+const val KRW_SYMBOL_PREFIX = "KRW-"
+const val BTC_SYMBOL_PREFIX = "BTC-"
 
 const val ROOM_DATABASE_NAME = "MoeuiBitDatabase"
 const val PREFRENCE_NAME = "MoeuiBitPrefrence"

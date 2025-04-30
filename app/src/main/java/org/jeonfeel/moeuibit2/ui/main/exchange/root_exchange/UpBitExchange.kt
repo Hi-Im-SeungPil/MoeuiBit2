@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.collectLatest
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -143,7 +143,7 @@ class UpBitExchange @Inject constructor(
 
             newModels.forEach { commonExchangeModel ->
                 val market = commonExchangeModel.market
-                val model = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                val model = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                     val position = krwExchangeModelPosition[market]
                     position?.let {
                         _krwExchangeModelList[position]
@@ -469,7 +469,7 @@ class UpBitExchange @Inject constructor(
             favoriteList.forEachIndexed { index, market ->
 
                 val (positionMap, exchangeModelList) =
-                    if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                    if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                         krwExchangeModelPosition to _krwExchangeModelList
                     } else {
                         btcExchangeModelPosition to _btcExchangeModelList
@@ -561,7 +561,7 @@ class UpBitExchange @Inject constructor(
                             positionMap = favoriteModelPosition
                             targetModelList = _favoriteExchangeModelList
                             upbitMarketCodeMap =
-                                if (upbitSocketTickerRes.code.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                                if (upbitSocketTickerRes.code.startsWith(KRW_SYMBOL_PREFIX)) {
                                     krwMarketCodeMap
                                 } else {
                                     btcMarketCodeMap

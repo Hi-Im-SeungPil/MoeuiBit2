@@ -1,13 +1,13 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
 import kotlinx.coroutines.flow.Flow
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.ExchangeWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.ExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
@@ -64,9 +64,8 @@ class UpBitExchangeUseCase @Inject constructor(
                 var krwIndex = 0
                 var btcIndex = 0
                 result.forEachIndexed loop@{ index, ticker ->
-
                     when {
-                        ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                        ticker.market.startsWith(KRW_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =
                                 ticker.mapTo(krwUpbitMarketCodeMap[ticker.market]!!)
                             krwExchangeModelList.add(commonExchangeModel)
@@ -77,7 +76,7 @@ class UpBitExchangeUseCase @Inject constructor(
                             )
                         }
 
-                        ticker.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                        ticker.market.startsWith(BTC_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =
                                 ticker.mapTo(btcUpbitMarketCodeMap[ticker.market]!!)
                             btcExchangeModelList.add(commonExchangeModel)
@@ -107,13 +106,13 @@ class UpBitExchangeUseCase @Inject constructor(
                     if (ticker.tradePrice == 0.0) return@loop
 
                     when {
-                        ticker.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                        ticker.market.startsWith(KRW_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =
                                 ticker.mapTo(krwUpbitMarketCodeMap[ticker.market]!!)
                             exchangeModelList.add(commonExchangeModel)
                         }
 
-                        ticker.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX) -> {
+                        ticker.market.startsWith(BTC_SYMBOL_PREFIX) -> {
                             val commonExchangeModel =
                                 ticker.mapTo(btcUpbitMarketCodeMap[ticker.market]!!)
                             exchangeModelList.add(commonExchangeModel)

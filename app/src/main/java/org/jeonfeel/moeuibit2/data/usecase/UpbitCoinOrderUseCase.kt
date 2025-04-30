@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
@@ -11,16 +10,13 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.local.room.entity.User
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitOrderBookReq
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.OrderBookWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.OrderBookWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
-import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 import kotlin.math.abs
 

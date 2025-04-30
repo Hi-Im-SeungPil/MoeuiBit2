@@ -55,8 +55,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText2
@@ -425,7 +425,7 @@ fun UserHoldCoinLazyColumnItem(
                     .align(Alignment.CenterVertically)
             ) {
                 Row {
-                    if (market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)) {
+                    if (market.startsWith(BTC_SYMBOL_PREFIX)) {
                         Text(
                             text = "BTC",
                             modifier = Modifier
@@ -475,7 +475,7 @@ fun UserHoldCoinLazyColumnItem(
                     AutoSizeText(
                         text = currentPrice.newBigDecimal(
                             EXCHANGE_UPBIT,
-                            UPBIT_KRW_SYMBOL_PREFIX
+                            KRW_SYMBOL_PREFIX
                         )
                             .formattedString(market = market),
                         modifier = Modifier

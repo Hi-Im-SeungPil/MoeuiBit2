@@ -3,7 +3,7 @@ package org.jeonfeel.moeuibit2.utils
 import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -34,10 +34,10 @@ object NewBigDecimalMapper {
         val bd = BigDecimal(this)
         return when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> when {
-                market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) && !market.containsAny("USDT", "USDC") ->
+                market.startsWith(KRW_SYMBOL_PREFIX) && !market.containsAny("USDT", "USDC") ->
                     bd.applyScale(this, upbitKrwRules)
 
-                market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) ->
+                market.startsWith(KRW_SYMBOL_PREFIX) ->
                     bd.setScale(1, RoundingMode.HALF_UP)
 
                 else ->

@@ -66,7 +66,7 @@ class RetrofitModule {
         @OKHttpModule.RetrofitOkHttpClient okHttpClient: OkHttpClient,
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(UrlConst.BITTHUMB_BASE_URL)
+            .baseUrl(UrlConst.BITHUMB_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(converterFactory)
             .build()

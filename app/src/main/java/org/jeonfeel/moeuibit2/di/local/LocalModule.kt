@@ -13,6 +13,7 @@ import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATI
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
+import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_1_2
 import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_3_4
 import org.jeonfeel.moeuibit2.data.local.room.MoeuiBitDatabase.Companion.MIGRATION_4_5
 import javax.inject.Singleton
@@ -21,9 +22,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class LocalModule {
 
-    /**
-     * 데이터 베이스 (ROOM)
-     */
     @Singleton
     @Provides
     fun provideAppDatabase(@ApplicationContext context: Context): MoeuiBitDatabase {
@@ -33,7 +31,7 @@ class LocalModule {
             ROOM_DATABASE_NAME
         )
             .addMigrations(
-                MoeuiBitDatabase.MIGRATION_1_2,
+                MIGRATION_1_2,
                 MIGRATION_2_3,
                 MIGRATION_3_4,
                 MIGRATION_4_5

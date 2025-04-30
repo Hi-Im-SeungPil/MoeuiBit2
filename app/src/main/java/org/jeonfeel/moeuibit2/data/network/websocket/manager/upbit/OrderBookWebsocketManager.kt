@@ -1,6 +1,5 @@
-package org.jeonfeel.moeuibit2.data.network.websocket.manager
+package org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit
 
-import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket

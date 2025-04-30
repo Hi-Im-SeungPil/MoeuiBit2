@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewModelScope
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.defaultDispatcher
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
@@ -369,7 +368,7 @@ class PortfolioViewModel @Inject constructor(
                     onSuccess = {
                         userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
                         _totalValuedAssets.value = userHoldCoinDtoList.value.sumOf {
-                            if (it.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                            if (it.market.startsWith(KRW_SYMBOL_PREFIX)) {
                                 it.currentPrice.toBigDecimal()
                                     .multiply(it.myCoinsQuantity.toBigDecimal())
                             } else {
@@ -617,7 +616,7 @@ class PortfolioViewModel @Inject constructor(
                 onSuccess = {
                     userHoldCoinDtoList.value = _userHoldCoinDtoList.toList()
                     _totalValuedAssets.value = userHoldCoinDtoList.value.sumOf {
-                        if (it.market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                        if (it.market.startsWith(KRW_SYMBOL_PREFIX)) {
                             it.currentPrice.toBigDecimal()
                                 .multiply(it.myCoinsQuantity.toBigDecimal())
                         } else {

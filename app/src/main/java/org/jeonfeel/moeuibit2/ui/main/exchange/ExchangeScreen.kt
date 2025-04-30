@@ -8,8 +8,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,9 +28,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -53,7 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,12 +60,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
@@ -101,7 +90,6 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
-import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
@@ -126,6 +114,7 @@ fun ExchangeScreen(
     updateSortOrder: KFunction1<SortOrder, Unit>,
     textFieldValueState: State<String>,
     updateTextFieldValue: KFunction1<String, Unit>,
+    changeExchange: () -> Unit,
 ) {
     val stateHolder = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
@@ -162,7 +151,8 @@ fun ExchangeScreen(
                         .zIndex(1f),
                     tradeCurrencyState = tradeCurrencyState,
                     changeTradeCurrency = stateHolder::changeTradeCurrencyAction,
-                    coroutineScope = stateHolder.coroutineScope
+                    coroutineScope = stateHolder.coroutineScope,
+                    changeExchange = changeExchange
                 )
             },
             modifier = Modifier

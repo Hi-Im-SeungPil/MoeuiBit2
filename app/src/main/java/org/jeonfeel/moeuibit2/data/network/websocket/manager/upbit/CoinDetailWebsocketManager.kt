@@ -1,6 +1,5 @@
-package org.jeonfeel.moeuibit2.data.network.websocket.manager
+package org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit
 
-import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -12,18 +11,14 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-enum class WebSocketState {
-    CONNECTED, CONNECTING, DISCONNECTED
-}
+class CoinDetailWebsocketManager {
 
-class PortfolioWebsocketManager {
     private val client = HttpClient {
         install(WebSockets)
     }
@@ -76,6 +71,7 @@ class PortfolioWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
+//                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 
@@ -222,4 +218,5 @@ class PortfolioWebsocketManager {
     fun getIsSocketConnected(): Boolean {
         return session != null && socketState.get() == WebSocketState.CONNECTED
     }
+
 }

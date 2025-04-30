@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
@@ -157,7 +157,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 userSeedBTC = _userBtcCoin.value.quantity,
                 btcPrice = btcPrice
             )
-            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
+            getUserBtcCoin(market = BTC_SYMBOL_PREFIX)
             getUserCoin(market)
         }
     }
@@ -198,7 +198,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 currentPrice = coinPrice,
                 btcPrice = btcPrice
             )
-            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
+            getUserBtcCoin(market = BTC_SYMBOL_PREFIX)
         }
         _userCoin.value = updateUserCoin
     }

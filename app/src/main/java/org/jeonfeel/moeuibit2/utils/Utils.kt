@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.orhanobut.logger.Logger
 import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.*
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -18,11 +17,9 @@ import org.jeonfeel.moeuibit2.ui.theme.decreaseColor
 import org.jeonfeel.moeuibit2.ui.theme.increaseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import java.math.BigDecimal
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 object Utils {
     val gson = Gson()
@@ -115,8 +112,8 @@ object Utils {
     }
 
     fun divideKrwResBtcRes(list: List<UpbitMarketCodeRes>): Pair<List<UpbitMarketCodeRes>, List<UpbitMarketCodeRes>> {
-        val krwList = list.filter { it.market.contains(UPBIT_KRW_SYMBOL_PREFIX) }.toList()
-        val btcList = list.filter { it.market.contains(UPBIT_BTC_SYMBOL_PREFIX) }.toList()
+        val krwList = list.filter { it.market.contains(KRW_SYMBOL_PREFIX) }.toList()
+        val btcList = list.filter { it.market.contains(BTC_SYMBOL_PREFIX) }.toList()
         return Pair(krwList, btcList)
     }
 
@@ -154,7 +151,7 @@ object Utils {
                     SortOrder.DESCENDING -> {
                         tickerList.sortedByDescending {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.tradePrice * btcPrice
                             } else {
@@ -166,7 +163,7 @@ object Utils {
                     SortOrder.ASCENDING -> {
                         tickerList.sortedBy {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.tradePrice * btcPrice
                             } else {
@@ -178,7 +175,7 @@ object Utils {
                     SortOrder.NONE -> {
                         tickerList.sortedByDescending {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.accTradePrice24h * btcPrice
                             } else {
@@ -202,7 +199,7 @@ object Utils {
                     SortOrder.NONE -> {
                         tickerList.sortedByDescending {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.accTradePrice24h * btcPrice
                             } else {
@@ -218,7 +215,7 @@ object Utils {
                     SortOrder.DESCENDING -> {
                         tickerList.sortedByDescending {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.accTradePrice24h * btcPrice
                             } else {
@@ -230,7 +227,7 @@ object Utils {
                     SortOrder.ASCENDING -> {
                         tickerList.sortedBy {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.accTradePrice24h * btcPrice
                             } else {
@@ -242,7 +239,7 @@ object Utils {
                     SortOrder.NONE -> {
                         tickerList.sortedByDescending {
                             if (btcPrice != null
-                                && it.market.startsWith(UPBIT_BTC_SYMBOL_PREFIX)
+                                && it.market.startsWith(BTC_SYMBOL_PREFIX)
                             ) {
                                 it.accTradePrice24h * btcPrice
                             } else {

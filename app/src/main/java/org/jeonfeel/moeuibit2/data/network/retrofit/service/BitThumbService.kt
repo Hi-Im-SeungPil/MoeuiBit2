@@ -8,8 +8,8 @@ import retrofit2.http.Query
 
 interface BitThumbService {
     @GET("v1/market/all")
-    suspend fun getMarketList(@Query("isDetails") isDetails: Boolean = true): Response<List<BitThumbMarketCodeRes>>
+    suspend fun fetchBitThumbMarketCodeList(@Query("isDetails") isDetails: Boolean = true): Response<List<BitThumbMarketCodeRes>>
 
-    @GET("ticker")
-    suspend fun getMarketTicker(@Query("markets") markets: String): Response<List<BitThumbTickerRes>>
+    @GET("v1/ticker")
+    suspend fun fetchBitThumbTicker(@Query("markets") markets: String): Response<List<BitThumbTickerRes>>
 }
