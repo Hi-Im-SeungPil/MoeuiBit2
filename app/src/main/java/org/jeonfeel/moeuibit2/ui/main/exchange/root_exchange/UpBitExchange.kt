@@ -112,8 +112,8 @@ class UpBitExchange @Inject constructor(
         _favoriteExchangeModelList.clear()
     }
 
-    suspend fun exchangeCollectTicker() {
-        collectTicker()
+    suspend fun collectCoinTicker() {
+        this.collectTicker()
     }
 
     private suspend fun favoriteOnResume() {
@@ -509,12 +509,13 @@ class UpBitExchange @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
-        upBitExchangeUseCase.observeTickerResponse().collectLatest { upbitSocketTickerRes ->
+        upBitExchangeUseCase.observeTickerResponse().collect { upbitSocketTickerRes ->
             try {
-                if (isUpdateExchange?.value == false) return@collectLatest
+                if (isUpdateExchange?.value == false) return@collect
 
-                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
+                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collect
 
+                Logger.e(upbitSocketTickerRes.code)
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
                 var targetModelList: MutableList<CommonExchangeModel>? = null

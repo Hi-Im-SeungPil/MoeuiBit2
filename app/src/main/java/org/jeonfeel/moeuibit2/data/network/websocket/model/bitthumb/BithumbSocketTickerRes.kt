@@ -111,7 +111,7 @@ data class BithumbSocketTickerRes(
     val marketWarning: String = "NONE",
 
     @SerialName("delisting_date")
-    val delistingDate: DeListingDate? = null,
+    val delistingDate: String? = null,
 ) {
     @Keep
     @Serializable

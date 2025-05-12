@@ -1,14 +1,12 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb
 
-import com.tradingview.lightweightcharts.Logger
+import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.http.HttpMethod
-import io.ktor.http.Url
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
-import io.ktor.websocket.readText
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
@@ -70,6 +68,7 @@ class BithumbExchangeWebsocketManager {
                         }
 
                         is Frame.Binary -> {
+                            Logger.e(frame.data.decodeToString())
                             val receivedMessage =
                                 Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
                             _tickerFlow.emit(receivedMessage)

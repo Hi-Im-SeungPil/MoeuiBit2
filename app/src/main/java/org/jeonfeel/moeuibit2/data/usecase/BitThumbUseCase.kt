@@ -10,6 +10,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbMarke
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbTickerGroupedRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BithumbExchangeWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
@@ -38,9 +39,13 @@ class BitThumbUseCase(
         bithumbExchangeWebsocketManager.onStop()
     }
 
-    suspend fun observeTickerResponse(): Flow<Unit> {
+    suspend fun observeTickerResponse(): Flow<ResultState<BithumbSocketTickerRes>> {
         return bithumbExchangeWebsocketManager.tickerFlow.map { res ->
-            Logger.e(res.toString())
+            if (res != null) {
+                ResultState.Success(res)
+            } else {
+                ResultState.Error("Socket Error")
+            }
         }
     }
 

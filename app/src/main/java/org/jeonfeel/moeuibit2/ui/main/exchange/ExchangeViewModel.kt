@@ -72,8 +72,7 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun onStart() {
-        realTimeUpdateJob?.cancel()
-        collectTickerJob?.cancel()
+        onStop()
         isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
@@ -85,7 +84,9 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    bitThumbExchange.onStart()
+                    bitThumbExchange.onStart(
+                        updateLoadingState = ::updateLoadingState
+                    )
                 }
             }
         }.also { it.start() }
@@ -93,11 +94,11 @@ class ExchangeViewModel @Inject constructor(
         collectTickerJob = viewModelScope.launch {
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
-                    upBitExchange.exchangeCollectTicker()
+                    upBitExchange.collectCoinTicker()
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    bitThumbExchange.collectTicker2()
+                    bitThumbExchange.collectCoinTicker()
                 }
             }
         }.also { it.start() }
@@ -116,7 +117,11 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbExchange.onStop()
+                    collectTickerJob?.cancel()
+                    realTimeUpdateJob?.cancel()
+                    collectTickerJob = null
+                    realTimeUpdateJob = null
                 }
             }
         }
@@ -174,7 +179,7 @@ class ExchangeViewModel @Inject constructor(
                     }
 
                     EXCHANGE_BITTHUMB -> {
-                        upBitExchange.changeTradeCurrencyAction()
+                        bitThumbExchange.changeTradeCurrencyAction()
                     }
 
                     else -> {
@@ -192,7 +197,7 @@ class ExchangeViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitExchange.getBtcPrice()
+                bitThumbExchange.getBtcPrice()
             }
 
             else -> {
