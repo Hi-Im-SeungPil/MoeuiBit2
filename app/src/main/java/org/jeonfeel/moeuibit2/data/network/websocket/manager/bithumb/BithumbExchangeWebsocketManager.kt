@@ -68,7 +68,6 @@ class BithumbExchangeWebsocketManager {
                         }
 
                         is Frame.Binary -> {
-                            Logger.e(frame.data.decodeToString())
                             val receivedMessage =
                                 Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
                             _tickerFlow.emit(receivedMessage)

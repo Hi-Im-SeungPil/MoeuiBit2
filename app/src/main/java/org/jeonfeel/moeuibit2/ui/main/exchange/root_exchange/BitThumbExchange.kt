@@ -1,5 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
@@ -14,8 +16,10 @@ import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_BTC
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_FAV
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
+import org.jeonfeel.moeuibit2.ui.main.exchange.TickerAskBidState
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -52,12 +56,23 @@ class BitThumbExchange @Inject constructor(
 
     suspend fun onStart(updateLoadingState: KFunction1<Boolean, Unit>) {
         if (tickerDataIsEmpty()) {
+            updateLoadingState(true)
+
             fetchBitThumbMarketCodeList()
             fetchBitThumbTicker()
+
+            loadingDelay(updateLoadingState)
+
             useCaseOnStart()
         } else {
 
         }
+    }
+
+    private fun loadingDelay(updateLoadingState: KFunction1<Boolean, Unit>) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            updateLoadingState(false)
+        },500)
     }
 
     suspend fun collectCoinTicker() {
@@ -103,6 +118,20 @@ class BitThumbExchange @Inject constructor(
                 || _btcExchangeModelList.isEmpty()
     }
 
+    private fun clearTickerData() {
+        krwMarketCodeMap.clear()
+        btcMarketCodeMap.clear()
+        krwList.clear()
+        krwExchangeModelPosition.clear()
+        _krwExchangeModelList.clear()
+        btcList.clear()
+        btcExchangeModelPosition.clear()
+        _btcExchangeModelList.clear()
+        favoriteList.clear()
+        favoriteModelPosition.clear()
+        _favoriteExchangeModelList.clear()
+    }
+
     fun getExchangeModelList(tradeCurrencyState: State<Int>): List<CommonExchangeModel> {
         return when (tradeCurrencyState.value) {
             TRADE_CURRENCY_KRW -> {
@@ -146,19 +175,29 @@ class BitThumbExchange @Inject constructor(
 
     private suspend fun fetchBitThumbTicker() {
         val marketCodes = (krwList + btcList)
-        marketCodes.chunked(100).forEach {
+        marketCodes.chunked(100).forEach { chunk ->
             biThumbUseCase.fetchBitThumbTicker(
-                marketCodes = it.mapToMarketCodesRequest(),
+                marketCodes = chunk.mapToMarketCodesRequest(),
                 krwBitThumbMarketCodeMap = krwMarketCodeMap,
                 btcBitThumbMarketCodeMap = btcMarketCodeMap,
             ).collect { res ->
                 when (res) {
                     is ResultState.Success -> {
                         val bitThumbTickerGroupedRes = res.data
-                        krwExchangeModelPosition.putAll(bitThumbTickerGroupedRes.krwModelPosition)
-                        btcExchangeModelPosition.putAll(bitThumbTickerGroupedRes.btcModelPosition)
+
+                        val krwOffset = _krwExchangeModelList.size
+                        val btcOffset = _btcExchangeModelList.size
+
                         _krwExchangeModelList.addAll(bitThumbTickerGroupedRes.krwCommonExchangeModelList)
                         _btcExchangeModelList.addAll(bitThumbTickerGroupedRes.btcCommonExchangeModelList)
+
+                        bitThumbTickerGroupedRes.krwModelPosition.forEach { (market, index) ->
+                            krwExchangeModelPosition[market] = index + krwOffset
+                        }
+
+                        bitThumbTickerGroupedRes.btcModelPosition.forEach { (market, index) ->
+                            btcExchangeModelPosition[market] = index + btcOffset
+                        }
                     }
 
                     is ResultState.Error -> {
@@ -166,11 +205,16 @@ class BitThumbExchange @Inject constructor(
                     }
 
                     else -> {
-
+                        // Do nothing
                     }
                 }
             }
         }
+        sortTickerList(
+            tradeCurrency = TRADE_CURRENCY_KRW,
+            sortType = SortType.VOLUME,
+            sortOrder = SortOrder.DESCENDING
+        )
     }
 
     suspend fun changeTradeCurrencyAction(
@@ -183,6 +227,82 @@ class BitThumbExchange @Inject constructor(
 
 //        updateTickerData()
         useCaseOnStart()
+    }
+
+    fun sortTickerList(
+        tradeCurrency: Int,
+        sortType: SortType,
+        sortOrder: SortOrder,
+    ) {
+        val tickerList = when (tradeCurrency) {
+            TRADE_CURRENCY_KRW -> {
+                _krwExchangeModelList
+            }
+
+            TRADE_CURRENCY_BTC -> {
+                _btcExchangeModelList
+            }
+
+            TRADE_CURRENCY_FAV -> {
+                _favoriteExchangeModelList
+            }
+
+            else -> {
+                emptyList()
+            }
+        }
+
+        val sortedList = if (tradeCurrency == TRADE_CURRENCY_FAV) {
+            Utils.sortTickerList(
+                tickerList = tickerList,
+                sortType = sortType,
+                sortOrder = sortOrder,
+                btcPrice = getBtcPrice()
+            )
+        } else {
+            Utils.sortTickerList(
+                tickerList = tickerList, sortType = sortType, sortOrder = sortOrder
+            )
+        }
+
+        sortedList.forEachIndexed { index, ticker ->
+            when (tradeCurrency) {
+                TRADE_CURRENCY_KRW -> {
+                    _krwExchangeModelList[index] = ticker
+                    krwExchangeModelPosition[ticker.market] = index
+                }
+
+                TRADE_CURRENCY_BTC -> {
+                    _btcExchangeModelList[index] = ticker
+                    btcExchangeModelPosition[ticker.market] = index
+                }
+
+                TRADE_CURRENCY_FAV -> {
+                    _favoriteExchangeModelList[index] = ticker
+                    favoriteModelPosition[ticker.market] = index
+                }
+            }
+        }
+
+        when (tradeCurrencyState?.value) {
+            TRADE_CURRENCY_KRW -> {
+                _krwExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
+            }
+
+            TRADE_CURRENCY_BTC -> {
+                _btcExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
+            }
+
+            else -> {
+                _favoriteExchangeModelList.forEach {
+                    it.needAnimation.value = TickerAskBidState.NONE.name
+                }
+            }
+        }
     }
 
     fun getBtcPrice(): BigDecimal {
@@ -269,13 +389,16 @@ class BitThumbExchange @Inject constructor(
                         return@collect
                     }
 
+                    Logger.e(krwExchangeModelPosition.toString())
+
+
                     val (positionMap, marketCodeMap, modelList) = getTargetMaps(
                         bithumbSocketTickerRes = res.data
                     )
 
                     val position = positionMap?.get(res.data.code)
                     val marketCode = marketCodeMap?.get(res.data.code)
-
+                    Logger.e(marketCode?.market + " / / "+ position.toString())
                     if (position != null && marketCode != null) {
                         val model = res.data.mapToCommonExchangeModel(marketCode).apply {
                             needAnimation.value = res.data.askBid

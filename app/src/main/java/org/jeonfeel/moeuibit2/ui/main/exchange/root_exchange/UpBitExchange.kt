@@ -5,7 +5,6 @@ import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.flow.collectLatest
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -59,57 +58,64 @@ class UpBitExchange @Inject constructor(
         this.isUpdateExchange = isUpdateExchange
     }
 
-    private suspend fun init() {
+    private suspend fun initializeTickerData() {
         requestMarketCode()
         requestTicker()
     }
 
-    suspend fun onStart(
-        updateLoadingState: KFunction1<Boolean, Unit>,
-    ) {
-        if (!tickerDataIsEmpty()) {
+    suspend fun onStart(updateLoadingState: (Boolean) -> Unit) {
+        if (isTickerDataEmpty()) {
+            updateLoadingState(true)
+
+            clearAllTickerData()
+            initializeTickerData()
+
+            delayAndStopLoading(updateLoadingState)
+            useCaseOnStart()
+        } else {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
             useCaseOnStart()
-        } else if (tickerDataIsEmpty()) {
-            updateLoadingState(true)
-            clearTickerData()
-            init()
-            Handler(Looper.getMainLooper()).postDelayed({
-                updateLoadingState(false)
-            }, 500)
-            useCaseOnStart()
         }
+    }
+
+    private fun isTickerDataEmpty(): Boolean {
+        return krwMarketCodeMap.isEmpty() ||
+                btcMarketCodeMap.isEmpty() ||
+                krwList.isEmpty() ||
+                krwExchangeModelPosition.isEmpty() ||
+                _krwExchangeModelList.isEmpty() ||
+                btcList.isEmpty() ||
+                btcExchangeModelPosition.isEmpty() ||
+                _btcExchangeModelList.isEmpty()
+    }
+
+    private fun clearAllTickerData() {
+        krwMarketCodeMap.clear()
+        btcMarketCodeMap.clear()
+
+        krwList.clear()
+        krwExchangeModelPosition.clear()
+        _krwExchangeModelList.clear()
+
+        btcList.clear()
+        btcExchangeModelPosition.clear()
+        _btcExchangeModelList.clear()
+
+        favoriteList.clear()
+        favoriteModelPosition.clear()
+        _favoriteExchangeModelList.clear()
+    }
+
+    private fun delayAndStopLoading(updateLoadingState: (Boolean) -> Unit) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            updateLoadingState(false)
+        }, 500)
     }
 
     suspend fun onStop() {
         upBitExchangeUseCase.onStop()
-    }
-
-    private fun tickerDataIsEmpty(): Boolean {
-        return krwMarketCodeMap.isEmpty()
-                || btcMarketCodeMap.isEmpty()
-                || krwList.isEmpty()
-                || krwExchangeModelPosition.isEmpty()
-                || _krwExchangeModelList.isEmpty()
-                || btcList.isEmpty()
-                || btcExchangeModelPosition.isEmpty()
-                || _btcExchangeModelList.isEmpty()
-    }
-
-    private fun clearTickerData() {
-        krwMarketCodeMap.clear()
-        btcMarketCodeMap.clear()
-        krwList.clear()
-        krwExchangeModelPosition.clear()
-        _krwExchangeModelList.clear()
-        btcList.clear()
-        btcExchangeModelPosition.clear()
-        _btcExchangeModelList.clear()
-        favoriteList.clear()
-        favoriteModelPosition.clear()
-        _favoriteExchangeModelList.clear()
     }
 
     suspend fun collectCoinTicker() {
@@ -515,7 +521,7 @@ class UpBitExchange @Inject constructor(
 
                 if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collect
 
-                Logger.e(upbitSocketTickerRes.code)
+//                Logger.e(upbitSocketTickerRes.code)
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
                 var targetModelList: MutableList<CommonExchangeModel>? = null

@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.tradingview.lightweightcharts.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.MainActivity
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.ExchangeLoadingScreen
@@ -86,6 +87,7 @@ fun ExchangeScreenRoute(
                 textFieldValueState = viewModel.textFieldValue,
                 updateTextFieldValue = viewModel::updateTextFieldValue,
                 changeExchange = {
+                    Logger.e("changeExchange")
                     viewModel.onStop()
                     viewModel.onStart()
                 }

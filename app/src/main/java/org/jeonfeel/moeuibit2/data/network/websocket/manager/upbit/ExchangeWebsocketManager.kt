@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit
 
+import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -70,7 +71,7 @@ class ExchangeWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-//                            Logger.e(receivedMessage.code)
+                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 

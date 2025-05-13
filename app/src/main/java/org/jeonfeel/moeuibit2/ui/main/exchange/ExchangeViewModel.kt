@@ -41,7 +41,7 @@ class ExchangeViewModelState {
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val upBitExchange: UpBitExchange,
-    private val bitThumbExchange: BitThumbExchange,
+    private val biThumbExchange: BitThumbExchange,
     private val preferenceManager: PreferencesManager,
 ) : BaseViewModel(preferenceManager) {
 
@@ -65,14 +65,13 @@ class ExchangeViewModel @Inject constructor(
             isUpdateExchange = isUpdateExchange
         )
 
-        bitThumbExchange.initBitThumb(
+        biThumbExchange.initBitThumb(
             tradeCurrencyState = tradeCurrencyState,
             isUpdateExchange = isUpdateExchange
         )
     }
 
     fun onStart() {
-        onStop()
         isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
@@ -84,7 +83,7 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    bitThumbExchange.onStart(
+                    biThumbExchange.onStart(
                         updateLoadingState = ::updateLoadingState
                     )
                 }
@@ -98,7 +97,7 @@ class ExchangeViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    bitThumbExchange.collectCoinTicker()
+                    biThumbExchange.collectCoinTicker()
                 }
             }
         }.also { it.start() }
@@ -106,22 +105,19 @@ class ExchangeViewModel @Inject constructor(
 
     fun onStop() {
         isStarted = false
+        collectTickerJob?.cancel()
+        realTimeUpdateJob?.cancel()
+        collectTickerJob = null
+        realTimeUpdateJob = null
+
         viewModelScope.launch {
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitExchange.onStop()
-                    collectTickerJob?.cancel()
-                    realTimeUpdateJob?.cancel()
-                    collectTickerJob = null
-                    realTimeUpdateJob = null
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    bitThumbExchange.onStop()
-                    collectTickerJob?.cancel()
-                    realTimeUpdateJob?.cancel()
-                    collectTickerJob = null
-                    realTimeUpdateJob = null
+                    biThumbExchange.onStop()
                 }
             }
         }
@@ -146,7 +142,7 @@ class ExchangeViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                bitThumbExchange.getExchangeModelList(tradeCurrencyState)
+                biThumbExchange.getExchangeModelList(tradeCurrencyState)
             }
 
             else -> {
@@ -157,11 +153,28 @@ class ExchangeViewModel @Inject constructor(
 
     fun sortTickerList(targetTradeCurrency: Int? = null, sortType: SortType, sortOrder: SortOrder) {
         state.isUpdateExchange.value = false
-        upBitExchange.sortTickerList(
-            tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-            sortType = sortType,
-            sortOrder = sortOrder
-        )
+
+        when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> {
+                upBitExchange.sortTickerList(
+                    tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+                    sortType = sortType,
+                    sortOrder = sortOrder
+                )
+            }
+
+            EXCHANGE_BITTHUMB -> {
+                biThumbExchange.sortTickerList(
+                    tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+                    sortType = sortType,
+                    sortOrder = sortOrder
+                )
+            }
+
+            else -> {
+                upBitExchange.getExchangeModelList(tradeCurrencyState)
+            }
+        }
         state.isUpdateExchange.value = true
     }
 
@@ -179,7 +192,7 @@ class ExchangeViewModel @Inject constructor(
                     }
 
                     EXCHANGE_BITTHUMB -> {
-                        bitThumbExchange.changeTradeCurrencyAction()
+                        biThumbExchange.changeTradeCurrencyAction()
                     }
 
                     else -> {
@@ -197,7 +210,7 @@ class ExchangeViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                bitThumbExchange.getBtcPrice()
+                biThumbExchange.getBtcPrice()
             }
 
             else -> {
