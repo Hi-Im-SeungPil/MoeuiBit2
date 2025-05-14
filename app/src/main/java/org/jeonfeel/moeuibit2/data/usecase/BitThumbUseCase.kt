@@ -8,39 +8,41 @@ import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbMarketCodeGroupedRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbTickerGroupedRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWarningRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BithumbExchangeWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import org.jeonfeel.moeuibit2.ui.common.ResultState
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 
 class BitThumbUseCase(
     private val localRepository: LocalRepository,
     private val bitThumbRepository: BitThumbRepository,
+    private val cacheManager: CacheManager
 ) : BaseUseCase() {
 
-    private val bithumbExchangeWebsocketManager = BithumbExchangeWebsocketManager()
+    private val biThumbExchangeWebsocketManager = BiThumbExchangeWebsocketManager()
 
-    suspend fun bithumbSocketOnStart(marketCodes: List<String>) {
+    suspend fun biThumbSocketOnStart(marketCodes: List<String>) {
         Logger.e(marketCodes.toString())
-        bithumbExchangeWebsocketManager.updateIsBackground(false)
-        if (bithumbExchangeWebsocketManager.getIsSocketConnected()) {
-            bithumbExchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ",") { "\"$it\"" })
+        biThumbExchangeWebsocketManager.updateIsBackground(false)
+        if (biThumbExchangeWebsocketManager.getIsSocketConnected()) {
+            biThumbExchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ",") { "\"$it\"" })
         } else {
-            bithumbExchangeWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ",") { "\"$it\"" })
+            biThumbExchangeWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ",") { "\"$it\"" })
         }
     }
 
-    suspend fun bithumbSocketOnStop() {
-        bithumbExchangeWebsocketManager.updateIsBackground(true)
-        bithumbExchangeWebsocketManager.onStop()
+    suspend fun biThumbSocketOnStop() {
+        biThumbExchangeWebsocketManager.updateIsBackground(true)
+        biThumbExchangeWebsocketManager.onStop()
     }
 
     suspend fun observeTickerResponse(): Flow<ResultState<BithumbSocketTickerRes>> {
-        return bithumbExchangeWebsocketManager.tickerFlow.map { res ->
+        return biThumbExchangeWebsocketManager.tickerFlow.map { res ->
             if (res != null) {
                 ResultState.Success(res)
             } else {
@@ -68,6 +70,9 @@ class BitThumbUseCase(
                             btcMarketCodeMap = btcMarketCodeMap,
                         )
 
+                        cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                        cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+
                         ResultState.Success(bitThumbMarketCodeGroupedRes)
                     } else {
                         ResultState.Error(res.message.toString())
@@ -89,6 +94,7 @@ class BitThumbUseCase(
         marketCodes: String,
         krwBitThumbMarketCodeMap: Map<String, BitThumbMarketCodeRes>,
         btcBitThumbMarketCodeMap: Map<String, BitThumbMarketCodeRes>,
+        warningTypeMap: Map<String,List<String>>
     ): Flow<ResultState<BitThumbTickerGroupedRes>> {
         return bitThumbRepository.fetchBitThumbTicker(marketCodes = marketCodes).map { res ->
             when (res.status) {
@@ -100,7 +106,10 @@ class BitThumbUseCase(
                                 it.market.startsWith(KRW_SYMBOL_PREFIX) -> krwBitThumbMarketCodeMap[it.market]
                                 else -> btcBitThumbMarketCodeMap[it.market]
                             }
-                            it.mapToCommonExchangeModel(marketCodeRes)
+
+                            val warningType = warningTypeMap[it.market] ?: emptyList()
+
+                            it.mapToCommonExchangeModel(marketCodeRes, warningType)
                         }
 
                         val krwExchangeModelList = commonExchangeModelList
@@ -125,6 +134,32 @@ class BitThumbUseCase(
                                 btcModelPosition = btcModelPosition,
                             )
                         )
+                    } else {
+                        ResultState.Error(res.message.toString())
+                    }
+                }
+
+                ApiResult.Status.API_ERROR -> {
+                    ResultState.Error(res.message.toString())
+                }
+
+                else -> {
+                    ResultState.Loading
+                }
+            }
+        }
+    }
+
+    suspend fun fetchBiThumbWarning(): Flow<ResultState<Map<String, List<String>>>> {
+        return bitThumbRepository.fetchBiThumbWarning().map { res ->
+            when (res.status) {
+                ApiResult.Status.SUCCESS -> {
+                    val data = res.data
+                    if (data != null) {
+                        val result = res.data.groupBy { it.market }
+                            .mapValues { entry -> entry.value.map { it.warningType } }
+
+                        ResultState.Success(result)
                     } else {
                         ResultState.Error(res.message.toString())
                     }

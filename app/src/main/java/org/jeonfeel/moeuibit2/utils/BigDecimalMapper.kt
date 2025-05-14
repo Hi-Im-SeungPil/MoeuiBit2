@@ -41,7 +41,20 @@ object BigDecimalMapper {
             }
 
             EXCHANGE_BITTHUMB -> {
-                BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
+                when {
+                    market.startsWith(KRW_SYMBOL_PREFIX) -> {
+                        when {
+                            this >= 100 -> BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
+                            this >= 10 -> BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
+                            this >= 1 -> BigDecimal(this).setScale(3, RoundingMode.HALF_UP)
+                            else -> BigDecimal(this).setScale(4, RoundingMode.HALF_UP)
+                        }
+                    }
+
+                    else -> {
+                        BigDecimal(this).setScale(8, RoundingMode.HALF_UP)
+                    }
+                }
             }
 
             else -> {

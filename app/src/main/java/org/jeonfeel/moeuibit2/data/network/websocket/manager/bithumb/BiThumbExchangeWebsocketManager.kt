@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb
 
-import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -20,7 +19,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class BithumbExchangeWebsocketManager {
+class BiThumbExchangeWebsocketManager {
 
     private val client = HttpClient {
         install(WebSockets)
@@ -78,8 +77,6 @@ class BithumbExchangeWebsocketManager {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {

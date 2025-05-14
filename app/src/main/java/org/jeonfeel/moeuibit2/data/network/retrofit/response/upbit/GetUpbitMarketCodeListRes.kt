@@ -28,13 +28,17 @@ data class MarketEvent(
 @Serializable
 data class Caution(
     @SerialName("CONCENTRATION_OF_SMALL_ACCOUNTS")
-    val concentrationOfSmallAccounts: Boolean,
+    val concentrationOfSmallAccounts: Boolean = false,
+
     @SerialName("DEPOSIT_AMOUNT_SOARING")
-    val depositAmountSoaring: Boolean,
+    val depositAmountSoaring: Boolean = false,
+
     @SerialName("GLOBAL_PRICE_DIFFERENCES")
-    val globalPriceDifferences: Boolean,
+    val globalPriceDifferences: Boolean = false,
+
     @SerialName("PRICE_FLUCTUATIONS")
-    val priceFluctuations: Boolean,
+    val priceFluctuations: Boolean = false,
+
     @SerialName("TRADING_VOLUME_SOARING")
-    val tradingVolumeSoaring: Boolean
+    val tradingVolumeSoaring: Boolean = false
 )

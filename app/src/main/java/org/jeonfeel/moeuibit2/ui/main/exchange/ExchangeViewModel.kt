@@ -192,7 +192,10 @@ class ExchangeViewModel @Inject constructor(
                     }
 
                     EXCHANGE_BITTHUMB -> {
-                        biThumbExchange.changeTradeCurrencyAction()
+                        biThumbExchange.changeTradeCurrencyAction(
+                            sortType = selectedSortType.value,
+                            sortOrder = sortOrder.value
+                        )
                     }
 
                     else -> {

@@ -3,10 +3,11 @@ package org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes.DeListingDate
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.Utils
@@ -121,7 +122,10 @@ data class BithumbSocketTickerRes(
         val day: Int,
     )
 
-    fun mapToCommonExchangeModel(bitThumbMarketCodeRes: BitThumbMarketCodeRes? = null): CommonExchangeModel {
+    fun mapToCommonExchangeModel(
+        bitThumbMarketCodeRes: BitThumbMarketCodeRes? = null,
+        biThumbWarningList: List<String> = emptyList(),
+    ): CommonExchangeModel {
         val koreanName = bitThumbMarketCodeRes?.koreanName ?: ""
         val engName = bitThumbMarketCodeRes?.englishName ?: ""
         val initialConstant = Utils.extractInitials(koreanName)
@@ -135,7 +139,7 @@ data class BithumbSocketTickerRes(
             symbol = code.substring(4),
             openingPrice = openingPrice,
             tradePrice = tradePrice.newBigDecimal(
-                EXCHANGE_UPBIT,
+                EXCHANGE_BITTHUMB,
                 market = code
             ),
             signedChangeRate = signedChangeRate * 100,
@@ -151,9 +155,28 @@ data class BithumbSocketTickerRes(
             signedChangePrice = signedChangePrice,
             timestamp = timestamp,
             warning = warning,
-            caution = null,
+            caution = mapToCaution(warningTypes = biThumbWarningList),
             askBid = "NONE",
             prevClosingPrice = prevClosingPrice
         )
+    }
+
+    private fun mapToCaution(warningTypes: List<String>): Caution? {
+        if (warningTypes.isEmpty()) return null
+
+        var caution = Caution() // 기본값은 모든 필드가 false
+
+        warningTypes.forEach { warningType ->
+            caution = when (warningType) {
+                "PRICE_SUDDEN_FLUCTUATION" -> caution.copy(priceFluctuations = true)
+                "TRADING_VOLUME_SUDDEN_FLUCTUATION" -> caution.copy(tradingVolumeSoaring = true)
+                "DEPOSIT_AMOUNT_SUDDEN_FLUCTUATION" -> caution.copy(depositAmountSoaring = true)
+                "SPECIFIC_ACCOUNT_HIGH_TRANSACTION" -> caution.copy(concentrationOfSmallAccounts = true)
+                "EXCHANGE_TRADING_CONCENTRATION" -> caution.copy(globalPriceDifferences = true)
+                else -> caution // unknown type, no change
+            }
+        }
+
+        return caution
     }
 }

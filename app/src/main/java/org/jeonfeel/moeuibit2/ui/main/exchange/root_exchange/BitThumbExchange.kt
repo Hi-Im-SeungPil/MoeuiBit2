@@ -5,10 +5,11 @@ import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.flow.collectLatest
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
+import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWarningRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.BitThumbUseCase
@@ -43,6 +44,8 @@ class BitThumbExchange @Inject constructor(
     private val favoriteModelPosition = mutableMapOf<String, Int>()
     private val _favoriteExchangeModelList = mutableStateListOf<CommonExchangeModel>()
 
+    private val _biThumbWarningMap = mutableMapOf<String, List<String>>()
+
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
 
@@ -56,8 +59,10 @@ class BitThumbExchange @Inject constructor(
 
     suspend fun onStart(updateLoadingState: KFunction1<Boolean, Unit>) {
         if (tickerDataIsEmpty()) {
+            clearTickerData()
             updateLoadingState(true)
 
+            fetchBiThumbWarning()
             fetchBitThumbMarketCodeList()
             fetchBitThumbTicker()
 
@@ -65,14 +70,14 @@ class BitThumbExchange @Inject constructor(
 
             useCaseOnStart()
         } else {
-
+            useCaseOnStart()
         }
     }
 
     private fun loadingDelay(updateLoadingState: KFunction1<Boolean, Unit>) {
         Handler(Looper.getMainLooper()).postDelayed({
             updateLoadingState(false)
-        },500)
+        }, 500)
     }
 
     suspend fun collectCoinTicker() {
@@ -80,13 +85,13 @@ class BitThumbExchange @Inject constructor(
     }
 
     suspend fun onStop() {
-        biThumbUseCase.bithumbSocketOnStop()
+        biThumbUseCase.biThumbSocketOnStop()
     }
 
     private suspend fun useCaseOnStart() {
         when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> {
-                biThumbUseCase.bithumbSocketOnStart(
+                biThumbUseCase.biThumbSocketOnStart(
                     marketCodes = krwList.toList(),
                 )
             }
@@ -94,7 +99,7 @@ class BitThumbExchange @Inject constructor(
             TRADE_CURRENCY_BTC -> {
                 val tempBtcList = ArrayList(btcList)
                 tempBtcList.add(BTC_MARKET)
-                biThumbUseCase.bithumbSocketOnStart(
+                biThumbUseCase.biThumbSocketOnStart(
                     marketCodes = tempBtcList.toList()
                 )
             }
@@ -102,7 +107,7 @@ class BitThumbExchange @Inject constructor(
             TRADE_CURRENCY_FAV -> {
                 val tempFavoriteList = ArrayList(favoriteList)
                 tempFavoriteList.add(BTC_MARKET)
-                biThumbUseCase.bithumbSocketOnStart(marketCodes = tempFavoriteList.toList())
+                biThumbUseCase.biThumbSocketOnStart(marketCodes = tempFavoriteList.toList())
             }
         }
     }
@@ -152,6 +157,24 @@ class BitThumbExchange @Inject constructor(
         }
     }
 
+    private suspend fun fetchBiThumbWarning() {
+        biThumbUseCase.fetchBiThumbWarning().collect { res ->
+            when (res) {
+                is ResultState.Success -> {
+                    _biThumbWarningMap.putAll(res.data)
+                }
+
+                is ResultState.Error -> {
+                    Logger.e(res.message)
+                }
+
+                else -> {
+
+                }
+            }
+        }
+    }
+
     private suspend fun fetchBitThumbMarketCodeList() {
         biThumbUseCase.fetchBitThumbMarketCodeList().collect { res ->
             when (res) {
@@ -180,6 +203,7 @@ class BitThumbExchange @Inject constructor(
                 marketCodes = chunk.mapToMarketCodesRequest(),
                 krwBitThumbMarketCodeMap = krwMarketCodeMap,
                 btcBitThumbMarketCodeMap = btcMarketCodeMap,
+                warningTypeMap = _biThumbWarningMap
             ).collect { res ->
                 when (res) {
                     is ResultState.Success -> {
@@ -217,6 +241,59 @@ class BitThumbExchange @Inject constructor(
         )
     }
 
+    private suspend fun updateTickerData() {
+        val marketCodes = when (tradeCurrencyState?.value) {
+            TRADE_CURRENCY_KRW -> krwList
+            TRADE_CURRENCY_BTC -> btcList
+            else -> favoriteList
+        }
+
+        marketCodes.chunked(100).forEach { chunk ->
+            biThumbUseCase.fetchBitThumbTicker(
+                marketCodes = chunk.mapToMarketCodesRequest(),
+                krwBitThumbMarketCodeMap = krwMarketCodeMap,
+                btcBitThumbMarketCodeMap = btcMarketCodeMap,
+                warningTypeMap = _biThumbWarningMap
+            ).collect { res ->
+                when (res) {
+                    is ResultState.Success -> {
+                        val bitThumbTickerGroupedRes = res.data
+
+                        bitThumbTickerGroupedRes.krwCommonExchangeModelList.forEach {
+                            val position = krwExchangeModelPosition[it.market]
+                            if (position != null) {
+                                _krwExchangeModelList[position] = it
+                            }
+                        }
+
+                        bitThumbTickerGroupedRes.btcCommonExchangeModelList.forEach {
+                            val position = btcExchangeModelPosition[it.market]
+                            if (position != null) {
+                                _btcExchangeModelList[position] = it
+                            }
+                        }
+                    }
+
+                    is ResultState.Error -> {
+                        Logger.e(res.message)
+                    }
+
+                    else -> {
+                        // Do nothing
+                    }
+                }
+            }
+        }
+
+//        if (sortOrder != null && sortType != null) {
+//            sortTickerList(
+//                tradeCurrency = TRADE_CURRENCY_FAV,
+//                sortOrder = sortOrder,
+//                sortType = sortType
+//            )
+//        }
+    }
+
     suspend fun changeTradeCurrencyAction(
         sortOrder: SortOrder? = null,
         sortType: SortType? = null,
@@ -225,7 +302,7 @@ class BitThumbExchange @Inject constructor(
 
         if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
-//        updateTickerData()
+        updateTickerData()
         useCaseOnStart()
     }
 
@@ -367,8 +444,9 @@ class BitThumbExchange @Inject constructor(
     ) {
         val position = favoriteModelPosition[BTC_MARKET] ?: return
         val marketCode = marketCodeMap[bithumbSocketTickerRes.code] ?: return
+        val waringList = _biThumbWarningMap[marketCode.market] ?: emptyList()
 
-        val model = bithumbSocketTickerRes.mapToCommonExchangeModel(marketCode).apply {
+        val model = bithumbSocketTickerRes.mapToCommonExchangeModel(marketCode, waringList).apply {
             needAnimation.value = bithumbSocketTickerRes.askBid
         }
 
@@ -391,16 +469,18 @@ class BitThumbExchange @Inject constructor(
 
                     Logger.e(krwExchangeModelPosition.toString())
 
-
                     val (positionMap, marketCodeMap, modelList) = getTargetMaps(
                         bithumbSocketTickerRes = res.data
                     )
 
                     val position = positionMap?.get(res.data.code)
                     val marketCode = marketCodeMap?.get(res.data.code)
-                    Logger.e(marketCode?.market + " / / "+ position.toString())
+                    val waringList = _biThumbWarningMap[marketCode?.market] ?: emptyList()
+
+                    Logger.e(marketCode?.market + " / / " + position.toString())
+
                     if (position != null && marketCode != null) {
-                        val model = res.data.mapToCommonExchangeModel(marketCode).apply {
+                        val model = res.data.mapToCommonExchangeModel(marketCode,waringList).apply {
                             needAnimation.value = res.data.askBid
                         }
 

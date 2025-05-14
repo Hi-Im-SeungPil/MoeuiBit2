@@ -48,7 +48,6 @@ class CacheManager(private val context: Context) {
     }
 
     suspend fun saveEnglishCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
-
         val englishNameKeyValueList = arrayListOf<EnglishCoinNameComponent>()
         codeMap.forEach { (key, value) ->
             val symbol = key.substring(4)

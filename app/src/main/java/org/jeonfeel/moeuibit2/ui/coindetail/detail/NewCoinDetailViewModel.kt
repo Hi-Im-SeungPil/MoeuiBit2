@@ -67,6 +67,7 @@ class NewCoinDetailViewModel @Inject constructor(
     val transactionInfo: List<TransactionInfo> get() = _transactionInfoList
 
     private var initIsFavorite = false
+
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
 
@@ -482,14 +483,12 @@ class NewCoinDetailViewModel @Inject constructor(
 
 
     private suspend fun collectTicker(market: String) {
-        upbitCoinDetailUseCase.observeTickerResponse()?.onEach { result ->
+        upbitCoinDetailUseCase.observeTickerResponse().onEach { result ->
             _tradeResponse.update {
                 result
             }
-        }?.collect { upbitSocketTickerRes ->
+        }.collect { upbitSocketTickerRes ->
             runCatching {
-//                Logger.e(upbitSocketTickerRes.toString())
-//                Logger.e("coinDetail message!!")
                 if (upbitSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
                     deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true

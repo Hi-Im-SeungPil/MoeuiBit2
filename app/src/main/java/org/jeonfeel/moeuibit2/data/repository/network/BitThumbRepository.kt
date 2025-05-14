@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.data.repository.network
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.networkCall
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWarningRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.BitThumbService
@@ -20,6 +21,10 @@ class BitThumbRepository(private val bitThumbService: BitThumbService) {
      */
     suspend fun fetchBitThumbTicker(marketCodes: String): Flow<ApiResult<List<BitThumbTickerRes>>> {
         return networkCall { bitThumbService.fetchBitThumbTicker(marketCodes) }
+    }
+
+    suspend fun fetchBiThumbWarning(): Flow<ApiResult<List<BiThumbWarningRes>>> {
+        return networkCall { bitThumbService.fetchBiThumbWarning() }
     }
 
 //    /**
