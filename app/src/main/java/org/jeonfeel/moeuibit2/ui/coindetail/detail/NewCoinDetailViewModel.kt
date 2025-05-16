@@ -1,12 +1,10 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.detail
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
@@ -16,22 +14,17 @@ import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.constants.ioDispatcher
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
-import org.jeonfeel.moeuibit2.ui.coindetail.order.UpbitCoinOrder
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
 import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
-import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.utils.getKoreanPostPosition
 import java.math.BigDecimal
@@ -42,7 +35,6 @@ class NewCoinDetailViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upbitCoinDetailUseCase: UpbitCoinDetailUseCase,
     private val cacheManager: CacheManager,
-    private val upbitCoinOrder: UpbitCoinOrder,
     val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
 
@@ -60,12 +52,6 @@ class NewCoinDetailViewModel @Inject constructor(
     private val _engCoinName = mutableStateOf("")
     val engCoinName: State<String> get() = _engCoinName
 
-    private val _orderBookIndication = mutableStateOf("quantity")
-    val orderBookIndication: State<String> get() = _orderBookIndication
-
-    private val _transactionInfoList = mutableStateListOf<TransactionInfo>()
-    val transactionInfo: List<TransactionInfo> get() = _transactionInfoList
-
     private var initIsFavorite = false
 
     private val _isFavorite = mutableStateOf(false)
@@ -79,9 +65,6 @@ class NewCoinDetailViewModel @Inject constructor(
     private var realTimeJob: Job? = null
     private var collectTickerJob: Job? = null
 
-    private var orderBookRealTimeJob: Job? = null
-    private var orderBookCollectJob: Job? = null
-
     private var chartRealTimeJob: Job? = null
 
     private var _market = ""
@@ -89,8 +72,6 @@ class NewCoinDetailViewModel @Inject constructor(
     var isStarted = mutableStateOf(false)
 
     var isChartStarted = mutableStateOf(false)
-
-    var isCoinOrderStarted = mutableStateOf(false)
 
     @Volatile
     var isInitSuccess = false
@@ -102,8 +83,6 @@ class NewCoinDetailViewModel @Inject constructor(
         private set
 
     fun init(market: String) {
-        getOrderBookIndication()
-
         viewModelScope.launch {
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
@@ -148,64 +127,6 @@ class NewCoinDetailViewModel @Inject constructor(
             collectTickerJob?.cancel()
             realTimeJob = null
             collectTickerJob = null
-        }
-    }
-
-    /**
-     * coin Order 화면 초기화
-     */
-    fun initCoinOrder(market: String) {
-        viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
-                EXCHANGE_UPBIT -> {
-                    upbitCoinOrder.initCoinOrder(market)
-                }
-
-                EXCHANGE_BITTHUMB -> {
-
-                }
-            }
-        }.also { it.start() }
-    }
-
-    fun coinOrderScreenOnStart(market: String) {
-        orderBookRealTimeJob?.cancel()
-        isCoinOrderStarted.value = true
-
-        orderBookRealTimeJob = viewModelScope.launch {
-            when (rootExchange) {
-                EXCHANGE_UPBIT -> {
-                    upbitCoinOrder.onStart(market)
-                }
-
-                EXCHANGE_BITTHUMB -> {
-
-                }
-            }
-        }.also { it.start() }
-
-        orderBookCollectJob = viewModelScope.launch {
-            when (rootExchange) {
-                EXCHANGE_UPBIT -> {
-                    upbitCoinOrder.collectOrderBook()
-                }
-
-                EXCHANGE_BITTHUMB -> {
-
-                }
-            }
-        }.also { it.start() }
-    }
-
-    /**
-     * 코인 주문 화면 pause
-     */
-    fun coinOrderScreenOnStop() {
-        isCoinOrderStarted.value = false
-        viewModelScope.launch {
-            upbitCoinOrder.onStop()
-            orderBookRealTimeJob?.cancel()
-            orderBookRealTimeJob = null
         }
     }
 
@@ -262,172 +183,6 @@ class NewCoinDetailViewModel @Inject constructor(
         )
     }
 
-    /**
-     * orderBookList 받아옴
-     */
-    fun getOrderBookList(): List<OrderBookModel> {
-        return when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upbitCoinOrder.orderBookList
-            }
-
-            EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.orderBookList
-            }
-
-            else -> {
-                upbitCoinOrder.orderBookList
-            }
-        }
-    }
-
-    fun getMaxOrderBookSize(): State<Double> {
-        return when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upbitCoinOrder.maxOrderBookSize
-            }
-
-            EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.maxOrderBookSize
-            }
-
-            else -> {
-                upbitCoinOrder.maxOrderBookSize
-            }
-        }
-    }
-
-    private fun getOrderBookIndication() {
-        viewModelScope.launch {
-            preferenceManager.getString("orderBookIndication").collect {
-                _orderBookIndication.value = it
-            }
-        }
-    }
-
-    fun changeOrderBookIndication() {
-        if (_orderBookIndication.value == "quantity") {
-            _orderBookIndication.value = "totalPrice"
-        } else {
-            _orderBookIndication.value = "quantity"
-        }
-    }
-
-    fun saveOrderBookIndication() {
-        viewModelScope.launch {
-            preferenceManager.setValue(
-                "orderBookIndication",
-                _orderBookIndication.value
-            )
-        }
-    }
-
-    /**
-     * 사용자 시드머니 받아옴
-     */
-    fun getUserSeedMoney(): State<Double> {
-        return when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upbitCoinOrder.userSeedMoney
-            }
-
-            EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.userSeedMoney
-            }
-
-            else -> {
-                upbitCoinOrder.userSeedMoney
-            }
-        }
-    }
-
-    fun requestBid(
-        market: String,
-        quantity: Double,
-        price: BigDecimal,
-        totalPrice: Double,
-    ) {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upbitCoinOrder.requestBid(
-                    market = market,
-                    totalPrice = totalPrice,
-                    quantity = quantity,
-                    coinPrice = price,
-                    koreanName = koreanCoinName.value,
-                    btcPrice = btcPrice.value.toDouble()
-                )
-            },
-            bitthumbAction = {
-
-            },
-            dispatcher = Dispatchers.IO
-        )
-    }
-
-    fun requestAsk(
-        market: String,
-        quantity: Double,
-        totalPrice: Double = 0.0,
-        price: BigDecimal,
-        totalPriceBTC: Double = 0.0
-    ) {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upbitCoinOrder.requestAsk(
-                    market = market,
-                    totalPrice = totalPrice,
-                    quantity = quantity,
-                    coinPrice = price,
-                    totalPriceBTC = totalPriceBTC,
-                    btcPrice = btcPrice.value.toDouble()
-                )
-            },
-            bitthumbAction = {
-
-            },
-            dispatcher = Dispatchers.IO
-        )
-    }
-
-    /**
-     * 사용자 코인 받아옴
-     */
-    fun getUserCoin(): State<MyCoin> {
-        return when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upbitCoinOrder.userCoin
-            }
-
-            EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.userCoin
-            }
-
-            else -> {
-                upbitCoinOrder.userCoin
-            }
-        }
-    }
-
-    /**
-     * BTC마켓 일 때 필요한데, 사용자 BTC 코인 받아옴
-     */
-    fun getUserBtcCoin(): State<MyCoin> {
-        return when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upbitCoinOrder.userBtcCoin
-            }
-
-            EXCHANGE_BITTHUMB -> {
-                upbitCoinOrder.userBtcCoin
-            }
-
-            else -> {
-                upbitCoinOrder.userBtcCoin
-            }
-        }
-    }
-
     // 차트 화면
     fun requestOldData(
         positiveBarDataSet: IBarDataSet,
@@ -470,13 +225,6 @@ class NewCoinDetailViewModel @Inject constructor(
         }
     }
 
-    fun getTransactionInfoList(market: String) {
-        viewModelScope.launch {
-            _transactionInfoList.clear()
-            _transactionInfoList.addAll(upbitCoinOrder.getTransactionInfoList(market = market))
-        }
-    }
-
     private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
         return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일 거래지원 종료 예정입니다."
     }
@@ -493,6 +241,7 @@ class NewCoinDetailViewModel @Inject constructor(
                     deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true
                 }
+
                 val commonExchangeModel = upbitSocketTickerRes?.mapTo()
                 if (!market.isKrwTradeCurrency() && upbitSocketTickerRes?.code == BTC_MARKET) {
                     _btcPrice.value = commonExchangeModel?.tradePrice ?: BigDecimal.ZERO

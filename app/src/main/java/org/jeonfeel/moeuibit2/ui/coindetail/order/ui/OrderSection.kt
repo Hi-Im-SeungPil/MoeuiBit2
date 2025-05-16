@@ -71,12 +71,17 @@ import java.util.Locale
 
 @Composable
 fun OrderSection(
-    orderTabState: MutableState<OrderTabState>,
     userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
+    orderTabState: MutableState<OrderTabState>,
+    userCoin: State<MyCoin>,
+    transactionInfoList: List<TransactionInfo>,
+    getTransactionInfoList: (String) -> Unit,
+    market: String,
+    btcPrice: State<BigDecimal>,
     updateBidCoinQuantity: (Int) -> Unit,
     updateAskCoinQuantity: (Int) -> Unit,
     bidQuantity: String,
@@ -89,13 +94,8 @@ fun OrderSection(
     dropdownLabelList: List<String>,
     askSelectedText: String,
     bidSelectedText: String,
-    userCoin: State<MyCoin>,
-    transactionInfoList: List<TransactionInfo>,
-    getTransactionInfoList: (String) -> Unit,
-    market: String,
     totalBidDialogState: MutableState<Boolean>,
     totalAskDialogState: MutableState<Boolean>,
-    btcPrice: State<BigDecimal>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)

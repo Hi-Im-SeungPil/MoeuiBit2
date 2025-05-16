@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoUseCase
 import org.jeonfeel.moeuibit2.data.usecase.CoinMarketConditionUseCase
 import org.jeonfeel.moeuibit2.data.usecase.MiningUseCase
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import javax.inject.Singleton
 
 
@@ -43,10 +44,12 @@ class UseCaseModule {
     fun provideBitThumbUseCase(
         localRepository: LocalRepository,
         bitthumbRepository: BitThumbRepository,
+        cacheManager: CacheManager
     ): BitThumbUseCase {
         return BitThumbUseCase(
             localRepository = localRepository,
             bitThumbRepository = bitthumbRepository,
+            cacheManager = cacheManager
         )
     }
 

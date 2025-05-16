@@ -82,24 +82,9 @@ fun TabRowMainNavigation(
         composable(CoinDetailMainTabRowItem.Order.screenRoute) {
             OrderScreenRoute(
                 market = market,
-                initCoinOrder = viewModel::initCoinOrder,
-                coinOrderScreenOnStop = viewModel::coinOrderScreenOnStop,
-                coinOrderScreenOnStart = viewModel::coinOrderScreenOnStart,
                 commonExchangeModelState = viewModel.coinTicker,
-                orderBookList = viewModel.getOrderBookList(),
-                maxOrderBookSize = viewModel.getMaxOrderBookSize(),
-                orderBookIndicationState = viewModel.orderBookIndication,
-                changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
-                saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
-                userSeedMoney = viewModel.getUserSeedMoney(),
-                userBTC = viewModel.getUserBtcCoin(),
-                userCoin = viewModel.getUserCoin(),
-                requestBid = viewModel::requestBid,
-                requestAsk = viewModel::requestAsk,
                 btcPrice = viewModel.btcPrice,
-                transactionInfoList = viewModel.transactionInfo,
-                getTransactionInfoList = viewModel::getTransactionInfoList,
-                isCoinOrderStarted = viewModel.isCoinOrderStarted
+                koreanCoinName = viewModel.koreanCoinName,
             )
         }
         composable(CoinDetailMainTabRowItem.Chart.screenRoute) {

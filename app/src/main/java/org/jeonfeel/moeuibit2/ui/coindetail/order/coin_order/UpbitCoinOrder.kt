@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.coin_order
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -37,6 +37,9 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private val _maxOrderBookSize = mutableDoubleStateOf(0.0)
     val maxOrderBookSize: State<Double> get() = _maxOrderBookSize
 
+    private val _orderBookInitSuccess = mutableStateOf(false)
+    val orderBookInitSuccess: State<Boolean> get() = _orderBookInitSuccess
+
     suspend fun initCoinOrder(market: String) {
         requestOrderBook(market)
         getUserSeedMoney()
@@ -63,6 +66,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 onComplete = {
                     _maxOrderBookSize.doubleValue = it.maxOf { unit -> unit.size }
                     _orderBookList.addAll(it)
+                    _orderBookInitSuccess.value = true
                 }
             )
         }

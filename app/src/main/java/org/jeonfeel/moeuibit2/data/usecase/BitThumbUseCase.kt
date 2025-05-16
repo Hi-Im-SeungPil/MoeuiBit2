@@ -70,8 +70,8 @@ class BitThumbUseCase(
                             btcMarketCodeMap = btcMarketCodeMap,
                         )
 
-                        cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
-                        cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+//                        cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+//                        cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
 
                         ResultState.Success(bitThumbMarketCodeGroupedRes)
                     } else {

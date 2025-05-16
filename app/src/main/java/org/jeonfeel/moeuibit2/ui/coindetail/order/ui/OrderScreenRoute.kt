@@ -1,55 +1,41 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.order.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
-import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
+import org.jeonfeel.moeuibit2.ui.coindetail.order.CoinOrderViewModel
 import java.math.BigDecimal
 
 @Composable
 fun OrderScreenRoute(
+    viewModel: CoinOrderViewModel = hiltViewModel(),
     market: String,
-    initCoinOrder: (String) -> Unit,
-    coinOrderScreenOnStop: () -> Unit,
-    coinOrderScreenOnStart: (String) -> Unit,
     commonExchangeModelState: State<CommonExchangeModel?>,
-    maxOrderBookSize: State<Double>,
-    orderBookList: List<OrderBookModel>,
-    orderBookIndicationState: State<String>,
-    saveOrderBookIndicationState: () -> Unit,
-    changeOrderBookIndicationState: () -> Unit,
-    requestBid: (String, Double, BigDecimal, Double) -> Unit,
-    requestAsk: (String, Double, Double, BigDecimal, Double) -> Unit,
     btcPrice: State<BigDecimal>,
-    userSeedMoney: State<Double>,
-    userBTC: State<MyCoin>,
-    userCoin: State<MyCoin>,
-    transactionInfoList: List<TransactionInfo>,
-    getTransactionInfoList: (String) -> Unit,
-    isCoinOrderStarted: MutableState<Boolean>
+    koreanCoinName: State<String>,
 ) {
     OrderScreen(
         market = market,
-        initCoinOrder = initCoinOrder,
-        coinOrderScreenOnStop = coinOrderScreenOnStop,
-        coinOrderScreenOnStart = coinOrderScreenOnStart,
         commonExchangeModelState = commonExchangeModelState,
-        maxOrderBookSize = maxOrderBookSize,
-        orderBookList = orderBookList,
-        orderBookIndicationState = orderBookIndicationState,
-        saveOrderBookIndicationState = saveOrderBookIndicationState,
-        changeOrderBookIndicationState = changeOrderBookIndicationState,
-        userSeedMoney = userSeedMoney,
-        userBTC = userBTC,
-        userCoin = userCoin,
-        requestBid = requestBid,
-        requestAsk = requestAsk,
+        maxOrderBookSize = viewModel.getMaxOrderBookSize(),
+        initCoinOrder = viewModel::initCoinOrder,
+        coinOrderScreenOnStop = viewModel::coinOrderScreenOnStop,
+        coinOrderScreenOnStart = viewModel::coinOrderScreenOnStart,
+        orderBookList = viewModel.getOrderBookList() ,
+        orderBookIndicationState = viewModel.orderBookIndication,
+        saveOrderBookIndicationState = viewModel::saveOrderBookIndication,
+        changeOrderBookIndicationState = viewModel::changeOrderBookIndication,
+        userSeedMoney = viewModel.getUserSeedMoney(),
+        userBTC = viewModel.getUserBtcCoin(),
+        userCoin = viewModel.getUserCoin(),
+        requestBid = viewModel::requestBid,
+        requestAsk = viewModel::requestAsk,
+        transactionInfoList = viewModel.transactionInfo,
+        getTransactionInfoList = viewModel::getTransactionInfoList,
+        isCoinOrderStarted = viewModel.isCoinOrderStarted,
+        koreanName = koreanCoinName,
         btcPrice = btcPrice,
-        transactionInfoList = transactionInfoList,
-        getTransactionInfoList = getTransactionInfoList,
-        isCoinOrderStarted = isCoinOrderStarted
+        orderBookInitSuccess = viewModel.getOrderBookInitSuccess()
     )
 }
