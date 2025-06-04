@@ -53,12 +53,12 @@ class AdditionalFeaturesStateHolder(
         ) {
             navigateToMiningInfo("App")
         },
-        Triple(
-            R.drawable.img_telegram,
-            "텔레그램 채굴 정보"
-        ) {
-            navigateToMiningInfo("tg")
-        },
+//        Triple(
+//            R.drawable.img_telegram,
+//            "텔레그램 채굴 정보"
+//        ) {
+//            navigateToMiningInfo("tg")
+//        },
         Triple(
             R.drawable.img_calculator,
             "평단가 계산기"

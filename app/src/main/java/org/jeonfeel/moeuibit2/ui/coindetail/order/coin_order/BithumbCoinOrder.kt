@@ -9,7 +9,9 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 
-class BithumbCoinOrder(bithumbCoinOrderUseCase: BithumbCoinOrderUseCase) {
+class BithumbCoinOrder(
+//    bithumbCoinOrderUseCase: BithumbCoinOrderUseCase
+) {
     private val _orderBookList = mutableStateListOf<OrderBookModel>()
     val orderBookList: List<OrderBookModel> get() = _orderBookList
 
@@ -28,6 +30,4 @@ class BithumbCoinOrder(bithumbCoinOrderUseCase: BithumbCoinOrderUseCase) {
 
     private val _orderBookInitSuccess = mutableStateOf(false)
     val orderBookInitSuccess: State<Boolean> get() = _orderBookInitSuccess
-
-
 }

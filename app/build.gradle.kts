@@ -29,8 +29,8 @@ android {
         targetSdk = 35
         buildToolsVersion = "35.0.0"
         compileSdk = 35
-        versionCode = 36
-        versionName = "2.3.1"
+        versionCode = 38
+        versionName = "2.3.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

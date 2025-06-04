@@ -24,7 +24,7 @@ import javax.inject.Inject
 class CoinOrderViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upBitCoinOrder: UpbitCoinOrder,
-    private val bitThumbCoinOrder: BitThumbCoinOrder,
+//    private val bitThumbCoinOrder: BitThumbCoinOrder,
 ) : ViewModel() {
 
     val rootExchange = GlobalState.globalExchangeState.value
@@ -189,7 +189,7 @@ class CoinOrderViewModel @Inject constructor(
         price: BigDecimal,
         totalPrice: Double,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
                     upBitCoinOrder.requestBid(
@@ -220,7 +220,7 @@ class CoinOrderViewModel @Inject constructor(
         price: BigDecimal,
         totalPriceBTC: Double = 0.0,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
                     upBitCoinOrder.requestAsk(
