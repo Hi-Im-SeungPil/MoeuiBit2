@@ -21,8 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -33,22 +31,21 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.orhanobut.logger.Logger
+import com.tradingview.lightweightcharts.Logger
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
-import org.jeonfeel.moeuibit2.constants.ASK_BID_SCREEN_BID_TAB
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -56,7 +53,6 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
-import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskBlockColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookAskColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.coindetail.orderBookBidBlockColor
@@ -69,13 +65,13 @@ import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonUnSelectedColor
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
-import org.jeonfeel.moeuibit2.utils.ext.showToast
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
+import kotlin.reflect.KFunction3
 
 @Composable
 fun OrderScreen(
-    initCoinOrder: (String) -> Unit,
+    initCoinOrder: KFunction3<String, State<BigDecimal>, State<String>, Unit>,
     coinOrderScreenOnStop: () -> Unit,
     coinOrderScreenOnStart: (String) -> Unit,
     orderBookList: List<OrderBookModel>,
@@ -93,7 +89,9 @@ fun OrderScreen(
     btcPrice: State<BigDecimal>,
     transactionInfoList: List<TransactionInfo>,
     getTransactionInfoList: (String) -> Unit,
-    isCoinOrderStarted: MutableState<Boolean>
+    isCoinOrderStarted: MutableState<Boolean>,
+    koreanName: State<String>,
+    orderBookInitSuccess: State<Boolean>,
 ) {
     val state = rememberCoinOrderStateHolder(
         commonExchangeModelState = commonExchangeModelState,
@@ -109,11 +107,10 @@ fun OrderScreen(
 
     AddLifecycleEvent(
         onCreateAction = {
-            initCoinOrder(market)
+            initCoinOrder(market, btcPrice, koreanName)
         },
         onStartAction = {
             if (NetworkConnectivityObserver.isNetworkAvailable.value) {
-                Logger.e("$isCoinOrderStarted")
                 if (!isCoinOrderStarted.value) {
                     coinOrderScreenOnStart(market)
                 }
@@ -140,7 +137,7 @@ fun OrderScreen(
         dialogState = state.totalBidDialogState,
         userSeedMoney = userSeedMoney,
         userBTC = userBTC,
-        isKrw = market.isTradeCurrencyKrw(),
+        isKrw = market.isKrwTradeCurrency(),
         commonExchangeModelState = commonExchangeModelState,
         requestBid = requestBid
     )
@@ -148,7 +145,7 @@ fun OrderScreen(
     TotalAskTradeDialog(
         dialogState = state.totalAskDialogState,
         userCoin = userCoin,
-        isKrw = market.isTradeCurrencyKrw(),
+        isKrw = market.isKrwTradeCurrency(),
         commonExchangeModelState = commonExchangeModelState,
         requestAsk = requestAsk
     )
@@ -168,6 +165,7 @@ fun OrderScreen(
                 isMatchTradePrice = state::getIsMatchedTradePrice,
                 orderBookIndicationState = orderBookIndicationState,
                 getOrderBookIndicationText = state::getOrderBookIndicationText,
+                orderBookInitSuccess = orderBookInitSuccess
             )
             ChangeOrderBookIndicationSection(
                 orderBookIndicationText = state.getOrderBookIndicationText(
@@ -184,7 +182,7 @@ fun OrderScreen(
                 orderTabState = state.orderTabState,
                 userSeedMoney = userSeedMoney,
                 userBTC = userBTC,
-                isKrw = market.isTradeCurrencyKrw(),
+                isKrw = market.isKrwTradeCurrency(),
                 symbol = commonExchangeModelState.value?.symbol ?: "",
                 currentPrice = commonExchangeModelState.value?.tradePrice,
                 updateBidCoinQuantity = state::updateBidCoinQuantity,
@@ -221,18 +219,18 @@ fun ColumnScope.OrderBookSection(
     isMatchTradePrice: (BigDecimal) -> Boolean,
     orderBookIndicationState: State<String>,
     market: String,
+    orderBookInitSuccess: State<Boolean>,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val firstInit = remember { mutableStateOf(false) }
 
-    LaunchedEffect(orderBookList.size == 30) {
-        if (!firstInit.value && orderBookList.size == 30) {
-            coroutineScope.launch {
-                listState.scrollToItem(15)
-                listState.scrollToCentralizeItem(15, coroutineScope)
-                firstInit.value = true
-            }
+    LaunchedEffect(orderBookInitSuccess.value) {
+        if (orderBookInitSuccess.value) {
+            val orderBookCenter = (orderBookList.size / 2).toInt()
+            listState.scrollToItem(orderBookCenter)
+            listState.scrollToCentralizeItem(orderBookCenter, coroutineScope)
+            firstInit.value = true
         }
     }
 
@@ -379,63 +377,6 @@ fun ChangeOrderBookIndicationSection(
             )
         )
     }
-}
-
-
-@Composable
-fun OrderScreenQuantityTextField(
-    modifier: Modifier = Modifier,
-    placeholderText: String = "Placeholder",
-    fontSize: TextUnit = MaterialTheme.typography.body2.fontSize,
-    askBidSelectedTab: MutableState<Int>,
-    bidQuantity: MutableState<String>,
-    askQuantity: MutableState<String>,
-    currentTradePriceState: MutableState<Double>,
-) {
-    val context = LocalContext.current
-    val value = if (askBidSelectedTab.value == ASK_BID_SCREEN_BID_TAB) {
-        bidQuantity
-    } else {
-        askQuantity
-    }
-
-    BasicTextField(
-        value = value.value, onValueChange = {
-            if (it.toDoubleOrNull() == null && it != "") {
-                value.value = ""
-                context.showToast("숫자만 입력 가능합니다.")
-            } else if (currentTradePriceState.value == 0.0) {
-                context.showToast("네트워크 통신 오류입니다.")
-            } else {
-                value.value = it
-            }
-        }, singleLine = true,
-        textStyle = TextStyle(
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-            fontSize = DpToSp(17.dp), textAlign = TextAlign.End
-        ),
-        modifier = modifier
-            .clearFocusOnKeyboardDismiss()
-            .padding(0.dp, 0.dp, 9.dp, 0.dp),
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-        decorationBox = { innerTextField ->
-            Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f, true)) {
-                    if (value.value.isEmpty()) {
-                        Text(
-                            placeholderText,
-                            style = TextStyle(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onBackground,
-                                fontSize = fontSize,
-                                textAlign = TextAlign.End
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                    innerTextField()
-                }
-            }
-        })
 }
 
 private fun LazyListState.scrollToCentralizeItem(index: Int, scope: CoroutineScope) {

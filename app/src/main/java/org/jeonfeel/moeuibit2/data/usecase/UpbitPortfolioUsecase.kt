@@ -8,7 +8,7 @@ import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTick
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.PortfolioWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.PortfolioWebsocketManager
 import javax.inject.Inject
 
 class UpbitPortfolioUsecase @Inject constructor(

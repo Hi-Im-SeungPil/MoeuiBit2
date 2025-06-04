@@ -5,7 +5,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.CoinDetailWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.CoinDetailWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository

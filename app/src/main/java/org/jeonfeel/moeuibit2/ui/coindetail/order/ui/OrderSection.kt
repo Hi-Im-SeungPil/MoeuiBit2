@@ -62,7 +62,7 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForQuantity
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
-import org.jeonfeel.moeuibit2.utils.commaFormat
+import org.jeonfeel.moeuibit2.utils.formatWithComma
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -71,12 +71,17 @@ import java.util.Locale
 
 @Composable
 fun OrderSection(
-    orderTabState: MutableState<OrderTabState>,
     userSeedMoney: State<Double>,
     userBTC: State<MyCoin>,
     isKrw: Boolean,
     symbol: String,
     currentPrice: BigDecimal?,
+    orderTabState: MutableState<OrderTabState>,
+    userCoin: State<MyCoin>,
+    transactionInfoList: List<TransactionInfo>,
+    getTransactionInfoList: (String) -> Unit,
+    market: String,
+    btcPrice: State<BigDecimal>,
     updateBidCoinQuantity: (Int) -> Unit,
     updateAskCoinQuantity: (Int) -> Unit,
     bidQuantity: String,
@@ -89,13 +94,8 @@ fun OrderSection(
     dropdownLabelList: List<String>,
     askSelectedText: String,
     bidSelectedText: String,
-    userCoin: State<MyCoin>,
-    transactionInfoList: List<TransactionInfo>,
-    getTransactionInfoList: (String) -> Unit,
-    market: String,
     totalBidDialogState: MutableState<Boolean>,
     totalAskDialogState: MutableState<Boolean>,
-    btcPrice: State<BigDecimal>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         OrderTabSection(orderTabState = orderTabState)
@@ -477,7 +477,7 @@ fun OrderTabUserSeedMoneySection(
                 AutoSizeText(
                     text = if (isBid) {
                         if (isKrw) {
-                            userSeedMoney?.value?.commaFormat() ?: "0"
+                            userSeedMoney?.value?.formatWithComma() ?: "0"
                         } else {
                             userBTC?.value?.quantity?.eighthDecimal() ?: "0"
                         }

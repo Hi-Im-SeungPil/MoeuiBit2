@@ -1,26 +1,22 @@
-package org.jeonfeel.moeuibit2.ui.coindetail.order
+package org.jeonfeel.moeuibit2.ui.coindetail.order.coin_order
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import org.jeonfeel.moeuibit2.constants.UPBIT_BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseCommunicationModule
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
-import java.math.RoundingMode
 import javax.inject.Inject
 
 class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: UpbitCoinOrderUseCase) :
@@ -40,6 +36,9 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
     private val _tickerResponse = MutableStateFlow<UpbitSocketOrderBookRes?>(null)
     private val _maxOrderBookSize = mutableDoubleStateOf(0.0)
     val maxOrderBookSize: State<Double> get() = _maxOrderBookSize
+
+    private val _orderBookInitSuccess = mutableStateOf(false)
+    val orderBookInitSuccess: State<Boolean> get() = _orderBookInitSuccess
 
     suspend fun initCoinOrder(market: String) {
         requestOrderBook(market)
@@ -67,6 +66,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 onComplete = {
                     _maxOrderBookSize.doubleValue = it.maxOf { unit -> unit.size }
                     _orderBookList.addAll(it)
+                    _orderBookInitSuccess.value = true
                 }
             )
         }
@@ -113,7 +113,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
      * BTC 마켓일 때 사용자의 btc 가져오기
      */
     private suspend fun getUserBtcCoin(market: String) {
-        if (!market.isTradeCurrencyKrw()) {
+        if (!market.isKrwTradeCurrency()) {
             if (upbitCoinOrderUseCase.getUserBtcCoin() == null) {
                 _userBtcCoin.value = MyCoin()
             } else {
@@ -132,7 +132,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
         koreanName: String,
         btcPrice: Double = 1.0
     ) {
-        if (market.isTradeCurrencyKrw()) {
+        if (market.isKrwTradeCurrency()) {
             upbitCoinOrderUseCase.requestKRWBid(
                 market = market,
                 totalPrice = totalPrice,
@@ -161,7 +161,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 userSeedBTC = _userBtcCoin.value.quantity,
                 btcPrice = btcPrice
             )
-            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
+            getUserBtcCoin(market = BTC_SYMBOL_PREFIX)
             getUserCoin(market)
         }
     }
@@ -184,7 +184,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 quantity = quantity
             )
         )
-        if (market.isTradeCurrencyKrw()) {
+        if (market.isKrwTradeCurrency()) {
             upbitCoinOrderUseCase.requestKRWAsk(
                 market = market,
                 quantity = quantity,
@@ -202,7 +202,7 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
                 currentPrice = coinPrice,
                 btcPrice = btcPrice
             )
-            getUserBtcCoin(market = UPBIT_BTC_SYMBOL_PREFIX)
+            getUserBtcCoin(market = BTC_SYMBOL_PREFIX)
         }
         _userCoin.value = updateUserCoin
     }

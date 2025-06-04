@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.detail
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -56,7 +56,6 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.orhanobut.logger.Logger
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
@@ -80,7 +79,7 @@ import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.ext.showToast
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.math.BigDecimal
 import kotlin.reflect.KFunction0
@@ -382,7 +381,7 @@ fun CoinDetailPriceSection(
                         text = if (price == "0") "" else price,
                         style = TextStyle(color = priceTextColor, fontSize = DpToSp(dp = 27.dp))
                     )
-                    if (price != "0" && !market.isTradeCurrencyKrw()) {
+                    if (price != "0" && !market.isKrwTradeCurrency()) {
                         Text(
                             modifier = Modifier
                                 .padding(start = 10.dp)

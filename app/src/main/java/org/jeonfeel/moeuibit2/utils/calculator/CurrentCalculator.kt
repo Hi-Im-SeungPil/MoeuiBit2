@@ -1,13 +1,9 @@
 package org.jeonfeel.moeuibit2.utils.calculator
 
-import com.orhanobut.logger.Logger
-import org.jeonfeel.moeuibit2.constants.KRW_COMMISSION_FEE
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.utils.*
 import java.math.BigDecimal
-import java.math.RoundingMode
-import kotlin.math.abs
 import kotlin.math.round
 
 object CurrentCalculator {
@@ -18,7 +14,7 @@ object CurrentCalculator {
                 "0"
             } else {
                 if (tradePrice >= 1_000) {
-                    round(tradePrice).commaFormat()
+                    round(tradePrice).formatWithComma()
                 } else if (tradePrice >= 100 && tradePrice < 1_000) {
                     tradePrice.firstDecimal()
                 } else if (tradePrice >= 10 && tradePrice < 100) {
@@ -26,13 +22,13 @@ object CurrentCalculator {
                 } else if (tradePrice >= 1 && tradePrice < 10) {
                     tradePrice.thirdDecimal()
                 } else if (tradePrice >= 0.1 && tradePrice < 1) {
-                    tradePrice.forthDecimal()
+                    tradePrice.fourthDecimal()
                 } else if (tradePrice >= 0.01 && tradePrice < 0.1) {
-                    tradePrice.fiveDecimal()
+                    tradePrice.fifthDecimal()
                 } else if (tradePrice >= 0.001 && tradePrice < 0.01) {
                     tradePrice.sixthDecimal()
                 } else if (tradePrice >= 0.0001 && tradePrice < 0.001) {
-                    tradePrice.sevenDecimal()
+                    tradePrice.seventhDecimal()
                 } else {
                     tradePrice.eighthDecimal()
                 }
@@ -50,7 +46,7 @@ object CurrentCalculator {
                 "0"
             } else {
                 if (tradePrice >= 1000) {
-                    round(tradePrice).toLong().commaFormat()
+                    round(tradePrice).toLong().formatWithComma()
                 } else if (tradePrice >= 100 && tradePrice < 1000) {
                     tradePrice.firstDecimal()
                 } else if (tradePrice >= 10 && tradePrice < 100) {
@@ -58,13 +54,13 @@ object CurrentCalculator {
                 } else if (tradePrice >= 1 && tradePrice < 10) {
                     tradePrice.thirdDecimal()
                 } else if (tradePrice >= 0.1 && tradePrice < 1) {
-                    tradePrice.forthDecimal()
+                    tradePrice.fourthDecimal()
                 } else if (tradePrice >= 0.01 && tradePrice < 0.1) {
-                    tradePrice.fiveDecimal()
+                    tradePrice.fifthDecimal()
                 } else if (tradePrice >= 0.001 && tradePrice < 0.01) {
                     tradePrice.sixthDecimal()
                 } else if (tradePrice >= 0.0001 && tradePrice < 0.001) {
-                    tradePrice.sevenDecimal()
+                    tradePrice.seventhDecimal()
                 } else {
                     tradePrice.eighthDecimal()
                 }
@@ -86,7 +82,7 @@ object CurrentCalculator {
                 } else if (tradePrice < 100 && tradePrice >= 1) {
                     tradePrice.secondDecimal().toDouble()
                 } else {
-                    tradePrice.forthDecimal().toDouble()
+                    tradePrice.fourthDecimal().toDouble()
                 }
             }
         } else if (marketState == SELECTED_BTC_MARKET) {
@@ -103,7 +99,7 @@ object CurrentCalculator {
     fun accTradePrice24hCalculator(accTradePrice24h: Double, marketState: Int): String {
         return when (marketState) {
             SELECTED_KRW_MARKET -> {
-                round(accTradePrice24h * 0.000001).commaFormat()
+                round(accTradePrice24h * 0.000001).formatWithComma()
             }
 
             SELECTED_BTC_MARKET -> {

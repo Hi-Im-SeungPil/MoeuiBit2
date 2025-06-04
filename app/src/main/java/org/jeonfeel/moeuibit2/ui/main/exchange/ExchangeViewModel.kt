@@ -9,6 +9,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.GlobalState
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -16,6 +19,7 @@ import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.TRADE_CURRENCY_KRW
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.BitThumbExchange
 import org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange.UpBitExchange
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -28,34 +32,26 @@ enum class TickerAskBidState {
 @Keep
 class ExchangeViewModelState {
     val isUpdateExchange = mutableStateOf(true)
-
     val tradeCurrencyState = mutableIntStateOf(TRADE_CURRENCY_KRW)
-
     val selectedSortType: MutableState<SortType> = mutableStateOf(SortType.DEFAULT)
-
     val sortOrder: MutableState<SortOrder> = mutableStateOf(SortOrder.NONE)
-
     val textFieldValue: MutableState<String> = mutableStateOf("")
 }
 
 @HiltViewModel
 class ExchangeViewModel @Inject constructor(
     private val upBitExchange: UpBitExchange,
-    private val preferenceManager: PreferencesManager
+    private val biThumbExchange: BitThumbExchange,
+    private val preferenceManager: PreferencesManager,
 ) : BaseViewModel(preferenceManager) {
 
     private val state = ExchangeViewModelState()
 
     val isUpdateExchange: State<Boolean> get() = state.isUpdateExchange
-
     val tradeCurrencyState: State<Int> get() = state.tradeCurrencyState
-
     val selectedSortType: State<SortType> get() = state.selectedSortType
-
     val sortOrder: State<SortOrder> get() = state.sortOrder
-
     val textFieldValue: State<String> get() = state.textFieldValue
-
     var isStarted = false
         private set
 
@@ -64,57 +60,67 @@ class ExchangeViewModel @Inject constructor(
     private var marketChangeJob: Job? = null
 
     init {
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBitExchange.initUpBit(
-                    tradeCurrencyState = tradeCurrencyState,
-                    isUpdateExchange = isUpdateExchange
-                )
-            },
-            bitthumbAction = {
+        upBitExchange.initUpBit(
+            tradeCurrencyState = tradeCurrencyState,
+            isUpdateExchange = isUpdateExchange
+        )
 
-            }
+        biThumbExchange.initBitThumb(
+            tradeCurrencyState = tradeCurrencyState,
+            isUpdateExchange = isUpdateExchange
         )
     }
 
     fun onStart() {
-        realTimeUpdateJob?.cancel()
-        collectTickerJob?.cancel()
         isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
-                ROOT_EXCHANGE_UPBIT -> {
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
                     upBitExchange.onStart(
                         updateLoadingState = ::updateLoadingState
                     )
                 }
 
-                ROOT_EXCHANGE_BITTHUMB -> {
-
+                EXCHANGE_BITTHUMB -> {
+                    biThumbExchange.onStart(
+                        updateLoadingState = ::updateLoadingState
+                    )
                 }
             }
         }.also { it.start() }
 
         collectTickerJob = viewModelScope.launch {
-            upBitExchange.exchangeCollectTicker()
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
+                    upBitExchange.collectCoinTicker()
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbExchange.collectCoinTicker()
+                }
+            }
         }.also { it.start() }
     }
 
     fun onStop() {
         isStarted = false
-        rootExchangeCoroutineBranch(
-            upbitAction = {
-                upBitExchange.onStop()
-                collectTickerJob?.cancel()
-                realTimeUpdateJob?.cancel()
-                collectTickerJob = null
-                realTimeUpdateJob = null
-            },
-            bitthumbAction = {
+        collectTickerJob?.cancel()
+        realTimeUpdateJob?.cancel()
+        collectTickerJob = null
+        realTimeUpdateJob = null
 
+        viewModelScope.launch {
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
+                    upBitExchange.onStop()
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbExchange.onStop()
+                }
             }
-        )
+        }
     }
 
     private fun updateLoadingState(state: Boolean) {
@@ -130,13 +136,13 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun getTickerList(): List<CommonExchangeModel> {
-        return when (rootExchange) {
-            ROOT_EXCHANGE_UPBIT -> {
+        return when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> {
                 upBitExchange.getExchangeModelList(tradeCurrencyState)
             }
 
-            ROOT_EXCHANGE_BITTHUMB -> {
-                upBitExchange.getExchangeModelList(tradeCurrencyState)
+            EXCHANGE_BITTHUMB -> {
+                biThumbExchange.getExchangeModelList(tradeCurrencyState)
             }
 
             else -> {
@@ -147,11 +153,28 @@ class ExchangeViewModel @Inject constructor(
 
     fun sortTickerList(targetTradeCurrency: Int? = null, sortType: SortType, sortOrder: SortOrder) {
         state.isUpdateExchange.value = false
-        upBitExchange.sortTickerList(
-            tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
-            sortType = sortType,
-            sortOrder = sortOrder
-        )
+
+        when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> {
+                upBitExchange.sortTickerList(
+                    tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+                    sortType = sortType,
+                    sortOrder = sortOrder
+                )
+            }
+
+            EXCHANGE_BITTHUMB -> {
+                biThumbExchange.sortTickerList(
+                    tradeCurrency = targetTradeCurrency ?: tradeCurrencyState.value,
+                    sortType = sortType,
+                    sortOrder = sortOrder
+                )
+            }
+
+            else -> {
+                upBitExchange.getExchangeModelList(tradeCurrencyState)
+            }
+        }
         state.isUpdateExchange.value = true
     }
 
@@ -160,16 +183,19 @@ class ExchangeViewModel @Inject constructor(
             state.tradeCurrencyState.intValue = tradeCurrency
             marketChangeJob?.cancel()
             marketChangeJob = viewModelScope.launch(ioDispatcher) {
-                when (rootExchange) {
-                    ROOT_EXCHANGE_UPBIT -> {
+                when (GlobalState.globalExchangeState.value) {
+                    EXCHANGE_UPBIT -> {
                         upBitExchange.changeTradeCurrencyAction(
                             sortType = selectedSortType.value,
                             sortOrder = sortOrder.value
                         )
                     }
 
-                    ROOT_EXCHANGE_BITTHUMB -> {
-                        upBitExchange.changeTradeCurrencyAction()
+                    EXCHANGE_BITTHUMB -> {
+                        biThumbExchange.changeTradeCurrencyAction(
+                            sortType = selectedSortType.value,
+                            sortOrder = sortOrder.value
+                        )
                     }
 
                     else -> {
@@ -181,13 +207,13 @@ class ExchangeViewModel @Inject constructor(
     }
 
     fun getBtcPrice(): BigDecimal {
-        return when (rootExchange) {
-            ROOT_EXCHANGE_UPBIT -> {
+        return when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> {
                 upBitExchange.getBtcPrice()
             }
 
-            ROOT_EXCHANGE_BITTHUMB -> {
-                upBitExchange.getBtcPrice()
+            EXCHANGE_BITTHUMB -> {
+                biThumbExchange.getBtcPrice()
             }
 
             else -> {
@@ -201,9 +227,6 @@ class ExchangeViewModel @Inject constructor(
     }
 
     companion object {
-        const val ROOT_EXCHANGE_UPBIT = "upbit"
-        const val ROOT_EXCHANGE_BITTHUMB = "bitthumb"
-
         const val TRADE_CURRENCY_KRW = 0
         const val TRADE_CURRENCY_BTC = 1
         const val TRADE_CURRENCY_FAV = 2

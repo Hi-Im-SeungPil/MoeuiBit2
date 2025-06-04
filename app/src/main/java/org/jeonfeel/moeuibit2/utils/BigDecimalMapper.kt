@@ -1,9 +1,8 @@
 package org.jeonfeel.moeuibit2.utils
 
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_BITTHUMB
-import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel.Companion.ROOT_EXCHANGE_UPBIT
-import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -15,9 +14,9 @@ object BigDecimalMapper {
     private const val THOUSAND = 100_000_000L
     fun Double.newBigDecimal(rootExchange: String, market: String): BigDecimal {
         return when (rootExchange) {
-            ROOT_EXCHANGE_UPBIT -> {
+            EXCHANGE_UPBIT -> {
                 when {
-                    market.startsWith(UPBIT_KRW_SYMBOL_PREFIX) -> {
+                    market.startsWith(KRW_SYMBOL_PREFIX) -> {
                         if (market.contains("USDT") || market.contains("USDC")) {
                             BigDecimal(this).setScale(1, RoundingMode.HALF_UP)
                         } else {
@@ -41,8 +40,21 @@ object BigDecimalMapper {
                 }
             }
 
-            ROOT_EXCHANGE_BITTHUMB -> {
-                BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
+            EXCHANGE_BITTHUMB -> {
+                when {
+                    market.startsWith(KRW_SYMBOL_PREFIX) -> {
+                        when {
+                            this >= 100 -> BigDecimal(this).setScale(0, RoundingMode.HALF_UP)
+                            this >= 10 -> BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
+                            this >= 1 -> BigDecimal(this).setScale(3, RoundingMode.HALF_UP)
+                            else -> BigDecimal(this).setScale(4, RoundingMode.HALF_UP)
+                        }
+                    }
+
+                    else -> {
+                        BigDecimal(this).setScale(8, RoundingMode.HALF_UP)
+                    }
+                }
             }
 
             else -> {

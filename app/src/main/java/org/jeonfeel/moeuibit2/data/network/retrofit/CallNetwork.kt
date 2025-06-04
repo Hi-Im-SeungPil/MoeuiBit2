@@ -15,14 +15,14 @@ fun <T> networkCall(call: suspend () -> Response<T>): Flow<ApiResult<T>> {
                 if (response.isSuccessful) {
                     emit(ApiResult.success(data = response.body()))
                 } else {
-                    Logger.e(response.errorBody()?.string() ?: "")
+                    Logger.e(response.toString() ?: "")
                     emit(
                         ApiResult.error(null, response.errorBody()?.string() ?: "")
                     )
                 }
             },
             onFailure = { e ->
-                Logger.e(e?.message.toString() ?: "")
+                Logger.e(e.message.toString() ?: "")
                 emit(ApiResult.error(e))
             }
         )

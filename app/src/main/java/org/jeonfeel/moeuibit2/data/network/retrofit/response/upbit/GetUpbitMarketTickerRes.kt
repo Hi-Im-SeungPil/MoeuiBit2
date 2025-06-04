@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.ui.main.exchange.ExchangeViewModel
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
@@ -71,7 +72,7 @@ data class GetUpbitMarketTickerRes(
             symbol = market.substring(4),
             openingPrice = openingPrice,
             tradePrice = tradePrice.newBigDecimal(
-                ExchangeViewModel.ROOT_EXCHANGE_UPBIT,
+                EXCHANGE_UPBIT,
                 market = market
             ),
             signedChangeRate = signedChangeRate * 100,

@@ -8,8 +8,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,9 +28,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -53,7 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,12 +60,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
 import org.jeonfeel.moeuibit2.R
@@ -85,6 +74,7 @@ import org.jeonfeel.moeuibit2.ui.common.clearFocusOnKeyboardDismiss
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
+import org.jeonfeel.moeuibit2.ui.main.exchange.sections.SelectTradeCurrencySection
 import org.jeonfeel.moeuibit2.ui.nav.AppScreen
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
@@ -100,12 +90,11 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedStringForBtc
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedUnitStringForBtc
-import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
 import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
 import kotlin.reflect.KFunction1
 
@@ -125,6 +114,7 @@ fun ExchangeScreen(
     updateSortOrder: KFunction1<SortOrder, Unit>,
     textFieldValueState: State<String>,
     updateTextFieldValue: KFunction1<String, Unit>,
+    changeExchange: () -> Unit,
 ) {
     val stateHolder = rememberExchangeStateHolder(
         isUpdateExchange = isUpdateExchange.value,
@@ -161,7 +151,8 @@ fun ExchangeScreen(
                         .zIndex(1f),
                     tradeCurrencyState = tradeCurrencyState,
                     changeTradeCurrency = stateHolder::changeTradeCurrencyAction,
-                    coroutineScope = stateHolder.coroutineScope
+                    coroutineScope = stateHolder.coroutineScope,
+                    changeExchange = changeExchange
                 )
             },
             modifier = Modifier
@@ -260,71 +251,6 @@ private fun SearchSection(
                 }
             }
         })
-}
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-private fun SelectTradeCurrencySection(
-    tradeCurrencyState: State<Int>,
-    pagerState: PagerState,
-    tabTitleList: Array<String> = stringArrayResource(id = R.array.exchange_screen_tab_list),
-    modifier: Modifier = Modifier,
-    changeTradeCurrency: (Int) -> Unit,
-    coroutineScope: CoroutineScope,
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    Box(modifier = Modifier.height(0.dp))
-    Row(
-        modifier.fillMaxWidth()
-    ) {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-                    color = Color.Transparent
-                )
-            },
-            modifier = Modifier
-                .weight(3f),
-            backgroundColor = commonBackground(),
-            divider = {}
-        ) {
-            tabTitleList.forEachIndexed { index, title ->
-                Tab(
-                    interactionSource = object : MutableInteractionSource {
-                        override val interactions: Flow<Interaction> = emptyFlow()
-                        override suspend fun emit(interaction: Interaction) {}
-                        override fun tryEmit(interaction: Interaction) = true
-                    },
-                    text = {
-                        Text(
-                            text = title,
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                            ),
-                            fontSize = DpToSp(dp = 17.dp),
-                            modifier = Modifier.weight(1f)
-                        )
-                    },
-                    selectedContentColor = commonTextColor(),
-                    unselectedContentColor = Color(0xff8C939E),
-                    selected = tradeCurrencyState.value == index,
-                    onClick = {
-                        if (tradeCurrencyState.value != index && NetworkConnectivityObserver.isNetworkAvailable.value) {
-                            coroutineScope.launch {
-                                keyboardController?.hide()
-                                changeTradeCurrency(index)
-                            }
-                        }
-                    },
-                )
-            }
-        }
-        Spacer(modifier = Modifier.weight(1f))
-    }
 }
 
 @Composable
@@ -671,7 +597,7 @@ fun CoinTickerView(
                 ),
                 color = fluctuatePrice.getFluctuateColor()
             )
-            if (!market.isTradeCurrencyKrw()) {
+            if (!market.isKrwTradeCurrency()) {
                 AutoSizeText(
                     text = "$btcPriceMultiplyCoinPrice KRW", modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
@@ -702,7 +628,7 @@ fun CoinTickerView(
                 ),
                 color = commonTextColor()
             )
-            if (!market.isTradeCurrencyKrw()) {
+            if (!market.isKrwTradeCurrency()) {
                 AutoSizeText(
                     text = btcPriceMultiplyAcc,
                     textStyle = TextStyle(

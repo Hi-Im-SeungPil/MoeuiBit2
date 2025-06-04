@@ -6,10 +6,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.AlternativeRepository
+import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
 import org.jeonfeel.moeuibit2.data.repository.network.GitJsonRepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
+import org.jeonfeel.moeuibit2.data.usecase.BitThumbUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinOrderUseCase
@@ -17,6 +19,7 @@ import org.jeonfeel.moeuibit2.data.usecase.UpbitPortfolioUsecase
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoUseCase
 import org.jeonfeel.moeuibit2.data.usecase.CoinMarketConditionUseCase
 import org.jeonfeel.moeuibit2.data.usecase.MiningUseCase
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import javax.inject.Singleton
 
 
@@ -33,6 +36,20 @@ class UseCaseModule {
         return UpBitExchangeUseCase(
             localRepository = localRepository,
             upbitRepository = upbitRepository,
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideBitThumbUseCase(
+        localRepository: LocalRepository,
+        bitthumbRepository: BitThumbRepository,
+        cacheManager: CacheManager
+    ): BitThumbUseCase {
+        return BitThumbUseCase(
+            localRepository = localRepository,
+            bitThumbRepository = bitthumbRepository,
+            cacheManager = cacheManager
         )
     }
 

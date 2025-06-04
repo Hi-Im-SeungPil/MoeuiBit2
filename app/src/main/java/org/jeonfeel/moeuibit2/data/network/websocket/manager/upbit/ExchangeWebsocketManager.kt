@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.data.network.websocket.manager
+package org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit
 
 import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
@@ -12,14 +12,13 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.json.Json
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-class CoinDetailWebsocketManager {
+class ExchangeWebsocketManager {
 
     private val client = HttpClient {
         install(WebSockets)
@@ -55,7 +54,6 @@ class CoinDetailWebsocketManager {
                 host = "api.upbit.com",
                 path = "/websocket/v1"
             ) {
-                println("WebSocket 연결 성공!")
                 session = this
                 receiveChannel = this.incoming
                 socketState.set(WebSocketState.CONNECTED)
@@ -73,7 +71,7 @@ class CoinDetailWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-//                            Logger.e(receivedMessage.code)
+                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 
@@ -82,7 +80,6 @@ class CoinDetailWebsocketManager {
                 }
             }
         } catch (e: Exception) {
-            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {
@@ -127,18 +124,15 @@ class CoinDetailWebsocketManager {
         val message = upbitTickerWebSocketMessage(marketCodes)
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
-                println("메시지 전송 성공: $marketCodes")
+                isCancel = false
                 session!!.send(Frame.Text(message))
             } else {
-                println("WebSocket이 연결되지 않았습니다.")
                 disConnectionSocket()
                 if (!isCancel && !isBackGround) {
                     retry(marketCodes)
                 }
             }
         } catch (e: Exception) {
-            // 소켓 연결부터 다시
-            println("send message 오류")
             disConnectionSocket()
             if (!isCancel && !isBackGround) {
                 retry(marketCodes)
@@ -158,7 +152,6 @@ class CoinDetailWebsocketManager {
                     host = "api.upbit.com",
                     path = "/websocket/v1"
                 ) {
-                    println("WebSocket 연결 성공!")
                     session = this
                     receiveChannel = this.incoming
                     socketState.set(WebSocketState.CONNECTED)
@@ -194,7 +187,6 @@ class CoinDetailWebsocketManager {
                 if (isCancel || isBackGround) {
                     return
                 }
-                println("catch")
 
                 disConnectionSocket()
                 delay(3000L)
@@ -220,5 +212,4 @@ class CoinDetailWebsocketManager {
     fun getIsSocketConnected(): Boolean {
         return session != null && socketState.get() == WebSocketState.CONNECTED
     }
-
 }

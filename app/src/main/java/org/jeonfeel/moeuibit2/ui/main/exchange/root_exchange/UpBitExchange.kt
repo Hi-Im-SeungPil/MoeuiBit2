@@ -1,12 +1,12 @@
 package org.jeonfeel.moeuibit2.ui.main.exchange.root_exchange
 
+import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.flow.collectLatest
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.constants.UPBIT_KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
@@ -58,61 +58,68 @@ class UpBitExchange @Inject constructor(
         this.isUpdateExchange = isUpdateExchange
     }
 
-    private suspend fun init() {
+    private suspend fun initializeTickerData() {
         requestMarketCode()
         requestTicker()
     }
 
-    suspend fun onStart(
-        updateLoadingState: KFunction1<Boolean, Unit>,
-    ) {
-        if (!tickerDataIsEmpty()) {
+    suspend fun onStart(updateLoadingState: (Boolean) -> Unit) {
+        if (isTickerDataEmpty()) {
+            updateLoadingState(true)
+
+            clearAllTickerData()
+            initializeTickerData()
+
+            delayAndStopLoading(updateLoadingState)
+            useCaseOnStart()
+        } else {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
             useCaseOnStart()
-        } else if (tickerDataIsEmpty()) {
-            updateLoadingState(true)
-            clearTickerData()
-            init()
-            android.os.Handler(Looper.getMainLooper()).postDelayed({
-                updateLoadingState(false)
-            }, 500)
-            useCaseOnStart()
         }
+    }
+
+    private fun isTickerDataEmpty(): Boolean {
+        return krwMarketCodeMap.isEmpty() ||
+                btcMarketCodeMap.isEmpty() ||
+                krwList.isEmpty() ||
+                krwExchangeModelPosition.isEmpty() ||
+                _krwExchangeModelList.isEmpty() ||
+                btcList.isEmpty() ||
+                btcExchangeModelPosition.isEmpty() ||
+                _btcExchangeModelList.isEmpty()
+    }
+
+    private fun clearAllTickerData() {
+        krwMarketCodeMap.clear()
+        btcMarketCodeMap.clear()
+
+        krwList.clear()
+        krwExchangeModelPosition.clear()
+        _krwExchangeModelList.clear()
+
+        btcList.clear()
+        btcExchangeModelPosition.clear()
+        _btcExchangeModelList.clear()
+
+        favoriteList.clear()
+        favoriteModelPosition.clear()
+        _favoriteExchangeModelList.clear()
+    }
+
+    private fun delayAndStopLoading(updateLoadingState: (Boolean) -> Unit) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            updateLoadingState(false)
+        }, 500)
     }
 
     suspend fun onStop() {
         upBitExchangeUseCase.onStop()
     }
 
-    fun tickerDataIsEmpty(): Boolean {
-        return krwMarketCodeMap.isEmpty()
-                || btcMarketCodeMap.isEmpty()
-                || krwList.isEmpty()
-                || krwExchangeModelPosition.isEmpty()
-                || _krwExchangeModelList.isEmpty()
-                || btcList.isEmpty()
-                || btcExchangeModelPosition.isEmpty()
-                || _btcExchangeModelList.isEmpty()
-    }
-
-    private fun clearTickerData() {
-        krwMarketCodeMap.clear()
-        btcMarketCodeMap.clear()
-        krwList.clear()
-        krwExchangeModelPosition.clear()
-        _krwExchangeModelList.clear()
-        btcList.clear()
-        btcExchangeModelPosition.clear()
-        _btcExchangeModelList.clear()
-        favoriteList.clear()
-        favoriteModelPosition.clear()
-        _favoriteExchangeModelList.clear()
-    }
-
-    suspend fun exchangeCollectTicker() {
-        collectTicker()
+    suspend fun collectCoinTicker() {
+        this.collectTicker()
     }
 
     private suspend fun favoriteOnResume() {
@@ -142,7 +149,7 @@ class UpBitExchange @Inject constructor(
 
             newModels.forEach { commonExchangeModel ->
                 val market = commonExchangeModel.market
-                val model = if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                val model = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                     val position = krwExchangeModelPosition[market]
                     position?.let {
                         _krwExchangeModelList[position]
@@ -468,7 +475,7 @@ class UpBitExchange @Inject constructor(
             favoriteList.forEachIndexed { index, market ->
 
                 val (positionMap, exchangeModelList) =
-                    if (market.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                    if (market.startsWith(KRW_SYMBOL_PREFIX)) {
                         krwExchangeModelPosition to _krwExchangeModelList
                     } else {
                         btcExchangeModelPosition to _btcExchangeModelList
@@ -508,12 +515,13 @@ class UpBitExchange @Inject constructor(
      * 웹소켓 티커 수신
      */
     private suspend fun collectTicker() {
-        upBitExchangeUseCase.observeTickerResponse().collectLatest { upbitSocketTickerRes ->
+        upBitExchangeUseCase.observeTickerResponse().collect { upbitSocketTickerRes ->
             try {
-                if (isUpdateExchange?.value == false) return@collectLatest
+                if (isUpdateExchange?.value == false) return@collect
 
-                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collectLatest
+                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collect
 
+//                Logger.e(upbitSocketTickerRes.code)
                 var positionMap: MutableMap<String, Int>? = null
                 var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
                 var targetModelList: MutableList<CommonExchangeModel>? = null
@@ -560,7 +568,7 @@ class UpBitExchange @Inject constructor(
                             positionMap = favoriteModelPosition
                             targetModelList = _favoriteExchangeModelList
                             upbitMarketCodeMap =
-                                if (upbitSocketTickerRes.code.startsWith(UPBIT_KRW_SYMBOL_PREFIX)) {
+                                if (upbitSocketTickerRes.code.startsWith(KRW_SYMBOL_PREFIX)) {
                                     krwMarketCodeMap
                                 } else {
                                     btcMarketCodeMap

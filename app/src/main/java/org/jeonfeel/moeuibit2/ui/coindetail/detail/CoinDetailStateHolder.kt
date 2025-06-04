@@ -1,4 +1,4 @@
-package org.jeonfeel.moeuibit2.ui.coindetail
+package org.jeonfeel.moeuibit2.ui.coindetail.detail
 
 import android.content.Context
 import android.widget.Toast
@@ -7,20 +7,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonFallColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.formattedString
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
-import org.jeonfeel.moeuibit2.utils.ext.EvenColor
-import org.jeonfeel.moeuibit2.utils.ext.FallColor
-import org.jeonfeel.moeuibit2.utils.ext.RiseColor
-import org.jeonfeel.moeuibit2.utils.commaFormat
-import org.jeonfeel.moeuibit2.utils.decimalPoint
+import org.jeonfeel.moeuibit2.utils.formatWithComma
+import org.jeonfeel.moeuibit2.utils.formatDecimalPoint
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
-import org.jeonfeel.moeuibit2.utils.isTradeCurrencyKrw
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.secondDecimal
 import java.util.ArrayList
 import kotlin.math.abs
@@ -62,12 +58,12 @@ class CoinDetailStateHolder(
 
     fun getFluctuatePrice(fluctuatePrice: Double, market: String): String {
         val absValue = abs(fluctuatePrice)
-        return if (market.isTradeCurrencyKrw()) {
+        return if (market.isKrwTradeCurrency()) {
             if (absValue >= 1000) {
                 if (fluctuatePrice > 0) {
-                    "+${fluctuatePrice.commaFormat()}"
+                    "+${fluctuatePrice.formatWithComma()}"
                 } else {
-                    fluctuatePrice.commaFormat()
+                    fluctuatePrice.formatWithComma()
                 }
             } else if (absValue >= 1.0) {
                 if (fluctuatePrice > 0) {
@@ -77,9 +73,9 @@ class CoinDetailStateHolder(
                 }
             } else {
                 if (fluctuatePrice > 0) {
-                    "+${fluctuatePrice.decimalPoint()}"
+                    "+${fluctuatePrice.formatDecimalPoint()}"
                 } else {
-                    fluctuatePrice.decimalPoint()
+                    fluctuatePrice.formatDecimalPoint()
                 }
             }
         } else {

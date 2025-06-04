@@ -26,7 +26,7 @@ class ServiceModule {
 
     @Singleton
     @Provides
-    fun provideBitThumbService(@RetrofitModule.UpBitRetrofit retrofit: Retrofit): BitThumbService {
+    fun provideBitThumbService(@RetrofitModule.BitThumbRetrofit retrofit: Retrofit): BitThumbService {
         return retrofit.create(BitThumbService::class.java)
     }
 

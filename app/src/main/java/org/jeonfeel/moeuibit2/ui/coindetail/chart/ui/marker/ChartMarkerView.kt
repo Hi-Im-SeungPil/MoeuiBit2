@@ -16,7 +16,6 @@ import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.databinding.CandleInfoMarkerBinding
 import org.jeonfeel.moeuibit2.ui.theme.decrease_candle_color
-import org.jeonfeel.moeuibit2.ui.theme.decrease_color
 import org.jeonfeel.moeuibit2.ui.theme.increase_candle_color
 import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
