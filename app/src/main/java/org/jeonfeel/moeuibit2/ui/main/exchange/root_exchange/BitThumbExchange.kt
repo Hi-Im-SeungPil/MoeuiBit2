@@ -467,8 +467,6 @@ class BitThumbExchange @Inject constructor(
                         return@collect
                     }
 
-                    Logger.e(krwExchangeModelPosition.toString())
-
                     val (positionMap, marketCodeMap, modelList) = getTargetMaps(
                         bithumbSocketTickerRes = res.data
                     )
@@ -483,7 +481,7 @@ class BitThumbExchange @Inject constructor(
                         val model = res.data.mapToCommonExchangeModel(marketCode,waringList).apply {
                             needAnimation.value = res.data.askBid
                         }
-
+                        Logger.e(model.toString())
                         modelList?.set(position, model)
                     }
                 } else {

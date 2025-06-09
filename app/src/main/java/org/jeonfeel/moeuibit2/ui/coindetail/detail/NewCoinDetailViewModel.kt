@@ -83,10 +83,11 @@ class NewCoinDetailViewModel @Inject constructor(
         private set
 
     fun init(market: String) {
+        _market = market
+
         viewModelScope.launch {
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
-                    _market = market
                     getKoreanCoinName()
                     getEngCoinName()
                     getIsFavorite()
@@ -95,7 +96,11 @@ class NewCoinDetailViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    getBiThumbKoreanCoinName()
+                    getBiThumbEngCoinName()
+                    getIsFavorite()
+                    requestCoinTicker(market)
+                    isInitSuccess = true
                 }
             }
         }.also { it.start() }
@@ -148,6 +153,16 @@ class NewCoinDetailViewModel @Inject constructor(
     private suspend fun getEngCoinName() {
         _engCoinName.value =
             cacheManager.readEnglishCoinNameMap()[_market.substring(4)]?.replace(" ", "-") ?: ""
+    }
+
+    private suspend fun getBiThumbKoreanCoinName() {
+        _koreanCoinName.value =
+            cacheManager.readBiThumbKoreanCoinNameMap()[_market.substring(4)] ?: ""
+    }
+
+    private suspend fun getBiThumbEngCoinName() {
+        _engCoinName.value =
+            cacheManager.readBiThumbEnglishCoinNameMap()[_market.substring(4)]?.replace(" ", "-") ?: ""
     }
 
     private suspend fun getIsFavorite() {

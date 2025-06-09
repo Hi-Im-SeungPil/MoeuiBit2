@@ -162,7 +162,7 @@ data class BithumbSocketTickerRes(
     }
 
     private fun mapToCaution(warningTypes: List<String>): Caution? {
-        if (warningTypes.isEmpty()) return null
+        if (warningTypes.isEmpty()) return Caution()
 
         var caution = Caution() // 기본값은 모든 필드가 false
 

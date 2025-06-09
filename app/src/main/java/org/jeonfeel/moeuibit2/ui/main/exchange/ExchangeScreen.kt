@@ -60,6 +60,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
+import com.tradingview.lightweightcharts.Logger
 import kotlinx.coroutines.delay
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
@@ -444,6 +445,8 @@ private fun CoinTickerSection(
                         val market = item.market
                         val warning = item.warning
                         val caution = Utils.gson.toJson(item.caution)
+                        Logger.e("caution : $caution")
+
                         appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$caution") {
                             launchSingleTop = true
                             popUpTo(appNavController.graph.findStartDestination().id) {

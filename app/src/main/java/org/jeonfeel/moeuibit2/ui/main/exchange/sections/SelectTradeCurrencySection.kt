@@ -113,10 +113,10 @@ fun SelectTradeCurrencySection(
                 )
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
-//        SelectExchangeSection(
-//            changeExchange = changeExchange
-//        )
+//        Spacer(modifier = Modifier.weight(1f))
+        SelectExchangeSection(
+            changeExchange = changeExchange
+        )
     }
 }
 

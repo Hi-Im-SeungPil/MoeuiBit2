@@ -71,4 +71,53 @@ class CacheManager(private val context: Context) {
         val englishCoinNameCache = context.englishCoinNameCacheDataStore.data.first()
         return englishCoinNameCache.englishCoinNameMapList.associate { it.key to it.value }
     }
+
+    suspend fun saveBiThumbKoreanCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
+        val koreanNameKeyValueList = arrayListOf<KoreanCoinNameComponent>()
+        codeMap.forEach { (key, value) ->
+            val symbol = key.substring(4)
+            val koreanName = value.koreanName
+            val component =
+                KoreanCoinNameComponent.newBuilder().setKey(symbol).setValue(koreanName).build()
+            koreanNameKeyValueList.add(component)
+        }
+        val koreanCoinNameCache =
+            KoreanCoinNameCache.newBuilder().addAllKoreanCoinNameComponents(koreanNameKeyValueList)
+                .build()
+        context.koreanCoinNameCacheDataStore.updateData { current ->
+            current.toBuilder().clearKoreanCoinNameComponents()
+                .addAllKoreanCoinNameComponents(koreanCoinNameCache.koreanCoinNameComponentsList)
+                .build()
+        }
+    }
+
+    suspend fun readBiThumbKoreanCoinNameMap(): Map<String, String> {
+        val koreanCoinNameCache = context.koreanCoinNameCacheDataStore.data.first()
+        return koreanCoinNameCache.koreanCoinNameComponentsList.associate { it.key to it.value }
+    }
+
+    suspend fun saveBiThumbEnglishCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
+        val englishNameKeyValueList = arrayListOf<EnglishCoinNameComponent>()
+        codeMap.forEach { (key, value) ->
+            val symbol = key.substring(4)
+            val englishName = value.englishName
+            val component =
+                EnglishCoinNameComponent.newBuilder().setKey(symbol).setValue(englishName).build()
+            englishNameKeyValueList.add(component)
+        }
+        val englishCoinNameCache =
+            EnglishCoinNameCache.newBuilder().addAllEnglishCoinNameMap(englishNameKeyValueList)
+                .build()
+
+        context.englishCoinNameCacheDataStore.updateData { current ->
+            current.toBuilder().clearEnglishCoinNameMap()
+                .addAllEnglishCoinNameMap(englishCoinNameCache.englishCoinNameMapList)
+                .build()
+        }
+    }
+
+    suspend fun readBiThumbEnglishCoinNameMap(): Map<String, String> {
+        val englishCoinNameCache = context.englishCoinNameCacheDataStore.data.first()
+        return englishCoinNameCache.englishCoinNameMapList.associate { it.key to it.value }
+    }
 }
