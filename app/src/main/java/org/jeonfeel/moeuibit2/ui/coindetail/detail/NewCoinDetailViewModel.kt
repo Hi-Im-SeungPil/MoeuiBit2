@@ -26,6 +26,8 @@ import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
+import org.jeonfeel.moeuibit2.ui.coindetail.detail.root_exchange.BiThumbCoinDetail
+import org.jeonfeel.moeuibit2.ui.coindetail.detail.root_exchange.UpbitCoinDetail
 import org.jeonfeel.moeuibit2.utils.getKoreanPostPosition
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -33,36 +35,105 @@ import javax.inject.Inject
 @HiltViewModel
 class NewCoinDetailViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
-    private val upbitCoinDetailUseCase: UpbitCoinDetailUseCase,
-    private val cacheManager: CacheManager,
+    private val upbitCoinDetail: UpbitCoinDetail,
+    private val biThumbCoinDetail: BiThumbCoinDetail,
     val chart: Chart,
 ) : BaseViewModel(preferenceManager) {
 
     val rootExchange = GlobalState.globalExchangeState.value
 
-    private val _coinTicker = mutableStateOf<CommonExchangeModel?>(null)
-    val coinTicker: State<CommonExchangeModel?> get() = _coinTicker
+    val koreanCoinName: State<String>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.koreanCoinName
+                }
 
-    private val _btcPrice = mutableStateOf(BigDecimal(0.0))
-    val btcPrice: State<BigDecimal> get() = _btcPrice
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.koreanCoinName
+                }
 
-    private val _koreanCoinName = mutableStateOf("")
-    val koreanCoinName: State<String> get() = _koreanCoinName
+                else -> {
+                    upbitCoinDetail.koreanCoinName
+                }
+            }
+        }
 
-    private val _engCoinName = mutableStateOf("")
-    val engCoinName: State<String> get() = _engCoinName
+    val engCoinName: State<String>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.engCoinName
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.engCoinName
+                }
+
+                else -> {
+                    upbitCoinDetail.engCoinName
+                }
+            }
+        }
+
+    val coinTicker: State<CommonExchangeModel?>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.coinTicker
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.coinTicker
+                }
+
+                else -> {
+                    upbitCoinDetail.coinTicker
+                }
+            }
+        }
+
+    val btcPrice: State<BigDecimal>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.btcPrice
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.btcPrice
+                }
+
+                else -> {
+                    upbitCoinDetail.btcPrice
+                }
+            }
+        }
+
+    val lineChartData: State<List<Float>>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.lineChartData
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.lineChartData
+                }
+
+                else -> {
+                    upbitCoinDetail.lineChartData
+                }
+            }
+        }
 
     private var initIsFavorite = false
 
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
 
-    private val _lineChartData = mutableStateOf<List<Float>>(emptyList())
-    val lineChartData: State<List<Float>> get() = _lineChartData
-
-    private val _tradeResponse = MutableStateFlow<UpbitSocketTickerRes?>(null)
-
     private var realTimeJob: Job? = null
+
     private var collectTickerJob: Job? = null
 
     private var chartRealTimeJob: Job? = null
@@ -88,21 +159,15 @@ class NewCoinDetailViewModel @Inject constructor(
         viewModelScope.launch {
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
-                    getKoreanCoinName()
-                    getEngCoinName()
-                    getIsFavorite()
-                    requestCoinTicker(market)
-                    isInitSuccess = true
+                    upbitCoinDetail.upbitCoinDetailInit(market)
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    getBiThumbKoreanCoinName()
-                    getBiThumbEngCoinName()
-                    getIsFavorite()
-                    requestCoinTicker(market)
-                    isInitSuccess = true
+                    biThumbCoinDetail.biThumbCoinDetailInit(market)
                 }
             }
+
+            isInitSuccess = true
         }.also { it.start() }
     }
 
@@ -110,12 +175,21 @@ class NewCoinDetailViewModel @Inject constructor(
         realTimeJob?.cancel()
         collectTickerJob?.cancel()
         isStarted.value = true
-        viewModelScope.launch {
-            requestLineChartCandleSticks(market)
-        }
 
         realTimeJob = viewModelScope.launch {
-            upbitCoinDetailUseCase.onStart(market.coinOrderIsKrwMarket())
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                }
+
+                else -> {
+                    upbitCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                }
+            }
         }.also { it.start() }
 
         collectTickerJob = viewModelScope.launch {
@@ -127,75 +201,30 @@ class NewCoinDetailViewModel @Inject constructor(
         isStarted.value = false
         viewModelScope.launch {
             saveFavoriteStatus()
-            upbitCoinDetailUseCase.onStop()
+            upbitCoinDetail.onStop()
+
             realTimeJob?.cancel()
             collectTickerJob?.cancel()
+
             realTimeJob = null
             collectTickerJob = null
         }
     }
 
     private suspend fun saveFavoriteStatus() {
-        if (initIsFavorite != isFavorite.value) {
-            if (isFavorite.value) {
-                upbitCoinDetailUseCase.addFavorite(market = _market)
-            } else {
-                upbitCoinDetailUseCase.deleteFavorite(market = _market)
+        when (rootExchange) {
+            EXCHANGE_UPBIT -> {
+                upbitCoinDetail.saveFavoriteStatus(_market)
+            }
+
+            EXCHANGE_BITTHUMB -> {
+                biThumbCoinDetail.saveFavoriteStatus(_market)
+            }
+
+            else -> {
+                upbitCoinDetail.saveFavoriteStatus(_market)
             }
         }
-    }
-
-    private suspend fun getKoreanCoinName() {
-        _koreanCoinName.value =
-            cacheManager.readKoreanCoinNameMap()[_market.substring(4)] ?: ""
-    }
-
-    private suspend fun getEngCoinName() {
-        _engCoinName.value =
-            cacheManager.readEnglishCoinNameMap()[_market.substring(4)]?.replace(" ", "-") ?: ""
-    }
-
-    private suspend fun getBiThumbKoreanCoinName() {
-        _koreanCoinName.value =
-            cacheManager.readBiThumbKoreanCoinNameMap()[_market.substring(4)] ?: ""
-    }
-
-    private suspend fun getBiThumbEngCoinName() {
-        _engCoinName.value =
-            cacheManager.readBiThumbEnglishCoinNameMap()[_market.substring(4)]?.replace(" ", "-") ?: ""
-    }
-
-    private suspend fun getIsFavorite() {
-        initIsFavorite = upbitCoinDetailUseCase.getIsFavorite(_market) != null
-        _isFavorite.value = initIsFavorite
-    }
-
-    private suspend fun requestCoinTicker(market: String) {
-        val getUpbitTickerReq = GetUpbitMarketTickerReq(
-            market.coinOrderIsKrwMarket()
-        )
-        executeUseCase<List<GetUpbitMarketTickerRes>>(
-            target = upbitCoinDetailUseCase.getMarketTicker(getUpbitTickerReq, isList = true),
-            onComplete = { ticker ->
-                ticker.forEach {
-                    if (!market.isKrwTradeCurrency() && it.market == BTC_MARKET) {
-                        _btcPrice.value = it.mapTo().tradePrice
-                    }
-                    if (it.market == market) {
-                        _coinTicker.value = it.mapTo()
-                    }
-                }
-            }
-        )
-    }
-
-    private suspend fun requestLineChartCandleSticks(market: String) {
-        executeUseCase<List<GetChartCandleRes>>(
-            target = upbitCoinDetailUseCase.getLineChartCandleSticks(market),
-            onComplete = {
-                _lineChartData.value = it.map { res -> res.tradePrice.toFloat() }.reversed()
-            }
-        )
     }
 
     // 차트 화면
@@ -230,48 +259,29 @@ class NewCoinDetailViewModel @Inject constructor(
         chartRealTimeJob?.cancel()
     }
 
-    fun updateIsFavorite() {
-        _isFavorite.value = !isFavorite.value
-    }
-
     fun setLastPeriod(period: String) {
         viewModelScope.launch {
             chart.saveLastPeriod(period)
         }
     }
 
-    private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
-        return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일 거래지원 종료 예정입니다."
+    fun updateIsFavorite() {
+        _isFavorite.value = !isFavorite.value
     }
 
-
     private suspend fun collectTicker(market: String) {
-        upbitCoinDetailUseCase.observeTickerResponse().onEach { result ->
-            _tradeResponse.update {
-                result
+        when (rootExchange) {
+            EXCHANGE_UPBIT -> {
+                upbitCoinDetail.collectTicker(market = market) { price ->
+                    chart.updateCandleTicker(price)
+                }
             }
-        }.collect { upbitSocketTickerRes ->
-            runCatching {
-                if (upbitSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
-                    deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
-                    _isShowDeListingSnackBar.value = true
-                }
 
-                val commonExchangeModel = upbitSocketTickerRes?.mapTo()
-                if (!market.isKrwTradeCurrency() && upbitSocketTickerRes?.code == BTC_MARKET) {
-                    _btcPrice.value = commonExchangeModel?.tradePrice ?: BigDecimal.ZERO
+            EXCHANGE_BITTHUMB -> {
+                biThumbCoinDetail.collectTicker(market = market) { price ->
+                    chart.updateCandleTicker(price)
                 }
-
-                if (market != upbitSocketTickerRes?.code) return@runCatching
-
-                _coinTicker.value = commonExchangeModel
-            }.fold(
-                onSuccess = {
-                    chart.updateCandleTicker(_coinTicker.value?.tradePrice?.toDouble() ?: 0.0)
-                },
-                onFailure = {
-                }
-            )
+            }
         }
     }
 }

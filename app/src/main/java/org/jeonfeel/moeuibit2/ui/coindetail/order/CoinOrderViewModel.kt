@@ -16,6 +16,7 @@ import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
+import org.jeonfeel.moeuibit2.ui.coindetail.order.coin_order.BithumbCoinOrder
 import org.jeonfeel.moeuibit2.ui.coindetail.order.coin_order.UpbitCoinOrder
 import java.math.BigDecimal
 import javax.inject.Inject
@@ -24,7 +25,7 @@ import javax.inject.Inject
 class CoinOrderViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upBitCoinOrder: UpbitCoinOrder,
-//    private val bitThumbCoinOrder: BitThumbCoinOrder,
+    private val bitThumbCoinOrder: BithumbCoinOrder,
 ) : ViewModel() {
 
     val rootExchange = GlobalState.globalExchangeState.value
@@ -51,13 +52,14 @@ class CoinOrderViewModel @Inject constructor(
         this.koreanCoinName = koreanCoinName
 
         viewModelScope.launch(ioDispatcher) {
+            getOrderBookIndication()
             when (rootExchange) {
                 EXCHANGE_UPBIT -> {
                     upBitCoinOrder.initCoinOrder(market)
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbCoinOrder.initCoinOrder(market)
                 }
             }
         }.also { it.start() }
@@ -74,7 +76,7 @@ class CoinOrderViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbCoinOrder.onStart(market)
                 }
             }
         }.also { it.start() }
@@ -86,7 +88,7 @@ class CoinOrderViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbCoinOrder.collectOrderBook()
                 }
             }
         }.also { it.start() }
@@ -98,7 +100,16 @@ class CoinOrderViewModel @Inject constructor(
     fun coinOrderScreenOnStop() {
         isCoinOrderStarted.value = false
         viewModelScope.launch {
-            upBitCoinOrder.onStop()
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitCoinOrder.onStop()
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    bitThumbCoinOrder.onStop()
+                }
+            }
+
             orderBookRealTimeJob?.cancel()
             orderBookRealTimeJob = null
         }
@@ -114,7 +125,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.orderBookList
+                bitThumbCoinOrder.orderBookList
             }
 
             else -> {
@@ -130,7 +141,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.maxOrderBookSize
+                bitThumbCoinOrder.maxOrderBookSize
             }
 
             else -> {
@@ -174,7 +185,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.userSeedMoney
+                bitThumbCoinOrder.userSeedMoney
             }
 
             else -> {
@@ -203,7 +214,14 @@ class CoinOrderViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbCoinOrder.requestBid(
+                        market = market,
+                        totalPrice = totalPrice,
+                        quantity = quantity,
+                        coinPrice = price,
+                        koreanName = koreanCoinName?.value ?: "",
+                        btcPrice = btcPrice?.value?.toDouble() ?: 0.0
+                    )
                 }
 
                 else -> {
@@ -234,7 +252,14 @@ class CoinOrderViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    bitThumbCoinOrder.requestAsk(
+                        market = market,
+                        totalPrice = totalPrice,
+                        quantity = quantity,
+                        coinPrice = price,
+                        totalPriceBTC = totalPriceBTC,
+                        btcPrice = btcPrice?.value?.toDouble() ?: 0.0
+                    )
                 }
 
                 else -> {
@@ -254,7 +279,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.userCoin
+                bitThumbCoinOrder.userCoin
             }
 
             else -> {
@@ -273,7 +298,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.userBtcCoin
+                bitThumbCoinOrder.userBtcCoin
             }
 
             else -> {
@@ -289,7 +314,7 @@ class CoinOrderViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-                upBitCoinOrder.orderBookInitSuccess
+                bitThumbCoinOrder.orderBookInitSuccess
             }
 
             else -> {
@@ -301,7 +326,22 @@ class CoinOrderViewModel @Inject constructor(
     fun getTransactionInfoList(market: String) {
         viewModelScope.launch {
             _transactionInfoList.clear()
-            _transactionInfoList.addAll(upBitCoinOrder.getTransactionInfoList(market = market))
+
+            val list = when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitCoinOrder.getTransactionInfoList(market = market)
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    bitThumbCoinOrder.getTransactionInfoList(market = market)
+                }
+
+                else -> {
+                    emptyList<TransactionInfo>()
+                }
+            }
+
+            _transactionInfoList.addAll(list)
         }
     }
 }

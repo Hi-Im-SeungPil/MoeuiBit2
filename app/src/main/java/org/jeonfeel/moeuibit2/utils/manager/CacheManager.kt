@@ -8,6 +8,7 @@ import org.jeonfeel.moeuibit2.EnglishCoinNameCache
 import org.jeonfeel.moeuibit2.EnglishCoinNameComponent
 import org.jeonfeel.moeuibit2.KoreanCoinNameCache
 import org.jeonfeel.moeuibit2.KoreanCoinNameComponent
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.utils.cache.EnglishCoinNameCacheSerializer
 import org.jeonfeel.moeuibit2.utils.cache.KoreanCoinNameCacheSerializer
@@ -18,6 +19,15 @@ private val Context.englishCoinNameCacheDataStore: DataStore<EnglishCoinNameCach
 )
 private val Context.koreanCoinNameCacheDataStore: DataStore<KoreanCoinNameCache> by dataStore(
     fileName = "korean_coin_name_cache.pb",
+    serializer = KoreanCoinNameCacheSerializer
+)
+
+private val Context.biThumbEnglishCoinNameCacheDataStore: DataStore<EnglishCoinNameCache> by dataStore(
+    fileName = "biThumb_english_coin_name_cache.pb",
+    serializer = EnglishCoinNameCacheSerializer
+)
+private val Context.biThumbKoreanCoinNameCacheDataStore: DataStore<KoreanCoinNameCache> by dataStore(
+    fileName = "biThumb_korean_coin_name_cache.pb",
     serializer = KoreanCoinNameCacheSerializer
 )
 
@@ -72,7 +82,7 @@ class CacheManager(private val context: Context) {
         return englishCoinNameCache.englishCoinNameMapList.associate { it.key to it.value }
     }
 
-    suspend fun saveBiThumbKoreanCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
+    suspend fun saveBiThumbKoreanCoinNameMap(codeMap: Map<String, BitThumbMarketCodeRes>) {
         val koreanNameKeyValueList = arrayListOf<KoreanCoinNameComponent>()
         codeMap.forEach { (key, value) ->
             val symbol = key.substring(4)
@@ -84,7 +94,7 @@ class CacheManager(private val context: Context) {
         val koreanCoinNameCache =
             KoreanCoinNameCache.newBuilder().addAllKoreanCoinNameComponents(koreanNameKeyValueList)
                 .build()
-        context.koreanCoinNameCacheDataStore.updateData { current ->
+        context.biThumbKoreanCoinNameCacheDataStore.updateData { current ->
             current.toBuilder().clearKoreanCoinNameComponents()
                 .addAllKoreanCoinNameComponents(koreanCoinNameCache.koreanCoinNameComponentsList)
                 .build()
@@ -92,11 +102,11 @@ class CacheManager(private val context: Context) {
     }
 
     suspend fun readBiThumbKoreanCoinNameMap(): Map<String, String> {
-        val koreanCoinNameCache = context.koreanCoinNameCacheDataStore.data.first()
+        val koreanCoinNameCache = context.biThumbKoreanCoinNameCacheDataStore.data.first()
         return koreanCoinNameCache.koreanCoinNameComponentsList.associate { it.key to it.value }
     }
 
-    suspend fun saveBiThumbEnglishCoinNameMap(codeMap: Map<String, UpbitMarketCodeRes>) {
+    suspend fun saveBiThumbEnglishCoinNameMap(codeMap: Map<String, BitThumbMarketCodeRes>) {
         val englishNameKeyValueList = arrayListOf<EnglishCoinNameComponent>()
         codeMap.forEach { (key, value) ->
             val symbol = key.substring(4)
@@ -109,7 +119,7 @@ class CacheManager(private val context: Context) {
             EnglishCoinNameCache.newBuilder().addAllEnglishCoinNameMap(englishNameKeyValueList)
                 .build()
 
-        context.englishCoinNameCacheDataStore.updateData { current ->
+        context.biThumbEnglishCoinNameCacheDataStore.updateData { current ->
             current.toBuilder().clearEnglishCoinNameMap()
                 .addAllEnglishCoinNameMap(englishCoinNameCache.englishCoinNameMapList)
                 .build()
@@ -117,7 +127,7 @@ class CacheManager(private val context: Context) {
     }
 
     suspend fun readBiThumbEnglishCoinNameMap(): Map<String, String> {
-        val englishCoinNameCache = context.englishCoinNameCacheDataStore.data.first()
+        val englishCoinNameCache = context.biThumbEnglishCoinNameCacheDataStore.data.first()
         return englishCoinNameCache.englishCoinNameMapList.associate { it.key to it.value }
     }
 }

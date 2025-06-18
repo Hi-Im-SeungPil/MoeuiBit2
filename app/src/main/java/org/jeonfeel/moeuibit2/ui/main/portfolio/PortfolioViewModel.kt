@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.defaultDispatcher
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
@@ -389,13 +390,11 @@ class PortfolioViewModel @Inject constructor(
     }
 
     private suspend fun setETC() {
-
         if (userHoldCoinDtoListPositionHashMap[BTC_MARKET] == null) {
             userHoldCoinsMarkets.append(BTC_MARKET)
         } else {
             userHoldCoinsMarkets.deleteCharAt(userHoldCoinsMarkets.lastIndex)
         }
-
     }
 
     fun sortUserHoldCoin(sortStandard: Int) {
@@ -554,10 +553,10 @@ class PortfolioViewModel @Inject constructor(
     fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
             val userDao = upbitPortfolioUseCase.getUserDao()
-            if (userDao.all == null) {
-                userDao.insert()
+            if (userDao.getUserByExchange(EXCHANGE_UPBIT) == null) {
+                userDao.insert(EXCHANGE_UPBIT, 10_000_000.0)
             } else {
-                userDao.updatePlusMoney(10_000_000.0)
+                userDao.updatePlusMoney(exchange = EXCHANGE_UPBIT, 10_000_000.0)
             }
             _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
         }

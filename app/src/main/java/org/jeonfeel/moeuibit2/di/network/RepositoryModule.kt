@@ -11,7 +11,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.service.GitJsonService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.USDService
 import org.jeonfeel.moeuibit2.data.network.retrofit.service.UpBitService
 import org.jeonfeel.moeuibit2.data.repository.network.AlternativeRepository
-import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
+import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
 import org.jeonfeel.moeuibit2.data.repository.network.GitJsonRepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
@@ -34,8 +34,8 @@ class RepositoryModule {
     @Provides
     fun provideBitThumbRepository(
         bitThumbService: BitThumbService
-    ): BitThumbRepository {
-        return BitThumbRepository(bitThumbService)
+    ): BiThumbRepository {
+        return BiThumbRepository(bitThumbService)
     }
 
     @Singleton

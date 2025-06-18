@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
@@ -565,7 +566,7 @@ class Chart @Inject constructor(
     }
 
     private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
-        return localRepository.getMyCoinDao().isInsert(market)
+        return localRepository.getMyCoinDao().getCoin(market, exchange = EXCHANGE_UPBIT)
     }
 
     fun setBitthumbChart() {

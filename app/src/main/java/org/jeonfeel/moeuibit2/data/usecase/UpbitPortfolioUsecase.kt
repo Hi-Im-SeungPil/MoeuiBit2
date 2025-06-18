@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
 import kotlinx.coroutines.flow.Flow
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.local.room.dao.UserDAO
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
@@ -68,7 +69,7 @@ class UpbitPortfolioUsecase @Inject constructor(
     }
 
     suspend fun getUserSeedMoney(): Double {
-        return localRepository.getUserDao().all?.krw ?: 0.0
+        return localRepository.getUserDao().getUserByExchange(EXCHANGE_UPBIT)?.krw ?: 0.0
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {
@@ -80,9 +81,9 @@ class UpbitPortfolioUsecase @Inject constructor(
     }
 
     suspend fun removeCoin(market: String) {
-        localRepository.getFavoriteDao().delete(market)
-        localRepository.getMyCoinDao().delete(market)
-        localRepository.getTransactionInfoDao().delete(market)
+        localRepository.getFavoriteDao().delete(market, EXCHANGE_UPBIT)
+        localRepository.getMyCoinDao().delete(market, EXCHANGE_UPBIT)
+        localRepository.getTransactionInfoDao().delete(market, EXCHANGE_UPBIT)
     }
 
     suspend fun insertCoin(myCoin: MyCoin) {

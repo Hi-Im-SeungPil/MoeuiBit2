@@ -22,12 +22,14 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
 class BitThumbExchange @Inject constructor(
     private val biThumbUseCase: BitThumbUseCase,
+    private val cacheManager: CacheManager
 ) {
     private val krwMarketCodeMap = mutableMapOf<String, BitThumbMarketCodeRes>()
     private val btcMarketCodeMap = mutableMapOf<String, BitThumbMarketCodeRes>()
@@ -183,6 +185,8 @@ class BitThumbExchange @Inject constructor(
                     btcMarketCodeMap.putAll(res.data.btcMarketCodeMap)
                     krwList.addAll(res.data.krwList.map { it.market })
                     btcList.addAll(res.data.btcList.map { it.market })
+                    cacheManager.saveBiThumbKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                    cacheManager.saveBiThumbEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
                 }
 
                 is ResultState.Error -> {
