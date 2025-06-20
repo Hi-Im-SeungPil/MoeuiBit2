@@ -10,12 +10,20 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandl
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitOrderBookRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
+import org.jeonfeel.moeuibit2.ui.common.ResultState
 
 class UpbitRepository(
     private val upBitService: UpBitService
 ) {
     /**
      * 업비트 market codes 요청
+     */
+    suspend fun fetchUpbitMarketCodeList(): Flow<ApiResult<List<UpbitMarketCodeRes>>> {
+        return networkCall { upBitService.getMarketCodeList() }
+    }
+
+    /**
+     * NEW 업비트 market codes 요청
      */
     suspend fun getUpbitMarketCodeList(): ApiResult<List<UpbitMarketCodeRes>> {
         return networkCall(upBitService.getMarketCodeList())
