@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
@@ -21,6 +22,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.UpbitMarketCodeRes
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
+import org.jeonfeel.moeuibit2.ui.main.portfolio.root_exchange.BiThumbPortfolio
 import org.jeonfeel.moeuibit2.ui.main.portfolio.root_exchange.UpBitPortfolio
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
@@ -29,8 +31,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PortfolioViewModel @Inject constructor(
-    private val preferenceManager: PreferencesManager,
+    preferenceManager: PreferencesManager,
     private val upBitPortfolio: UpBitPortfolio,
+    private val biThumbPortfolio: BiThumbPortfolio
     val adMobManager: AdMobManager,
 ) : BaseViewModel(preferenceManager) {
 
@@ -44,7 +47,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    upBitPortfolio.userSeedMoney
+                    biThumbPortfolio.userSeedMoney
                 }
 
                 else -> {
@@ -61,7 +64,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    upBitPortfolio.totalPurchase
+                    biThumbPortfolio.totalPurchase
                 }
 
                 else -> {
@@ -70,100 +73,146 @@ class PortfolioViewModel @Inject constructor(
             }
         }
 
-    val userHoldCoinDtoList: State<List<UserHoldCoinDTO>> get() = run {
-        when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upBitPortfolio.userHoldCoinDtoListState
-            }
+    val userHoldCoinDtoList: State<List<UserHoldCoinDTO>>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.userHoldCoinDtoListState
+                }
 
-            EXCHANGE_BITTHUMB -> {
-                upBitPortfolio.userHoldCoinDtoListState
-            }
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.userHoldCoinDtoListState
+                }
 
-            else -> {
-                upBitPortfolio.userHoldCoinDtoListState
+                else -> {
+                    upBitPortfolio.userHoldCoinDtoListState
+                }
             }
         }
-    }
 
-    val marketCodeRes: Map<String, UpbitMarketCodeRes> get() = run {
-        when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upBitPortfolio.marketCodeRes
-            }
+    val totalValuedAssets: State<BigDecimal>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.totalValuedAssets
+                }
 
-            EXCHANGE_BITTHUMB -> {
-                upBitPortfolio.marketCodeRes
-            }
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.totalValuedAssets
+                }
 
-            else -> {
-                upBitPortfolio.marketCodeRes
+                else -> {
+                    upBitPortfolio.totalValuedAssets
+                }
             }
         }
-    }
 
-    val totalValuedAssets: State<BigDecimal> get() = run {
-        when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upBitPortfolio.totalValuedAssets
-            }
+    val portfolioOrderState: State<Int>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.portfolioOrderState
+                }
 
-            EXCHANGE_BITTHUMB -> {
-                upBitPortfolio.totalValuedAssets
-            }
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.portfolioOrderState
+                }
 
-            else -> {
-                upBitPortfolio.totalValuedAssets
+                else -> {
+                    upBitPortfolio.portfolioOrderState
+                }
             }
         }
-    }
 
-    val portfolioOrderState: State<Int> get() = run {
-        when (rootExchange) {
-            EXCHANGE_UPBIT -> {
-                upBitPortfolio.portfolioOrderState
-            }
-            EXCHANGE_BITTHUMB -> {
-                upBitPortfolio.portfolioOrderState
-            }
-            else -> {
-                upBitPortfolio.portfolioOrderState
+    val btcTradePrice: State<Double>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.btcTradePrice
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.btcTradePrice
+                }
+
+                else -> {
+                    upBitPortfolio.btcTradePrice
+                }
             }
         }
-    }
+
+    val removeCoinInfo: List<Pair<String, String>>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.removeCoinInfo
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.removeCoinInfo
+                }
+
+                else -> {
+                    upBitPortfolio.removeCoinInfo
+                }
+            }
+        }
+
+    val removeCoinCheckedState: List<Boolean>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.removeCoinCheckedState
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.removeCoinCheckedState
+                }
+
+                else -> {
+                    upBitPortfolio.removeCoinCheckedState
+                }
+            }
+        }
+
+    val showRemoveCoinDialogState: State<Boolean>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.showRemoveCoinDialogState
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.showRemoveCoinDialogState
+                }
+
+                else -> {
+                    upBitPortfolio.showRemoveCoinDialogState
+                }
+            }
+        }
+
+    val loading: StateFlow<Boolean>
+        get() = run {
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.loading
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.loading
+                }
+
+                else -> {
+                    upBitPortfolio.loading
+                }
+            }
+        }
 
     val portfolioSearchTextState: MutableState<String> = mutableStateOf("")
-
-    private val _btcTradePrice = mutableDoubleStateOf(0.0)
-    val btcTradePrice: State<Double> get() = _btcTradePrice
-
-    private val _isPortfolioSocketRunning = mutableStateOf(true)
-    private val isPortfolioSocketRunning: State<Boolean> get() = _isPortfolioSocketRunning
-
-    private val _koreanCoinNameMap = mutableMapOf<String, String>()
-    private val _engCoinNameMap = mutableMapOf<String, String>()
-
-    private val userHoldCoinsMarkets = StringBuilder()
-    private var myCoinList = ArrayList<MyCoin?>()
-
-    private val myCoinHashMap = HashMap<String, MyCoin>()
-
-    private val userHoldCoinDtoListPositionHashMap = HashMap<String, Int>()
-
-    private val _removeCoinInfo = SnapshotStateList<Pair<String, String>>()
-    val removeCoinInfo: List<Pair<String, String>> get() = _removeCoinInfo // market reason
-
-    private val _removeCoinCheckedList = SnapshotStateList<Boolean>()
-    val removeCoinCheckedState: List<Boolean> get() = _removeCoinCheckedList
-
-    private val showRemoveCoinDialog = mutableStateOf(false)
-    val showRemoveCoinDialogState: State<Boolean> get() = showRemoveCoinDialog
-
     private var realTimeUpdateJob: Job? = null
     private var collectTickerJob: Job? = null
     var isStarted = false
-
-    val loading = MutableStateFlow<Boolean>(false)
 
     fun onStart() {
         realTimeUpdateJob?.cancel()
@@ -177,7 +226,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.onStart()
                 }
 
                 else -> {
@@ -193,7 +242,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.collectTicker()
                 }
 
                 else -> {
@@ -206,7 +255,19 @@ class PortfolioViewModel @Inject constructor(
     fun onStop() {
         isStarted = false
         viewModelScope.launch {
-            _isPortfolioSocketRunning.value = false
+            when (rootExchange) {
+                EXCHANGE_UPBIT -> {
+                    upBitPortfolio.portfolioStop()
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbPortfolio.portfolioStop()
+                }
+
+                else -> {
+
+                }
+            }
             realTimeUpdateJob?.cancel()
             collectTickerJob?.cancel()
             realTimeUpdateJob = null
@@ -217,7 +278,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.onStop()
                 }
 
                 else -> {
@@ -235,7 +296,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.sortUserHoldCoin(sortStandard)
                 }
 
                 else -> {
@@ -252,7 +313,7 @@ class PortfolioViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-
+                biThumbPortfolio.hideBottomSheet()
             }
 
             else -> {
@@ -268,7 +329,7 @@ class PortfolioViewModel @Inject constructor(
             }
 
             EXCHANGE_BITTHUMB -> {
-
+                biThumbPortfolio.updateRemoveCoinCheckState(index)
             }
 
             else -> {
@@ -285,7 +346,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.findWrongCoin()
                 }
 
                 else -> {
@@ -303,7 +364,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.editUserHoldCoin()
                 }
 
                 else -> {
@@ -321,7 +382,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.earnReward()
                 }
 
                 else -> {
@@ -339,7 +400,7 @@ class PortfolioViewModel @Inject constructor(
                 }
 
                 EXCHANGE_BITTHUMB -> {
-
+                    biThumbPortfolio.errorReward()
                 }
 
                 else -> {

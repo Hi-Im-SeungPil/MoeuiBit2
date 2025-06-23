@@ -29,8 +29,9 @@ import org.jeonfeel.moeuibit2.utils.calculator.Calculator
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import java.math.BigDecimal
+import javax.inject.Inject
 
-class UpBitPortfolio(
+class UpBitPortfolio @Inject constructor(
     private val upbitPortfolioUseCase: UpbitPortfolioUsecase,
     private val cacheManager: CacheManager
 ) {
@@ -57,7 +58,8 @@ class UpBitPortfolio(
     val totalValuedAssets: State<BigDecimal> get() = _totalValuedAssets
 
     private val _userHoldCoinDtoList = ArrayList<UserHoldCoinDTO>()
-    private val _userHoldCoinDtoListState: MutableState<List<UserHoldCoinDTO>> = mutableStateOf(emptyList())
+    private val _userHoldCoinDtoListState: MutableState<List<UserHoldCoinDTO>> =
+        mutableStateOf(emptyList())
     val userHoldCoinDtoListState: State<List<UserHoldCoinDTO>> get() = _userHoldCoinDtoListState
 
     private val _portfolioOrderState = mutableIntStateOf(SORT_NONE)
@@ -86,6 +88,10 @@ class UpBitPortfolio(
 
     suspend fun onStop() {
         upbitPortfolioUseCase.onStop()
+    }
+
+    fun portfolioStop() {
+        _isPortfolioSocketRunning.value = false
     }
 
     private suspend fun getCoinName() {
@@ -201,7 +207,7 @@ class UpBitPortfolio(
         return beforeMyCoinMap to newMyCoinMap
     }
 
-    private suspend fun resetPortfolio() {
+    private fun resetPortfolio() {
         _isPortfolioSocketRunning.value = false
         _totalPurchase.value = BigDecimal(0.0)
         _totalValuedAssets.value = BigDecimal(0.0)
@@ -536,23 +542,26 @@ class UpBitPortfolio(
 
     suspend fun earnReward() {
         val userDao = upbitPortfolioUseCase.getUserDao()
+
         if (userDao.getUserByExchange(EXCHANGE_UPBIT) == null) {
             userDao.insert(EXCHANGE_UPBIT, 10_000_000.0)
         } else {
             userDao.updatePlusMoney(exchange = EXCHANGE_UPBIT, 10_000_000.0)
         }
-        _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
+
+        _userSeedMoney.doubleValue = userDao.getUserByExchange(EXCHANGE_UPBIT)?.krw ?: 0.0
     }
 
     suspend fun errorReward() {
         val userDao = upbitPortfolioUseCase.getUserDao()
 
-        if (userDao.all == null) {
-            userDao.errorInsert()
+        if (userDao.getUserByExchange(EXCHANGE_UPBIT) == null) {
+            userDao.insert(EXCHANGE_UPBIT, 1_000_000.0)
         } else {
-            userDao.updatePlusMoney(1_000_000.0)
+            userDao.updatePlusMoney(EXCHANGE_UPBIT, 1_000_000.0)
         }
-        _userSeedMoney.doubleValue = userDao.all?.krw ?: 0.0
+
+        _userSeedMoney.doubleValue = userDao.getUserByExchange(EXCHANGE_UPBIT)?.krw ?: 0.0
     }
 
     suspend fun collectTicker() {

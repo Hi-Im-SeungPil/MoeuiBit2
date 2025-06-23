@@ -8,6 +8,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbMinuteCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbTickerRes
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbCoinDetailWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.CoinDetailWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
@@ -20,7 +21,7 @@ class BiThumbCoinDetailUseCase @Inject constructor(
     private val localRepository: LocalRepository,
     private val biThumbRepository: BiThumbRepository
 ) : BaseUseCase() {
-    private val coinDetailWebsocketManager = CoinDetailWebsocketManager()
+    private val coinDetailWebsocketManager = BiThumbCoinDetailWebsocketManager()
 
     suspend fun onStart(marketCodes: String) {
         coinDetailWebsocketManager.updateIsBackground(false)

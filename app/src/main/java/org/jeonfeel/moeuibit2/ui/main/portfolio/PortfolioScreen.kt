@@ -96,15 +96,12 @@ fun PortfolioScreen(
     adDialogState: MutableState<Boolean>,
     sortUserHoldCoin: (orderState: Int) -> Unit,
     getUserCoinInfo: (UserHoldCoinDTO) -> Map<String, String>,
-    loadingState: State<Boolean>,
     currentBTCPrice: State<Double>,
     getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Double>) -> Map<String, String>,
     appNavController: NavHostController,
-    earnReward: () -> Unit,
     portfolioSearchTextState: MutableState<String>,
     getList: () -> List<UserHoldCoinDTO>,
     findWrongCoin: KFunction0<Unit>,
-    loading: MutableStateFlow<Boolean>,
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current

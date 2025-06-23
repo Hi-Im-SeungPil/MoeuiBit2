@@ -17,8 +17,9 @@ import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
 import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
+import javax.inject.Inject
 
-class BithumbCoinOrder(
+class BithumbCoinOrder @Inject constructor(
     private val biThumbCoinOrderUseCase: BiThumbCoinOrderUseCase
 ) {
     private val _orderBookList = mutableStateListOf<OrderBookModel>()
