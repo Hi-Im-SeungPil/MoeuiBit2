@@ -9,9 +9,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbPortfolioWebsocketManager
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.PortfolioWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
@@ -97,6 +95,7 @@ class BiThumbPortfolioUsecase @Inject constructor(
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {
+        com.orhanobut.logger.Logger.e("mycoins" + localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_BITTHUMB).toString())
         return localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_BITTHUMB) ?: emptyList()
     }
 

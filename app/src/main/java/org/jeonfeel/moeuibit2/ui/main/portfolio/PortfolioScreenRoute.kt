@@ -106,6 +106,7 @@ fun PortfolioScreenRoute(
             portfolioSearchTextState = viewModel.portfolioSearchTextState,
             getList = holder::getList,
             findWrongCoin = viewModel::findWrongCoin,
+            earnReward = viewModel::earnReward,
         )
 
         RemoveCoinBottomSheet(

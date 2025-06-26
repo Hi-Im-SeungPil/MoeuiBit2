@@ -1,9 +1,9 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb
 
+import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
-import io.ktor.http.HttpMethod
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
 import kotlinx.coroutines.cancel
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.jeonfeel.moeuibit2.constants.upbitTickerWebSocketMessage
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.WebSocketState
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.utils.Utils
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
@@ -52,7 +51,6 @@ class BiThumbCoinDetailWebsocketManager {
             client.webSocket(
                 urlString = "wss://ws-api.bithumb.com/websocket/v1"
             ) {
-                println("WebSocket 연결 성공!")
                 session = this
                 receiveChannel = this.incoming
                 socketState.set(WebSocketState.CONNECTED)
@@ -64,13 +62,12 @@ class BiThumbCoinDetailWebsocketManager {
                 for (frame in receiveChannel!!) {
                     when (frame) {
                         is Frame.Text -> {
-
                         }
 
                         is Frame.Binary -> {
+                            Logger.e(frame.data.decodeToString())
                             val receivedMessage =
                                 Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
-//                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 
@@ -79,7 +76,6 @@ class BiThumbCoinDetailWebsocketManager {
                 }
             }
         } catch (e: Exception) {
-            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {

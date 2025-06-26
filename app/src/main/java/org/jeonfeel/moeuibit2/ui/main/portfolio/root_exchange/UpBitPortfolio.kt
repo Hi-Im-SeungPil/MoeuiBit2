@@ -449,6 +449,7 @@ class UpBitPortfolio @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
+        Logger.e("getUserSeedMoney 2" + upbitPortfolioUseCase.getUserSeedMoney().toString())
         _userSeedMoney.doubleValue = upbitPortfolioUseCase.getUserSeedMoney()
     }
 

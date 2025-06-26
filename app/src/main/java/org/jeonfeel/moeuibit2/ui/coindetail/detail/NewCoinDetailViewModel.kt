@@ -6,29 +6,18 @@ import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.GlobalState
-import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetUpbitMarketTickerRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
-import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
 import org.jeonfeel.moeuibit2.ui.base.BaseViewModel
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.UpbitChart
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
-import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
-import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.ChartViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.detail.root_exchange.BiThumbCoinDetail
 import org.jeonfeel.moeuibit2.ui.coindetail.detail.root_exchange.UpbitCoinDetail
-import org.jeonfeel.moeuibit2.utils.getKoreanPostPosition
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -37,14 +26,12 @@ class NewCoinDetailViewModel @Inject constructor(
     private val preferenceManager: PreferencesManager,
     private val upbitCoinDetail: UpbitCoinDetail,
     private val biThumbCoinDetail: BiThumbCoinDetail,
-    val chart: Chart,
+    val chart: ChartViewModel,
 ) : BaseViewModel(preferenceManager) {
-
-    val rootExchange = GlobalState.globalExchangeState.value
 
     val koreanCoinName: State<String>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.koreanCoinName
                 }
@@ -61,7 +48,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     val engCoinName: State<String>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.engCoinName
                 }
@@ -78,7 +65,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     val coinTicker: State<CommonExchangeModel?>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.coinTicker
                 }
@@ -95,7 +82,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     val btcPrice: State<BigDecimal>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.btcPrice
                 }
@@ -112,7 +99,7 @@ class NewCoinDetailViewModel @Inject constructor(
 
     val lineChartData: State<List<Float>>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.lineChartData
                 }
@@ -157,7 +144,7 @@ class NewCoinDetailViewModel @Inject constructor(
         _market = market
 
         viewModelScope.launch {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.upbitCoinDetailInit(market)
                 }
@@ -177,7 +164,7 @@ class NewCoinDetailViewModel @Inject constructor(
         isStarted.value = true
 
         realTimeJob = viewModelScope.launch {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upbitCoinDetail.onStart(market.coinOrderIsKrwMarket())
                 }
@@ -212,7 +199,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun saveFavoriteStatus() {
-        when (rootExchange) {
+        when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> {
                 upbitCoinDetail.saveFavoriteStatus(_market)
             }
@@ -234,16 +221,12 @@ class NewCoinDetailViewModel @Inject constructor(
         candleXMin: Float,
         market: String
     ) {
-        viewModelScope.launch {
-            if (rootExchange == EXCHANGE_UPBIT) {
-                chart.newRequestOldData(
-                    positiveBarDataSet = positiveBarDataSet,
-                    negativeBarDataSet = negativeBarDataSet,
-                    candleXMin = candleXMin,
-                    market = market
-                )
-            }
-        }
+        chart.newRequestOldData(
+            positiveBarDataSet = positiveBarDataSet,
+            negativeBarDataSet = negativeBarDataSet,
+            candleXMin = candleXMin,
+            market = market
+        )
     }
 
     fun requestChartData(market: String) {
@@ -270,7 +253,7 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     private suspend fun collectTicker(market: String) {
-        when (rootExchange) {
+        when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> {
                 upbitCoinDetail.collectTicker(market = market) { price ->
                     chart.updateCandleTicker(price)

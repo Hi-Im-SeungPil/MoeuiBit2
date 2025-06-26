@@ -33,15 +33,13 @@ import javax.inject.Inject
 class PortfolioViewModel @Inject constructor(
     preferenceManager: PreferencesManager,
     private val upBitPortfolio: UpBitPortfolio,
-    private val biThumbPortfolio: BiThumbPortfolio
+    private val biThumbPortfolio: BiThumbPortfolio,
     val adMobManager: AdMobManager,
 ) : BaseViewModel(preferenceManager) {
 
-    private val rootExchange = GlobalState.globalExchangeState.value
-
     val userSeedMoney
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.userSeedMoney
                 }
@@ -58,7 +56,7 @@ class PortfolioViewModel @Inject constructor(
 
     val totalPurchase: State<BigDecimal>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.totalPurchase
                 }
@@ -75,7 +73,7 @@ class PortfolioViewModel @Inject constructor(
 
     val userHoldCoinDtoList: State<List<UserHoldCoinDTO>>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.userHoldCoinDtoListState
                 }
@@ -92,7 +90,7 @@ class PortfolioViewModel @Inject constructor(
 
     val totalValuedAssets: State<BigDecimal>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.totalValuedAssets
                 }
@@ -109,7 +107,7 @@ class PortfolioViewModel @Inject constructor(
 
     val portfolioOrderState: State<Int>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.portfolioOrderState
                 }
@@ -126,7 +124,7 @@ class PortfolioViewModel @Inject constructor(
 
     val btcTradePrice: State<Double>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.btcTradePrice
                 }
@@ -143,7 +141,7 @@ class PortfolioViewModel @Inject constructor(
 
     val removeCoinInfo: List<Pair<String, String>>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.removeCoinInfo
                 }
@@ -160,7 +158,7 @@ class PortfolioViewModel @Inject constructor(
 
     val removeCoinCheckedState: List<Boolean>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.removeCoinCheckedState
                 }
@@ -177,7 +175,7 @@ class PortfolioViewModel @Inject constructor(
 
     val showRemoveCoinDialogState: State<Boolean>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.showRemoveCoinDialogState
                 }
@@ -194,7 +192,7 @@ class PortfolioViewModel @Inject constructor(
 
     val loading: StateFlow<Boolean>
         get() = run {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.loading
                 }
@@ -220,7 +218,7 @@ class PortfolioViewModel @Inject constructor(
         isStarted = true
 
         realTimeUpdateJob = viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.onStart()
                 }
@@ -236,7 +234,7 @@ class PortfolioViewModel @Inject constructor(
         }.also { it.start() }
 
         collectTickerJob = viewModelScope.launch {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.collectTicker()
                 }
@@ -255,7 +253,7 @@ class PortfolioViewModel @Inject constructor(
     fun onStop() {
         isStarted = false
         viewModelScope.launch {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.portfolioStop()
                 }
@@ -272,7 +270,7 @@ class PortfolioViewModel @Inject constructor(
             collectTickerJob?.cancel()
             realTimeUpdateJob = null
             collectTickerJob = null
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.onStop()
                 }
@@ -290,7 +288,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun sortUserHoldCoin(sortStandard: Int) {
         viewModelScope.launch(defaultDispatcher) {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.sortUserHoldCoin(sortStandard)
                 }
@@ -307,7 +305,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun hideBottomSheet() {
-        when (rootExchange) {
+        when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> {
                 upBitPortfolio.hideBottomSheet()
             }
@@ -323,7 +321,7 @@ class PortfolioViewModel @Inject constructor(
     }
 
     fun updateRemoveCoinCheckState(index: Int = 0) { //-1 은 selectAll
-        when (rootExchange) {
+        when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> {
                 upBitPortfolio.updateRemoveCoinCheckState(index)
             }
@@ -340,7 +338,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun findWrongCoin() {
         viewModelScope.launch {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.findWrongCoin()
                 }
@@ -358,7 +356,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun editUserHoldCoin() {
         viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.editUserHoldCoin()
                 }
@@ -376,7 +374,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun earnReward() {
         viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.earnReward()
                 }
@@ -394,7 +392,7 @@ class PortfolioViewModel @Inject constructor(
 
     fun errorReward() {
         viewModelScope.launch(ioDispatcher) {
-            when (rootExchange) {
+            when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitPortfolio.errorReward()
                 }

@@ -13,8 +13,8 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.local.room.entity.User
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
-import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.OrderBookWebsocketManager
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketOrderBookRes
+import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbOrderBookWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketOrderbookRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
 import org.jeonfeel.moeuibit2.ui.common.ResultState
@@ -28,7 +28,7 @@ class BiThumbCoinOrderUseCase @Inject constructor(
     private val localRepository: LocalRepository,
 ) {
 
-    private val orderBookWebsocketManager = OrderBookWebsocketManager()
+    private val orderBookWebsocketManager = BiThumbOrderBookWebsocketManager()
 
     suspend fun onStart(marketCodes: String) {
         orderBookWebsocketManager.updateIsBackground(false)
@@ -45,7 +45,7 @@ class BiThumbCoinOrderUseCase @Inject constructor(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        ResultState.Success(res.data.mapToOrderBookModel())
+                        ResultState.Success(res.data.first().mapToOrderBookModel())
                     } else {
                         ResultState.Error("Error")
                     }
@@ -63,7 +63,7 @@ class BiThumbCoinOrderUseCase @Inject constructor(
         }
     }
 
-    fun requestObserveOrderBook(): Flow<UpbitSocketOrderBookRes?> {
+    fun requestObserveOrderBook(): Flow<BithumbSocketOrderbookRes?> {
         return orderBookWebsocketManager.tickerFlow
     }
 

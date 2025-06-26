@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import com.orhanobut.logger.Logger
+import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
@@ -90,7 +91,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
 
             Lifecycle.Event.ON_STOP -> {
                 viewModel.stopRequestChartData()
-                viewModel.chart.candlePosition = 0f
+                viewModel.chart.updateCandlePosition(0f)
                 viewModel.chart.state.isUpdateChart.value = false
                 combinedChart.xAxis.valueFormatter = null
             }
@@ -109,7 +110,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
             }
         } else {
             viewModel.stopRequestChartData()
-            viewModel.chart.candlePosition = 0f
+            viewModel.chart.updateCandlePosition(0f)
             viewModel.chart.state.isUpdateChart.value = false
             combinedChart.xAxis.valueFormatter = null
             context.showToast("인터넷 연결을 확인해주세요.")
@@ -229,7 +230,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                         .align(Alignment.TopCenter)
                         .border(0.5.dp, color = commonTextColor())
                 ) {
-                    if (viewModel.rootExchange == EXCHANGE_UPBIT) {
+                    if (GlobalState.globalExchangeState.value == EXCHANGE_UPBIT) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
                                 isChartLastData = viewModel.chart.state.isLastData,
@@ -245,7 +246,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                                 setLastPeriod = viewModel::setLastPeriod
                             )
                         }
-                    } else if (viewModel.rootExchange == EXCHANGE_BITTHUMB) {
+                    } else if (GlobalState.globalExchangeState.value == EXCHANGE_BITTHUMB) {
                         for (i in chartMinuteArray.indices) {
                             MinuteButton(
                                 isChartLastData = viewModel.chart.state.isLastData,

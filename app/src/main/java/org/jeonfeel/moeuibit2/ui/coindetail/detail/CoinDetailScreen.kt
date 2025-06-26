@@ -63,6 +63,7 @@ import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRow
@@ -178,7 +179,7 @@ fun CoinDetailScreen(
                 ),
                 price = state.getCoinDetailPrice(
                     viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
-                    viewModel.rootExchange ?: "",
+                    GlobalState.globalExchangeState.value,
                     market
                 ),
                 symbol = market.substring(4),

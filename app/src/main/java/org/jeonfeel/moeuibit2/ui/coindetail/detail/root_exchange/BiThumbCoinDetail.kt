@@ -2,16 +2,13 @@ package org.jeonfeel.moeuibit2.ui.coindetail.detail.root_exchange
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.tradingview.lightweightcharts.Logger
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
-import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
-import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.BiThumbCoinDetailUseCase
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarket
+import org.jeonfeel.moeuibit2.utils.Utils.coinOrderIsKrwMarketForBiThumb
 import org.jeonfeel.moeuibit2.utils.getKoreanPostPosition
 import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
@@ -57,7 +54,7 @@ class BiThumbCoinDetail @Inject constructor(
 
     suspend fun onStart(market: String) {
         fetchLineChartCandleSticks(market)
-        biThumbCoinDetailUseCase.onStart(market.coinOrderIsKrwMarket())
+        biThumbCoinDetailUseCase.onStart(market.coinOrderIsKrwMarketForBiThumb())
     }
 
     suspend fun onStop() {
@@ -115,8 +112,8 @@ class BiThumbCoinDetail @Inject constructor(
             cacheManager.readBiThumbEnglishCoinNameMap()[market.substring(4)]?.replace(" ", "-") ?: ""
     }
 
-    private fun createTradeEndMessage(deListingDate: UpbitSocketTickerRes.DeListingDate): String {
-        return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일 거래지원 종료 예정입니다."
+    private fun createTradeEndMessage(deListingDate: String): String {
+        return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} $deListingDate 거래지원 종료 예정입니다."
     }
 
     private suspend fun fetchLineChartCandleSticks(market: String) {
@@ -141,19 +138,20 @@ class BiThumbCoinDetail @Inject constructor(
         market: String,
         successCallback: (tradePrice: Double) -> Unit
     ) {
-        biThumbCoinDetailUseCase.observeTickerResponse().collect { upbitSocketTickerRes ->
+        biThumbCoinDetailUseCase.observeTickerResponse().collect { biThumbSocketTickerRes ->
             runCatching {
-                if (upbitSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
-                    deListingMessage = createTradeEndMessage(upbitSocketTickerRes.delistingDate)
+                Logger.e(biThumbSocketTickerRes.toString())
+                if (biThumbSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
+                    deListingMessage = createTradeEndMessage(biThumbSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true
                 }
 
-                val commonExchangeModel = upbitSocketTickerRes?.mapTo()
-                if (!market.isKrwTradeCurrency() && upbitSocketTickerRes?.code == BTC_MARKET) {
+                val commonExchangeModel = biThumbSocketTickerRes?.mapToCommonExchangeModel()
+                if (!market.isKrwTradeCurrency() && biThumbSocketTickerRes?.code == BTC_MARKET) {
                     _btcPrice.value = commonExchangeModel?.tradePrice ?: BigDecimal.ZERO
                 }
 
-                if (market != upbitSocketTickerRes?.code) return@runCatching
+                if (market != biThumbSocketTickerRes?.code) return@runCatching
 
                 _coinTicker.value = commonExchangeModel
             }.fold(

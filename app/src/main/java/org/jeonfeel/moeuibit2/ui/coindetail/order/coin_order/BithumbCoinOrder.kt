@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
@@ -49,7 +50,7 @@ class BithumbCoinOrder @Inject constructor(
     }
 
     suspend fun onStart(market: String) {
-        biThumbCoinOrderUseCase.onStart(market)
+        biThumbCoinOrderUseCase.onStart("\"$market\"")
         collectOrderBook()
     }
 
@@ -83,9 +84,9 @@ class BithumbCoinOrder @Inject constructor(
      * 호가 수집
      */
     suspend fun collectOrderBook() {
-        biThumbCoinOrderUseCase.requestObserveOrderBook().collect { upbitSocketOrderBookRes ->
-            if (upbitSocketOrderBookRes?.type == "orderbook") {
-                val realTimeOrderBook = upbitSocketOrderBookRes.mapTo()
+        biThumbCoinOrderUseCase.requestObserveOrderBook().collect { bithumbSocketOrderBookRes ->
+            if (bithumbSocketOrderBookRes?.type == "orderbook") {
+                val realTimeOrderBook = bithumbSocketOrderBookRes.mapToOrderBookModel()
                 for (i in _orderBookList.indices) {
                     _orderBookList[i] = realTimeOrderBook[i]
                 }
@@ -144,7 +145,8 @@ class BithumbCoinOrder @Inject constructor(
                     purchasePrice = coinPrice.toDouble(),
                     koreanCoinName = koreanName,
                     symbol = market.substring(4),
-                    quantity = quantity
+                    quantity = quantity,
+                    exchange = EXCHANGE_BITTHUMB
                 ),
                 userSeedMoney = _userSeedMoney.doubleValue
             )
@@ -160,6 +162,7 @@ class BithumbCoinOrder @Inject constructor(
                     koreanCoinName = koreanName,
                     symbol = market.substring(4),
                     quantity = quantity,
+                    exchange = EXCHANGE_BITTHUMB
                 ),
                 userSeedBTC = _userBtcCoin.value.quantity,
                 btcPrice = btcPrice

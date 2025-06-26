@@ -9,7 +9,7 @@ import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.XAxisValueFormatter
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.Chart
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.UpbitChart
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfo
 import org.jeonfeel.moeuibit2.utils.manager.AdMobManager
 
@@ -33,8 +33,8 @@ class ActivityRetailedModule {
         localRepository: LocalRepository,
         upbitChartUseCase: UpbitChartUseCase,
         prefrenceManager: PreferencesManager
-    ): Chart {
-        return Chart(
+    ): UpbitChart {
+        return UpbitChart(
             upbitRepository = remoteRepository,
             localRepository = localRepository,
             upbitChartUseCase = upbitChartUseCase,

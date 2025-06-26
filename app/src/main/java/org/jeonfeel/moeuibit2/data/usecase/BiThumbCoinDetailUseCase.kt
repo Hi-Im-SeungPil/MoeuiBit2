@@ -10,6 +10,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbMinut
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbCoinDetailWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.upbit.CoinDetailWebsocketManager
+import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.upbit.UpbitSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
@@ -106,7 +107,7 @@ class BiThumbCoinDetailUseCase @Inject constructor(
         }
     }
 
-    fun observeTickerResponse(): Flow<UpbitSocketTickerRes?> {
+    fun observeTickerResponse(): Flow<BithumbSocketTickerRes?> {
         return coinDetailWebsocketManager.tickerFlow
     }
 }

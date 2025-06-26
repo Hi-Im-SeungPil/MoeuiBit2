@@ -136,7 +136,6 @@ fun RowScope.SelectExchangeSection(changeExchange: () -> Unit) {
 
     val showDialog = remember { mutableStateOf(false) }
 
-
     SelectExchangeDialog(
         dialogState = showDialog,
         initialExchange = GlobalState.globalExchangeState.value,

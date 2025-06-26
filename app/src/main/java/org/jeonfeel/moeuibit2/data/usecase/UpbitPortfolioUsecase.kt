@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import com.tradingview.lightweightcharts.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
@@ -128,6 +129,7 @@ class UpbitPortfolioUsecase @Inject constructor(
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {
+        Logger.e(localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_UPBIT).toString())
         return localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_UPBIT) ?: emptyList()
     }
 

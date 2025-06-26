@@ -442,6 +442,7 @@ class BiThumbPortfolio @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
+        Logger.e("getUserSeedMoney " + bithumbPortfolioUsecase.getUserSeedMoney().toString())
         _userSeedMoney.doubleValue = bithumbPortfolioUsecase.getUserSeedMoney()
     }
 

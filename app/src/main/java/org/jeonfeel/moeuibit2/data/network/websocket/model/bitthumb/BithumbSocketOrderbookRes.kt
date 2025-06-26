@@ -1,20 +1,23 @@
-package org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb
+package org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb
 
 import androidx.compose.ui.util.fastForEachReversed
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
 @Serializable
-data class BiThumbOrderBookRes(
+data class BithumbSocketOrderbookRes(
+    @SerialName("type")
+    val type: String, // 타입
 
-    val market: String, // 마켓 코드
+    @SerialName("code")
+    val code: String, // 마켓 코드 (ex. KRW-BTC)
 
-    val timestamp: Long, // 호가 생성 시각
+    @SerialName("orderbook")
+    val orderbook: String, // 호가
 
     @SerialName("total_ask_size")
     val totalAskSize: Double, // 호가 매도 총 잔량
@@ -23,22 +26,27 @@ data class BiThumbOrderBookRes(
     val totalBidSize: Double, // 호가 매수 총 잔량
 
     @SerialName("orderbook_units")
-    val orderbookUnits: List<OrderbookUnit> // 호가 리스트
+    val orderbookUnits: List<OrderBookUnit>, // 호가 목록
+
+    @SerialName("timestamp")
+    val timestamp: Long, // 타임스탬프 (ms)
+
+    @SerialName("level")
+    val level: Double // 호가 모아보기 단위
 ) {
     @Serializable
-    data class OrderbookUnit(
-
+    data class OrderBookUnit(
         @SerialName("ask_price")
-        val askPrice: Double, // 매도호가
+        val askPrice: Double, // 매도 호가
 
         @SerialName("bid_price")
-        val bidPrice: Double, // 매수호가
+        val bidPrice: Double, // 매수 호가
 
         @SerialName("ask_size")
         val askSize: Double, // 매도 잔량
 
         @SerialName("bid_size")
-        val bidSize: Double  // 매수 잔량
+        val bidSize: Double // 매수 잔량
     )
 
     fun mapToOrderBookModel(): List<OrderBookModel> {
@@ -48,8 +56,8 @@ data class BiThumbOrderBookRes(
             askList.add(
                 OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(
-                        rootExchange = EXCHANGE_BITTHUMB,
-                        market = market
+                        rootExchange = EXCHANGE_UPBIT,
+                        market = code
                     ),
                     size = orderBookUnit.askSize,
                     kind = OrderBookKind.ASK
@@ -58,16 +66,14 @@ data class BiThumbOrderBookRes(
             bidList.add(
                 OrderBookModel(
                     price = orderBookUnit.bidPrice.newBigDecimal(
-                        rootExchange = EXCHANGE_BITTHUMB,
-                        market = market
+                        rootExchange = EXCHANGE_UPBIT,
+                        market = code
                     ),
                     size = orderBookUnit.bidSize,
                     kind = OrderBookKind.BID
                 )
             )
         }
-
-
-        return (askList + bidList.reversed())
+        return (askList + bidList.reversed()).toList()
     }
 }
