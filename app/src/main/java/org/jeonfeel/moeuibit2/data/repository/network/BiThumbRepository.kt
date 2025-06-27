@@ -55,7 +55,7 @@ class BiThumbRepository(private val bitThumbService: BitThumbService) {
                 unit = unit,
                 market = biThumbMinuteCandleReq.market,
                 count = biThumbMinuteCandleReq.count,
-                to = biThumbMinuteCandleReq.to
+                to = biThumbMinuteCandleReq.to.ifEmpty { null }
             )
         }
     }
@@ -70,7 +70,7 @@ class BiThumbRepository(private val bitThumbService: BitThumbService) {
             bitThumbService.fetchBiThumbDaysCandle(
                 market = biThumbDayCandleReq.market,
                 count = biThumbDayCandleReq.count,
-                to = biThumbDayCandleReq.to
+                to = biThumbDayCandleReq.to.ifEmpty { null }
             )
         }
     }
@@ -85,7 +85,7 @@ class BiThumbRepository(private val bitThumbService: BitThumbService) {
             bitThumbService.fetchBiThumbWeeksCandle(
                 market = biThumbWeekCandleReq.market,
                 count = biThumbWeekCandleReq.count,
-                to = biThumbWeekCandleReq.to
+                to = biThumbWeekCandleReq.to.ifEmpty { null }
             )
         }
     }
@@ -100,7 +100,7 @@ class BiThumbRepository(private val bitThumbService: BitThumbService) {
             bitThumbService.fetchBiThumbMonthsCandle(
                 market = biThumbMonthCandleReq.market,
                 count = biThumbMonthCandleReq.count,
-                to = biThumbMonthCandleReq.to
+                to = biThumbMonthCandleReq.to.ifEmpty { null }
             )
         }
     }

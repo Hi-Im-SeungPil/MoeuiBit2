@@ -84,6 +84,7 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                         combinedChart.axisRight.removeAllLimitLines()
                         combinedChart.xAxis.removeAllLimitLines()
                         viewModel.requestChartData(market)
+                        viewModel.chart.state
                         viewModel.chart.state.isUpdateChart.value = true
                     }
                 }

@@ -31,14 +31,14 @@ interface BitThumbService {
         @Path("unit") unit: String,
         @Query("market") market: String,
         @Query("count") count: String,
-        @Query("to") to: String
+        @Query("to") to: String?
     ): Response<List<BiThumbMinuteCandleRes>>
 
     @GET("v1/candles/days")
     suspend fun fetchBiThumbDaysCandle(
         @Query("market") market: String,
         @Query("count") count: String,
-        @Query("to") to: String,
+        @Query("to") to: String? = null,
         @Query("convertingPriceUnit") convertingPriceUnit: String = "KRW"
     ): Response<List<BiThumbDayCandleRes>>
 
@@ -46,14 +46,14 @@ interface BitThumbService {
     suspend fun fetchBiThumbWeeksCandle(
         @Query("market") market: String,
         @Query("count") count: String,
-        @Query("to") to: String,
+        @Query("to") to: String?,
     ): Response<List<BiThumbWeekCandleRes>>
 
     @GET("v1/candles/months")
     suspend fun fetchBiThumbMonthsCandle(
         @Query("market") market: String,
         @Query("count") count: String,
-        @Query("to") to: String,
+        @Query("to") to: String?,
     ): Response<List<BiThumbMonthCandleRes>>
 
     @GET("v1/orderbook")

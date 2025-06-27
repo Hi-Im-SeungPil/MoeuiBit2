@@ -11,6 +11,7 @@ import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
 import org.jeonfeel.moeuibit2.data.repository.network.GitJsonRepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
+import org.jeonfeel.moeuibit2.data.usecase.BiThumbChartUsecase
 import org.jeonfeel.moeuibit2.data.usecase.BiThumbCoinDetailUseCase
 import org.jeonfeel.moeuibit2.data.usecase.BiThumbPortfolioUsecase
 import org.jeonfeel.moeuibit2.data.usecase.BitThumbUseCase
@@ -136,6 +137,18 @@ class UseCaseModule {
         localRepository: LocalRepository
     ): BiThumbPortfolioUsecase {
         return BiThumbPortfolioUsecase(
+            biThumbRepository = bitThumbRepository,
+            localRepository = localRepository
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideBiThumbChartUsecase(
+        bitThumbRepository: BiThumbRepository,
+        localRepository: LocalRepository
+    ): BiThumbChartUsecase {
+        return BiThumbChartUsecase(
             biThumbRepository = bitThumbRepository,
             localRepository = localRepository
         )

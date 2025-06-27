@@ -2,6 +2,7 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb.CommonChartModel
 
 @Serializable
 data class BiThumbWeekCandleRes(
@@ -47,4 +48,44 @@ data class BiThumbWeekCandleRes(
 
     @SerialName("first_day_of_period")
     val firstDayOfPeriod: String
+)
+
+fun BiThumbMinuteCandleRes.toChartCandle() = CommonChartModel(
+    highPrice = this.highPrice,
+    lowPrice = this.lowPrice,
+    openingPrice = this.openingPrice,
+    tradePrice = this.tradePrice,
+    candleAccTradePrice = this.candleAccTradePrice,
+    candleDateTimeUtc = this.candleDateTimeUtc,
+    candleDateTimeKst = this.candleDateTimeKst
+)
+
+fun BiThumbDayCandleRes.toChartCandle() = CommonChartModel(
+    highPrice = this.highPrice,
+    lowPrice = this.lowPrice,
+    openingPrice = this.openingPrice,
+    tradePrice = this.tradePrice,
+    candleAccTradePrice = this.candleAccTradePrice,
+    candleDateTimeUtc = this.candleDateTimeUtc,
+    candleDateTimeKst = this.candleDateTimeKst
+)
+
+fun BiThumbWeekCandleRes.toChartCandle() = CommonChartModel(
+    highPrice = this.highPrice,
+    lowPrice = this.lowPrice,
+    openingPrice = this.openingPrice,
+    tradePrice = this.tradePrice,
+    candleAccTradePrice = this.candleAccTradePrice,
+    candleDateTimeUtc = this.candleDateTimeUtc,
+    candleDateTimeKst = this.candleDateTimeKst
+)
+
+fun BiThumbMonthCandleRes.toChartCandle() = CommonChartModel(
+    highPrice = this.highPrice,
+    lowPrice = this.lowPrice,
+    openingPrice = this.openingPrice,
+    tradePrice = this.tradePrice,
+    candleAccTradePrice = this.candleAccTradePrice,
+    candleDateTimeUtc = this.candleDateTimeUtc,
+    candleDateTimeKst = this.candleDateTimeKst
 )

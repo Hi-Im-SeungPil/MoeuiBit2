@@ -38,7 +38,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.WEEK_SELECT
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import javax.inject.Inject
 
-class UpbitChartState {
+open class BaseChartState {
     val isUpdateChart = mutableStateOf(false)
     val candleType = mutableStateOf("1")
     val loadingDialogState = mutableStateOf(false)
@@ -47,6 +47,10 @@ class UpbitChartState {
     val minuteText = mutableStateOf("1분")
     val loadingOldData = mutableStateOf(false)
     val isLastData = mutableStateOf(false) // 더이상 불러올 과거 데이터가 없는지 FLAG값
+}
+
+class UpbitChartState: BaseChartState() {
+
 }
 
 class UpbitChart @Inject constructor(

@@ -151,6 +151,13 @@ class ChartViewModel @Inject constructor(
                     candleXMin = candleXMin,
                     market = market
                 )
+
+                EXCHANGE_BITTHUMB -> biThumbChart.newRequestOldData(
+                    positiveBarDataSet = positiveBarDataSet,
+                    negativeBarDataSet = negativeBarDataSet,
+                    candleXMin = candleXMin,
+                    market = market
+                )
             }
         }
     }
@@ -159,6 +166,7 @@ class ChartViewModel @Inject constructor(
         viewModelScope.launch {
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> upbitChart.updateCandleTicker(tradePrice)
+                EXCHANGE_BITTHUMB -> biThumbChart.updateCandleTicker(tradePrice)
             }
         }
     }
@@ -166,12 +174,14 @@ class ChartViewModel @Inject constructor(
     fun updateCandlePosition(position: Float) {
         when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> upbitChart.updateCandlePosition(position)
+            EXCHANGE_BITTHUMB -> biThumbChart.updateCandlePosition(position)
         }
     }
 
     fun createLineData(): LineData {
         return when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> upbitChart.createLineData()
+            EXCHANGE_BITTHUMB -> biThumbChart.createLineData()
             else -> upbitChart.createLineData()
         }
     }
@@ -179,16 +189,19 @@ class ChartViewModel @Inject constructor(
     fun addLineData() {
         when (GlobalState.globalExchangeState.value) {
             EXCHANGE_UPBIT -> upbitChart.addLineData()
+            EXCHANGE_BITTHUMB -> biThumbChart.addLineData()
         }
     }
 
     fun isCandleEntryEmpty() = when (GlobalState.globalExchangeState.value) {
         EXCHANGE_UPBIT -> upbitChart.isCandleEntryEmpty()
+        EXCHANGE_BITTHUMB -> biThumbChart.isCandleEntryEmpty()
         else -> upbitChart.isCandleEntryEmpty()
     }
 
     fun getLastCandleEntry() = when (GlobalState.globalExchangeState.value) {
         EXCHANGE_UPBIT -> upbitChart.getLastCandleEntry()
+        EXCHANGE_BITTHUMB -> biThumbChart.getLastCandleEntry()
         else -> upbitChart.getLastCandleEntry()
     }
 }

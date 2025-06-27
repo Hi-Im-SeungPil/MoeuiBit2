@@ -16,7 +16,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
@@ -25,14 +24,7 @@ import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetChartCandleReq
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbDayCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbMinuteCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbMonthCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWeekCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
-import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.usecase.BiThumbChartUsecase
-import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_ADD
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_INIT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.CHART_OLD_DATA
@@ -44,20 +36,12 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MONTH_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.WEEK_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.UpbitChartState
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.upbit.BaseChartState
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import javax.inject.Inject
 
-class BithumbChartState {
-    val isUpdateChart = mutableStateOf(false)
-    val candleType = mutableStateOf("1")
-    val loadingDialogState = mutableStateOf(false)
-    val minuteVisible = mutableStateOf(false)
-    val selectedButton = mutableStateOf(MINUTE_SELECT)
-    val minuteText = mutableStateOf("1분")
-    val loadingOldData = mutableStateOf(false)
-    val isLastData = mutableStateOf(false) // 더이상 불러올 과거 데이터가 없는지 FLAG값
+class BithumbChartState: BaseChartState() {
 }
 
 class BiThumbChart @Inject constructor(
@@ -149,35 +133,15 @@ class BiThumbChart @Inject constructor(
         state.isUpdateChart.value = false
         state.loadingDialogState.value = true
 
-        val positiveBarEntries = ArrayList<BarEntry>()
-        val negativeBarEntries = ArrayList<BarEntry>()
-
         val getChartCandleReq = GetChartCandleReq(
             candleType = candleType,
             market = market
         )
 
-        if (candleType.toIntOrNull() == null) {
+        val flow = if (candleType.toIntOrNull() == null) {
             when (getChartCandleReq.candleType) {
                 "days" -> {
-                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq).collect { res ->
-                        when (res) {
-                            is ResultState.Success -> {
-                                resetChartData()
-                                val lastIndex =
-                                firstCandleUtcTime = res[apiResult.lastIndex].candleDateTimeUtc
-                                kstTime = apiResult.first().candleDateTimeKst
-                            }
-
-                            is ResultState.Error -> {
-                                Logger.e(res.message)
-                            }
-
-                            is ResultState.Loading -> {
-                                state.loadingDialogState.value = true
-                            }
-                        }
-                    }
+                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
                 }
 
                 "weeks" -> {
@@ -189,7 +153,7 @@ class BiThumbChart @Inject constructor(
                 }
 
                 else -> {
-
+                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
                 }
             }
         } else {
@@ -197,66 +161,69 @@ class BiThumbChart @Inject constructor(
         }
 
         flow.collect { res ->
+            when (res) {
+                is ResultState.Success -> {
+                    resetChartData()
+                    val positiveBarEntries = ArrayList<BarEntry>()
+                    val negativeBarEntries = ArrayList<BarEntry>()
+                    val lastIndex = res.data.lastIndex
+                    val data = res.data
+                    firstCandleUtcTime = data[lastIndex].candleDateTimeUtc
+                    kstTime = data.first().candleDateTimeKst
 
-        }
-
-        executeUseCase<List<GetChartCandleRes>>(
-            target = if (candleType.toIntOrNull() == null) upbitChartUseCase.getOtherChartData(
-                getChartCandleReq = getChartCandleReq
-            ) else upbitChartUseCase.getMinuteChartData(getChartCandleReq = getChartCandleReq),
-            onLoading = {
-                state.loadingDialogState.value = true
-            },
-            onComplete = { apiResult ->
-                resetChartData()
-                val positiveBarEntries = ArrayList<BarEntry>()
-                val negativeBarEntries = ArrayList<BarEntry>()
-                firstCandleUtcTime = apiResult[apiResult.lastIndex].candleDateTimeUtc
-                kstTime = apiResult.first().candleDateTimeKst
-                apiResult.reversed().forEachIndexed { index, chartInfo ->
-                    val candleEntry = CandleEntry(
-                        candlePosition,
-                        chartInfo.highPrice.toFloat(),
-                        chartInfo.lowPrice.toFloat(),
-                        chartInfo.openingPrice.toFloat(),
-                        chartInfo.tradePrice.toFloat()
-                    )
-                    _candleEntries.add(candleEntry)
-
-                    val colorFlag = chartInfo.tradePrice - chartInfo.openingPrice
-                    if (colorFlag >= 0.0) {
-                        positiveBarEntries.add(
-                            BarEntry(candlePosition, chartInfo.candleAccTradePrice.toFloat())
+                    data.reversed().forEachIndexed { index, chartInfo ->
+                        val candleEntry = CandleEntry(
+                            candlePosition,
+                            chartInfo.highPrice.toFloat(),
+                            chartInfo.lowPrice.toFloat(),
+                            chartInfo.openingPrice.toFloat(),
+                            chartInfo.tradePrice.toFloat()
                         )
-                    } else {
-                        negativeBarEntries.add(
-                            BarEntry(candlePosition, chartInfo.candleAccTradePrice.toFloat())
-                        )
+                        _candleEntries.add(candleEntry)
+
+                        val colorFlag = chartInfo.tradePrice - chartInfo.openingPrice
+                        if (colorFlag >= 0.0) {
+                            positiveBarEntries.add(
+                                BarEntry(candlePosition, chartInfo.candleAccTradePrice.toFloat())
+                            )
+                        } else {
+                            negativeBarEntries.add(
+                                BarEntry(candlePosition, chartInfo.candleAccTradePrice.toFloat())
+                            )
+                        }
+
+                        kstDateHashMap[candlePosition.toInt()] = chartInfo.candleDateTimeKst
+                        accData[candlePosition.toInt()] = chartInfo.candleAccTradePrice
+                        candlePosition += 1f
+                        candleEntriesLastPosition = candleEntries.size - 1
                     }
-                    kstDateHashMap[candlePosition.toInt()] = chartInfo.candleDateTimeKst
-                    accData[candlePosition.toInt()] = chartInfo.candleAccTradePrice
-                    candlePosition += 1f
-                    candleEntriesLastPosition = candleEntries.size - 1
+
+                    candlePosition -= 1f
+                    positiveBarDataSet = BarDataSet(positiveBarEntries, "")
+                    negativeBarDataSet = BarDataSet(negativeBarEntries, "")
+                    candleDataSet = CandleDataSet(candleEntries, "")
+                    state.isUpdateChart.value = true
+                    state.loadingDialogState.value = false
+                    _chartUpdateMutableLiveData.value = CHART_INIT
+
+                    chartUpdateJob = CoroutineScope(ioDispatcher).launch {
+                        try {
+                            newUpdateChart(market = market)
+                        } catch (e: Exception) {
+                            Logger.e(e.message.toString())
+                        }
+                    }.also { it.start() }
                 }
-                candlePosition -= 1f
-                positiveBarDataSet = BarDataSet(positiveBarEntries, "")
-                negativeBarDataSet = BarDataSet(negativeBarEntries, "")
-                candleDataSet = CandleDataSet(candleEntries, "")
-                state.isUpdateChart.value = true
-                state.loadingDialogState.value = false
-                _chartUpdateMutableLiveData.value = CHART_INIT
-                chartUpdateJob = CoroutineScope(ioDispatcher).launch {
-                    try {
-                        newUpdateChart(market)
-                    } catch (e: Exception) {
-                        Logger.e(e.message.toString())
-                    }
-                }.also { it.start() }
-            },
-            onApiError = { apiResult ->
-                Logger.e(apiResult.message.toString())
+
+                is ResultState.Error -> {
+                    Logger.e(res.message)
+                }
+
+                is ResultState.Loading -> {
+
+                }
             }
-        )
+        }
     }
 
     private suspend fun getUserCoinPurchaseAverage(market: String) {
@@ -282,73 +249,111 @@ class BiThumbChart @Inject constructor(
             market = market,
             to = time
         )
-        executeUseCase<List<GetChartCandleRes>>(
-            target = if (candleType.toIntOrNull() == null) upbitChartUseCase.getOtherChartData(
-                getChartCandleReq = getChartCandleReq
-            ) else upbitChartUseCase.getMinuteChartData(getChartCandleReq = getChartCandleReq),
-            onLoading = {
-                state.loadingDialogState.value = true
-            },
-            onComplete = { apiResult ->
-                if (apiResult.isEmpty()) {
-                    state.isLastData.value = true
-                    state.loadingDialogState.value = false
-                    state.loadingOldData.value = false
-                    return@executeUseCase
+
+        val flow = if (candleType.toIntOrNull() == null) {
+            when (getChartCandleReq.candleType) {
+                "days" -> {
+                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
                 }
 
-                firstCandleUtcTime = apiResult[apiResult.lastIndex].candleDateTimeUtc
-                val tempCandleEntries = ArrayList<CandleEntry>()
-                val tempPositiveBarEntries = ArrayList<BarEntry>()
-                val tempNegativeBarEntries = ArrayList<BarEntry>()
-                var tempCandlePosition = candleXMin - apiResult.size
-                val positiveBarDataCount = positiveBarDataSet.entryCount
-                val negativeBarDataCount = negativeBarDataSet.entryCount
+                "weeks" -> {
+                    biThumbChartUsecase.fetchWeekCandle(getChartCandleReq)
+                }
 
-                apiResult.reversed().forEach {
-                    val candleEntry = CandleEntry(
-                        tempCandlePosition,
-                        it.highPrice.toFloat(),
-                        it.lowPrice.toFloat(),
-                        it.openingPrice.toFloat(),
-                        it.tradePrice.toFloat()
-                    )
-                    tempCandleEntries.add(candleEntry)
+                "months" -> {
+                    biThumbChartUsecase.fetchMonthCandle(getChartCandleReq)
+                }
 
-                    val colorFlag = it.tradePrice - it.openingPrice
-                    if (colorFlag >= 0.0) {
-                        tempPositiveBarEntries.add(
-                            BarEntry(tempCandlePosition, it.candleAccTradePrice.toFloat())
-                        )
-                    } else {
-                        tempNegativeBarEntries.add(
-                            BarEntry(tempCandlePosition, it.candleAccTradePrice.toFloat())
-                        )
-                    }
-                    kstDateHashMap[tempCandlePosition.toInt()] = it.candleDateTimeKst
-                    accData[tempCandlePosition.toInt()] = it.candleAccTradePrice
-                    tempCandlePosition += 1f
+                else -> {
+                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
                 }
-                tempCandleEntries.addAll(_candleEntries)
-                _candleEntries.clear()
-                _candleEntries.addAll(tempCandleEntries)
-                for (i in 0 until positiveBarDataCount) {
-                    tempPositiveBarEntries.add(positiveBarDataSet.getEntryForIndex(i))
-                }
-                for (i in 0 until negativeBarDataCount) {
-                    tempNegativeBarEntries.add(negativeBarDataSet.getEntryForIndex(i))
-                }
-                this.positiveBarDataSet = BarDataSet(tempPositiveBarEntries, "")
-                this.negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
-                this.candleDataSet = CandleDataSet(candleEntries, "")
-                candleEntriesLastPosition = candleEntries.size - 1
-                state.loadingDialogState.value = false
-                _chartUpdateMutableLiveData.value = CHART_OLD_DATA
             }
-        )
+        } else {
+            biThumbChartUsecase.fetchMinuteChartData(getChartCandleReq = getChartCandleReq)
+        }
+
+        flow.collect { res ->
+            when (res) {
+                is ResultState.Success -> {
+                    val lastIndex = res.data.lastIndex
+                    val data = res.data
+
+                    if (data.isEmpty()) {
+                        state.isLastData.value = true
+                        state.loadingDialogState.value = false
+                        state.loadingOldData.value = false
+                        return@collect
+                    }
+
+                    firstCandleUtcTime = data[lastIndex].candleDateTimeUtc
+                    val tempCandleEntries = ArrayList<CandleEntry>()
+                    val tempPositiveBarEntries = ArrayList<BarEntry>()
+                    val tempNegativeBarEntries = ArrayList<BarEntry>()
+                    var tempCandlePosition = candleXMin - data.size
+                    val positiveBarDataCount = positiveBarDataSet.entryCount
+                    val negativeBarDataCount = negativeBarDataSet.entryCount
+
+                    data.reversed().forEach {
+                        val candleEntry = CandleEntry(
+                            tempCandlePosition,
+                            it.highPrice.toFloat(),
+                            it.lowPrice.toFloat(),
+                            it.openingPrice.toFloat(),
+                            it.tradePrice.toFloat()
+                        )
+                        tempCandleEntries.add(candleEntry)
+
+                        val colorFlag = it.tradePrice - it.openingPrice
+                        if (colorFlag >= 0.0) {
+                            tempPositiveBarEntries.add(
+                                BarEntry(tempCandlePosition, it.candleAccTradePrice.toFloat())
+                            )
+                        } else {
+                            tempNegativeBarEntries.add(
+                                BarEntry(tempCandlePosition, it.candleAccTradePrice.toFloat())
+                            )
+                        }
+                        kstDateHashMap[tempCandlePosition.toInt()] = it.candleDateTimeKst
+                        accData[tempCandlePosition.toInt()] = it.candleAccTradePrice
+                        tempCandlePosition += 1f
+                    }
+
+                    tempCandleEntries.addAll(_candleEntries)
+                    _candleEntries.clear()
+                    _candleEntries.addAll(tempCandleEntries)
+
+                    for (i in 0 until positiveBarDataCount) {
+                        tempPositiveBarEntries.add(positiveBarDataSet.getEntryForIndex(i))
+                    }
+
+                    for (i in 0 until negativeBarDataCount) {
+                        tempNegativeBarEntries.add(negativeBarDataSet.getEntryForIndex(i))
+                    }
+
+                    this.positiveBarDataSet = BarDataSet(tempPositiveBarEntries, "")
+                    this.negativeBarDataSet = BarDataSet(tempNegativeBarEntries, "")
+                    this.candleDataSet = CandleDataSet(candleEntries, "")
+
+                    candleEntriesLastPosition = candleEntries.size - 1
+                    state.loadingDialogState.value = false
+                    _chartUpdateMutableLiveData.value = CHART_OLD_DATA
+                }
+
+                is ResultState.Error -> {
+                    Logger.e(res.message)
+                }
+
+                is ResultState.Loading -> {
+
+                }
+            }
+        }
     }
 
-    private suspend fun newUpdateChart(market: String) {
+    private suspend fun newUpdateChart(
+        candleType: String = state.candleType.value,
+        market: String
+    ) {
         while (true) {
             if (!NetworkConnectivityObserver.isNetworkAvailable.value) break
 
@@ -358,57 +363,86 @@ class BiThumbChart @Inject constructor(
                     market = market,
                     count = "1"
                 )
-                executeUseCase<List<GetChartCandleRes>>(
-                    target = if (state.candleType.value.toIntOrNull() == null) upbitChartUseCase.getOtherChartData(
-                        getChartCandleReq = getChartCandleReq
-                    ) else upbitChartUseCase.getMinuteChartData(getChartCandleReq = getChartCandleReq),
-                    onComplete = {
-                        val chartData = it.first()
-                        when {
-                            kstTime != chartData.candleDateTimeKst -> {
-                                state.isUpdateChart.value = false
-                                addModel = ChartModel(
-                                    candleDateTimeKst = kstTime,
-                                    candleDateTimeUtc = "",
-                                    openingPrice = chartData.openingPrice,
-                                    highPrice = chartData.highPrice,
-                                    lowPrice = chartData.lowPrice,
-                                    tradePrice = chartData.tradePrice,
-                                    candleAccTradePrice = 0.0,
-                                    timestamp = System.currentTimeMillis()
-                                )
-                                val candleEntry = CandleEntry(
-                                    candlePosition,
-                                    chartData.highPrice.toFloat(),
-                                    chartData.lowPrice.toFloat(),
-                                    chartData.openingPrice.toFloat(),
-                                    chartData.tradePrice.toFloat()
-                                )
-                                _candleEntries.add(candleEntry)
-                                kstTime = chartData.candleDateTimeKst
-                                candlePosition += 1f
-                                candleEntriesLastPosition += 1
-                                kstDateHashMap[candlePosition.toInt()] = kstTime
-                                accData[candlePosition.toInt()] = chartData.candleAccTradePrice
-                                _chartUpdateMutableLiveData.postValue(CHART_ADD)
-                                state.isUpdateChart.value = true
-                            }
 
-                            kstTime == chartData.candleDateTimeKst -> {
-                                _candleEntries[candleEntries.lastIndex] =
-                                    CandleEntry(
+                val flow = if (candleType.toIntOrNull() == null) {
+                    when (getChartCandleReq.candleType) {
+                        "days" -> {
+                            biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
+                        }
+
+                        "weeks" -> {
+                            biThumbChartUsecase.fetchWeekCandle(getChartCandleReq)
+                        }
+
+                        "months" -> {
+                            biThumbChartUsecase.fetchMonthCandle(getChartCandleReq)
+                        }
+
+                        else -> {
+                            biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
+                        }
+                    }
+                } else {
+                    biThumbChartUsecase.fetchMinuteChartData(getChartCandleReq = getChartCandleReq)
+                }
+
+                flow.collect { res ->
+                    when (res) {
+                        is ResultState.Success -> {
+                            val chartData = res.data.first()
+
+                            when {
+                                kstTime != chartData.candleDateTimeKst -> {
+                                    state.isUpdateChart.value = false
+                                    addModel = ChartModel(
+                                        candleDateTimeKst = kstTime,
+                                        candleDateTimeUtc = "",
+                                        openingPrice = chartData.openingPrice,
+                                        highPrice = chartData.highPrice,
+                                        lowPrice = chartData.lowPrice,
+                                        tradePrice = chartData.tradePrice,
+                                        candleAccTradePrice = 0.0,
+                                        timestamp = System.currentTimeMillis()
+                                    )
+                                    val candleEntry = CandleEntry(
                                         candlePosition,
                                         chartData.highPrice.toFloat(),
                                         chartData.lowPrice.toFloat(),
                                         chartData.openingPrice.toFloat(),
                                         chartData.tradePrice.toFloat()
                                     )
-                                accData[candlePosition.toInt()] = chartData.candleAccTradePrice
-                                _chartUpdateMutableLiveData.postValue(CHART_SET_ALL)
+                                    _candleEntries.add(candleEntry)
+                                    kstTime = chartData.candleDateTimeKst
+                                    candlePosition += 1f
+                                    candleEntriesLastPosition += 1
+                                    kstDateHashMap[candlePosition.toInt()] = kstTime
+                                    accData[candlePosition.toInt()] = chartData.candleAccTradePrice
+                                    _chartUpdateMutableLiveData.postValue(CHART_ADD)
+                                    state.isUpdateChart.value = true
+                                }
+
+                                kstTime == chartData.candleDateTimeKst -> {
+                                    _candleEntries[candleEntries.lastIndex] =
+                                        CandleEntry(
+                                            candlePosition,
+                                            chartData.highPrice.toFloat(),
+                                            chartData.lowPrice.toFloat(),
+                                            chartData.openingPrice.toFloat(),
+                                            chartData.tradePrice.toFloat()
+                                        )
+                                    accData[candlePosition.toInt()] = chartData.candleAccTradePrice
+                                    _chartUpdateMutableLiveData.postValue(CHART_SET_ALL)
+                                }
                             }
                         }
+
+                        is ResultState.Error -> {
+                        }
+
+                        is ResultState.Loading -> {
+                        }
                     }
-                )
+                }
             }
             delay(700)
         }
@@ -493,7 +527,7 @@ class BiThumbChart @Inject constructor(
     }
 
     private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
-        return localRepository.getMyCoinDao().getCoin(market, exchange = EXCHANGE_UPBIT)
+        return biThumbChartUsecase.getChartCoinPurchaseAverage(market)
     }
 
     fun getLastCandleEntry() = candleEntries.last()

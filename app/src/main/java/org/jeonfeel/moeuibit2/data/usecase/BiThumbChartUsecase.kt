@@ -2,25 +2,25 @@ package org.jeonfeel.moeuibit2.data.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbDayCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbMinuteCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbMonthCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.bithumb.BiThumbWeekCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetChartCandleReq
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbDayCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbMinuteCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbMonthCandleRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWeekCandleRes
+import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.toChartCandle
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb.CommonChartModel
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 
 class BiThumbChartUsecase(
     private val biThumbRepository: BiThumbRepository,
     private val localRepository: LocalRepository
 ) {
-    fun fetchMinuteChartData(getChartCandleReq: GetChartCandleReq): Flow<ResultState<Pair<List<BiThumbMinuteCandleRes>, String>>> {
+    fun fetchMinuteChartData(getChartCandleReq: GetChartCandleReq): Flow<ResultState<List<CommonChartModel>>> {
         val biThumbMinuteCandleReq = BiThumbMinuteCandleReq(
             market = getChartCandleReq.market,
             count = getChartCandleReq.count,
@@ -34,7 +34,7 @@ class BiThumbChartUsecase(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        ResultState.Success(Pair(res.data, "minute"))
+                        ResultState.Success(res.data.map { it.toChartCandle() })
                     } else {
                         ResultState.Error(res.message.toString())
                     }
@@ -51,7 +51,7 @@ class BiThumbChartUsecase(
         }
     }
 
-    fun fetchDayCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<Pair<List<BiThumbDayCandleRes>, String>>> {
+    fun fetchDayCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<List<CommonChartModel>>> {
         val biThumbDayCandleReq = BiThumbDayCandleReq(
             market = getChartCandleReq.market,
             count = getChartCandleReq.count,
@@ -64,7 +64,7 @@ class BiThumbChartUsecase(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        ResultState.Success(Pair(res.data, "days"))
+                        ResultState.Success(res.data.map { it.toChartCandle() })
                     } else {
                         ResultState.Error(res.message.toString())
                     }
@@ -81,7 +81,7 @@ class BiThumbChartUsecase(
         }
     }
 
-    fun fetchWeekCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<Pair<List<BiThumbWeekCandleRes>, String>>> {
+    fun fetchWeekCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<List<CommonChartModel>>> {
         val biThumbWeekCandleReq = BiThumbWeekCandleReq(
             market = getChartCandleReq.market,
             count = getChartCandleReq.count,
@@ -94,7 +94,7 @@ class BiThumbChartUsecase(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        ResultState.Success(Pair(res.data, "weeks"))
+                        ResultState.Success(res.data.map { it.toChartCandle() })
                     } else {
                         ResultState.Error(res.message.toString())
                     }
@@ -111,7 +111,7 @@ class BiThumbChartUsecase(
         }
     }
 
-    fun fetchMonthCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<Pair<List<BiThumbMonthCandleRes>, String>>> {
+    fun fetchMonthCandle(getChartCandleReq: GetChartCandleReq): Flow<ResultState<List<CommonChartModel>>> {
         val biThumbMonthCandleReq = BiThumbMonthCandleReq(
             market = getChartCandleReq.market,
             count = getChartCandleReq.count,
@@ -124,7 +124,7 @@ class BiThumbChartUsecase(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        ResultState.Success(Pair(res.data, "month"))
+                        ResultState.Success(res.data.map { it.toChartCandle() })
                     } else {
                         ResultState.Error(res.message.toString())
                     }
@@ -139,5 +139,9 @@ class BiThumbChartUsecase(
                 }
             }
         }
+    }
+
+    suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
+        return localRepository.getMyCoinDao().getCoin(market, exchange = EXCHANGE_BITTHUMB)
     }
 }
