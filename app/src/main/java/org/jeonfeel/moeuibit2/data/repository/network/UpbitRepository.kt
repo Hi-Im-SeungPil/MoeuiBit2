@@ -57,7 +57,7 @@ class UpbitRepository(
         minute: String,
         market: String,
         count: String = "200",
-        time: String = "",
+        time: String? = null,
     ): Flow<ApiResult<List<GetChartCandleRes>>> {
         return networkCall { upBitService.getMinuteCandle(minute, market, count, time) }
     }

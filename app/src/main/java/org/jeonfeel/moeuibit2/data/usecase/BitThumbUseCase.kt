@@ -4,7 +4,10 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbMarketCodeGroupedRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbTickerGroupedRes
@@ -176,5 +179,13 @@ class BitThumbUseCase(
                 }
             }
         }
+    }
+
+    suspend fun getFavoriteList(): List<Favorite?>? {
+        return localRepository.getFavoriteDao().getAllByExchange(EXCHANGE_BITTHUMB)
+    }
+
+    suspend fun removeFavorite(market: String) {
+        localRepository.getFavoriteDao().delete(market, EXCHANGE_UPBIT)
     }
 }

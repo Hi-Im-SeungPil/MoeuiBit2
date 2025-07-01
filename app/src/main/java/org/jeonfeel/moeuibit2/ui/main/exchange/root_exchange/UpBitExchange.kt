@@ -449,6 +449,7 @@ class UpBitExchange @Inject constructor(
             it.map { favorite -> favorite?.market ?: "" }
         } ?: emptyList()
 
+        Logger.e("favorite List -> $list")
         favoriteList.addAll(list)
     }
 

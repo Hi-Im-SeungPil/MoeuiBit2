@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.IconButton
@@ -34,6 +35,8 @@ import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.NumberCommaTransformation
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -67,6 +70,11 @@ fun AveragePurchaseCalculatorSection() {
         ).forEachIndexed { index, (label, value) ->
             OutlinedTextField(
                 value = value,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = commonTextColor(),      // 포커스됐을 때 아웃라인 색
+                    unfocusedBorderColor = commonDividerColor(),    // 포커스 안됐을 때 아웃라인 색
+                    cursorColor = commonTextColor()               // 커서 색
+                ),
                 onValueChange = {
                     val rawValue = it.replace(",", "")
                     if (rawValue.matches(Regex("^[0-9]*\\.?[0-9]{0,100}$"))) {
@@ -78,10 +86,10 @@ fun AveragePurchaseCalculatorSection() {
                         }
                     }
                 },
-                label = { Text(label, fontSize = DpToSp(15.dp)) },
+                label = { Text(label, fontSize = DpToSp(15.dp), color = commonTextColor()) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(fontSize = DpToSp(15.dp), textAlign = TextAlign.Start),
+                textStyle = TextStyle(fontSize = DpToSp(15.dp), textAlign = TextAlign.Start, color = commonTextColor()),
                 singleLine = true,
                 trailingIcon = {
                     if (value.isNotEmpty()) {

@@ -28,7 +28,6 @@ class ChartViewModel @Inject constructor(
             }
         }
 
-
     val chartUpdateLiveData
         get() = run {
             when (GlobalState.globalExchangeState.value) {

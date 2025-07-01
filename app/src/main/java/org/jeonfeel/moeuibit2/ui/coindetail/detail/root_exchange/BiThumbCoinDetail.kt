@@ -134,6 +134,10 @@ class BiThumbCoinDetail @Inject constructor(
         }
     }
 
+    fun updateIsFavorite() {
+        _isFavorite.value = !isFavorite.value
+    }
+
     suspend fun collectTicker(
         market: String,
         successCallback: (tradePrice: Double) -> Unit

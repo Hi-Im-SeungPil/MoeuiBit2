@@ -114,10 +114,22 @@ class NewCoinDetailViewModel @Inject constructor(
             }
         }
 
-    private var initIsFavorite = false
+    val isFavorite: State<Boolean>
+        get() = run {
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.isFavorite
+                }
 
-    private val _isFavorite = mutableStateOf(false)
-    val isFavorite: State<Boolean> get() = _isFavorite
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.isFavorite
+                }
+
+                else -> {
+                    upbitCoinDetail.isFavorite
+                }
+            }
+        }
 
     private var realTimeJob: Job? = null
 
@@ -166,15 +178,15 @@ class NewCoinDetailViewModel @Inject constructor(
         realTimeJob = viewModelScope.launch {
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
-                    upbitCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                    upbitCoinDetail.onStart(market)
                 }
 
                 EXCHANGE_BITTHUMB -> {
-                    biThumbCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                    biThumbCoinDetail.onStart(market)
                 }
 
                 else -> {
-                    upbitCoinDetail.onStart(market.coinOrderIsKrwMarket())
+                    upbitCoinDetail.onStart(market)
                 }
             }
         }.also { it.start() }
@@ -249,7 +261,15 @@ class NewCoinDetailViewModel @Inject constructor(
     }
 
     fun updateIsFavorite() {
-        _isFavorite.value = !isFavorite.value
+        when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> {
+                upbitCoinDetail.updateIsFavorite()
+            }
+
+            EXCHANGE_BITTHUMB -> {
+                biThumbCoinDetail.updateIsFavorite()
+            }
+        }
     }
 
     private suspend fun collectTicker(market: String) {

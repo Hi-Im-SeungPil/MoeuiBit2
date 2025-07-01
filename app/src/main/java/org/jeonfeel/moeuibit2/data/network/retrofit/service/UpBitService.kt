@@ -24,7 +24,7 @@ interface UpBitService {
         @Path("minute") minute: String,
         @Query("market") market: String,
         @Query("count") count: String,
-        @Query("to") time: String
+        @Query("to") time: String? = null
     ): Response<List<GetChartCandleRes>>
 
     @GET("v1/candles/{period}")

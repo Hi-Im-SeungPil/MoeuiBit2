@@ -142,6 +142,10 @@ class UpbitCoinDetail @Inject constructor(
         return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} ${deListingDate.year}년 ${deListingDate.month}월 ${deListingDate.day}일 거래지원 종료 예정입니다."
     }
 
+    fun updateIsFavorite() {
+        _isFavorite.value = !isFavorite.value
+    }
+
     suspend fun collectTicker(
         market: String,
         successCallback: (tradePrice: Double) -> Unit
