@@ -4,10 +4,16 @@ import androidx.annotation.Keep
 
 @Keep
 data class CoinInfoModel(
-    val marketCapKRW: String,
+    val circulatingSupply: String,
+    val fullyDilutedValuation: String,
+    val image: String,
+    val marketCap: String,
+    val marketCapRank: String,
     val maxSupply: String,
-    val supply: String,
-    val timeString: String,
-    val rank: String,
-    val unit: String,
+    val totalSupply: String,
+    val blockchainSite: String,
+    val description: String,
+    val homePage: String,
+    val twitterScreenName: String,
+    val whitePaper: String,
 )

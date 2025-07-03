@@ -30,16 +30,16 @@ data class FetchCoinInfoRes(
         val volumeUsd24Hr: String?,
         val vwap24Hr: String?,
     ) {
-        fun toCoinInfoModel(usdPrice: BigDecimal, timeStamp: Long): CoinInfoModel {
-            return CoinInfoModel(
-                marketCapKRW = getMarketCapKRW(usdPrice),
-                maxSupply = getMaxSupplyString(),
-                supply = supply?.toBigDecimal()?.formattedStringForKRW() ?: "-",
-                timeString = Utils.convertTimestampToString(timestamp = timeStamp),
-                rank = rank ?: "-",
-                unit = getUnit(usdPrice),
-            )
-        }
+//        fun toCoinInfoModel(usdPrice: BigDecimal, timeStamp: Long): CoinInfoModel {
+//            return CoinInfoModel(
+//                marketCapKRW = getMarketCapKRW(usdPrice),
+//                maxSupply = getMaxSupplyString(),
+//                supply = supply?.toBigDecimal()?.formattedStringForKRW() ?: "-",
+//                timeString = Utils.convertTimestampToString(timestamp = timeStamp),
+//                rank = rank ?: "-",
+//                unit = getUnit(usdPrice),
+//            )
+//        }
 
         private fun getMarketCapKRW(usdPrice: BigDecimal): String {
             val marketCapUsd = marketCapUsd?.toBigDecimal() ?: BigDecimal.ZERO

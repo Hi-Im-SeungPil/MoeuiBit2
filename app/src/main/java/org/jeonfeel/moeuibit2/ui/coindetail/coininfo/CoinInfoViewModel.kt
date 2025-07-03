@@ -40,13 +40,12 @@ class CoinInfoViewModel @Inject constructor(private val coinInfoUseCase: CoinInf
     private var usdPrice: BigDecimal = BigDecimal.ZERO
     private var coinLinkList: List<CoinLinkModel> = emptyList()
 
-    fun init(engName: String, symbol: String) {
+    fun init(symbol: String) {
         if (_uiState.value.state == UIState.SUCCESS) {
             return
         }
+
         viewModelScope.launch {
-//            parseUsdPriceData()
-//            parseCoinInfoData(engName)
             fetchCoinInfoFromFirebase(symbol)
         }
     }
@@ -63,35 +62,6 @@ class CoinInfoViewModel @Inject constructor(private val coinInfoUseCase: CoinInf
                 coinLinkList = coinLinkList,
                 state = UIState.SUCCESS
             )
-    }
-
-    private suspend fun parseUsdPriceData() {
-        coinInfoUseCase.fetchUSDPrice().collect { usdPriceResult ->
-            usdPrice = when (usdPriceResult) {
-                is ResultState.Success -> {
-                    usdPriceResult.data
-                }
-
-                else -> BigDecimal.ZERO
-            }
-        }
-    }
-
-    private suspend fun parseCoinInfoData(engName: String) {
-        coinInfoUseCase.fetchCoinInfo(engName = engName).collect { coinInfoRes ->
-            coinInfo = when (coinInfoRes) {
-                is ResultState.Success -> {
-                    if (coinInfoRes.data?.data.isNullOrEmpty()) {
-                        null
-                    } else {
-                        coinInfoTimeStamp = coinInfoRes.data?.timestamp ?: 0
-                        coinInfoRes.data?.data?.get(0)
-                    }
-                }
-
-                else -> null
-            }
-        }
     }
 
     private fun fetchCoinInfoFromFirebase(symbol: String) {
