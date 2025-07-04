@@ -16,4 +16,6 @@ data class CoinInfoModel(
     val homePage: String,
     val twitterScreenName: String,
     val whitePaper: String,
-)
+    val symbol: String
+) {
+}

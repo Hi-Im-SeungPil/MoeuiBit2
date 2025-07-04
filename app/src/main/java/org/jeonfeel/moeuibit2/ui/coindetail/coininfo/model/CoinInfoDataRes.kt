@@ -9,36 +9,35 @@ import org.jeonfeel.moeuibit2.utils.formatWithComma
 @Serializable
 data class CoinInfoDataRes(
     @SerialName("circulatingSupply")
-    val circulatingSupply: Double,
+    val circulatingSupply: Double = 0.0,
 
     @SerialName("fullyDilutedValuation")
-    val fullyDilutedValuation: Double,
+    val fullyDilutedValuation: Double = 0.0,
 
     @SerialName("image")
-    val image: String,
+    val image: String = "",
 
     @SerialName("marketCap")
-    val marketCap: Double,
+    val marketCap: Double= 0.0,
 
     @SerialName("marketCapRank")
-    val marketCapRank: Int,
+    val marketCapRank: Int = 0,
 
     @SerialName("maxSupply")
-    val maxSupply: Double,
+    val maxSupply: Double = 0.0,
 
     @SerialName("totalSupply")
-    val totalSupply: Double,
+    val totalSupply: Double = 0.0,
 
     @SerialName("symbol")
-    val symbol: String,
+    val symbol: String = "",
 
     @SerialName("community")
-    val community: Community
+    val community: Community = Community(),
 ) {
 
     fun mapToCoinInfoModel(): CoinInfoModel {
         return CoinInfoModel(
-
             circulatingSupply = circulatingSupply.calculateSupplyToString(),
             fullyDilutedValuation = fullyDilutedValuation.formatMarketCap(),
             marketCap = marketCap.formatMarketCap(),
@@ -50,25 +49,26 @@ data class CoinInfoDataRes(
             description = community.description,
             homePage = community.homePage,
             twitterScreenName = community.twitterScreenName,
-            whitePaper = community.whitePaper
+            whitePaper = community.whitePaper,
+            symbol = symbol.uppercase()
         )
     }
 
     @Serializable
     data class Community(
         @SerialName("blockchainSite")
-        val blockchainSite: String,
+        val blockchainSite: String = "",
 
         @SerialName("description")
-        val description: String,
+        val description: String = "",
 
         @SerialName("homePage")
-        val homePage: String,
+        val homePage: String = "",
 
         @SerialName("twitterScreenName")
-        val twitterScreenName: String,
+        val twitterScreenName: String = "",
 
         @SerialName("whitePaper")
-        val whitePaper: String,
+        val whitePaper: String = "",
     )
 }

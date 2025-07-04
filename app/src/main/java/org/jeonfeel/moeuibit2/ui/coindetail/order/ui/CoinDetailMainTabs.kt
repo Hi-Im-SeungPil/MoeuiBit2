@@ -93,7 +93,10 @@ fun TabRowMainNavigation(
         composable(CoinDetailMainTabRowItem.CoinInfo.screenRoute) {
             CoinInfoRoute(
                 engName = viewModel.engCoinName.value,
-                symbol = market.substring(4)
+                symbol = market.substring(4),
+                navigateUP = {
+                    navHostController.popBackStack()
+                }
             )
         }
     }

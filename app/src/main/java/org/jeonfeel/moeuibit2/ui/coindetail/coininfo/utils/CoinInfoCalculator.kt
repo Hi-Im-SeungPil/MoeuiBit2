@@ -12,12 +12,18 @@ object CoinInfoCalculator {
     }
 
     fun Double.formatMarketCap(): String {
-        val df = DecimalFormat("#,###")
+        val intFormat = DecimalFormat("#,###")
+        val floatFormat = DecimalFormat("#,###.#")
+
         return when {
-            this >= 1_0000_0000_0000 -> String.format("%.1f조", this / 1_0000_0000_0000.0)
-            this >= 1_0000_0000 -> df.format(this / 1_0000_0000) + "억"
-            this >= 1000_0000 -> df.format(this / 10000) + "만"
-            else -> df.format(this)
+            this >= 1_0000_0000_0000 -> {
+                val value = this / 1_0000_0000_0000.0
+                val formatted = floatFormat.format(value)
+                "$formatted 조"
+            }
+            this >= 1_0000_0000 -> intFormat.format(this / 1_0000_0000) + " 억"
+            this >= 1000_0000 -> intFormat.format(this / 10000) + " 만"
+            else -> intFormat.format(this)
         }
     }
 }
