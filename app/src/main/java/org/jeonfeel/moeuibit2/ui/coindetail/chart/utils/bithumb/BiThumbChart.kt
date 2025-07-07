@@ -1,6 +1,5 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.github.mikephil.charting.data.BarDataSet
@@ -41,7 +40,7 @@ import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import javax.inject.Inject
 
-class BithumbChartState: BaseChartState() {
+class BithumbChartState : BaseChartState() {
 }
 
 class BiThumbChart @Inject constructor(
@@ -115,16 +114,16 @@ class BiThumbChart @Inject constructor(
                 }
                 chartUpdateJob?.cancelAndJoin()
                 getUserCoinPurchaseAverage(market)
-                newRequestUpbitChartData(state.candleType.value, market)
+                newRequestBithumbChartData(state.candleType.value, market)
             }
         } else {
             chartUpdateJob?.cancelAndJoin()
             getUserCoinPurchaseAverage(market)
-            newRequestUpbitChartData(candleType, market)
+            newRequestBithumbChartData(candleType, market)
         }
     }
 
-    private suspend fun newRequestUpbitChartData(
+    private suspend fun newRequestBithumbChartData(
         candleType: String = state.candleType.value,
         market: String
     ) {
@@ -138,26 +137,23 @@ class BiThumbChart @Inject constructor(
             market = market
         )
 
-        val flow = if (candleType.toIntOrNull() == null) {
-            when (getChartCandleReq.candleType) {
-                "days" -> {
-                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
-                }
-
-                "weeks" -> {
-                    biThumbChartUsecase.fetchWeekCandle(getChartCandleReq)
-                }
-
-                "months" -> {
-                    biThumbChartUsecase.fetchMonthCandle(getChartCandleReq)
-                }
-
-                else -> {
-                    biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
-                }
+        val flow = when (getChartCandleReq.candleType) {
+            "days" -> {
+                biThumbChartUsecase.fetchDayCandle(getChartCandleReq)
             }
-        } else {
-            biThumbChartUsecase.fetchMinuteChartData(getChartCandleReq = getChartCandleReq)
+
+            "weeks" -> {
+                biThumbChartUsecase.fetchWeekCandle(getChartCandleReq)
+            }
+
+            "months" -> {
+                biThumbChartUsecase.fetchMonthCandle(getChartCandleReq)
+            }
+
+            else -> {
+                Logger.e("getChartCandleReq.candleType = ${getChartCandleReq.candleType}")
+                biThumbChartUsecase.fetchMinuteChartData(getChartCandleReq = getChartCandleReq)
+            }
         }
 
         flow.collect { res ->
@@ -390,7 +386,8 @@ class BiThumbChart @Inject constructor(
                     when (res) {
                         is ResultState.Success -> {
                             val chartData = res.data.first()
-
+                            Logger.e("kstTime -> $kstTime")
+                            Logger.e("chartData.candleDateTimeKst -> ${chartData.candleDateTimeKst}")
                             when {
                                 kstTime != chartData.candleDateTimeKst -> {
                                     state.isUpdateChart.value = false

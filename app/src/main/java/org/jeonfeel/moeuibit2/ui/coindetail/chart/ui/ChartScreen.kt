@@ -231,38 +231,20 @@ fun ChartScreen(viewModel: NewCoinDetailViewModel, market: String) {
                         .align(Alignment.TopCenter)
                         .border(0.5.dp, color = commonTextColor())
                 ) {
-                    if (GlobalState.globalExchangeState.value == EXCHANGE_UPBIT) {
-                        for (i in chartMinuteArray.indices) {
-                            MinuteButton(
-                                isChartLastData = viewModel.chart.state.isLastData,
-                                minuteVisibility = viewModel.chart.state.minuteVisible,
-                                minuteText = viewModel.chart.state.minuteText,
-                                minuteTextValue = chartMinuteStrArray[i],
-                                candleType = viewModel.chart.state.candleType,
-                                candleTypeValue = chartMinuteArray[i],
-                                autoSizeText = true,
-                                selectedButton = viewModel.chart.state.selectedButton,
-                                requestChartData = viewModel::requestChartData,
-                                market = market,
-                                setLastPeriod = viewModel::setLastPeriod
-                            )
-                        }
-                    } else if (GlobalState.globalExchangeState.value == EXCHANGE_BITTHUMB) {
-                        for (i in chartMinuteArray.indices) {
-                            MinuteButton(
-                                isChartLastData = viewModel.chart.state.isLastData,
-                                minuteVisibility = viewModel.chart.state.minuteVisible,
-                                minuteText = viewModel.chart.state.minuteText,
-                                minuteTextValue = bitthumbChartMinuteStrArray[i],
-                                candleType = viewModel.chart.state.candleType,
-                                candleTypeValue = bitthumbChartMinuteArray[i],
-                                autoSizeText = true,
-                                selectedButton = viewModel.chart.state.selectedButton,
-                                requestChartData = viewModel::requestChartData,
-                                market = market,
-                                setLastPeriod = viewModel::setLastPeriod
-                            )
-                        }
+                    for (i in chartMinuteArray.indices) {
+                        MinuteButton(
+                            isChartLastData = viewModel.chart.state.isLastData,
+                            minuteVisibility = viewModel.chart.state.minuteVisible,
+                            minuteText = viewModel.chart.state.minuteText,
+                            minuteTextValue = chartMinuteStrArray[i],
+                            candleType = viewModel.chart.state.candleType,
+                            candleTypeValue = chartMinuteArray[i],
+                            autoSizeText = true,
+                            selectedButton = viewModel.chart.state.selectedButton,
+                            requestChartData = viewModel::requestChartData,
+                            market = market,
+                            setLastPeriod = viewModel::setLastPeriod
+                        )
                     }
                 }
             }
@@ -317,7 +299,7 @@ private fun PeriodButtons(
             modifier = buttonModifier,
             selectedButton = selectedButton,
             candleType = candleType,
-            candleTypeValue = if (rootExchange == EXCHANGE_UPBIT) "days" else "24h",
+            candleTypeValue = "days",
             minuteVisibility,
             minuteText,
             buttonText = stringResource(id = R.string.day),
@@ -327,36 +309,37 @@ private fun PeriodButtons(
             market = market,
             setLastPeriod
         )
-        if (rootExchange != EXCHANGE_BITTHUMB) {
-            PeriodButton(
-                modifier = buttonModifier,
-                selectedButton = selectedButton,
-                candleType = candleType,
-                candleTypeValue = "weeks",
-                minuteVisibility,
-                minuteText,
-                buttonText = stringResource(id = R.string.week),
-                isChartLastData = isChartLastData,
-                period = WEEK_SELECT,
-                requestChartData = requestChartData,
-                market = market,
-                setLastPeriod
-            )
-            PeriodButton(
-                modifier = buttonModifier,
-                selectedButton = selectedButton,
-                candleType = candleType,
-                candleTypeValue = "months",
-                minuteVisibility,
-                minuteText,
-                buttonText = stringResource(id = R.string.month),
-                isChartLastData = isChartLastData,
-                period = MONTH_SELECT,
-                requestChartData = requestChartData,
-                market = market,
-                setLastPeriod
-            )
-        }
+
+        PeriodButton(
+            modifier = buttonModifier,
+            selectedButton = selectedButton,
+            candleType = candleType,
+            candleTypeValue = "weeks",
+            minuteVisibility,
+            minuteText,
+            buttonText = stringResource(id = R.string.week),
+            isChartLastData = isChartLastData,
+            period = WEEK_SELECT,
+            requestChartData = requestChartData,
+            market = market,
+            setLastPeriod
+        )
+
+        PeriodButton(
+            modifier = buttonModifier,
+            selectedButton = selectedButton,
+            candleType = candleType,
+            candleTypeValue = "months",
+            minuteVisibility,
+            minuteText,
+            buttonText = stringResource(id = R.string.month),
+            isChartLastData = isChartLastData,
+            period = MONTH_SELECT,
+            requestChartData = requestChartData,
+            market = market,
+            setLastPeriod
+        )
+
     }
 }
 

@@ -33,18 +33,6 @@ data class BiThumbMonthCandleRes(
     @SerialName("candle_acc_trade_volume")
     val candleAccTradeVolume: Double,
 
-    @SerialName("prev_closing_price")
-    val prevClosingPrice: Double,
-
-    @SerialName("change_price")
-    val changePrice: Double,
-
-    @SerialName("change_rate")
-    val changeRate: Double,
-
-    @SerialName("converted_trade_price")
-    val convertedTradePrice: Double? = null,
-
     @SerialName("first_day_of_period")
     val firstDayOfPeriod: String
 )

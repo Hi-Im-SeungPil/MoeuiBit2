@@ -119,20 +119,17 @@ class ChartViewModel @Inject constructor(
             }
         }
 
-    fun refresh(market: String) {
-        viewModelScope.launch {
-            when (GlobalState.globalExchangeState.value) {
-                EXCHANGE_UPBIT -> upbitChart.refresh(market = market)
-                EXCHANGE_BITTHUMB -> biThumbChart.refresh(market = market)
-            }
+    suspend fun refresh(market: String) {
+        when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> upbitChart.refresh(market = market)
+            EXCHANGE_BITTHUMB -> biThumbChart.refresh(market = market)
         }
     }
 
-    fun saveLastPeriod(period: String) {
-        viewModelScope.launch {
-            when (GlobalState.globalExchangeState.value) {
-                EXCHANGE_UPBIT -> upbitChart.saveLastPeriod(period = period)
-            }
+    suspend fun saveLastPeriod(period: String) {
+        when (GlobalState.globalExchangeState.value) {
+            EXCHANGE_UPBIT -> upbitChart.saveLastPeriod(period = period)
+            EXCHANGE_BITTHUMB -> biThumbChart.saveLastPeriod(period = period)
         }
     }
 
