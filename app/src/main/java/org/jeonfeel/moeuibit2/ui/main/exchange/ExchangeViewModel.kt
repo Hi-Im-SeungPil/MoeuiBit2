@@ -79,13 +79,17 @@ class ExchangeViewModel @Inject constructor(
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitExchange.onStart(
-                        updateLoadingState = ::updateLoadingState
+                        updateLoadingState = ::updateLoadingState,
+                        selectedSortType = selectedSortType.value,
+                        sortOrder = sortOrder.value
                     )
                 }
 
                 EXCHANGE_BITTHUMB -> {
                     biThumbExchange.onStart(
-                        updateLoadingState = ::updateLoadingState
+                        updateLoadingState = ::updateLoadingState,
+                        selectedSortType = selectedSortType.value,
+                        sortOrder = sortOrder.value
                     )
                 }
             }

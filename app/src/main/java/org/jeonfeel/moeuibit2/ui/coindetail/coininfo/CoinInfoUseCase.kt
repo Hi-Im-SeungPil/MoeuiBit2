@@ -21,7 +21,6 @@ class CoinInfoUseCase(
 
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                Logger.e("trigger!!")
                 snapshot.getValue(CoinInfoDataRes::class.java)?.let {
                     if (snapshot.exists()) {
                         callback(it.mapToCoinInfoModel())

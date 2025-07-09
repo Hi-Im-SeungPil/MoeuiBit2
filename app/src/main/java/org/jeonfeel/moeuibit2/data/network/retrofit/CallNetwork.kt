@@ -15,7 +15,6 @@ fun <T> networkCall(call: suspend () -> Response<T>): Flow<ApiResult<T>> {
                 if (response.isSuccessful) {
                     emit(ApiResult.success(data = response.body()))
                 } else {
-                    Logger.e(response.toString() ?: "")
                     emit(
                         ApiResult.error(null, response.errorBody()?.string() ?: "")
                     )

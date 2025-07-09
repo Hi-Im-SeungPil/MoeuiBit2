@@ -25,9 +25,9 @@ class BiThumbPortfolioUsecase @Inject constructor(
     suspend fun onStart(marketCodes: List<String>) {
         portfolioWebsocketManager.updateIsBackground(false)
         if (portfolioWebsocketManager.getIsSocketConnected()) {
-            portfolioWebsocketManager.sendMessage(marketCodes.joinToString(separator = ","))
+            portfolioWebsocketManager.sendMessage(marketCodes.joinToString(separator = ",") { "\"$it\"" })
         } else {
-            portfolioWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ","))
+            portfolioWebsocketManager.connectWebSocketFlow(marketCodes.joinToString(separator = ",") { "\"$it\"" })
         }
     }
 
@@ -95,7 +95,6 @@ class BiThumbPortfolioUsecase @Inject constructor(
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {
-        com.orhanobut.logger.Logger.e("mycoins" + localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_BITTHUMB).toString())
         return localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_BITTHUMB) ?: emptyList()
     }
 

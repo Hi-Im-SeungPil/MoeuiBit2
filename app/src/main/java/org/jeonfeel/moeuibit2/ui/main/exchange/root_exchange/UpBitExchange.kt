@@ -23,7 +23,6 @@ import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import java.math.BigDecimal
 import javax.inject.Inject
-import kotlin.reflect.KFunction1
 
 class UpBitExchange @Inject constructor(
     private val upBitExchangeUseCase: UpBitExchangeUseCase,
@@ -47,6 +46,9 @@ class UpBitExchange @Inject constructor(
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
 
+    private var currentSortType: SortType? = null
+    private var currentSortOrder: SortOrder? = null
+
     /**
      * 업비트 초기화
      */
@@ -58,17 +60,21 @@ class UpBitExchange @Inject constructor(
         this.isUpdateExchange = isUpdateExchange
     }
 
-    private suspend fun initializeTickerData() {
+    private suspend fun initializeTickerData(sortOrder: SortOrder, selectedSortType: SortType) {
         requestMarketCode()
-        requestTicker()
+        requestTicker(selectedSortType = selectedSortType, sortOrder = sortOrder)
     }
 
-    suspend fun onStart(updateLoadingState: (Boolean) -> Unit) {
+    suspend fun onStart(
+        updateLoadingState: (Boolean) -> Unit,
+        selectedSortType: SortType,
+        sortOrder: SortOrder
+    ) {
         if (isTickerDataEmpty()) {
             updateLoadingState(true)
 
             clearAllTickerData()
-            initializeTickerData()
+            initializeTickerData(selectedSortType = selectedSortType, sortOrder = sortOrder)
 
             delayAndStopLoading(updateLoadingState)
             useCaseOnStart()
@@ -76,6 +82,18 @@ class UpBitExchange @Inject constructor(
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
             }
+
+            if (currentSortOrder != sortOrder || currentSortType != selectedSortType) {
+                currentSortType = selectedSortType
+                currentSortOrder = sortOrder
+
+                sortTickerList(
+                    tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                    sortType = selectedSortType,
+                    sortOrder = sortOrder
+                )
+            }
+
             useCaseOnStart()
         }
     }
@@ -190,7 +208,7 @@ class UpBitExchange @Inject constructor(
     /**
      * 업비트 티커 요청
      */
-    private suspend fun requestTicker() {
+    private suspend fun requestTicker(sortOrder: SortOrder, selectedSortType: SortType) {
         val marketCodes = (krwList + btcList).mapToMarketCodesRequest()
         val req = GetUpbitMarketTickerReq(
             marketCodes = marketCodes
@@ -205,11 +223,16 @@ class UpBitExchange @Inject constructor(
             onComplete = { result ->
                 _krwExchangeModelList.addAll(result.first)
                 _btcExchangeModelList.addAll(result.second)
-                sortTickerList(
-                    tradeCurrency = TRADE_CURRENCY_KRW,
-                    sortType = SortType.VOLUME,
-                    sortOrder = SortOrder.DESCENDING
-                )
+
+                if (currentSortType != selectedSortType || currentSortOrder != sortOrder) {
+                    currentSortType = selectedSortType
+                    currentSortOrder = sortOrder
+                    sortTickerList(
+                        tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                        sortType = selectedSortType,
+                        sortOrder = sortOrder
+                    )
+                }
             }
         )
     }

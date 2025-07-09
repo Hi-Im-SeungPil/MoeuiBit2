@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb
 
+import androidx.annotation.Keep
 import androidx.compose.ui.util.fastForEachReversed
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,6 +10,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
+@Keep
 @Serializable
 data class BiThumbOrderBookRes(
 
@@ -25,6 +27,7 @@ data class BiThumbOrderBookRes(
     @SerialName("orderbook_units")
     val orderbookUnits: List<OrderbookUnit> // 호가 리스트
 ) {
+    @Keep
     @Serializable
     data class OrderbookUnit(
 
@@ -44,7 +47,7 @@ data class BiThumbOrderBookRes(
     fun mapToOrderBookModel(): List<OrderBookModel> {
         val askList = ArrayList<OrderBookModel>()
         val bidList = ArrayList<OrderBookModel>()
-        orderbookUnits.fastForEachReversed { orderBookUnit ->
+        orderbookUnits.subList(0, 14).fastForEachReversed { orderBookUnit ->
             askList.add(
                 OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(

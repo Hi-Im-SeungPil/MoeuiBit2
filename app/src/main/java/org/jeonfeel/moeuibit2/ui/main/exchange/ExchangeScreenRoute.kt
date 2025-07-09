@@ -87,7 +87,6 @@ fun ExchangeScreenRoute(
                 textFieldValueState = viewModel.textFieldValue,
                 updateTextFieldValue = viewModel::updateTextFieldValue,
                 changeExchange = {
-                    Logger.e("changeExchange")
                     viewModel.saveRootExchange()
                     viewModel.onStop()
                     viewModel.onStart()

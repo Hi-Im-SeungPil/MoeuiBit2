@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb
 
+import com.orhanobut.logger.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -46,6 +47,7 @@ class BiThumbPortfolioWebsocketManager {
 
     // WebSocket 메시지 Flow 생성
     suspend fun connectWebSocketFlow(marketCodes: String) {
+        Logger.e("$marketCodes")
         if (socketState.get() == WebSocketState.CONNECTED || socketState.get() == WebSocketState.CONNECTING) return
 
         socketState.set(WebSocketState.CONNECTING)
@@ -71,6 +73,7 @@ class BiThumbPortfolioWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<BithumbSocketTickerRes>(frame.data.decodeToString())
+                            Logger.e("$receivedMessage")
                             _tickerFlow.emit(receivedMessage)
                         }
 

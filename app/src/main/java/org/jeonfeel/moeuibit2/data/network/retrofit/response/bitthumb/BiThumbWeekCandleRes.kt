@@ -1,9 +1,11 @@
 package org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb.CommonChartModel
 
+@Keep
 @Serializable
 data class BiThumbWeekCandleRes(
     val market: String,

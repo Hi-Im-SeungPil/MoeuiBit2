@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -87,6 +88,8 @@ class BithumbCoinOrder @Inject constructor(
         biThumbCoinOrderUseCase.requestObserveOrderBook().collect { bithumbSocketOrderBookRes ->
             if (bithumbSocketOrderBookRes?.type == "orderbook") {
                 val realTimeOrderBook = bithumbSocketOrderBookRes.mapToOrderBookModel()
+                Logger.e("${_orderBookList.size} ${_orderBookList.toString()}")
+                Logger.e("${realTimeOrderBook.size} $realTimeOrderBook")
                 for (i in _orderBookList.indices) {
                     _orderBookList[i] = realTimeOrderBook[i]
                 }

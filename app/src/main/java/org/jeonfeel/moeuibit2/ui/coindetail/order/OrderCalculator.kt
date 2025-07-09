@@ -24,16 +24,11 @@ object OrderCalculator {
         val percentage = difference.divide(purchaseAverage, 4, RoundingMode.HALF_UP)
             .multiply(BigDecimal(100))
 
-        Logger.e(percentage.toString())
-
         val color = if (percentage.toDouble() > 0.0) {
-            Logger.e("red")
             commonRiseColor()
         } else if(percentage.toDouble() == 0.0){
-            Logger.e("black")
             commonTextColor()
         } else {
-            Logger.e("blue")
             commonFallColor()
         }
 

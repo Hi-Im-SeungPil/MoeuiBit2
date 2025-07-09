@@ -95,8 +95,8 @@ class BiThumbPortfolio @Inject constructor(
 
     private suspend fun getCoinName() {
         if (_koreanCoinNameMap.isEmpty() || _engCoinNameMap.isEmpty()) {
-            _koreanCoinNameMap.putAll(cacheManager.readKoreanCoinNameMap())
-            _engCoinNameMap.putAll(cacheManager.readEnglishCoinNameMap())
+            _koreanCoinNameMap.putAll(cacheManager.readBiThumbKoreanCoinNameMap())
+            _engCoinNameMap.putAll(cacheManager.readBiThumbEnglishCoinNameMap())
         }
     }
 
@@ -372,7 +372,10 @@ class BiThumbPortfolio @Inject constructor(
                 it?.market ?: ""
             }
             .filterNotNull().mapToMarketCodesRequest()
-            .plus(",KRW-BTC")
+
+        if (!marketCodes.contains("KRW-BTC")) {
+            marketCodes.plus(",KRW-BTC")
+        }
 
         bithumbPortfolioUsecase.fetchMarketTicker(marketCodes)
             .collect { res ->
@@ -442,7 +445,6 @@ class BiThumbPortfolio @Inject constructor(
     }
 
     private suspend fun getUserSeedMoney() {
-        Logger.e("getUserSeedMoney " + bithumbPortfolioUsecase.getUserSeedMoney().toString())
         _userSeedMoney.doubleValue = bithumbPortfolioUsecase.getUserSeedMoney()
     }
 

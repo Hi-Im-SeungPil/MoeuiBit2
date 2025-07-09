@@ -144,7 +144,6 @@ class BiThumbCoinDetail @Inject constructor(
     ) {
         biThumbCoinDetailUseCase.observeTickerResponse().collect { biThumbSocketTickerRes ->
             runCatching {
-                Logger.e(biThumbSocketTickerRes.toString())
                 if (biThumbSocketTickerRes?.delistingDate != null && !isShowDeListingSnackBar.value) {
                     deListingMessage = createTradeEndMessage(biThumbSocketTickerRes.delistingDate)
                     _isShowDeListingSnackBar.value = true

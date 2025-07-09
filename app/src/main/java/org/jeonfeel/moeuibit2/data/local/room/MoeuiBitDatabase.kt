@@ -149,12 +149,13 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
         }
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
+                db.version = 6
                 // 1. 새 테이블 생성 (복합키 포함)
                 db.execSQL(
                     """
                 CREATE TABLE IF NOT EXISTS Favorite_new (
                 market TEXT NOT NULL,
-                exchange TEXT NOT NULL DEFAULT 'upbit',
+                exchange TEXT NOT NULL DEFAULT 'UpBit',
                 PRIMARY KEY(market, exchange)
             )
         """.trimIndent()

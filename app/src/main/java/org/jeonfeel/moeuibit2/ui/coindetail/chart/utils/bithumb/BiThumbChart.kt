@@ -151,7 +151,6 @@ class BiThumbChart @Inject constructor(
             }
 
             else -> {
-                Logger.e("getChartCandleReq.candleType = ${getChartCandleReq.candleType}")
                 biThumbChartUsecase.fetchMinuteChartData(getChartCandleReq = getChartCandleReq)
             }
         }
@@ -386,8 +385,6 @@ class BiThumbChart @Inject constructor(
                     when (res) {
                         is ResultState.Success -> {
                             val chartData = res.data.first()
-                            Logger.e("kstTime -> $kstTime")
-                            Logger.e("chartData.candleDateTimeKst -> ${chartData.candleDateTimeKst}")
                             when {
                                 kstTime != chartData.candleDateTimeKst -> {
                                     state.isUpdateChart.value = false

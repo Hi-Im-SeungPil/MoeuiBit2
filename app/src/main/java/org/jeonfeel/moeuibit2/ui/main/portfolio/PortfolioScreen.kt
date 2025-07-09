@@ -1,6 +1,7 @@
 package org.jeonfeel.moeuibit2.ui.main.portfolio
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,12 +37,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -52,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.SYMBOL_KRW
@@ -118,18 +122,40 @@ fun PortfolioScreen(
                 .fillMaxWidth()
                 .wrapContentHeight(align = Alignment.CenterVertically)
         ) {
-            Text(
-                text = stringResource(id = R.string.investmentDetail),
-                modifier = Modifier
-                    .padding(10.dp, 0.dp, 0.dp, 0.dp)
-                    .weight(1f, true)
-                    .align(Alignment.CenterVertically),
-                style = TextStyle(
-                    color = commonTextColor(),
-                    fontSize = DpToSp(20.dp),
-                    fontWeight = FontWeight.W600
+            Row(modifier = Modifier
+                .weight(1f, true)
+                .align(Alignment.CenterVertically)) {
+                Text(
+                    text = stringResource(id = R.string.investmentDetail),
+                    modifier = Modifier
+                        .padding(10.dp, 0.dp, 10.dp, 0.dp)
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(
+                        color = commonTextColor(),
+                        fontSize = DpToSp(20.dp),
+                        fontWeight = FontWeight.W600
+                    )
                 )
-            )
+
+                Image(
+                    painter = when (GlobalState.globalExchangeState.value) {
+                        EXCHANGE_UPBIT -> painterResource(id = R.drawable.img_upbit)
+                        else -> painterResource(id = R.drawable.img_bit_thumb)
+                    },
+                    modifier = Modifier
+                        .size(30.dp)
+                        .align(Alignment.CenterVertically)
+                        .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(
+                            width = 2.dp,
+                            color = commonTextColor(),
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    contentDescription = ""
+                )
+            }
+
             Row {
                 Card(
                     modifier = Modifier
@@ -152,8 +178,8 @@ fun PortfolioScreen(
                             .align(Alignment.CenterVertically)
                             .noRippleClickable {
                                 //TODO 필수도 수정해야함.
-                                earnReward()
-//                                adDialogState.value = true
+//                                earnReward()
+                                adDialogState.value = true
                             },
                         style = TextStyle(
                             color = commonTextColor(),

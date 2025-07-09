@@ -129,7 +129,6 @@ class UpbitPortfolioUsecase @Inject constructor(
     }
 
     suspend fun getMyCoins(): List<MyCoin?> {
-        Logger.e(localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_UPBIT).toString())
         return localRepository.getMyCoinDao().getAllByExchange(EXCHANGE_UPBIT) ?: emptyList()
     }
 

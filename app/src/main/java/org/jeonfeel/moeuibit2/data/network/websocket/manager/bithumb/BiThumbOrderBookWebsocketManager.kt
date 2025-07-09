@@ -71,7 +71,7 @@ class BiThumbOrderBookWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<BithumbSocketOrderbookRes>(frame.data.decodeToString())
-                            Logger.e(receivedMessage.toString())
+//                            Logger.e(receivedMessage.toString())
                             _tickerFlow.emit(receivedMessage)
                         }
 

@@ -49,6 +49,9 @@ class BitThumbExchange @Inject constructor(
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
 
+    private var currentSortType: SortType? = null
+    private var currentSortOrder: SortOrder? = null
+
     fun initBitThumb(
         tradeCurrencyState: State<Int>,
         isUpdateExchange: State<Boolean>,
@@ -57,14 +60,18 @@ class BitThumbExchange @Inject constructor(
         this.isUpdateExchange = isUpdateExchange
     }
 
-    suspend fun onStart(updateLoadingState: KFunction1<Boolean, Unit>) {
+    suspend fun onStart(
+        updateLoadingState: KFunction1<Boolean, Unit>,
+        selectedSortType: SortType,
+        sortOrder: SortOrder
+    ) {
         if (tickerDataIsEmpty()) {
             clearTickerData()
             updateLoadingState(true)
 
             fetchBiThumbWarning()
             fetchBitThumbMarketCodeList()
-            fetchBitThumbTicker()
+            fetchBitThumbTicker(selectedSortType = selectedSortType, sortOrder = sortOrder)
 
             loadingDelay(updateLoadingState)
 
@@ -72,6 +79,17 @@ class BitThumbExchange @Inject constructor(
         } else {
             if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
                 favoriteOnResume()
+            }
+
+            if(currentSortOrder != sortOrder || currentSortType != selectedSortType) {
+                currentSortType = selectedSortType
+                currentSortOrder = sortOrder
+
+                sortTickerList(
+                    tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                    sortType = selectedSortType,
+                    sortOrder = sortOrder
+                )
             }
 
             useCaseOnStart()
@@ -202,7 +220,7 @@ class BitThumbExchange @Inject constructor(
         }
     }
 
-    private suspend fun fetchBitThumbTicker() {
+    private suspend fun fetchBitThumbTicker(sortOrder: SortOrder, selectedSortType: SortType) {
         val marketCodes = (krwList + btcList)
         marketCodes.chunked(100).forEach { chunk ->
             biThumbUseCase.fetchBitThumbTicker(
@@ -240,11 +258,17 @@ class BitThumbExchange @Inject constructor(
                 }
             }
         }
-        sortTickerList(
-            tradeCurrency = TRADE_CURRENCY_KRW,
-            sortType = SortType.VOLUME,
-            sortOrder = SortOrder.DESCENDING
-        )
+
+        if (currentSortType != selectedSortType || currentSortOrder != sortOrder) {
+            currentSortType = selectedSortType
+            currentSortOrder = sortOrder
+
+            sortTickerList(
+                tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                sortType = selectedSortType,
+                sortOrder = sortOrder
+            )
+        }
     }
 
     private suspend fun updateTickerData(sortOrder: SortOrder? = null, sortType: SortType? = null) {
@@ -582,14 +606,14 @@ class BitThumbExchange @Inject constructor(
                     val marketCode = marketCodeMap?.get(res.data.code)
                     val waringList = _biThumbWarningMap[marketCode?.market] ?: emptyList()
 
-                    Logger.e(marketCode?.market + " / / " + position.toString())
+//                    Logger.e(marketCode?.market + " / / " + position.toString())
 
                     if (position != null && marketCode != null) {
                         val model =
                             res.data.mapToCommonExchangeModel(marketCode, waringList).apply {
                                 needAnimation.value = res.data.askBid
                             }
-                        Logger.e(model.toString())
+//                        Logger.e(model.toString())
                         modelList?.set(position, model)
                     }
                 } else {

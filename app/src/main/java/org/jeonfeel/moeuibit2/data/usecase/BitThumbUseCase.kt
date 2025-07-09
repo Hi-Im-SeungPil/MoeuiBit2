@@ -29,7 +29,6 @@ class BitThumbUseCase(
     private val biThumbExchangeWebsocketManager = BiThumbExchangeWebsocketManager()
 
     suspend fun biThumbSocketOnStart(marketCodes: List<String>) {
-        Logger.e(marketCodes.toString())
         biThumbExchangeWebsocketManager.updateIsBackground(false)
         if (biThumbExchangeWebsocketManager.getIsSocketConnected()) {
             biThumbExchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ",") { "\"$it\"" })

@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb
 
+import androidx.annotation.Keep
 import androidx.compose.ui.util.fastForEachReversed
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,6 +9,7 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 
+@Keep
 @Serializable
 data class BithumbSocketOrderbookRes(
     @SerialName("type")
@@ -15,9 +17,6 @@ data class BithumbSocketOrderbookRes(
 
     @SerialName("code")
     val code: String, // 마켓 코드 (ex. KRW-BTC)
-
-    @SerialName("orderbook")
-    val orderbook: String, // 호가
 
     @SerialName("total_ask_size")
     val totalAskSize: Double, // 호가 매도 총 잔량
@@ -34,6 +33,7 @@ data class BithumbSocketOrderbookRes(
     @SerialName("level")
     val level: Double // 호가 모아보기 단위
 ) {
+    @Keep
     @Serializable
     data class OrderBookUnit(
         @SerialName("ask_price")
