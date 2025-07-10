@@ -186,7 +186,8 @@ class UpbitCoinOrder @Inject constructor(private val upbitCoinOrderUseCase: Upbi
             quantity = minusQuantity(
                 currentQuantity = _userCoin.value.quantity,
                 quantity = quantity
-            )
+            ),
+            exchange = EXCHANGE_UPBIT
         )
         if (market.isKrwTradeCurrency()) {
             upbitCoinOrderUseCase.requestKRWAsk(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -87,41 +88,52 @@ fun CoinInfoText(
     text: String,
     symbol: String = ""
 ) {
-    Row(
+    Column(
         modifier = Modifier
-            .padding(top = 15.dp)
             .padding(horizontal = 20.dp)
+            .padding(top = 15.dp)
     ) {
-        Text(
-            text = title,
-            style = TextStyle(
-                color = commonHintTextColor(),
-                fontSize = DpToSp(15.dp),
-                fontWeight = FontWeight.W500
-            )
-        )
 
-        Text(
-            text = if (text == "0" || text.isEmpty()) "-" else text,
-            modifier = Modifier.weight(1f),
-            style = TextStyle(
-                color = commonTextColor(),
-                fontSize = DpToSp(15.dp),
-                textAlign = TextAlign.End
-            )
-        )
-
-        if (symbol.isNotEmpty() && !(text == "0" || text.isEmpty())) {
+        Row(
+            modifier = Modifier.padding(bottom = 3.dp)
+        ) {
             Text(
-                text = " $symbol",
+                text = title,
+                style = TextStyle(
+                    color = commonHintTextColor(),
+                    fontSize = DpToSp(15.dp),
+                    fontWeight = FontWeight.W500
+                )
+            )
+
+            Text(
+                text = if (text == "0" || text.isEmpty()) "-" else text,
+                modifier = Modifier.weight(1f),
                 style = TextStyle(
                     color = commonTextColor(),
                     fontSize = DpToSp(15.dp),
-                    textAlign = TextAlign.End,
-                    fontWeight = FontWeight.W600
+                    textAlign = TextAlign.End
                 )
             )
+
+            if (symbol.isNotEmpty() && !(text == "0" || text.isEmpty())) {
+                Text(
+                    text = " $symbol",
+                    style = TextStyle(
+                        color = commonTextColor(),
+                        fontSize = DpToSp(15.dp),
+                        textAlign = TextAlign.End,
+                        fontWeight = FontWeight.W600
+                    )
+                )
+            }
         }
+
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = commonHintTextColor(),
+            thickness = 1.5.dp
+        )
     }
 }
 
@@ -174,16 +186,22 @@ fun CoinLinkSection(
                 .padding(vertical = 15.dp, horizontal = 15.dp)
         ) {
             Row(modifier = Modifier) {
-                MoveUrlText(text = "백서") {
-                    moveToWeb(links[1] ?: "", LinkType.IN_APP)
+                if (!links[1].isNullOrEmpty()) {
+                    MoveUrlText(text = "백서") {
+                        moveToWeb(links[1] ?: "", LinkType.IN_APP)
+                    }
                 }
 
-                MoveUrlText(text = "홈페이지") {
-                    moveToWeb(links[0] ?: "", LinkType.IN_APP)
+                if (!links[0].isNullOrEmpty()) {
+                    MoveUrlText(text = "홈페이지") {
+                        moveToWeb(links[0] ?: "", LinkType.IN_APP)
+                    }
                 }
 
-                MoveUrlText(text = "익스플로러") {
-                    moveToWeb(links[2] ?: "", LinkType.IN_APP)
+                if (!links[2].isNullOrEmpty()) {
+                    MoveUrlText(text = "익스플로러") {
+                        moveToWeb(links[2] ?: "", LinkType.IN_APP)
+                    }
                 }
             }
         }

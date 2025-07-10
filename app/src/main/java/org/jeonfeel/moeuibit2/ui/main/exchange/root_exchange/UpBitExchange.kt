@@ -218,7 +218,8 @@ class UpBitExchange @Inject constructor(
                 getUpbitMarketTickerReq = req,
                 krwUpbitMarketCodeMap = krwMarketCodeMap.toMap(),
                 btcUpbitMarketCodeMap = btcMarketCodeMap.toMap(),
-                addExchangeModelPosition = ::addExchangeModelPosition
+                addExchangeModelPosition = ::addExchangeModelPosition,
+                deleteAction = ::deleteAction
             ),
             onComplete = { result ->
                 _krwExchangeModelList.addAll(result.first)
@@ -235,6 +236,15 @@ class UpBitExchange @Inject constructor(
                 }
             }
         )
+    }
+
+    fun deleteAction(isKrw: Boolean, market: String) {
+        Logger.e("deleteAction $market")
+        if (isKrw) {
+            krwList.remove(market)
+        } else {
+            btcList.remove(market)
+        }
     }
 
     private suspend fun updateTickerData(sortOrder: SortOrder? = null, sortType: SortType? = null) {
@@ -540,81 +550,83 @@ class UpBitExchange @Inject constructor(
      */
     private suspend fun collectTicker() {
         upBitExchangeUseCase.observeTickerResponse().collect { upbitSocketTickerRes ->
+//            Logger.e("${upbitSocketTickerRes != null} ${upbitSocketTickerRes?.tradePrice} ${isUpdateExchange?.value}")
             try {
-                if (isUpdateExchange?.value == false) return@collect
+                if (upbitSocketTickerRes != null
+                    && upbitSocketTickerRes.tradePrice != 0.0
+                    && isUpdateExchange?.value == true
+                ) {
+                    var positionMap: MutableMap<String, Int>? = null
+                    var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
+                    var targetModelList: MutableList<CommonExchangeModel>? = null
 
-                if (upbitSocketTickerRes == null || upbitSocketTickerRes.tradePrice == 0.0) return@collect
-
-//                Logger.e(upbitSocketTickerRes.code)
-                var positionMap: MutableMap<String, Int>? = null
-                var upbitMarketCodeMap: Map<String, UpbitMarketCodeRes>? = null
-                var targetModelList: MutableList<CommonExchangeModel>? = null
-
-                when (tradeCurrencyState?.value) {
-                    TRADE_CURRENCY_KRW -> {
-                        positionMap = krwExchangeModelPosition
-                        upbitMarketCodeMap = krwMarketCodeMap
-                        targetModelList = _krwExchangeModelList
-                    }
-
-                    TRADE_CURRENCY_BTC -> {
-                        if (upbitSocketTickerRes.code == BTC_MARKET) {
+                    when (tradeCurrencyState?.value) {
+                        TRADE_CURRENCY_KRW -> {
                             positionMap = krwExchangeModelPosition
                             upbitMarketCodeMap = krwMarketCodeMap
                             targetModelList = _krwExchangeModelList
-                        } else {
-                            positionMap = btcExchangeModelPosition
-                            upbitMarketCodeMap = btcMarketCodeMap
-                            targetModelList = _btcExchangeModelList
                         }
-                    }
 
-                    TRADE_CURRENCY_FAV -> {
-                        if (upbitSocketTickerRes.code == BTC_MARKET) {
-                            positionMap = krwExchangeModelPosition
-                            upbitMarketCodeMap = krwMarketCodeMap
-                            targetModelList = _krwExchangeModelList
+                        TRADE_CURRENCY_BTC -> {
+                            if (upbitSocketTickerRes.code == BTC_MARKET) {
+                                positionMap = krwExchangeModelPosition
+                                upbitMarketCodeMap = krwMarketCodeMap
+                                targetModelList = _krwExchangeModelList
+                            } else {
+                                positionMap = btcExchangeModelPosition
+                                upbitMarketCodeMap = btcMarketCodeMap
+                                targetModelList = _btcExchangeModelList
+                            }
+                        }
 
-                            if (favoriteModelPosition[BTC_MARKET] != null) {
-                                val position = favoriteModelPosition[BTC_MARKET]
-                                val upbitMarketCodeRes =
-                                    upbitMarketCodeMap[upbitSocketTickerRes.code]
+                        TRADE_CURRENCY_FAV -> {
+                            if (upbitSocketTickerRes.code == BTC_MARKET) {
+                                positionMap = krwExchangeModelPosition
+                                upbitMarketCodeMap = krwMarketCodeMap
+                                targetModelList = _krwExchangeModelList
 
-                                upbitMarketCodeRes?.let {
-                                    upbitSocketTickerRes.mapTo(it).apply {
-                                        needAnimation.value = upbitSocketTickerRes.askBid
-                                    }.also { commonExchangeModel ->
-                                        _favoriteExchangeModelList[position!!] = commonExchangeModel
+                                if (favoriteModelPosition[BTC_MARKET] != null) {
+                                    val position = favoriteModelPosition[BTC_MARKET]
+                                    val upbitMarketCodeRes =
+                                        upbitMarketCodeMap[upbitSocketTickerRes.code]
+
+                                    upbitMarketCodeRes?.let {
+                                        upbitSocketTickerRes.mapTo(it).apply {
+                                            needAnimation.value = upbitSocketTickerRes.askBid
+                                        }.also { commonExchangeModel ->
+                                            _favoriteExchangeModelList[position!!] =
+                                                commonExchangeModel
+                                        }
                                     }
                                 }
+                            } else {
+                                positionMap = favoriteModelPosition
+                                targetModelList = _favoriteExchangeModelList
+                                upbitMarketCodeMap =
+                                    if (upbitSocketTickerRes.code.startsWith(KRW_SYMBOL_PREFIX)) {
+                                        krwMarketCodeMap
+                                    } else {
+                                        btcMarketCodeMap
+                                    }
                             }
-                        } else {
-                            positionMap = favoriteModelPosition
-                            targetModelList = _favoriteExchangeModelList
-                            upbitMarketCodeMap =
-                                if (upbitSocketTickerRes.code.startsWith(KRW_SYMBOL_PREFIX)) {
-                                    krwMarketCodeMap
-                                } else {
-                                    btcMarketCodeMap
-                                }
                         }
+
+                        null -> {}
                     }
 
-                    null -> {}
-                }
+                    val position = positionMap?.get(upbitSocketTickerRes.code)
 
-                val position = positionMap?.get(upbitSocketTickerRes.code)
-
-                position?.let {
-                    val upbitMarketCodeRes = upbitMarketCodeMap?.get(upbitSocketTickerRes.code)
-                    upbitMarketCodeRes?.let {
-                        upbitSocketTickerRes.mapTo(it).apply {
-                            needAnimation.value = upbitSocketTickerRes.askBid
-                        }.also { commonExchangeModel ->
-                            targetModelList?.set(
-                                position,
-                                commonExchangeModel
-                            )
+                    position?.let {
+                        val upbitMarketCodeRes = upbitMarketCodeMap?.get(upbitSocketTickerRes.code)
+                        upbitMarketCodeRes?.let {
+                            upbitSocketTickerRes.mapTo(it).apply {
+                                needAnimation.value = upbitSocketTickerRes.askBid
+                            }.also { commonExchangeModel ->
+                                targetModelList?.set(
+                                    position,
+                                    commonExchangeModel
+                                )
+                            }
                         }
                     }
                 }

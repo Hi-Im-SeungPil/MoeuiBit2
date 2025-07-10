@@ -131,6 +131,40 @@ class NewCoinDetailViewModel @Inject constructor(
             }
         }
 
+    val isShowDeListingSnackBar: State<Boolean>
+        get() = run {
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.isShowDeListingSnackBar
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.isShowDeListingSnackBar
+                }
+
+                else -> {
+                    upbitCoinDetail.isShowDeListingSnackBar
+                }
+            }
+        }
+
+    val deListingMessage: String
+        get() = run {
+            when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> {
+                    upbitCoinDetail.deListingMessage
+                }
+
+                EXCHANGE_BITTHUMB -> {
+                    biThumbCoinDetail.deListingMessage
+                }
+
+                else -> {
+                    upbitCoinDetail.deListingMessage
+                }
+            }
+        }
+
     private var realTimeJob: Job? = null
 
     private var collectTickerJob: Job? = null
@@ -145,11 +179,6 @@ class NewCoinDetailViewModel @Inject constructor(
 
     @Volatile
     var isInitSuccess = false
-        private set
-
-    private val _isShowDeListingSnackBar = mutableStateOf(false)
-    val isShowDeListingSnackBar: State<Boolean> = _isShowDeListingSnackBar
-    var deListingMessage: String = ""
         private set
 
     fun init(market: String) {

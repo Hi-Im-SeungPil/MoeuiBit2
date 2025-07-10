@@ -66,6 +66,7 @@ class BiThumbChart @Inject constructor(
 
     private var candleEntriesLastPosition = 0
     private var firstCandleUtcTime = ""
+    private var firstCandleKstTime = ""
     private var kstTime = ""
 
     var purchaseAveragePrice: Float? = null
@@ -164,6 +165,7 @@ class BiThumbChart @Inject constructor(
                     val lastIndex = res.data.lastIndex
                     val data = res.data
                     firstCandleUtcTime = data[lastIndex].candleDateTimeUtc
+                    firstCandleKstTime = data[lastIndex].candleDateTimeKst
                     kstTime = data.first().candleDateTimeKst
 
                     data.reversed().forEachIndexed { index, chartInfo ->
@@ -237,7 +239,8 @@ class BiThumbChart @Inject constructor(
     ) {
         if (!NetworkConnectivityObserver.isNetworkAvailable.value) return
 
-        val time = firstCandleUtcTime.replace("T", " ")
+//        val time = firstCandleUtcTime.replace("T", " ")
+        val time = firstCandleKstTime.replace("T", " ")
         if (!chartLastData) state.loadingDialogState.value = true
         val getChartCandleReq = GetChartCandleReq(
             candleType = candleType,
@@ -280,7 +283,8 @@ class BiThumbChart @Inject constructor(
                         return@collect
                     }
 
-                    firstCandleUtcTime = data[lastIndex].candleDateTimeUtc
+//                    firstCandleUtcTime = data[lastIndex].candleDateTimeUtc
+                    firstCandleKstTime = data[lastIndex].candleDateTimeKst
                     val tempCandleEntries = ArrayList<CandleEntry>()
                     val tempPositiveBarEntries = ArrayList<BarEntry>()
                     val tempNegativeBarEntries = ArrayList<BarEntry>()

@@ -88,8 +88,6 @@ class BithumbCoinOrder @Inject constructor(
         biThumbCoinOrderUseCase.requestObserveOrderBook().collect { bithumbSocketOrderBookRes ->
             if (bithumbSocketOrderBookRes?.type == "orderbook") {
                 val realTimeOrderBook = bithumbSocketOrderBookRes.mapToOrderBookModel()
-                Logger.e("${_orderBookList.size} ${_orderBookList.toString()}")
-                Logger.e("${realTimeOrderBook.size} $realTimeOrderBook")
                 for (i in _orderBookList.indices) {
                     _orderBookList[i] = realTimeOrderBook[i]
                 }

@@ -1,11 +1,12 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.coininfo.model
 
+import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfoCalculator.calculateSupplyToString
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.utils.CoinInfoCalculator.formatMarketCap
-import org.jeonfeel.moeuibit2.utils.formatWithComma
 
+@Keep
 @Serializable
 data class CoinInfoDataRes(
     @SerialName("circulatingSupply")
@@ -54,6 +55,7 @@ data class CoinInfoDataRes(
         )
     }
 
+    @Keep
     @Serializable
     data class Community(
         @SerialName("blockchainSite")

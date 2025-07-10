@@ -113,7 +113,13 @@ class BiThumbCoinDetail @Inject constructor(
     }
 
     private fun createTradeEndMessage(deListingDate: String): String {
-        return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} $deListingDate 거래지원 종료 예정입니다."
+        val date = parseDateInfo(deListingDate)
+        if (date != null) {
+            val (year, month, day) = date
+            return "${koreanCoinName.value}${koreanCoinName.value.getKoreanPostPosition()} ${year}년 ${month}월 ${day}일 거래지원 종료 예정입니다."
+        } else {
+            return "${koreanCoinName.value}는 거래지원 종료가 예정되어 있으나, 종료일 정보가 확인되지 않았습니다."
+        }
     }
 
     private suspend fun fetchLineChartCandleSticks(market: String) {
@@ -136,6 +142,17 @@ class BiThumbCoinDetail @Inject constructor(
 
     fun updateIsFavorite() {
         _isFavorite.value = !isFavorite.value
+    }
+
+    private fun parseDateInfo(input: String): Triple<Int, Int, Int>? {
+        val regex = """year\s*:\s*(\d+),\s*month\s*:\s*(\d+),\s*day\s*:\s*(\d+)""".toRegex()
+        val match = regex.find(input)
+        return if (match != null) {
+            val (year, month, day) = match.destructured
+            Triple(year.toInt(), month.toInt(), day.toInt())
+        } else {
+            null // 포맷이 잘못된 경우
+        }
     }
 
     suspend fun collectTicker(

@@ -77,7 +77,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
-        val userCoin = coinDao.getCoin(market = BTC_MARKET, exchange = EXCHANGE_UPBIT)
+        val userCoin = coinDao.getCoin(market = market, exchange = EXCHANGE_UPBIT)
 
         var krwTotalPrice = totalPrice
 

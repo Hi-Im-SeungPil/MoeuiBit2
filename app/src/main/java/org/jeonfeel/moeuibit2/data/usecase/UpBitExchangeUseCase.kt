@@ -1,5 +1,6 @@
 package org.jeonfeel.moeuibit2.data.usecase
 
+import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
@@ -24,6 +25,7 @@ class UpBitExchangeUseCase @Inject constructor(
 
     suspend fun onStart(marketCodes: List<String>) {
         exchangeWebsocketManager.updateIsBackground(false)
+        Logger.e("marketcodes -> $marketCodes")
         if (exchangeWebsocketManager.getIsSocketConnected()) {
             exchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ","))
         } else {
@@ -55,7 +57,8 @@ class UpBitExchangeUseCase @Inject constructor(
         getUpbitMarketTickerReq: GetUpbitMarketTickerReq,
         krwUpbitMarketCodeMap: Map<String, UpbitMarketCodeRes>,
         btcUpbitMarketCodeMap: Map<String, UpbitMarketCodeRes>,
-        addExchangeModelPosition: (market: String, position: Int, isKrw: Boolean) -> Unit
+        addExchangeModelPosition: (market: String, position: Int, isKrw: Boolean) -> Unit,
+        deleteAction: (isKrw: Boolean,market: String) -> Unit
     ): Flow<Any> {
         return requestApiResult(
             result = upbitRepository.getMarketTicker(getUpbitMarketTickerReq),

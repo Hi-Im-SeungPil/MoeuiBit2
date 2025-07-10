@@ -71,7 +71,7 @@ class ExchangeWebsocketManager {
                         is Frame.Binary -> {
                             val receivedMessage =
                                 Utils.json.decodeFromString<UpbitSocketTickerRes>(frame.data.decodeToString())
-//                            Logger.e(receivedMessage.code)
+                            Logger.e(receivedMessage.code)
                             _tickerFlow.emit(receivedMessage)
                         }
 
@@ -80,6 +80,7 @@ class ExchangeWebsocketManager {
                 }
             }
         } catch (e: Exception) {
+            Logger.e(e.message.toString())
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {
