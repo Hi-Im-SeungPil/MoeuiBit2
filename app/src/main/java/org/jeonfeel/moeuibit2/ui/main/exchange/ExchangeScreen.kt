@@ -47,6 +47,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -95,6 +96,7 @@ import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.FallColor
 import org.jeonfeel.moeuibit2.utils.ext.RiseColor
 import org.jeonfeel.moeuibit2.utils.ext.getFluctuateColor
+import org.jeonfeel.moeuibit2.utils.ext.showToast
 import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
 import kotlin.reflect.KFunction1
@@ -377,6 +379,7 @@ private fun CoinTickerSection(
     tradeCurrencyState: State<Int>,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
 
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -441,11 +444,16 @@ private fun CoinTickerSection(
                     warning = item.warning,
                     caution = item.getIsCaution(),
                     onClickEvent = {
+                        if (item.tradePrice.toDouble() == 0.0) {
+                            context.showToast("아직 거래를 개시하지 않은 코인 입니다.")
+
+                            return@CoinTickerView
+                        }
+
                         keyboardController?.hide()
                         val market = item.market
                         val warning = item.warning
                         val caution = Utils.gson.toJson(item.caution)
-                        Logger.e("caution : $caution")
 
                         appNavController.navigate("${AppScreen.COIN_DETAIL.name}/$market/$warning/$caution") {
                             launchSingleTop = true

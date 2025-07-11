@@ -56,7 +56,7 @@ class PortfolioWebsocketManager {
                 host = "api.upbit.com",
                 path = "/websocket/v1"
             ) {
-                println("WebSocket 연결 성공!")
+//                println("WebSocket 연결 성공!")
                 session = this
                 receiveChannel = this.incoming
                 socketState.set(WebSocketState.CONNECTED)
@@ -82,7 +82,7 @@ class PortfolioWebsocketManager {
                 }
             }
         } catch (e: Exception) {
-            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
+//            println("${isCancel} WebSocket catch: ${e.localizedMessage}")
             disConnectionSocket()
             //소켓 연결부터 다시
             if (!isCancel && !isBackGround) {
@@ -127,10 +127,10 @@ class PortfolioWebsocketManager {
         val message = upbitTickerWebSocketMessage(marketCodes)
         try {
             if (session != null && socketState.get() == WebSocketState.CONNECTED) {
-                println("메시지 전송 성공: $marketCodes")
+//                println("메시지 전송 성공: $marketCodes")
                 session!!.send(Frame.Text(message))
             } else {
-                println("WebSocket이 연결되지 않았습니다.")
+//                println("WebSocket이 연결되지 않았습니다.")
                 disConnectionSocket()
                 if (!isCancel && !isBackGround) {
                     retry(marketCodes)
@@ -138,7 +138,7 @@ class PortfolioWebsocketManager {
             }
         } catch (e: Exception) {
             // 소켓 연결부터 다시
-            println("send message 오류")
+//            println("send message 오류")
             disConnectionSocket()
             if (!isCancel && !isBackGround) {
                 retry(marketCodes)
@@ -158,7 +158,7 @@ class PortfolioWebsocketManager {
                     host = "api.upbit.com",
                     path = "/websocket/v1"
                 ) {
-                    println("WebSocket 연결 성공!")
+//                    println("WebSocket 연결 성공!")
                     session = this
                     receiveChannel = this.incoming
                     socketState.set(WebSocketState.CONNECTED)
@@ -194,7 +194,7 @@ class PortfolioWebsocketManager {
                 if (isCancel || isBackGround) {
                     return
                 }
-                println("catch")
+//                println("catch")
 
                 disConnectionSocket()
                 delay(3000L)

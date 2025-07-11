@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.compose.ui.util.fastForEachReversed
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.OrderBookModel
 import org.jeonfeel.moeuibit2.data.usecase.OrderBookKind
@@ -56,7 +57,7 @@ data class BithumbSocketOrderbookRes(
             askList.add(
                 OrderBookModel(
                     price = orderBookUnit.askPrice.newBigDecimal(
-                        rootExchange = EXCHANGE_UPBIT,
+                        rootExchange = EXCHANGE_BITTHUMB,
                         market = code
                     ),
                     size = orderBookUnit.askSize,
@@ -66,7 +67,7 @@ data class BithumbSocketOrderbookRes(
             bidList.add(
                 OrderBookModel(
                     price = orderBookUnit.bidPrice.newBigDecimal(
-                        rootExchange = EXCHANGE_UPBIT,
+                        rootExchange = EXCHANGE_BITTHUMB,
                         market = code
                     ),
                     size = orderBookUnit.bidSize,

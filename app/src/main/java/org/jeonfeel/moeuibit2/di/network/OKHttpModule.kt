@@ -34,7 +34,7 @@ class OKHttpModule {
         val connectionPool = ConnectionPool(0, 700L, TimeUnit.MILLISECONDS)
         val httpLoggingInterceptor =
             HttpLoggingInterceptor { message ->
-                Logger.d(message)
+//                Logger.d(message)
             }.setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val httpClient = OkHttpClient.Builder()
@@ -52,7 +52,9 @@ class OKHttpModule {
     @SocketOkHttpClient
     fun provideSocketOkHttpClient(): OkHttpClient {
         val httpLoggingInterceptor =
-            HttpLoggingInterceptor { message -> Logger.d(message) }
+            HttpLoggingInterceptor { message ->
+//                Logger.d(message)
+            }
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)

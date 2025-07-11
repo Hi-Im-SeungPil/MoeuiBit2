@@ -20,13 +20,18 @@ object OrderCalculator {
 
     @Composable
     fun getTextColor(purchaseAverage: BigDecimal, currentPrice: BigDecimal): Color {
+        Logger.e("$currentPrice, $purchaseAverage")
+        if (purchaseAverage <= BigDecimal.ZERO || currentPrice <= BigDecimal.ZERO) {
+            return commonTextColor()
+        }
+
         val difference = currentPrice.subtract(purchaseAverage)
         val percentage = difference.divide(purchaseAverage, 4, RoundingMode.HALF_UP)
             .multiply(BigDecimal(100))
 
         val color = if (percentage.toDouble() > 0.0) {
             commonRiseColor()
-        } else if(percentage.toDouble() == 0.0){
+        } else if (percentage.toDouble() == 0.0) {
             commonTextColor()
         } else {
             commonFallColor()

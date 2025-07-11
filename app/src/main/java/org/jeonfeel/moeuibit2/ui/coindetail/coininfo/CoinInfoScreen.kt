@@ -166,7 +166,7 @@ fun CoinLinkSection(
         )
     }
 
-    Row {
+    Row(modifier = Modifier.padding(top = 15.dp)) {
         GlideImage(
             imageModel = coinInfoModel?.image,
             modifier = Modifier

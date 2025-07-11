@@ -189,8 +189,11 @@ class BithumbCoinOrder @Inject constructor(
             quantity = minusQuantity(
                 currentQuantity = _userCoin.value.quantity,
                 quantity = quantity
-            )
+            ),
+            exchange = EXCHANGE_BITTHUMB,
+            purchaseAverageBtcPrice = _userCoin.value.purchaseAverageBtcPrice
         )
+
         if (market.isKrwTradeCurrency()) {
             biThumbCoinOrderUseCase.requestKRWAsk(
                 market = market,
@@ -211,6 +214,7 @@ class BithumbCoinOrder @Inject constructor(
             )
             getUserBtcCoin(market = BTC_SYMBOL_PREFIX)
         }
+
         _userCoin.value = updateUserCoin
     }
 

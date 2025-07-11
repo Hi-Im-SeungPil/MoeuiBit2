@@ -76,12 +76,12 @@ class AppOpenAdManager : Application.ActivityLifecycleCallbacks, LifecycleEventO
         }
     ) {
         if (isShowingAd) {
-            Logger.d("The app open ad is already showing.")
+//            Logger.d("The app open ad is already showing.")
             return
         }
 
         if (!isAdAvailable()) {
-            Logger.d("The app open ad is not ready yet.")
+//            Logger.d("The app open ad is not ready yet.")
             onShowAdCompleteListener.onShowAdComplete()
             loadAd(activity)
             return
@@ -90,7 +90,7 @@ class AppOpenAdManager : Application.ActivityLifecycleCallbacks, LifecycleEventO
         appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
 
             override fun onAdDismissedFullScreenContent() {
-                Logger.d("Ad dismissed fullscreen content.")
+//                Logger.d("Ad dismissed fullscreen content.")
                 appOpenAd = null
                 isShowingAd = false
 
@@ -108,7 +108,7 @@ class AppOpenAdManager : Application.ActivityLifecycleCallbacks, LifecycleEventO
             }
 
             override fun onAdShowedFullScreenContent() {
-                Logger.d("Ad Showed fullScreen content.")
+//                Logger.d("Ad Showed fullScreen content.")
             }
         }
         isShowingAd = true

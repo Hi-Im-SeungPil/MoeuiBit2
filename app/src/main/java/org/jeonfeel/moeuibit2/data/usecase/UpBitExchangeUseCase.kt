@@ -25,7 +25,6 @@ class UpBitExchangeUseCase @Inject constructor(
 
     suspend fun onStart(marketCodes: List<String>) {
         exchangeWebsocketManager.updateIsBackground(false)
-        Logger.e("marketcodes -> $marketCodes")
         if (exchangeWebsocketManager.getIsSocketConnected()) {
             exchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ","))
         } else {
