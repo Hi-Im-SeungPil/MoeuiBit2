@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
+import org.jeonfeel.moeuibit2.constants.KeyConst.PREF_KEY_EXCHANGE_STATE
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
 import org.jeonfeel.moeuibit2.data.local.preferences.PreferencesManager
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
@@ -78,13 +79,17 @@ class ExchangeViewModel @Inject constructor(
             when (GlobalState.globalExchangeState.value) {
                 EXCHANGE_UPBIT -> {
                     upBitExchange.onStart(
-                        updateLoadingState = ::updateLoadingState
+                        updateLoadingState = ::updateLoadingState,
+                        selectedSortType = selectedSortType.value,
+                        sortOrder = sortOrder.value
                     )
                 }
 
                 EXCHANGE_BITTHUMB -> {
                     biThumbExchange.onStart(
-                        updateLoadingState = ::updateLoadingState
+                        updateLoadingState = ::updateLoadingState,
+                        selectedSortType = selectedSortType.value,
+                        sortOrder = sortOrder.value
                     )
                 }
             }
@@ -224,6 +229,15 @@ class ExchangeViewModel @Inject constructor(
 
     fun updateTextFieldValue(value: String) {
         state.textFieldValue.value = value
+    }
+
+    fun saveRootExchange() {
+        viewModelScope.launch {
+            preferenceManager.setValue(
+                PREF_KEY_EXCHANGE_STATE,
+                GlobalState.globalExchangeState.value
+            )
+        }
     }
 
     companion object {

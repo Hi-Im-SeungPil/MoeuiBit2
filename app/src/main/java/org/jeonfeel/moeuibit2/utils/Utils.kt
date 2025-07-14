@@ -48,6 +48,18 @@ object Utils {
         }
     }
 
+    fun String.coinOrderIsKrwMarketForBiThumb(): String {
+        return when (this.isKrwTradeCurrency()) {
+            true -> {
+                "\"$this\""
+            }
+
+            false -> {
+                "\"$this\",\"KRW-BTC\""
+            }
+        }
+    }
+
     fun getSelectedMarket(market: String): Int {
         return if (market.startsWith(SYMBOL_KRW)) {
             SELECTED_KRW_MARKET

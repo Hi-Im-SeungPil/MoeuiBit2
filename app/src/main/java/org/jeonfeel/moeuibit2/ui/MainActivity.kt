@@ -6,12 +6,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.ui.common.CommonDialogXML
 import org.jeonfeel.moeuibit2.ui.nav.AppNavGraph
@@ -69,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
             ) {
-                requestUpdate(appUpdateInfo)
+                safeRequestUpdate(appUpdateInfo)
             }
         }.addOnFailureListener {
             this.showToast(this.getString(R.string.updateFail))
@@ -78,21 +83,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo: AppUpdateInfo ->
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
-                requestUpdate(appUpdateInfo)
-            }
-        }
-    }
-
-    private fun requestUpdate(
-        appUpdateInfo: AppUpdateInfo,
-    ) {
-        CommonDialogXML(
+    private fun safeRequestUpdate(appUpdateInfo: AppUpdateInfo) {
+        val dialog = CommonDialogXML(
             image = R.drawable.img_update,
-            message = this.getString(R.string.updateDialogMessage),
+            message = getString(R.string.updateDialogMessage),
             onConfirm = {
                 appUpdateManager.startUpdateFlowForResult(
                     appUpdateInfo,
@@ -100,7 +94,16 @@ class MainActivity : AppCompatActivity() {
                     AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
                 )
             },
-            onCancel = { }
-        ).show(supportFragmentManager, "updateDialog")
+            onCancel = {}
+        )
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                if (!supportFragmentManager.isStateSaved) {
+                    dialog.show(supportFragmentManager, "update")
+                }
+                this.cancel() // 한 번만 실행
+            }
+        }
     }
 }

@@ -4,30 +4,31 @@ import com.orhanobut.logger.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jeonfeel.moeuibit2.constants.BTC_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
+import org.jeonfeel.moeuibit2.data.local.room.entity.Favorite
 import org.jeonfeel.moeuibit2.data.network.retrofit.ApiResult
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbMarketCodeGroupedRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.bitthumb.BitThumbTickerGroupedRes
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWarningRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.manager.bithumb.BiThumbExchangeWebsocketManager
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
+import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
 import org.jeonfeel.moeuibit2.ui.base.BaseUseCase
 import org.jeonfeel.moeuibit2.ui.common.ResultState
 import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 
 class BitThumbUseCase(
     private val localRepository: LocalRepository,
-    private val bitThumbRepository: BitThumbRepository,
+    private val bitThumbRepository: BiThumbRepository,
     private val cacheManager: CacheManager
 ) : BaseUseCase() {
 
     private val biThumbExchangeWebsocketManager = BiThumbExchangeWebsocketManager()
 
     suspend fun biThumbSocketOnStart(marketCodes: List<String>) {
-        Logger.e(marketCodes.toString())
         biThumbExchangeWebsocketManager.updateIsBackground(false)
         if (biThumbExchangeWebsocketManager.getIsSocketConnected()) {
             biThumbExchangeWebsocketManager.sendMessage(marketCodes.joinToString(separator = ",") { "\"$it\"" })
@@ -70,8 +71,8 @@ class BitThumbUseCase(
                             btcMarketCodeMap = btcMarketCodeMap,
                         )
 
-//                        cacheManager.saveKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
-//                        cacheManager.saveEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                        cacheManager.saveBiThumbKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                        cacheManager.saveBiThumbEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
 
                         ResultState.Success(bitThumbMarketCodeGroupedRes)
                     } else {
@@ -79,7 +80,8 @@ class BitThumbUseCase(
                     }
                 }
 
-                ApiResult.Status.API_ERROR -> {
+                ApiResult.Status.API_ERROR,
+                ApiResult.Status.NETWORK_ERROR -> {
                     ResultState.Error(res.message.toString())
                 }
 
@@ -139,7 +141,8 @@ class BitThumbUseCase(
                     }
                 }
 
-                ApiResult.Status.API_ERROR -> {
+                ApiResult.Status.API_ERROR,
+                ApiResult.Status.NETWORK_ERROR-> {
                     ResultState.Error(res.message.toString())
                 }
 
@@ -165,7 +168,8 @@ class BitThumbUseCase(
                     }
                 }
 
-                ApiResult.Status.API_ERROR -> {
+                ApiResult.Status.API_ERROR,
+                ApiResult.Status.NETWORK_ERROR-> {
                     ResultState.Error(res.message.toString())
                 }
 
@@ -174,5 +178,13 @@ class BitThumbUseCase(
                 }
             }
         }
+    }
+
+    suspend fun getFavoriteList(): List<Favorite?>? {
+        return localRepository.getFavoriteDao().getAllByExchange(EXCHANGE_BITTHUMB)
+    }
+
+    suspend fun removeFavorite(market: String) {
+        localRepository.getFavoriteDao().delete(market, EXCHANGE_UPBIT)
     }
 }

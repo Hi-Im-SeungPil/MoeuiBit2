@@ -10,21 +10,26 @@ interface TransactionInfoDAO {
     @Insert
     suspend fun insert(transactionInfo: TransactionInfo)
 
-    @Query("SELECT * FROM TransactionInfo where market=:market ORDER BY id DESC LIMIT 100")
-    suspend fun select(market: String?): List<TransactionInfo>
+    // 거래소별, 마켓별 최근 100개 트랜잭션 조회
+    @Query("SELECT * FROM TransactionInfo WHERE market = :market AND exchange = :exchange ORDER BY id DESC LIMIT 100")
+    suspend fun select(market: String, exchange: String): List<TransactionInfo>
 
-    @Query("DELETE FROM TransactionInfo WHERE market=:market")
-    suspend fun delete(market: String)
+    // 거래소별, 마켓별 트랜잭션 삭제
+    @Query("DELETE FROM TransactionInfo WHERE market = :market AND exchange = :exchange")
+    suspend fun delete(market: String, exchange: String)
 
-    @Query("DELETE FROM TransactionInfo ")
+    // 전체 삭제
+    @Query("DELETE FROM TransactionInfo")
     suspend fun deleteAll()
 
+    // 거래소별, 마켓별 오래된 트랜잭션 count만큼 삭제
     @Query(
         "DELETE FROM TransactionInfo WHERE transactionTime IN (" +
-                "SELECT transactionTime FROM TransactionInfo WHERE market = :market ORDER BY transactionTime ASC LIMIT :count)"
+                "SELECT transactionTime FROM TransactionInfo WHERE market = :market AND exchange = :exchange ORDER BY transactionTime ASC LIMIT :count)"
     )
-    suspend fun deleteExcess(market: String, count: Int)
+    suspend fun deleteExcess(market: String, exchange: String, count: Int)
 
-    @Query("SELECT COUNT(*) FROM TransactionInfo WHERE market = :market")
-    suspend fun getCount(market: String): Int
+    // 거래소별, 마켓별 트랜잭션 개수
+    @Query("SELECT COUNT(*) FROM TransactionInfo WHERE market = :market AND exchange = :exchange")
+    suspend fun getCount(market: String, exchange: String): Int
 }

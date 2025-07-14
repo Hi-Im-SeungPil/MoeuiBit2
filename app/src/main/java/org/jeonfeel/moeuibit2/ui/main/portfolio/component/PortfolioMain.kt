@@ -43,6 +43,7 @@ fun LazyItemScope.PortfolioMain(
     getPortFolioMainInfoMap: (totalValuedAssets: State<BigDecimal>, totalPurchase: State<BigDecimal>, userSeedMoney: State<Double>) -> Map<String, String>,
 ) {
     val portFolioMainInfo = getPortFolioMainInfoMap(totalValuedAssets, totalPurchase, userSeedMoney)
+
     Column(
         modifier = Modifier
             .fillMaxSize()

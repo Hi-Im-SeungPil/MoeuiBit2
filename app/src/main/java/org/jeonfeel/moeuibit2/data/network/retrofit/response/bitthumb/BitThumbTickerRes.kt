@@ -4,7 +4,6 @@ import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_BITTHUMB
-import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.accBigDecimal
@@ -71,7 +70,7 @@ data class BitThumbTickerRes(
         val koreanName = bitThumbMarketCodeRes?.koreanName ?: ""
         val engName = bitThumbMarketCodeRes?.englishName ?: ""
         val initialConstant = Utils.extractInitials(koreanName)
-        val warning = bitThumbMarketCodeRes?.marketWarning == "WARNING"
+        val caution = bitThumbMarketCodeRes?.marketWarning == "CAUTION"
 
         return CommonExchangeModel(
             koreanName = koreanName,
@@ -96,7 +95,7 @@ data class BitThumbTickerRes(
             lowPrice = lowPrice,
             signedChangePrice = signedChangePrice,
             timestamp = timestamp,
-            warning = warning,
+            warning = caution,
             caution = mapToCaution(biThumbWarningList),
             askBid = "NONE",
             prevClosingPrice = prevClosingPrice
@@ -104,7 +103,7 @@ data class BitThumbTickerRes(
     }
 
     private fun mapToCaution(warningTypes: List<String>): Caution? {
-        if (warningTypes.isEmpty()) return null
+        if (warningTypes.isEmpty()) return Caution()
 
         var caution = Caution() // 기본값은 모든 필드가 false
 

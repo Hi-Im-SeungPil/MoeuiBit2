@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.tradingview.lightweightcharts.Logger
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 import org.jeonfeel.moeuibit2.data.local.room.entity.TransactionInfo
@@ -64,7 +65,9 @@ import org.jeonfeel.moeuibit2.utils.BigDecimalMapper.newBigDecimal
 import org.jeonfeel.moeuibit2.utils.calculator.CurrentCalculator
 import org.jeonfeel.moeuibit2.utils.formatWithComma
 import org.jeonfeel.moeuibit2.utils.eighthDecimal
+import org.jeonfeel.moeuibit2.utils.isKrwTradeCurrency
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -116,6 +119,7 @@ fun OrderSection(
                     selectedText = bidSelectedText,
                     totalBidDialogState = totalBidDialogState,
                     userCoin = userCoin,
+                    btcPrice = btcPrice
                 )
 
                 OrderTabState.ASK -> AskSection(
@@ -164,6 +168,7 @@ fun BidSection(
     userBTC: State<MyCoin>,
     totalBidDialogState: MutableState<Boolean>,
     userCoin: State<MyCoin>,
+    btcPrice: State<BigDecimal>
 ) {
     Column(modifier = Modifier) {
         OrderTabUserSeedMoneySection(
@@ -173,7 +178,9 @@ fun BidSection(
             userBTC = userBTC,
             isBid = true
         )
+
         OrderTabPriceSection(currentPrice = currentPrice?.formattedString(market = symbol) ?: "0")
+
         OrderTabQuantitySection(
             dropDownItemClickAction = updateBidCoinQuantity,
             quantity = bidQuantity,
@@ -182,15 +189,23 @@ fun BidSection(
             dropdownLabelList = dropdownLabelList,
             selectedText = selectedText
         )
+
         OrderTabTotalPriceSection(getTotalPrice = getBidTotalPrice)
+
         OrderSectionButtonGroup(
             orderTabState = OrderTabState.BID,
             bidAskAction = requestBid,
             totalBidAskAction = { totalBidDialogState.value = true }
         )
+
         if (!userCoin.value.isEmpty()) {
-            UserHoldCoinSection(myCoin = userCoin.value, currentPrice = currentPrice)
+            UserHoldCoinSection(
+                myCoin = userCoin.value,
+                currentPrice = currentPrice,
+                btcPrice = btcPrice
+            )
         }
+
         Row(
             modifier = Modifier
                 .padding(top = 10.dp)
@@ -265,7 +280,11 @@ fun AskSection(
             totalBidAskAction = { totalAskDialogState.value = true }
         )
         if (!userCoin.value.isEmpty()) {
-            UserHoldCoinSection(userCoin.value, currentPrice = currentPrice)
+            UserHoldCoinSection(
+                myCoin = userCoin.value,
+                currentPrice = currentPrice,
+                btcPrice = btcPrice
+            )
         }
         Row(
             modifier = Modifier
@@ -304,10 +323,20 @@ fun AskSection(
 }
 
 @Composable
-fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
+fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?, btcPrice: State<BigDecimal>) {
     val textColor = OrderCalculator.getTextColor(
-        purchaseAverage = myCoin.purchasePrice.toBigDecimal(),
-        currentPrice = currentPrice ?: BigDecimal.ZERO
+        purchaseAverage = if (myCoin.market.isKrwTradeCurrency()) {
+            myCoin.purchasePrice.toBigDecimal()
+        } else {
+            Logger.e("${myCoin.purchasePrice} ${myCoin.purchaseAverageBtcPrice}")
+            myCoin.purchasePrice.toBigDecimal()
+                .multiply(myCoin.purchaseAverageBtcPrice.toBigDecimal())
+        },
+        currentPrice = if (myCoin.market.isKrwTradeCurrency()) {
+            currentPrice
+        } else {
+            currentPrice?.multiply(btcPrice.value)
+        } ?: BigDecimal.ONE
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -337,7 +366,9 @@ fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
             title = "평가금액",
             value = OrderCalculator.calculateTotalAmount(
                 quantity = myCoin.quantity,
-                price = currentPrice
+                price = if (myCoin.market.isKrwTradeCurrency()) currentPrice else currentPrice?.multiply(
+                    btcPrice.value
+                )
             )
         )
 
@@ -345,8 +376,17 @@ fun UserHoldCoinSection(myCoin: MyCoin, currentPrice: BigDecimal?) {
             title = "평가손익",
             value = OrderCalculator.calculatePNL(
                 quantity = myCoin.quantity,
-                purchaseAverage = myCoin.purchasePrice,
-                currentPrice = currentPrice ?: BigDecimal.ZERO
+                purchaseAverage = if (myCoin.market.isKrwTradeCurrency()) {
+                    myCoin.purchasePrice
+                } else {
+                    myCoin.purchasePrice.toBigDecimal()
+                        .multiply(myCoin.purchaseAverageBtcPrice.toBigDecimal()).toDouble()
+                },
+                currentPrice = if (myCoin.market.isKrwTradeCurrency()) {
+                    currentPrice
+                } else {
+                    currentPrice?.multiply(btcPrice.value)?.setScale(8, RoundingMode.HALF_UP)
+                } ?: BigDecimal.ONE
             ),
             textColor = textColor
         )

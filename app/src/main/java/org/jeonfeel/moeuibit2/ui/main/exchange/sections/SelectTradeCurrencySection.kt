@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -113,10 +116,10 @@ fun SelectTradeCurrencySection(
                 )
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
-//        SelectExchangeSection(
-//            changeExchange = changeExchange
-//        )
+//        Spacer(modifier = Modifier.weight(1f))
+        SelectExchangeSection(
+            changeExchange = changeExchange
+        )
     }
 }
 
@@ -136,7 +139,6 @@ fun RowScope.SelectExchangeSection(changeExchange: () -> Unit) {
 
     val showDialog = remember { mutableStateOf(false) }
 
-
     SelectExchangeDialog(
         dialogState = showDialog,
         initialExchange = GlobalState.globalExchangeState.value,
@@ -148,6 +150,7 @@ fun RowScope.SelectExchangeSection(changeExchange: () -> Unit) {
 
     Row(
         modifier = Modifier
+            .padding(end = 10.dp)
             .weight(1f)
             .align(Alignment.CenterVertically)
             .clickable {
@@ -158,18 +161,25 @@ fun RowScope.SelectExchangeSection(changeExchange: () -> Unit) {
             painter = painterResource(image),
             modifier = Modifier
                 .size(25.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.3.dp, color = coinSiteIconBorderColor(), RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.3.dp, color = commonTextColor(), RoundedCornerShape(8.dp))
                 .align(Alignment.CenterVertically),
             contentDescription = ""
         )
 
         Text(
             text = text,
-            style = TextStyle(fontSize = DpToSp(14.dp), color = commonTextColor()),
+            style = TextStyle(
+                fontSize = DpToSp(13.dp),
+                color = commonTextColor(),
+                textAlign = TextAlign.Center
+            ),
             modifier = Modifier
+                .weight(1f)
                 .padding(start = 7.dp)
                 .align(Alignment.CenterVertically)
         )
+
+        Icon(Icons.Default.ArrowDropDown, contentDescription = "", tint = commonTextColor())
     }
 }

@@ -6,11 +6,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
 import org.jeonfeel.moeuibit2.data.repository.network.AlternativeRepository
-import org.jeonfeel.moeuibit2.data.repository.network.BitThumbRepository
+import org.jeonfeel.moeuibit2.data.repository.network.BiThumbRepository
 import org.jeonfeel.moeuibit2.data.repository.network.CoinCapIORepository
 import org.jeonfeel.moeuibit2.data.repository.network.GitJsonRepository
 import org.jeonfeel.moeuibit2.data.repository.network.USDRepository
 import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
+import org.jeonfeel.moeuibit2.data.usecase.BiThumbChartUsecase
+import org.jeonfeel.moeuibit2.data.usecase.BiThumbCoinDetailUseCase
+import org.jeonfeel.moeuibit2.data.usecase.BiThumbPortfolioUsecase
 import org.jeonfeel.moeuibit2.data.usecase.BitThumbUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpBitExchangeUseCase
 import org.jeonfeel.moeuibit2.data.usecase.UpbitCoinDetailUseCase
@@ -43,7 +46,7 @@ class UseCaseModule {
     @Provides
     fun provideBitThumbUseCase(
         localRepository: LocalRepository,
-        bitthumbRepository: BitThumbRepository,
+        bitthumbRepository: BiThumbRepository,
         cacheManager: CacheManager
     ): BitThumbUseCase {
         return BitThumbUseCase(
@@ -73,6 +76,17 @@ class UseCaseModule {
         return UpbitCoinDetailUseCase(
             localRepository = localRepository,
             upbitRepository = upbitRepository,
+        )
+    }
+
+    @Provides
+    fun provideBiThumbCoinDetailUseCase(
+        localRepository: LocalRepository,
+        bitThumbRepository: BiThumbRepository,
+    ): BiThumbCoinDetailUseCase {
+        return BiThumbCoinDetailUseCase(
+            localRepository = localRepository,
+            biThumbRepository = bitThumbRepository
         )
     }
 
@@ -114,5 +128,29 @@ class UseCaseModule {
         gitJsonRepository: GitJsonRepository,
     ): MiningUseCase {
         return MiningUseCase(gitJsonRepository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideBiThumbPortfolioUsecase(
+        bitThumbRepository: BiThumbRepository,
+        localRepository: LocalRepository
+    ): BiThumbPortfolioUsecase {
+        return BiThumbPortfolioUsecase(
+            biThumbRepository = bitThumbRepository,
+            localRepository = localRepository
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideBiThumbChartUsecase(
+        bitThumbRepository: BiThumbRepository,
+        localRepository: LocalRepository
+    ): BiThumbChartUsecase {
+        return BiThumbChartUsecase(
+            biThumbRepository = bitThumbRepository,
+            localRepository = localRepository
+        )
     }
 }

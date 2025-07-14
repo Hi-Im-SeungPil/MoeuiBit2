@@ -5,14 +5,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.jeonfeel.moeuibit2.ui.main.portfolio.dto.UserHoldCoinDTO
 
-@Entity
-class MyCoin(
-    @field:PrimaryKey var market: String = "",
+@Entity(primaryKeys = ["market", "exchange"])
+data class MyCoin(
+    var market: String = "",
+    var exchange: String = "",
     var purchasePrice: Double = 0.0,
     var koreanCoinName: String = "",
     var symbol: String = "",
     var quantity: Double = 0.0,
-    @ColumnInfo(defaultValue = "0.0") var purchaseAverageBtcPrice: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0") var purchaseAverageBtcPrice: Double = 0.0
 ) {
     fun parseUserHoldsModel(): UserHoldCoinDTO {
         return UserHoldCoinDTO(

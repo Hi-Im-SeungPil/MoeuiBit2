@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.jeonfeel.moeuibit2.constants.ASK
 import org.jeonfeel.moeuibit2.constants.BID
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.SELECTED_BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.SELECTED_KRW_MARKET
 import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
@@ -56,15 +57,16 @@ class UpbitCoinOrderUseCase @Inject constructor(
     }
 
     suspend fun getUserSeedMoney(): User? {
-        return localRepository.getUserDao().all
+        return localRepository.getUserDao().getUserByExchange(EXCHANGE_UPBIT)
     }
 
     suspend fun getUserCoin(market: String): MyCoin? {
-        return localRepository.getMyCoinDao().isInsert(market)
+        return localRepository.getMyCoinDao().getCoin(market = market, exchange = EXCHANGE_UPBIT)
     }
 
     suspend fun getUserBtcCoin(): MyCoin? {
-        return localRepository.getMyCoinDao().isInsert(BTC_MARKET)
+        return localRepository.getMyCoinDao()
+            .getCoin(market = BTC_MARKET, exchange = EXCHANGE_UPBIT)
     }
 
     suspend fun requestKRWBid(
@@ -75,7 +77,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
     ) {
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
-        val userCoin = coinDao.isInsert(market)
+        val userCoin = coinDao.getCoin(market = market, exchange = EXCHANGE_UPBIT)
 
         var krwTotalPrice = totalPrice
 
@@ -99,13 +101,25 @@ class UpbitCoinOrderUseCase @Inject constructor(
             )
 
             if (purchaseAverage >= 100) {
-                coinDao.updatePurchasePriceInt(market, purchaseAverage.toInt())
+                coinDao.updatePurchasePriceInt(
+                    market = market,
+                    exchange = EXCHANGE_UPBIT,
+                    price = purchaseAverage.toInt()
+                )
             } else {
-                coinDao.updatePurchasePrice(market, purchaseAverage)
+                coinDao.updatePurchasePrice(
+                    market = market,
+                    price = purchaseAverage,
+                    exchange = EXCHANGE_UPBIT
+                )
             }
-            coinDao.updatePlusQuantity(market, coin.quantity)
+            coinDao.increaseQuantity(
+                market = market,
+                amount = coin.quantity,
+                exchange = EXCHANGE_UPBIT
+            )
         }
-        userDao.updateMinusMoney(krwTotalPrice)
+        userDao.updateMinusMoney(exchange = EXCHANGE_UPBIT, money = krwTotalPrice)
 
         insertAndDeleteOver500(
             market = market,
@@ -126,12 +140,12 @@ class UpbitCoinOrderUseCase @Inject constructor(
         val coinDao = localRepository.getMyCoinDao()
         val userDao = localRepository.getUserDao()
 
-        userDao.updatePlusMoney(totalPrice)
+        userDao.updatePlusMoney(exchange = EXCHANGE_UPBIT, money = totalPrice)
         if (BigDecimal(userCoinQuantity).minus(BigDecimal(quantity)) <= BigDecimal(0.00000002)
         ) {
-            coinDao.delete(market)
+            coinDao.delete(market = market, exchange = EXCHANGE_UPBIT)
         } else {
-            coinDao.updateMinusQuantity(market, quantity)
+            coinDao.decreaseQuantity(market = market, exchange = EXCHANGE_UPBIT, amount = quantity)
         }
 
         insertAndDeleteOver500(
@@ -151,17 +165,25 @@ class UpbitCoinOrderUseCase @Inject constructor(
         btcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
-        val userCoin = coinDao.isInsert(market)
+        val userCoin = coinDao.getCoin(market = market, exchange = EXCHANGE_UPBIT)
         val btcTotalPrice = BigDecimal(totalPrice)
         val minusBTCQuantity = BigDecimal(userSeedBTC).minus(btcTotalPrice)
 
         if (userCoin == null) {
             coinDao.insert(coin)
-            coinDao.updatePurchaseAverageBtcPrice(market, btcPrice)
+            coinDao.updatePurchaseAverageBtcPrice(
+                market = market,
+                exchange = EXCHANGE_UPBIT,
+                price = btcPrice
+            )
             if (minusBTCQuantity < BigDecimal("0.00000002")) {
-                coinDao.delete(BTC_MARKET)
+                coinDao.delete(market = BTC_MARKET, exchange = EXCHANGE_UPBIT)
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
+                coinDao.decreaseQuantity(
+                    market = BTC_MARKET,
+                    exchange = EXCHANGE_UPBIT,
+                    amount = btcTotalPrice.toDouble()
+                )
             }
         } else {
             val preCoinQuantity = userCoin.quantity.toBigDecimal()
@@ -185,14 +207,30 @@ class UpbitCoinOrderUseCase @Inject constructor(
             )
 
 
-            coinDao.updatePurchasePrice(market, purchaseAverage)
-            coinDao.updatePlusQuantity(market, coin.quantity)
+            coinDao.updatePurchasePrice(
+                market = market,
+                price = purchaseAverage,
+                exchange = EXCHANGE_UPBIT
+            )
+            coinDao.increaseQuantity(
+                market = market,
+                amount = coin.quantity,
+                exchange = EXCHANGE_UPBIT
+            )
             if (minusBTCQuantity < BigDecimal("0.00000002")) {
-                coinDao.delete(BTC_MARKET)
+                coinDao.delete(market = BTC_MARKET, exchange = EXCHANGE_UPBIT)
             } else {
-                coinDao.updateMinusQuantity(BTC_MARKET, btcTotalPrice.toDouble())
+                coinDao.decreaseQuantity(
+                    market = BTC_MARKET,
+                    amount = btcTotalPrice.toDouble(),
+                    exchange = EXCHANGE_UPBIT
+                )
             }
-            coinDao.updatePurchaseAverageBtcPrice(market, purchaseAverageBtcPrice)
+            coinDao.updatePurchaseAverageBtcPrice(
+                market = market,
+                exchange = EXCHANGE_UPBIT,
+                price = purchaseAverageBtcPrice
+            )
         }
 
         insertAndDeleteOver500(
@@ -214,7 +252,7 @@ class UpbitCoinOrderUseCase @Inject constructor(
         btcPrice: Double,
     ) {
         val coinDao = localRepository.getMyCoinDao()
-        val userBTC = coinDao.isInsert(BTC_MARKET)
+        val userBTC = coinDao.getCoin(market = BTC_MARKET, exchange = EXCHANGE_UPBIT)
         if (userBTC == null) {
             coinDao.insert(
                 myCoin = MyCoin(
@@ -226,7 +264,11 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 )
             )
         } else {
-            coinDao.updatePlusQuantity(market = BTC_MARKET, afterQuantity = totalPrice)
+            coinDao.increaseQuantity(
+                market = BTC_MARKET,
+                amount = totalPrice,
+                exchange = EXCHANGE_UPBIT
+            )
             val purchaseBTCAverage = Calculator.averagePurchasePriceCalculator(
                 currentPrice = btcPrice,
                 currentQuantity = totalPrice,
@@ -234,15 +276,23 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 preCoinQuantity = userBTC.quantity,
                 marketState = SELECTED_KRW_MARKET
             )
-            coinDao.updatePurchasePrice(BTC_MARKET, purchaseBTCAverage)
+            coinDao.updatePurchasePrice(
+                market = BTC_MARKET,
+                price = purchaseBTCAverage,
+                exchange = EXCHANGE_UPBIT
+            )
         }
 
-        coinDao.updatePurchaseAverageBtcPrice(BTC_MARKET, btcPrice)
+        coinDao.updatePurchaseAverageBtcPrice(
+            market = BTC_MARKET,
+            exchange = EXCHANGE_UPBIT,
+            price = btcPrice
+        )
 
         if (BigDecimal(userCoinQuantity).minus(BigDecimal(quantity)) <= BigDecimal(0.00_000_002)) {
-            coinDao.delete(market = market)
+            coinDao.delete(market = market, exchange = EXCHANGE_UPBIT)
         } else {
-            coinDao.updateMinusQuantity(market = market, afterQuantity = quantity)
+            coinDao.decreaseQuantity(market = market, amount = quantity, exchange = EXCHANGE_UPBIT)
         }
 
         insertAndDeleteOver500(
@@ -256,7 +306,8 @@ class UpbitCoinOrderUseCase @Inject constructor(
     }
 
     suspend fun getTransactionInfoList(market: String): List<TransactionInfo> {
-        return localRepository.getTransactionInfoDao().select(market)
+        return localRepository.getTransactionInfoDao()
+            .select(market = market, exchange = EXCHANGE_UPBIT)
     }
 
     private suspend fun insertAndDeleteOver500(
@@ -277,15 +328,20 @@ class UpbitCoinOrderUseCase @Inject constructor(
                 transactionAmount = transactionAmount,
                 transactionStatus = transactionStatus,
                 transactionTime = transactionTime,
-                transactionAmountBTC = transactionAmountBTC
+                transactionAmountBTC = transactionAmountBTC,
+                exchange = EXCHANGE_UPBIT
             )
         )
 
-        val count = transactionInfoDao.getCount(market)
+        val count = transactionInfoDao.getCount(market = market, exchange = EXCHANGE_UPBIT)
         val excess = count - 500
 
         if (excess > 0) {
-            transactionInfoDao.deleteExcess(market, excess)
+            transactionInfoDao.deleteExcess(
+                market = market,
+                count = excess,
+                exchange = EXCHANGE_UPBIT
+            )
         }
     }
 }

@@ -6,36 +6,53 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.MyCoin
 
 @Dao
 interface MyCoinDAO {
-    @get:Query("SELECT * FROM MYCOIN")
-    val all: List<MyCoin?>?
+    @get:Query("SELECT * FROM MyCoin")
+    val all: List<MyCoin>
+
+    // 거래소별 전체 코인 조회
+    @Query("SELECT * FROM MyCoin WHERE exchange = :exchange")
+    suspend fun getAllByExchange(exchange: String): List<MyCoin>
 
     @Insert
     suspend fun insert(myCoin: MyCoin)
 
-    @Query("UPDATE MYCOIN SET purchasePrice = :price WHERE market = :market")
-    suspend fun updatePurchasePrice(market: String?, price: Double?)
+    // 구매 가격 업데이트
+    @Query("UPDATE MyCoin SET purchasePrice = :price WHERE market = :market AND exchange = :exchange")
+    suspend fun updatePurchasePrice(market: String, exchange: String, price: Double)
 
-    @Query("UPDATE MYCOIN SET purchasePrice = :price WHERE market = :market")
-    suspend fun updatePurchasePriceInt(market: String?, price: Int)
+    // 구매 가격(정수형) 업데이트
+    @Query("UPDATE MyCoin SET purchasePrice = :price WHERE market = :market AND exchange = :exchange")
+    suspend fun updatePurchasePriceInt(market: String, exchange: String, price: Int)
 
-    @Query("UPDATE MYCOIN SET quantity = quantity + :afterQuantity  WHERE market = :market")
-    suspend fun updatePlusQuantity(market: String?, afterQuantity: Double?)
+    // 수량 증가
+    @Query("UPDATE MyCoin SET quantity = quantity + :amount WHERE market = :market AND exchange = :exchange")
+    suspend fun increaseQuantity(market: String, exchange: String, amount: Double)
 
-    @Query("UPDATE MYCOIN SET quantity = quantity - :afterQuantity  WHERE market = :market")
-    suspend fun updateMinusQuantity(market: String?, afterQuantity: Double?)
+    // 수량 감소
+    @Query("UPDATE MyCoin SET quantity = quantity - :amount WHERE market = :market AND exchange = :exchange")
+    suspend fun decreaseQuantity(market: String, exchange: String, amount: Double)
 
-    @Query("UPDATE MYCOIN SET quantity = :afterQuantity  WHERE market = :market")
-    suspend fun updateQuantity(market: String?, afterQuantity: Double?)
+    // 수량 설정
+    @Query("UPDATE MyCoin SET quantity = :quantity WHERE market = :market AND exchange = :exchange")
+    suspend fun setQuantity(market: String, exchange: String, quantity: Double)
 
-    @Query("SELECT * FROM MyCoin where market = :checkMarket")
-    suspend fun isInsert(checkMarket: String?): MyCoin?
+    // 특정 코인 조회
+    @Query("SELECT * FROM MyCoin WHERE market = :market AND exchange = :exchange")
+    suspend fun getCoin(market: String, exchange: String): MyCoin?
 
-    @Query("DELETE FROM MyCoin where market = :market")
-    suspend fun delete(market: String?)
+    // 특정 코인 삭제
+    @Query("DELETE FROM MyCoin WHERE market = :market AND exchange = :exchange")
+    suspend fun delete(market: String, exchange: String)
 
-    @Query("DELETE FROM MyCoin ")
+    // 전체 삭제
+    @Query("DELETE FROM MyCoin")
     suspend fun deleteAll()
 
-    @Query("UPDATE MYCOIN SET purchaseAverageBtcPrice = :price WHERE market = :market")
-    suspend fun updatePurchaseAverageBtcPrice(market:String?, price: Double?)
+    // BTC 평균 구매가 업데이트
+    @Query("UPDATE MyCoin SET purchaseAverageBtcPrice = :price WHERE market = :market AND exchange = :exchange")
+    suspend fun updatePurchaseAverageBtcPrice(market: String, exchange: String, price: Double)
+
+    // 거래소별 전체 코인 삭제
+    @Query("DELETE FROM MyCoin WHERE exchange = :exchange")
+    suspend fun deleteAllByExchange(exchange: String)
 }

@@ -101,14 +101,12 @@ fun PortfolioScreenRoute(
             sortUserHoldCoin = viewModel::sortUserHoldCoin,
             getUserCoinInfo = holder::getUserCoinResultMap,
             getPortFolioMainInfoMap = holder::getPortfolioMainInfoMap,
-            loadingState = viewModel.loadingState,
             currentBTCPrice = viewModel.btcTradePrice,
             appNavController = appNavController,
-            earnReward = viewModel::earnReward,
             portfolioSearchTextState = viewModel.portfolioSearchTextState,
             getList = holder::getList,
             findWrongCoin = viewModel::findWrongCoin,
-            loading = viewModel.loading,
+            earnReward = viewModel::earnReward,
         )
 
         RemoveCoinBottomSheet(

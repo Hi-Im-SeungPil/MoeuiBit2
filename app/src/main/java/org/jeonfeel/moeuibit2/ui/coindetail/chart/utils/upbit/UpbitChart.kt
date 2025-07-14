@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.constants.KeyConst
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.ioDispatcher
@@ -20,7 +21,6 @@ import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.ChartModel
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetChartCandleReq
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.GetChartCandleRes
 import org.jeonfeel.moeuibit2.data.repository.local.LocalRepository
-import org.jeonfeel.moeuibit2.data.repository.network.UpbitRepository
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.GetMovingAverage
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.defaultSet
@@ -38,7 +38,7 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.WEEK_SELECT
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import javax.inject.Inject
 
-class ChartState {
+open class BaseChartState {
     val isUpdateChart = mutableStateOf(false)
     val candleType = mutableStateOf("1")
     val loadingDialogState = mutableStateOf(false)
@@ -49,19 +49,24 @@ class ChartState {
     val isLastData = mutableStateOf(false) // 더이상 불러올 과거 데이터가 없는지 FLAG값
 }
 
-class Chart @Inject constructor(
-    private val upbitRepository: UpbitRepository,
+class UpbitChartState: BaseChartState() {
+
+}
+
+class UpbitChart @Inject constructor(
     private val localRepository: LocalRepository,
     private val upbitChartUseCase: UpbitChartUseCase,
     private val preferenceManager: PreferencesManager
 ) : BaseCommunicationModule() {
-    val state = ChartState()
-    private var firstInit = true
+    val state = UpbitChartState()
     var market = ""
-    var chartUpdateJob: Job? = null
+
+    private var firstInit = true
     private var chartLastData = false
+
     private val _candleEntries = ArrayList<CandleEntry>()
     val candleEntries: List<CandleEntry> get() = _candleEntries
+
     private val movingAverage = ArrayList<GetMovingAverage>()
     private val chartData = ArrayList<ChartModel>()
 
@@ -81,6 +86,8 @@ class Chart @Inject constructor(
 
     private val _chartUpdateMutableLiveData = MutableLiveData<Int>() //차트 업데이트인지 추가인지 판별
     val chartUpdateLiveData: LiveData<Int> get() = _chartUpdateMutableLiveData
+
+    private var chartUpdateJob: Job? = null
 
     init {
         for (i in movingAverageLineArray) {
@@ -205,84 +212,6 @@ class Chart @Inject constructor(
             purchaseAveragePrice = it.purchasePrice.toFloat()
         }
     }
-
-//    suspend fun requestBitthumbChartData(
-//        candleType: String = state.candleType.value, //분봉인지, 일봉인지
-//        market: String, // 어느 코인인지
-//    ) {
-//        state.isUpdateChart.value = false
-//        state.loadingDialogState.value = true
-//
-//        val response: Response<BitthumbChartModel> = remoteRepository.getBitthumbChart(
-//            market = Utils.upbitMarketToBitthumbMarket(market),
-//            candleType = candleType
-//        )
-//        Logger.e("requestBitthumbChartData, ${response.message()}")
-//        if (response.isSuccessful && response.body()?.status == "0000") {
-//            Logger.e("requestBitthumbChartData, ${response.body()?.status}")
-//            resetChartData()
-//            val positiveBarEntries = ArrayList<BarEntry>()
-//            val negativeBarEntries = ArrayList<BarEntry>()
-//            val chartModelList = response.body()?.data
-//            if ((chartModelList?.size ?: 0) != 0) {
-//                val indices = chartModelList?.size ?: 0
-//                Logger.e(response.body().toString())
-//                kstTime = Utils.millisToUpbitFormat(
-//                    (chartModelList?.last()?.get(0) ?: 0).toString().toDouble().toLong()
-//                )
-//                for (i in 0 until indices) {
-//                    val openingPrice = (chartModelList?.get(i)?.get(1) ?: "").toString().toFloat()
-//                    val closePrice = (chartModelList?.get(i)?.get(2) ?: "").toString().toFloat()
-//                    val highPrice = (chartModelList?.get(i)?.get(3) ?: "").toString().toFloat()
-//                    val lowPrice = (chartModelList?.get(i)?.get(4) ?: "").toString().toFloat()
-//                    val accAmount = (chartModelList?.get(i)?.get(5) ?: "").toString().toFloat()
-//                    val time = Utils.millisToUpbitFormat(
-//                        (chartModelList?.get(i)?.get(0) ?: 0).toString().toDouble().toLong()
-//                    )
-//                    candleEntries.add(
-//                        CandleEntry(
-//                            candlePosition,
-//                            highPrice,
-//                            lowPrice,
-//                            openingPrice,
-//                            closePrice
-//                        )
-//                    )
-//                    if (closePrice - openingPrice >= 0.0) {
-//                        positiveBarEntries.add(
-//                            BarEntry(candlePosition, accAmount)
-//                        )
-//                    } else {
-//                        negativeBarEntries.add(
-//                            BarEntry(candlePosition, accAmount)
-//                        )
-//                    }
-//                    kstDateHashMap[candlePosition.toInt()] = time
-//                    accData[candlePosition.toInt()] = accAmount.toDouble()
-//                    candlePosition += 1f
-//                    candleEntriesLastPosition = candleEntries.size - 1
-//                }
-//                candlePosition += 1f
-//            } else {
-//                //TODO
-//            }
-//            /**
-//             * 현재 보유 코인인지 있으면 불러옴
-//             */
-//            val myCoin = getChartCoinPurchaseAverage(market)
-//            myCoin?.let {
-//                purchaseAveragePrice = it.purchasePrice.toFloat()
-//            }
-//            candlePosition -= 1f
-//            positiveBarDataSet = BarDataSet(positiveBarEntries, "")
-//            negativeBarDataSet = BarDataSet(negativeBarEntries, "")
-//            candleDataSet = CandleDataSet(candleEntries, "")
-//            state.isUpdateChart.value = true
-//            state.loadingDialogState.value = false
-//            _chartUpdateMutableLiveData.value = CHART_INIT
-//            updateChart(market)
-//        }
-//    }
 
     suspend fun newRequestOldData(
         candleType: String = state.candleType.value,
@@ -447,64 +376,6 @@ class Chart @Inject constructor(
         }
     }
 
-//    fun bitthumbUpdateCandleTicker(tradePrice: Double) {
-//        if (kstTime.isNotEmpty()) {
-//            val kstTimeMillis = Utils.upbitFormatToMillis(kstTime)
-//            val standardMillis = Utils.getStandardMillis(state.candleType.value)
-//            val currentMillis = System.currentTimeMillis()
-//            Logger.e("standard -> ${standardMillis + kstTimeMillis} current -> $currentMillis")
-//            if (currentMillis < kstTimeMillis + standardMillis) {
-//                Logger.e("CHART_SET_CANDLE".toString())
-//                if (state.isUpdateChart.value && candleEntries.isNotEmpty()) {
-//                    val candleEntry = candleEntries[candleEntriesLastPosition]
-//                    if (candleEntry.close < candleEntry.low) {
-//                        candleEntries[candleEntriesLastPosition].low = tradePrice.toFloat()
-//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-//                    } else if (candleEntry.close > candleEntry.high) {
-//                        candleEntries[candleEntriesLastPosition].high = tradePrice.toFloat()
-//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-//                    } else {
-//                        candleEntries[candleEntriesLastPosition].close = tradePrice.toFloat()
-//                    }
-//                    try {
-////                        modifyLineData()
-//                    } catch (e: Exception) {
-//
-//                    }
-//                    _chartUpdateMutableLiveData.postValue(CHART_SET_CANDLE)
-//                }
-//            } else {
-//                Logger.e("CHART_ADD_CANDLE")
-//                kstTime = Utils.millisToUpbitFormat(kstTimeMillis + standardMillis)
-//                addModel = ChartModel(
-//                    candleDateTimeKst = kstTime,
-//                    candleDateTimeUtc = "",
-//                    openingPrice = tradePrice,
-//                    highPrice = tradePrice,
-//                    lowPrice = tradePrice,
-//                    tradePrice = tradePrice,
-//                    candleAccTradePrice = 0.0,
-//                    timestamp = currentMillis
-//                )
-//                state.isUpdateChart.value = false
-//                _candleEntries.add(
-//                    CandleEntry(
-//                        candlePosition,
-//                        tradePrice.toFloat(),
-//                        tradePrice.toFloat(),
-//                        tradePrice.toFloat(),
-//                        tradePrice.toFloat()
-//                    )
-//                )
-//                candlePosition += 1f
-//                candleEntriesLastPosition += 1
-//                kstDateHashMap[candlePosition.toInt()] = kstTime
-//                _chartUpdateMutableLiveData.postValue(CHART_ADD)
-//                state.isUpdateChart.value = true
-//            }
-//        }
-//    }
-
     /**
      * 이동평균선 만든다
      */
@@ -553,6 +424,10 @@ class Chart @Inject constructor(
         preferenceManager.setValue(KeyConst.PREF_KEY_CHART_LAST_PERIOD, period)
     }
 
+    fun updateCandlePosition(position: Float) {
+        candlePosition = position
+    }
+
     /**
      * 차트 초기화
      */
@@ -565,14 +440,7 @@ class Chart @Inject constructor(
     }
 
     private suspend fun getChartCoinPurchaseAverage(market: String): MyCoin? {
-        return localRepository.getMyCoinDao().isInsert(market)
-    }
-
-    fun setBitthumbChart() {
-        state.isLastData.value = true
-        if (state.candleType.value == "1") {
-            state.candleType.value = "1m"
-        }
+        return localRepository.getMyCoinDao().getCoin(market, exchange = EXCHANGE_UPBIT)
     }
 
     fun getLastCandleEntry() = candleEntries.last()

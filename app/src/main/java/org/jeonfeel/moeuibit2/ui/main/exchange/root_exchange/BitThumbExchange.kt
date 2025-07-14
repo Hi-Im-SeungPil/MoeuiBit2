@@ -8,8 +8,6 @@ import com.orhanobut.logger.Logger
 import org.jeonfeel.moeuibit2.constants.BTC_MARKET
 import org.jeonfeel.moeuibit2.constants.KRW_SYMBOL_PREFIX
 import org.jeonfeel.moeuibit2.data.network.retrofit.model.upbit.CommonExchangeModel
-import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetUpbitMarketTickerReq
-import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BiThumbWarningRes
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.bitthumb.BitThumbMarketCodeRes
 import org.jeonfeel.moeuibit2.data.network.websocket.model.bitthumb.BithumbSocketTickerRes
 import org.jeonfeel.moeuibit2.data.usecase.BitThumbUseCase
@@ -22,12 +20,14 @@ import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortOrder
 import org.jeonfeel.moeuibit2.ui.main.exchange.component.SortType
 import org.jeonfeel.moeuibit2.utils.Utils
 import org.jeonfeel.moeuibit2.utils.ext.mapToMarketCodesRequest
+import org.jeonfeel.moeuibit2.utils.manager.CacheManager
 import java.math.BigDecimal
 import javax.inject.Inject
 import kotlin.reflect.KFunction1
 
 class BitThumbExchange @Inject constructor(
     private val biThumbUseCase: BitThumbUseCase,
+    private val cacheManager: CacheManager
 ) {
     private val krwMarketCodeMap = mutableMapOf<String, BitThumbMarketCodeRes>()
     private val btcMarketCodeMap = mutableMapOf<String, BitThumbMarketCodeRes>()
@@ -49,6 +49,9 @@ class BitThumbExchange @Inject constructor(
     private var tradeCurrencyState: State<Int>? = null
     private var isUpdateExchange: State<Boolean>? = null
 
+    private var currentSortType: SortType? = null
+    private var currentSortOrder: SortOrder? = null
+
     fun initBitThumb(
         tradeCurrencyState: State<Int>,
         isUpdateExchange: State<Boolean>,
@@ -57,19 +60,38 @@ class BitThumbExchange @Inject constructor(
         this.isUpdateExchange = isUpdateExchange
     }
 
-    suspend fun onStart(updateLoadingState: KFunction1<Boolean, Unit>) {
+    suspend fun onStart(
+        updateLoadingState: KFunction1<Boolean, Unit>,
+        selectedSortType: SortType,
+        sortOrder: SortOrder
+    ) {
         if (tickerDataIsEmpty()) {
             clearTickerData()
             updateLoadingState(true)
 
             fetchBiThumbWarning()
             fetchBitThumbMarketCodeList()
-            fetchBitThumbTicker()
+            fetchBitThumbTicker(selectedSortType = selectedSortType, sortOrder = sortOrder)
 
             loadingDelay(updateLoadingState)
 
             useCaseOnStart()
         } else {
+            if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) {
+                favoriteOnResume()
+            }
+
+            if(currentSortOrder != sortOrder || currentSortType != selectedSortType) {
+                currentSortType = selectedSortType
+                currentSortOrder = sortOrder
+
+                sortTickerList(
+                    tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                    sortType = selectedSortType,
+                    sortOrder = sortOrder
+                )
+            }
+
             useCaseOnStart()
         }
     }
@@ -183,6 +205,8 @@ class BitThumbExchange @Inject constructor(
                     btcMarketCodeMap.putAll(res.data.btcMarketCodeMap)
                     krwList.addAll(res.data.krwList.map { it.market })
                     btcList.addAll(res.data.btcList.map { it.market })
+                    cacheManager.saveBiThumbKoreanCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
+                    cacheManager.saveBiThumbEnglishCoinNameMap(krwMarketCodeMap + btcMarketCodeMap)
                 }
 
                 is ResultState.Error -> {
@@ -196,7 +220,7 @@ class BitThumbExchange @Inject constructor(
         }
     }
 
-    private suspend fun fetchBitThumbTicker() {
+    private suspend fun fetchBitThumbTicker(sortOrder: SortOrder, selectedSortType: SortType) {
         val marketCodes = (krwList + btcList)
         marketCodes.chunked(100).forEach { chunk ->
             biThumbUseCase.fetchBitThumbTicker(
@@ -234,14 +258,20 @@ class BitThumbExchange @Inject constructor(
                 }
             }
         }
-        sortTickerList(
-            tradeCurrency = TRADE_CURRENCY_KRW,
-            sortType = SortType.VOLUME,
-            sortOrder = SortOrder.DESCENDING
-        )
+
+        if (currentSortType != selectedSortType || currentSortOrder != sortOrder) {
+            currentSortType = selectedSortType
+            currentSortOrder = sortOrder
+
+            sortTickerList(
+                tradeCurrency = tradeCurrencyState?.value ?: TRADE_CURRENCY_KRW,
+                sortType = selectedSortType,
+                sortOrder = sortOrder
+            )
+        }
     }
 
-    private suspend fun updateTickerData() {
+    private suspend fun updateTickerData(sortOrder: SortOrder? = null, sortType: SortType? = null) {
         val marketCodes = when (tradeCurrencyState?.value) {
             TRADE_CURRENCY_KRW -> krwList
             TRADE_CURRENCY_BTC -> btcList
@@ -285,25 +315,126 @@ class BitThumbExchange @Inject constructor(
             }
         }
 
-//        if (sortOrder != null && sortType != null) {
-//            sortTickerList(
-//                tradeCurrency = TRADE_CURRENCY_FAV,
-//                sortOrder = sortOrder,
-//                sortType = sortType
-//            )
-//        }
+        if (sortOrder != null && sortType != null) {
+            sortTickerList(
+                tradeCurrency = TRADE_CURRENCY_FAV,
+                sortOrder = sortOrder,
+                sortType = sortType
+            )
+        }
     }
 
     suspend fun changeTradeCurrencyAction(
         sortOrder: SortOrder? = null,
         sortType: SortType? = null,
     ) {
-//        favoriteMarketChangeAction(sortOrder, sortType)
+        favoriteMarketChangeAction(sortOrder, sortType)
 
         if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV) return
 
         updateTickerData()
         useCaseOnStart()
+    }
+
+    private suspend fun favoriteMarketChangeAction(sortOrder: SortOrder?, sortType: SortType?) {
+        getFavoriteList()
+        _favoriteExchangeModelList.clear()
+        favoriteModelPosition.clear()
+
+        if (tradeCurrencyState?.value == TRADE_CURRENCY_FAV
+            && favoriteList.isNotEmpty()
+        ) {
+            favoriteList.forEachIndexed { index, market ->
+
+                val (positionMap, exchangeModelList) =
+                    if (market.startsWith(KRW_SYMBOL_PREFIX)) {
+                        krwExchangeModelPosition to _krwExchangeModelList
+                    } else {
+                        btcExchangeModelPosition to _btcExchangeModelList
+                    }
+
+                val position = positionMap[market]
+
+                if (position != null) {
+                    val favoritePosition = favoriteModelPosition[market]
+                    val commonExchangeModel = exchangeModelList[position]
+
+                    if (favoritePosition != null) {
+                        _favoriteExchangeModelList[favoritePosition] = commonExchangeModel
+                    } else {
+                        favoriteModelPosition[market] = index
+                        _favoriteExchangeModelList.add(commonExchangeModel)
+                    }
+                } else {
+                    removeFavorite(market)
+                    favoriteList.removeIf { it == market }
+                }
+            }
+
+            updateTickerData(sortOrder, sortType)
+            useCaseOnStart()
+        }
+    }
+
+    private suspend fun favoriteOnResume() {
+        getFavoriteList()
+
+        val favoriteSet = favoriteList.toSet()
+        val removeKeyList = _favoriteExchangeModelList
+            .map { it.market }
+            .filterNot { it in favoriteSet }
+
+        if (removeKeyList.isNotEmpty()) {
+            _favoriteExchangeModelList.removeAll { it.market in removeKeyList }
+            favoriteModelPosition.clear()
+
+            _favoriteExchangeModelList.forEachIndexed { index, model ->
+                favoriteModelPosition[model.market] = index
+            }
+        }
+
+        val newFavorites =
+            favoriteList.filterNot { it in _favoriteExchangeModelList.map { model -> model.market } }
+
+        if (newFavorites.isNotEmpty()) {
+            val newModels = newFavorites.map { market ->
+                CommonExchangeModel(market = market)
+            }
+
+            newModels.forEach { commonExchangeModel ->
+                val market = commonExchangeModel.market
+                val model = if (market.startsWith(KRW_SYMBOL_PREFIX)) {
+                    val position = krwExchangeModelPosition[market]
+                    position?.let {
+                        _krwExchangeModelList[position]
+                    } ?: CommonExchangeModel(market = market)
+                } else {
+                    val position = btcExchangeModelPosition[market]
+                    position?.let {
+                        _btcExchangeModelList[position]
+                    } ?: CommonExchangeModel(market = market)
+                }
+                _favoriteExchangeModelList.add(model)
+            }
+
+            _favoriteExchangeModelList.forEachIndexed { index, model ->
+                favoriteModelPosition[model.market] = index
+            }
+        }
+    }
+
+    private suspend fun getFavoriteList() {
+        favoriteList.clear()
+
+        val list = biThumbUseCase.getFavoriteList()?.let {
+            it.map { favorite -> favorite?.market ?: "" }
+        } ?: emptyList()
+
+        favoriteList.addAll(list)
+    }
+
+    private suspend fun removeFavorite(market: String) {
+        biThumbUseCase.removeFavorite(market)
     }
 
     fun sortTickerList(
@@ -467,8 +598,6 @@ class BitThumbExchange @Inject constructor(
                         return@collect
                     }
 
-                    Logger.e(krwExchangeModelPosition.toString())
-
                     val (positionMap, marketCodeMap, modelList) = getTargetMaps(
                         bithumbSocketTickerRes = res.data
                     )
@@ -477,13 +606,14 @@ class BitThumbExchange @Inject constructor(
                     val marketCode = marketCodeMap?.get(res.data.code)
                     val waringList = _biThumbWarningMap[marketCode?.market] ?: emptyList()
 
-                    Logger.e(marketCode?.market + " / / " + position.toString())
+//                    Logger.e(marketCode?.market + " / / " + position.toString())
 
                     if (position != null && marketCode != null) {
-                        val model = res.data.mapToCommonExchangeModel(marketCode,waringList).apply {
-                            needAnimation.value = res.data.askBid
-                        }
-
+                        val model =
+                            res.data.mapToCommonExchangeModel(marketCode, waringList).apply {
+                                needAnimation.value = res.data.askBid
+                            }
+//                        Logger.e(model.toString())
                         modelList?.set(position, model)
                     }
                 } else {

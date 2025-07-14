@@ -1,7 +1,9 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.detail
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -35,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -63,7 +67,9 @@ import com.skydoves.balloon.compose.Balloon
 import com.skydoves.balloon.compose.rememberBalloonBuilder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jeonfeel.moeuibit2.GlobalState
 import org.jeonfeel.moeuibit2.R
+import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit.Caution
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRow
 import org.jeonfeel.moeuibit2.ui.coindetail.order.ui.CoinDetailMainTabRowItem
@@ -72,6 +78,7 @@ import org.jeonfeel.moeuibit2.ui.common.AutoSizeText
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.common.noRippleClickable
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
+import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonDividerColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonHintTextColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonRiseColor
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonTextColor
@@ -178,7 +185,7 @@ fun CoinDetailScreen(
                 ),
                 price = state.getCoinDetailPrice(
                     viewModel.coinTicker.value?.tradePrice?.toDouble() ?: 0.0,
-                    viewModel.rootExchange ?: "",
+                    GlobalState.globalExchangeState.value,
                     market
                 ),
                 symbol = market.substring(4),
@@ -250,6 +257,7 @@ fun NewCoinDetailTopAppBar(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .padding(start = 40.dp)
                 .align(Alignment.CenterVertically)
         ) {
             Text(
@@ -331,7 +339,7 @@ fun NewCoinDetailTopAppBar(
         IconButton(
             modifier = Modifier
                 .padding(end = 15.dp)
-                .size(20.dp)
+                .size(25.dp)
                 .align(Alignment.CenterVertically),
             onClick = {
                 updateIsFavorite()
@@ -348,6 +356,25 @@ fun NewCoinDetailTopAppBar(
                 tint = if (!isFavorite.value) commonTextColor() else Color.Unspecified
             )
         }
+
+        Image(
+            painter = when (GlobalState.globalExchangeState.value) {
+                EXCHANGE_UPBIT -> painterResource(id = R.drawable.img_upbit)
+                else -> painterResource(id = R.drawable.img_bit_thumb)
+            },
+            modifier = Modifier
+                .padding(end = 15.dp)
+                .size(25.dp)
+                .align(Alignment.CenterVertically)
+                .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .border(
+                    width = 1.dp,
+                    color = commonTextColor(),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            contentDescription = ""
+        )
     }
 }
 

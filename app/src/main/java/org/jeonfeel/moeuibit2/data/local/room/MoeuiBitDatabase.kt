@@ -13,7 +13,7 @@ import org.jeonfeel.moeuibit2.data.local.room.entity.*
 
 @Database(
     entities = [User::class, MyCoin::class, NotSigned::class, Favorite::class, TransactionInfo::class],
-    version = 5
+    version = 6
 )
 abstract class MoeuiBitDatabase : RoomDatabase() {
     abstract fun userDAO(): UserDAO
@@ -145,6 +145,135 @@ abstract class MoeuiBitDatabase : RoomDatabase() {
 
                 // 4. 임시 테이블 이름을 원래 이름으로 변경
                 database.execSQL("ALTER TABLE TransactionInfo_temp RENAME TO TransactionInfo")
+            }
+        }
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.version = 6
+                // 1. 새 테이블 생성 (복합키 포함)
+                db.execSQL(
+                    """
+                CREATE TABLE IF NOT EXISTS Favorite_new (
+                market TEXT NOT NULL,
+                exchange TEXT NOT NULL DEFAULT 'UpBit',
+                PRIMARY KEY(market, exchange)
+            )
+        """.trimIndent()
+                )
+
+                // 2. 기존 데이터 복사 (exchange는 모두 'upbit'로)
+                db.execSQL(
+                    """
+            INSERT INTO Favorite_new (market, exchange)
+            SELECT market, 'UpBit' as exchange FROM Favorite
+        """.trimIndent()
+                )
+
+                // 3. 기존 테이블 삭제
+                db.execSQL("DROP TABLE Favorite")
+
+                // 4. 새 테이블 이름 변경
+                db.execSQL("ALTER TABLE Favorite_new RENAME TO Favorite")
+
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+
+                // 1. 새 테이블 생성 (복합키 포함)
+                db.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS `MyCoin_new` (
+                `market` TEXT NOT NULL,
+                `exchange` TEXT NOT NULL DEFAULT 'UpBit',
+                `purchasePrice` REAL NOT NULL,
+                `koreanCoinName` TEXT NOT NULL,
+                `symbol` TEXT NOT NULL,
+                `quantity` REAL NOT NULL,
+                `purchaseAverageBtcPrice` REAL NOT NULL DEFAULT 0.0,
+                PRIMARY KEY(`market`, `exchange`)
+            )
+        """.trimIndent()
+                )
+
+                // 2. 기존 데이터 복사 (exchange 기본값 'UpBit'으로)
+                db.execSQL(
+                    """
+            INSERT INTO MyCoin_new (market, exchange, purchasePrice, koreanCoinName, symbol, quantity, purchaseAverageBtcPrice)
+            SELECT market, 'UpBit', purchasePrice, koreanCoinName, symbol, quantity, purchaseAverageBtcPrice
+            FROM MyCoin
+        """.trimIndent()
+                )
+
+                // 3. 기존 테이블 삭제
+                db.execSQL("DROP TABLE MyCoin")
+
+                // 4. 새 테이블 이름 변경
+                db.execSQL("ALTER TABLE MyCoin_new RENAME TO MyCoin")
+
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+
+                // 1. 새 테이블 생성 (exchange 컬럼 추가, 기본값 'UpBit')
+                db.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS `User_new` (
+                `exchange` TEXT NOT NULL DEFAULT 'UpBit',
+                `krw` REAL NOT NULL,
+                PRIMARY KEY(`exchange`)
+            )
+        """.trimIndent()
+                )
+
+                // 2. 기존 데이터 복사 (exchange 값은 'UpBit'으로 세팅)
+                db.execSQL(
+                    """
+            INSERT INTO User_new (exchange, krw)
+            SELECT 'UpBit', krw FROM User
+        """.trimIndent()
+                )
+
+                // 3. 기존 테이블 삭제
+                db.execSQL("DROP TABLE User")
+
+                // 4. 새 테이블 이름 변경
+                db.execSQL("ALTER TABLE User_new RENAME TO User")
+
+
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+                //=====================================================================================================================================================================
+
+                // 1. 새 테이블 생성 (exchange 컬럼 추가, 기본값 'UpBit')
+                db.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS `TransactionInfo_new` (
+                `market` TEXT NOT NULL,
+                `exchange` TEXT NOT NULL DEFAULT 'UpBit',
+                `price` REAL NOT NULL,
+                `quantity` REAL NOT NULL,
+                `transactionAmount` REAL NOT NULL,
+                `transactionStatus` TEXT NOT NULL,
+                `transactionTime` INTEGER NOT NULL,
+                `transactionAmountBTC` REAL NOT NULL DEFAULT 0.0,
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+            )
+        """.trimIndent()
+                )
+
+                // 2. 기존 데이터 복사 (exchange는 'UpBit'으로 일괄 세팅)
+                db.execSQL(
+                    """
+            INSERT INTO TransactionInfo_new (market, exchange, price, quantity, transactionAmount, transactionStatus, transactionTime, transactionAmountBTC, id)
+            SELECT market, 'UpBit', price, quantity, transactionAmount, transactionStatus, transactionTime, transactionAmountBTC, id FROM TransactionInfo
+        """.trimIndent()
+                )
+
+                // 3. 기존 테이블 삭제
+                db.execSQL("DROP TABLE TransactionInfo")
+
+                // 4. 새 테이블 이름 변경
+                db.execSQL("ALTER TABLE TransactionInfo_new RENAME TO TransactionInfo")
             }
         }
     }

@@ -145,9 +145,7 @@ class BiThumbExchangeWebsocketManager {
 
             try {
                 client.webSocket(
-                    method = HttpMethod.Get,
-                    host = UrlConst.BITHUMB_SOCKET_BASE_URL,
-                    path = UrlConst.BITHUMB_SOCKET_PATH
+                    urlString = "wss://ws-api.bithumb.com/websocket/v1"
                 ) {
                     session = this
                     receiveChannel = this.incoming
