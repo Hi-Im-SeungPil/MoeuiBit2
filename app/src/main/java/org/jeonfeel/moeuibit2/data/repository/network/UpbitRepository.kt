@@ -57,9 +57,21 @@ class UpbitRepository(
         minute: String,
         market: String,
         count: String = "200",
-        time: String? = null,
+        time: String = "",
     ): Flow<ApiResult<List<GetChartCandleRes>>> {
         return networkCall { upBitService.getMinuteCandle(minute, market, count, time) }
+    }
+
+    /**
+     * NEW 일,주,월 요청
+     */
+    suspend fun fetchOtherCandle(
+        minute: String,
+        market: String,
+        count: String = "200",
+        time: String = "",
+    ): Flow<ApiResult<List<GetChartCandleRes>>> {
+        return networkCall { upBitService.getOtherCandle(minute, market, count, time) }
     }
 
     /**

@@ -3,6 +3,7 @@ package org.jeonfeel.moeuibit2.data.network.retrofit.response.upbit
 import androidx.annotation.Keep
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb.CommonChartModel
 
 @Keep
 @Serializable
@@ -52,7 +53,15 @@ data class GetChartCandleRes(
     @SerialName("first_day_of_period")
     val firstDayOfPeriod: String = "",
 ) {
-    fun mapToLineChartData() {
-
+    fun mapToCommonChartModel(): CommonChartModel {
+        return CommonChartModel(
+            highPrice = highPrice,
+            lowPrice = lowPrice,
+            openingPrice = openingPrice,
+            tradePrice = tradePrice,
+            candleAccTradePrice = candleAccTradePrice,
+            candleDateTimeUtc = candleDateTimeUtc,
+            candleDateTimeKst = candleDateTimeKst,
+        )
     }
 }
