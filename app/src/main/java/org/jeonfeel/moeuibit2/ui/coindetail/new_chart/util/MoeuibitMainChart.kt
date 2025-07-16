@@ -1,21 +1,35 @@
 package org.jeonfeel.moeuibit2.ui.coindetail.new_chart.util
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.View
+import android.view.ViewConfiguration
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.CandleData
+import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.listener.BarLineChartTouchListener
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.renderer.YAxisRenderer
+import com.github.mikephil.charting.utils.ViewPortHandler
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
+import org.jeonfeel.moeuibit2.utils.Utils.dpToPx
 
 class MoeuibitMainChart(
     private val context: Context,
@@ -27,7 +41,15 @@ class MoeuibitMainChart(
         setupChart()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupChart() {
+        val customRenderer = CustomYAxisRenderer(
+            context,
+            viewPortHandler,
+            axisRight,
+            getTransformer(YAxis.AxisDependency.RIGHT)
+        )
+
         val legendArray = ArrayList<LegendEntry>()
         legendArray.add(
             LegendEntry().apply {
@@ -42,11 +64,22 @@ class MoeuibitMainChart(
                 }
             )
         }
+        axisRight.minWidth = Paint().apply {
+            textSize = this.textSize
+        }.measureText("100,000,000")
+
+        val paint = Paint().apply {
+            textSize = axisRight.textSize
+            typeface = axisRight.typeface
+        }
+        val measured = paint.measureText("100,000,000")
+        val extraMargin = 12f
 
         description.isEnabled = false
         isScaleYEnabled = false
         isDoubleTapToZoomEnabled = false
-        isDragDecelerationEnabled = false
+        isDragDecelerationEnabled = true
+        setDragDecelerationFrictionCoef(0.95f)
         isDragEnabled = true
         isAutoScaleMinMaxEnabled = true
         isDragYEnabled = false
@@ -59,6 +92,10 @@ class MoeuibitMainChart(
         legend.xOffset = -20f
         legend.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
         legend.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+        extraTopOffset = 0f
+        extraBottomOffset = 0f
+        setViewPortOffsets(0f, 0f, measured + extraMargin, 0f)
+        rendererRightYAxis = customRenderer
 
         xAxis.apply {
             textColor = Color.BLACK
@@ -74,25 +111,25 @@ class MoeuibitMainChart(
         }
 
         axisLeft.apply {
-            setDrawGridLines(false)
+            setDrawGridLines(true)
             setLabelCount(3, true)
             setDrawLabels(false)
             setDrawAxisLine(false)
-            spaceTop = 400f
             axisMinimum = 0f
         }
 
         axisRight.apply {
+            spaceTop = 0f
+            spaceBottom = 0f
             this.minWidth = Paint().apply {
                 textSize = this.textSize
             }.measureText("100,000,000")
-
             setLabelCount(5, true)
             textColor = ContextCompat.getColor(context, R.color.text_color)
             granularity = 1f
             isGranularityEnabled = true
             setDrawAxisLine(true)
-            setDrawGridLines(false)
+            setDrawGridLines(true)
             axisLineColor = Color.GRAY
         }
 
@@ -112,38 +149,73 @@ class MoeuibitMainChart(
         }
     }
 
-    fun syncWith(otherChart: Chart<*>) {
-        onChartGestureListener = object : OnChartGestureListener {
-            override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                otherChart.viewPortHandler.refresh(viewPortHandler.matrixTouch, otherChart, true)
+    fun chartAddAll(context: Context, candleEntries: List<CandleEntry>) {
+        val candleDataSet = NewChartUtils.createCandleDataSet(context, candleEntries)
+        val combinedData = CombinedData().apply {
+            setData(CandleData(candleDataSet))
+        }
+        data = combinedData
+        candleData.notifyDataChanged()
+        invalidate()
+    }
+}
+
+class CustomYAxisRenderer(
+    private val context: Context,
+    viewPortHandler: ViewPortHandler,
+    yAxis: YAxis,
+    trans: com.github.mikephil.charting.utils.Transformer
+) : YAxisRenderer(viewPortHandler, yAxis, trans) {
+
+    private val gridLinePath = Path()
+
+    override fun drawYLabels(
+        c: Canvas,
+        fixedPosition: Float,
+        positions: FloatArray,
+        offset: Float
+    ) {
+        val paint = mAxisLabelPaint
+        val yAxis = mYAxis
+        val topFix = 11f.dpToPx(context)    // 가장 위 레이블 아래로
+        val bottomFix = (-8f).dpToPx(context) // 가장 아래 레이블 위로
+
+        for (i in 0 until yAxis.mEntryCount) {
+            val text = yAxis.getFormattedLabel(i)
+            val xPos = fixedPosition + offset
+            val baseY = positions[i * 2 + 1]
+
+            val yPos = when (i) {
+                0 -> baseY + bottomFix
+                yAxis.mEntryCount - 1 -> baseY + topFix
+                else -> baseY
             }
 
-            override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                otherChart.viewPortHandler.refresh(viewPortHandler.matrixTouch, otherChart, true)
-            }
+            c.drawText(text, xPos, yPos, paint)
+        }
+    }
 
-            override fun onChartGestureStart(
-                me: MotionEvent?,
-                lastPerformedGesture: ChartTouchListener.ChartGesture?
-            ) {
-            }
+    override fun renderGridLines(c: Canvas) {
+        if (!mYAxis.isEnabled || !mYAxis.isDrawGridLinesEnabled) return
 
-            override fun onChartGestureEnd(
-                me: MotionEvent?,
-                lastPerformedGesture: ChartTouchListener.ChartGesture?
-            ) {
-            }
+        val positions = FloatArray(mYAxis.mEntryCount * 2)
 
-            override fun onChartLongPressed(me: MotionEvent?) {}
-            override fun onChartDoubleTapped(me: MotionEvent?) {}
-            override fun onChartSingleTapped(me: MotionEvent?) {}
-            override fun onChartFling(
-                me1: MotionEvent?,
-                me2: MotionEvent?,
-                velocityX: Float,
-                velocityY: Float
-            ) {
-            }
+        for (i in 0 until mYAxis.mEntryCount) {
+            positions[i * 2 + 1] = mYAxis.mEntries[i]
+        }
+
+        mTrans.pointValuesToPixel(positions)
+
+        for (i in 0 until mYAxis.mEntryCount) {
+            // 상단/하단 제외
+            if (i == 0 || i == mYAxis.mEntryCount - 1) continue
+
+            val y = positions[i * 2 + 1]
+            gridLinePath.reset()
+            gridLinePath.moveTo(mViewPortHandler.contentLeft(), y)
+            gridLinePath.lineTo(mViewPortHandler.contentRight(), y)
+
+            c.drawPath(gridLinePath, mGridPaint)
         }
     }
 }

@@ -19,6 +19,7 @@ import org.jeonfeel.moeuibit2.constants.COIN_DETAIL_MAIN_TAB_ROW_ITEM_ORDER
 import org.jeonfeel.moeuibit2.ui.coindetail.detail.NewCoinDetailViewModel
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.ChartScreen
 import org.jeonfeel.moeuibit2.ui.coindetail.coininfo.CoinInfoRoute
+import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.ui.NewChartScreen
 import org.jeonfeel.moeuibit2.ui.common.DpToSp
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.APP_PRIMARY_COLOR
 import org.jeonfeel.moeuibit2.ui.theme.newtheme.commonBackground
@@ -87,9 +88,11 @@ fun TabRowMainNavigation(
                 koreanCoinName = viewModel.koreanCoinName,
             )
         }
+
         composable(CoinDetailMainTabRowItem.Chart.screenRoute) {
-            ChartScreen(viewModel = viewModel, market = market)
+            NewChartScreen(market = market)
         }
+
         composable(CoinDetailMainTabRowItem.CoinInfo.screenRoute) {
             CoinInfoRoute(
                 engName = viewModel.engCoinName.value,

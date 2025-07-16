@@ -6,7 +6,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleEntry
+import com.tradingview.lightweightcharts.Logger
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import org.jeonfeel.moeuibit2.constants.EXCHANGE_UPBIT
 import org.jeonfeel.moeuibit2.data.network.retrofit.request.upbit.GetChartCandleReq
 import org.jeonfeel.moeuibit2.data.usecase.UpbitChartUseCase
@@ -14,12 +18,25 @@ import org.jeonfeel.moeuibit2.ui.coindetail.chart.ui.MINUTE_SELECT
 import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.bithumb.CommonChartModel
 import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.model.ChartCombineModel
 import org.jeonfeel.moeuibit2.ui.common.ResultState
+import javax.inject.Inject
 
 enum class ChartReqType {
     CHART_UPDATE, CHART_GET, CHART_OLD_DATA
 }
 
-class NewUpbitChart(
+sealed class ChartUpdateEvent {
+    data class AddAll(
+        val candles: List<CandleEntry>,
+        val volumes: List<BarEntry>,
+        val commonEntries: List<CommonChartModel>
+    ) : ChartUpdateEvent()
+
+    data class UpdateLatest(val candle: CandleEntry, val volume: BarEntry) : ChartUpdateEvent()
+    data class AddLatest(val candle: CandleEntry, val volume: BarEntry) : ChartUpdateEvent()
+    object Clear : ChartUpdateEvent()
+}
+
+class NewUpbitChart @Inject constructor(
     private val upbitChartUseCase: UpbitChartUseCase,
 ) {
     private val _commonEntries = mutableListOf<CommonChartModel>()
@@ -40,22 +57,25 @@ class NewUpbitChart(
     private val _selectedCandleType: MutableState<Int> = mutableIntStateOf(MINUTE_SELECT)
     val selectedCandleType: State<Int> get() = _selectedCandleType
 
-    suspend fun init(market: String) {
+    private val _chartUpdates = MutableSharedFlow<ChartUpdateEvent>(extraBufferCapacity = 1)
+    val chartUpdates = _chartUpdates.asSharedFlow()
+
+    suspend fun init(market: String, chartReqType: ChartReqType) {
         fetchUserLastSettingCandleType()
         upbitChartUseCase.fetchUserHoldCoin(market = market, exchange = EXCHANGE_UPBIT)
+        fetchChartData(market = market, chartReqType = chartReqType)
     }
 
     private suspend fun fetchUserLastSettingCandleType() {
-        upbitChartUseCase.fetchUserLastSettingCandleType().collect {
-            val (candleType, selectedType, text) = it
+        val it = upbitChartUseCase.fetchUserLastSettingCandleType().first()
+        val (candleType, selectedType, text) = it
 
-            _chartType.value = candleType
-            _selectedCandleType.value = selectedType
-            _chartTypeText.value = text
-        }
+        _chartType.value = candleType
+        _selectedCandleType.value = selectedType
+        _chartTypeText.value = text
     }
 
-    suspend fun fetchChartData(market: String, chartReqType: ChartReqType) {
+    private suspend fun fetchChartData(market: String, chartReqType: ChartReqType) {
         val getChartCandleReq = createGetChartCandleReq(market = market, reqType = chartReqType)
 
         getFetchChartDataType(getChartCandleReq).collect {
@@ -65,7 +85,6 @@ class NewUpbitChart(
                 }
 
                 is ResultState.Error -> {
-
                 }
 
                 is ResultState.Loading -> {
@@ -75,13 +94,23 @@ class NewUpbitChart(
         }
     }
 
-    private fun processingChartData(chartReqType: ChartReqType, data: ChartCombineModel) {
+    private suspend fun processingChartData(chartReqType: ChartReqType, data: ChartCombineModel) {
         when (chartReqType) {
             ChartReqType.CHART_GET -> {
                 clearChartData()
                 _commonEntries.addAll(data.commonChartDataList)
                 _candleEntries.addAll(data.candleEntries)
                 _volumeEntries.addAll(data.volumeEntries)
+
+                Logger.e(data.commonChartDataList.toString())
+
+                _chartUpdates.emit(
+                    ChartUpdateEvent.AddAll(
+                        candleEntries,
+                        volumeEntries,
+                        commonEntries
+                    )
+                )
             }
 
             ChartReqType.CHART_UPDATE -> {
@@ -115,11 +144,15 @@ class NewUpbitChart(
     }
 
     private fun getTimeStringForReq(reqType: ChartReqType): String {
-        val firstCandleUtcTime = commonEntries.first().candleDateTimeUtc
+        if (commonEntries.isEmpty()) {
+            return ""
+        } else {
+            val firstCandleUtcTime = commonEntries.first().candleDateTimeUtc
 
-        return when (reqType) {
-            ChartReqType.CHART_OLD_DATA -> firstCandleUtcTime.replace("T", " ")
-            else -> ""
+            return when (reqType) {
+                ChartReqType.CHART_OLD_DATA -> firstCandleUtcTime.replace("T", " ")
+                else -> ""
+            }
         }
     }
 
