@@ -55,13 +55,13 @@ class MoeuiBitVolumeChart(
         extraTopOffset = 0f
         extraBottomOffset = 0f
         setViewPortOffsets(0f, 0f, measured + extraMargin, 0f)
+        legend.isEnabled = false
 
         xAxis.apply {
             textColor = Color.BLACK
             position = XAxis.XAxisPosition.BOTTOM
             setDrawGridLines(false)
             setAvoidFirstLastClipping(true)
-            setLabelCount(3, true)
             setDrawLabels(true)
             setDrawAxisLine(false)
             axisLineColor = Color.GRAY
@@ -103,6 +103,10 @@ class MoeuiBitVolumeChart(
         val volumeData = BarData(volumeDataSet)
         data = volumeData
         barData.notifyDataChanged()
+
+        xAxis.setAxisMaximum(barData.getXMax() + 20f)
+        xAxis.setAxisMinimum(barData.getXMin() - 20f)
+
         invalidate()
     }
 }
