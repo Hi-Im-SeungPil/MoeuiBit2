@@ -7,12 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
-import android.view.ViewConfiguration
 import androidx.core.content.ContextCompat
-import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.LegendEntry
@@ -21,15 +16,14 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.CombinedData
-import com.github.mikephil.charting.listener.BarLineChartTouchListener
-import com.github.mikephil.charting.listener.ChartTouchListener
-import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.renderer.YAxisRenderer
 import com.github.mikephil.charting.utils.ViewPortHandler
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
 import org.jeonfeel.moeuibit2.utils.Utils.dpToPx
+import kotlin.math.round
 
 class MoeuibitMainChart(
     private val context: Context,
@@ -156,7 +150,41 @@ class MoeuibitMainChart(
         }
         data = combinedData
         candleData.notifyDataChanged()
+
+        xAxis.setAxisMaximum(candleData.getXMax() + 20f)
+        xAxis.setAxisMinimum(candleData.getXMin() - 20f)
+
         invalidate()
+    }
+
+    fun getYpositionByTradePrice(price: Float, decent: Float, accent: Float): Float {
+        val chartTopY = this.viewPortHandler.contentTop() - accent
+        val chartBottomY = this.viewPortHandler.contentBottom() + decent
+        val yPosition = this.getPosition(Entry(0f, price), axisRight.axisDependency).y
+        return if (yPosition in chartTopY..chartBottomY) {
+            yPosition
+        } else if (yPosition < chartTopY) {
+            chartTopY
+        } else if (yPosition > chartBottomY) {
+            chartBottomY
+        } else {
+            yPosition
+        }
+
+//        if(yPosition)
+    }
+
+    fun getHighestVisibleCandle(): CandleEntry? {
+        return try {
+            val highestVisibleXPosition = if (highestVisibleX > candleData.xMax) {
+                round(candleData.xMax)
+            } else {
+                round(highestVisibleX)
+            }
+            data.candleData.dataSets[0].getEntriesForXValue(highestVisibleXPosition).first()
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 

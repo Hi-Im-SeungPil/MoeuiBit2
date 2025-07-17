@@ -66,7 +66,7 @@ class UpbitChartUseCase @Inject constructor(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        val commonChartModelList = res.data.map { it.mapToCommonChartModel() }
+                        val commonChartModelList = res.data.reversed().map { it.mapToCommonChartModel() }
                         val (candleEntries, volumeEntries) =
                             NewChartUtils.createEntryLists(commonChartModelList)
 
@@ -103,7 +103,7 @@ class UpbitChartUseCase @Inject constructor(
             when (res.status) {
                 ApiResult.Status.SUCCESS -> {
                     if (res.data != null) {
-                        val commonChartModelList = res.data.map { it.mapToCommonChartModel() }
+                        val commonChartModelList = res.data.reversed().map { it.mapToCommonChartModel() }
                         val (candleEntries, volumeEntries) =
                             NewChartUtils.createEntryLists(commonChartModelList)
 
@@ -158,3 +158,12 @@ class UpbitChartUseCase @Inject constructor(
         return localRepository.getMyCoinDao().getCoin(market, exchange)
     }
 }
+
+/**
+ * 차트 선에따라 가격정보
+ * 해당하는 캔들, 바 정보 가져오기, marker view 보여주기
+ * X value Formatter
+ * 실시간 연동
+ * old chart 보여주기
+ * 자동 감지 후 오래된 데이터 로딩
+ */
