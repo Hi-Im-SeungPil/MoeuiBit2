@@ -74,6 +74,7 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
     val volumeChart = remember {
         MoeuiBitVolumeChart(context)
     }
+
     AddLifecycleEvent(
         onCreateAction = {
             if (NetworkConnectivityObserver.isNetworkAvailable.value) {
@@ -147,8 +148,8 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-//                    .height(with(density) { combinedHeightPx.toDp() })
+//                    .weight(1f),
+                    .height(with(density) { combinedHeightPx.toDp() })
             ) {
                 ChartWithRightPriceLabel(moeuibitMainChart)
                 AndroidView(
@@ -226,8 +227,8 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-//                    .height(with(density) { barHeightPx.toDp() }),
+//                    .weight(1f),
+                    .height(with(density) { barHeightPx.toDp() }),
                 factory = { context ->
                     volumeChart.apply {
                         setOnTouchListener { _, event ->
@@ -324,29 +325,39 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
 fun BoxScope.CrosshairOverlay(
     modifier: Modifier,
     combinedHeightPx: Float,
-    moeuibitMainChart: CombinedChart,
+    moeuibitMainChart: MoeuibitMainChart,
     volumeChart: BarChart,
     crosshairEnabled: Boolean,
     crossX: Float,
     crossY: Float,
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier
     ) {
         if (crosshairEnabled && crossX >= 0f && crossY >= 0f) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawLine(
-                    color = Color.Gray,
+                    color = Color.White,
                     start = Offset(crossX, 0f),
                     end = Offset(crossX, size.height),
-                    strokeWidth = 1.5f
+                    strokeWidth = 0.7f.dpToPx(context)
                 )
                 drawLine(
-                    color = Color.Gray,
+                    color = Color.White,
                     start = Offset(0f, crossY),
                     end = Offset(size.width, crossY),
-                    strokeWidth = 1.5f
+                    strokeWidth = 0.7f.dpToPx(context)
                 )
+                drawIntoCanvas { canvas ->
+                    canvas.nativeCanvas.drawText(
+                        "■■■■■■■■■■■■■■■■",
+                        size.width - moeuibitMainChart.getRightViewport(),
+                        crossY,
+                        Paint().apply { textSize = 30f
+                            color = android.graphics.Color.LTGRAY })
+                }
             }
 
             val labelOffsetX = with(LocalDensity.current) { 12.dp.toPx() }
@@ -384,29 +395,40 @@ fun ChartWithRightPriceLabel(moeuibitMainChart: MoeuibitMainChart) {
     val paint = remember {
         Paint().apply {
             color = android.graphics.Color.WHITE
-            textSize = with(density) { 14.sp.toPx() }
+            textSize = moeuibitMainChart.getRightAxisTextSize()
             isAntiAlias = true
-            typeface = Typeface.DEFAULT_BOLD
+            typeface = Typeface.DEFAULT
         }
     }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val chartTopY = moeuibitMainChart.viewPortHandler.contentTop()
-        val chartBottomY = moeuibitMainChart.viewPortHandler.contentBottom()
         val highestVisibleCandle = moeuibitMainChart.getHighestVisibleCandle()
 
         highestVisibleCandle?.let { entry ->
             val pixel = moeuibitMainChart.getYpositionByTradePrice(
                 price = entry.close,
-                decent = paint.fontMetrics.descent,
-                accent = paint.fontMetrics.ascent
+                descent = paint.fontMetrics.descent,
+                ascent = paint.fontMetrics.ascent
             )
 
-            Logger.e("chartTopY: $chartTopY, chartBottomY: $chartBottomY highestVisibleCandle: $pixel")
-            val label = "₩${entry.close.toInt()}" // 정수 변환 등 포매팅은 여기서
+            val label = entry.close.toInt().toString() // 정수 변환 등 포매팅은 여기서
 
             drawIntoCanvas { canvas ->
-                val textX = size.width - with(density) { 48.dp.toPx() }
+                val textX = size.width - moeuibitMainChart.getRightViewport()
+
+                val fontMetrics = paint.fontMetrics
+                val textHeight = fontMetrics.descent - fontMetrics.ascent
+                val textTop = pixel + fontMetrics.ascent
+                val textBottom = pixel + fontMetrics.descent
+
+                canvas.nativeCanvas.drawRect(
+                    textX + moeuibitMainChart.axisRight.axisLineWidth,
+                    textTop,
+                    textX + moeuibitMainChart.getRightViewport(),
+                    textBottom,
+                    Paint().apply { color = android.graphics.Color.RED }
+                )
+
                 canvas.nativeCanvas.drawText(label, textX, pixel, paint)
             }
         }
