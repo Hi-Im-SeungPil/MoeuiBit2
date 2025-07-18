@@ -8,28 +8,21 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -44,24 +37,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.CandleEntry
-import com.tradingview.lightweightcharts.Logger
-import org.jeonfeel.moeuibit2.ui.coindetail.chart.utils.setMBitChartTouchListener
 import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.ChartUpdateEvent
 import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.NewChartViewModel
+import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.util.ChartXValueFormatter
 import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.util.MoeuiBitVolumeChart
 import org.jeonfeel.moeuibit2.ui.coindetail.new_chart.util.MoeuibitMainChart
 import org.jeonfeel.moeuibit2.utils.AddLifecycleEvent
 import org.jeonfeel.moeuibit2.utils.NetworkConnectivityObserver
 import org.jeonfeel.moeuibit2.utils.Utils.dpToPx
-import kotlin.math.round
-import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @SuppressLint("ClickableViewAccessibility")
@@ -97,6 +84,10 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
         viewModel.chartUpdates.collect { event ->
             when (event) {
                 is ChartUpdateEvent.AddAll -> {
+                    moeuibitMainChart.xAxis.valueFormatter =
+                        ChartXValueFormatter(event.commonEntries.map {
+                            it.candleDateTimeKst.split("T").first().toString()
+                        })
                     moeuibitMainChart.chartAddAll(context, event.candles)
                     volumeChart.chartAddAll(context, event.volumes, event.commonEntries)
                 }
@@ -139,7 +130,6 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
                 .onGloballyPositioned { layoutCoordinates ->
                     if (totalHeightPx == 0f) {
                         totalHeightPx = layoutCoordinates.size.height.toFloat()
-//                    val remaining = totalHeightPx - handleHeightPx
                         combinedHeightPx = (totalHeightPx * 0.75f) - handleHeightPx
                         barHeightPx = (totalHeightPx - combinedHeightPx) - handleHeightPx
                     }
@@ -148,10 +138,8 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-//                    .weight(1f),
                     .height(with(density) { combinedHeightPx.toDp() })
             ) {
-                ChartWithRightPriceLabel(moeuibitMainChart)
                 AndroidView(
                     modifier = Modifier
                         .fillMaxSize()
@@ -207,13 +195,15 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
                         }
                     }
                 )
+                ChartWithRightPriceLabel(moeuibitMainChart)
             }
 
             Box(
                 modifier = Modifier
+                    .zIndex(-10f)
                     .height(13.dp)
                     .fillMaxWidth()
-                    .background(Color.Gray)
+                    .background(Color.DarkGray)
                     .pointerInput(Unit) {
                         detectVerticalDragGestures { _, dragAmount ->
                             val newCombined = (combinedHeightPx + dragAmount) // 손가락 아래로 = 커짐
@@ -227,7 +217,6 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
             AndroidView(
                 modifier = Modifier
                     .fillMaxWidth()
-//                    .weight(1f),
                     .height(with(density) { barHeightPx.toDp() }),
                 factory = { context ->
                     volumeChart.apply {
@@ -285,7 +274,6 @@ fun NewChartScreen(viewModel: NewChartViewModel = hiltViewModel(), market: Strin
                                     val currentPosition = change.position
                                     val delta = currentPosition - lastPosition
 
-                                    // ✨ 이동한 거리만큼 크로스헤어 이동
                                     crossX += delta.x
                                     crossY += delta.y
 
@@ -332,6 +320,12 @@ fun BoxScope.CrosshairOverlay(
     crossY: Float,
 ) {
     val context = LocalContext.current
+    val paint = remember {
+        Paint().apply {
+            textSize = 30f
+            color = android.graphics.Color.LTGRAY
+        }
+    }
 
     Box(
         modifier = modifier
@@ -344,54 +338,37 @@ fun BoxScope.CrosshairOverlay(
                     end = Offset(crossX, size.height),
                     strokeWidth = 0.7f.dpToPx(context)
                 )
+
                 drawLine(
                     color = Color.White,
                     start = Offset(0f, crossY),
                     end = Offset(size.width, crossY),
                     strokeWidth = 0.7f.dpToPx(context)
                 )
+
                 drawIntoCanvas { canvas ->
                     canvas.nativeCanvas.drawText(
                         "■■■■■■■■■■■■■■■■",
                         size.width - moeuibitMainChart.getRightViewport(),
-                        crossY,
-                        Paint().apply { textSize = 30f
-                            color = android.graphics.Color.LTGRAY })
+                        crossY - ((paint.fontMetrics.ascent + paint.fontMetrics.descent) / 2),
+                        paint
+                    )
+
+                    canvas.nativeCanvas.drawText(
+                        "■■■■■■■■■■■■■■■■",
+                        crossX - (paint.measureText("■■■■■■■■■■■■■■■■") / 2),
+                        combinedHeightPx + 6.5f.dpToPx(context) - ((paint.fontMetrics.ascent + paint.fontMetrics.descent) / 2),
+                        paint
+                    )
                 }
             }
-
-            val labelOffsetX = with(LocalDensity.current) { 12.dp.toPx() }
-            val labelOffsetY = with(LocalDensity.current) { 12.dp.toPx() }
-
-            val value = remember(crossX, crossY) {
-                val targetChart =
-                    if (crossY <= combinedHeightPx) moeuibitMainChart else volumeChart
-                val pt = targetChart
-                    .getTransformer(YAxis.AxisDependency.RIGHT)
-                    .getValuesByTouchPoint(crossX, crossY)
-                pt.y
-            }
-
-            Text(
-                text = if (crossY <= combinedHeightPx) "₩${value.roundToInt()}" else "Vol: ${value.roundToInt()}",
-                color = Color.White,
-                fontSize = 12.sp,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(
-                        x = with(LocalDensity.current) { (crossX - labelOffsetX).toDp() },
-                        y = with(LocalDensity.current) { (crossY - labelOffsetY).toDp() }
-                    )
-                    .background(Color.Black, shape = RoundedCornerShape(4.dp))
-                    .padding(4.dp)
-            )
         }
     }
 }
 
 @Composable
 fun ChartWithRightPriceLabel(moeuibitMainChart: MoeuibitMainChart) {
-    val density = LocalDensity.current
+    val context = LocalContext.current
     val paint = remember {
         Paint().apply {
             color = android.graphics.Color.WHITE
@@ -411,15 +388,15 @@ fun ChartWithRightPriceLabel(moeuibitMainChart: MoeuibitMainChart) {
                 ascent = paint.fontMetrics.ascent
             )
 
-            val label = entry.close.toInt().toString() // 정수 변환 등 포매팅은 여기서
+            val label = entry.close.toInt().toString()
 
             drawIntoCanvas { canvas ->
                 val textX = size.width - moeuibitMainChart.getRightViewport()
 
                 val fontMetrics = paint.fontMetrics
                 val textHeight = fontMetrics.descent - fontMetrics.ascent
-                val textTop = pixel + fontMetrics.ascent
-                val textBottom = pixel + fontMetrics.descent
+                val textTop = pixel + fontMetrics.ascent - 2f.dpToPx(context = context)
+                val textBottom = pixel + fontMetrics.descent + 2f.dpToPx(context = context)
 
                 canvas.nativeCanvas.drawRect(
                     textX + moeuibitMainChart.axisRight.axisLineWidth,

@@ -72,8 +72,4 @@ object NewChartUtils {
             setDrawValues(false)
         }
     }
-
-    fun compareChartTime() {
-
-    }
 }

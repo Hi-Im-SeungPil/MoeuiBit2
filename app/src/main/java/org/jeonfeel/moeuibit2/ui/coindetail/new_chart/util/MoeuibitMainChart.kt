@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
@@ -18,6 +19,7 @@ import com.github.mikephil.charting.data.Entry
 import org.jeonfeel.moeuibit2.R
 import org.jeonfeel.moeuibit2.constants.darkMovingAverageLineColorArray
 import org.jeonfeel.moeuibit2.constants.movingAverageLineArray
+import org.jeonfeel.moeuibit2.utils.Utils.dpToPx
 import kotlin.math.round
 
 class MoeuibitMainChart(
@@ -55,12 +57,6 @@ class MoeuibitMainChart(
                 }
             )
         }
-        val paint = Paint().apply {
-            textSize = axisRight.textSize
-            typeface = axisRight.typeface
-        }
-        val measured = paint.measureText("100,000,000")
-        val extraMargin = 12f
 
         getInitialViewport()
         description.isEnabled = false
@@ -86,16 +82,17 @@ class MoeuibitMainChart(
         rendererRightYAxis = customRenderer
 
         xAxis.apply {
-            textColor = Color.BLACK
+            textColor = Color.WHITE
             position = XAxis.XAxisPosition.BOTTOM
             setDrawGridLines(false)
             setAvoidFirstLastClipping(true)
             setLabelCount(3, true)
             setDrawLabels(true)
-            setDrawAxisLine(false)
+            setDrawAxisLine(true)
             axisLineColor = Color.GRAY
             granularity = 3f
             isGranularityEnabled = true
+            yOffset = 0.4f.dpToPx(context = context)
         }
 
         axisLeft.apply {
